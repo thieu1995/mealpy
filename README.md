@@ -1,7 +1,7 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711770.svg)](https://pypi.org/project/mealpy/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
 
 ## mealpy
 mealpy is a python module for the most of cutting-edge population meta-heuristic algorithms and is distributed
@@ -47,18 +47,17 @@ The documentation includes more detailed installation instructions.
 ## Contributions 
 
 #### Citation
-If you use mealpy in a scientific publication, I would appreciate citations: 
+If you use mealpy in your project, I would appreciate citations: 
 
 ```code 
-@software{thieu_nguyen_2020_3711770,
+@software{thieu_nguyen_2020_3711949,
   author       = {Thieu Nguyen},
-  title        = {thieunguyen5991/mealpy v0.1.0},
-  month        = mar,
+  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
+  month        = march,
   year         = 2020,
   publisher    = {Zenodo},
-  version      = {v0.1.0},
-  doi          = {10.5281/zenodo.3711770},
-  url          = {https://doi.org/10.5281/zenodo.3711770}
+  doi          = {10.5281/zenodo.3711948},
+  url          = {https://doi.org/10.5281/zenodo.3711948}
 }
 ```
 
