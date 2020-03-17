@@ -1,13 +1,30 @@
+# Version 0.2.1
+
+#### Change models
++ Swarm_based: Added more recently algorithm (since 2010 to 2016)
+    * OriginalALO, BaseALO - Ant Lion Optimizer
+    * OriginalBA, AdaptiveBA, BaseBA - Bat Algorithm
+    * BSA - Bird Swarm Algorithm 
+    * GWO - Grey Wolf Optimizer
+    * MFO - Moth-flame optimization 
+    * SSA - Social Spider Algorithm 
+    * SSO - Social Spider Optimization
+    
+#### Change others
++ models_history.csv: Update history of meta-heuristic algorithms
+    
+---------------------------------------------------------------------
+
 # Version 0.2.0 
 
 #### Change models
 + root.py : Add 1 more helper functions
 + Swarm_based: Added
-    * PSO
-    * BFO, ABFOLS (Adaptive version of BFO)
-    * CSO
-    * ABC
-    * WOA
+    * PSO - Particle Swarm Optimization
+    * BFO, ABFOLS (Adaptive version of BFO) - Bacterial Foraging Optimization
+    * CSO - Cat Swarm Optimization
+    * ABC - Artificial Bee Colony
+    * WOA - Whale Optimization Algorithm
 
 #### Change others
 + models_history.csv: Adding history of meta-heuristic algorithms
@@ -30,6 +47,6 @@
 #### Changed models
 + root.py (Very first file, the root of all algorithms)
 + Evolutionary_based
-    * GA
-    * DE
+    * GA - Genetic Algorithm
+    * DE - Differential Evolution
 

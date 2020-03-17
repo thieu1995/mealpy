@@ -9,11 +9,11 @@ under MIT license.
 
 ## Installation
 
-#### Dependencies
+### Dependencies
 * Python (>= 3.6)
 * Numpy (>= 1.15.1)
 
-#### User installation
+### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
     pip install mealpy
@@ -24,17 +24,17 @@ Or install the development version from GitHub:
     pip install git+https://github.com/thieunguyen5991/mealpy
 ```
 
-#### Example
+### Example
 ```code 
     python examples/simple_run.py
 ```
 The documentation includes more detailed installation instructions.
 
-#### Changelog
+### Changelog
 * See the "ChangeLog.md" for a history of notable changes to mealpy.
 
 
-#### Important links
+### Important links
 
 * Official source code repo: https://github.com/thieunguyen5991/mealpy
 * Download releases: https://pypi.org/project/mealpy/
@@ -47,7 +47,7 @@ The documentation includes more detailed installation instructions.
 
 ## Contributions 
 
-#### Citation
+### Citation
 If you use mealpy in your project, I would appreciate citations: 
 
 ```code 
@@ -69,20 +69,25 @@ If you use mealpy in your project, I would appreciate citations:
 * Nguyen, T., Nguyen, B. M., & Nguyen, G. (2019, April). Building Resource Auto-scaler with Functional-Link Neural Network and Adaptive Bacterial Foraging Optimization. In International Conference on Theory and Applications of Models of Computation (pp. 501-517). Springer, Cham.
 
 
-#### Documents
+### Documents
 
-|Group|STT                          |Name  |Short                                        |Year|Cite|
-|-----|-----------------------------|------|---------------------------------------------|----|----|
-|Evolutionary|1                            |Genetic Algorithm|GA                                           |1992|    |
-|     |2                            |Differential Evolution|DE                                           |1997|    |
-|     |3                            |      |                                             |    |    |
-|Swarm|1                            |Particle Swarm Optimization|PSO                                          |1995|    |
-|     |2                            |Bacterial Foraging Optimization|BFO                                          |2002|    |
-|     |3                            |Cat Swarm Optimization|CSO                                          |2006|    |
-|     |4                            |Artificial Bee Colony|ABC                                          |2007|    |
-|     |5                            |Whale Optimization Algorithm|WOA                                          |2016|    |
-
-
+| Group        | STT | Name                            | Short | Year | Cite |
+|--------------|-----|---------------------------------|-------|------|------|
+| Evolutionary | 1   | Genetic Algorithm               | GA    | 1992 |      |
+|              | 2   | Differential Evolution          | DE    | 1997 |      |
+|              | 3   |                                 |       |      |      |
+| Swarm        | 1   | Particle Swarm Optimization     | PSO   | 1995 |      |
+|              | 2   | Bacterial Foraging Optimization | BFO   | 2002 |      |
+|              | 3   | Cat Swarm Optimization          | CSO   | 2006 |      |
+|              | 4   | Artificial Bee Colony           | ABC   | 2007 |      |
+|              | 5   | Bat Algorithm                   | BA    | 2010 |      |
+|              | 6   | Social Spider Optimization      | SSO   | 2013 |      |
+|              | 7   | Grey Wolf Optimizer             | GWO   | 2014 |      |
+|              | 8   | Social Spider Algorithm         | SSA   | 2015 |      |
+|              | 9   | Ant Lion Optimizer              | ALO   | 2015 |      |
+|              | 10  | Moth Flame Optimization         | MFO   | 2015 |      |
+|              | 11  | Whale Optimization Algorithm    | WOA   | 2016 |      |
+|              | 12  | Bird Swarm Algorithm            | BSA   | 2016 |      |
 
 
 

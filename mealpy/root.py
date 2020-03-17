@@ -83,7 +83,7 @@ class Root:
         sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
         current_best = sorted_pop[id_best]
         g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
-        return g_best, sorted_pop
+        return sorted_pop, g_best
 
     def _train__(self):
         pass
