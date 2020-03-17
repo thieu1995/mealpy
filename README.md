@@ -17,6 +17,7 @@ under MIT license.
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
     pip install mealpy
+    pip install --upgrade mealpy 
 ```
 Or install the development version from GitHub:
 ```bash
