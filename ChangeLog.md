@@ -1,4 +1,26 @@
 
+
+# Version 0.3.0
+
+#### Change models
++ Physics_based: Added some recent physics-based meta-heuristic algorithms
+    * WDO - Wind Driven Optimization 
+    * MVO - Multi-Verse Optimizer 
+    * TWO - Tug of War Optimization
+        + BaseTWO: The original version
+        + OppoTWO / OTWO: Opposition-based + TWO
+        + LevyTWO: Levy + TWO
+        + ITWO: Levy + Opposition-based + TWO
+    * EFO - Electromagnetic Field Optimization
+        + OriginalEFO: The original version
+        + BaseEFO: My version (changed the flow of the algorithm)
+    
+#### Change others
++ models_history.csv: Update history of meta-heuristic algorithms
+    
+---------------------------------------------------------------------
+
+
 # Version 0.2.2
 
 #### Change models

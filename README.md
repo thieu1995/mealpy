@@ -71,6 +71,7 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### Documents
 
+
 | Group        | STT | Name                               | Short | Year | Cite |
 |--------------|-----|------------------------------------|-------|------|------|
 | Evolutionary | 1   | Genetic Algorithm                  | GA    | 1992 |      |
@@ -100,7 +101,11 @@ If you use mealpy in your project, I would appreciate citations:
 |              | 22  | Sailfish Optimizer                 | SFO   | 2019 |      |
 |              | 23  | Harris Hawks Optimization          | HHO   | 2019 |      |
 |              | 24  | Manta Ray Foraging Optimization    | MRFO  | 2020 |      |
-
+|              | 25  |                                    |       |      |      |
+| Physics      | 1   | Wind Driven Optimization           | WDO   | 2013 |      |
+|              | 2   | Multi\-Verse Optimizer             | MVO   | 2016 |      |
+|              | 3   | Tug of War Optimization            | TWO   | 2016 |      |
+|              | 4   | Electromagnetic Field Optimization | EFO   | 2016 |      |
 
 
 
