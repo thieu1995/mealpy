@@ -1,3 +1,44 @@
+
+# Version 0.2.2
+
+#### Change models
++ Swarm_based: Added the state-of-the-art swarm-based meta-heuristic algorithms
+    * SRSR - Swarm Robotics Search And Rescue 
+    * GOA - Grasshopper Optimisation Algorithm
+    * EOA - Earthworm Optimisation Algorithm 
+    * MSA - Moth Search Algorithm 
+    * RHO - Rhino Herd Optimization 
+        + BaseRHO: The original 
+        + MyRHO: A little bit changed from BaseRHO version
+        + Version3RH: A little bit changed from MyRHO version
+    * EPO - Emperor Penguin Optimizer
+        + OriginalEPO: Not working
+        + BaseEPO: My version and works
+    * NMRA - Nake Mole\-rat Algorithm
+        + BaseNMRA: The original 
+        + LevyNMR: Levy + BaseNMRA 
+    * BES - Bald Eagle Search 
+    * PFA - Pathfinder Algorithm
+        + BasePFA: The original
+        + OPFA: Opposition-based PFA
+        + LPFA: Levy-based PFA
+        + IPFA: Improved PFA (Levy + Opposition + PFA)
+        + DePFA: DE + PFA
+        + LevyDePFA: Levy + DE + PFA
+    * SFO - Sailfish Optimizer
+        + BaseSFO: The original
+        + ImprovedSFO: Changed Equations + Opposition-based + SFO
+    * HHO - Harris Hawks Optimization 
+    * MRFO - Manta Ray Foraging Optimization
+        + BaseMRFO: The original
+        + MyMRFO: The version I changed the flow of the original one
+    
+    
+#### Change others
++ models_history.csv: Update history of meta-heuristic algorithms
+    
+---------------------------------------------------------------------
+
 # Version 0.2.1
 
 #### Change models
