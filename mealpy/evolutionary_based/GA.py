@@ -10,10 +10,10 @@
 from numpy import multiply
 from numpy.random import uniform, choice
 from copy import deepcopy
-from mealpy.root import RootAlgo
+from mealpy.root import Root
 
 
-class BaseGA(RootAlgo):
+class BaseGA(Root):
     """
     Link:
         https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
@@ -21,12 +21,12 @@ class BaseGA(RootAlgo):
         https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
     """
 
-    def __init__(self, root_algo_paras=None, ga_paras=None):
-        RootAlgo.__init__(self, root_algo_paras)
-        self.epoch = ga_paras["epoch"]
-        self.pop_size = ga_paras["pop_size"]
-        self.pc = ga_paras["pc"]
-        self.pm = ga_paras["pm"]
+    def __init__(self, root_paras=None, epoch=750, pop_size=100, pc=0.95, pm=0.025):
+        Root.__init__(self, root_paras)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.pc = pc
+        self.pm = pm
 
     ### Selection
     def _get_index_roulette_wheel_selection__(self, list_fitness, sum_fitness):
@@ -92,4 +92,4 @@ class BaseGA(RootAlgo):
             self.loss_train.append(g_best[self.ID_FIT])
             if self.print_train:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        return g_best[self.ID_POS], self.loss_train
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

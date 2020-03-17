@@ -11,7 +11,7 @@ import numpy as np
 from copy import deepcopy
 
 
-class RootAlgo:
+class Root:
     """ This is root of all Algorithms """
 
     ID_MIN_PROB = 0             # min problem

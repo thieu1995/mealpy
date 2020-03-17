@@ -8,24 +8,22 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.type_based.uni_modal import Functions
-from mapy.evolutionary_based.GA import BaseGA
+from mealpy.evolutionary_based.GA import BaseGA
 t1 = Functions()
 
-## Setting parameters
-ga_paras = {
-    "epoch": 100,
-    "pop_size": 50,
-    "pc": 0.95,
-    "pm": 0.025
-}
-
-root_algo_paras = {
+root_paras = {
     "problem_size": 30,
     "domain_range": [-15, 15],
     "print_train": True,
     "objective_func": t1._sum_squres__
 }
 
-md = BaseGA(root_algo_paras=root_algo_paras, ga_paras=ga_paras)
+## Setting parameters
+epoch = 100
+pop_size = 50
+pc = 0.95
+pm = 0.025
+
+md = BaseGA(root_paras, epoch, pop_size, pc, pm)
 best_position, list_loss = md._train__()
 print(list_loss)

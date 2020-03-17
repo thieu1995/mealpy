@@ -9,17 +9,17 @@
 
 from numpy.random import randint, uniform, choice
 from copy import deepcopy
-from mealpy.root import RootAlgo
+from mealpy.root import Root
 
 
-class BaseDE(RootAlgo):
+class BaseDE(Root):
 
-    def __init__(self, root_algo_paras=None, de_paras = None):
-        RootAlgo.__init__(self, root_algo_paras)
-        self.epoch = de_paras["epoch"]
-        self.pop_size = de_paras["pop_size"]
-        self.weighting_factor = de_paras["wf"]
-        self.crossover_rate = de_paras["cr"]
+    def __init__(self, root_paras=None, epoch=750, pop_size=100, wf=0.8, cr=0.9):
+        Root.__init__(self, root_paras)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.weighting_factor = wf
+        self.crossover_rate = cr
 
     def _mutation__(self, p0, p1, p2, p3):
         # Choose a cut point which differs 0 and chromosome-1 (first and last element)
@@ -62,4 +62,4 @@ class BaseDE(RootAlgo):
             if self.print_train:
                 print("> Epoch : {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
-        return g_best[self.ID_POS], self.loss_train
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
