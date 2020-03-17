@@ -49,6 +49,10 @@ class Root:
         sorted_pop = sorted(pop, key=lambda temp: temp[id_fitness])
         return deepcopy(sorted_pop[id_best])
 
+    def _sort_pop_and_get_global_best__(self, pop=None, id_fitness=None, id_best=None):
+        sorted_pop = sorted(pop, key=lambda temp: temp[id_fitness])
+        return sorted_pop, deepcopy(sorted_pop[id_best])
+
     def _amend_solution__(self, solution=None):
         return np.maximum(self.domain_range[0], np.minimum(self.domain_range[1], solution))
 

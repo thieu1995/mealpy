@@ -69,5 +69,26 @@ If you use mealpy in your project, I would appreciate citations:
 * Nguyen, T., Nguyen, B. M., & Nguyen, G. (2019, April). Building Resource Auto-scaler with Functional-Link Neural Network and Adaptive Bacterial Foraging Optimization. In International Conference on Theory and Applications of Models of Computation (pp. 501-517). Springer, Cham.
 
 
+#### Documents
+
+|Group|STT                          |Name  |Short                                        |Year|Cite|
+|-----|-----------------------------|------|---------------------------------------------|----|----|
+|Evolutionary|1                            |Genetic Algorithm|GA                                           |1992|    |
+|     |2                            |Differential Evolution|DE                                           |1997|    |
+|     |3                            |      |                                             |    |    |
+|Swarm|1                            |Particle Swarm Optimization|PSO                                          |1995|    |
+|     |2                            |Bacterial Foraging Optimization|BFO                                          |2002|    |
+|     |3                            |Cat Swarm Optimization|CSO                                          |2006|    |
+|     |4                            |Artificial Bee Colony|ABC                                          |2007|    |
+|     |5                            |Whale Optimization Algorithm|WOA                                          |2016|    |
+
+
+
+
+
+
+
+
+
 
 
