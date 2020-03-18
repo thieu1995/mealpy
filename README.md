@@ -77,6 +77,8 @@ If you use mealpy in your project, I would appreciate citations:
     + Human: Human-based
     + Bio: Biology-based
     + System: System-based (eco-system, immune-system, network-system, ...)
+    + Math: Math-based
+    + Music: Music-based
     
 * Levy: Using levy-flight technique or not
 * Version: 
@@ -96,6 +98,7 @@ If you use mealpy in your project, I would appreciate citations:
     + Henry Gas Solubility Optimization	
     + Atom Search Optimization
     + Equilibrium Optimizer
+    + Artificial Ecosystem-based Optimization
 
 * Paras: The number of parameters in the algorithm (Not counting the fixed parameters in the original paper)
     + Almost algorithms have 2 paras (epoch, population_size) and plus some paras depend on each algorithm.
@@ -111,7 +114,8 @@ If you use mealpy in your project, I would appreciate citations:
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
 
-| Group  | STT | Name                                     | Short | Year | Version   | Levy | Type   | Paras | Diffic     |
+
+| Group  | STT | Name                                     | Short | Year | Version   | Levy | Type   | Paras | Difficulty |
 |--------|-----|------------------------------------------|-------|------|-----------|------|--------|-------|------------|
 | Evolu  | 1   | Genetic Algorithm                        | GA    | 1992 | original  | no   | weak   | 4     | easy       |
 |        | 2   | Differential Evolution                   | DE    | 1997 | original  | no   | weak   | 4     | easy       |
@@ -121,14 +125,14 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 3   | Cat Swarm Optimization                   | CSO   | 2006 | original  | no   | weak   | 9     | hard       |
 |        | 4   | Artificial Bee Colony                    | ABC   | 2007 | changed   | no   | strong | 6     | easy       |
 |        | 5   | Bat Algorithm                            | BA    | 2010 | original  | no   | weak   | 5     | easy       |
-|        | 6   | Social Spider Optimization               | SSO   | 2013 | changed   | no   | weak   | 3     | hard*      |
+|        | 6   | Social Spider Optimization               | SSO   | 2013 | changed   | no   | weak   | 3     | very hard  |
 |        | 7   | Grey Wolf Optimizer                      | GWO   | 2014 | original  | no   | strong | 2     | easy       |
 |        | 8   | Social Spider Algorithm                  | SSA   | 2015 | original  | no   | strong | 5     | easy       |
 |        | 9   | Ant Lion Optimizer                       | ALO   | 2015 | original  | no   | weak   | 2     | medium     |
 |        | 10  | Moth Flame Optimization                  | MFO   | 2015 | changed   | no   | strong | 2     | easy       |
 |        | 11  | Whale Optimization Algorithm             | WOA   | 2016 | original  | no   | best   | 2     | easy       |
 |        | 12  | Bird Swarm Algorithm                     | BSA   | 2016 | original  | no   | best   | 9     | medium     |
-|        | 13  | Swarm Robotics Search And Rescue         | SRSR  | 2017 | original  | no   | best   | 2     | hard*      |
+|        | 13  | Swarm Robotics Search And Rescue         | SRSR  | 2017 | original  | no   | best   | 2     | very hard  |
 |        | 14  | Grasshopper Optimisation Algorithm       | GOA   | 2017 | original  | no   | weak   | 3     | easy       |
 |        | 15  | Earthworm Optimisation Algorithm         | EOA   | 2018 | original  | no   | weak   | 8     | medium     |
 |        | 16  | Moth Search Algorithm                    | MSA   | 2018 | changed   | no   | weak   | 5     | easy       |
@@ -145,7 +149,7 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 2   | Multi\-Verse Optimizer                   | MVO   | 2016 | changed   | no   | strong | 3     | easy       |
 |        | 3   | Tug of War Optimization                  | TWO   | 2016 | original  | no   | strong | 2     | easy       |
 |        | 4   | Electromagnetic Field Optimization       | EFO   | 2016 | original  | no   | strong | 6     | easy       |
-|        | 5   | Nuclear Reaction Optimization            | NRO   | 2019 | original  | yes  | best   | 2     | hard*      |
+|        | 5   | Nuclear Reaction Optimization            | NRO   | 2019 | original  | yes  | best   | 2     | very hard  |
 |        | 6   | Henry Gas Solubility Optimization        | HGSO  | 2019 | original  | no   | best   | 3     | medium     |
 |        | 7   | Atom Search Optimization                 | ASO   | 2019 | original  | no   | best   | 4     | medium     |
 |        | 8   | Equilibrium Optimizer                    | EO    | 2019 | original  | no   | best   | 2     | easy       |
@@ -165,3 +169,7 @@ If you use mealpy in your project, I would appreciate citations:
 | System | 1   | Germinal Center Optimization             | GCO   | 2018 | changed   | no   | weak   | 4     | medium     |
 |        | 2   | Artificial Ecosystem\-based Optimization | AEO   | 2019 | original  | no   | best   | 2     | easy       |
 |        | 3   |                                          |       |      |           |      |        |       |            |
+| Math   | 1   | Sine Cosine Algorithm                    | SCA   | 2016 | changed   | no   | strong | 2     | easy       |
+|        | 2   |                                          |       |      |           |      |        |       |            |
+| Music  | 1   | Harmony Search                           | HS    | 2001 | changed   | no   | weak   | 5     | easy       |
+|        | 2   |                                          |       |      |           |      |        |       |            |

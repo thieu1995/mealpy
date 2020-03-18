@@ -1,3 +1,23 @@
+# Version 0.7.0
+
+### Change models
++ Added new kind of meta-heuristics: math-based and music-based
++ Math_based:
+    * SCA - Sine Cosine Algorithm
+        + OriginalSCA: The original version
+        + BaseSCA: My version changed the flow 
++ Music_based:
+    * HS - Harmony Search
+        + OriginalHS: The original version - not working
+        + BaseHS: My version which changed a few things 
+            * First I changed the random usaged of harmony memory by best harmoney memory
+            * The fw_rate = 0.0001, fw_damp = 0.9995, number of new harmonies = population size (n_new = pop_size)
+            
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
+        
+---------------------------------------------------------------------
+
 # Version 0.6.0
 
 ### Change models

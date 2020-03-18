@@ -51,3 +51,7 @@ Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 System,1,Germinal Center Optimization,GCO,2018,changed,no,weak,4,medium
 ,2,Artificial Ecosystem-based Optimization,AEO,2019,original,no,best,2,easy
 ,3,,,,,,,,
+Math,1,Sine Cosine Algorithm,SCA,2016,changed,no,strong,2,easy
+,2,,,,,,,,
+Music,1,Harmony Search,HS,2001,changed,no,weak,5,easy
+,2,,,,,,,,
