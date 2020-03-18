@@ -2,7 +2,7 @@
 
 ### Change models
 + Added new kind of meta-heuristics: system-based 
-+ System_based: Added the latest bio-inspired meta-heuristic algorithms
++ System_based: Added the latest system-inspired meta-heuristic algorithms
     * GCO - Germinal Center Optimization
     * AEO - Artificial Ecosystem-based Optimization
      
