@@ -6,7 +6,7 @@
 
 ---
 > "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality."
->  --- [Unknown]()
+>  --- [Thieu Nguyen](https://www.researchgate.net/profile/Thieu_Nguyen6)
 ---
 
 ## Introduction
