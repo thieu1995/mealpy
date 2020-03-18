@@ -1,3 +1,17 @@
+# Version 0.5.0
+
+### Change models
++ Added new kind of meta-heuristics: bio-based (biology-inspired) 
++ Bio_based: Added some classical bio-inspired meta-heuristic algorithms
+    * IWO - Invasive Weed Optimization
+    * BBO - Biogeography-Based Optimization
+        
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
+        
+---------------------------------------------------------------------
+
+
 # Version 0.4.1
 
 ### Change models

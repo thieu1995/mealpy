@@ -75,6 +75,7 @@ If you use mealpy in your project, I would appreciate citations:
     + Swarm: Swarm-based
     + Physi: Physics-based
     + Human: Human-based
+    + Bio: Biology-based
     
 * Levy: Using levy-flight technique or not
 * Version: 
@@ -153,3 +154,6 @@ If you use mealpy in your project, I would appreciate citations:
 |       | 4   | Life Choice\-Based Optimization    | LCBO  | 2019 | original  | no   | strong | 2     | easy       |
 |       | 5   | Social Ski\-Driver Optimization    | SSDO  | 2019 | changed   | no   | BEST   | 2     | easy       |
 |       | 6   |                                    |       |      |           |      |        |       |            |
+| Bio   | 1   | Invasive Weed Optimization         | IWO   | 2006 | original  | no   | strong | 5     | easy       |
+|       | 2   | Biogeography\-Based Optimization   | BBO   | 2008 | original  | no   | strong | 4     | easy       |
+|       | 3   |                                    |       |      |           |      |        |       |            |
