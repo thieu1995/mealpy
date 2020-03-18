@@ -44,4 +44,7 @@ Human,1,Teaching Learning Optimization,TLO,2011,original,no,strong,2,easy
 ,6,,,,,,,,
 Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 ,2,Biogeography-Based Optimization,BBO,2008,original,no,strong,4,easy
-,3,,,,,,,,
+,3,Satin Bowerbird Optimizer,SBO,2017,original,no,strong,5,easy
+,4,Wildebeest Herd Optimization,WHO,2019,changed,no,weak,12,medium
+,5,Black Widow Optimization,BWO,2020,changed,no,weak,5,medium
+,6,,,,,,,,

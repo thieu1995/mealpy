@@ -1,3 +1,19 @@
+# Version 0.5.1
+
+### Change models
++ Bio_based: Added the latest bio-inspired meta-heuristic algorithms
+    * SBO - Satin Bowerbird Optimizer
+    * WHO - Wildebeest Herd Optimization
+        + OriginalWHO: The original version
+        + BaseWHO: I changed the flow of algorithm
+    * BWO - Black Widow Optimization
+    
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
+        
+---------------------------------------------------------------------
+
+
 # Version 0.5.0
 
 ### Change models
