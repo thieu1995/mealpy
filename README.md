@@ -3,15 +3,30 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
 
-## mealpy
-mealpy is a python module for the most of cutting-edge population meta-heuristic algorithms and is distributed
+
+---
+> "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality."
+>  --- [Unknown]()
+---
+
+## Introduction
+* MEALPY is a python module for the most of cutting-edge population meta-heuristic algorithms and is distributed
 under MIT license.
+
+* The goals of this framework are:
+    * Sharing knowledge of meta-heuristic fields to everyone without a fee
+    * Helping other researchers in all field access to optimization algorithms as quickly as possible
+    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics)
+    
 
 ## Installation
 
 ### Dependencies
 * Python (>= 3.6)
 * Numpy (>= 1.15.1)
+* Scikit-learn (>= 0.22.1)
+* Matplotlib (>=3.1.3)
+* Opfunu (>= 0.4.3)
 
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
@@ -38,9 +53,10 @@ The documentation includes more detailed installation instructions.
 
 * Official source code repo: https://github.com/thieunguyen5991/mealpy
 * Download releases: https://pypi.org/project/mealpy/
-* Issue tracker: https://github.com/mealpy/mealpy/issues
+* Issue tracker: https://github.com/thieunguyen5991/mealpy/issues
 
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
+    * https://github.com/thieunguyen5991/opfunu
     * https://github.com/thieunguyen5991/metaheuristics
     * https://github.com/chasebk
     
