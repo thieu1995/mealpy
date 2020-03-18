@@ -1,3 +1,34 @@
+# Version 0.4.1
+
+### Change models
++ Human_based: Added the newest human-based meta-heuristic algorithms
+    * SARO - Search And Rescue Optimization
+    * LCBO: Life Choice-Based Optimization
+    * SSDO - Social Ski-Driver Optimization
+        + OriginalSSDO: The original version
+        + BaseSSDO: The flow changed + SSDO
+        
+        
+---------------------------------------------------------------------
+
+# Version 0.4.0
+
+### Change models
++ Human_based: Added some recent human-based meta-heuristic algorithms
+    * TLO - Teaching Learning Optimization
+        + OriginalTLO: The original version
+        + BaseTLO: The elitist version
+    * QSA - Queuing Search Algorithm
+        + BaseQSA: The original version
+        + OppoQSA: Opposition-based + QSA
+        + LevyQSA: Levy + QSA
+        + ImprovedQSA: Levy + Opposition-based + QSA
+    
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms
+    
+---------------------------------------------------------------------
+
 # Version 0.3.1
 
 ### Change models
