@@ -27,7 +27,7 @@ Swarm,1,Particle Swarm Optimization,PSO,1995,original,no,strong,6,easy
 ,23,Harris Hawks Optimization,HHO,2019,original,yes,best,2,medium
 ,24,Manta Ray Foraging Optimization,MRFO,2020,original,no,best,3,easy
 ,25,,,,,,,,
-Physi,1,Wind Driven Optimization,WDO,2013,original,no,strong,7,easy
+Physic,1,Wind Driven Optimization,WDO,2013,original,no,strong,7,easy
 ,2,Multi-Verse Optimizer,MVO,2016,changed,no,strong,3,easy
 ,3,Tug of War Optimization,TWO,2016,original ,no,strong,2,easy
 ,4,Electromagnetic Field Optimization,EFO,2016,original,no,strong,6,easy
@@ -48,3 +48,6 @@ Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 ,4,Wildebeest Herd Optimization,WHO,2019,changed,no,weak,12,medium
 ,5,Black Widow Optimization,BWO,2020,changed,no,weak,5,medium
 ,6,,,,,,,,
+System,1,Germinal Center Optimization,GCO,2018,changed,no,weak,4,medium
+,2,Artificial Ecosystem-based Optimization,AEO,2019,original,no,best,2,easy
+,3,,,,,,,,
