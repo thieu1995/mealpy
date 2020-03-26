@@ -22,8 +22,8 @@ class BaseAEO(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/72685-artificial-ecosystem-based-optimization-aeo
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -94,7 +94,7 @@ class BaseAEO(Root):
             if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -109,8 +109,8 @@ class MyAEO(BaseAEO):
         + Original version move the population at the same time. My version move after each solution move.
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseAEO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseAEO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
@@ -177,7 +177,7 @@ class MyAEO(BaseAEO):
             if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

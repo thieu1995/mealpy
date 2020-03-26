@@ -16,8 +16,8 @@ class BaseHS(Root):
     My version of: Harmony Search (HS)
         - Using global best in the harmony memories
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch              # Maximum Number of Iterations
         self.pop_size = pop_size        # Harmony Memory Size
         self.n_new = n_new              # Number of New Harmonies
@@ -59,7 +59,7 @@ class BaseHS(Root):
             # Update the best solution found so far
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
@@ -71,8 +71,8 @@ class OriginalHS(BaseHS):
     """
     ID_WEIGHT = 2
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
-        BaseHS.__init__(self, root_paras, epoch, pop_size, n_new, c_r, pa_r)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
+        BaseHS.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, n_new, c_r, pa_r)
         self.fw = 0.02 * (self.domain_range[1] - self.domain_range[0])          # Fret Width (Bandwidth)
         self.fw_damp = 0.995                                                    # Fret Width Damp Ratio
 
@@ -110,7 +110,7 @@ class OriginalHS(BaseHS):
             # Update the best solution found so far
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

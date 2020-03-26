@@ -18,8 +18,8 @@ class BaseSCA(Root):
     This is my version of SCA. The original version of SCA in the above, it cannot convergence at all.
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -54,7 +54,7 @@ class BaseSCA(Root):
             ## Update the global best
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
@@ -66,8 +66,8 @@ class OriginalSCA(BaseSCA):
         https://doi.org/10.1016/j.knosys.2015.12.022
         https://www.mathworks.com/matlabcentral/fileexchange/54948-sca-a-sine-cosine-algorithm
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseSCA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseSCA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
@@ -102,6 +102,6 @@ class OriginalSCA(BaseSCA):
             ## Update the global best
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
