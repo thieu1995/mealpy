@@ -59,7 +59,7 @@ class BaseDE(Root):
             # update global best solution
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
