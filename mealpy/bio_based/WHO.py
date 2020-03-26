@@ -20,9 +20,9 @@ class BaseWHO(Root):
     Noted:
         Before updated old solution, i check whether new solution is better or not.
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3),
-                 global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_s = n_s                  # default = 3, number of exploration step
@@ -97,7 +97,7 @@ class BaseWHO(Root):
                         g_best = [temp, fit]
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -110,9 +110,9 @@ class OriginalWHO(BaseWHO):
     Link:
         http://doi.org/10.3233/JIFS-190495
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3),
-                 global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
-        BaseWHO.__init__(self, root_paras, epoch, pop_size, n_s, n_e, eta, local_move, global_move, p_hi, delta)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
+        BaseWHO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, n_s, n_e, eta, local_move, global_move, p_hi, delta)
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
@@ -174,7 +174,7 @@ class OriginalWHO(BaseWHO):
                         g_best = [temp, fit]
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

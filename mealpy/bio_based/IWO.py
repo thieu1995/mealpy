@@ -19,8 +19,9 @@ class BaseIWO(Root):
         https://pdfs.semanticscholar.org/734c/66e3757620d3d4016410057ee92f72a9853d.pdf
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, seeds=(0, 5), exponent=2, sigma=(0.5, 0.001)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, seeds=(0, 5), exponent=2, sigma=(0.5, 0.001)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.seeds = seeds              # (Min, Max) Number of Seeds
@@ -58,7 +59,7 @@ class BaseIWO(Root):
                 g_best = deepcopy(pop[self.ID_MIN_PROB])
                 cost_best = g_best[self.ID_FIT]
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
