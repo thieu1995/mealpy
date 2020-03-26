@@ -14,8 +14,8 @@ from mealpy.root import Root
 
 class BaseDE(Root):
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, wf=0.8, cr=0.9):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, wf=0.8, cr=0.9):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.weighting_factor = wf

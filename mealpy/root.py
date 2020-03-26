@@ -22,14 +22,31 @@ class Root:
 
     EPSILON = 10E-10
 
-    def __init__(self, root_algo_paras = None):
-        self.problem_size = root_algo_paras["problem_size"]
-        self.domain_range = root_algo_paras["domain_range"]
-        self.print_train = root_algo_paras["print_train"]
-        self.objective_func = root_algo_paras["objective_func"]
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True):
+        """
+        Parameters
+        ----------
+        objective_func :
+        problem_size :
+        domain_range :
+        log :
+        """
+        self.objective_func = objective_func
+        self.problem_size = problem_size
+        self.domain_range = domain_range
+        self.log = log
         self.solution, self.loss_train = None, []
 
     def _create_solution__(self, minmax=0):
+        """
+        Return the encoded solution with 2 element: position of solution and fitness of solution
+
+        Parameters
+        ----------
+        minmax
+            0 - minimum problem, else - maximum problem
+
+        """
         solution = np.random.uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
         fitness = self._fitness_model__(solution=solution, minmax=minmax)
         return [solution, fitness]
@@ -43,6 +60,12 @@ class Root:
         return self.objective_func(solution) if minmax == 0 else 1.0 / (self.objective_func(solution) + self.EPSILON)
 
     def _fitness_encoded__(self, encoded=None, id_pos=None, minmax=0):
+        """
+
+        Returns
+        -------
+        object
+        """
         return self._fitness_model__(solution=encoded[id_pos], minmax=minmax)
 
     def _get_global_best__(self, pop=None, id_fitness=None, id_best=None):
