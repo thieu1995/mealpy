@@ -9,7 +9,7 @@
 
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-from examples.setting_function import func_paras, func_names, problem_size
+from examples.setting_function import func_paras, func_names
 from os import getcwd, path, makedirs
 
 model_name = "DE"
@@ -20,6 +20,8 @@ if not path.exists(check_dir1):
     makedirs(check_dir1)
 
 ## Setting parameters
+problem_size = 50
+log = True
 epoch = 10
 pop_size = 50
 wf = 0.8
@@ -32,7 +34,7 @@ best_fit_columns = []
 error_full = {}
 error_columns = []
 for id_paras in range(len(func_paras)):
-    md = BaseDE(func_paras[id_paras], epoch, pop_size, wf, cr)
+    md = BaseDE(func_paras[id_paras]["objective_func"], problem_size, func_paras[id_paras]["domain_range"], log, epoch, pop_size, wf, cr)
     _, best_fit, list_loss = md._train__()
 
     error_full[func_names[id_paras]] = list_loss

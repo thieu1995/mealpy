@@ -11,20 +11,18 @@ from opfunu.type_based.uni_modal import Functions
 from mealpy.evolutionary_based.GA import BaseGA
 t1 = Functions()
 
-root_paras = {
-    "problem_size": 30,
-    "domain_range": [-15, 15],
-    "print_train": True,
-    "objective_func": t1._sum_squres__
-}
-
 ## Setting parameters
+objective_func = t1._sum_squres__
+problem_size = 30
+domain_range = [-15, 15]
+log = True
 epoch = 100
 pop_size = 50
 pc = 0.95
 pm = 0.025
 
-md = BaseGA(root_paras, epoch, pop_size, pc, pm)
+
+md = BaseGA(objective_func, problem_size, domain_range, log, epoch, pop_size, pc, pm)
 best_position, best_fit, list_loss = md._train__()
 print(best_fit)
 
