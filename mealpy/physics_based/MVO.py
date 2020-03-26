@@ -20,8 +20,8 @@ class BaseMVO(Root):
         http://dx.doi.org/10.1007/s00521-015-1870-7
         https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
     """
-    def __init__(self, root_algo_paras=None, epoch=750, pop_size=100, wep_minmax=(1.0, 0.2)):
-        Root.__init__(self, root_algo_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, wep_minmax=(1.0, 0.2)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.wep_minmax = wep_minmax       # Wormhole Existence Probability (min and max in Eq.(3.3) paper
@@ -82,6 +82,6 @@ class BaseMVO(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

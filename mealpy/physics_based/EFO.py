@@ -21,8 +21,9 @@ class BaseEFO(Root):
         The flow of algorithm is changed like other metaheuristics.
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -69,7 +70,7 @@ class BaseEFO(Root):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -84,8 +85,9 @@ class OriginalEFO(BaseEFO):
 
         https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, r_rate=0.3, ps_rate=0.2, p_field=0.1, n_field=0.45):
-        BaseEFO.__init__(self, root_paras, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, r_rate=0.3, ps_rate=0.2, p_field=0.1, n_field=0.45):
+        BaseEFO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
 
     def _train__(self):
         phi = (1 + sqrt(5)) / 2     # golden ratio
@@ -134,7 +136,7 @@ class OriginalEFO(BaseEFO):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

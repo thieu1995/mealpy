@@ -18,8 +18,8 @@ class BaseHGSO(Root):
     """
     Henry gas solubility optimization: A novel physics-based algorithm
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_clusters=2):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_clusters=2):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_clusters = n_clusters
@@ -107,14 +107,14 @@ class BaseHGSO(Root):
             p_best = self._get_best_solution_in_team(group)
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class OppoHGSO(BaseHGSO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_clusters=2):
-        BaseHGSO.__init__(self, root_paras, epoch, pop_size, n_clusters)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_clusters=2):
+        BaseHGSO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, n_clusters)
 
     def _train__(self):
         pop, group = self._create_population__(self.ID_MIN_PROB, self.n_clusters)
@@ -171,14 +171,14 @@ class OppoHGSO(BaseHGSO):
             p_best = self._get_best_solution_in_team(group)
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class LevyHGSO(BaseHGSO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_clusters=2):
-        BaseHGSO.__init__(self, root_paras, epoch, pop_size, n_clusters)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_clusters=2):
+        BaseHGSO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, n_clusters)
 
     def _levy_flight__(self, epoch, solution, prey):
         beta = 1
@@ -257,6 +257,6 @@ class LevyHGSO(BaseHGSO):
             p_best = self._get_best_solution_in_team(group)
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

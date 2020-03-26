@@ -23,8 +23,8 @@ class BaseTWO(Root):
     ID_FIT = 1
     ID_WEIGHT = 2
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -98,14 +98,14 @@ class BaseTWO(Root):
             if current_best[self.ID_FIT] > g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(1.0 / g_best[self.ID_FIT] - self.EPSILON)
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, 1.0 / g_best[self.ID_FIT] - self.EPSILON))
         return g_best[self.ID_POS], 1.0 / g_best[self.ID_FIT] - self.EPSILON, self.loss_train
 
 
 class OppoTWO(BaseTWO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseTWO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseTWO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop_old = [self._create_solution__(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
@@ -145,14 +145,14 @@ class OppoTWO(BaseTWO):
             if current_best[self.ID_FIT] > g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(1.0 / g_best[self.ID_FIT] - self.EPSILON)
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, 1.0 / g_best[self.ID_FIT] - self.EPSILON))
         return g_best[self.ID_POS], 1.0 / g_best[self.ID_FIT] - self.EPSILON, self.loss_train
 
 
 class OTWO(BaseTWO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseTWO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseTWO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop_temp = [self._create_solution__(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
@@ -200,14 +200,14 @@ class OTWO(BaseTWO):
             if current_best[self.ID_FIT] > g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(1.0 / g_best[self.ID_FIT] - self.EPSILON)
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, 1.0 / g_best[self.ID_FIT] - self.EPSILON))
         return g_best[self.ID_POS], 1.0 / g_best[self.ID_FIT] - self.EPSILON, self.loss_train
 
 
 class LevyTWO(BaseTWO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseTWO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseTWO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _levy_flight__(self, epoch, solution, prey):
         self.beta = 1
@@ -263,14 +263,14 @@ class LevyTWO(BaseTWO):
             if current_best[self.ID_FIT] > g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(1.0 / g_best[self.ID_FIT] - self.EPSILON)
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, 1.0 / g_best[self.ID_FIT] - self.EPSILON))
         return g_best[self.ID_POS], 1.0 / g_best[self.ID_FIT] - self.EPSILON, self.loss_train
 
 
 class ITWO(OppoTWO, LevyTWO):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        OppoTWO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        OppoTWO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop_old = [self._create_solution__(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
@@ -311,6 +311,6 @@ class ITWO(OppoTWO, LevyTWO):
             if current_best[self.ID_FIT] > g_best[self.ID_FIT]:
                 g_best = deepcopy(current_best)
             self.loss_train.append(1.0 / g_best[self.ID_FIT] - self.EPSILON)
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, 1.0 / g_best[self.ID_FIT] - self.EPSILON))
         return g_best[self.ID_POS], 1.0 / g_best[self.ID_FIT] - self.EPSILON, self.loss_train
