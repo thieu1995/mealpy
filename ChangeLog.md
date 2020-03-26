@@ -1,3 +1,12 @@
+# Version 0.7.1
+
+### Change 
++ Change input parameters of the root.py file 
++ Update the changed of input parameters of all algorithms
++ Update examples folders
+
+---------------------------------------------------------------------
+
 # Version 0.7.0
 
 ### Change models
