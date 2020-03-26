@@ -12,13 +12,14 @@ from numpy import array, mean, setxor1d
 from copy import deepcopy
 from mealpy.root import Root
 
+
 class BaseTLO(Root):
     """
     An elitist teaching-learning-based optimization algorithm for solving complex constrained optimization problems(TLO)
         This is my version taken the advantages of numpy array to faster handler operations.
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch =  epoch
         self.pop_size = pop_size
 
@@ -57,7 +58,7 @@ class BaseTLO(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_FIT], g_best[self.ID_FIT], self.loss_train
@@ -70,8 +71,8 @@ class OriginalTLO(BaseTLO):
         https://github.com/andaviaco/tblo
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseTLO.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseTLO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
@@ -107,7 +108,7 @@ class OriginalTLO(BaseTLO):
 
             best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
             self.loss_train.append(best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, best[self.ID_FIT]))
 
         return best[self.ID_FIT], best[self.ID_FIT], self.loss_train

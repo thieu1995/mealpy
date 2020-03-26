@@ -19,8 +19,8 @@ class BaseQSA(Root):
     The original version of: Queuing search algorithm
         (Queuing search algorithm: A novel metaheuristic algorithm for solving engineering optimization problems)
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -147,14 +147,14 @@ class BaseQSA(Root):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class OppoQSA(BaseQSA):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseQSA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseQSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _opposition_based__(self, pop=None, g_best=None):
         pop = sorted(pop, key=lambda item: item[self.ID_FIT])
@@ -179,14 +179,14 @@ class OppoQSA(BaseQSA):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class LevyQSA(BaseQSA):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BaseQSA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BaseQSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _levy_flight__(self, solution, A, current_iter):
         # muy and v are two random variables which follow normal distribution
@@ -250,15 +250,15 @@ class LevyQSA(BaseQSA):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class ImprovedQSA(OppoQSA, LevyQSA):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        OppoQSA.__init__(self, root_paras, epoch, pop_size)
-        LevyQSA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        OppoQSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+        LevyQSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop = [self._create_solution__(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
@@ -272,6 +272,6 @@ class ImprovedQSA(OppoQSA, LevyQSA):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
