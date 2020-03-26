@@ -25,8 +25,9 @@ class BaseBSA(Root):
     ID_LBP = 2      # local best position
     ID_LBF = 3      # local best fitness
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, ff=10, p=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, ff=10, p=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -126,7 +127,7 @@ class BaseBSA(Root):
             pop = self._update_population__(pop)
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_LBF])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fitness: {}".format(epoch+1, g_best[self.ID_LBF]))
 
         return g_best[self.ID_LBP], g_best[self.ID_LBF], self.loss_train

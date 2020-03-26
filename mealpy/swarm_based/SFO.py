@@ -20,8 +20,8 @@ class BaseSFO(Root):
         constrained engineering optimization problems
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, pp=0.1, A=4, epxilon=0.0001):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, pp=0.1, A=4, epxilon=0.0001):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size        # SailFish pop size
         self.pp = pp                    # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
@@ -87,7 +87,7 @@ class BaseSFO(Root):
             s_gbest = self._update_global_best__(s_pop, self.ID_MIN_PROB, s_gbest)
 
             self.loss_train.append(sf_gbest[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, sf_gbest[self.ID_FIT]))
 
         return sf_gbest[self.ID_POS], sf_gbest[self.ID_FIT], self.loss_train
@@ -99,8 +99,8 @@ class ImprovedSFO(Root):
     (Actually, this version still based on Opposition-based Learning and reform Energy equation)
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, pp=0.05):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, pp=0.05):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size       # SailFish pop size
         self.pp = pp                   # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
@@ -177,7 +177,7 @@ class ImprovedSFO(Root):
             s_gbest = self._update_global_best__(s_pop, self.ID_MIN_PROB, s_gbest)
 
             self.loss_train.append(sf_gbest[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, sf_gbest[self.ID_FIT]))
 
         return sf_gbest[self.ID_POS], sf_gbest[self.ID_FIT], self.loss_train

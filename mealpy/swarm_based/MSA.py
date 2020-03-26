@@ -25,8 +25,9 @@ class BaseMSA(Root):
         (or bad at convergence characteristics). I changed a little bit and it worked now.!!!)
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, n_best=5,partition=0.5, max_step_size=1.0):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, n_best=5,partition=0.5, max_step_size=1.0):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = n_best            # how many of the best moths to keep from one generation to the next
@@ -89,7 +90,7 @@ class BaseMSA(Root):
                     pop_best[i] = deepcopy(pop_current_best[i])
 
             self.loss_train.append(pop_best[0][self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, pop_best[0][self.ID_FIT]))
 
         return pop_best[0][self.ID_POS], pop_best[0][self.ID_FIT], self.loss_train

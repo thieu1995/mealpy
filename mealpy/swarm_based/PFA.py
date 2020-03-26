@@ -37,8 +37,8 @@ class BasePFA(Root):
     """
     A new meta-heuristic optimizer: Pathfinder algorithm
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -85,7 +85,7 @@ class BasePFA(Root):
             ## Update the best solution found so far (current pathfinder)
             pop, gbest_present = self._update_global_best__(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(i + 1, gbest_present[self.ID_FIT]))
 
         return gbest_present[self.ID_POS], gbest_present[self.ID_FIT], self.loss_train
@@ -93,8 +93,8 @@ class BasePFA(Root):
 
 class OPFA(BasePFA):
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BasePFA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BasePFA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         # Init pop and calculate fitness
@@ -146,15 +146,15 @@ class OPFA(BasePFA):
             ## Update the best solution found so far (current pathfinder)
             gbest_present = self._update_global_best__(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(i + 1, gbest_present[self.ID_FIT]))
 
         return gbest_present[self.ID_POS], gbest_present[self.ID_FIT], self.loss_train
 
 
 class LPFA(BasePFA):
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BasePFA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BasePFA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _levy_flight__(self, epoch, solution, prey):
         beta = 1
@@ -221,7 +221,7 @@ class LPFA(BasePFA):
             ## Update the best solution found so far (current pathfinder)
             gbest_present = self._update_global_best__(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(i + 1, gbest_present[self.ID_FIT]))
 
         return gbest_present[self.ID_POS], gbest_present[self.ID_FIT], self.loss_train
@@ -229,8 +229,8 @@ class LPFA(BasePFA):
 
 class IPFA(LPFA):
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        LPFA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        LPFA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         # Init pop and calculate fitness
@@ -285,7 +285,7 @@ class IPFA(LPFA):
             ## Update the best solution found so far (current pathfinder)
             gbest_present = self._update_global_best__(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(i + 1, gbest_present[self.ID_FIT]))
 
         return gbest_present[self.ID_POS], gbest_present[self.ID_FIT], self.loss_train
@@ -296,8 +296,8 @@ class DePFA(BasePFA):
     """
     A new meta-heuristic optimizer: Pathfinder algorithm
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        BasePFA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        BasePFA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         # Init pop and calculate fitness
@@ -341,7 +341,7 @@ class DePFA(BasePFA):
             ## Update the best solution found so far (current pathfinder)
             pop, gbest_present = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(i + 1, gbest_present[self.ID_FIT]))
 
         return gbest_present[self.ID_POS], gbest_present[self.ID_FIT], self.loss_train
@@ -351,8 +351,8 @@ class LevyDePFA(DePFA):
     """
     A new meta-heuristic optimizer: Pathfinder algorithm
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        DePFA.__init__(self, root_paras, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        DePFA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _levy_flight__(self, epoch, solution, prey):
         beta = 1
@@ -428,7 +428,7 @@ class LevyDePFA(DePFA):
             ## Update the best solution found so far (current pathfinder)
             pop, g_best = self._sort_pop_and_update_global_best__(pop,self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

@@ -25,9 +25,9 @@ class BaseBFO(Root):
     ID_FITNESS = 3
     ID_SUM_NUTRIENTS = 4
 
-    def __init__(self, root_paras=None, pop_size=50, Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10,
-                 attract_repesls=(0.1, 0.2, 0.1, 10)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 pop_size=50, Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10, attract_repesls=(0.1, 0.2, 0.1, 10)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.pop_size = pop_size
         self.step_size = Ci             # p_eliminate
         self.p_eliminate = Ped          # p_eliminate
@@ -96,7 +96,7 @@ class BaseBFO(Root):
                 moved_cells.append(deepcopy(cell))
             cells = deepcopy(moved_cells)
             self.loss_train.append(current_best[self.ID_COST])
-            if self.print_train:
+            if self.log:
                 print("> Elim: %d, Repro: %d, Chemo: %d, Best fit: %.6f" %(l + 1, k + 1, j + 1, current_best[self.ID_COST]))
         return current_best, cells
 
@@ -129,8 +129,9 @@ class ABFOLS(Root):
 
     NUMBER_CONTROL_RATE = 2
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, Ci=(0.1, 0.001), Ped=0.25, Ns=4, N_minmax=(2, 40)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, Ci=(0.1, 0.001), Ped=0.25, Ns=4, N_minmax=(2, 40)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.step_size = Ci             # C_s (start), C_e (end)  -=> step size # step size in BFO
@@ -223,7 +224,7 @@ class ABFOLS(Root):
                     cells[i] = temp
                 i += 1
             self.loss_train.append([1.0 / g_best[self.ID_FITNESS], 1.0 / g_best[self.ID_FITNESS]])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Pop_size: {}, Best fitness: {}".format(epoch + 1, len(cells), 1.0 / g_best[self.ID_FITNESS]))
 
         return g_best[self.ID_VECTOR], g_best[self.ID_FITNESS], self.loss_train

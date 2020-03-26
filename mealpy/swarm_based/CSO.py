@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, random
+from numpy import clip
 from random import sample, choice
 from copy import deepcopy
 from mealpy.root import Root
@@ -22,8 +23,8 @@ class BaseCSO(Root):
     ID_VEL = 2      # velocity
     ID_FLAG = 3     # status
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, mixture_ratio=0.15, smp=20, spc=False, cdc=0.8,
-                 srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=0):
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, mixture_ratio=0.15, smp=20, spc=False, cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=0):
         """
         # mixture_ratio - joining seeking mode with tracing mode
         # smp - seeking memory pool, 10 clones  (lon cang tot, nhung ton time hon)
@@ -34,7 +35,7 @@ class BaseCSO(Root):
         # c1 - same in PSO
         # selected_strategy : 0: best fitness, 1: tournament, 2: roulette wheel, 3: random  (decrease by quality)
         """
-        Root.__init__(self, root_paras)
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch =  epoch
         self.pop_size = pop_size
         self.mixture_ratio = mixture_ratio
@@ -127,7 +128,7 @@ class BaseCSO(Root):
 
     def _tracing_mode__(self, cat, cat_best, w):
         temp = cat[self.ID_POS] + w * cat[self.ID_VEL] + uniform() * self.c1 * (cat_best[self.ID_POS] - cat[self.ID_POS])
-        temp = np.clip(temp, self.domain_range[0], self.domain_range[1])
+        temp = clip(temp, self.domain_range[0], self.domain_range[1])
         cat[self.ID_POS] = temp
         return cat
 
@@ -150,7 +151,7 @@ class BaseCSO(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

@@ -17,8 +17,8 @@ class BaseMRFO(Root):
     The original version of: Manta Ray Foraging Optimization (MRFO)
         (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, S=2):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, S=2):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.S = S                   # somersault factor that decides the somersault range of manta rays
@@ -74,7 +74,7 @@ class BaseMRFO(Root):
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -86,8 +86,8 @@ class MyMRFO(BaseMRFO):
         (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, S=2):
-        BaseMRFO.__init__(self, root_paras, epoch, pop_size, S)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, S=2):
+        BaseMRFO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, S)
 
     def _train__(self):
         pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
@@ -111,7 +111,7 @@ class MyMRFO(BaseMRFO):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

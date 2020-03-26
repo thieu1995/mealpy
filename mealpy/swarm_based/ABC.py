@@ -21,8 +21,9 @@ class BaseABC(Root):
     ID_POS = 0
     ID_FIT = 1
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+                 epoch=750, pop_size=100, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.e_bees = couple_bees[0]                # number of bees which provided for good location and other location
@@ -70,7 +71,7 @@ class BaseABC(Root):
             g_best, pop = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.patch_size = self.patch_size * self.patch_factor
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, patch_size: {}, Best fit: {}".format(epoch + 1, self.patch_size, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

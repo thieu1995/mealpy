@@ -21,8 +21,8 @@ class OriginalALO(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/49920-ant-lion-optimizer-alo
         http://dx.doi.org/10.1016/j.advengsoft.2015.01.010
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -118,7 +118,7 @@ class OriginalALO(Root):
             # Keep the elite in the population
             pop[self.ID_MIN_PROB] = deepcopy(g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -131,8 +131,8 @@ class BaseALO(OriginalALO):
     Link:
         Using matrix for better performance. Change the flow of updating new solution. Make it better then original one
     """
-    def __init__(self, root_paras=None, alo_paras=None):
-        OriginalALO.__init__(self, root_paras, alo_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        OriginalALO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _random_walk_around_antlion__(self, solution, current_epoch):
         # Make the bounded vector
@@ -202,7 +202,7 @@ class BaseALO(OriginalALO):
             # Keep the elite in the population
             pop[self.ID_MIN_PROB] = deepcopy(g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

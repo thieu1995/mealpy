@@ -23,8 +23,8 @@ class BaseRH(Root):
         https://doi.org/10.3384/ecp171421026
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c              # shape parameter - default = 0.53 > 0
@@ -78,7 +78,7 @@ class BaseRH(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
@@ -89,8 +89,8 @@ class MyRH(BaseRH):
         (A Novel Metaheuristic Algorithm inspired by Rhino Herd Behavior)
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        BaseRH.__init__(self, root_paras, epoch, pop_size, c, a, r, A)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
+        BaseRH.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, c, a, r, A)
 
     def _train__(self):
         pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
@@ -145,7 +145,7 @@ class MyRH(BaseRH):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
@@ -156,8 +156,8 @@ class Version3RH(BaseRH):
         (A Novel Metaheuristic Algorithm inspired by Rhino Herd Behavior)
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        BaseRH.__init__(self, root_paras, epoch, pop_size, c, a, r, A)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
+        BaseRH.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, c, a, r, A)
 
     def _train__(self):
         pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
@@ -209,7 +209,7 @@ class Version3RH(BaseRH):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Pop Size: {}, Best Fit: {}".format(epoch+1, pop_size, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

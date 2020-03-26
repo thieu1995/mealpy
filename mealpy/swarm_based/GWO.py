@@ -19,8 +19,8 @@ class BaseGWO(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo?s_tid=FX_rc3_behav
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -56,7 +56,7 @@ class BaseGWO(Root):
                 best_3 = deepcopy(cur_best_3)
 
             self.loss_train.append(best_1[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, best_1[self.ID_FIT]))
 
         return best_1[self.ID_POS], best_1[self.ID_FIT], self.loss_train

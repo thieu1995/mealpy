@@ -22,8 +22,8 @@ class BaseNMR(Root):
         https://www.doi.org10.1007/s00521-019-04464-7
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, bp=0.75):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, bp=0.75):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.size_b = int(self.pop_size / 5)
@@ -52,7 +52,7 @@ class BaseNMR(Root):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -63,8 +63,8 @@ class LevyNMR(BaseNMR):
     My speedup version of: Naked Mole-rat Algorithm (NMRA)
         (The naked mole-rat algorithm)
     """
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, bp=0.75):
-        BaseNMR.__init__(self, root_paras, epoch, pop_size, bp)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, bp=0.75):
+        BaseNMR.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, bp)
         self.pm = 0.025
 
     def _levy_flight__(self, epoch, solution, prey):
@@ -167,7 +167,7 @@ class LevyNMR(BaseNMR):
 
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

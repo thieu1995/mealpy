@@ -25,8 +25,8 @@ class BaseBA(Root):
     ID_FIT = 1  # fitness
     ID_VEL = 2  # velocity
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, r=0.95, pf=(0, 10)):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r=0.95, pf=(0, 10)):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r = r  # (r_min, r_max): pulse rate / emission rate
@@ -67,7 +67,7 @@ class BaseBA(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -80,8 +80,8 @@ class OriginalBA(BaseBA):
     - A New Metaheuristic Bat-Inspired Algorithm
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10)):
-        BaseBA.__init__(self, root_paras, epoch, pop_size, r, pf)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10)):
+        BaseBA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r, pf)
         self.A = A  # (A_min, A_max): loudness
         self.r = r  # (r_min, r_max): pulse rate / emission rate
 
@@ -108,7 +108,7 @@ class OriginalBA(BaseBA):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
@@ -121,8 +121,8 @@ class BasicBA(OriginalBA):
     - A New Metaheuristic Bat-Inspired Algorithm
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10)):
-        OriginalBA.__init__(self, root_paras, epoch, pop_size, A, r, pf)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10)):
+        OriginalBA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, A, r, pf)
         self.A = A  # (A_min, A_max): loudness
         self.r = r  # (r_min, r_max): pulse rate / emission rate
         self.pf = pf
@@ -160,7 +160,7 @@ class BasicBA(OriginalBA):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

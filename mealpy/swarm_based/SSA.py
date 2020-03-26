@@ -19,8 +19,8 @@ class BaseSSA(Root):
     Original version of: Social Spider Algorithm - A social spider algorithm for global optimization
     """
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, r_a=1, p_c=0.7, p_m=0.1):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r_a=1, p_c=0.7, p_m=0.1):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r_a = r_a     # the rate of vibration attenuation when propagating over the spider web.
@@ -73,7 +73,7 @@ class BaseSSA(Root):
                 g_best = [np.min(spider_fitness), self.position[np.argmin(spider_fitness)].copy()]
 
             self.loss_train.append(g_best[0])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[0]))
 
         return g_best[1], g_best[0], self.loss_train
@@ -91,8 +91,8 @@ class MySSA(BaseSSA):
     ID_PREV_MOVE_VEC = 4
     ID_MASK = 5
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, r_a=1, p_c=0.7, p_m=0.1):
-        BaseSSA.__init__(self, root_paras, epoch, pop_size, r_a, p_c, p_m)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r_a=1, p_c=0.7, p_m=0.1):
+        BaseSSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r_a, p_c, p_m)
 
     def _create_solution__(self, minmax=0):
         """  This algorithm has different encoding mechanism, so we need to override this method
@@ -170,7 +170,7 @@ class MySSA(BaseSSA):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

@@ -22,8 +22,8 @@ class BasePSO(Root):
     ID_FIT_PAST = 3         # fitness best in the past
     ID_VEL = 4              # velocity of bird
 
-    def __init__(self, root_paras=None, epoch=750, pop_size=100, c1=1.2, c2=1.2, w_min=0.4, w_max=0.9):
-        Root.__init__(self, root_paras)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c1=1.2, c2=1.2, w_min=0.4, w_max=0.9):
+        Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c1 = c1            # [0-2]  -> [(1.2, 1.2), (0.8, 2.0), (1.6, 0.6)]  Local and global coefficient
@@ -71,7 +71,7 @@ class BasePSO(Root):
 
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.print_train:
+            if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
