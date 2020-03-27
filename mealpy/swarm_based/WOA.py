@@ -24,7 +24,7 @@ class BaseWOA(Root):
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_POS, id_best=self.ID_MIN_PROB)
+        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             a = 2 - 2 * epoch / (self.epoch - 1)            # linearly decreased from 2 to 0

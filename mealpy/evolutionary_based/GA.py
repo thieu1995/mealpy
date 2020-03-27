@@ -37,7 +37,9 @@ class BaseGA(Root):
             if r > sum_fitness:
                 return idx
 
-    def _get_parents_kway_tournament_selection__(self, pop=None, k_way=10):
+    def _get_parents_kway_tournament_selection__(self, pop=None, k_way=0.2):
+        if k_way < 1:
+            k_way = int(k_way * self.pop_size)
         list_id = choice(range(self.pop_size), k_way, replace=False)
         list_parents = [pop[i] for i in list_id]
         list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_FIT])
@@ -60,7 +62,7 @@ class BaseGA(Root):
         next_population = []
         while (len(next_population) < self.pop_size):
             ### Selection
-            c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=10)
+            c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
             w1, w2 = deepcopy(c1[0]), deepcopy(c2[0])
             ### Crossover
             if uniform() < self.pc:
@@ -73,14 +75,14 @@ class BaseGA(Root):
                 if uniform() < self.pm:
                     w2 = self._mutation_flip_point__(w2, idx)
 
-            c1_new = [deepcopy(w1), self._fitness_model__(w1, minmax=1)]
-            c2_new = [deepcopy(w2), self._fitness_model__(w2, minmax=1)]
+            c1_new = [deepcopy(w1), self._fitness_model__(w1, minmax=self.ID_MIN_PROB)]
+            c2_new = [deepcopy(w2), self._fitness_model__(w2, minmax=self.ID_MIN_PROB)]
             next_population.append(c1_new)
             next_population.append(c2_new)
         return next_population
 
     def _train__(self):
-        pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
+        pop = [self._create_solution__(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
         g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
