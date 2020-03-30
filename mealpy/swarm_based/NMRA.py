@@ -58,6 +58,48 @@ class BaseNMR(Root):
 
 class LevyNMR(BaseNMR):
     """
+        This is modified version of: Naked Mole-rat Algorithm (NMRA)
+    """
+
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, bp=0.75):
+        BaseNMR.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, bp)
+
+    def _train__(self):
+        pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
+        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        for epoch in range(self.epoch):
+
+            for i in range(self.pop_size):
+                temp = deepcopy(pop[i][self.ID_POS])
+                # Exploration
+                if i < self.size_b:  # breeding operators
+                    if uniform() < self.bp:
+                        alpha = uniform()
+                        temp = pop[i][self.ID_POS] + alpha * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                # Exploitation
+                else:  # working operators
+                    if uniform() < 0.5:
+                        t1, t2 = choice(range(0, self.size_b), 2, replace=False)
+                        temp = pop[i][self.ID_POS] + uniform() * (pop[t1][self.ID_POS] - pop[t2][self.ID_POS])
+                    else:
+                        temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+
+                temp = self._amend_solution_faster__(temp)
+                fit = self._fitness_model__(temp)
+                if fit < pop[i][self.ID_FIT]:
+                    pop[i] = [temp, fit]
+
+            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.log:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class ImprovedNMR(BaseNMR):
+    """
     My speedup version of: Naked Mole-rat Algorithm (NMRA)
         (The naked mole-rat algorithm)
     """
