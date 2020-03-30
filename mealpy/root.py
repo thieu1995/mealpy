@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, array, power, sin, abs, pi, sqrt, sign, ones
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones
 from numpy.random import uniform, random, normal
 from math import gamma
 from copy import deepcopy
