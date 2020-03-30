@@ -14,7 +14,7 @@ from mealpy.root import Root
 
 class BaseMRFO(Root):
     """
-    The original version of: Manta Ray Foraging Optimization (MRFO)
+    The is my version of: Manta Ray Foraging Optimization (MRFO)
         (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
     """
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, S=2):
@@ -56,7 +56,44 @@ class BaseMRFO(Root):
 
 
     def _train__(self):
-        pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
+        pop = [self._create_solution__() for _ in range(self.pop_size)]
+        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        for epoch in range(0, self.epoch):
+            for i in range(0, self.pop_size):
+                x_t1 = self._next_move__(pop, g_best, epoch, i)
+                x_t1 = self._amend_solution_faster__(x_t1)
+                fit = self._fitness_model__(x_t1)
+                if fit < pop[i][self.ID_FIT]:
+                    pop[i] = [x_t1, fit]
+            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+
+            # Somersault foraging   (Eq. 8)
+            for i in range(0, self.pop_size):
+                x_t1 = pop[i][self.ID_POS] + self.S * (uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
+                x_t1 = self._amend_solution_faster__(x_t1)
+                fit = self._fitness_model__(x_t1)
+                pop[i] = [x_t1, fit]
+
+            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.log:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class OriginalMRFO(BaseMRFO):
+    """
+    The original version of: Manta Ray Foraging Optimization (MRFO)
+        (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
+    """
+
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, S=2):
+        BaseMRFO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, S)
+
+    def _train__(self):
+        pop = [self._create_solution__() for _ in range(self.pop_size)]
         g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
@@ -68,22 +105,21 @@ class BaseMRFO(Root):
 
             # Somersault foraging   (Eq. 8)
             for i in range(0, self.pop_size):
-                x_t1 = pop[i][self.ID_POS] + self.S *(uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
+                x_t1 = pop[i][self.ID_POS] + self.S * (uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
                 fit = self._fitness_model__(x_t1)
                 pop[i] = [x_t1, fit]
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class MyMRFO(BaseMRFO):
+class LevyMRFO(BaseMRFO):
     """
-    The is my version: Manta Ray Foraging Optimization (MRFO)
-        (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
+        The is modified version of: Manta Ray Foraging Optimization (MRFO) based on Levy_flight
     """
 
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, S=2):
@@ -104,7 +140,10 @@ class MyMRFO(BaseMRFO):
 
             # Somersault foraging   (Eq. 8)
             for i in range(0, self.pop_size):
-                x_t1 = pop[i][self.ID_POS] + self.S *(uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
+                if uniform() < 0.5:
+                    x_t1 = pop[i][self.ID_POS] + self.S * (uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
+                else:
+                    x_t1 = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
                 x_t1 = self._amend_solution_faster__(x_t1)
                 fit = self._fitness_model__(x_t1)
                 pop[i] = [x_t1, fit]
@@ -112,6 +151,6 @@ class MyMRFO(BaseMRFO):
             g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
