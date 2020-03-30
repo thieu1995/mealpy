@@ -1,3 +1,30 @@
+
+# Version 0.7.3
+
+### Change models
++ Added Levy-flight and Opposition-based techniques in Root.py
++ Fixed codes include levy-flight and opposition-based of:
+    + QSA
+    + HGSO
+    + TWO
+    + NMRA
+    + PFA
+    + SFO
+    + SSO
++ Added new modified version of models based on Levy-flight:
+    + LCBO (LevyLCBO)
+    + SSDO (LevySSDO)
+    + EO (LevyEO)
+    + AEO (LevyAEO)
+    + MRFO (LevyMRFO)
+    + NMRA (LevyNMRA)
+ 
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples tested base-version and levy-version of: LCBO, SSDO, EO, AEO, MRFO, NMRA   
+
+---------------------------------------------------------------------
+
 # Version 0.7.2
 
 ### Change 
