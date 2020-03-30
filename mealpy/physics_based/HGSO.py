@@ -7,10 +7,9 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import argsort, exp, sin, pi, abs, sqrt, sign, power, ones
-from numpy.random import uniform, normal
+from numpy import argsort, exp
+from numpy.random import uniform
 from copy import deepcopy
-from math import gamma
 from mealpy.root import Root
 
 
@@ -159,9 +158,7 @@ class OppoHGSO(BaseHGSO):
                     pop[id] = [X_new, fit, i]
                     group[i][j] = [X_new, fit, i]
                 else:
-                    t1 = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size)
-                    t2 = -1 * g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    C_op = t1 + t2
+                    C_op = self._create_opposition_solution__(pop[i][self.ID_POS], g_best[self.ID_POS])
                     C_op = self._amend_solution_faster__(C_op)
                     fit_op = self._fitness_model__(C_op, self.ID_MIN_PROB)
                     if fit_op < pop[id][self.ID_FIT]:
@@ -180,33 +177,6 @@ class LevyHGSO(BaseHGSO):
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, n_clusters=2):
         BaseHGSO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, n_clusters)
 
-    def _levy_flight__(self, epoch, solution, prey):
-        beta = 1
-        # muy and v are two random variables which follow normal distribution
-        # sigma_muy : standard deviation of muy
-        sigma_muy = power(gamma(1 + beta) * sin(pi * beta / 2) / (gamma((1 + beta) / 2) * beta * power(2, (beta - 1) / 2)), 1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = normal(0, sigma_muy)
-        v = normal(0, sigma_v)
-        s = muy / power(abs(v), 1 / beta)
-        # D is a random solution
-        D = self._create_solution__(minmax=self.ID_MAX_PROB)
-        LB = 0.001 * s * (solution[self.ID_POS] - prey[self.ID_POS])
-
-        levy = D[self.ID_POS] * LB
-        #return levy
-
-        x_new = solution[0] + 1.0/sqrt(epoch+1) * sign(uniform() - 0.5) * levy
-        return x_new
-
-    def _levy_flight_2__(self, solution=None, g_best=None):
-        alpha = 0.01
-        xichma_v = 1
-        xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (normal(0, xichma_u ** 2)) / (sqrt(normal(0, xichma_v ** 2)) ** (1.0 / 1.5))
-        return solution[self.ID_POS] + alpha * levy_b * (solution[self.ID_POS] - g_best[self.ID_POS])
-
     def _train__(self):
         pop, group = self._create_population__(self.ID_MIN_PROB, self.n_clusters)
         g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)        # single element
@@ -223,7 +193,7 @@ class LevyHGSO(BaseHGSO):
 
                     ##### Based on Levy
                     if uniform() < 0.5:
-                        X_ij = self._levy_flight__(epoch+1, group[i][j], g_best)
+                        X_ij = self._levy_flight__(epoch, group[i][j][self.ID_POS], g_best[self.ID_POS], step=0.001, case=1)
                         #X_ij = self._levy_flight_2__(group[i][j], g_best)
                     else:   ##### Based on Eq. 8, 9, 10
                         self.H_j = self.H_j * exp(-self.C_j * (1.0 / exp(-epoch / self.epoch) - 1.0 / self.T0))
