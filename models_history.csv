@@ -34,13 +34,13 @@ Physic,1,Wind Driven Optimization,WDO,2013,original,no,strong,7,easy
 ,5,Nuclear Reaction Optimization,NRO,2019,original ,yes,best,2,hard*
 ,6,Henry Gas Solubility Optimization,HGSO,2019,original,no,best,3,medium
 ,7,Atom Search Optimization,ASO,2019,original,no,best,4,medium
-,8,Equilibrium Optimizer,EO,2019,original,no,best,2,easy
+,8,Equilibrium Optimizer,EO,2019,original,no,BEST,2,easy
 ,9,,,,,,,,
 Human,1,Teaching Learning Optimization,TLO,2011,original,no,strong,2,easy
 ,2,Queuing Search Algorithm,QSA,2019,original,no,strong,2,hard
 ,3,Search And Rescue Optimization,SARO,2019,original,no,strong,4,medium
 ,4,Life Choice-Based Optimization ,LCBO,2019,original,no,strong,2,easy
-,5,Social Ski-Driver Optimization,SSDO,2019,changed,no,BEST,2,easy
+,5,Social Ski-Driver Optimization,SSDO,2019,changed,no,weak,2,easy
 ,6,,,,,,,,
 Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 ,2,Biogeography-Based Optimization,BBO,2008,original,no,strong,4,easy
