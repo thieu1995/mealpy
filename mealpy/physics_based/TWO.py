@@ -7,10 +7,9 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, randn, random, normal
-from numpy import ones, sin, pi, power, abs, sqrt, sign
+from numpy.random import uniform, randn, random
+from numpy import ones, power
 from copy import deepcopy
-from math import gamma
 from mealpy.root import Root
 
 
@@ -132,9 +131,7 @@ class OppoTWO(BaseTWO):
                 if pop_old[i][self.ID_FIT] < pop_new[i][self.ID_FIT]:
                     pop_old[i] = deepcopy(pop_new[i])
                 else:
-                    t1 = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size)
-                    t2 = -1 * g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop_old[i][self.ID_POS])
-                    C_op = t1 + t2
+                    C_op = self._create_opposition_solution__(pop_old[i][self.ID_POS], g_best[self.ID_POS])
                     fit_op = self._fitness_model__(C_op, self.ID_MAX_PROB)
                     if fit_op > pop_old[i][self.ID_FIT]:
                         pop_old[i] = [C_op, fit_op, 0.0]
@@ -187,9 +184,7 @@ class OTWO(BaseTWO):
                 if pop_old[i][self.ID_FIT] < pop_new[i][self.ID_FIT]:
                     pop_old[i] = deepcopy(pop_new[i])
                 else:
-                    t1 = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size)
-                    t2 = -1 * g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop_old[i][self.ID_POS])
-                    C_op = t1 + t2
+                    C_op = self._create_opposition_solution__(pop_old[i][self.ID_POS], g_best[self.ID_POS])
                     fit_op = self._fitness_model__(C_op, self.ID_MAX_PROB)
                     if fit_op > pop_old[i][self.ID_FIT]:
                         pop_old[i] = [C_op, fit_op, 0.0]
@@ -209,26 +204,6 @@ class LevyTWO(BaseTWO):
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
         BaseTWO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
-    def _levy_flight__(self, epoch, solution, prey):
-        self.beta = 1
-        # muy and v are two random variables which follow normal distribution
-        # sigma_muy : standard deviation of muy
-        sigma_muy = power(gamma(1 + self.beta) * sin(pi * self.beta / 2) / (gamma((1 + self.beta) / 2) * self.beta * power(2, (self.beta - 1) / 2)), 1 / self.beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = normal(0, sigma_muy)
-        v = normal(0, sigma_v)
-        s = muy / power(abs(v), 1 / self.beta)
-        # D is a random solution
-        D = self._create_solution__(minmax=self.ID_MAX_PROB)
-        LB = 0.01 * s * (solution[self.ID_POS] - prey[self.ID_POS])
-
-        levy = D[self.ID_POS] * LB
-        return levy
-
-        #x_new = solution[0] + 1.0/sqrt(epoch+1) * sign(uniform() - 0.5) * levy
-        #return x_new
-
     def _train__(self):
         pop_old = [self._create_solution__(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
         pop_old = self._update_weight__(pop_old)
@@ -238,7 +213,7 @@ class LevyTWO(BaseTWO):
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
                 if uniform() < 0.5:
-                    pop_new[i][self.ID_POS] = self._levy_flight__(epoch+1, pop_new[i], g_best)
+                    pop_new[i][self.ID_POS] = self._levy_flight__(epoch=epoch, solution=pop_new[i][self.ID_POS], g_best=g_best[self.ID_POS], step=0.001, case=1)
                 else:
                     for j in range( self.pop_size):
                         if pop_old[i][self.ID_WEIGHT] < pop_old[j][self.ID_WEIGHT]:
@@ -280,7 +255,7 @@ class ITWO(OppoTWO, LevyTWO):
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
                 if uniform() < 0.5:
-                    pop_new[i][self.ID_POS] = self._levy_flight__(epoch + 1, pop_new[i], g_best)
+                    pop_new[i][self.ID_POS] = self._levy_flight__(epoch=epoch, solution=pop_new[i][self.ID_POS], g_best=g_best[self.ID_POS], step=0.001, case=1)
                 else:
                     for j in range(self.pop_size):
                         if pop_old[i][self.ID_WEIGHT] < pop_old[j][self.ID_WEIGHT]:
@@ -299,8 +274,7 @@ class ITWO(OppoTWO, LevyTWO):
                 if pop_old[i][self.ID_FIT] < pop_new[i][self.ID_FIT]:
                     pop_old[i] = deepcopy(pop_new[i])
                 else:
-                    C_op = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size) + \
-                           -1 * g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop_old[i][self.ID_POS])
+                    C_op = self._create_opposition_solution__(pop_old[i][self.ID_POS], g_best[self.ID_POS])
                     fit_op = self._fitness_model__(C_op, self.ID_MAX_PROB)
                     if fit_op > pop_old[i][self.ID_FIT]:
                         pop_old[i] = [C_op, fit_op, 0.0]
