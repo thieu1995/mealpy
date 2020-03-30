@@ -188,25 +188,6 @@ class LevyQSA(BaseQSA):
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
         BaseQSA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
-    def _levy_flight__(self, solution, A, current_iter):
-        # muy and v are two random variables which follow normal distribution
-        # sigma_muy : standard deviation of muy
-        beta = 1
-        sigma_muy = power(
-            gamma(1 + beta) * sin(pi * beta / 2) / (gamma((1 + beta) / 2) * beta * power(2, (beta - 1) / 2)),
-            1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = normal(0, sigma_muy)
-        v = normal(0, sigma_v)
-        s = muy / power(abs(v), 1 / beta)
-        D = self._create_solution__(minmax=self.ID_MIN_PROB)[self.ID_POS]
-        LB = 0.01 * s * (solution - A)
-        levy = D * LB
-        # X_new = solution + 0.01*levy
-        # X_new = solution + 1.0/sqrt(current_iter+1)*sign(random()-0.5)*levy
-        return levy
-
     def _update_bussiness_2__(self, pop=None, current_iter=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
         t1, t2, t3 = pop[0][self.ID_FIT], pop[1][self.ID_FIT], pop[2][self.ID_FIT]
@@ -231,7 +212,7 @@ class LevyQSA(BaseQSA):
                 F1 = e * (X1 - X2)
                 F2 = e * (A - X1)
                 if random() < cv:
-                    X_new = self._levy_flight__(pop[i][self.ID_POS], A, current_iter)
+                    X_new = self._levy_flight__(current_iter, pop[i][self.ID_POS], A)
                     fit = self._fitness_model__(solution=X_new, minmax=self.ID_MIN_PROB)
                 else:
                     X_new = pop[i][self.ID_POS] + F2
