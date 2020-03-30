@@ -7,9 +7,8 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, choice, normal
-from numpy import power, sin, pi, abs, ones
-from math import gamma
+from numpy.random import uniform, choice
+from numpy import abs, ones
 from copy import deepcopy
 from mealpy.root import Root
 
@@ -105,19 +104,6 @@ class ImprovedSFO(Root):
         self.pop_size = pop_size       # SailFish pop size
         self.pp = pp                   # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
 
-    def _levy_flight__(self, epoch, solution, prey):
-        beta = 1
-        # muy and v are two random variables which follow normal distribution
-        # sigma_muy : standard deviation of muy
-        sigma_muy = power(gamma(1 + beta) * sin(pi * beta / 2) / (gamma((1 + beta) / 2) * beta * power(2, (beta - 1) / 2)),1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = normal(0, sigma_muy**2)
-        v = normal(0, sigma_v**2)
-        s = muy / power(abs(v), 1 / beta)
-        LB = 0.01 * s * (solution[self.ID_POS] - prey[self.ID_POS])
-        return LB
-
     def _train__(self):
         s_size = int(self.pop_size / self.pp)
         sf_pop = [self._create_solution__() for _ in range(0, self.pop_size)]
@@ -151,7 +137,7 @@ class ImprovedSFO(Root):
             else:
                 ### Update the position of all sardine using Eq.(9)
                 for i in range(0, len(s_pop)):
-                    temp = self._levy_flight__(epoch, s_pop[i], s_gbest)
+                    temp = self._levy_flight__(epoch, s_pop[i][self.ID_POS], s_gbest[self.ID_POS])
                     s_pop[i][self.ID_POS] = self._amend_solution_faster__(temp)
                     # s_pop[i][self.ID_POS] = self._levy_flight__(epoch, s_pop[i], s_gbest)
 

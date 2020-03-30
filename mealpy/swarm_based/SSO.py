@@ -36,12 +36,6 @@ class BaseSSO(Root):
         weight = 0.0
         return [solution, fitness, gender, weight]
 
-    def _amend_solution_and_return__(self, solution=None):
-        for i in range(0, self.problem_size):
-            if solution[i] < self.domain_range[0] or solution[i] > self.domain_range[1]:
-                solution[i] = uniform(self.domain_range[0], self.domain_range[1])
-        return solution
-
     def _move_females__(self, n_f=None, pop_females=None, pop_males=None, g_best=None, pm=None):
         scale_distance = self.domain_range[1] - self.domain_range[0]
         pop = pop_females + pop_males
@@ -76,7 +70,7 @@ class BaseSSO(Root):
             else:                               # Do a repulsion
                 temp = pop_females[i][self.ID_POS] - vibs * (x_s - pop_females[i][self.ID_POS]) * beta - \
                        vibb * (g_best[self.ID_POS] - pop_females[i][self.ID_POS]) * gamma + random
-            temp = self._amend_solution_and_return__(temp)
+            temp = self._amend_solution_random_faster__(temp)
             fit = self._fitness_model__(temp)
             pop_females[i][self.ID_POS] = temp
             pop_females[i][self.ID_FIT] = fit
@@ -112,7 +106,7 @@ class BaseSSO(Root):
             else:
                 # Spider below median, go to weighted mean
                 temp = pop_males[i][self.ID_POS] + delta * (mean - pop_males[i][self.ID_POS]) + random
-            temp = self._amend_solution_and_return__(temp)
+            temp = self._amend_solution_random_faster__(temp)
             fit = self._fitness_model__(temp)
             pop_males[i][self.ID_POS] = temp
             pop_males[i][self.ID_FIT] = fit
