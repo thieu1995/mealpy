@@ -131,30 +131,12 @@ class OriginalSSD(BaseSSDO):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class LevySSDO(Root):
+class LevySSDO(BaseSSDO):
     """
-    My modified version of: Social Ski-Driver (SSD) optimization algorithm based on Levy_flight
-        (Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm)
-    Noted:
-        I changed almost everything, basically not on equations. But the flow of algorithm and the order updating of
-            velocity and position.
+        My modified version of: Social Ski-Driver (SSD) optimization algorithm based on Levy_flight
     """
-    ID_POS = 0
-    ID_FIT = 1
-    ID_VEL = 2  # velocity
-    ID_LBS = 3  # local best solution
-
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
-        self.epoch = epoch
-        self.pop_size = pop_size
-
-    def _create_solution__(self, minmax=0):
-        solution = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        velocity = zeros(self.problem_size)
-        local_best_solution = deepcopy(solution)
-        fitness = self._fitness_model__(solution=solution, minmax=minmax)
-        return [solution, fitness, velocity, local_best_solution]
+        BaseSSDO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
