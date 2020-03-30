@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, array, power, sin, abs, pi, sqrt, sign
+from numpy import where, clip, logical_and, maximum, minimum, array, power, sin, abs, pi, sqrt, sign, ones
 from numpy.random import uniform, random, normal
 from math import gamma
 from copy import deepcopy
@@ -106,18 +106,20 @@ class Root:
         return sorted_pop, g_best
 
     def _create_opposition_solution__(self, solution=None, g_best=None):
-        temp = [self.domain_range[0] + self.domain_range[1] - g_best[i] + uniform() * (g_best[i] - solution[i]) for i in range(self.problem_size)]
-        return array(temp)
+        t1 = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size)
+        t2 = -1 * g_best[self.ID_POS] + uniform() * (g_best - solution)
+        return t1 + t2
 
     def _levy_flight__(self, epoch=None, solution=None, g_best=None, step=0.001, case=0):
         """
         Parameters
         ----------
-        epoch : current iteration
+        epoch (int): current iteration
         solution : 1-D numpy array
         g_best : 1-D numpy array
-        step : 0.001
-        type : 0, 1, 2
+        step (float): 0.001
+        case (int): 0, 1, 2
+
         """
         beta = 1
         # muy and v are two random variables which follow normal distribution
@@ -139,6 +141,13 @@ class Root:
             return solution + 1.0 / sqrt(epoch + 1) * sign(random() - 0.5) * levy
         elif case == 2:
             return solution + 0.01 * levy
+
+    def _levy_flight_2__(self, solution=None, g_best=None):
+        alpha = 0.01
+        xichma_v = 1
+        xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
+        levy_b = (normal(0, xichma_u ** 2)) / (sqrt(normal(0, xichma_v ** 2)) ** (1.0 / 1.5))
+        return solution[self.ID_POS] + alpha * levy_b * (solution - g_best)
 
     def _train__(self):
         pass
