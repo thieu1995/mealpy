@@ -1,4 +1,19 @@
 
+# Version 0.7.4
+
+### Change models
++ Added Coral Reefs Optimization in Evolutionary-based group
+    + BaseCRO
+    + OCRO (Opposition-based CRO)
+ 
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: BaseCRO and CRO   
+
+
+---------------------------------------------------------------------
+
+
 # Version 0.7.3
 
 ### Change models

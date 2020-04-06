@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.7.0-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.7.4-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -129,7 +129,8 @@ If you use mealpy in your project, I would appreciate citations:
 |--------|-----|------------------------------------------|-------|------|-----------|------|--------|-------|--------|
 | Evolu  | 1   | Genetic Algorithm                        | GA    | 1992 | original  | no   | weak   | 4     | easy   |
 |        | 2   | Differential Evolution                   | DE    | 1997 | original  | no   | weak   | 4     | easy   |
-|        | 3   |                                          |       |      |           |      |        |       |        |
+|        | 3   | Coral Reefs Optimization                 | CRO   | 2014 | original  | no   | weak   | 7     | medium |
+|        | 4   |                                          |       |      |           |      |        |       |        |
 | Swarm  | 1   | Particle Swarm Optimization              | PSO   | 1995 | original  | no   | strong | 6     | easy   |
 |        | 2   | Bacterial Foraging Optimization          | BFO   | 2002 | orginal   | no   | weak   | 11    | hard   |
 |        | 3   | Cat Swarm Optimization                   | CSO   | 2006 | original  | no   | weak   | 9     | hard   |
@@ -214,6 +215,7 @@ If you use mealpy in your project, I would appreciate citations:
 ### C
 
 * **CSO - Cat Swarm Optimization** . Chu, S. C., Tsai, P. W., & Pan, J. S. (2006, August). Cat swarm optimization. In Pacific Rim international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
+* **CRO - Coral Reefs Optimization** . Salcedo-Sanz, S., Del Ser, J., Landa-Torres, I., Gil-López, S., & Portilla-Figueras, J. A. (2014). The coral reefs optimization algorithm: a novel metaheuristic for efficiently solving optimization problems. The Scientific World Journal, 2014.
 
 
 ### D
