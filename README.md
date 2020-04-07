@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.7.4-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.7.5-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -43,7 +43,30 @@ Or install the development version from GitHub:
 
 ### Example
 ```code 
+* Simple example:
+
+    from opfunu.type_based.uni_modal import Functions
+    from mealpy.evolutionary_based.GA import BaseGA
+    t1 = Functions()
+    
+    ## Setting parameters
+    objective_func = t1._sum_squres__
+    problem_size = 30
+    domain_range = [-15, 15]
+    log = True
+    epoch = 100
+    pop_size = 50
+    pc = 0.95
+    pm = 0.025
+    
+    md = BaseGA(objective_func, problem_size, domain_range, log, epoch, pop_size, pc, pm)
+    best_position, best_fit, list_loss = md._train__()
+    print(best_fit)
+
+* Or run the simple:
     python examples/simple_run.py
+
+* The more complicated tests in the folder: examples
 ```
 The documentation includes more detailed installation instructions.
 
@@ -154,8 +177,9 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 21  | Pathfinder Algorithm                     | PFA   | 2019 | original  | no   | strong | 2     | easy   |
 |        | 22  | Sailfish Optimizer                       | SFO   | 2019 | original  | no   | strong | 5     | medium |
 |        | 23  | Harris Hawks Optimization                | HHO   | 2019 | original  | yes  | best   | 2     | medium |
-|        | 24  | Manta Ray Foraging Optimization          | MRFO  | 2020 | original  | no   | best   | 3     | easy   |
-|        | 25  |                                          |       |      |           |      |        |       |        |
+|        | 24  | Sea Lion Optimization                    | SLO   | 2019 | orginal   | no   | strong | 2     | easy   |
+|        | 25  | Manta Ray Foraging Optimization          | MRFO  | 2020 | original  | no   | best   | 3     | easy   |
+|        | 26  |                                          |       |      |           |      |        |       |        |
 | Physic | 1   | Wind Driven Optimization                 | WDO   | 2013 | original  | no   | strong | 7     | easy   |
 |        | 2   | Multi\-Verse Optimizer                   | MVO   | 2016 | changed   | no   | strong | 3     | easy   |
 |        | 3   | Tug of War Optimization                  | TWO   | 2016 | original  | no   | strong | 2     | easy   |
@@ -188,9 +212,9 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### A
 
-* **ALO - Ant Lion Optimizer** . Mirjalili S (2015). “The Ant Lion Optimizer.” Advances in Engineering Software, 83, 80-98. doi: [10.1016/j.advengsoft.2015.01.010](https://doi.org/10.1016/j.advengsoft.2015.01.010)
-
 * **ABC - Artificial Bee Colony** . Karaboga, D. (2005). An idea based on honey bee swarm for numerical optimization (Vol. 200, pp. 1-10). Technical report-tr06, Erciyes university, engineering faculty, computer engineering department.
+
+* **ALO - Ant Lion Optimizer** . Mirjalili S (2015). “The Ant Lion Optimizer.” Advances in Engineering Software, 83, 80-98. doi: [10.1016/j.advengsoft.2015.01.010](https://doi.org/10.1016/j.advengsoft.2015.01.010)
 
 * **AEO - Artificial Ecosystem-based Optimization** . Zhao, W., Wang, L., & Zhang, Z. (2019). Artificial ecosystem-based optimization: a novel nature-inspired meta-heuristic algorithm. Neural Computing and Applications, 1-43.
 
@@ -200,14 +224,13 @@ If you use mealpy in your project, I would appreciate citations:
 
 * **BFO - Bacterial Foraging Optimization** . Passino, K. M. (2002). Biomimicry of bacterial foraging for distributed optimization and control. IEEE control systems magazine, 22(3), 52-67.
 
-* **BES - Bald Eagle Search** . Alsattar, H. A., Zaidan, A. A., & Zaidan, B. B. (2019). Novel meta-heuristic bald eagle search optimisation algorithm. Artificial Intelligence Review, 1-28.
+* **BBO - Biogeography-Based Optimization** . Simon, D. (2008). Biogeography-based optimization. IEEE transactions on evolutionary computation, 12(6), 702-713.
 
 * **BA - Bat Algorithm** . Yang, X. S. (2010). A new metaheuristic bat-inspired algorithm. In Nature inspired cooperative strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
 
-
-* **BBO - Biogeography-Based Optimization** . Simon, D. (2008). Biogeography-based optimization. IEEE transactions on evolutionary computation, 12(6), 702-713.
-
 * **BSA - Bird Swarm Algorithm** . Meng, X. B., Gao, X. Z., Lu, L., Liu, Y., & Zhang, H. (2016). A new bio-inspired optimisation algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical Artificial Intelligence, 28(4), 673-687.
+
+* **BES - Bald Eagle Search** . Alsattar, H. A., Zaidan, A. A., & Zaidan, B. B. (2019). Novel meta-heuristic bald eagle search optimisation algorithm. Artificial Intelligence Review, 1-28.
 
 * **BWO - Black Widow Optimization** . Hayyolalam, V., & Kazem, A. A. P. (2020). Black Widow Optimization Algorithm: A novel meta-heuristic approach for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 87, 103249.
 
@@ -215,6 +238,7 @@ If you use mealpy in your project, I would appreciate citations:
 ### C
 
 * **CSO - Cat Swarm Optimization** . Chu, S. C., Tsai, P. W., & Pan, J. S. (2006, August). Cat swarm optimization. In Pacific Rim international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
+
 * **CRO - Coral Reefs Optimization** . Salcedo-Sanz, S., Del Ser, J., Landa-Torres, I., Gil-López, S., & Portilla-Figueras, J. A. (2014). The coral reefs optimization algorithm: a novel metaheuristic for efficiently solving optimization problems. The Scientific World Journal, 2014.
 
 
@@ -226,9 +250,12 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### E
 
-* **EOA - Earthworm Optimisation Algorithm** . Wang, G. G., Deb, S., & dos Santos Coelho, L. (2018). Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm for global optimisation problems. IJBIC, 12(1), 1-22.
 * **EFO - Electromagnetic Field Optimization** . Abedinpourshotorban, H., Shamsuddin, S. M., Beheshti, Z., & Jawawi, D. N. (2016). Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm. Swarm and Evolutionary Computation, 26, 8-22.
+
+* **EOA - Earthworm Optimisation Algorithm** . Wang, G. G., Deb, S., & dos Santos Coelho, L. (2018). Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm for global optimisation problems. IJBIC, 12(1), 1-22.
+
 * **EPO - Emperor Penguin Optimizer** . Dhiman, G., & Kumar, V. (2018). Emperor penguin optimizer: A bio-inspired algorithm for engineering problems. Knowledge-Based Systems, 159, 20-50.
+
 * **EO - Equilibrium Optimizer** . Faramarzi, A., Heidarinejad, M., Stephens, B., & Mirjalili, S. (2019). Equilibrium optimizer: A novel optimization algorithm. Knowledge-Based Systems.
 
 
@@ -237,15 +264,20 @@ If you use mealpy in your project, I would appreciate citations:
 ### G
 
 * **GA - Genetic Algorithm** . Holland, J. H. (1992). Genetic algorithms. Scientific american, 267(1), 66-73.
-* **GCO - Germinal Center Optimization** . Villaseñor, C., Arana-Daniel, N., Alanis, A. Y., López-Franco, C., & Hernandez-Vargas, E. A. (2018). Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), 13-27.
-* **GOA - Grasshopper Optimisation Algorithm** . Saremi, S., Mirjalili, S., & Lewis, A. (2017). Grasshopper optimisation algorithm: theory and application. Advances in Engineering Software, 105, 30-47.
+
 * **GWO - Grey Wolf Optimizer** . Mirjalili, S., Mirjalili, S. M., & Lewis, A. (2014). Grey wolf optimizer. Advances in engineering software, 69, 46-61.
+
+* **GOA - Grasshopper Optimisation Algorithm** . Saremi, S., Mirjalili, S., & Lewis, A. (2017). Grasshopper optimisation algorithm: theory and application. Advances in Engineering Software, 105, 30-47.
+
+* **GCO - Germinal Center Optimization** . Villaseñor, C., Arana-Daniel, N., Alanis, A. Y., López-Franco, C., & Hernandez-Vargas, E. A. (2018). Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), 13-27.
 
 
 ### H
 
 * **HS - Harmony Search** . Geem, Z. W., Kim, J. H., & Loganathan, G. V. (2001). A new heuristic optimization algorithm: harmony search. simulation, 76(2), 60-68.
+
 * **HHO - Harris Hawks Optimization** . Heidari, A. A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M., & Chen, H. (2019). Harris hawks optimization: Algorithm and applications. Future Generation Computer Systems, 97, 849-872.
+
 * **HGSO - Henry Gas Solubility Optimization** . Hashim, F. A., Houssein, E. H., Mabrouk, M. S., Al-Atabany, W., & Mirjalili, S. (2019). Henry gas solubility optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, 646-667.
 
 ### I
@@ -263,11 +295,15 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### M
 
-* **MRFO - Manta Ray Foraging Optimization** . Zhao, W., Zhang, Z., & Wang, L. (2020). Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications. Engineering Applications of Artificial Intelligence, 87, 103300.
 * **MFO - Moth Flame Optimization** . Mirjalili, S. (2015). Moth-flame optimization algorithm: A novel nature-inspired heuristic paradigm. Knowledge-based systems, 89, 228-249.
-* **MSA - Moth Search Algorithm** . Wang, G. G. (2018). Moth search algorithm: a bio-inspired metaheuristic algorithm for global optimization problems. Memetic Computing, 10(2), 151-164.
+
 * **MVO - Multi-Verse Optimizer** . Mirjalili, S., Mirjalili, S. M., & Hatamlou, A. (2016). Multi-verse optimizer: a nature-inspired algorithm for global optimization. Neural Computing and Applications, 27(2), 495-513.
+
+* **MSA - Moth Search Algorithm** . Wang, G. G. (2018). Moth search algorithm: a bio-inspired metaheuristic algorithm for global optimization problems. Memetic Computing, 10(2), 151-164.
+
 * **NMRA - Nake Mole-rat Algorithm** . Salgotra, R., & Singh, U. (2019). The naked mole-rat algorithm. Neural Computing and Applications, 31(12), 8837-8857.
+
+* **MRFO - Manta Ray Foraging Optimization** . Zhao, W., Zhang, Z., & Wang, L. (2020). Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications. Engineering Applications of Artificial Intelligence, 87, 103300.
 
 
 
@@ -282,6 +318,7 @@ If you use mealpy in your project, I would appreciate citations:
 ### P
 
 * **PSO - Particle Swarm Optimization** . Eberhart, R., & Kennedy, J. (1995, October). A new optimizer using particle swarm theory. In MHS'95. Proceedings of the Sixth International Symposium on Micro Machine and Human Science (pp. 39-43). Ieee.
+
 * **PFA - Pathfinder Algorithm** . Yapici, H., & Cetinkaya, N. (2019). A new meta-heuristic optimizer: Pathfinder algorithm. Applied Soft Computing, 78, 545-568.
 
 
@@ -298,19 +335,28 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### S
 
-* **SFO - Sailfish Optimizer** . Shadravan, S., Naji, H. R., & Bardsiri, V. K. (2019). The Sailfish Optimizer: A novel nature-inspired metaheuristic algorithm for solving constrained engineering optimization problems. Engineering Applications of Artificial Intelligence, 80, 20-34.
-* **SBO - Satin Bowerbird Optimizer** . Moosavi, S. H. S., & Bardsiri, V. K. (2017). Satin bowerbird optimizer: a new optimization algorithm to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, 1-15.
-* **SARO - Search And Rescue Optimization** . Shabani, A., Asgarian, B., Gharebaghi, S. A., Salido, M. A., & Giret, A. (2019). A New Optimization Algorithm Based on Search and Rescue Operations. Mathematical Problems in Engineering, 2019.
-* **SCA - Sine Cosine Algorithm** . Mirjalili, S. (2016). SCA: a sine cosine algorithm for solving optimization problems. Knowledge-Based Systems, 96, 120-133.
-* **SSDO - Social Ski-Driver Optimization** . Tharwat, A., & Gabel, T. (2019). Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm. Neural Computing and Applications, 1-14.
-* **SSA - Social Spider Algorithm** . James, J. Q., & Li, V. O. (2015). A social spider algorithm for global optimization. Applied Soft Computing, 30, 614-627.
 * **SSO - Social Spider Optimization** . Cuevas, E., Cienfuegos, M., ZaldíVar, D., & Pérez-Cisneros, M. (2013). A swarm optimization algorithm inspired in the behavior of the social-spider. Expert Systems with Applications, 40(16), 6374-6384.
+
+* **SSA - Social Spider Algorithm** . James, J. Q., & Li, V. O. (2015). A social spider algorithm for global optimization. Applied Soft Computing, 30, 614-627.
+
+* **SCA - Sine Cosine Algorithm** . Mirjalili, S. (2016). SCA: a sine cosine algorithm for solving optimization problems. Knowledge-Based Systems, 96, 120-133.
+
 * **SRSR - Swarm Robotics Search And Rescue** . Bakhshipour, M., Ghadi, M. J., & Namdari, F. (2017). Swarm robotics search & rescue: A novel artificial intelligence-inspired optimization approach. Applied Soft Computing, 57, 708-726.
 
+* **SBO - Satin Bowerbird Optimizer** . Moosavi, S. H. S., & Bardsiri, V. K. (2017). Satin bowerbird optimizer: a new optimization algorithm to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, 1-15.
+
+* **SFO - Sailfish Optimizer** . Shadravan, S., Naji, H. R., & Bardsiri, V. K. (2019). The Sailfish Optimizer: A novel nature-inspired metaheuristic algorithm for solving constrained engineering optimization problems. Engineering Applications of Artificial Intelligence, 80, 20-34.
+
+* **SARO - Search And Rescue Optimization** . Shabani, A., Asgarian, B., Gharebaghi, S. A., Salido, M. A., & Giret, A. (2019). A New Optimization Algorithm Based on Search and Rescue Operations. Mathematical Problems in Engineering, 2019.
+
+* **SSDO - Social Ski-Driver Optimization** . Tharwat, A., & Gabel, T. (2019). Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm. Neural Computing and Applications, 1-14.
+
+* **SLO - Sea Lion Optimization** . Masadeh, R., Mahafzah, B. A., & Sharieh, A. (2019). Sea Lion Optimization Algorithm. Sea, 10(5).
 
 ### T
 
 * **TLO - Teaching Learning Optimization** . Rao, R. V., Savsani, V. J., & Vakharia, D. P. (2011). Teaching–learning-based optimization: a novel method for constrained mechanical design optimization problems. Computer-Aided Design, 43(3), 303-315.
+
 * **TWO - Tug of War Optimization** . Kaveh, A., & Zolghadr, A. (2016). A novel meta-heuristic algorithm: tug of war optimization. Iran University of Science & Technology, 6(4), 469-492.
 
 
@@ -322,9 +368,10 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### X
 
-
 * **WOA - Whale Optimization Algorithm** . Mirjalili, S., & Lewis, A. (2016). The whale optimization algorithm. Advances in engineering software, 95, 51-67.
+
 * **WHO - Wildebeest Herd Optimization** . Amali, D., & Dinakaran, M. (2019). Wildebeest herd optimization: A new global optimization algorithm inspired by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, (Preprint), 1-14.
+
 * **WDO - Wind Driven Optimization** . Bayraktar, Z., Komurcu, M., & Werner, D. H. (2010, July). Wind Driven Optimization (WDO): A novel nature-inspired optimization algorithm and its application to electromagnetics. In 2010 IEEE antennas and propagation society international symposium (pp. 1-4). IEEE.
 
 

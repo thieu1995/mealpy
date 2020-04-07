@@ -1,3 +1,17 @@
+# Version 0.7.5
+
+### Change models
++ Added Sea Lion Optimization in Swarm-based group
+    + BaseSLO
+    + ImprovedSLO (Shrinking Encircling + Levy + SLO)
+ 
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: BaseSLO and ImprovedSLO 
+
+
+---------------------------------------------------------------------
+
 
 # Version 0.7.4
 
