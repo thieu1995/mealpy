@@ -1,6 +1,7 @@
 # Pycharm
 .idea/
-
+drafts/
+docs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

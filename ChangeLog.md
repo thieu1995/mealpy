@@ -1,3 +1,16 @@
+# Version 0.7.6
+
+### Change models
++ Added Fireworks Algorithm in Swarm-based group
++ Added Artificial Algae Algorithm in Bio-based group (Not working yet)
+ 
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: BaseSLO and ImprovedSLO 
+
+
+---------------------------------------------------------------------
+
 # Version 0.7.5
 
 ### Change models
