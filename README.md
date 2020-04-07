@@ -378,3 +378,10 @@ If you use mealpy in your project, I would appreciate citations:
 ### Y
 
 ### Z
+
+
+
+# Not done - Not working yet
+
+* **Artificial Algae Algorithm** . Uymaz, S. A., Tezel, G., & Yel, E. (2015). Artificial algae algorithm (AAA) for
+ nonlinear global optimization. Applied Soft Computing, 31, 153-171.
