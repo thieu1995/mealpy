@@ -1,24 +1,30 @@
-# Version 0.7.6
+# Version 0.8.0
 
 ### Change models
-+ Added Flower Pollination Algorithm (FPA) in Evolutionary-based group
-+ Added Elephant Herding Optimization (EHO) in Swarm-based group
-    + BaseEHO
-    + LevyEHO
-        + Changed the Uniform distribution the "Separating operator" by Levy-flight (50%) and Gaussian(50%) 
-+ Added Gaining Sharing Knowledge-based Algorithm (GSKA) in Human-based group
-+ Added Pigeon-Inspired Optimization (PIO) in Swarm-based group
-    + BasePIO (Changed almost everything include flow the algorithm)
-    + LevyPIO 
-        + Changed flow of algorithm
-        + Removed some unnecessary loop
-        + Removed some parameters
-        + Added the levy-flight in second step make algorithm more robust
-+ Added Brain Storm Optimization Algorithm in Human-based group
-    + BaseBSO
-    + ImprovedBSO (Remove some parameters + Changed Equations + Levy-flight + BaseBSO)
-+ Added Fireworks Algorithm in Swarm-based group
-+ Added Artificial Algae Algorithm in Bio-based group (Not working yet)
++ Swarm-based group
+    + Added Elephant Herding Optimization (EHO) in Swarm-based group
+        + BaseEHO
+        + LevyEHO: Changed the Uniform distribution the "Separating operator" by Levy-flight (50%) and Gaussian(50%) 
+    + Added Pigeon-Inspired Optimization (PIO) in Swarm-based group
+        + BasePIO (Changed almost everything include flow the algorithm)
+        + LevyPIO 
+            + Changed flow of algorithm
+            + Removed some unnecessary loop
+            + Removed some parameters
+            + Added the levy-flight in second step make algorithm more robust
+    + Added Fireworks Algorithm  (FA)
+    
++ Human-based group
+    + Added Gaining Sharing Knowledge-based Algorithm (GSKA)
+    + Added Brain Storm Optimization Algorithm (BSO)
+        + BaseBSO
+        + ImprovedBSO (Remove some parameters + Changed Equations + Levy-flight + BaseBSO)
+
++ Evolutionary-based group 
+    + Added Flower Pollination Algorithm (FPA)
+
++ Bio-based group
+    + Added Artificial Algae Algorithm (Not working yet)
  
  
 ### Change others
