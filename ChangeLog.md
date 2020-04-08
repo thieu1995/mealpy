@@ -1,6 +1,7 @@
 # Version 0.7.6
 
 ### Change models
++ Added Flower Pollination Algorithm (FPA) in Evolutionary-based group
 + Added Elephant Herding Optimization (EHO) in Swarm-based group
     + BaseEHO
     + LevyEHO
@@ -29,6 +30,7 @@
     + BaseGSKA
     + BasePIO and LevyPIO
     + BaseEHO and LevyEHO
+    + BaseFPA
     
 
 

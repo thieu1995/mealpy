@@ -153,8 +153,9 @@ If you use mealpy in your project, I would appreciate citations:
 |--------|-----|--------------------------------------------|-------|------|-----------|------|--------|-------|--------|
 | Evolu  | 1   | Genetic Algorithm                          | GA    | 1992 | original  | no   | weak   | 4     | easy   |
 |        | 2   | Differential Evolution                     | DE    | 1997 | original  | no   | weak   | 4     | easy   |
-|        | 3   | Coral Reefs Optimization                   | CRO   | 2014 | original  | no   | weak   | 7     | medium |
-|        | 4   |                                            |       |      |           |      |        |       |        |
+|        | 3   | Flower Pollination Algorithm               | FPA   | 2014 | orginal   | yes  | strong | 3     | easy   |
+|        | 4   | Coral Reefs Optimization                   | CRO   | 2014 | original  | no   | weak   | 7     | medium |
+|        | 5   |                                            |       |      |           |      |        |       |        |
 | Swarm  | 1   | Particle Swarm Optimization                | PSO   | 1995 | original  | no   | strong | 6     | easy   |
 |        | 2   | Bacterial Foraging Optimization            | BFO   | 2002 | orginal   | no   | weak   | 11    | hard   |
 |        | 3   | Cat Swarm Optimization                     | CSO   | 2006 | original  | no   | weak   | 9     | hard   |
@@ -272,6 +273,8 @@ If you use mealpy in your project, I would appreciate citations:
 ### F
 * **FA - Fireworks algorithm** . Tan, Y., & Zhu, Y. (2010, June). Fireworks algorithm for optimization. In
  International conference in swarm intelligence (pp. 355-364). Springer, Berlin, Heidelberg.
+
+* **FPA - Flower Pollination Algorithm** . Yang, X. S. (2012, September). Flower pollination algorithm for global optimization. In International conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
 
 
 ### G
