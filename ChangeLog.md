@@ -1,6 +1,7 @@
 # Version 0.7.6
 
 ### Change models
++ Added Gaining Sharing Knowledge-based Algorithm (GSKA) in Human-based group
 + Added Pigeon-Inspired Optimization (PIO) in Swarm-based group
     + BasePIO (Changed almost everything include flow the algorithm)
     + LevyPIO 
@@ -14,12 +15,16 @@
 + Added Fireworks Algorithm in Swarm-based group
 + Added Artificial Algae Algorithm in Bio-based group (Not working yet)
  
+ 
 ### Change others
 + models_history.csv: Update history of meta-heuristic algorithms        
 + examples: Added new examples of: 
     + BaseFA 
     + OriginalAAA
     + BaseBSO and ImprovedBSO 
+    + BaseGSKA
+    + BasePIO and LevyPIO
+    
 
 
 ---------------------------------------------------------------------

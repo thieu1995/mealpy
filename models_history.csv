@@ -46,7 +46,8 @@ Human,1,Teaching Learning Optimization,TLO,2011,original,no,strong,2,easy
 ,4,Search And Rescue Optimization,SARO,2019,original,no,strong,4,medium
 ,5,Life Choice-Based Optimization ,LCBO,2019,original,no,strong,2,easy
 ,6,Social Ski-Driver Optimization,SSDO,2019,changed,no,weak,2,easy
-,7,,,,,,,,
+,7,Gaining Sharing Knowledge-based Algorithm,GSKA,2019,original,no,strong,6,easy
+,8,,,,,,,,
 Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 ,2,Biogeography-Based Optimization,BBO,2008,original,no,strong,4,easy
 ,3,Satin Bowerbird Optimizer,SBO,2017,original,no,strong,5,easy
