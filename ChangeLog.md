@@ -1,6 +1,13 @@
 # Version 0.7.6
 
 ### Change models
++ Added Pigeon-Inspired Optimization (PIO) in Swarm-based group
+    + BasePIO (Changed almost everything include flow the algorithm)
+    + LevyPIO 
+        + Changed flow of algorithm
+        + Removed some unnecessary loop
+        + Removed some parameters
+        + Added the levy-flight in second step make algorithm more robust
 + Added Brain Storm Optimization Algorithm in Human-based group
     + BaseBSO
     + ImprovedBSO (Remove some parameters + Changed Equations + Levy-flight + BaseBSO)
@@ -9,7 +16,10 @@
  
 ### Change others
 + models_history.csv: Update history of meta-heuristic algorithms        
-+ examples: Added new examples of: BaseSLO and ImprovedSLO 
++ examples: Added new examples of: 
+    + BaseFA 
+    + OriginalAAA
+    + BaseBSO and ImprovedBSO 
 
 
 ---------------------------------------------------------------------
