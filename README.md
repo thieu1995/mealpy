@@ -192,11 +192,12 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 8   | Equilibrium Optimizer                    | EO    | 2019 | original  | no   | BEST   | 2     | easy   |
 |        | 9   |                                          |       |      |           |      |        |       |        |
 | Human  | 1   | Teaching Learning Optimization           | TLO   | 2011 | original  | no   | strong | 2     | easy   |
-|        | 2   | Queuing Search Algorithm                 | QSA   | 2019 | original  | no   | strong | 2     | hard   |
-|        | 3   | Search And Rescue Optimization           | SARO  | 2019 | original  | no   | strong | 4     | medium |
-|        | 4   | Life Choice\-Based Optimization          | LCBO  | 2019 | original  | no   | strong | 2     | easy   |
-|        | 5   | Social Ski\-Driver Optimization          | SSDO  | 2019 | changed   | no   | weak   | 2     | easy   |
-|        | 6   |                                          |       |      |           |      |        |       |        |
+|        | 2   | Brain Storm Optimization                 | BSO   | 2011 | original  | no   | strong | 10    | easy   |
+|        | 3   | Queuing Search Algorithm                 | QSA   | 2019 | original  | no   | strong | 2     | hard   |
+|        | 4   | Search And Rescue Optimization           | SARO  | 2019 | original  | no   | strong | 4     | medium |
+|        | 5   | Life Choice\-Based Optimization          | LCBO  | 2019 | original  | no   | strong | 2     | easy   |
+|        | 6   | Social Ski\-Driver Optimization          | SSDO  | 2019 | changed   | no   | weak   | 2     | easy   |
+|        | 7   |                                          |       |      |           |      |        |       |        |
 | Bio    | 1   | Invasive Weed Optimization               | IWO   | 2006 | original  | no   | strong | 5     | easy   |
 |        | 2   | Biogeography\-Based Optimization         | BBO   | 2008 | original  | no   | strong | 4     | easy   |
 |        | 3   | Satin Bowerbird Optimizer                | SBO   | 2017 | original  | no   | strong | 5     | easy   |
@@ -229,6 +230,8 @@ If you use mealpy in your project, I would appreciate citations:
 * **BBO - Biogeography-Based Optimization** . Simon, D. (2008). Biogeography-based optimization. IEEE transactions on evolutionary computation, 12(6), 702-713.
 
 * **BA - Bat Algorithm** . Yang, X. S. (2010). A new metaheuristic bat-inspired algorithm. In Nature inspired cooperative strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
+
+* **BSO - Brain Storm Optimization** . Shi, Y. (2011, June). Brain storm optimization algorithm. In International conference in swarm intelligence (pp. 303-309). Springer, Berlin, Heidelberg.
 
 * **BSA - Bird Swarm Algorithm** . Meng, X. B., Gao, X. Z., Lu, L., Liu, Y., & Zhang, H. (2016). A new bio-inspired optimisation algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical Artificial Intelligence, 28(4), 673-687.
 

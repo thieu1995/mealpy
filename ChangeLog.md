@@ -1,6 +1,9 @@
 # Version 0.7.6
 
 ### Change models
++ Added Brain Storm Optimization Algorithm in Human-based group
+    + BaseBSO
+    + ImprovedBSO (Remove some parameters + Changed Equations + Levy-flight + BaseBSO)
 + Added Fireworks Algorithm in Swarm-based group
 + Added Artificial Algae Algorithm in Bio-based group (Not working yet)
  
