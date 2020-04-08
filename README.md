@@ -147,6 +147,8 @@ If you use mealpy in your project, I would appreciate citations:
 
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
+
+
 | Group  | STT | Name                                       | Short | Year | Version   | Levy | Type   | Paras | Diffic |
 |--------|-----|--------------------------------------------|-------|------|-----------|------|--------|-------|--------|
 | Evolu  | 1   | Genetic Algorithm                          | GA    | 1992 | original  | no   | weak   | 4     | easy   |
@@ -165,22 +167,23 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 10  | Social Spider Algorithm                    | SSA   | 2015 | original  | no   | strong | 5     | easy   |
 |        | 11  | Ant Lion Optimizer                         | ALO   | 2015 | original  | no   | weak   | 2     | medium |
 |        | 12  | Moth Flame Optimization                    | MFO   | 2015 | changed   | no   | strong | 2     | easy   |
-|        | 13  | Whale Optimization Algorithm               | WOA   | 2016 | original  | no   | best   | 2     | easy   |
-|        | 14  | Bird Swarm Algorithm                       | BSA   | 2016 | original  | no   | best   | 9     | medium |
-|        | 15  | Swarm Robotics Search And Rescue           | SRSR  | 2017 | original  | no   | best   | 2     | hard\* |
-|        | 16  | Grasshopper Optimisation Algorithm         | GOA   | 2017 | original  | no   | weak   | 3     | easy   |
-|        | 17  | Earthworm Optimisation Algorithm           | EOA   | 2018 | original  | no   | weak   | 8     | medium |
-|        | 18  | Moth Search Algorithm                      | MSA   | 2018 | changed   | no   | weak   | 5     | easy   |
-|        | 19  | Rhino Herd Optimization                    | RHO   | 2018 | original  | no   | weak   | 6     | easy   |
-|        | 20  | Emperor Penguin Optimizer                  | EPO   | 2018 | changed   | no   | strong | 2     | easy   |
-|        | 21  | Nake Mole\-rat Algorithm                   | NMRA  | 2019 | original  | no   | strong | 3     | easy   |
-|        | 22  | Bald Eagle Search                          | BES   | 2019 | changed   | no   | best   | 7     | medium |
-|        | 23  | Pathfinder Algorithm                       | PFA   | 2019 | original  | no   | strong | 2     | easy   |
-|        | 24  | Sailfish Optimizer                         | SFO   | 2019 | original  | no   | strong | 5     | medium |
-|        | 25  | Harris Hawks Optimization                  | HHO   | 2019 | original  | yes  | best   | 2     | medium |
-|        | 26  | Sea Lion Optimization                      | SLO   | 2019 | orginal   | no   | strong | 2     | easy   |
-|        | 27  | Manta Ray Foraging Optimization            | MRFO  | 2020 | original  | no   | best   | 3     | easy   |
-|        | 28  |                                            |       |      |           |      |        |       |        |
+|        | 13  |  Elephant Herding Optimization             | EHO   | 2015 | original  | no   | strong | 5     | easy   |
+|        | 14  | Whale Optimization Algorithm               | WOA   | 2016 | original  | no   | best   | 2     | easy   |
+|        | 15  | Bird Swarm Algorithm                       | BSA   | 2016 | original  | no   | best   | 9     | medium |
+|        | 16  | Swarm Robotics Search And Rescue           | SRSR  | 2017 | original  | no   | best   | 2     | hard\* |
+|        | 17  | Grasshopper Optimisation Algorithm         | GOA   | 2017 | original  | no   | weak   | 3     | easy   |
+|        | 18  | Earthworm Optimisation Algorithm           | EOA   | 2018 | original  | no   | weak   | 8     | medium |
+|        | 19  | Moth Search Algorithm                      | MSA   | 2018 | changed   | no   | weak   | 5     | easy   |
+|        | 20  | Rhino Herd Optimization                    | RHO   | 2018 | original  | no   | weak   | 6     | easy   |
+|        | 21  | Emperor Penguin Optimizer                  | EPO   | 2018 | changed   | no   | strong | 2     | easy   |
+|        | 22  | Nake Mole\-rat Algorithm                   | NMRA  | 2019 | original  | no   | strong | 3     | easy   |
+|        | 23  | Bald Eagle Search                          | BES   | 2019 | changed   | no   | best   | 7     | medium |
+|        | 24  | Pathfinder Algorithm                       | PFA   | 2019 | original  | no   | strong | 2     | easy   |
+|        | 25  | Sailfish Optimizer                         | SFO   | 2019 | original  | no   | strong | 5     | medium |
+|        | 26  | Harris Hawks Optimization                  | HHO   | 2019 | original  | yes  | best   | 2     | medium |
+|        | 27  | Sea Lion Optimization                      | SLO   | 2019 | orginal   | no   | strong | 2     | easy   |
+|        | 28  | Manta Ray Foraging Optimization            | MRFO  | 2020 | original  | no   | best   | 3     | easy   |
+|        | 29  |                                            |       |      |           |      |        |       |        |
 | Physic | 1   | Wind Driven Optimization                   | WDO   | 2013 | original  | no   | strong | 7     | easy   |
 |        | 2   | Multi\-Verse Optimizer                     | MVO   | 2016 | changed   | no   | strong | 3     | easy   |
 |        | 3   | Tug of War Optimization                    | TWO   | 2016 | original  | no   | strong | 2     | easy   |
@@ -211,7 +214,6 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 2   |                                            |       |      |           |      |        |       |        |
 | Music  | 1   | Harmony Search                             | HS    | 2001 | changed   | no   | weak   | 5     | easy   |
 |        | 2   |                                            |       |      |           |      |        |       |        |
-
 
 
 ### A
@@ -255,6 +257,8 @@ If you use mealpy in your project, I would appreciate citations:
 
 
 ### E
+
+* **EHO - Elephant Herding Optimization** . Wang, G. G., Deb, S., & Coelho, L. D. S. (2015, December). Elephant herding optimization. In 2015 3rd International Symposium on Computational and Business Intelligence (ISCBI) (pp. 1-5). IEEE.
 
 * **EFO - Electromagnetic Field Optimization** . Abedinpourshotorban, H., Shamsuddin, S. M., Beheshti, Z., & Jawawi, D. N. (2016). Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm. Swarm and Evolutionary Computation, 26, 8-22.
 

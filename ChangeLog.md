@@ -1,6 +1,10 @@
 # Version 0.7.6
 
 ### Change models
++ Added Elephant Herding Optimization (EHO) in Swarm-based group
+    + BaseEHO
+    + LevyEHO
+        + Changed the Uniform distribution the "Separating operator" by Levy-flight (50%) and Gaussian(50%) 
 + Added Gaining Sharing Knowledge-based Algorithm (GSKA) in Human-based group
 + Added Pigeon-Inspired Optimization (PIO) in Swarm-based group
     + BasePIO (Changed almost everything include flow the algorithm)
@@ -24,6 +28,7 @@
     + BaseBSO and ImprovedBSO 
     + BaseGSKA
     + BasePIO and LevyPIO
+    + BaseEHO and LevyEHO
     
 
 
