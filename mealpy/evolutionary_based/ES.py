@@ -27,7 +27,7 @@ class BaseES(Root):
         Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size        # miu
-        if n_child < 1:                 # lamda
+        if n_child < 1:                 # lamda, 75% of pop_size
             self.n_child = int(n_child * self.pop_size)
         else:
             self.n_child = int(n_child)
@@ -40,13 +40,13 @@ class BaseES(Root):
         return [pos, fit, strategy]
 
     def _mutate_solution__(self, solution=None):
-        child = solution[self.ID_POS] + solution[self.ID_STR] * normal(0, 1.0)
+        child = solution[self.ID_POS] + solution[self.ID_STR] * normal(0, 1.0, self.problem_size)
         child = self._amend_solution_faster__(child)
         fit = self._fitness_model__(child)
         tau = sqrt(2.0 * self.problem_size) ** -1.0
         tau_p = sqrt(2.0 * sqrt(self.problem_size)) ** -1.0
-        stdevs = array([exp(tau_p * normal(0, 1.0) + tau * normal(0, 1.0)) for _ in range(self.problem_size)])
-        return [child, fit, stdevs]
+        strategy = exp(tau_p * normal(0, 1.0, self.problem_size) + tau * normal(0, 1.0, self.problem_size))
+        return [child, fit, strategy]
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
