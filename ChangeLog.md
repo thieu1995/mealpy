@@ -1,3 +1,28 @@
+# Version 0.8.1
+
+### Change models
++ Evolutionary-based group 
+    + Added Evolution Strategies (ES)
+        + BaseES
+        + LevyES: Idea ==> Top population being mutated based on strategy, Left population try to get out of their
+         position based on levy-flight. 
+    + Added Evolution Programming (EP)
+        + BaseEP: Different than ES by operator and bout_size
+        + LevyEP: Idea ==> Top population being selected based on tournament strategy round, 50% Left population
+             try to make a comeback to take the good position with levy jump.
+    + Added Memetic Algorithm (MA)
+        + BaseMA
+    
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: 
+    + BaseES and LevyES
+    + BaseEP and LevyEP
+    + BaseMA
+
+---------------------------------------------------------------------
+
+
 # Version 0.8.0
 
 ### Change models

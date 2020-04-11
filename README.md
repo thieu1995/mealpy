@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.8.0-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.8.1-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -151,11 +151,14 @@ If you use mealpy in your project, I would appreciate citations:
 
 | Group  | STT | Name                                       | Short | Year | Version   | Levy | Type   | Paras | Diffic |
 |--------|-----|--------------------------------------------|-------|------|-----------|------|--------|-------|--------|
-| Evolu  | 1   | Genetic Algorithm                          | GA    | 1992 | original  | no   | weak   | 4     | easy   |
-|        | 2   | Differential Evolution                     | DE    | 1997 | original  | no   | weak   | 4     | easy   |
-|        | 3   | Flower Pollination Algorithm               | FPA   | 2014 | orginal   | yes  | strong | 3     | easy   |
-|        | 4   | Coral Reefs Optimization                   | CRO   | 2014 | original  | no   | weak   | 7     | medium |
-|        | 5   |                                            |       |      |           |      |        |       |        |
+| Evolu  | 1   | Evolutionary Programming                   | EP    | 1964 | original  | no   | strong | 3     | easy   |
+|        | 2   | Evolution Strategies                       | ES    | 1971 | original  | no   | strong | 3     | easy   |
+|        | 3   | Memetic Algorithm                          | MA    | 1989 | original  | no   | weak   | 7     | easy   |
+|        | 3   | Genetic Algorithm                          | GA    | 1992 | original  | no   | strong | 4     | easy   |
+|        | 4   | Differential Evolution                     | DE    | 1997 | original  | no   | weak   | 4     | easy   |
+|        | 5   | Flower Pollination Algorithm               | FPA   | 2014 | orginal   | yes  | strong | 3     | easy   |
+|        | 6   | Coral Reefs Optimization                   | CRO   | 2014 | original  | no   | weak   | 7     | medium |
+|        | 7   |                                            |       |      |           |      |        |       |        |
 | Swarm  | 1   | Particle Swarm Optimization                | PSO   | 1995 | original  | no   | strong | 6     | easy   |
 |        | 2   | Bacterial Foraging Optimization            | BFO   | 2002 | orginal   | no   | weak   | 11    | hard   |
 |        | 3   | Cat Swarm Optimization                     | CSO   | 2006 | original  | no   | weak   | 9     | hard   |
@@ -259,6 +262,11 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### E
 
+* **ES - Evolution Strategies** . Schwefel, H. P. (1984). Evolution strategies: A family of non-linear optimization techniques based on imitating some principles of organic evolution. Annals of Operations Research, 1(2), 165-167.
+
+* **EP - Evolutionary programming** . Fogel, L. J. (1994). Evolutionary programming in perspective: The top-down view
+. Computational intelligence: Imitating life.
+
 * **EHO - Elephant Herding Optimization** . Wang, G. G., Deb, S., & Coelho, L. D. S. (2015, December). Elephant herding optimization. In 2015 3rd International Symposium on Computational and Business Intelligence (ISCBI) (pp. 1-5). IEEE.
 
 * **EFO - Electromagnetic Field Optimization** . Abedinpourshotorban, H., Shamsuddin, S. M., Beheshti, Z., & Jawawi, D. N. (2016). Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm. Swarm and Evolutionary Computation, 26, 8-22.
@@ -312,6 +320,10 @@ If you use mealpy in your project, I would appreciate citations:
 * **LCBO - Life Choice-Based Optimization** . Khatri, A., Gaba, A., Rana, K. P. S., & Kumar, V. (2019). A novel life choice-based optimizer. Soft Computing, 1-21.
 
 ### M
+
+* **MA - Memetic Algorithm** . Moscato, P. (1989). On evolution, search, optimization, genetic algorithms and martial
+ arts
+: Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, 1989.
 
 * **MFO - Moth Flame Optimization** . Mirjalili, S. (2015). Moth-flame optimization algorithm: A novel nature-inspired heuristic paradigm. Knowledge-based systems, 89, 228-249.
 

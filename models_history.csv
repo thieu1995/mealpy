@@ -1,9 +1,12 @@
 Group,STT,Name,Short,Year,Version,Levy,Type,Paras,Diffic
-Evolu,1,Genetic Algorithm,GA,1992,original,no,weak,4,easy
-,2,Differential Evolution,DE,1997,original,no,weak,4,easy
-,3,Flower Pollination Algorithm,FPA,2014,orginal,yes,strong,3,easy
-,4,Coral Reefs Optimization,CRO,2014,original,no,weak,7,medium
-,5,,,,,,,,
+Evolu,1,Evolutionary Programming,EP,1964,original,no,strong,3,easy
+,2,Evolution Strategies,ES,1971,original,no,strong,3,easy
+,3,Memetic Algorithm,MA,1989,original,no,weak,7,easy
+,3,Genetic Algorithm,GA,1992,original,no,strong,4,easy
+,4,Differential Evolution,DE,1997,original,no,weak,4,easy
+,5,Flower Pollination Algorithm,FPA,2014,orginal,yes,strong,3,easy
+,6,Coral Reefs Optimization,CRO,2014,original,no,weak,7,medium
+,7,,,,,,,,
 Swarm,1,Particle Swarm Optimization,PSO,1995,original,no,strong,6,easy
 ,2,Bacterial Foraging Optimization,BFO,2002,orginal,no,weak,11,hard
 ,3,Cat Swarm Optimization,CSO,2006,original,no,weak,9,hard
