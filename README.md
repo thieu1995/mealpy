@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.8.1-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.8.2-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -113,6 +113,7 @@ If you use mealpy in your project, I would appreciate citations:
     + System: System-based (eco-system, immune-system, network-system, ...)
     + Math: Math-based
     + Music: Music-based
+    + Proba: Probabilistic based algorithm
     
 * Levy: Using levy-flight technique or not
 * Version: 
@@ -146,7 +147,6 @@ If you use mealpy in your project, I would appreciate citations:
     + Hard* - Very hard: Lots of equations, SLOC too long, the paper is very hard to read.
 
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
-
 
 
 | Group  | STT | Name                                       | Short | Year | Version   | Levy | Type   | Paras | Diffic |
@@ -219,6 +219,8 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 2   |                                            |       |      |           |      |        |       |        |
 | Music  | 1   | Harmony Search                             | HS    | 2001 | changed   | no   | weak   | 5     | easy   |
 |        | 2   |                                            |       |      |           |      |        |       |        |
+| Proba  | 1   | Cross Entropy Method                       | CEM   | 1997 | original  | no   | strong | 4     | medium |
+|        | 2   |                                            |       |      |           |      |        |       |        |
 
 
 
@@ -250,6 +252,8 @@ If you use mealpy in your project, I would appreciate citations:
 
 
 ### C
+
+* **CEM - Cross Entropy Method** . Rubinstein, R. (1999). The cross-entropy method for combinatorial and continuous optimization. Methodology and computing in applied probability, 1(2), 127-190.
 
 * **CSO - Cat Swarm Optimization** . Chu, S. C., Tsai, P. W., & Pan, J. S. (2006, August). Cat swarm optimization. In Pacific Rim international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
 

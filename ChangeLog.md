@@ -11,10 +11,14 @@
 + Human-based group
     + Fix LCBO sort population in initialization process
     
++ Added new group: Probabilistic-based algorithm
+    + Added Cross-Entropy Method (CEM)
+    
 ### Change others
 + models_history.csv: Update history of meta-heuristic algorithms        
 + examples: Added new examples of: 
     + BaseVCS
+    + BaseCEM
 
 ---------------------------------------------------------------------
 
