@@ -4,6 +4,12 @@
 + Bio-based group 
     + Added Virus Colony Search (VCS)
         + BaseVCS: This is the very simple version of VCS. Not the original one in the paper 
+        
++ Physics-based group
+    + Remove EO not good version
+    
++ Human-based group
+    + Fix LCBO sort population in initialization process
     
 ### Change others
 + models_history.csv: Update history of meta-heuristic algorithms        

@@ -19,15 +19,15 @@ class BaseLCBO(Root):
     Link:
         DOI: https://doi.org/10.1007/s00500-019-04443-z
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r1=2.35):
         Root.__init__(self, objective_func, problem_size, domain_range, log)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.r1 = 2.35
+        self.r1 = r1
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         # epoch: current chance, self.epoch: number of chances
         for epoch in range(self.epoch):
@@ -50,13 +50,13 @@ class BaseLCBO(Root):
                 else:
                     x_min = self.domain_range[0] * ones(self.problem_size)
                     x_max = self.domain_range[1] * ones(self.problem_size)
-                    temp = x_max - (pop[i][self.ID_POS] - x_min) * uniform()
+                    temp = x_max - (pop[i][self.ID_POS] - x_min) * uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
                 fit = self._fitness_model__(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [temp, fit]
 
             # Update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -69,8 +69,8 @@ class LevyLCBO(BaseLCBO):
         (A novel life choice-based optimizer)
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        BaseLCBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r1=2.35):
+        BaseLCBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r1)
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
@@ -102,26 +102,23 @@ class LevyLCBO(BaseLCBO):
                     pop[i] = [temp, fit]
 
             # Update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class ImprovedLCBO(Root):
+class ImprovedLCBO(BaseLCBO):
     """
     The improved version of: Life Choice-Based Optimization (LCBO) based on new ideas
         (A novel life choice-based optimizer)
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.r1 = 2.35
-        self.n1 = int(ceil(sqrt(self.pop_size)))            # n best solution
-        self.n2 = int((self.pop_size - self.n1)/2)          # 50% for both 2 group left
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r1=2.35):
+        BaseLCBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r1)
+        self.n1 = int(ceil(sqrt(self.pop_size)))                        # n best solution
+        self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)          # 50% for both 2 group left
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
@@ -137,7 +134,7 @@ class ImprovedLCBO(Root):
                     temp = mean(temp, axis=0)
                 elif i < self.n2:  # People in group 2 learning from the best person in the history, because they want to be better than the current best person
                     temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-                else:  # People in group 2 learning from the current best person and the person slightly better than them, because they don't have vision
+                else:  # People in group 3 learning from the current best person and the person slightly better than them, because they don't have vision
                     f1 = 1 - (epoch + 1) / self.epoch
                     f2 = 1 - f1
                     better_diff = f2 * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])

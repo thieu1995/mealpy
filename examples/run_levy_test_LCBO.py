@@ -7,14 +7,14 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.type_based.uni_modal import Functions
+from opfunu.type_based.multi_modal import Functions
 from mealpy.human_based.LCBO import BaseLCBO, LevyLCBO, ImprovedLCBO
 
 t1 = Functions()
 
 ## Setting parameters
-objective_func = t1._sum_squres__
-problem_size = 3000
+objective_func = t1._pathological__
+problem_size = 300
 domain_range = [-15, 15]
 log = True
 epoch = 100
