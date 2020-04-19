@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import exp, sign, ones
+from numpy import exp, sign, ones, mean
 from numpy.random import uniform, randint
 from copy import deepcopy
 from mealpy.root import Root
@@ -92,36 +92,24 @@ class LevyEO(BaseEO):
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
         BaseEO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
 
+    def _make_equilibrium_pool__(self, list_equilibrium=None):
+        pos_list = [item[self.ID_POS] for item in list_equilibrium]
+        pos_mean = mean(pos_list, axis=0)
+        fit = self._fitness_model__(pos_mean)
+        return list_equilibrium.append([pos_mean, fit])
+
     def _train__(self):
-        # c_eq1 = [None, float("inf")]                    # it is global best solution
-        c_eq2 = [None, float("inf")]
-        c_eq3 = [None, float("inf")]
-        c_eq4 = [None, float("inf")]
+        # Initialization
+        pop = [self._create_solution__() for _ in range(self.pop_size)]
 
         # ---------------- Memory saving-------------------
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
-        c_eq1 = deepcopy(g_best)
+        # make equilibrium pool
+        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT])
+        c_eq_list = deepcopy(pop_sorted[:4])
+        g_best = deepcopy(c_eq_list[0])
+        c_pool = self._make_equilibrium_pool__(c_eq_list)
 
         for epoch in range(0, self.epoch):
-
-            for i in range(0, self.pop_size):
-
-                if pop[i][self.ID_FIT] < c_eq1[self.ID_FIT]:
-                    c_eq1 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq2[self.ID_FIT]:
-                    c_eq2 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq3[self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT]:
-                    c_eq3 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT] and \
-                        c_eq3[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq4[self.ID_FIT]:
-                    c_eq4 = deepcopy(pop[i])
-
-            # make equilibrium pool
-            c_eq_ave = (c_eq1[self.ID_POS] + c_eq2[self.ID_POS] + c_eq3[self.ID_POS] + c_eq4[self.ID_POS]) / 4
-            fit_ave = self._fitness_model__(c_eq_ave)
-            c_pool = [c_eq1, c_eq2, c_eq3, c_eq4, [c_eq_ave, fit_ave]]
-
             # Eq. 9
             t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
 
@@ -143,7 +131,15 @@ class LevyEO(BaseEO):
                 fit = self._fitness_model__(temp)
                 pop[i] = [temp, fit]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            # Update the equilibrium pool
+            pop_sorted = deepcopy(pop)
+            pop_sorted.extend(c_pool)
+            pop_sorted = sorted(pop_sorted, key=lambda item: item[self.ID_FIT])
+            c_eq_list = deepcopy(pop_sorted[:4])
+            c_pool = self._make_equilibrium_pool__(c_eq_list)
+
+            if pop_sorted[0][self.ID_FIT] < g_best[self.ID_FIT]:
+                g_best = deepcopy(pop_sorted[0])
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
