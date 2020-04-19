@@ -207,10 +207,11 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 8   |                                            |       |      |           |      |        |       |        |
 | Bio    | 1   | Invasive Weed Optimization                 | IWO   | 2006 | original  | no   | strong | 5     | easy   |
 |        | 2   | Biogeography\-Based Optimization           | BBO   | 2008 | original  | no   | strong | 4     | easy   |
-|        | 3   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | strong | 5     | easy   |
-|        | 4   | Wildebeest Herd Optimization               | WHO   | 2019 | changed   | no   | weak   | 12    | medium |
-|        | 5   | Black Widow Optimization                   | BWO   | 2020 | changed   | no   | weak   | 5     | medium |
-|        | 6   |                                            |       |      |           |      |        |       |        |
+|        | 3   | Virus Colony Search                        | VCS   | 2016 | changed   | no   | best   | 4     | hard\* |
+|        | 4   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | strong | 5     | easy   |
+|        | 5   | Wildebeest Herd Optimization               | WHO   | 2019 | changed   | no   | weak   | 12    | medium |
+|        | 6   | Black Widow Optimization                   | BWO   | 2020 | changed   | no   | weak   | 5     | medium |
+|        | 7   |                                            |       |      |           |      |        |       |        |
 | System | 1   | Germinal Center Optimization               | GCO   | 2018 | changed   | no   | weak   | 4     | medium |
 |        | 2   | Artificial Ecosystem\-based Optimization   | AEO   | 2019 | original  | no   | best   | 2     | easy   |
 |        | 3   |                                            |       |      |           |      |        |       |        |
@@ -218,6 +219,7 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 2   |                                            |       |      |           |      |        |       |        |
 | Music  | 1   | Harmony Search                             | HS    | 2001 | changed   | no   | weak   | 5     | easy   |
 |        | 2   |                                            |       |      |           |      |        |       |        |
+
 
 
 ### A
@@ -257,6 +259,8 @@ If you use mealpy in your project, I would appreciate citations:
 ### D
 
 * **DE - Differential Evolution** . Storn, R., & Price, K. (1997). Differential evolution–a simple and efficient heuristic for global optimization over continuous spaces. Journal of global optimization, 11(4), 341-359.
+
+* **DSA - Differential Search Algorithm** . Civicioglu, P. (2012). Transforming geocentric cartesian coordinates to geodetic coordinates by using differential search algorithm. Computers & Geosciences, 46, 229-247.
 
 
 
@@ -396,9 +400,10 @@ If you use mealpy in your project, I would appreciate citations:
 
 ### V
 
-### W
+* **VCS - Virus Colony Search** . Li, M. D., Zhao, H., Weng, X. W., & Han, T. (2016). A novel nature-inspired
+ algorithm for optimization: Virus colony search. Advances in Engineering Software, 92, 65-88.
 
-### X
+### W
 
 * **WOA - Whale Optimization Algorithm** . Mirjalili, S., & Lewis, A. (2016). The whale optimization algorithm. Advances in engineering software, 95, 51-67.
 
@@ -406,6 +411,7 @@ If you use mealpy in your project, I would appreciate citations:
 
 * **WDO - Wind Driven Optimization** . Bayraktar, Z., Komurcu, M., & Werner, D. H. (2010, July). Wind Driven Optimization (WDO): A novel nature-inspired optimization algorithm and its application to electromagnetics. In 2010 IEEE antennas and propagation society international symposium (pp. 1-4). IEEE.
 
+### X
 
 ### Y
 

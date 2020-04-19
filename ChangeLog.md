@@ -1,3 +1,18 @@
+# Version 0.8.2
+
+### Change models
++ Bio-based group 
+    + Added Virus Colony Search (VCS)
+        + BaseVCS: This is the very simple version of VCS. Not the original one in the paper 
+    
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: 
+    + BaseVCS
+
+---------------------------------------------------------------------
+
+
 # Version 0.8.1
 
 ### Change models
