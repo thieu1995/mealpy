@@ -1,3 +1,13 @@
+# Version 0.8.3
+
+### Change models
++ Probabilistic-based algorithm
+    + Added Cross-Entropy Method (CEM)
+    + Added CEM + LCBO
+    + Added CEM + SSDO
+    
+---------------------------------------------------------------------
+
 # Version 0.8.2
 
 ### Change models

@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.8.2-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.8.3-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -100,6 +100,17 @@ If you use mealpy in your project, I would appreciate citations:
   publisher    = {Zenodo},
   doi          = {10.5281/zenodo.3711948},
   url          = {https://doi.org/10.5281/zenodo.3711948}
+}
+
+@article{nguyen2019efficient,
+  title={Efficient Time-Series Forecasting Using Neural Network and Opposition-Based Coral Reefs Optimization},
+  author={Nguyen, Thieu and Nguyen, Tu and Nguyen, Binh Minh and Nguyen, Giang},
+  journal={International Journal of Computational Intelligence Systems},
+  volume={12},
+  number={2},
+  pages={1144--1161},
+  year={2019},
+  publisher={Atlantis Press}
 }
 ```
 
