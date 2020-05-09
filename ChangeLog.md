@@ -1,3 +1,19 @@
+# Version 0.8.4
+
+### Change models
++ Fix bugs in Probabilistic-based algorithm
+    + BaseCEM
+    + CEBaseLCBO
+    + CEBaseLCBONew: No levy
+    + CEBaseSSDO
++ Fix bugs in Physics-based algorithm
+    + LevyEO
++ Fix bug in Human-based algorithm
+    + LCBO
+    
+    
+---------------------------------------------------------------------
+
 # Version 0.8.3
 
 ### Change models

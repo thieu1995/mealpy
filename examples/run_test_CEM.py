@@ -7,17 +7,16 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.type_based.uni_modal import Functions as tyba
-from opfunu.cec.cec2014 import Functions as cec
+from opfunu.type_based.uni_modal import Functions
+from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.probabilistic_based.CEM import BaseCEM, CEBaseLCBO
 
-t1 = tyba()
-t2 = cec()
+t1 = Functions()
 
 ## Setting parameters
-objective_func = t2.C11
-problem_size = 30
-domain_range = [-15, 15]
+objective_func = t1._sum_squres__           # F1
+problem_size = 200
+domain_range = [-150, 150]
 log = True
 epoch = 100
 pop_size = 50
@@ -29,10 +28,10 @@ best_pos1, best_fit1, list_loss1 = md1._train__()
 print(best_fit1)
 print("========================================================")
 
-md2 = CEBaseLCBO(objective_func, problem_size, domain_range, log, epoch, pop_size, alpha)
-best_pos2, best_fit2, list_loss2 = md2._train__()
-print(best_fit2)
-print("========================================================")
-
+# md2 = CEBaseLCBO(objective_func, problem_size, domain_range, log, epoch, pop_size, alpha)
+# best_pos2, best_fit2, list_loss2 = md2._train__()
+# print(best_fit2)
+# print("========================================================")
+#
 
 

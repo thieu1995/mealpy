@@ -39,13 +39,12 @@ class BaseLCBO(Root):
                     temp = array([uniform() * pop[j][self.ID_POS] for j in range(0, n)])
                     temp = mean(temp, axis=0)
                 elif rand < 0.7:    # Update using Eq. 2-6
-                    f1 = 1 - (epoch + 1) / self.epoch
-                    f2 = 1 - f1
+                    f = (epoch + 1) / self.epoch
                     if i != 0:
-                        better_diff = f2 * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                        better_diff = f * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
                     else:
-                        better_diff = f2 * self.r1 * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    best_diff = f1 * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
+                        better_diff = f * self.r1 * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    best_diff = (1-f) * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
                     temp = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
                 else:
                     x_min = self.domain_range[0] * ones(self.problem_size)
@@ -74,7 +73,7 @@ class LevyLCBO(BaseLCBO):
 
     def _train__(self):
         pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         # epoch: current chance, self.epoch: number of chances
         for epoch in range(self.epoch):
@@ -86,16 +85,18 @@ class LevyLCBO(BaseLCBO):
                     temp = array([uniform() * pop[j][self.ID_POS] for j in range(0, n)])
                     temp = mean(temp, axis=0)
                 elif rand < 0.7:  # Update using Eq. 2-6
-                    f1 = 1 - (epoch + 1) / self.epoch
-                    f2 = 1 - f1
-                    if i != 0:
-                        better_diff = f2 * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                    if uniform() < 0.5:
+                        f = (epoch + 1) / self.epoch
+                        if i != 0:
+                            better_diff = f * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                        else:
+                            better_diff = f * self.r1 * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                        best_diff = (1 - f) * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
+                        temp = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
                     else:
-                        better_diff = f2 * self.r1 * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    best_diff = f1 * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
-                    temp = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
+                        temp = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
                 else:
-                    temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])     # My new updated here
+                    temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], case=0)  # My new updated here
 
                 fit = self._fitness_model__(temp)
                 if fit < pop[i][self.ID_FIT]:
@@ -132,14 +133,17 @@ class ImprovedLCBO(BaseLCBO):
                 if i < self.n1:
                     temp = array([uniform() * pop[j][self.ID_POS] for j in range(0, self.n1)])
                     temp = mean(temp, axis=0)
-                elif i < self.n2:  # People in group 2 learning from the best person in the history, because they want to be better than the current best person
-                    temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+                elif self.n1 <= i < self.n2:  # People in group 2 learning from the best person in the history, because they want to be better than the current
+                    # best person
+                    temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], case=0)
                 else:  # People in group 3 learning from the current best person and the person slightly better than them, because they don't have vision
-                    f1 = 1 - (epoch + 1) / self.epoch
-                    f2 = 1 - f1
-                    better_diff = f2 * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
-                    best_diff = f1 * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
-                    temp = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
+                    if uniform() < 0.5:
+                        f = 1 - (epoch + 1) / self.epoch
+                        better_diff = f * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                        best_diff = (1 - f) * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
+                        temp = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
+                    else:
+                        temp = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
                 fit = self._fitness_model__(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [temp, fit]

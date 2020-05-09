@@ -47,11 +47,11 @@ class BaseEO(Root):
 
                 if pop[i][self.ID_FIT] < c_eq1[self.ID_FIT]:
                     c_eq1 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and pop[i][self.ID_FIT] < c_eq2[self.ID_FIT]:
+                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq2[self.ID_FIT]:
                     c_eq2 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT] and pop[i][self.ID_FIT] < c_eq3[self.ID_FIT]:
+                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq3[self.ID_FIT]:
                     c_eq3 = deepcopy(pop[i])
-                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq3[self.ID_FIT] < pop[i][self.ID_FIT] and pop[i][self.ID_FIT] < c_eq4[self.ID_FIT]:
+                elif c_eq1[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq2[self.ID_FIT] < pop[i][self.ID_FIT] and c_eq3[self.ID_FIT] < pop[i][self.ID_FIT] < c_eq4[self.ID_FIT]:
                     c_eq4 = deepcopy(pop[i])
 
             # make equilibrium pool
@@ -96,7 +96,8 @@ class LevyEO(BaseEO):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
         pos_mean = mean(pos_list, axis=0)
         fit = self._fitness_model__(pos_mean)
-        return list_equilibrium.append([pos_mean, fit])
+        list_equilibrium.append([pos_mean, fit])
+        return list_equilibrium
 
     def _train__(self):
         # Initialization
@@ -133,7 +134,7 @@ class LevyEO(BaseEO):
 
             # Update the equilibrium pool
             pop_sorted = deepcopy(pop)
-            pop_sorted.extend(c_pool)
+            pop_sorted = pop_sorted + c_pool
             pop_sorted = sorted(pop_sorted, key=lambda item: item[self.ID_FIT])
             c_eq_list = deepcopy(pop_sorted[:4])
             c_pool = self._make_equilibrium_pool__(c_eq_list)

@@ -13,7 +13,7 @@ from mealpy.physics_based.EO import BaseEO, LevyEO
 t1 = Functions()
 
 ## Setting parameters
-objective_func = t1._sum_squres__
+objective_func = t1._chung_reynolds__
 problem_size = 3000
 domain_range = [-15, 15]
 log = True
