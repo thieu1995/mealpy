@@ -52,7 +52,8 @@ Human,1,Teaching Learning Optimization,TLO,2011,original,no,strong,2,easy
 ,5,Life Choice-Based Optimization ,LCBO,2019,original,no,strong,2,easy
 ,6,Social Ski-Driver Optimization,SSDO,2019,changed,no,weak,2,easy
 ,7,Gaining Sharing Knowledge-based Algorithm,GSKA,2019,original,no,strong,6,easy
-,8,,,,,,,,
+,8,Coronavirus Herd Immunity Optimization,CHIO,2020,changed,no,weak,4,medium
+,9,,,,,,,,
 Bio,1,Invasive Weed Optimization,IWO,2006,original,no,strong,5,easy
 ,2,Biogeography-Based Optimization,BBO,2008,original,no,strong,4,easy
 ,3,Virus Colony Search,VCS,2016,changed,no,best,4,hard*

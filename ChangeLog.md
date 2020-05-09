@@ -10,7 +10,13 @@
     + LevyEO
 + Fix bug in Human-based algorithm
     + LCBO
-    
+
++ Added Coronavirus Herd Immunity Optimization (CHIO) in Human-based group
+    + Original version: OriginalCHIO
+        + This version stuck in local optimal and early stopping because the infected case quickly become immunity
+        + In my version, when infected case all change to immunity. I make 1/3 population become infected then
+         optimization step keep going.
+    + My version: BaseCHIO
     
 ---------------------------------------------------------------------
 

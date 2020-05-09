@@ -159,7 +159,6 @@ If you use mealpy in your project, I would appreciate citations:
 
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
-
 | Group  | STT | Name                                       | Short | Year | Version   | Levy | Type   | Paras | Diffic |
 |--------|-----|--------------------------------------------|-------|------|-----------|------|--------|-------|--------|
 | Evolu  | 1   | Evolutionary Programming                   | EP    | 1964 | original  | no   | strong | 3     | easy   |
@@ -215,7 +214,8 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 5   | Life Choice\-Based Optimization            | LCBO  | 2019 | original  | no   | strong | 2     | easy   |
 |        | 6   | Social Ski\-Driver Optimization            | SSDO  | 2019 | changed   | no   | weak   | 2     | easy   |
 |        | 7   | Gaining Sharing Knowledge\-based Algorithm | GSKA  | 2019 | original  | no   | strong | 6     | easy   |
-|        | 8   |                                            |       |      |           |      |        |       |        |
+|        | 8   | Coronavirus Herd Immunity Optimization     | CHIO  | 2020 | changed   | no   | weak   | 4     | medium |
+|        | 9   |                                            |       |      |           |      |        |       |        |
 | Bio    | 1   | Invasive Weed Optimization                 | IWO   | 2006 | original  | no   | strong | 5     | easy   |
 |        | 2   | Biogeography\-Based Optimization           | BBO   | 2008 | original  | no   | strong | 4     | easy   |
 |        | 3   | Virus Colony Search                        | VCS   | 2016 | changed   | no   | best   | 4     | hard\* |
@@ -229,8 +229,6 @@ If you use mealpy in your project, I would appreciate citations:
 | Math   | 1   | Sine Cosine Algorithm                      | SCA   | 2016 | changed   | no   | strong | 2     | easy   |
 |        | 2   |                                            |       |      |           |      |        |       |        |
 | Music  | 1   | Harmony Search                             | HS    | 2001 | changed   | no   | weak   | 5     | easy   |
-|        | 2   |                                            |       |      |           |      |        |       |        |
-| Proba  | 1   | Cross Entropy Method                       | CEM   | 1997 | original  | no   | strong | 4     | medium |
 |        | 2   |                                            |       |      |           |      |        |       |        |
 
 
