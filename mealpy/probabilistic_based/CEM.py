@@ -8,11 +8,11 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import ceil, sqrt, abs, array, ones, mean, repeat, sin, cos
-from numpy.random import uniform, normal, random, choice
+from numpy.random import uniform, normal, random
 from copy import deepcopy
 from mealpy.root import Root
 from mealpy.human_based.LCBO import BaseLCBO
-from mealpy.human_based.SSDO import LevySSDO
+from mealpy.human_based.SSDO import BaseSSDO
 
 
 class BaseCEM(Root):
@@ -73,9 +73,9 @@ class CEBaseLCBO(BaseLCBO):
         BaseLCBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r1)
         self.n1 = int(ceil(sqrt(self.pop_size)))                    # n best solution in LCBO
         self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)      # 50% for both 2 group left
-        self.n_best = int(ceil(sqrt(self.pop_size)))                # n nest solution in CE
+        self.n_best = int(sqrt(self.pop_size))                      # n nest solution in CE
         self.alpha = alpha                                          # alpha in CE
-        self.epoch_ce = int(ceil(epoch/5))                          # Epoch in CE
+        self.epoch_ce = int(sqrt(epoch))                            # Epoch in CE
         self.means, self.stdevs = None, None
 
     def _create_solution_ce__(self, minmax=0):
@@ -112,6 +112,7 @@ class CEBaseLCBO(BaseLCBO):
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
 
             # Initialization process of CE
+            pop_ce = deepcopy(pop)
             pos_list = array([item[self.ID_POS] for item in pop])
             self.means = mean(pos_list, axis=0)
             means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
@@ -120,7 +121,7 @@ class CEBaseLCBO(BaseLCBO):
             ## Here for CE algorithm (Exploitation)
             for epoch_ce in range(self.epoch_ce):
                 ## Selected the best samples and update means and stdevs
-                pop_best = pop[:self.n_best]
+                pop_best = pop_ce[:self.n_best]
                 pos_list = array([item[self.ID_POS] for item in pop_best])
 
                 means_new = mean(pos_list, axis=0)
@@ -134,8 +135,11 @@ class CEBaseLCBO(BaseLCBO):
                 g_best = self._update_global_best__(pop_best, self.ID_MIN_PROB, g_best)
 
                 ## Create new population for next generation
-                pop = [self._create_solution_ce__() for _ in range(self.pop_size)]
-                pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+                pop_ce = [self._create_solution_ce__() for _ in range(self.n_best)]
+                pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
+
+            ## Replace the worst in pop by pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
 
             # Update the final global best
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
@@ -155,10 +159,9 @@ class CEBaseLCBONew(BaseLCBO):
         BaseLCBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r1)
         self.n1 = int(ceil(sqrt(self.pop_size)))                # n best solution in LCBO
         self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)  # 50% for both 2 group left
-        self.n_best = int(ceil(sqrt(self.pop_size)))            # n best solution in CE
-        self.pop_size_ce = int(pop_size/2)                      # population size of CE algorithm
+        self.n_best = int(sqrt(pop_size))                       # n best solution in CE
         self.alpha = alpha                                      # alpha in CE
-        self.epoch_ce = int(ceil(epoch / 5))                    # Epoch in CE
+        self.epoch_ce = int(sqrt(epoch))                        # Epoch in CE
         self.means, self.stdevs = None, None
 
     def _create_solution_ce__(self, minmax=0):
@@ -196,11 +199,11 @@ class CEBaseLCBONew(BaseLCBO):
             # Update the global best
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
 
-            pop_ce = deepcopy(pop[:self.pop_size_ce])
+            pop_ce = deepcopy(pop)
             # Initialization process of CE
             pos_list = array([item[self.ID_POS].copy() for item in pop_ce])
             self.means = mean(pos_list, axis=0)
-            means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size_ce, axis=0)
+            means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
             self.stdevs = mean(((pos_list - means_new_repeat) ** 2), axis=0)
 
             ## Here for CE algorithm (Exploitation)
@@ -220,14 +223,11 @@ class CEBaseLCBONew(BaseLCBO):
                 g_best = self._update_global_best__(pop_best, self.ID_MIN_PROB, g_best)
 
                 ## Create new population for next generation
-                pop_ce = [self._create_solution_ce__() for _ in range(self.pop_size_ce)]
+                pop_ce = [self._create_solution_ce__() for _ in range(self.n_best)]
                 pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
 
             ## Replace the worst in pop by pop_ce
-            idx_list = choice(range(0, self.pop_size), self.pop_size_ce, replace=False)
-            for idx, idx_item in enumerate(idx_list):
-                pop[idx_item] = deepcopy(pop_ce[idx])
-            #pop = pop[(self.pop_size - self.pop_size_ce):] + pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
 
             # Update the final global best
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
@@ -237,7 +237,7 @@ class CEBaseLCBONew(BaseLCBO):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class CEBaseSSDO(LevySSDO):
+class CEBaseSSDO(BaseSSDO):
     ID_POS = 0
     ID_FIT = 1
     ID_VEL = 2  # velocity
@@ -246,10 +246,10 @@ class CEBaseSSDO(LevySSDO):
         The hybrid version of: Cross-Entropy Method (CEM) and Social Sky-Driving Optimization
     """
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, alpha=0.7):
-        LevySSDO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
-        self.n_best = int(ceil(sqrt(self.pop_size)))        # n nest solution in CE
+        BaseSSDO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+        self.n_best = int(sqrt(self.pop_size))              # n nest solution in CE
         self.alpha = alpha                                  # alpha in CE
-        self.epoch_ce = int(ceil(epoch / 5))                # Epoch in CE
+        self.epoch_ce = int(sqrt(epoch))                    # Epoch in CE
         self.means, self.stdevs = None, None
 
     def _create_solution_ce_(self, pop, idx):
@@ -285,7 +285,7 @@ class CEBaseSSDO(LevySSDO):
                 ## In real life, there are lots of cases skydrive person death because they can't follow the instructor, or something went wrong with their
                 # parasol. Inspired by that I added levy-flight is the a bold moves
                 if uniform() < 0.5:
-                    temp = pop[i][self.ID_POS] + pop[i][self.ID_VEL]
+                    temp = uniform() * pop[i][self.ID_POS] + pop[i][self.ID_VEL]
                 else:
                     temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
                 temp = self._amend_solution_faster__(temp)
@@ -296,8 +296,9 @@ class CEBaseSSDO(LevySSDO):
             # Update the global best
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
 
+            pop_ce = deepcopy(pop)
             # Initialization process of CE
-            pos_list = array([item[self.ID_POS] for item in pop])
+            pos_list = array([item[self.ID_POS] for item in pop_ce])
             self.means = mean(pos_list, axis=0)
             means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
             self.stdevs = mean(((pos_list - means_new_repeat) ** 2), axis=0)
@@ -305,7 +306,7 @@ class CEBaseSSDO(LevySSDO):
             ## Here for CE algorithm (Exploitation)
             for epoch_ce in range(self.epoch_ce):
                 ## Selected the best samples and update means and stdevs
-                pop_best = pop[:self.n_best]
+                pop_best = pop_ce[:self.n_best]
                 pos_list = array([item[self.ID_POS] for item in pop_best])
 
                 means_new = mean(pos_list, axis=0)
@@ -319,9 +320,11 @@ class CEBaseSSDO(LevySSDO):
                 g_best = self._update_global_best__(pop_best, self.ID_MIN_PROB, g_best)
 
                 ## Create new population for next generation
-                pop = [self._create_solution_ce_(pop, idx) for idx in range(self.pop_size)]
-                pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+                pop_ce = [self._create_solution_ce_(pop_ce, idx) for idx in range(self.n_best)]
+                pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
 
+            ## Replace the worst in pop by pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
             # Update the final global best
             pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
