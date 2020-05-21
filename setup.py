@@ -37,6 +37,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    install_requires=["numpy", "scikit-learn", "matplotlib", "opfunu"],
+    install_requires=["opfunu", "numpy", "scikit-learn", "matplotlib", "scipy"],
     python_requires='>=3.7',
 )

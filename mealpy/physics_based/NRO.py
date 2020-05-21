@@ -7,13 +7,15 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import sin, abs, sqrt, pi, subtract, log, array, exp
+from numpy import sin, abs, sqrt, pi, subtract, array, exp
+from numpy import log as loge
 from numpy.random import uniform, normal, choice, rand
 from numpy.linalg import norm
 from copy import deepcopy
 from math import gamma
 from scipy.stats import rankdata
 from mealpy.root import Root
+
 
 class BaseNRO(Root):
     """
@@ -35,7 +37,7 @@ class BaseNRO(Root):
 
             xichma_v = 1
             xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-            levy_b = (normal(0, xichma_u ** 2)) / (sqrt(normal(0, xichma_v ** 2)) ** (1.0 / 1.5))
+            levy_b = (normal(0, xichma_u ** 2)) / (sqrt(abs(normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
 
             # NFi phase
             Pb = uniform()
@@ -54,19 +56,19 @@ class BaseNRO(Root):
                 if uniform() <= Pfi:
                     ### Update based on Eq. 3
                     if uniform() <= Pb:
-                        xichma1 = (log(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i][self.ID_POS], g_best[self.ID_POS]))
+                        xichma1 = (loge(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i][self.ID_POS], g_best[self.ID_POS]))
                         gauss = array([normal(g_best[self.ID_POS][j], xichma1[j]) for j in range(self.problem_size)])
                         Xi = gauss + uniform() * g_best[self.ID_POS] - round(rand() + 1)*Nei
                     ### Update based on Eq. 6
                     else:
                         i2 = choice(temp1, replace=False)
-                        xichma2 = (log(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i2][self.ID_POS], g_best[self.ID_POS]))
+                        xichma2 = (loge(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i2][self.ID_POS], g_best[self.ID_POS]))
                         gauss = array([normal(pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem_size)])
                         Xi = gauss + uniform() * g_best[self.ID_POS] - round(rand() + 2) * Nei
                 ## Update based on Eq. 9
                 else:
                     i3 = choice(temp1, replace=False)
-                    xichma2 = (log(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i3][self.ID_POS], g_best[self.ID_POS]))
+                    xichma2 = (loge(epoch + 1) * 1.0 / (epoch+1)) * abs( subtract(pop[i3][self.ID_POS], g_best[self.ID_POS]))
                     Xi = array([normal(pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem_size)])
 
                 ## Check the boundary and evaluate the fitness function

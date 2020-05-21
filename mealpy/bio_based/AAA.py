@@ -103,7 +103,7 @@ class OriginalAAA(Root):
             ## Adaptation phrase
             if uniform() < self.ap:
                 starvation_list = array([item[self.ID_STAR] for item in pop])
-                maxx_star = argmax(starvation)
+                maxx_star = argmax(starvation_list)
                 pop[maxx_star][self.ID_STAR] += uniform() * (pop[maxx][self.ID_STAR] - pop[maxx_star][self.ID_STAR])
 
             ## Update global best

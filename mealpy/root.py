@@ -146,7 +146,7 @@ class Root:
         alpha = 0.01
         xichma_v = 1
         xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (normal(0, xichma_u ** 2)) / (sqrt(normal(0, xichma_v ** 2)) ** (1.0 / 1.5))
+        levy_b = (normal(0, xichma_u ** 2)) / (sqrt(abs(normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
         return solution[self.ID_POS] + alpha * levy_b * (solution - g_best)
 
     def _train__(self):

@@ -26,7 +26,6 @@ class BaseSSA(Root):
         self.r_a = r_a     # the rate of vibration attenuation when propagating over the spider web.
         self.p_c = p_c     # controls the probability of the spiders changing their dimension mask in the random walk step.
         self.p_m = p_m     # the probability of each value in a dimension mask to be one
-        self.info = True
 
     def _train__(self):
 
@@ -45,7 +44,7 @@ class BaseSSA(Root):
             base_distance = np.mean(np.std(self.position, 0))
             distance = cdist(self.position, self.position, 'euclidean')
 
-            intensity_source = np.log(1. / (spider_fitness + 1E-100) + 1)
+            intensity_source = np.log(1. / (spider_fitness + self.EPSILON) + 1)
             intensity_attenuation = np.exp(-distance / (base_distance * self.r_a))
             intensity_receive = np.tile(intensity_source, self.pop_size).reshape(self.pop_size, self.pop_size) * intensity_attenuation
 
@@ -109,7 +108,7 @@ class MySSA(BaseSSA):
         """
         x = np.random.uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
         fit = self._fitness_model__(solution=x, minmax=minmax)
-        intensity = np.log(1. /(fit - 1E-100) + 1)
+        intensity = np.log(1./(fit + self.EPSILON) + 1)
         target_position = deepcopy(x)
         previous_movement_vector = np.zeros(self.problem_size)
         dimension_mask = np.zeros(self.problem_size)
@@ -145,7 +144,7 @@ class MySSA(BaseSSA):
                     pop[i][self.ID_TARGET_POS] = pop[index_best_pos[i]][self.ID_TARGET_POS]
 
                 if np.random.uniform() > self.p_c:      ## changing mask
-                    pop[i][self.ID_MASK] = np.array([ 0 if np.random.uniform() < self.p_m else 1 for _ in range(self.problem_size)])
+                    pop[i][self.ID_MASK] = np.array([0 if np.random.uniform() < self.p_m else 1 for _ in range(self.problem_size)])
 
                 #p_fo = deepcopy(pop[i][self.ID_POS])
                 # for j in range(self.problem_size):
@@ -164,7 +163,7 @@ class MySSA(BaseSSA):
                 temp = self._amend_solution_and_return__(temp)
                 fit = self._fitness_model__(temp)
                 pop[i][self.ID_PREV_MOVE_VEC] = temp - pop[i][self.ID_POS]
-                pop[i][self.ID_INT] = np.log(1. /(fit + 1E-100) + 1)
+                pop[i][self.ID_INT] = np.log(1./(fit + self.EPSILON) + 1)
                 pop[i][self.ID_POS] = temp
                 pop[i][self.ID_FIT] = fit
 

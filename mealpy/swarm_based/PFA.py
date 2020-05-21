@@ -337,14 +337,14 @@ class LevyDePFA(DePFA):
         xich_ma_2 = 1
         return xich_ma_1, xich_ma_2
 
-    def _shrink_encircling_Levy__(self, current_sea_lion, epoch_i, dist, c, beta=1):
+    def _shrink_encircling_Levy__(self, current_position, epoch_i, dist, c, beta=1):
         xich_ma_1, xich_ma_2 = self._caculate_xichma__(beta)
         a = normal(0, xich_ma_1, 1)
         b = normal(0, xich_ma_2, 1)
         LB = 0.01 * a / (power(abs(b), 1 / beta)) * dist * c
         D = uniform(self.domain_range[0], self.domain_range[1], 1)
         levy = LB * D
-        return (current_sea_lion - sqrt(epoch_i + 1) * sign(random(1) - 0.5)) * levy
+        return (current_position - sqrt(epoch_i + 1) * sign(random(1) - 0.5)) * levy
 
     def _train__(self):
         # Init pop and calculate fitness

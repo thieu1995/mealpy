@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform
-from numpy import sqrt, dot, exp
+from numpy import sqrt, dot, exp, abs
 from copy import deepcopy
 from sklearn.metrics import mean_squared_error
 from mealpy.root import Root
@@ -67,7 +67,7 @@ class BaseBFO(Root):
 
     def _tumble_cell__(self, cell, step_size):
         delta_i = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        unit_vector = delta_i / sqrt(dot(delta_i, delta_i.T))
+        unit_vector = delta_i / sqrt(abs(dot(delta_i, delta_i.T)))
         vector = cell[self.ID_VECTOR] + step_size * unit_vector
         return [vector, 0.0, 0.0, 0.0, 0.0]
 
@@ -154,7 +154,7 @@ class ABFOLS(Root):
 
     def _tumble_cell__(self, cell=None, step_size=None, g_best=None):
         delta_i = (g_best[self.ID_VECTOR] - cell[self.ID_VECTOR]) + (cell[self.ID_PERSONAL_BEST] - cell[self.ID_VECTOR])
-        delta = sqrt(dot(delta_i, delta_i.T))
+        delta = sqrt(abs(dot(delta_i, delta_i.T)))
         if delta == 0:
             unit_vector = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
         else:
