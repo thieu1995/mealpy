@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import multiply
+from numpy import multiply, array
 from numpy.random import uniform, choice
 from copy import deepcopy
 from mealpy.root import Root
@@ -29,14 +29,6 @@ class BaseGA(Root):
         self.pm = pm
 
     ### Selection
-    def _get_index_roulette_wheel_selection__(self, list_fitness, sum_fitness):
-        # Just for positive numbers
-        r = uniform(low=0, high=sum_fitness)
-        for idx, f in enumerate(list_fitness):
-            r = r + f
-            if r > sum_fitness:
-                return idx
-
     def _get_parents_kway_tournament_selection__(self, pop=None, k_way=0.2):
         if k_way < 1:
             k_way = int(k_way * self.pop_size)
@@ -62,11 +54,14 @@ class BaseGA(Root):
         next_population = []
         while (len(next_population) < self.pop_size):
             ### Selection
-            c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
-            w1, w2 = deepcopy(c1[0]), deepcopy(c2[0])
+            # c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
+            fitness_list = array([item[self.ID_FIT] for item in pop])
+            id_c1 = self._get_index_roulette_wheel_selection_(fitness_list)
+            id_c2 = self._get_index_roulette_wheel_selection_(fitness_list)
+            w1, w2 = deepcopy(pop[id_c1][self.ID_POS]), deepcopy(pop[id_c2][self.ID_POS])
             ### Crossover
             if uniform() < self.pc:
-                w1, w2 = self._crossover_arthmetic_recombination__(c1[self.ID_POS], c2[self.ID_POS])
+                w1, w2 = self._crossover_arthmetic_recombination__(w1, w2)
 
             ### Mutation
             for idx in range(0, self.problem_size):

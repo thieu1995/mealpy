@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.8.3-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.8.5-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -28,7 +28,7 @@ under MIT license.
 * Numpy (>= 1.15.1)
 * Scikit-learn (>= 0.22.1)
 * Matplotlib (>=3.1.3)
-* Opfunu (>= 0.4.3)
+* Opfunu (>= 0.6.1)
 
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
@@ -205,7 +205,7 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 5   | Nuclear Reaction Optimization              | NRO   | 2019 | original  | yes  | best   | 2     | hard\* |
 |        | 6   | Henry Gas Solubility Optimization          | HGSO  | 2019 | original  | no   | best   | 3     | medium |
 |        | 7   | Atom Search Optimization                   | ASO   | 2019 | original  | no   | best   | 4     | medium |
-|        | 8   | Equilibrium Optimizer                      | EO    | 2019 | original  | no   | BEST   | 2     | easy   |
+|        | 8   | Equilibrium Optimizer                      | EO    | 2019 | original  | no   | strong | 2     | easy   |
 |        | 9   |                                            |       |      |           |      |        |       |        |
 | Human  | 1   | Teaching Learning Optimization             | TLO   | 2011 | original  | no   | strong | 2     | easy   |
 |        | 2   | Brain Storm Optimization                   | BSO   | 2011 | original  | no   | strong | 10    | easy   |
@@ -219,7 +219,7 @@ If you use mealpy in your project, I would appreciate citations:
 | Bio    | 1   | Invasive Weed Optimization                 | IWO   | 2006 | original  | no   | strong | 5     | easy   |
 |        | 2   | Biogeography\-Based Optimization           | BBO   | 2008 | original  | no   | strong | 4     | easy   |
 |        | 3   | Virus Colony Search                        | VCS   | 2016 | changed   | no   | best   | 4     | hard\* |
-|        | 4   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | strong | 5     | easy   |
+|        | 4   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | BEST   | 5     | easy   |
 |        | 5   | Wildebeest Herd Optimization               | WHO   | 2019 | changed   | no   | weak   | 12    | medium |
 |        | 6   | Black Widow Optimization                   | BWO   | 2020 | changed   | no   | weak   | 5     | medium |
 |        | 7   |                                            |       |      |           |      |        |       |        |

@@ -1,3 +1,20 @@
+# Version 0.8.5
+
+### Change models
++ Fix bugs in several algorithm related to Division by 0, sqrt(0), 
++ Added more algorithm in Probabilistic-based algorithm
+    + CEBaseSBO
++ Added selection by roulette wheel in root (This method now can handle negative fitness values)
++ Changed GA using roulette wheel selection instead of k-tournament method
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: 
+    + CE_SSDO, CE_SBO
+    + GA, SBO
+    
+---------------------------------------------------------------------
+
 # Version 0.8.4
 
 ### Change models

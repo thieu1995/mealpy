@@ -7,12 +7,13 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import ceil, sqrt, abs, array, ones, mean, repeat, sin, cos
+from numpy import ceil, sqrt, abs, array, ones, mean, repeat, sin, cos, clip
 from numpy.random import uniform, normal, random
 from copy import deepcopy
 from mealpy.root import Root
 from mealpy.human_based.LCBO import BaseLCBO
 from mealpy.human_based.SSDO import BaseSSDO
+from mealpy.bio_based.SBO import BaseSBO
 
 
 class BaseCEM(Root):
@@ -321,6 +322,96 @@ class CEBaseSSDO(BaseSSDO):
 
                 ## Create new population for next generation
                 pop_ce = [self._create_solution_ce_(pop_ce, idx) for idx in range(self.n_best)]
+                pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
+
+            ## Replace the worst in pop by pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
+            # Update the final global best
+            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.log:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class CEBaseSBO(BaseSBO):
+    """
+        The hybrid version of: Cross-Entropy Method (CEM) and Satin Bowerbird Optimizer (SBO)
+    """
+
+    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, alpha=0.94, pm=0.05, z=0.02):
+        BaseSBO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, alpha, pm, z)
+        self.n_best = int(sqrt(self.pop_size))          # n nest solution in CE
+        self.alpha = alpha                              # alpha in CE
+        self.epoch_ce = int(sqrt(epoch))                # Epoch in CE
+        self.means, self.stdevs = None, None
+
+    def _create_solution_ce_(self):
+        pos = normal(self.means, self.stdevs, self.problem_size)
+        pos = self._amend_solution_random_faster__(pos)
+        fit = self._fitness_model__(pos)
+        return [pos, fit]
+
+    def _train__(self):
+        pop = [self._create_solution__() for _ in range(self.pop_size)]
+        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        for epoch in range(self.epoch):
+            ## Calculate the probability of bowers using Eqs. (1) and (2)
+            fx_list = array([item[self.ID_FIT] for item in pop])
+            fit_list = deepcopy(fx_list)
+            for i in range(0, self.pop_size):
+                if fx_list[i] < 0:
+                    fit_list[i] = 1.0 + abs(fx_list[i])
+                else:
+                    fit_list[i] = 1.0 / (1.0 + abs(fx_list[i]))
+            fit_sum = sum(fit_list)
+            ## Calculating the probability of each bower
+            prob_list = fit_list / fit_sum
+
+            for i in range(0, self.pop_size):
+                temp = deepcopy(pop[i][self.ID_POS])
+                for j in range(0, self.problem_size):
+                    ### Select a bower using roulette wheel
+                    idx = self._roulette_wheel_selection__(prob_list)
+                    ### Calculating Step Size
+                    lamda = self.alpha / (1 + prob_list[idx])
+                    temp[j] = pop[i][self.ID_POS][j] + lamda * ((pop[idx][self.ID_POS][j] + g_best[self.ID_POS][j]) / 2 - pop[i][self.ID_POS][j])
+                    ### Mutation
+                    if uniform() < self.p_m:
+                        temp[j] = pop[i][self.ID_POS][j] + normal(0, 1) * self.sigma
+                temp = clip(temp, self.domain_range[0], self.domain_range[1])
+                fit = self._fitness_model__(temp)
+                pop[i] = [temp, fit]
+
+            ## Update elite if a bower becomes fitter than the elite
+            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+
+            pop_ce = deepcopy(pop)
+            # Initialization process of CE
+            pos_list = array([item[self.ID_POS] for item in pop_ce])
+            self.means = mean(pos_list, axis=0)
+            means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
+            self.stdevs = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+
+            ## Here for CE algorithm (Exploitation)
+            for epoch_ce in range(self.epoch_ce):
+                ## Selected the best samples and update means and stdevs
+                pop_best = pop_ce[:self.n_best]
+                pos_list = array([item[self.ID_POS] for item in pop_best])
+
+                means_new = mean(pos_list, axis=0)
+                means_new_repeat = repeat(means_new.reshape((1, -1)), self.n_best, axis=0)
+                stdevs_new = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+
+                self.means = self.alpha * self.means + (1.0 - self.alpha) * means_new
+                self.stdevs = abs(self.alpha * self.stdevs + (1.0 - self.alpha) * stdevs_new)
+
+                ## Update elite if a bower becomes fitter than the elite
+                g_best = self._update_global_best__(pop_best, self.ID_MIN_PROB, g_best)
+
+                ## Create new population for next generation
+                pop_ce = [self._create_solution_ce_() for idx in range(self.n_best)]
                 pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
 
             ## Replace the worst in pop by pop_ce

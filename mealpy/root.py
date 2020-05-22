@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum
 from numpy.random import uniform, random, normal
 from math import gamma
 from copy import deepcopy
@@ -62,12 +62,6 @@ class Root:
         return self.objective_func(solution) if minmax == 0 else 1.0 / (self.objective_func(solution) + self.EPSILON)
 
     def _fitness_encoded__(self, encoded=None, id_pos=None, minmax=0):
-        """
-
-        Returns
-        -------
-        object
-        """
         return self._fitness_model__(solution=encoded[id_pos], minmax=minmax)
 
     def _get_global_best__(self, pop=None, id_fitness=None, id_best=None):
@@ -148,6 +142,17 @@ class Root:
         xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
         levy_b = (normal(0, xichma_u ** 2)) / (sqrt(abs(normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
         return solution[self.ID_POS] + alpha * levy_b * (solution - g_best)
+
+    def _get_index_roulette_wheel_selection_(self, list_fitness=None):
+        """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""
+        scaled_fitness = (list_fitness - min(list_fitness)) / ptp(list_fitness)
+        minimized_fitness = 1.0 - scaled_fitness
+        total_sum = sum(minimized_fitness)
+        r = uniform(low=0, high=total_sum)
+        for idx, f in enumerate(minimized_fitness):
+            r = r + f
+            if r > total_sum:
+                return idx
 
     def _train__(self):
         pass
