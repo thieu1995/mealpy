@@ -104,4 +104,4 @@ class BaseSARO(Root):
             if self.log:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
 
-        return g_best[self.ID_FIT], g_best[self.ID_FIT], self.loss_train
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
