@@ -35,7 +35,8 @@ Swarm,1,Particle Swarm Optimization,PSO,1995,original,no,strong,6,easy
 ,26,Harris Hawks Optimization,HHO,2019,original,yes,best,2,medium
 ,27,Sea Lion Optimization,SLO,2019,orginal,no,strong,2,easy
 ,28,Manta Ray Foraging Optimization,MRFO,2020,original,no,best,3,easy
-,29,,,,,,,,
+,29,Sparrow Search Algorithm,SpaSA,2020,changed,no,BEST,5,medium
+,30,,,,,,,,
 Physic,1,Wind Driven Optimization,WDO,2013,original,no,strong,7,easy
 ,2,Multi-Verse Optimizer,MVO,2016,changed,no,strong,3,easy
 ,3,Tug of War Optimization,TWO,2016,original ,no,strong,2,easy

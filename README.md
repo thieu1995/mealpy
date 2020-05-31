@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-0.8.5-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-0.8.6-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -89,19 +89,9 @@ The documentation includes more detailed installation instructions.
 ## Contributions 
 
 ### Citation
-If you use mealpy in your project, I would appreciate citations: 
+If you use mealpy in your project, please cite my works: 
 
 ```code 
-@software{thieu_nguyen_2020_3711949,
-  author       = {Thieu Nguyen},
-  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
-  month        = march,
-  year         = 2020,
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.3711948},
-  url          = {https://doi.org/10.5281/zenodo.3711948}
-}
-
 @article{nguyen2019efficient,
   title={Efficient Time-Series Forecasting Using Neural Network and Opposition-Based Coral Reefs Optimization},
   author={Nguyen, Thieu and Nguyen, Tu and Nguyen, Binh Minh and Nguyen, Giang},
@@ -111,6 +101,16 @@ If you use mealpy in your project, I would appreciate citations:
   pages={1144--1161},
   year={2019},
   publisher={Atlantis Press}
+}
+
+@software{thieu_nguyen_2020_3711949,
+  author       = {Thieu Nguyen},
+  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
+  month        = march,
+  year         = 2020,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.3711948},
+  url          = {https://doi.org/10.5281/zenodo.3711948}
 }
 ```
 
@@ -145,6 +145,7 @@ If you use mealpy in your project, I would appreciate citations:
     + Atom Search Optimization
     + Equilibrium Optimizer
     + Artificial Ecosystem-based Optimization
+    + Sparrow Search Algorithm
 
 * Paras: The number of parameters in the algorithm (Not counting the fixed parameters in the original paper)
     + Almost algorithms have 2 paras (epoch, population_size) and plus some paras depend on each algorithm.
@@ -158,6 +159,7 @@ If you use mealpy in your project, I would appreciate citations:
     + Hard* - Very hard: Lots of equations, SLOC too long, the paper is very hard to read.
 
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
+
 
 | Group  | STT | Name                                       | Short | Year | Version   | Levy | Type   | Paras | Diffic |
 |--------|-----|--------------------------------------------|-------|------|-----------|------|--------|-------|--------|
@@ -197,7 +199,8 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 26  | Harris Hawks Optimization                  | HHO   | 2019 | original  | yes  | best   | 2     | medium |
 |        | 27  | Sea Lion Optimization                      | SLO   | 2019 | orginal   | no   | strong | 2     | easy   |
 |        | 28  | Manta Ray Foraging Optimization            | MRFO  | 2020 | original  | no   | best   | 3     | easy   |
-|        | 29  |                                            |       |      |           |      |        |       |        |
+|        | 29  | Sparrow Search Algorithm                   | SpaSA | 2020 | changed   | no   | BEST   | 5     | medium |
+|        | 30  |                                            |       |      |           |      |        |       |        |
 | Physic | 1   | Wind Driven Optimization                   | WDO   | 2013 | original  | no   | strong | 7     | easy   |
 |        | 2   | Multi\-Verse Optimizer                     | MVO   | 2016 | changed   | no   | strong | 3     | easy   |
 |        | 3   | Tug of War Optimization                    | TWO   | 2016 | original  | no   | strong | 2     | easy   |
@@ -205,7 +208,7 @@ If you use mealpy in your project, I would appreciate citations:
 |        | 5   | Nuclear Reaction Optimization              | NRO   | 2019 | original  | yes  | best   | 2     | hard\* |
 |        | 6   | Henry Gas Solubility Optimization          | HGSO  | 2019 | original  | no   | best   | 3     | medium |
 |        | 7   | Atom Search Optimization                   | ASO   | 2019 | original  | no   | best   | 4     | medium |
-|        | 8   | Equilibrium Optimizer                      | EO    | 2019 | original  | no   | strong | 2     | easy   |
+|        | 8   | Equilibrium Optimizer                      | EO    | 2019 | original  | no   | BEST   | 2     | easy   |
 |        | 9   |                                            |       |      |           |      |        |       |        |
 | Human  | 1   | Teaching Learning Optimization             | TLO   | 2011 | original  | no   | strong | 2     | easy   |
 |        | 2   | Brain Storm Optimization                   | BSO   | 2011 | original  | no   | strong | 10    | easy   |
@@ -219,7 +222,7 @@ If you use mealpy in your project, I would appreciate citations:
 | Bio    | 1   | Invasive Weed Optimization                 | IWO   | 2006 | original  | no   | strong | 5     | easy   |
 |        | 2   | Biogeography\-Based Optimization           | BBO   | 2008 | original  | no   | strong | 4     | easy   |
 |        | 3   | Virus Colony Search                        | VCS   | 2016 | changed   | no   | best   | 4     | hard\* |
-|        | 4   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | BEST   | 5     | easy   |
+|        | 4   | Satin Bowerbird Optimizer                  | SBO   | 2017 | original  | no   | strong | 5     | easy   |
 |        | 5   | Wildebeest Herd Optimization               | WHO   | 2019 | changed   | no   | weak   | 12    | medium |
 |        | 6   | Black Widow Optimization                   | BWO   | 2020 | changed   | no   | weak   | 5     | medium |
 |        | 7   |                                            |       |      |           |      |        |       |        |
@@ -401,6 +404,9 @@ If you use mealpy in your project, I would appreciate citations:
 * **SSDO - Social Ski-Driver Optimization** . Tharwat, A., & Gabel, T. (2019). Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm. Neural Computing and Applications, 1-14.
 
 * **SLO - Sea Lion Optimization** . Masadeh, R., Mahafzah, B. A., & Sharieh, A. (2019). Sea Lion Optimization Algorithm. Sea, 10(5).
+
+* **SpaSA - Sparrow Search Algorithm** . Jiankai Xue & Bo Shen (2020) A novel swarm intelligence optimization approach: sparrow search algorithm, Systems Science & Control Engineering, 8:1, 22-34, DOI: 10.1080/21642583.2019.1708830
+
 
 ### T
 

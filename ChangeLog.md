@@ -1,3 +1,30 @@
+# Version 0.8.6
+
+### Change models
++ Fix bug return position instead of fitness value in:
+    + TLO 
+    + SARO
++ Update some algorithms:
+    + SLO
+    + NRO
+    + ABC
+    
++ Added some variant version of PSO:
+    + PPSO (Phasor particle swarm optimization: a simple and efficient variant of PSO)
+    + PSO_W (A modified particle swarm optimizer)
+    + HPSO_TVA (New self-organising  hierarchical PSO with jumping time-varying acceleration coefficients)
+    
++ Added more algorithm in Swarm-based algorithm
+    + SpaSA: Sparrow Search Algorithm (Same name SSA as Social Spider Algorithm --> I changed it to SpaSA)
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: Added new examples of: 
+    + PSO and variant of PSO
+    + Update all examples which now using CEC functions
+    
+---------------------------------------------------------------------
+
 # Version 0.8.5
 
 ### Change models
