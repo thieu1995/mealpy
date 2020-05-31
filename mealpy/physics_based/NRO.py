@@ -51,7 +51,6 @@ class BaseNRO(Root):
                 temp1 = list(set(range(0, self.pop_size)) - {i})
                 i1 = choice(temp1, replace=False)
                 Nei = (pop[i][self.ID_POS] + pop[i1][self.ID_POS]) / 2
-                Xi = None
                 ## Update population of fission products according to Eq.(3), (6) or (9);
                 if uniform() <= Pfi:
                     ### Update based on Eq. 3
@@ -76,8 +75,8 @@ class BaseNRO(Root):
                 fit = self._fitness_model__(Xi, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [Xi, fit]
-                if fit < g_best[self.ID_FIT]:
-                    g_best = [Xi, fit]
+                    if fit < g_best[self.ID_FIT]:
+                        g_best = [Xi, fit]
 
             # NFu phase
 
@@ -87,13 +86,11 @@ class BaseNRO(Root):
             for i in range(self.pop_size):
                 X_ion = deepcopy(pop[i][self.ID_POS])
                 if (ranked_pop[i] * 1.0 / self.pop_size) < uniform():
-                    temp1 = list(set(range(0, self.pop_size)) - {i})
-                    i1, i2 = choice(temp1, 2, replace=False)
-
+                    i1, i2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     for j in range(self.problem_size):
                         #### Levy flight strategy is described as Eq. 18
                         if pop[i2][self.ID_POS][j] == pop[i][self.ID_POS][j]:
-                            X_ion[j] = pop[i][self.ID_POS][j] + alpha * levy_b * ( pop[i][self.ID_POS][j] - g_best[self.ID_POS][j])
+                            X_ion[j] = pop[i][self.ID_POS][j] + alpha * levy_b * (pop[i][self.ID_POS][j] - g_best[self.ID_POS][j])
                         #### If not, based on Eq. 11, 12
                         else:
                             if uniform() <= 0.5:
@@ -116,17 +113,14 @@ class BaseNRO(Root):
                 fit = self._fitness_model__(X_ion, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_ion, fit]
-                if fit < g_best[self.ID_FIT]:
-                    g_best = [X_ion, fit]
+                    if fit < g_best[self.ID_FIT]:
+                        g_best = [X_ion, fit]
             ## Fusion Stage
 
             ### all ions obtained from ionization are ranked based on (14) - Calculate the Pc through Eq. (14)
             ranked_pop = rankdata([pop[i][self.ID_FIT] for i in range(self.pop_size)])
             for i in range(self.pop_size):
-
-                X_fu = deepcopy(pop[i][self.ID_POS])
-                temp1 = list(set(range(0, self.pop_size)) - {i})
-                i1, i2 = choice(temp1, 2, replace=False)
+                i1, i2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
 
                 #### Generate fusion nucleus
                 if (ranked_pop[i] * 1.0 / self.pop_size) < uniform():
@@ -151,8 +145,8 @@ class BaseNRO(Root):
                 fit = self._fitness_model__(X_fu, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_fu, fit]
-                if fit < g_best[self.ID_FIT]:
-                    g_best = [X_fu, fit]
+                    if fit < g_best[self.ID_FIT]:
+                        g_best = [X_fu, fit]
 
             self.loss_train.append(g_best[self.ID_FIT])
             if self.log:

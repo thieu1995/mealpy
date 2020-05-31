@@ -15,12 +15,9 @@ from mealpy.root import Root
 
 class BaseABC(Root):
     """
-    Taken from book: Clever Algorithms
-    - Improved: _create_neigh_bee__
+        Taken from book: Clever Algorithms
+            - Improved: _create_neigh_bee__
     """
-    ID_POS = 0
-    ID_FIT = 1
-
     def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
                  epoch=750, pop_size=100, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1)):
         Root.__init__(self, objective_func, problem_size, domain_range, log)
