@@ -30,11 +30,11 @@ log = True
 epoch = 1000
 pop_size = 50
 
-# pc = 0.95
-# pm = 0.025
-# md = BaseGA(func.F1, problem_size, domain_range, log, epoch, pop_size, pc, pm)
-# best_position, best_fit, list_loss = md._train__()
-# print(best_fit)
+pc = 0.95
+pm = 0.025
+md = BaseGA(func.F1, problem_size, domain_range, log, epoch, pop_size, pc, pm)
+best_position, best_fit, list_loss = md._train__()
+print(best_fit)
 
 md2 = BaseWOA(elliptic__, problem_size, domain_range, log, epoch, pop_size)
 best_position2, best_fit2, list_loss2 = md2._train__()

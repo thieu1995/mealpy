@@ -7,14 +7,11 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.cec_basic.cec2014_nobias import *
-from opfunu.type_based.multi_modal import Functions
 from mealpy.human_based.LCBO import BaseLCBO, LevyLCBO, ImprovedLCBO
-
-t1 = Functions()
+from opfunu.cec_basic.cec2014_nobias import *
 
 ## Setting parameters
-objective_func = F22   #t1._pathological__
+objective_func = F1
 problem_size = 100
 domain_range = [-100, 100]
 log = True

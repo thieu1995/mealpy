@@ -7,14 +7,11 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.type_based.uni_modal import Functions
-from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.human_based.CHIO import BaseCHIO, OriginalCHIO
-
-t1 = Functions()
+from opfunu.cec_basic.cec2014_nobias import *
 
 ## Setting parameters
-objective_func = F3  # F1
+objective_func = F1
 problem_size = 20
 domain_range = [-15, 15]
 log = True

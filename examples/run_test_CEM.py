@@ -7,14 +7,11 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.type_based.uni_modal import Functions
-from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.probabilistic_based.CEM import BaseCEM, CEBaseLCBO
-
-t1 = Functions()
+from opfunu.cec_basic.cec2014_nobias import *
 
 ## Setting parameters
-objective_func = t1._sum_squres__           # F1
+objective_func = F1
 problem_size = 200
 domain_range = [-150, 150]
 log = True

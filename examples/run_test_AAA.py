@@ -7,13 +7,11 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.type_based.uni_modal import Functions
+from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.bio_based.AAA import OriginalAAA
 
-t1 = Functions()
-
 ## Setting parameters
-objective_func = t1._sum_squres__
+objective_func = F1
 problem_size = 200
 domain_range = [-15, 15]
 log = True
