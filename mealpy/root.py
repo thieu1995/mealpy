@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil
 from numpy.random import uniform, random, normal
 from math import gamma
 from copy import deepcopy
@@ -24,24 +24,50 @@ class Root:
 
     EPSILON = 10E-10
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True):
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=20, verbose=True):
         """
         Parameters
         ----------
-        objective_func :
-        problem_size :
-        domain_range :
-        log :
+        obj_func : function
+        lb : list
+        ub : list
+        problem_size : int, optional
+        verbose : bool, optional
         """
-        self.objective_func = objective_func
-        self.problem_size = problem_size
-        self.domain_range = domain_range
-        self.log = log
+        self.obj_func = obj_func
+        if (lb is None) or (ub is None):
+            if problem_size is None:
+                print("Problem size must be a int number")
+                exit(0)
+            elif problem_size <=0:
+                print("Problem size must > 0")
+                exit(0)
+            else:
+                self.problem_size = int(ceil(problem_size))
+                self.lb = -1 * ones(problem_size)
+                self.ub = 1 * ones(problem_size)
+        else:
+            if isinstance(lb, list) and isinstance(ub, list):
+                if (len(lb) == len(ub)) and (problem_size > 0):
+                    if len(lb) == 1:
+                        self.problem_size = problem_size
+                        self.lb = lb[0] * ones(problem_size)
+                        self.up = ub[0] * ones(problem_size)
+                    else:
+                        self.problem_size = len(lb)
+                        self.lb = array(lb)
+                        self.ub = array(ub)
+                else:
+                    print("Lower bound and Upper bound need to be same length. Problem size must > 0")
+                    exit(0)
+            else:
+                print("Lower bound and Upper bound need to be a list")
+                exit(0)
+        self.verbose = verbose
         self.solution, self.loss_train = None, []
 
-    def _create_solution__(self, minmax=0):
-        """
-        Return the encoded solution with 2 element: position of solution and fitness of solution
+    def create_solution(self, minmax=0):
+        """ Return the position position with 2 element: position of position and fitness of position
 
         Parameters
         ----------
@@ -49,70 +75,71 @@ class Root:
             0 - minimum problem, else - maximum problem
 
         """
-        solution = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        fitness = self._fitness_model__(solution=solution, minmax=minmax)
+        solution = uniform(self.lb, self.ub)
+        fitness = self.get_fitness_position(position=solution, minmax=minmax)
         return [solution, fitness]
 
-    def _fitness_model__(self, solution=None, minmax=0):
+    def get_fitness_position(self, position=None, minmax=0):
         """     Assumption that objective function always return the original value
-        :param solution: 1-D numpy array
+        :param position: 1-D numpy array
         :param minmax: 0- min problem, 1 - max problem
         :return:
         """
-        return self.objective_func(solution) if minmax == 0 else 1.0 / (self.objective_func(solution) + self.EPSILON)
+        return self.obj_func(position) if minmax == 0 else 1.0 / (self.obj_func(position) + self.EPSILON)
 
-    def _fitness_encoded__(self, encoded=None, id_pos=None, minmax=0):
-        return self._fitness_model__(solution=encoded[id_pos], minmax=minmax)
+    def get_fitness_solution(self, solution=None, minmax=0):
+        return self.get_fitness_position(solution[self.ID_POS], minmax)
 
-    def _get_global_best__(self, pop=None, id_fitness=None, id_best=None):
-        sorted_pop = sorted(pop, key=lambda temp: temp[id_fitness])
+    def get_global_best_solution(self, pop=None, id_fit=None, id_best=None):
+        """ Sort a copy of population and return the copy of the best position """
+        sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
         return deepcopy(sorted_pop[id_best])
 
-    def _sort_pop_and_get_global_best__(self, pop=None, id_fitness=None, id_best=None):
-        sorted_pop = sorted(pop, key=lambda temp: temp[id_fitness])
+    def get_sorted_pop_and_global_best_solution(self, pop=None, id_fit=None, id_best=None):
+        """ Sort population and return the sorted population and the best position """
+        sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
         return sorted_pop, deepcopy(sorted_pop[id_best])
 
-    def _amend_solution__(self, solution=None):
-        return maximum(self.domain_range[0], minimum(self.domain_range[1], solution))
+    def amend_position(self, position=None):
+        return maximum(self.lb, minimum(self.ub, position))
 
-    def _amend_solution_faster__(self, solution=None):
-        return clip(solution, self.domain_range[0], self.domain_range[1])
+    def amend_position_faster(self, position=None):
+        return clip(position, self.lb, self.ub)
 
-    def _amend_solution_random__(self, solution=None):
-        for i in range(self.problem_size):
-            if solution[i] < self.domain_range[0] or solution[i] > self.domain_range[1]:
-                solution[i] = uniform(self.domain_range[0], self.domain_range[1])
-        return solution
+    def amend_position_random(self, position=None):
+        for t in range(self.problem_size):
+            if position[t] < self.lb[t] or position[t] > self.ub[t]:
+                position[t] = uniform(self.lb[t], self.ub[t])
+        return position
 
-    def _amend_solution_random_faster__(self, solution=None):
-        return where(logical_and(self.domain_range[0] <= solution, solution <= self.domain_range[1]), solution, uniform(self.domain_range[0],
-                                                                                                                        self.domain_range[1]))
+    def amend_position_random_faster(self, position=None):
+        return where(logical_and(self.lb <= position, position <= self.ub), position, uniform(self.lb, self.ub))
 
-    def _update_global_best__(self, pop=None, id_best=None, g_best=None):
+    def update_global_best_solution(self, pop=None, id_best=None, g_best=None):
+        """ Sort the copy of population and update the current best position. Return the new current best position """
         sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
         current_best = sorted_pop[id_best]
         return deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
 
-    def _sort_pop_and_update_global_best__(self, pop=None, id_best=None, g_best=None):
+    def update_sorted_population_and_global_best_solution(self, pop=None, id_best=None, g_best=None):
+        """ Sort the population and update the current best position. Return the sorted population and the new current best position """
         sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
         current_best = sorted_pop[id_best]
         g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
         return sorted_pop, g_best
 
-    def _create_opposition_solution__(self, solution=None, g_best=None):
-        t1 = self.domain_range[1] * ones(self.problem_size) + self.domain_range[0] * ones(self.problem_size)
-        t2 = -1 * g_best[self.ID_POS] + uniform() * (g_best - solution)
-        return t1 + t2
+    def create_opposition_position(self, position=None, g_best=None):
+        return self.lb + self.ub - g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - position)
 
-    def _levy_flight__(self, epoch=None, solution=None, g_best=None, step=0.001, case=0):
+    def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
         """
         Parameters
         ----------
         epoch (int): current iteration
-        solution : 1-D numpy array
-        g_best : 1-D numpy array
-        step (float): 0.001
-        case (int): 0, 1, 2
+        position : 1-D numpy array
+        g_best_position : 1-D numpy array
+        step (float, optional): 0.001
+        case (int, optional): 0, 1, 2
 
         """
         beta = 1
@@ -124,26 +151,24 @@ class Root:
         muy = normal(0, sigma_muy ** 2)
         v = normal(0, sigma_v ** 2)
         s = muy / power(abs(v), 1 / beta)
-        # D is a random solution
-        D = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        LB = step * s * (solution - g_best)
-        levy = D * LB
+        LB = step * s * (position - g_best_position)
+        levy = uniform(self.lb, self.ub) * LB
 
         if case == 0:
             return levy
         elif case == 1:
-            return solution + 1.0 / sqrt(epoch + 1) * sign(random() - 0.5) * levy
+            return position + 1.0 / sqrt(epoch + 1) * sign(random() - 0.5) * levy
         elif case == 2:
-            return solution + 0.01 * levy
+            return position + 0.01 * levy
 
-    def _levy_flight_2__(self, solution=None, g_best=None):
+    def levy_flight_2(self, position=None, g_best_position=None):
         alpha = 0.01
         xichma_v = 1
         xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
         levy_b = (normal(0, xichma_u ** 2)) / (sqrt(abs(normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
-        return solution[self.ID_POS] + alpha * levy_b * (solution - g_best)
+        return position + alpha * levy_b * (position - g_best_position)
 
-    def _get_index_roulette_wheel_selection_(self, list_fitness=None):
+    def get_index_roulette_wheel_selection(self, list_fitness=None):
         """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""
         scaled_fitness = (list_fitness - min(list_fitness)) / ptp(list_fitness)
         minimized_fitness = 1.0 - scaled_fitness
@@ -154,5 +179,5 @@ class Root:
             if r > total_sum:
                 return idx
 
-    def _train__(self):
+    def train(self):
         pass
