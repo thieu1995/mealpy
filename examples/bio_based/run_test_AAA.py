@@ -23,6 +23,6 @@ delta = 2
 ap = 0.5
 
 md1 = OriginalAAA(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1._train__()
+best_pos1, best_fit1, list_loss1 = md1.train()
 print(best_fit1)
 print("========================================================")

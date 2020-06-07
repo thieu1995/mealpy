@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------------------------------------------%
 
 from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil
-from numpy.random import uniform, random, normal
+from numpy.random import uniform, random, normal, choice
 from math import gamma
 from copy import deepcopy
 
@@ -24,7 +24,7 @@ class Root:
 
     EPSILON = 10E-10
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=20, verbose=True):
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True):
         """
         Parameters
         ----------
@@ -32,12 +32,13 @@ class Root:
         lb : list
         ub : list
         problem_size : int, optional
+        batch_size: int, optional
         verbose : bool, optional
         """
         self.obj_func = obj_func
         if (lb is None) or (ub is None):
             if problem_size is None:
-                print("Problem size must be a int number")
+                print("Problem size must be an int number")
                 exit(0)
             elif problem_size <=0:
                 print("Problem size must > 0")
@@ -47,12 +48,12 @@ class Root:
                 self.lb = -1 * ones(problem_size)
                 self.ub = 1 * ones(problem_size)
         else:
-            if isinstance(lb, list) and isinstance(ub, list):
+            if isinstance(lb, list) and isinstance(ub, list) and not (problem_size is None):
                 if (len(lb) == len(ub)) and (problem_size > 0):
                     if len(lb) == 1:
                         self.problem_size = problem_size
                         self.lb = lb[0] * ones(problem_size)
-                        self.up = ub[0] * ones(problem_size)
+                        self.ub = ub[0] * ones(problem_size)
                     else:
                         self.problem_size = len(lb)
                         self.lb = array(lb)
@@ -61,9 +62,11 @@ class Root:
                     print("Lower bound and Upper bound need to be same length. Problem size must > 0")
                     exit(0)
             else:
-                print("Lower bound and Upper bound need to be a list")
+                print("Lower bound and Upper bound need to be a list. Problem size is an int number")
                 exit(0)
+        self.batch_size = batch_size
         self.verbose = verbose
+        self.epoch, self.pop_size = None, None
         self.solution, self.loss_train = None, []
 
     def create_solution(self, minmax=0):
@@ -75,9 +78,9 @@ class Root:
             0 - minimum problem, else - maximum problem
 
         """
-        solution = uniform(self.lb, self.ub)
-        fitness = self.get_fitness_position(position=solution, minmax=minmax)
-        return [solution, fitness]
+        position = uniform(self.lb, self.ub)
+        fitness = self.get_fitness_position(position=position, minmax=minmax)
+        return [position, fitness]
 
     def get_fitness_position(self, position=None, minmax=0):
         """     Assumption that objective function always return the original value
@@ -178,6 +181,14 @@ class Root:
             r = r + f
             if r > total_sum:
                 return idx
+
+    def get_parent_kway_tournament_selection(self, pop=None, k_way=0.2, output=2):
+        if 0 < k_way < 1:
+            k_way = int(k_way * len(pop))
+        list_id = choice(range(len(pop)), k_way, replace=False)
+        list_parents = [pop[i] for i in list_id]
+        list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_FIT])
+        return list_parents[:output]
 
     def train(self):
         pass
