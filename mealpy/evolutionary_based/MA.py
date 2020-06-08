@@ -20,15 +20,14 @@ class BaseMA(Root):
         Link:
             Clever Algorithms: Nature-Inspired Programming Recipes - Memetic Algorithm (MA)
             http://www.cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
-
     """
     ID_POS = 0
     ID_FIT = 1
     ID_BIT = 2
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100,
-                 pc=0.98, pm=0.025, p_local=0.5, max_local_gens=10, bits_per_param=16):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, pc=0.98, pm=0.025, p_local=0.5, max_local_gens=10, bits_per_param=16):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.pc = pc
@@ -38,9 +37,9 @@ class BaseMA(Root):
         self.bits_per_param = bits_per_param
         self.bits_total = self.problem_size * self.bits_per_param
 
-    def _create_solution__(self, minmax=0):
-        solution = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        fitness = self._fitness_model__(solution=solution, minmax=minmax)
+    def create_solution(self, minmax=0):
+        solution = uniform(self.lb, self.ub)
+        fitness = self.get_fitness_position(position=solution, minmax=minmax)
         bitstring = self._random_bitstring__()
         return [solution, fitness, bitstring]
 
@@ -56,7 +55,7 @@ class BaseMA(Root):
         vector = []
         for idx in range(0, self.problem_size):
             param = bitstring[idx * self.bits_per_param: (idx + 1) * self.bits_per_param]  # Select 16 bit every time
-            temp = self.domain_range[0] + ((self.domain_range[1] - self.domain_range[0]) / ((2.0 ** self.bits_per_param) - 1)) * int(param, 2)
+            temp = self.lb[idx] + ((self.ub[idx] - self.lb[idx]) / ((2.0 ** self.bits_per_param) - 1)) * int(param, 2)
             vector.append(temp)
         return array(vector)
 
@@ -95,7 +94,7 @@ class BaseMA(Root):
             bitstring_new = self._crossover__(pop[idx][self.ID_BIT], ancient[self.ID_BIT])
             bitstring_new = self._point_mutation__(bitstring_new)
             pos_new = self._decode__(bitstring_new)
-            fit = self._fitness_model__(pos_new)
+            fit = self.get_fitness_position(pos_new)
             children[idx] = [pos_new, fit, bitstring_new]
         return children
 
@@ -104,14 +103,14 @@ class BaseMA(Root):
         for idx in range(0, self.max_local_gens):
             bitstring_new = self._point_mutation__(child[self.ID_BIT])
             pos_new = self._decode__(bitstring_new)
-            fit = self._fitness_model__(pos_new)
+            fit = self.get_fitness_position(pos_new)
             if fit < child[self.ID_FIT]:
                 current = [pos_new, fit, bitstring_new]
         return current
 
-    def _train__(self):
-        pop = [self._create_solution__(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
-        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             # Next generations
@@ -123,9 +122,10 @@ class BaseMA(Root):
                 if uniform() < self.p_local:
                     pop[i] = self._bits_climber__(pop[i])
 
-            # update global best solution
-            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            # update global best position
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

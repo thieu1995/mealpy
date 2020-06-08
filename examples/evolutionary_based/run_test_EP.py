@@ -7,25 +7,29 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from mealpy.evolutionary_based.EP import BaseEP, LevyEP
 from opfunu.cec_basic.cec2014_nobias import *
+from mealpy.evolutionary_based.EP import BaseEP, LevyEP
 
 ## Setting parameters
-objective_func = F1
+obj_func = F11
+# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
+# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
+lb = [-100]
+ub = [100]
 problem_size = 1000
-domain_range = [-15, 15]
-log = True
-
-epoch = 100
+batch_size = 25
+verbose = True
+epoch = 1000
 pop_size = 50
-bout_size = 0.05
 
-md1 = BaseEP(objective_func, problem_size, domain_range, log, epoch, pop_size, bout_size)
-best_pos1, best_fit1, list_loss1 = md1._train__()
-print(best_fit1)
+md1 = LevyEP(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
 
-print("========================================================")
-
-md2 = LevyEP(objective_func, problem_size, domain_range, log, epoch, pop_size, bout_size)
-best_pos2, best_fit2, list_loss2 = md2._train__()
-print(best_fit2)
+md1 = BaseEP(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)

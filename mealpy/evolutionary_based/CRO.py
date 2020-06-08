@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import array, take, zeros
+from numpy import array, take, where, concatenate, inf
 from random import sample, random, randint
 from numpy.random import uniform, normal
 from mealpy.root import Root
@@ -15,28 +15,26 @@ from mealpy.root import Root
 
 class BaseCRO(Root):
     """
-    This is standard version of CRO implement according to this paper:
-        http://downloads.hindawi.com/journals/tswj/2014/739768.pdf
+        The original version of: Coral Reefs Optimization (CRO)
+            http://downloads.hindawi.com/journals/tswj/2014/739768.pdf
     """
-    HEALTH = 1000000
+    HEALTH = inf
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1,
-                 Pd = 0.1, G=(0.02, 0.2), GCR=0.1, k=3):
-        """
-        # reef_size: size of the reef, NxM square grids, each  grid stores a solution
-		# po: the rate between free/occupied at the beginning
-		# Fb: BroadcastSpawner/ExistingCorals rate
-		# Fa: fraction of corals duplicates its self and tries to settle in a different part of the reef
-		# Fd: fraction of the worse health corals in reef will be applied depredation
-		# Pd: Probabilty of depredation
-		# k : number of attempts for a larvar to set in the reef.
-		# reef: a maxtrix of dictionaries, each of those store a space's information (occupied/solution/health)
-		# occupied_corals: position of occupied corals in reef-matrix (array 1dimension, each element store a position)
-		# unselected_corals: corals in occupied_corals that aren't selected in broadcastSpawning
-		# larvae: all larva ready to setting
-		# sorted_health: a list of position, refer to position of each solution in reef-matrix, was sorted according to coral's health
-        """
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        # reef_size: size of the reef, NxM square grids, each  grid stores a position
+        # po: the rate between free/occupied at the beginning
+        # Fb: BroadcastSpawner/ExistingCorals rate
+        # Fa: fraction of corals duplicates its self and tries to settle in a different part of the reef
+        # Fd: fraction of the worse health corals in reef will be applied depredation
+        # Pd: Probabilty of depredation
+        # k : number of attempts for a larvar to set in the reef.
+        # reef: a maxtrix of dictionaries, each of those store a space's information (occupied/position/health)
+        # occupied_corals: position of occupied corals in reef-matrix (array 1dimension, each element store a position)
+        # unselected_corals: corals in occupied_corals that aren't selected in broadcastSpawning
+        # larvae: all larva ready to setting
+        # sorted_health: a list of position, refer to position of each position in reef-matrix, was sorted according to coral's health
         self.epoch = epoch
         self.pop_size = pop_size  # ~ number of space
         self.po = po
@@ -50,22 +48,19 @@ class BaseCRO(Root):
         self.GCR = GCR
         self.G1 = G[1]
         self.reef = array([])
-        self.occupied_position = []  # after a gen, you should update the occupied_position
+        self.occupied_position = []                 # after a gen, you should update the occupied_position
         self.alpha = 10 * self.Pd / self.epoch
         self.gama = 10 * (self.G[1] - self.G[0]) / self.epoch
 
-    def _init_task_solution__(self, size):
-        return uniform(self.domain_range[0], self.domain_range[1], size).tolist()
-
     # Init the coral reefs
     def _init_reef__(self):
-        reef = array([{'occupied': 0, 'solution': [], 'health': self.HEALTH} for i in range(self.pop_size)])
+        reef = array([{'occupied': 0, 'position': array([]), 'health': self.HEALTH} for _ in range(self.pop_size)])
         num_occupied = int(self.pop_size / (1 + self.po))
         occupied_position = sample(list(range(self.pop_size)), num_occupied)
-        for i in (occupied_position):
+        for i in occupied_position:
             reef[i]['occupied'] = 1
-            reef[i]['solution'] = self._init_task_solution__(self.problem_size)
-            reef[i]['health'] = self._fitness_model__(reef[i]['solution'])
+            reef[i]['position'] = uniform(self.lb, self.ub)
+            reef[i]['health'] = self.get_fitness_position(reef[i]['position'])
         self.occupied_position = occupied_position
         self.reef = reef
 
@@ -89,14 +84,14 @@ class BaseCRO(Root):
         selected_corals = sample(self.occupied_position, int(num_of_occupied * self.Fb))
         for i in self.occupied_position:
             if i not in selected_corals:
-                p_solution = self.reef[i]['solution']
+                p_solution = self.reef[i]['position']
                 blarva = self._gausion_mutation__(p_solution)
                 larvae.append(blarva)
         # Step 1b
         while len(selected_corals) >= 2:
             p1, p2 = sample(selected_corals, 2)
-            p1_solution = self.reef[p1]['solution']
-            p2_solution = self.reef[p2]['solution']
+            p1_solution = self.reef[p1]['position']
+            p2_solution = self.reef[p2]['position']
             larva = self._multi_point_cross__(p1_solution, p2_solution)
             larvae.append(larva)
             selected_corals.remove(p1)
@@ -105,12 +100,12 @@ class BaseCRO(Root):
 
     def _larvae_setting__(self, larvae):
         for larva in larvae:
-            larva_fit = self._fitness_model__(larva)
+            larva_fit = self.get_fitness_position(larva)
             for i in range(self.k):
                 p = randint(0, self.pop_size - 1)
                 if self.reef[p]['occupied'] == 0 or self.reef[p]['health'] > larva_fit:
                     self.reef[p]['occupied'] = 1
-                    self.reef[p]['solution'] = larva
+                    self.reef[p]['position'] = larva
                     self.reef[p]['health'] = larva_fit
                     break
 
@@ -143,25 +138,15 @@ class BaseCRO(Root):
         p1, p2 = sample(list(range(len(parent1))), 2)
         start = min(p1, p2)
         end = max(p1, p2)
-        return parent1[:start] + parent2[start:end] + parent1[end:]
-
-    ### Mutation
-    def _swap_mutation__(self, solution):
-        new_sol = solution.copy()
-        new_sol[randint(0, self.problem_size - 1)] = uniform(self.domain_range[0], self.domain_range[1])
-        return new_sol
+        return concatenate((parent1[:start], parent2[start:end], parent1[end:]), axis=0)
 
     def _gausion_mutation__(self, solution):
-        new_sol = array(solution)
-        rd = uniform(0, 1, self.problem_size)
-        new_sol[rd < self.GCR] = (new_sol + self.G1 * (self.domain_range[1] - self.domain_range[0]) * normal(zeros(self.problem_size), 1))[
-            rd < self.GCR]
-        new_sol[new_sol < self.domain_range[0]] = self.domain_range[0]
-        new_sol[new_sol > self.domain_range[1]] = self.domain_range[1]
-        return new_sol.tolist()
+        temp = solution + self.G1 * (self.ub - self.lb) * normal(0, 1, self.problem_size)
+        pos_new = where(uniform(0, 1, self.problem_size) < self.GCR, temp, solution)
+        return self.amend_position_faster(pos_new)
 
-    def _train__(self):
-        best_train = {"occupied": 0, "solution": None, "health": self.HEALTH}
+    def train(self):
+        g_best = {"occupied": 0, "position": None, "health": self.HEALTH}
         self._init_reef__()
         for epoch in range(0, self.epoch):
             self._broadcast_spawning_brooding__()
@@ -171,15 +156,14 @@ class BaseCRO(Root):
                 self.Pd += self.alpha
             if self.G1 >= self.G[0]:
                 self.G1 -= self.gama
-            bes_pos = self.occupied_position[0]
-            bes_sol = self.reef[bes_pos]
-            if bes_sol['health'] < best_train["health"]:
-                best_train = bes_sol
-            self.loss_train.append(best_train["health"])
-            if self.log:
-                print("> Epoch {}: Best training fitness {}".format(epoch + 1, best_train["health"]))
-
-        return best_train["solution"], best_train['health'], self.loss_train
+            current_best = self.reef[self.occupied_position[0]]
+            if current_best['health'] < g_best["health"]:
+                g_best = current_best
+            self.loss_train.append(g_best["health"])
+            if self.verbose:
+                print("> Epoch {}: Best fit: {}".format(epoch + 1, g_best["health"]))
+        self.solution = [g_best["position"], g_best['health']]
+        return g_best["position"], g_best['health'], self.loss_train
 
 
 class OCRO(BaseCRO):
@@ -187,23 +171,21 @@ class OCRO(BaseCRO):
         This is a variant of CRO which is combined Opposition-based learning and Coral Reefs Optimization
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1,
-                 Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, restart_count=55):
-        BaseCRO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, po, Fb, Fa, Fd, Pd, G, GCR, k)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, restart_count=55):
+        BaseCRO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, po, Fb, Fa, Fd, Pd, G, GCR, k)
         self.best_sol = []
         self.restart_count = restart_count
 
     def __local_seach__(self):
-        reef = array([{'occupied': 0, 'solution': [], 'health': self.HEALTH} for i in range(self.pop_size)])
+        reef = array([{'occupied': 0, 'position': [], 'health': self.HEALTH} for i in range(self.pop_size)])
         num_occupied = int(self.pop_size / (1 + self.po))
         occupied_position = sample(list(range(self.pop_size)), num_occupied)
-        for i in (occupied_position):
+        for i in occupied_position:
             reef[i]['occupied'] = 1
-            reef[i]['solution'] = array(self._init_task_solution__(self.problem_size))
-            rd = uniform(0, 1, self.problem_size)
-            reef[i]['solution'][rd < 0.1] = self.best_sol[rd < 0.1]
-            reef[i]['solution'] = reef[i]['solution'].tolist()
-            reef[i]['health'] = self._fitness_model__(reef[i]['solution'])
+            temp = uniform(self.lb, self.ub)
+            reef[i]['position'] = where(uniform(0, 1, self.problem_size) < 0.1, self.best_sol, temp)
+            reef[i]['health'] = self.get_fitness_position(reef[i]['position'])
         self.occupied_position = occupied_position
         self.reef = reef
 
@@ -211,9 +193,8 @@ class OCRO(BaseCRO):
         larvae = []
         for i in budding_pos:
             Olarva = self.reef[i].copy()
-            Olarva['solution'] = (self.domain_range[1] + self.domain_range[0] - self.best_sol + random() * (
-                    self.best_sol - array(self.reef[i]['solution']))).tolist()
-            Olarva['health'] = self._fitness_model__(Olarva['solution'])
+            Olarva['position'] = self.ub + self.lb - self.best_sol + random() * (self.best_sol - self.reef[i]['position'])
+            Olarva['health'] = self.get_fitness_position(Olarva['position'])
             if Olarva['health'] < self.reef[i]['health']:
                 larvae.append(Olarva)
         return larvae
@@ -232,18 +213,17 @@ class OCRO(BaseCRO):
         selected_depredator = sample(self.occupied_position[-self.pop_size // 2:], num_depredation)
         for i in selected_depredator:
             Olarva = self.reef[i].copy()
-            Olarva['solution'] = (self.domain_range[1] + self.domain_range[0] - self.best_sol + uniform(0, 1, self.problem_size) * (
-                    self.best_sol - array(self.reef[i]['solution']))).tolist()
-            Olarva['health'] = self._fitness_model__(Olarva['solution'])
+            Olarva['position'] = (self.ub + self.lb - self.best_sol + uniform(0, 1, self.problem_size) * (self.best_sol - self.reef[i]['position']))
+            Olarva['health'] = self.get_fitness_position(Olarva['position'])
             if Olarva['health'] < self.reef[i]['health']:
                 self.reef[i] = Olarva.copy()
             else:
                 self.reef[i]['occupied'] = 0
 
-    def _train__(self):
-        best_train = {"occupied": 0, "solution": None, "health": self.HEALTH}
+    def train(self):
+        g_best = {"occupied": 0, "position": array([]), "health": self.HEALTH}
         self._init_reef__()
-        self.best_sol = array(self.reef[self.occupied_position[0]]['solution']).copy()
+        self.best_sol = array(self.reef[self.occupied_position[0]]['position']).copy()
         reset_count = 0
         for epoch in range(0, self.epoch):
             self._broadcast_spawning_brooding__()
@@ -253,17 +233,17 @@ class OCRO(BaseCRO):
                 self.Pd += self.alpha
             if self.G1 >= self.G[0]:
                 self.G1 -= self.gama
-            bes_sol = self.reef[self.occupied_position[0]]
+            current_best = self.reef[self.occupied_position[0]]
             reset_count += 1
             if reset_count == self.restart_count:
                 self._init_reef__()
                 self.reef[0] = self.best_coral
                 reset_count = 0
-            if bes_sol['health'] < best_train["health"]:
-                best_train = bes_sol
+            if current_best['health'] < g_best["health"]:
+                g_best = current_best
                 reset_count = 0
-            self.loss_train.append(best_train["health"])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, best_train["health"]))
-
-        return best_train["solution"], best_train['health'], self.loss_train
+            self.loss_train.append(g_best["health"])
+            if self.verbose:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best["health"]))
+        self.solution = [g_best["position"], g_best["health"]]
+        return g_best["position"], g_best['health'], self.loss_train

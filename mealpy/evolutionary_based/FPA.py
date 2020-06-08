@@ -19,33 +19,35 @@ class BaseFPA(Root):
         https://doi.org/10.1007/978-3-642-32894-7_27
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, p=0.8):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, p=0.8):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p = p
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             for i in range(0, self.pop_size):
                 if uniform() < self.p:
-                    levy = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+                    levy = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
                     pos_new = pop[i][self.ID_POS] + levy * (pop[i][self.ID_POS] - g_best[self.ID_POS])
                 else:
                     id1, id2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     pos_new = pop[i][self.ID_POS] + uniform() * (pop[id1][self.ID_POS] - pop[id2][self.ID_POS])
-                pos_new = self._amend_solution_random_faster__(pos_new)
-                fit = self._fitness_model__(pos_new)
+                pos_new = self.amend_position_random_faster(pos_new)
+                fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
 
-            # Update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                # batch size idea to update the global best
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
