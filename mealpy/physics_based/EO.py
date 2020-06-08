@@ -15,13 +15,15 @@ from mealpy.root import Root
 
 class BaseEO(Root):
     """
-    Original: Equilibrium Optimizer (EO)
-        (Equilibrium Optimizer: A Novel Optimization Algorithm)
-        https://doi.org/10.1016/j.knosys.2019.105190
-        https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+        The original version of: Equilibrium Optimizer (EO)
+            (Equilibrium Optimizer: A Novel Optimization Algorithm)
+        Link:
+            https://doi.org/10.1016/j.knosys.2019.105190
+            https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.V = 1
@@ -29,16 +31,16 @@ class BaseEO(Root):
         self.a2 = 1
         self.GP = 0.5
 
-    def _train__(self):
+    def train(self):
 
-        #c_eq1 = [None, float("inf")]                    # it is global best solution
+        #c_eq1 = [None, float("inf")]                    # it is global best position
         c_eq2 = [None, float("inf")]
         c_eq3 = [None, float("inf")]
         c_eq4 = [None, float("inf")]
 
         # ---------------- Memory saving-------------------
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
         c_eq1 = deepcopy(g_best)
 
         for epoch in range(0, self.epoch):
@@ -56,7 +58,7 @@ class BaseEO(Root):
 
             # make equilibrium pool
             c_eq_ave = (c_eq1[self.ID_POS] + c_eq2[self.ID_POS] + c_eq3[self.ID_POS] + c_eq4[self.ID_POS]) / 4
-            fit_ave = self._fitness_model__(c_eq_ave)
+            fit_ave = self.get_fitness_position(c_eq_ave)
             c_pool = [c_eq1, c_eq2, c_eq3, c_eq4, [c_eq_ave, fit_ave]]
 
             # Eq. 9
@@ -73,14 +75,14 @@ class BaseEO(Root):
                 g0 = gcp * (c_eq - lamda * pop[i][self.ID_POS])                                 # Eq. 14
                 g = g0 * f                                                                      # Eq. 13
                 temp = c_eq + (pop[i][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)    # Eq. 16
-                fit = self._fitness_model__(temp)
+                fit = self.get_fitness_position(temp)
                 pop[i] = [temp, fit]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -89,19 +91,19 @@ class LevyEO(BaseEO):
         My modified version of: Equilibrium Optimizer (EO)
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        BaseEO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        BaseEO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 
     def _make_equilibrium_pool__(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
         pos_mean = mean(pos_list, axis=0)
-        fit = self._fitness_model__(pos_mean)
+        fit = self.get_fitness_position(pos_mean)
         list_equilibrium.append([pos_mean, fit])
         return list_equilibrium
 
-    def _train__(self):
+    def train(self):
         # Initialization
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
+        pop = [self.create_solution() for _ in range(self.pop_size)]
 
         # ---------------- Memory saving-------------------
         # make equilibrium pool
@@ -128,8 +130,8 @@ class LevyEO(BaseEO):
                     temp = c_eq + (pop[i][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
                 else:
                     ## Idea: Sometimes, an unpredictable event happens, It make the status of equilibrium change.
-                    temp = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-                fit = self._fitness_model__(temp)
+                    temp = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+                fit = self.get_fitness_position(temp)
                 pop[i] = [temp, fit]
 
             # Update the equilibrium pool
@@ -142,7 +144,7 @@ class LevyEO(BaseEO):
             if pop_sorted[0][self.ID_FIT] < g_best[self.ID_FIT]:
                 g_best = deepcopy(pop_sorted[0])
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

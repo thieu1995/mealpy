@@ -19,19 +19,19 @@ from mealpy.root import Root
 
 class BaseNRO(Root):
     """
-    An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization (NRO)
-
-    Nuclear Reaction Optimization: A novel and powerful physics-based algorithm for global optimization
+    The original version of: Nuclear Reaction Optimization (NRO)
+        An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization
+        Nuclear Reaction Optimization: A novel and powerful physics-based algorithm for global optimization
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution(minmax=self.ID_MIN_PROB) for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
 
@@ -71,8 +71,8 @@ class BaseNRO(Root):
                     Xi = array([normal(pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem_size)])
 
                 ## Check the boundary and evaluate the fitness function
-                Xi = self._amend_solution_random_faster__(Xi)
-                fit = self._fitness_model__(Xi, self.ID_MIN_PROB)
+                Xi = self.amend_position_random_faster(Xi)
+                fit = self.get_fitness_position(Xi, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [Xi, fit]
                     if fit < g_best[self.ID_FIT]:
@@ -99,18 +99,18 @@ class BaseNRO(Root):
                                 X_ion[j] = pop[i1][self.ID_POS][j] - uniform() * (pop[i2][self.ID_POS][j] - pop[i][self.ID_POS][j])
 
                 else:   #### Levy flight strategy is described as Eq. 21
-                    X_worst = self._get_global_best__(pop, self.ID_FIT, self.ID_MAX_PROB)
+                    X_worst = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MAX_PROB)
                     for j in range(self.problem_size):
                         ##### Based on Eq. 21
                         if X_worst[self.ID_POS][j] == g_best[self.ID_POS][j]:
-                            X_ion[j] = pop[i][self.ID_POS][j] + alpha * levy_b * (self.domain_range[1] - self.domain_range[0])
+                            X_ion[j] = pop[i][self.ID_POS][j] + alpha * levy_b * (self.ub[j] - self.lb[j])
                         ##### Based on Eq. 13
                         else:
-                            X_ion[j] = pop[i][self.ID_POS][j] + round(uniform()) * uniform()*( X_worst[self.ID_POS][j] - g_best[self.ID_POS][j] )
+                            X_ion[j] = pop[i][self.ID_POS][j] + round(uniform()) * uniform()*(X_worst[self.ID_POS][j] - g_best[self.ID_POS][j])
 
                 ## Check the boundary and evaluate the fitness function for X_ion
-                X_ion = self._amend_solution_random_faster__(X_ion)
-                fit = self._fitness_model__(X_ion, self.ID_MIN_PROB)
+                X_ion = self.amend_position_random_faster(X_ion)
+                fit = self.get_fitness_position(X_ion, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_ion, fit]
                     if fit < g_best[self.ID_FIT]:
@@ -141,15 +141,15 @@ class BaseNRO(Root):
                         else:
                             X_fu = pop[i][self.ID_POS] - 0.5 * (sin(2 * pi * freq * epoch + pi) * epoch / self.epoch + 1) * (pop[i1][self.ID_POS] - pop[i2][self.ID_POS])
 
-                X_fu = self._amend_solution_random_faster__(X_fu)
-                fit = self._fitness_model__(X_fu, self.ID_MIN_PROB)
+                X_fu = self.amend_position_random_faster(X_fu)
+                fit = self.get_fitness_position(X_fu, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_fu, fit]
                     if fit < g_best[self.ID_FIT]:
                         g_best = [X_fu, fit]
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
