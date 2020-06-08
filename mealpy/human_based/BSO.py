@@ -21,9 +21,9 @@ class BaseBSO(Root):
         DOI: https://doi.org/10.1007/978-3-642-21515-5_36
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100,
-                 m=5, p1=0.2, p2=0.8, p3=0.4, p4=0.5, k=20, miu=0, xichma=1):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, m=5, p1=0.2, p2=0.8, p3=0.4, p4=0.5, k=20, miu=0, xichma=1):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size  # n: pop_size, m: clusters
         self.m = m
@@ -39,7 +39,7 @@ class BaseBSO(Root):
     def _creat_population__(self):
         pop = []
         for i in range(0, self.m):
-            group = [self._create_solution__() for _ in range(0, self.m_solution)]
+            group = [self.create_solution() for _ in range(0, self.m_solution)]
             pop.append(group)
         return pop
 
@@ -50,10 +50,10 @@ class BaseBSO(Root):
             centers.append(deepcopy(pop_sorted[self.ID_MIN_PROB]))
         return centers
 
-    def _train__(self):
+    def train(self):
         pop = self._creat_population__()
         centers = self._find_cluster__(pop)
-        g_best = self._get_global_best__(centers, self.ID_FIT, self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(centers, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             x = (0.5 * self.epoch - (epoch+1)) / self.k
@@ -61,7 +61,7 @@ class BaseBSO(Root):
 
             if uniform() < self.p1:  # p_5a
                 idx = randint(0, self.m)
-                solution_new = self._create_solution__()
+                solution_new = self.create_solution()
                 centers[idx] = solution_new
 
             for i in range(0, self.pop_size):  # Generate new individuals
@@ -84,17 +84,18 @@ class BaseBSO(Root):
                         rand_id1 = randint(0, self.m_solution)
                         rand_id2 = randint(0, self.m_solution)
                         pos_new = 0.5 * (pop[id1][rand_id1][self.ID_POS] + pop[id2][rand_id2][self.ID_POS]) + epxilon * normal(self.miu, self.xichma)
-                pos_new = self._amend_solution_random_faster__(pos_new)
-                fit = self._fitness_model__(pos_new)
+                pos_new = self.amend_position_random_faster(pos_new)
+                fit = self.get_fitness_position(pos_new)
                 if fit < pop[cluster_id][location_id][self.ID_FIT]:
                     pop[cluster_id][location_id] = [pos_new, fit]
 
             # Needed to update the centers and global best
             centers = self._find_cluster__(pop)
-            g_best = self._update_global_best__(centers, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(centers, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -102,13 +103,14 @@ class ImprovedBSO(Root):
     """
     My improved version of: Brain Storm Optimization (BSO)
         (Brain storm optimization algorithm)
-    Noted:
+    Notes:
         + No need some parameters, and some useless equations
         + Using levy-flight for more robust
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, m=5, p1=0.25, p2=0.5, p3=0.75, p4=0.5):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, m=5, p1=0.25, p2=0.5, p3=0.75, p4=0.5):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.m = m              # n: pop_size, m: clusters
@@ -121,7 +123,7 @@ class ImprovedBSO(Root):
     def _creat_population__(self):
         pop = []
         for i in range(0, self.m):
-            group = [self._create_solution__() for _ in range(0, self.m_solution)]
+            group = [self.create_solution() for _ in range(0, self.m_solution)]
             pop.append(group)
         return pop
 
@@ -132,17 +134,17 @@ class ImprovedBSO(Root):
             centers.append(deepcopy(pop_sorted[self.ID_MIN_PROB]))
         return centers
 
-    def _train__(self):
+    def train(self):
         pop = self._creat_population__()
         centers = self._find_cluster__(pop)
-        g_best = self._get_global_best__(centers, self.ID_FIT, self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(centers, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             epxilon = 1 - 1 * (epoch + 1) / self.epoch                          # 1. Changed here, no need: k
 
             if uniform() < self.p1:                                             # p_5a
                 idx = randint(0, self.m)
-                solution_new = self._create_solution__()
+                solution_new = self.create_solution()
                 centers[idx] = solution_new
 
             for i in range(0, self.pop_size):                                   # Generate new individuals
@@ -153,7 +155,7 @@ class ImprovedBSO(Root):
                     if uniform() < self.p3:
                         pos_new = centers[cluster_id][self.ID_POS] + epxilon * uniform()
                     else:                                                       # 2. Using levy flight here
-                        pos_new = self._levy_flight__(epoch, pop[cluster_id][location_id][self.ID_POS], g_best[self.ID_POS])
+                        pos_new = self.levy_flight(epoch, pop[cluster_id][location_id][self.ID_POS], g_best[self.ID_POS])
                 else:
                     id1, id2 = choice(range(0, self.m), 2, replace=False)
                     if uniform() < self.p4:
@@ -162,15 +164,16 @@ class ImprovedBSO(Root):
                         rand_id1 = randint(0, self.m_solution)
                         rand_id2 = randint(0, self.m_solution)
                         pos_new = 0.5 * (pop[id1][rand_id1][self.ID_POS] + pop[id2][rand_id2][self.ID_POS]) + epxilon * uniform()
-                pos_new = self._amend_solution_random_faster__(pos_new)
-                fit = self._fitness_model__(pos_new)
+                pos_new = self.amend_position_random_faster(pos_new)
+                fit = self.get_fitness_position(pos_new)
                 if fit < pop[cluster_id][location_id][self.ID_FIT]:
                     pop[cluster_id][location_id] = [pos_new, fit]
 
             # Needed to update the centers and global best
             centers = self._find_cluster__(pop)
-            g_best = self._update_global_best__(centers, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(centers, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

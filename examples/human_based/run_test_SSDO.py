@@ -7,28 +7,30 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from mealpy.human_based.SSDO import OriginalSSD, BaseSSDO, LevySSDO
 from opfunu.cec_basic.cec2014_nobias import *
+from mealpy.human_based.SSDO import BaseSSDO, LevySSDO
 
 ## Setting parameters
-objective_func = F1
-problem_size = 3000
-domain_range = [-15, 15]
-log = True
-epoch = 100
+obj_func = F18
+# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
+# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
+lb = [-100]
+ub = [100]
+problem_size = 2000
+batch_size = 25
+verbose = True
+epoch = 1000
 pop_size = 50
 
-md1 = OriginalSSD(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1._train__()
-print(best_fit1)
-print("========================================================")
 
-md2 = BaseSSDO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos2, best_fit2, list_loss2 = md2._train__()
-print(best_fit2)
-print("========================================================")
+md1 = BaseSSDO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
 
-md3 = LevySSDO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos3, best_fit3, list_loss3 = md3._train__()
-print(best_fit3)
-
+md1 = LevySSDO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)

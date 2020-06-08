@@ -21,19 +21,20 @@ class OriginalCHIO(Root):
         DOI:
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, brr=0.06, max_age=150):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, brr=0.06, max_age=150):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.brr = brr
         self.max_age = max_age
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(0, self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         immunity_type_list = randint(0, 3, self.pop_size)           # Randint [0, 1, 2]
-        age_list = zeros(self.pop_size)                             # Control the age of each solution
+        age_list = zeros(self.pop_size)                             # Control the age of each position
         finished = False
 
         for epoch in range(self.epoch):
@@ -64,7 +65,7 @@ class OriginalCHIO(Root):
                 if finished:
                     break
                 # Step 4: Update herd immunity population
-                fit_new = self._fitness_model__(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
                 if fit_new < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit_new]
                 else:
@@ -82,17 +83,18 @@ class OriginalCHIO(Root):
 
                 # Step 5: Fatality condition
                 if (age_list[i] >= self.max_age) and (immunity_type_list[i] == 1):
-                    solution_new = self._create_solution__()
+                    solution_new = self.create_solution()
                     pop[i] = solution_new
                     immunity_type_list[i] = 0
                     age_list[i] = 0
             if finished:
                 break
             # Needed to update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -104,19 +106,20 @@ class BaseCHIO(Root):
             changed:
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, brr=0.06, max_age=150):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, brr=0.06, max_age=150):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.brr = brr
         self.max_age = max_age
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(0, self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         immunity_type_list = randint(0, 3, self.pop_size)   # Randint [0, 1, 2]
-        age_list = zeros(self.pop_size)                     # Control the age of each solution
+        age_list = zeros(self.pop_size)                     # Control the age of each position
 
         for epoch in range(self.epoch):
 
@@ -148,7 +151,7 @@ class BaseCHIO(Root):
                         idx_selected = idx_candidates[0][argmin(fit_list)]  # Found the index of best fitness
                         pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
                 # Step 4: Update herd immunity population
-                fit_new = self._fitness_model__(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
                 if fit_new < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit_new]
                 else:
@@ -165,13 +168,14 @@ class BaseCHIO(Root):
 
                 # Step 5: Fatality condition
                 if (age_list[i] >= self.max_age) and (immunity_type_list[i] == 1):
-                    solution_new = self._create_solution__()
+                    solution_new = self.create_solution()
                     pop[i] = solution_new
                     immunity_type_list[i] = 0
                     age_list[i] = 0
             # Needed to update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
