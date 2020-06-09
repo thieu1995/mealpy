@@ -19,24 +19,24 @@ log = True
 epoch = 100
 pop_size = 50
 
-# md1 = BasePSO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-# best_pos1, best_fit1, list_loss1 = md1._train__()
+# md1 = BasePSO(obj_func, problem_size, domain_range, verbose, epoch, pop_size)
+# best_pos1, best_fit1, list_loss1 = md1.train()
 # print(best_fit1)
 #
 # print("========================================================")
 #
-# md2 = PPSO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-# best_pos2, best_fit2, list_loss2 = md2._train__()
+# md2 = PPSO(obj_func, problem_size, domain_range, verbose, epoch, pop_size)
+# best_pos2, best_fit2, list_loss2 = md2.train()
 # print(best_fit2)
 #
 # print("========================================================")
 #
-# md2 = PSO_W(objective_func, problem_size, domain_range, log, epoch, pop_size)
-# best_pos2, best_fit2, list_loss2 = md2._train__()
+# md2 = PSO_W(obj_func, problem_size, domain_range, verbose, epoch, pop_size)
+# best_pos2, best_fit2, list_loss2 = md2.train()
 # print(best_fit2)
 
 print("========================================================")
 
 md2 = HPSO_TVA(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos2, best_fit2, list_loss2 = md2._train__()
+best_pos2, best_fit2, list_loss2 = md2.train()
 print(best_fit2)

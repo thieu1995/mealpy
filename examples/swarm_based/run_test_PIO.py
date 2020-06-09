@@ -20,11 +20,11 @@ epoch = 100
 pop_size = 50
 
 md1 = BasePIO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1._train__()
+best_pos1, best_fit1, list_loss1 = md1.train()
 print(best_fit1)
 
 print("========================================================")
 
 md2 = LevyPIO(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos2, best_fit2, list_loss2 = md2._train__()
+best_pos2, best_fit2, list_loss2 = md2.train()
 print(best_fit2)
