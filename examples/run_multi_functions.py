@@ -7,9 +7,9 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
+from opfunu.cec_basic import cec2014_nobias as cec
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-from examples.setting_function import func_paras, func_names
 from os import getcwd, path, makedirs
 
 model_name = "DE"
@@ -20,12 +20,19 @@ if not path.exists(check_dir1):
     makedirs(check_dir1)
 
 ## Setting parameters
-problem_size = 50
-log = True
-epoch = 10
+lb = [-100]
+ub = [100]
+problem_size = 1000
+batch_size = 25
+verbose = True
+epoch = 1000
 pop_size = 50
 wf = 0.8
 cr = 0.9
+
+func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19"]
+
+
 
 ## Run model
 best_fit_full = {}
@@ -33,9 +40,9 @@ best_fit_columns = []
 
 error_full = {}
 error_columns = []
-for id_paras in range(len(func_paras)):
-    md = BaseDE(func_paras[id_paras]["objective_func"], problem_size, func_paras[id_paras]["domain_range"], log, epoch, pop_size, wf, cr)
-    _, best_fit, list_loss = md._train__()
+for id_paras, func_name in enumerate(func_names):
+    md = BaseDE(getattr(cec, func_name), lb, ub, problem_size, batch_size, verbose, epoch, pop_size, wf, cr)
+    _, best_fit, list_loss = md.train()
 
     error_full[func_names[id_paras]] = list_loss
     error_columns.append(func_names[id_paras])

@@ -7,24 +7,34 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import sum
 from mealpy.evolutionary_based.GA import BaseGA
 
 
-def my_objective_function(solution):
-	return sum(solution ** 2)
+def my_elliptic_function(solution=None):
+    solution = solution.reshape((-1))
+    result = 0
+    for i in range(len(solution)):
+        result += (10 ** 6) ** (i / (len(solution) - 1)) * solution[i] ** 2
+    return result
 
 
 ## Setting parameters
-objective_func = my_objective_function
-problem_size = 30
-domain_range = [-15, 15]
-log = True
-epoch = 100
+obj_func = my_elliptic_function
+# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
+# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
+lb = [-100]
+ub = [100]
+problem_size = 100
+batch_size = 25
+verbose = True
+epoch = 1000
 pop_size = 50
+
 pc = 0.95
 pm = 0.025
 
-md = BaseGA(objective_func, problem_size, domain_range, log, epoch, pop_size, pc, pm)
-best_position, best_fit, list_loss = md._train__()
-print(best_fit)
+md1 = BaseGA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, pc, pm)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
