@@ -12,6 +12,7 @@ from numpy.random import uniform, randint, choice
 from copy import deepcopy
 from mealpy.root import Root
 
+
 class BaseBSA(Root):
     """
     The original version of: Bird Swarm Algorithm (BSA)
@@ -25,28 +26,27 @@ class BaseBSA(Root):
     ID_LBP = 2      # local best position
     ID_LBF = 3      # local best fitness
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
                  epoch=750, pop_size=100, ff=10, p=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
-
         self.ff = ff                # flight frequency - default = 10
         self.p = p                  # the probability of foraging for food - default = 0.8
         self.c_minmax = c_couples   # [c1, c2]: Cognitive accelerated coefficient, Social accelerated coefficient same as PSO
         self.a_minmax = a_couples   # [a1, a2]: The indirect and direct effect on the birds' vigilance behaviours.
         self.fl = fl                # The followed coefficient- default = 0.5
 
-    def _create_solution__(self, minmax=0):
-        position = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        x_fitness = self._fitness_model__(solution=position, minmax=minmax)
+    def create_solution(self, minmax=0):
+        position = uniform(self.lb, self.ub)
+        x_fitness = self.get_fitness_position(position=position, minmax=minmax)
         best_local = deepcopy(position)
         l_fitness = x_fitness
         return [position, x_fitness, best_local, l_fitness]
 
     def _update_position__(self, pop, index, solution):
-        temp = self._amend_solution_faster__(solution)
-        fit = self._fitness_model__(temp)
+        temp = self.amend_position_faster(solution)
+        fit = self.get_fitness_position(temp)
         pop[index][self.ID_POS] = temp
         pop[index][self.ID_FIT] = fit
         return pop
@@ -58,9 +58,9 @@ class BaseBSA(Root):
                 pop[i][self.ID_LBP] = pop[i][self.ID_POS]
         return pop
 
-    def _train__(self):
-        pop = [self._create_solution__(minmax=0) for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             pos_list = array([item[self.ID_POS] for item in pop])
@@ -125,9 +125,9 @@ class BaseBSA(Root):
                             pop = self._update_position__(pop, i, temp)
 
             pop = self._update_population__(pop)
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_LBF])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fitness: {}".format(epoch+1, g_best[self.ID_LBF]))
-
+        self.solution = g_best
         return g_best[self.ID_LBP], g_best[self.ID_LBF], self.loss_train

@@ -21,27 +21,13 @@ class OriginalALO(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/49920-ant-lion-optimizer-alo
         http://dx.doi.org/10.1016/j.advengsoft.2015.01.010
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _roulette_wheel_selection__(self, weights):
-        # The problem with this function is: it will not working with negative fitness values.
-        accumulation = cumsum(weights)
-        p = rand() * accumulation[-1]
-        chosen_index = -1
-        for idx in range(0, self.pop_size):
-            if accumulation[idx] > p:
-                chosen_index = idx
-                break
-        return chosen_index
-
     def _random_walk_around_antlion__(self, solution, current_epoch):
-        # Make the bounded vector
-        lb = self.domain_range[0] * ones(self.problem_size)
-        ub = self.domain_range[1] * ones(self.problem_size)
-
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
         if current_epoch > self.epoch / 10:
             I = 1 + 100 * (current_epoch / self.epoch)
@@ -55,8 +41,8 @@ class OriginalALO(Root):
             I = 1 + 1000000 * (current_epoch / self.epoch)
 
         # Dicrease boundaries to converge towards antlion
-        lb = lb / I  # Equation (2.10) in the paper
-        ub = ub / I  # Equation (2.10) in the paper
+        lb = self.lb / I  # Equation (2.10) in the paper
+        ub = self.ub / I  # Equation (2.10) in the paper
 
         # Move the interval of [lb ub] around the antlion [lb+anlion ub+antlion]
         if rand() < 0.5:
@@ -80,19 +66,16 @@ class OriginalALO(Root):
             temp.append(X_norm)
         return array(temp)
 
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        pop_new, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop_new, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
-            fit_list = array([item[self.ID_FIT] for item in pop])
+            list_fitness = array([item[self.ID_FIT] for item in pop])
             # This for loop simulate random walks
             for i in range(0, self.pop_size):
                 # Select ant lions based on their fitness (the better anlion the higher chance of catching ant)
-                rolette_index = self._roulette_wheel_selection__(1. / fit_list)
-                if rolette_index == -1:
-                    rolette_index = 1
+                rolette_index = self.get_index_roulette_wheel_selection(list_fitness)
 
                 # RA is the random walk around the selected antlion by rolette wheel
                 RA = self._random_walk_around_antlion__(pop[rolette_index][self.ID_POS], epoch)
@@ -102,8 +85,8 @@ class OriginalALO(Root):
 
                 temp = (RA[:, epoch] + RE[:, epoch]) / 2        # Equation(2.13) in the paper
                 # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
-                temp = self._amend_solution_faster__(temp)
-                fit = self._fitness_model__(temp)
+                temp = self.amend_position_faster(temp)
+                fit = self.get_fitness_position(temp)
                 pop_new[i] = [temp, fit]
 
             # Update antlion positions and fitnesses based of the ants (if an ant becomes fitter than an antlion we
@@ -113,14 +96,14 @@ class OriginalALO(Root):
             pop = pop[:self.pop_size]
 
             # Update the position of elite if any antlinons becomes fitter than it
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             # Keep the elite in the population
             pop[self.ID_MIN_PROB] = deepcopy(g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -129,16 +112,16 @@ class BaseALO(OriginalALO):
     The is my version of: Ant Lion Optimizer (ALO)
         (The Ant Lion Optimizer)
     Link:
-        Using matrix for better performance. Change the flow of updating new solution. Make it better then original one
+        + Using matrix for better performance.
+        + Change the flow of updating new position. Make it better then original one
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        OriginalALO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
 
     def _random_walk_around_antlion__(self, solution, current_epoch):
-        # Make the bounded vector
-        lb = self.domain_range[0] * ones(self.problem_size)
-        ub = self.domain_range[1] * ones(self.problem_size)
-
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
         if current_epoch > self.epoch / 10:
             I = 1 + 100 * (current_epoch / self.epoch)
@@ -152,8 +135,8 @@ class BaseALO(OriginalALO):
             I = 1 + 1000000 * (current_epoch / self.epoch)
 
         # Dicrease boundaries to converge towards antlion
-        lb = lb / I  # Equation (2.10) in the paper
-        ub = ub / I  # Equation (2.10) in the paper
+        lb = self.lb / I  # Equation (2.10) in the paper
+        ub = self.ub / I  # Equation (2.10) in the paper
 
         # Move the interval of [lb ub] around the antlion [lb+anlion ub+antlion]. Eq 2.8, 2.9
         lb = lb + solution if rand() < 0.5 else -lb + solution
@@ -169,18 +152,16 @@ class BaseALO(OriginalALO):
         X_norm = temp0 * temp1 + reshape(lb, (self.problem_size, 1))
         return X_norm
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        pop_new, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop_new, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
-            fit_list = array([item[self.ID_FIT] for item in pop])
+            list_fitness = array([item[self.ID_FIT] for item in pop])
             # This for loop simulate random walks
             for i in range(0, self.pop_size):
                 # Select ant lions based on their fitness (the better anlion the higher chance of catching ant)
-                rolette_index = self._roulette_wheel_selection__(1. / fit_list)
-                if rolette_index == -1:
-                    rolette_index = 1
+                rolette_index = self.get_index_roulette_wheel_selection(list_fitness)
 
                 # RA is the random walk around the selected antlion by rolette wheel
                 RA = self._random_walk_around_antlion__(pop[rolette_index][self.ID_POS], epoch)
@@ -190,20 +171,20 @@ class BaseALO(OriginalALO):
 
                 temp = (RA[:, epoch] + RE[:, epoch]) / 2        # Equation(2.13) in the paper
                 # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
-                temp = self._amend_solution_faster__(temp)
-                fit = self._fitness_model__(temp)
+                temp = self.amend_position_faster(temp)
+                fit = self.get_fitness_position(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop_new[i] = [temp, fit]
 
-            # Change the flow of how solution updated
+            # Change the flow of how position updated
             pop = deepcopy(pop_new)
             # Update the position of elite if any antlinons becomes fitter than it
-            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             # Keep the elite in the population
             pop[self.ID_MIN_PROB] = deepcopy(g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

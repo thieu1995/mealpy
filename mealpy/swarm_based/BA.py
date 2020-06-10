@@ -14,122 +14,125 @@ from mealpy.root import Root
 
 class BaseBA(Root):
     """
-    This is my version of: Bat-Inspired Algorithm (A little bit better then both 2 original version)
+    My modified version of: Bat-Inspired Algorithm (A little bit better than both 2 original version)
     - No need A parameter
     - I changed the process.
         + 1st: We proceed exploration phase (using frequency)
-        + 2nd: If new solution has better fitness we replace the old solution
-        + 3rd: Otherwise, we proceed exploitation phase (using finding around the best solution so far)
+        + 2nd: If new position has better fitness we replace the old position
+        + 3rd: Otherwise, we proceed exploitation phase (using finding around the best position so far)
     """
-    ID_POS = 0  # position
-    ID_FIT = 1  # fitness
-    ID_VEL = 2  # velocity
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, r=0.95, pf=(0, 10)):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, r=0.95, pf=(0, 10)):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.r = r  # (r_min, r_max): pulse rate / emission rate
-        self.pf = pf  # (pf_min, pf_max): pulse frequency
+        self.r = r              # (r_min, r_max): pulse rate / emission rate
+        self.pf = pf            # (pf_min, pf_max): pulse frequency
 
-    def _create_solution__(self, minmax=0):
-        """  This algorithm has different encoding mechanism, so we need to override this method
-                x: current position
-                fit: fitness
-                v: velocity of this bird (same number of dimension of x)
-        """
-        x = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        fit = self._fitness_model__(solution=x, minmax=minmax)
-        v = zeros(self.problem_size)
-        return [x, fit, v]
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        list_velocity = zeros((self.pop_size, self.problem_size))
 
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
-                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()  # Eq. 2
-                v = uniform() * pop[i][self.ID_VEL] + (g_best[self.ID_POS] - pop[i][self.ID_POS]) * pf  # Eq. 3
-                x = pop[i][self.ID_POS] + v  # Eq. 4
-                x = self._amend_solution_faster__(x)
-                fit = self._fitness_model__(x)
+                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()                                 # Eq. 2
+                v = uniform() * list_velocity[i] + (g_best[self.ID_POS] - pop[i][self.ID_POS]) * pf     # Eq. 3
+                x = pop[i][self.ID_POS] + v                                                             # Eq. 4
+                x = self.amend_position_faster(x)
+                fit = self.get_fitness_position(x)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x, fit, v]
                 else:
                     if uniform() > self.r:
-                        x = g_best[self.ID_POS] + 0.001 * normal(self.domain_range[0], self.domain_range[1],
-                                                                 self.problem_size)
-                        x = self._amend_solution_faster__(x)
-                        fit = self._fitness_model__(x)
+                        x = g_best[self.ID_POS] + 0.01 * uniform(self.lb, self.ub)
+                        x = self.amend_position_faster(x)
+                        fit = self.get_fitness_position(x)
                         if fit < pop[i][self.ID_FIT]:
                             pop[i] = [x, fit, v]
-
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class OriginalBA(BaseBA):
+class OriginalBA(Root):
     """
-    This is the original version of: Bat-Inspired Algorithm
-    - The value of A and r parameters are constant
-    - A New Metaheuristic Bat-Inspired Algorithm
+        The original version of: Bat-Inspired Algorithm (BA)
+            A New Metaheuristic Bat-Inspired Algorithm
+        Notes:
+            The value of A and r parameters are constant
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10)):
-        BaseBA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, r, pf)
-        self.A = A  # (A_min, A_max): loudness
-        self.r = r  # (r_min, r_max): pulse rate / emission rate
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10)):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.r = r          # (r_min, r_max): pulse rate / emission rate
+        self.pf = pf        # (pf_min, pf_max): pulse frequency
+        self.A = A          # (A_min, A_max): loudness
+        self.r = r          # (r_min, r_max): pulse rate / emission rate
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        list_velocity = zeros((self.pop_size, self.problem_size))
 
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
-                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()  # Eq. 2
-                v = pop[i][self.ID_VEL] + (pop[i][self.ID_POS] - g_best[self.ID_POS]) * pf  # Eq. 3
-                x = pop[i][self.ID_POS] + v  # Eq. 4
+                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()                     # Eq. 2
+                v = list_velocity[i] + (pop[i][self.ID_POS] - g_best[self.ID_POS]) * pf     # Eq. 3
+                x = pop[i][self.ID_POS] + v                                                 # Eq. 4
 
-                ## Local Search around g_best solution
+                ## Local Search around g_best_position position
                 if uniform() > self.r:
                     x = g_best[self.ID_POS] + 0.001 * normal(self.problem_size)  # gauss
-                x = self._amend_solution_faster__(x)
-                fit = self._fitness_model__(x)
+                x = self.amend_position_faster(x)
+                fit = self.get_fitness_position(x)
 
-                ## Replace the old solution by the new one when its has better fitness.
+                ## Replace the old position by the new one when its has better fitness.
                 ##  and then update loudness and emission rate
                 if fit < pop[i][self.ID_FIT] and uniform() < self.A:
-                    pop[i] = [x, fit, v]
+                    pop[i] = [x, fit]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class BasicBA(OriginalBA):
+class BasicBA(Root):
     """
-    This is a basic version of: Bat-Inspired Algorithm
-    - The value of A and r are changing after each iteration
-    - A New Metaheuristic Bat-Inspired Algorithm
+        The original versino of: Bat-Inspired Algorithm (BA)
+            A New Metaheuristic Bat-Inspired Algorithm
+        Notes:
+            The value of A and r are changing after each iteration
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10)):
-        OriginalBA.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size, A, r, pf)
-        self.A = A  # (A_min, A_max): loudness
-        self.r = r  # (r_min, r_max): pulse rate / emission rate
-        self.pf = pf
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10)):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.r = r          # (r_min, r_max): pulse rate / emission rate
+        self.pf = pf        # (pf_min, pf_max): pulse frequency
+        self.A = A          # (A_min, A_max): loudness
+        self.r = r          # (r_min, r_max): pulse rate / emission rate
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        list_velocity = zeros((self.pop_size, self.problem_size))
 
         alpha = gamma = 0.975  # original paper
         ## Parallel in each iterations. All bats move together each time.
@@ -141,26 +144,28 @@ class BasicBA(OriginalBA):
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
 
-                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()  # Eq. 2
-                v = pop[i][self.ID_VEL] + (pop[i][self.ID_POS] - g_best[self.ID_POS]) * pf  # Eq. 3
-                x = pop[i][self.ID_POS] + v  # Eq. 4
+                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * uniform()                     # Eq. 2
+                v = list_velocity[i] + (pop[i][self.ID_POS] - g_best[self.ID_POS]) * pf     # Eq. 3
+                x = pop[i][self.ID_POS] + v                                                 # Eq. 4
 
-                ## Local Search around g_best solution
+                ## Local Search around g_best_position position
                 if uniform() > r:
                     x = g_best[self.ID_POS] + mean_a * uniform(self.problem_size)
-                x = self._amend_solution_faster__(x)
-                fit = self._fitness_model__(x)
+                x = self.amend_position_faster(x)
+                fit = self.get_fitness_position(x)
 
-                ## Replace the old solution by the new one when its has better fitness.
+                ## Replace the old position by the new one when its has better fitness.
                 ##  and then update loudness and emission rate
                 if fit < pop[i][self.ID_FIT] and uniform() < a:
-                    pop[i] = [x, fit, v]
+                    pop[i] = [x, fit]
                     a = alpha * a
                     r = r_0 * (1 - exp(-gamma * (epoch + 1)))
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

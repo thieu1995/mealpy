@@ -7,8 +7,8 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-import numpy as np
-from copy import deepcopy
+from numpy import exp, zeros, sqrt, remainder, sum
+from numpy.random import normal
 from mealpy.root import Root
 
 
@@ -19,55 +19,52 @@ class BaseGOA(Root):
     Link:
         http://dx.doi.org/10.1016/j.advengsoft.2017.01.004
         https://www.mathworks.com/matlabcentral/fileexchange/61421-grasshopper-optimisation-algorithm-goa
+    Notes:
+        + I added normal() component to Eq, 2.7
+        + Changed the way to calculate distance between two location
+        + Used batch-size idea
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c_minmax=(0.00004, 1)):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, c_minmax=(0.00004, 1)):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c_minmax = c_minmax
 
-    def _s_function__(self, r_vector):
+    def _s_function__(self, r_vector=None):
         f = 0.5
         l = 1.5
-        return f * np.exp(-r_vector / l) - np.exp(-r_vector) # Eq.(2.3) in the paper
+        return f * exp(-r_vector / l) - exp(-r_vector)        # Eq.(2.3) in the paper
 
-    def _distance__(self, sol_a=None, sol_b=None):
-        temp = np.zeros(self.problem_size)
-        for it in range(0, self.problem_size):
-            idx = np.remainder(it+1, self.problem_size)
-            dist = np.sqrt((sol_a[it] - sol_b[it]) ** 2 + (sol_a[idx] - sol_b[idx]) ** 2)
-            temp[it] = dist
-        return temp
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        pop_new = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             # Eq.(2.8) in the paper
             c = self.c_minmax[1] - epoch * ((self.c_minmax[1] - self.c_minmax[0]) / self.epoch)
             for i in range(0, self.pop_size):
-                S_i_total = np.zeros(self.problem_size)
+                S_i_total = zeros(self.problem_size)
                 for j in range(0, self.pop_size):
-                    dist = self._distance__(pop[i][self.ID_POS], pop[j][self.ID_POS])
+                    dist = sqrt(sum((pop[i][self.ID_POS] - pop[j][self.ID_POS])**2))
                     r_ij_vector = (pop[i][self.ID_POS] - pop[j][self.ID_POS]) / (dist + self.EPSILON)    # xj - xi / dij in Eq.(2.7)
-                    xj_xi = 2 + np.remainder(dist, 2)  # |xjd - xid| in Eq. (2.7)
-                    ## The first part inside the big bracket in Eq. (2.7)
-                    ran = (c / 2 ) * (self.domain_range[1] - self.domain_range[0]) * np.ones(self.problem_size)
+                    xj_xi = 2 + remainder(dist, 2)  # |xjd - xid| in Eq. (2.7)
+                    ## The first part inside the big bracket in Eq. (2.7)   16 955 230 764    212 047 193 643
+                    ran = (c / 2) * (self.ub - self.lb)
                     s_ij = ran * self._s_function__(xj_xi) * r_ij_vector
                     S_i_total += s_ij
-                x_new = c * S_i_total + g_best[self.ID_POS]     # Eq. (2.7) in the paper
-                x_new = self._amend_solution_faster__(x_new)
-                fit = self._fitness_model__(x_new)
-                if fit < pop[i][self.ID_FIT]:
-                    pop_new[i] = [x_new, fit]
-            pop = deepcopy(pop_new)
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                x_new = c * normal() * S_i_total + g_best[self.ID_POS]     # Eq. (2.7) in the paper
+                x_new = self.amend_position_faster(x_new)
+                fit = self.get_fitness_position(x_new)
+                pop[i] = [x_new, fit]
+
+                # batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

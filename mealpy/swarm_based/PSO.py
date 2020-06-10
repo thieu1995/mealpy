@@ -15,11 +15,12 @@ from mealpy.root import Root
 
 class BasePSO(Root):
     """
-    Particle Swarm Optimization
+        The original version of: Particle Swarm Optimization
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, c1=1.2, c2=1.2, w_min=0.4, w_max=0.9):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, c1=1.2, c2=1.2, w_min=0.4, w_max=0.9):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c1 = c1            # [0-2]  -> [(1.2, 1.2), (0.8, 2.0), (1.6, 0.6)]  Local and global coefficient
@@ -27,33 +28,36 @@ class BasePSO(Root):
         self.w_min = w_min      # [0-1] -> [0.4-0.9]      Weight of bird
         self.w_max = w_max
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        v_max = 0.5 * (self.domain_range[1] - self.domain_range[0])
-        v_list = uniform(0, v_max, (self.pop_size, self.problem_size))
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        v_max = 0.5 * (self.ub - self.lb)
+        v_min = zeros(self.problem_size)
+        v_list = uniform(v_min, v_max, (self.pop_size, self.problem_size))
         pop_local = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             # Update weight after each move count  (weight down)
             w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
             for i in range(self.pop_size):
-                v_new = w * v_list[i, :] + self.c1 * uniform() * (pop_local[i][self.ID_POS] - pop[i][self.ID_POS]) +\
+                v_new = w * v_list[i] + self.c1 * uniform() * (pop_local[i][self.ID_POS] - pop[i][self.ID_POS]) +\
                             self.c2 * uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 x_new = pop[i][self.ID_POS] + v_new             # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
-                x_new = self._amend_solution_random_faster__(x_new)
-                fit_new = self._fitness_model__(x_new)
+                x_new = self.amend_position_random_faster(x_new)
+                fit_new = self.get_fitness_position(x_new)
                 pop[i] = [x_new, fit_new]
 
                 # Update current position, current velocity and compare with past position, past fitness (local best)
                 if fit_new < pop_local[i][self.ID_FIT]:
                     pop_local[i] = [x_new, fit_new]
 
-            g_best = self._update_global_best__(pop_local, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -64,18 +68,18 @@ class PPSO(Root):
         I convert matlab to python code
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        v_max = 0.5 * (self.domain_range[1] - self.domain_range[0])
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        v_max = 0.5 * (self.ub - self.lb)
         v_list = zeros((self.pop_size, self.problem_size))
         delta_list = uniform(0, 2*pi, self.pop_size)
         pop_local = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             for i in range(0, self.pop_size):
@@ -88,22 +92,24 @@ class PPSO(Root):
                 v_list[i, :] = minimum(maximum(v_list[i], -v_max), v_max)
 
                 x_temp = pop[i][self.ID_POS] + v_list[i, :]
-                x_temp = minimum(maximum(x_temp, self.domain_range[0]), self.domain_range[1])
-                fit = self._fitness_model__(x_temp)
+                x_temp = minimum(maximum(x_temp, self.lb), self.ub)
+                fit = self.get_fitness_position(x_temp)
                 pop[i] = [x_temp, fit]
 
                 delta_list[i] += abs(aa + bb) * (2 * pi)
-                v_max = (abs(cos(delta_list[i])) ** 2) * (self.domain_range[1] - self.domain_range[0])
+                v_max = (abs(cos(delta_list[i])) ** 2) * (self.ub - self.lb)
 
                 if fit < pop_local[i][self.ID_FIT]:
                     pop_local[i] = [x_temp, fit]
-                    if pop_local[i][self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(pop_local[i])
+
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -114,18 +120,18 @@ class PSO_W(Root):
         I convert matlab to python code
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        v_max = 0.5 * (self.domain_range[1] - self.domain_range[0])
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        v_max = 0.5 * (self.ub - self.lb)
         v_list = zeros((self.pop_size, self.problem_size))
         delta_list = uniform(0, 2 * pi, self.pop_size)
         pop_local = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             for i in range(0, self.pop_size):
@@ -139,47 +145,50 @@ class PSO_W(Root):
                 v_list[i, :] = minimum(maximum(v_list[i], -v_max), v_max)
 
                 x_temp = pop[i][self.ID_POS] + v_list[i, :]
-                x_temp = minimum(maximum(x_temp, self.domain_range[0]), self.domain_range[1])
-                fit = self._fitness_model__(x_temp)
+                x_temp = minimum(maximum(x_temp, self.lb), self.ub)
+                fit = self.get_fitness_position(x_temp)
                 pop[i] = [x_temp, fit]
 
                 delta_list[i] += abs(aa + bb) * (2 * pi)
-                v_max = (abs(cos(delta_list[i])) ** 2) * (self.domain_range[1] - self.domain_range[0])
+                v_max = (abs(cos(delta_list[i])) ** 2) * (self.ub - self.lb)
 
                 if fit < pop_local[i][self.ID_FIT]:
                     pop_local[i] = [x_temp, fit]
-                    if pop_local[i][self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(pop_local[i])
+
+                ## batch size
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class HPSO_TVA(Root):
     """
-        A variant version of PSO: New self-organising  hierarchical PSO with jumping time-varying acceleration coefficients
+        A variant version of PSO: New self-organising hierarchical PSO with jumping time-varying acceleration coefficients
         Matlab code sent by one of the author: Ebrahim Akbari
         I convert matlab to python code
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, ci=0.5, cf=0.0):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, ci=0.5, cf=0.0):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ci = ci
         self.cf = cf
 
-    def _train__(self):
+    def train(self):
         # Initialization
-        v_max = 0.5 * (self.domain_range[1] - self.domain_range[0])
+        v_max = 0.5 * (self.ub - self.lb)
         v_list = zeros((self.pop_size, self.problem_size))
 
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
+        pop = [self.create_solution() for _ in range(self.pop_size)]
         pop_local = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             c_it = ((self.cf - self.ci) * ((epoch+1) / self.epoch)) + self.ci
@@ -202,18 +211,20 @@ class HPSO_TVA(Root):
 
                 v_list[i] = minimum(maximum(v_list[i], -v_max), v_max)
                 x_temp = pop[i][self.ID_POS] + v_list[i]
-                x_temp = minimum(maximum(x_temp, self.domain_range[0]), self.domain_range[1])
-                fit = self._fitness_model__(x_temp)
+                x_temp = minimum(maximum(x_temp, self.lb), self.ub)
+                fit = self.get_fitness_position(x_temp)
                 pop[i] = [x_temp, fit]
 
                 if fit < pop_local[i][self.ID_FIT]:
                     pop_local[i] = [x_temp, fit]
-                    if pop_local[i][self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(pop_local[i])
+
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

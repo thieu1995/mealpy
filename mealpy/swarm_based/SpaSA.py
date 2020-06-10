@@ -7,7 +7,6 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-
 from numpy.random import uniform, normal
 from numpy import abs, exp, ones
 from copy import deepcopy
@@ -22,21 +21,21 @@ class BaseSpaSA(Root):
             https://doi.org/10.1080/21642583.2019.1708830
         Noted:
             + In Eq. 4, Instead of using A+ and L, I used normal(). Because at the end L*A+ is only a random number
-            + Their algorithm 1 flow is missing all important component such as g_best, fitness updated,
+            + Their algorithm 1 flow is missing all important component such as g_best_position, fitness updated,
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, ST=0.8, PD=0.2, SD=0.1):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.ST = 0.8       # ST in [0.5, 1.0]
-        self.PD = 0.2       # number of producers
-        self.SD = 0.1       # number of sparrows who perceive the danger
+        self.ST = ST       # ST in [0.5, 1.0]
+        self.PD = PD       # number of producers
+        self.SD = SD       # number of sparrows who perceive the danger
 
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        pop, g_best = self._sort_pop_and_get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
         n1 = int(self.PD * self.pop_size)
         n2 = int(self.SD * self.pop_size)
 
@@ -49,8 +48,8 @@ class BaseSpaSA(Root):
                     x_new = pop[i][self.ID_POS] * exp((i+1) / (uniform() * self.epoch))
                 else:
                     x_new = pop[i][self.ID_POS] + normal() * ones(self.problem_size)
-                x_new = self._amend_solution_random_faster__(x_new)
-                fit = self._fitness_model__(x_new)
+                x_new = self.amend_position_random_faster(x_new)
+                fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
 
@@ -63,8 +62,8 @@ class BaseSpaSA(Root):
                     x_new = normal() * exp((worst[self.ID_POS] - pop[i][self.ID_POS]) / (i+1)**2)
                 else:
                     x_new = x_p + abs(pop[i][self.ID_POS] - x_p) * normal()
-                x_new = self._amend_solution_random_faster__(x_new)
-                fit = self._fitness_model__(x_new)
+                x_new = self.amend_position_random_faster(x_new)
+                fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
 
@@ -75,15 +74,15 @@ class BaseSpaSA(Root):
                 else:
                     x_new = pop[i][self.ID_POS] + uniform(-1, 1) * \
                             (abs(pop[i][self.ID_POS] - worst[self.ID_POS]) / (pop[i][self.ID_FIT] - worst[self.ID_FIT] + self.EPSILON))
-                x_new = self._amend_solution_random_faster__(x_new)
-                fit = self._fitness_model__(x_new)
+                x_new = self.amend_position_random_faster(x_new)
+                fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
 
-            pop, g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

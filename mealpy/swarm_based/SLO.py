@@ -16,20 +16,24 @@ from mealpy.root import Root
 
 class BaseSLO(Root):
     """
-        The original version of: Sea Lion Optimization Algorithm
+        This version developed by one on my student: Sea Lion Optimization Algorithm
             (Sea Lion Optimization Algorithm)
         Link:
             https://www.researchgate.net/publication/333516932_Sea_Lion_Optimization_Algorithm
             DOI: 10.14569/IJACSA.2019.0100548
+        Notes:
+            + The original paper is fake, tons of unclear equations and parameters
+            + You can check my question on the ResearchGate link, the authors seem to be scare so they didn't reply.
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
@@ -47,15 +51,17 @@ class BaseSLO(Root):
                         rand_SL = pop[rand_index]
                         new_pos = rand_SL[self.ID_POS] - c * abs(b * rand_SL[self.ID_POS] - pop[i][self.ID_POS])
 
-                new_pos = self._amend_solution_random_faster__(new_pos)
-                fit = self._fitness_model__(new_pos)
+                new_pos = self.amend_position_random_faster(new_pos)
+                fit = self.get_fitness_position(new_pos)
                 pop[i] = [new_pos, fit]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
@@ -67,8 +73,9 @@ class ImprovedSLO(BaseSLO):
             + Using the idea of shrink encircling combine with levy flight techniques
             + Also using the idea of local best in PSO
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        BaseSLO.__init__(self, objective_func, problem_size, domain_range, log, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        BaseSLO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 
     def _shrink_encircling_levy__(self, current_pos, epoch, dist, c, beta=1):
         up = gamma(1 + beta) * sin(pi * beta / 2)
@@ -78,14 +85,14 @@ class ImprovedSLO(BaseSLO):
         a = normal(0, xich_ma_1, 1)
         b = normal(0, xich_ma_2, 1)
         LB = 0.01 * a / (power(abs(b), 1 / beta)) * dist * c
-        D = uniform(self.domain_range[0], self.domain_range[1], 1)
+        D = uniform(self.lb, self.ub)
         levy = LB * D
         return (current_pos - sqrt(epoch + 1) * sign(random(1) - 0.5)) * levy
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
         pop_local = deepcopy(pop)
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             for i in range(self.pop_size):
@@ -108,17 +115,19 @@ class ImprovedSLO(BaseSLO):
                         rand_SL = 2 * g_best[self.ID_POS] - rand_SL
                         new_pos = rand_SL - c * abs(uniform() * rand_SL - pop[i][self.ID_POS])
 
-                new_pos = self._amend_solution_random_faster__(new_pos)
-                new_fit = self._fitness_model__(new_pos)
+                new_pos = self.amend_position_random_faster(new_pos)
+                new_fit = self.get_fitness_position(new_pos)
                 pop[i] = [new_pos, new_fit]                     # Move to new position anyway
                 # Update current_pos, current_fit, compare and update past_pos and past_fit
                 if new_fit < pop_local[i][self.ID_FIT]:
                     pop_local[i] = deepcopy([new_pos, new_fit])
-                    if pop_local[i][self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(pop_local[i])
+
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

@@ -23,12 +23,10 @@ class BasePIO(Root):
             + This is my version, I changed almost everything, even parameters and flow of algorithm
             + Also the personal best no need in this version (So it is now much different than PSO)
     """
-    ID_POS = 0  # current position
-    ID_FIT = 1  # current fitness
-    ID_VEL = 2  # velocity of bird
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, R=0.2, n_switch=0.75):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, R=0.2, n_switch=0.75):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch                                  # Nc1 + Nc2
         self.pop_size = pop_size                            # Np
         self.R = R
@@ -37,27 +35,23 @@ class BasePIO(Root):
         else:
             self.n_switch = int(n_switch)                    # Represent Nc1 and Nc2 in the paper
 
-    def _create_solution__(self, minmax=0):
-        x = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)      # x: current position
-        fit = self._fitness_model__(solution=x, minmax=minmax)
-        v = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)      # v: velocity of this bird (same number of dimension of x)
-        return [x, fit, v]
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        list_velocity = uniform(self.lb, self.ub, (self.pop_size, self.problem_size))
         n_p = int(self.pop_size / 2)
 
         for epoch in range(0, self.epoch):
 
             if epoch < self.n_switch:  # Map and compass operations
                 for i in range(0, self.pop_size):
-                    v_new = pop[i][self.ID_POS] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    v_new = list_velocity[i] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                     x_new = pop[i][self.ID_POS] + v_new
-                    x_new = self._amend_solution_random_faster__(x_new)
-                    fit = self._fitness_model__(x_new)
+                    x_new = self.amend_position_random_faster(x_new)
+                    fit = self.get_fitness_position(x_new)
                     if fit < pop[i][self.ID_FIT]:
-                        pop[i] = [x_new, fit, v_new]
+                        pop[i] = [x_new, fit]
+                        list_velocity[i] = v_new
 
             else:  # Landmark operations
                 pop = sorted(pop, key=lambda item: item[self.ID_FIT])
@@ -70,21 +64,20 @@ class BasePIO(Root):
                 ## Move all pigeon based on target x_c
                 for i in range(0, self.pop_size):
                     x_new = pop[i][self.ID_POS] + uniform() * (x_c - pop[i][self.ID_POS])
-                    fit = self._fitness_model__(x_new)
-                    if fit < pop[i][self.ID_FIT]:
-                        pop[i][self.ID_POS] = x_new
-                        pop[i][self.ID_FIT] = fit
+                    fit_new = self.get_fitness_position(x_new)
+                    if fit_new < pop[i][self.ID_FIT]:
+                        pop[i] = [x_new, fit_new]
 
             # Update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class LevyPIO(Root):
+class LevyPIO(BasePIO):
     """
         My levy version of: Pigeon-Inspired Optimization (PIO)
             (Pigeon-inspired optimization: a new swarm intelligence optimizer for air robot path planning)
@@ -94,41 +87,28 @@ class LevyPIO(Root):
             + Also the personal best no need in this version (So it is now much different than PSO)
             + I applied the levy-flight here for more robust
     """
-    ID_POS = 0  # current position
-    ID_FIT = 1  # current fitness
-    ID_VEL = 2  # velocity of bird
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, R=0.2, n_switch=0.75):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
-        self.epoch = epoch  # Nc1 + Nc2
-        self.pop_size = pop_size  # Np
-        self.R = R
-        if n_switch < 1:
-            self.n_switch = int(self.epoch * n_switch)
-        else:
-            self.n_switch = int(n_switch)  # Represent Nc1 and Nc2 in the paper
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, R=0.2, n_switch=0.75):
+        BasePIO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, R, n_switch)
 
-    def _create_solution__(self, minmax=0):
-        x = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)  # x: current position
-        fit = self._fitness_model__(solution=x, minmax=minmax)
-        v = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)  # v: velocity of this bird (same number of dimension of x)
-        return [x, fit, v]
-
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        list_velocity = uniform(self.lb, self.ub, (self.pop_size, self.problem_size))
         n_p = int(self.pop_size / 2)
 
         for epoch in range(0, self.epoch):
 
             if epoch < self.n_switch:  # Map and compass operations
                 for i in range(0, self.pop_size):
-                    v_new = pop[i][self.ID_POS] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    v_new = list_velocity[i] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                     x_new = pop[i][self.ID_POS] + v_new
-                    x_new = self._amend_solution_random_faster__(x_new)
-                    fit = self._fitness_model__(x_new)
-                    if fit < pop[i][self.ID_FIT]:
-                        pop[i] = [x_new, fit, v_new]
+                    x_new = self.amend_position_random_faster(x_new)
+                    fit_new = self.get_fitness_position(x_new)
+                    if fit_new < pop[i][self.ID_FIT]:
+                        pop[i] = [x_new, fit_new]
+                        list_velocity[i] = v_new
 
             else:  # Landmark operations
                 pop = sorted(pop, key=lambda item: item[self.ID_FIT])
@@ -143,16 +123,15 @@ class LevyPIO(Root):
                     if uniform() < 0.5:
                         x_new = pop[i][self.ID_POS] + uniform() * (x_c - pop[i][self.ID_POS])
                     else:
-                        x_new = self._levy_flight__(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-                    fit = self._fitness_model__(x_new)
-                    if fit < pop[i][self.ID_FIT]:
-                        pop[i][self.ID_POS] = x_new
-                        pop[i][self.ID_FIT] = fit
+                        x_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+                    fit_new = self.get_fitness_position(x_new)
+                    if fit_new < pop[i][self.ID_FIT]:
+                        pop[i] = [x_new, fit_new]
 
             # Update the global best
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 19:05, 29/05/2020                                                        %
+# Created by "Thieu Nguyen" at 00:07, 10/06/2020                                                        %
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
@@ -8,18 +8,22 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.SpaSA import BaseSpaSA
+from mealpy.swarm_based.MSA import BaseMSA
 
 ## Setting parameters
-objective_func = F21
-problem_size = 3000
-domain_range = [-150, 150]
-log = True
-
-epoch = 100
+obj_func = F1
+# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
+# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
+lb = [-100]
+ub = [100]
+problem_size = 1000
+batch_size = 25
+verbose = True
+epoch = 10000
 pop_size = 50
 
-md1 = BaseSpaSA(objective_func, problem_size, domain_range, log, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1._train__()
-print(best_fit1)
-print("========================================================")
+md1 = BaseMSA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)

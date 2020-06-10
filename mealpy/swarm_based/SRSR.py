@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import zeros, ones, abs, ceil, int, clip, floor, round, argmax, argwhere, reshape, sign, concatenate, power
+from numpy import zeros, abs, ceil, int, clip, floor, round, argmax, argwhere, reshape, sign, concatenate, power
 from numpy.random import uniform, randint, permutation, normal
 from copy import deepcopy
 from mealpy.root import Root
@@ -15,7 +15,8 @@ from mealpy.root import Root
 
 class BaseSRSR(Root):
     """
-    Swarm Robotics Search And Rescue: A Novel Artificial Intelligence-inspired Optimization Approach
+        The original version of: Swarm Robotics Search And Rescue (SRSR)
+            Swarm Robotics Search And Rescue: A Novel Artificial Intelligence-inspired Optimization Approach
     """
     ID_POS = 0
     ID_FIT = 1
@@ -25,26 +26,25 @@ class BaseSRSR(Root):
     ID_FIT_NEW = 5
     ID_FIT_MOVE = 6
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _create_solution__(self, minmax=0):
-        """  This algorithm has different encoding mechanism, so we need to override this method
-        """
-        x = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        fit = self._fitness_model__(solution=x, minmax=minmax)
+    def create_solution(self, minmax=0):
+        """  This algorithm has different encoding mechanism, so we need to override this method """
+        pos = uniform(self.lb, self.ub)
+        fit = self.get_fitness_position(pos, minmax)
         mu = 0
         sigma = 0
-        x_new = deepcopy(x)
+        x_new = deepcopy(pos)
         fit_new = deepcopy(fit)
         fit_move = fit - fit_new
-        return [x, fit, mu, sigma, x_new, fit_new, fit_move]
+        return [pos, fit, mu, sigma, x_new, fit_new, fit_move]
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(0, self.pop_size)]
-        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         # Control Parameters Of Algorithm
         # ==============================================================================================
@@ -58,7 +58,7 @@ class BaseSRSR(Root):
         mu_factor = 2 / 3        # [0.1-0.9] Controls Dominance Of Master Robot, Preferably 2/3
         sigma_temp = zeros(self.pop_size)            # Initializing Temporary Stacks
         SIF = None
-        movement_factor = ones(self.problem_size) * (self.domain_range[1] - self.domain_range[0])
+        movement_factor = self.ub - self.lb
 
         for epoch in range(0, self.epoch):
             # ========================================================================================= %%
@@ -83,8 +83,8 @@ class BaseSRSR(Root):
 
                 # ----- Generating New Positions Using New Obtained Mu And Sigma Values --------------
                 temp = normal(pop[i][self.ID_MU], pop[i][self.ID_SIGMA], self.problem_size)
-                pop[i][self.ID_POS_NEW] = clip(temp, self.domain_range[0], self.domain_range[1])
-                fit = self._fitness_model__(pop[i][self.ID_POS_NEW])
+                pop[i][self.ID_POS_NEW] = clip(temp, self.lb, self.ub)
+                fit = self.get_fitness_position(pop[i][self.ID_POS_NEW])
                 pop[i][self.ID_FIT_NEW] = fit
 
                 # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
@@ -107,11 +107,11 @@ class BaseSRSR(Root):
             # --------- Determining Sigma Improvement Factor (Sif) Based On Vvss Movement -------------------
             ## Get best improved fitness
             fit_id = argmax([item[self.ID_FIT_MOVE] for item in pop])
-            sigma_factor = 1 + uniform() * max(self.domain_range[1] - self.domain_range[0])
+            sigma_factor = 1 + uniform() * max(self.ub - self.lb)
             SIF = sigma_factor * sigma_temp[fit_id]
             # Controlling Parameter Of Algorithm
-            if SIF > max(self.domain_range[1]):
-                SIF = max(self.domain_range[1]) * uniform()
+            if SIF > max(self.ub):
+                SIF = max(self.ub) * uniform()
 
             # ========================================================================================= %%
             #            Phase 2 (Exploration): Moving Slave Robots Toward Master Robot                   %
@@ -120,10 +120,9 @@ class BaseSRSR(Root):
                 gb = uniform(-1, 1, self.problem_size)
                 gb[gb >= 0] = 1
                 gb[gb < 0] = -1
-                temp = pop[i][self.ID_POS] * uniform() + gb * (pop[0][self.ID_POS] - pop[i][self.ID_POS]) +\
-                       movement_factor * uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-                temp = clip(temp, self.domain_range[0], self.domain_range[1])
-                fit = self._fitness_model__(temp)
+                temp = pop[i][self.ID_POS] * uniform() + gb * (pop[0][self.ID_POS] - pop[i][self.ID_POS]) + movement_factor * uniform(self.lb, self.ub)
+                temp = clip(temp, self.lb, self.ub)
+                fit = self.get_fitness_position(temp)
 
                 # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
 
@@ -153,13 +152,13 @@ class BaseSRSR(Root):
 
                 # ------- Applying Nth-root And Nth-exponent Operators To Create Position Of New Worker Robots -------
                 worker_robot1 = (master_robot["int"] + power(master_robot["frac"], 1 / (1 + randint(1, 4)))) * master_robot["sign"]
-                id_changed1 = argwhere(round(uniform(self.domain_range[0], self.domain_range[1], self.problem_size)))
+                id_changed1 = argwhere(round(uniform(self.lb, self.ub)))
                 id_changed1 = reshape(id_changed1, (len(id_changed1)))
                 worker_robot1 = reshape(worker_robot1, (self.problem_size, 1))
                 worker_robot1[id_changed1] = master_robot["original"][id_changed1]
 
                 worker_robot2 = (master_robot["int"] + power(master_robot["frac"], (1 + randint(1, 4)))) * master_robot["sign"]
-                id_changed2 = argwhere(round(uniform(self.domain_range[0], self.domain_range[1], self.problem_size)))
+                id_changed2 = argwhere(round(uniform(self.lb, self.ub)))
                 id_changed2 = reshape(id_changed2, (len(id_changed2)))
                 worker_robot2 = reshape(worker_robot2, (self.problem_size, 1))
                 worker_robot2[id_changed2] = master_robot["original"][id_changed2]
@@ -167,39 +166,39 @@ class BaseSRSR(Root):
                 # -------- Applying A Combined Ga-like Operator To Create Position Of New Worker Robot -------------
                 random_per_mutation = permutation(self.problem_size)
                 sec1 = random_per_mutation[0 : int(self.problem_size / 2)]
-                sec2 = random_per_mutation[int(self.problem_size/2) : ]
+                sec2 = random_per_mutation[int(self.problem_size/2):]
                 worker_robot3 = zeros((self.problem_size, 1))
                 worker_robot3[sec1] = (master_robot["int"][sec1] + power(master_robot["frac"][sec1], 1 / (1+randint(1, 4)))) * master_robot["sign"][sec1]
                 worker_robot3[sec2] = (master_robot["int"][sec2] + master_robot["frac"][sec2] ** (1 + randint(1, 4))) * master_robot["sign"][sec2]
-                id_changed3 = argwhere( round(uniform(self.domain_range[0], self.domain_range[1], self.problem_size)))
+                id_changed3 = argwhere( round(uniform(self.lb, self.ub)))
                 id_changed3 = reshape(id_changed3, (len(id_changed3)))
                 worker_robot3[id_changed3] = master_robot["original"][id_changed3]
 
                 #------- Applying Round Operators To Create Position Of New Worker Robot -------------------
                 worker_robot4 = ceil(master_robot["abs"]) * master_robot["sign"]
-                id_changed4 = argwhere(round(uniform(self.domain_range[0], self.domain_range[1], self.problem_size)))
+                id_changed4 = argwhere(round(uniform(self.lb, self.ub)))
                 id_changed4 = reshape(id_changed4, (len(id_changed4)))
                 worker_robot4[id_changed4] = master_robot["original"][id_changed4]
 
                 worker_robot5 = floor(master_robot["abs"]) * master_robot["sign"]
-                id_changed5 = argwhere(round(uniform(self.domain_range[0], self.domain_range[1], self.problem_size)))
+                id_changed5 = argwhere(round(uniform(self.lb, self.ub)))
                 id_changed5 = reshape(id_changed5, (len(id_changed5)))
                 worker_robot5[id_changed5] = master_robot["original"][id_changed5]
 
                 # --------- Proogress Assessment: Replacing More Quality Solutions With Previous Ones ---------------
                 workers = concatenate((worker_robot1.T, worker_robot2.T, worker_robot3.T, worker_robot4.T, worker_robot5.T), axis=0)
                 for i in range(0, 5):
-                    workers[i] = clip(workers[i], self.domain_range[0], self.domain_range[1])
-                    fit = self._fitness_model__(workers[i])
+                    workers[i] = clip(workers[i], self.lb, self.ub)
+                    fit = self.get_fitness_position(workers[i])
                     if fit < pop[1][self.ID_FIT]:
                         pop[-(i+1)][self.ID_POS] = deepcopy(workers[i])
                         pop[-(i+1)][self.ID_FIT] = deepcopy(fit)
 
-            # Sort pop and update the global best solution
-            g_best = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
-            movement_factor = abs(g_best[self.ID_POS]) - pop[-1][self.ID_POS]
+            # Sort pop and update the global best position
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+            movement_factor = abs(g_best[self.ID_POS] - pop[-1][self.ID_POS])
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train

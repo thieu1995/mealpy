@@ -14,17 +14,18 @@ from mealpy.root import Root
 
 class BaseWOA(Root):
     """
-    Standard version of Whale Optimization Algorithm (belongs to Swarm-based Algorithms)
-    - In this algorithms: Prey means the best solution
+        The original version of: Whale Optimization Algorithm (WOA)
+            - In this algorithms: Prey means the best position
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=700, pop_size=50):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
-        g_best = self._get_global_best__(pop=pop, id_fitness=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
 
         for epoch in range(self.epoch):
             a = 2 - 2 * epoch / (self.epoch - 1)            # linearly decreased from 2 to 0
@@ -42,21 +43,23 @@ class BaseWOA(Root):
                         D = abs(C * g_best[self.ID_POS] - pop[i][self.ID_POS] )
                         new_position = g_best[self.ID_POS] - A * D
                     else :
-                        #x_rand = pop[np.random.randint(self.pop_size)]         # select random 1 solution in pop
-                        x_rand = self._create_solution__()
+                        #x_rand = pop[np.random.randint(self.pop_size)]         # select random 1 position in pop
+                        x_rand = self.create_solution()
                         D = abs(C * x_rand[self.ID_POS] - pop[i][self.ID_POS])
                         new_position = (x_rand[self.ID_POS] - A * D)
                 else:
                     D1 = abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
                     new_position = D1 * exp(b * l) * cos(2 * pi * l) + g_best[self.ID_POS]
 
-                new_position = self._amend_solution_faster__(new_position)
-                fit = self._fitness_model__(new_position)
+                new_position = self.amend_position_faster(new_position)
+                fit = self.get_fitness_position(new_position)
                 pop[i] = [new_position, fit]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT],self.loss_train

@@ -16,17 +16,18 @@ from mealpy.root import Root
 
 class BaseHHO(Root):
     """
-    Harris Hawks Optimization: Algorithm and Applications
+        The original version of: Harris Hawks Optimization (HHO)
+            (Harris Hawks Optimization: Algorithm and Applications)
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(0, self.pop_size)]
-        g_best = self._get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             # Update the location of Harris' hawks
@@ -44,8 +45,7 @@ class BaseHHO(Root):
 
                     else:           # perch on a random tall tree (random site inside group's home range)
                         X_m = mean([x[self.ID_POS] for x in pop])
-                        pop[i][self.ID_POS] = (g_best[self.ID_POS] - X_m) - uniform()*(
-                            self.domain_range[0] + uniform() * (self.domain_range[1] - self.domain_range[0]))
+                        pop[i][self.ID_POS] = (g_best[self.ID_POS] - X_m) - uniform()*(self.lb + uniform() * (self.ub - self.lb))
 
                 # -------- Exploitation phase -------------------
                 else:
@@ -61,27 +61,28 @@ class BaseHHO(Root):
                     else:
                         xichma = power((gamma(1 + 1.5) * sin(pi * 1.5 / 2.0)) / (gamma((1 + 1.5) * 1.5 * power(2, (1.5 - 1) / 2)) / 2.0), 1.0 / 1.5)
                         LF_D = 0.01 * uniform() * xichma / power(abs(uniform()), 1.0 / 1.5)
-                        fit_Y, Y = None, None
                         if (abs(E) >= 0.5):      # Soft besiege Eq. (10) in paper
                             Y = g_best[self.ID_POS] - E * abs( J * g_best[self.ID_POS] - pop[i][self.ID_POS] )
-                            fit_Y = self._fitness_model__(Y)
+                            fit_Y = self.get_fitness_position(Y)
                         else:                       # Hard besiege Eq. (11) in paper
                             X_m = mean([x[self.ID_POS] for x in pop])
                             Y = g_best[self.ID_POS] - E * abs( J * g_best[self.ID_POS] - X_m )
-                            fit_Y = self._fitness_model__(Y)
+                            fit_Y = self.get_fitness_position(Y)
 
-                        Z = Y + uniform(self.domain_range[0], self.domain_range[1], self.problem_size) * LF_D
-                        fit_Z = self._fitness_model__(Z)
+                        Z = Y + uniform(self.lb, self.ub) * LF_D
+                        fit_Z = self.get_fitness_position(Z)
 
                         if fit_Y < pop[i][self.ID_FIT]:
                             pop[i] = [Y, fit_Y]
                         if fit_Z < pop[i][self.ID_FIT]:
                             pop[i] = [Z, fit_Z]
 
-            g_best = self._update_global_best__(pop, self.ID_MIN_PROB, g_best)
+                ## batch size idea
+                if i % self.batch_size:
+                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

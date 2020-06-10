@@ -16,18 +16,18 @@ from mealpy.root import Root
 
 class BaseMSA(Root):
     """
-    Standard version of: Moth Search Algorithm (MSA)
+    My modified version of: Moth Search Algorithm (MSA)
         (Moth search algorithm: a bio-inspired metaheuristic algorithm for global optimization problems.)
+    Link:
         https://www.mathworks.com/matlabcentral/fileexchange/59010-moth-search-ms-algorithm
         http://doi.org/10.1007/s12293-016-0212-3
-
-    It will look so difference in comparison with the mathlab version above. Simply the matlab version above is not working
-        (or bad at convergence characteristics). I changed a little bit and it worked now.!!!)
+    Notes:
+        + Simply the matlab version above is not working (or bad at convergence characteristics).
     """
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
-                 epoch=750, pop_size=100, n_best=5,partition=0.5, max_step_size=1.0):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, n_best=5, partition=0.5, max_step_size=1.0):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = n_best            # how many of the best moths to keep from one generation to the next
@@ -40,15 +40,15 @@ class BaseMSA(Root):
     def _levy_walk__(self, iteration):
         beta = 1.5      # Eq. 2.23
         sigma = (gamma(1+beta) * sin(pi*(beta-1)/2) / (gamma(beta/2) * (beta-1) * 2 ** ((beta-2) / 2))) ** (1/(beta-1))
-        u = uniform(self.domain_range[0], self.domain_range[1], self.problem_size) * sigma
-        v = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
+        u = uniform(self.lb, self.ub) * sigma
+        v = uniform(self.lb, self.ub)
         step = u / abs(v) ** (1.0 / (beta - 1))     # Eq. 2.21
         scale = self.max_step_size / (iteration+1)
         delta_x = scale * step
         return delta_x
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(self.pop_size)]
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
         pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
         pop_best = deepcopy(pop[:self.n_best])
 
@@ -57,8 +57,8 @@ class BaseMSA(Root):
             for i in range(0, self.n_moth1):
                 #scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
                 temp = pop[i][self.ID_POS] + self._levy_walk__(epoch)
-                temp = clip(temp, self.domain_range[0], self.domain_range[1])
-                fit = self._fitness_model__(temp)
+                temp = clip(temp, self.lb, self.ub)
+                fit = self.get_fitness_position(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [temp, fit]
 
@@ -72,8 +72,8 @@ class BaseMSA(Root):
                         temp[j] = pop[i][self.ID_POS][j] + (1.0/self.golden_ratio) * (pop_best[0][self.ID_POS][j] - pop[i][self.ID_POS][j])
 
                 temp = uniform() * temp
-                temp = clip(temp, self.domain_range[0], self.domain_range[1])
-                fit = self._fitness_model__(temp)
+                temp = clip(temp, self.lb, self.ub)
+                fit = self.get_fitness_position(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i][self.ID_POS] = [temp, fit]
 
@@ -90,7 +90,7 @@ class BaseMSA(Root):
                     pop_best[i] = deepcopy(pop_current_best[i])
 
             self.loss_train.append(pop_best[0][self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, pop_best[0][self.ID_FIT]))
-
+        self.solution = pop_best[0]
         return pop_best[0][self.ID_POS], pop_best[0][self.ID_FIT], self.loss_train

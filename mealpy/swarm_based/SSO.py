@@ -13,35 +13,37 @@ from numpy.linalg import norm
 from copy import deepcopy
 from mealpy.root import Root
 
+
 class BaseSSO(Root):
     """
-    Original version of: Social Spider Optimization
-    - A Social Spider Algorithm for Global Optimization
+    The original version of: Social Spider Optimization (SSO)
+        (A Social Spider Algorithm for Global Optimization)
     """
     ID_POS = 0
     ID_FIT = 1
     ID_GEN = 2
     ID_WEI = 3
 
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True, epoch=750, pop_size=100, fp=(0.65, 0.9)):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100, fp=(0.65, 0.9)):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.fp = fp                # (fp_min, fp_max): Female Percent
 
-    def _create_solution__(self, minmax=0, gender="female"):
-        solution = uniform(self.domain_range[0], self.domain_range[1], self.problem_size)
-        fitness = self._fitness_model__(solution=solution, minmax=minmax)
+    def create_solution(self, minmax=0, gender="female"):
+        solution = uniform(self.lb, self.ub)
+        fitness = self.get_fitness_position(position=solution, minmax=minmax)
         gender = gender
         weight = 0.0
         return [solution, fitness, gender, weight]
 
     def _move_females__(self, n_f=None, pop_females=None, pop_males=None, g_best=None, pm=None):
-        scale_distance = self.domain_range[1] - self.domain_range[0]
+        scale_distance = sum(self.ub - self.lb)
         pop = pop_females + pop_males
         # Start looking for any stronger vibration
         for i in range(0, n_f):    # Move the females
-            ## Find the solution s
+            ## Find the position s
             id_min = None
             dist_min = 99999999
             for j in range(0, self.pop_size):
@@ -52,11 +54,11 @@ class BaseSSO(Root):
                         id_min = j
             x_s = zeros(self.problem_size)
             vibs = 0
-            if id_min != None:
+            if not (id_min is None):
                 vibs = 2*(pop[id_min][self.ID_WEI]*exp(-(uniform()*dist_min**2)))  # Vib for the shortest
                 x_s = pop[id_min][self.ID_POS]
 
-            ## Find the solution b
+            ## Find the position b
             dtb = norm(g_best[self.ID_POS] - pop_females[i][self.ID_POS]) / scale_distance
             vibb = 2 * (g_best[self.ID_WEI] * exp(-(uniform() * dtb ** 2)))
 
@@ -70,14 +72,14 @@ class BaseSSO(Root):
             else:                               # Do a repulsion
                 temp = pop_females[i][self.ID_POS] - vibs * (x_s - pop_females[i][self.ID_POS]) * beta - \
                        vibb * (g_best[self.ID_POS] - pop_females[i][self.ID_POS]) * gamma + random
-            temp = self._amend_solution_random_faster__(temp)
-            fit = self._fitness_model__(temp)
+            temp = self.amend_position_random_faster(temp)
+            fit = self.get_fitness_position(temp)
             pop_females[i][self.ID_POS] = temp
             pop_females[i][self.ID_FIT] = fit
         return pop_females
 
     def _move_males__(self, n_f=None, n_m=None, pop_females=None, pop_males=None, pm=None):
-        scale_distance = self.domain_range[1] - self.domain_range[0]
+        scale_distance = sum(self.ub - self.lb)
         my_median = median([it[self.ID_WEI] for it in pop_males])
         pop = pop_females + pop_males
         all_pos = array([it[self.ID_POS] for it in pop])
@@ -106,8 +108,8 @@ class BaseSSO(Root):
             else:
                 # Spider below median, go to weighted mean
                 temp = pop_males[i][self.ID_POS] + delta * (mean - pop_males[i][self.ID_POS]) + random
-            temp = self._amend_solution_random_faster__(temp)
-            fit = self._fitness_model__(temp)
+            temp = self.amend_position_random_faster(temp)
+            fit = self.get_fitness_position(temp)
             pop_males[i][self.ID_POS] = temp
             pop_males[i][self.ID_FIT] = fit
         return pop_males
@@ -164,8 +166,8 @@ class BaseSSO(Root):
             n_child = len(couples)
             for k in range(n_child):
                 child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 1)
-                fit1 = self._fitness_model__(child1)
-                fit2 = self._fitness_model__(child2)
+                fit1 = self.get_fitness_position(child1)
+                fit2 = self.get_fitness_position(child2)
                 list_child.append([child1, fit1, "", 0.0])
                 list_child.append([child2, fit2, "", 0.0])
         return list_child
@@ -190,15 +192,15 @@ class BaseSSO(Root):
             pop[i][self.ID_WEI] = 0.001 + (pop[i][self.ID_FIT] - fit_worst) / (fit_best - fit_worst)
         return pop
 
-    def _train__(self):
+    def train(self):
         fp = self.fp[0] + (self.fp[1] - self.fp[0]) * uniform()       # Female Aleatory Percent
         n_f = int(self.pop_size * fp)       # number of female
         n_m = self.pop_size - n_f           # number of male
         # Probabilities of attraction or repulsion Proper tuning for better results
         p_m = (self.epoch + 1 - array(range(1, self.epoch + 1))) / (self.epoch + 1)
 
-        pop_males = [self._create_solution__(minmax=0, gender="male") for _ in range(n_m)]
-        pop_females = [self._create_solution__(minmax=0, gender="female") for _ in range(n_f)]
+        pop_males = [self.create_solution(minmax=0, gender="male") for _ in range(n_m)]
+        pop_females = [self.create_solution(minmax=0, gender="female") for _ in range(n_f)]
         pop = pop_females + pop_males
         pop = self._recalculate_weights__(pop)
         g_best = deepcopy(pop[self.ID_MIN_PROB])
@@ -224,7 +226,8 @@ class BaseSSO(Root):
                 g_best = deepcopy(current_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
+            if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 

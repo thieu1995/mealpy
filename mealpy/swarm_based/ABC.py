@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from random import random, randint
+from numpy.random import uniform, randint
 from numpy import maximum, minimum
 from copy import deepcopy
 from mealpy.root import Root
@@ -15,12 +15,14 @@ from mealpy.root import Root
 
 class BaseABC(Root):
     """
-        Taken from book: Clever Algorithms
-            - Improved: _create_neigh_bee__
+        My version of: Artificial Bee Colony (ABC)
+            + Taken from book: Clever Algorithms
+            + Improved: _create_neigh_bee__ function
     """
-    def __init__(self, objective_func=None, problem_size=50, domain_range=(-1, 1), log=True,
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
                  epoch=750, pop_size=100, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1)):
-        Root.__init__(self, objective_func, problem_size, domain_range, log)
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
         self.epoch = epoch
         self.pop_size = pop_size
         self.e_bees = couple_bees[0]                # number of bees which provided for good location and other location
@@ -33,24 +35,23 @@ class BaseABC(Root):
     def _create_neigh_bee__(self, individual=None, patch_size=None):
         t1 = randint(0, len(individual) - 1)
         new_bee = deepcopy(individual)
-        new_bee[t1] = (individual[t1] + random() * patch_size) if random() < 0.5 else (individual[t1] - random() * patch_size)
-        new_bee[t1] = maximum(self.domain_range[0], minimum(self.domain_range[1], new_bee[t1]))
-        return [new_bee, self._fitness_model__(new_bee)]
-
+        new_bee[t1] = (individual[t1] + uniform() * patch_size) if uniform() < 0.5 else (individual[t1] - uniform() * patch_size)
+        new_bee[t1] = maximum(self.lb[t1], minimum(self.ub[t1], new_bee[t1]))
+        return [new_bee, self.get_fitness_position(new_bee)]
 
     def _search_neigh__(self, parent=None, neigh_size=None):  # parent:  [ vector_individual, fitness ]
         """
-        Search 1 best solution in neigh_size solution
+        Search 1 best position in neigh_size position
         """
         neigh = [self._create_neigh_bee__(parent[self.ID_POS], self.patch_size) for _ in range(0, neigh_size)]
-        return self._get_global_best__(neigh, self.ID_FIT, self.ID_MIN_PROB)
+        return self.get_global_best_solution(neigh, self.ID_FIT, self.ID_MIN_PROB)
 
     def _create_scout_bees__(self, num_scouts=None):
-        return [self._create_solution__() for _ in range(0, num_scouts)]
+        return [self.create_solution() for _ in range(0, num_scouts)]
 
-    def _train__(self):
-        pop = [self._create_solution__() for _ in range(0, self.pop_size)]
-        pop, g_best = self._sort_pop_and_get_global_best__(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def train(self):
+        pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
 
         for epoch in range(0, self.epoch):
             next_gen = []
@@ -65,10 +66,10 @@ class BaseABC(Root):
             pop = next_gen + scouts
 
             ## sort pop and update global best
-            g_best, pop = self._sort_pop_and_update_global_best__(pop, self.ID_MIN_PROB, g_best)
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.patch_size = self.patch_size * self.patch_factor
             self.loss_train.append(g_best[self.ID_FIT])
-            if self.log:
-                print("> Epoch: {}, patch_size: {}, Best fit: {}".format(epoch + 1, self.patch_size, g_best[self.ID_FIT]))
-
+            if self.verbose:
+                print(">Epoch: {}, patch_size: {}, Best fit: {}".format(epoch + 1, round(self.patch_size, 4), g_best[self.ID_FIT]))
+        self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
