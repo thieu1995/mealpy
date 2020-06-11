@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieunguyen5991                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil, multiply
 from numpy.random import uniform, random, normal, choice
 from math import gamma
 from copy import deepcopy
@@ -189,6 +189,21 @@ class Root:
         list_parents = [pop[i] for i in list_id]
         list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_FIT])
         return list_parents[:output]
+
+    ### Crossover
+    def crossover_arthmetic_recombination(self, dad_pos=None, mom_pos=None):
+        r = uniform()           # w1 = w2 when r =0.5
+        w1 = multiply(r, dad_pos) + multiply((1 - r), mom_pos)
+        w2 = multiply(r, mom_pos) + multiply((1 - r), dad_pos)
+        return w1, w2
+
+    ### Mutation
+    ### This method won't be used in any algorithm because of it's slow performance
+    ### Using numpy vector for faster performance
+    def mutation_flip_point(self, parent_pos, idx):
+        w = deepcopy(parent_pos)
+        w[idx] = uniform(self.lb[idx], self.ub[idx])
+        return w
 
     def train(self):
         pass

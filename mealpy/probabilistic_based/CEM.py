@@ -12,7 +12,6 @@ from numpy.random import uniform, normal
 from copy import deepcopy
 from mealpy.root import Root
 from mealpy.human_based.LCBO import BaseLCBO
-from mealpy.human_based.SSDO import BaseSSDO
 from mealpy.bio_based.SBO import BaseSBO
 
 
