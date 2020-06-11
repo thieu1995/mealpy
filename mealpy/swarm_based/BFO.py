@@ -10,7 +10,6 @@
 from numpy import sqrt, dot, exp, abs, sum, zeros, append, delete
 from numpy.random import uniform, normal
 from copy import deepcopy
-from sklearn.metrics import mean_squared_error
 from mealpy.root import Root
 
 
@@ -52,7 +51,7 @@ class OriginalBFO(Root):
     def _compute_cell_interaction__(self, cell, cells, d, w):
         sum_inter = 0.0
         for other in cells:
-            diff = self.problem_size * mean_squared_error(cell[self.ID_POS], other[self.ID_POS])
+            diff = self.problem_size * ((cell[self.ID_POS] - other[self.ID_POS]) ** 2).mean(axis=None)
             sum_inter += d * exp(w * diff)
         return sum_inter
 

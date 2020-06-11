@@ -8,9 +8,8 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
-from numpy import cumsum, array, max, reshape, where
+from numpy import cumsum, array, max, reshape, where, min, sum, ptp
 from copy import deepcopy
-from sklearn.preprocessing import normalize
 from mealpy.root import Root
 
 
@@ -101,6 +100,12 @@ class OriginalMVO(Root):
                 break
         return chosen_idx
 
+    def normalize(self, d, to_sum=True):
+        # d is a (n x dimension) np array
+        d -= min(d, axis=0)
+        d /= (sum(d, axis=0) if to_sum else ptp(d, axis=0))
+        return d
+
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
         pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
@@ -119,7 +124,7 @@ class OriginalMVO(Root):
                 # print("Fitness value too large for dtype('float64')")
             else:
                 ### Normalize inflation rates (NI in Eq. (3.1) in the paper)
-                list_fitness_normalized = reshape(normalize(array([list_fitness_raw])), self.pop_size)  # Matrix
+                list_fitness_normalized = reshape(self.normalize(array([list_fitness_raw])), self.pop_size)  # Matrix
 
             # Update the position of universes
             for i in range(1, self.pop_size):           # Starting from 1 since 0 is the elite

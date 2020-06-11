@@ -16,11 +16,18 @@ obj_func = F11
 # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
 lb = [-100]
 ub = [100]
-problem_size = 2000
+problem_size = 20
 batch_size = 25
 verbose = True
 epoch = 1000
 pop_size = 50
+
+md1 = OriginalMVO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
 
 md1 = BaseMVO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
@@ -28,8 +35,3 @@ print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
-md1 = OriginalMVO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1.train()
-print(md1.solution[0])
-print(md1.solution[1])
-print(md1.loss_train)

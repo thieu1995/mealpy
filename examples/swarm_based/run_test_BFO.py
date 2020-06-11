@@ -22,6 +22,12 @@ verbose = True
 epoch = 100
 pop_size = 50
 
+md1 = OriginalBFO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
 md1 = BaseBFO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
@@ -29,8 +35,3 @@ print(md1.solution[1])
 print(md1.loss_train)
 
 
-md1 = OriginalBFO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
-best_pos1, best_fit1, list_loss1 = md1.train()
-print(md1.solution[0])
-print(md1.solution[1])
-print(md1.loss_train)
