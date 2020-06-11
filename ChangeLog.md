@@ -1,3 +1,276 @@
+# Version 1.0.0
+
+### Change models
++ Change root model, then all of the algorithms are now change
+    + domain_range -> lower bound and upper bound
+    + log -> verbose
+    + objective_func -> obj_func
+    + batch-size training -> Inspired by the idea of batch-size training in gradient descent algorithm
++ Idea of batch-size training in meta-heuristics
+    + Some algorithms update the global best solution when all of the individuals in the population have moved to a new position.
+        + This idea is a similarity to the training the whole dataset in GD
+    + But some algorithms update after each move to a new position.
+        + This idea is a similarity as SGD
+    + But the point here is if the algorithm doesn't take advantage of the global best solution when updating individual 
+    the position then GD or SGD gives the same results.
+    
+    + So my idea of batch-size training here is very simple, after batch-size of individuals move, then we will update
+    the global best solution. So:
+        + batch-size = 1 ==> SGD
+        + batch-size = population-size ==> GD 
+        + batch-size should set = 10% / 25% / 50% of your population size
+    
+    + Some algorithms can't apply the idea of batch-size. For examples:
+        + If the original algorithm has already divided the population into m-clan (m-group) --> No need batch-size here
+        + If the original algorithm contains multiple-part. Each part contains several types of updating --> No need too.
+        
++ For music_based:
+    + BaseHS (HS): Is the one can't use batch-size idea, but not belong to any reason above.
+
++ For math_based:
+    + BaseSCA (SCA): Updated with batch-size idea. Keep the original version for reference.
+    
++ For system_based:
+    + BaseAEO (AEO): Updated with the batch-size ideas and some of my new ideas. Still keep the original version 
+    + BaseGCO (GCO): Updated with batch-size idea. Keep the original version
+    
++ For bio_based:
+    + BaseIWO (IWO):
+    + BaseWHO (WHO):
+    + BaseBBO (BBO):
+        + Remove all third loop, make algorithm n-times faster than original 
+        + In the migration step, instead of select solution based on the wheel in every variable in position, 
+                  using the wheel and select a single position and update based on its all variable of that position.
+    + BaseVCS (VCS):
+        + Remove all third loop, make algorithm n-times faster than original
+        + In Immune response process, updating the whole position instead of updating each variable in position 
+        + Drop batch-size idea to 3 main processes of this algorithm, make it more robust
+    + BaseSBO (SBO):
+        + Remove all third loop, n-times faster than original
+        + No need equation (1, 2) in the paper, calculate the probability by roulette-wheel. Also can handle negative values
+        + Apply batch-size idea
+    + BaseBWO (BWO): This is my changed version and worked. 
+        + Using k-way tournament selection to select parent instead of randomizing
+        + Repeat cross-over population_size / 2 instead of n_var/2
+        + Mutation 50% of position instead of swap only 2 variable in a single position
+        + OriginalBWO: is fake and just a variant of Genetic Algorithm
+    + BaseAAA (AAA): This is my changed version but still not working
+        + OriginalAAA: is fake taken from DE and CRO 
+        + I realize in the original paper, parameters, and equations not clear.
+        + In the Adaptation phase, what is the point of saving starving value when it doesn't affect the solution at all?
+        + The size of the solution always = 2/3, so the friction surface will always stay at the same value.
+        + The idea of the equation seems like taken from DE, the adaptation and reproduction process seem like taken from CRO.
+        + Appearance from 2015, but still now 2020 none of Matlab code or python code about this algorithm.
+    + EOA: 
+        + BaseEOA: My modified version from original Matlab version
+            + The original version from Matlab code above will not work well, even with small dimensions.
+            + I changed updating process
+            + Changed the Cauchy process using x_mean
+            + Used global best solution
+            + Remove the third loop for faster 
+   
++ For human_based:
+    + BaseTLO (TLO):
+        + Remove all third loop
+        + Apply batch-size idea
+    + BSO:
+        + BaseBSO: This is original version
+        + ImprovedBSO: My improved version with levy-flight and removal of some parameters.
+    + QSA: 4 variant version now runs faster than n-times Original version
+        + BaseQSA: Remove all third loop, apply the idea of the global best solution
+        + OppoQSA: Based on BaseQSA, apply the idea of opposition-based learning technique
+        + LevyQSA: Based on BaseQSA, apply the idea of levy-flight in business 2
+        + ImprovedQSA: Combination of OppoQSA and LevyQSA
+        + OriginalQSA: The original version of QSA. Not working well
+    + SARO:
+        + BaseSARO: My version but not better than the original version, just faster than
+        + OriginalSARO: Convergence rate better than base version but very slow in time comparison.
+    + LCBO:
+        + BaseLCBO: Is the original version
+        + LevyLCBO: Use levy-flight and is the best among 3 version
+        + ImprovedLCBO: 
+    + SSDO:
+        + BaseSSDO: This is the original version
+        + LevySSDO: Apply the idea of levy-flight
+    + GSKA:
+        + OriginalGSKA: This is the original version, very slow for large-scale and slow convergence
+        + BaseGSKA: Remove all third loop, change equations and ideas, faster than Original version
+    + CHIO: This algorithm hasn't done yet. Don't use it yet
+        + OriginalCHIO: Can fail at any time 
+        + BaseCHIO: Can't convergence
+        
+
++ For physics_based group:
+    + WDO: 
+        + BaseWDO: is the original version
+    + MVO:
+        + OriginalMVO: is weak and slow algorithm 
+        + BaseMVO: can solve large-scale optimization problems
+    + TWO:
+        + BaseTWO: is the original version
+        + OppoTWO: using opposition-based techniques (better than original version)
+        + LevyTWO: using only levy-flight and better than OppoTWO
+        + ImprovedTWO: using opposition-based and levy-flight and better than all others
+    + EFO:
+        + OriginalEFO: is the original version, run fast but slow convergence
+        + BaseEFO: using levy-flight for large-scale dimension
+    + NRO:
+        + BaseNRO: is the original version, efficient even with large-scale due to levy-flight techniques
+        but running-time will slow because third loop.
+    + HGSO:
+        + BaseHGSO: is the original version
+        + OppoHGSO: uses opposition-based technique
+        + LevyHGSO: uses levy-flight technique
+    + ASO:
+        + BaseASO: is the original version
+    + EO:
+        + BaseEO: is the original version
+        + LevyEO: uses levy-flight technique for large-scale dimensions
+
++ For probabilistic_based group:
+    + CEM:
+        + BaseCEM: is the original version
+        + CEBaseSBO: is the hybrid version of Satin Bowerbird Optimizer (SBO) and CEM
+        + CEBaseSSDO: is the hybrid version of Social-Sky Driving Optimization (SSDO) and CEM
+        + CEBaseLCBO and CEBaseLCBONew: are the hybrid version of Life Choice Based Optimization and CEM
+
++ For evolutionary_based group: (Not good for large-scale problems)
+    + EP:
+        + BaseEP: is the original version
+        + LevyEP: applied levy-flight 
+    + ES:
+        + BaseES: is the original version
+        + LevyES: applied levy-flight
+    + MA:
+        + BaseMA: is the original version, can't remove third loop, very slow algorithm
+    + GA:
+        + BaseGA: is the original version 
+    + DE:
+        + BaseDE: is the original version
+    + FPA:
+        + BaseFPA: is the original version (already use levy-flight in it)
+    + CRO:
+        + BaseCRO: is the original version
+        + OCRO: is the opposition-based version
+
++ For swarm_based group: 
+    + PSO:
+        + BasePSO: is the original version
+        + PPSO: Phasor particle swarm optimization: a simple and efficient variant of PSO
+        + PSO_W: A modified particle swarm optimizer
+        + HPSO_TVA: New self-organising  hierarchical PSO with jumping time-varying acceleration coefficients
+    + ABC:
+        + BaseABC: my version and taken from Clever Algorithms
+    + FA:
+        + BaseFA: is the original version, running slow even the all third loop already removed
+    + BA:
+        + OriginalBA: is the original version 
+        + BasicBA: is also the original version with improved parameters
+        + BaseBA: my modified version without A parameter
+    + PIO: 
+        + This is fake algorithm, after changing almost everything, the algorithm works
+        + BasePIO: My base version
+        + LevyPIO: My version based on levy-flight for large-scale dimensions
+    + GWO:
+        + BaseGWO: is the original version
+    + ALO:
+        + OriginalALO: is the original version, slow and less efficient
+        + BaseALO: my modified version which using matrix multiplication for faster 
+    + MFO:
+        + OriginalMFO: is the original version
+        + BaseMFO: my modified version which remove third loop, change equations and flow
+    + EHO:
+        + BaseEHO: is the original version
+        + LevyEHO: my levy-flight version of EHO
+    + WOA:
+        + BaseWOA: is the original version
+    + BSA:
+        + BaseBSA: is the original version
+    + SRSR:
+        + BaseSRSR: is the original version
+    + GOA:
+        + BaseGOA: is the original version with some changed from me:
+            + I added normal() component to Eq, 2.7
+            + Changed the way to calculate distance between two location
+            + Used batch-size idea    
+    + MSA:
+        + BaseMSA: is my modified version with some changed from original matlab code version
+    + RHO:
+        + OriginalRHO: is the original version, not working 
+        + BaseRHO: my changed version 
+        + LevyRHO: levy-flight for large-scale dimensions
+            + Change the flow of algorithm
+            + Uses normal in equation instead of uniform
+            + Uses levy-flight instead of uniform-equation
+    + EPO:
+        + Original: is the original version, can't converge at all
+        + BaseEPO: my modified version:
+            + First: I changed the Eq. T_s and no need T and random R.
+            + Second: Updated the old position if fitness value better or kept the old position if otherwise
+            + Third: Remove the third loop for faster
+            + Fourth: Batch size idea
+            + Fifth: Add normal() component and change minus sign to a plus
+    + NMRA:
+        + BaseNMRA: The original version
+            + The Matlab code of paper's author here: https://github.com/rohitsalgotra/Naked-Mole-Rat-Algorithm
+            + Matlab code and paper are very different. 
+        + LevyNMRA: My levy-flight version 
+        + ImprovedNMRA:
+            + Using mutation probability
+            + Using levy-flight
+            + Using crossover operator
+    + BES:
+        + BaseBES: the original version
+    + PFA:
+        + BasePFA: is the original version, I did redesign the equation based on distance.
+            + The problem with using the distance is that when increasing the bound and dimensions 
+            --> distance increase very fast --> new position will always over the bound
+            --> we should divide the distance to a number of dimensions and the distance of the bound (upper-lower) to
+            stabilize the distance 
+            + The second problem is a new solution based on all other solutions --> we should also divide the new solution
+            by the population size to stabilize it.
+        + OPFA: is an enhanced version of PFA based on Opposition-based Learning (better than BasePFA)
+        + ImprovedPFA: (sometime better than OPFA)
+            + using opposition-based learning
+            + using levy-flight 2 times
+    + SFO:
+        + BaseSFO: is the original version
+        + ImprovedSFO: my improved version in which
+            + Reform Energy equation,
+            + No need parameter A and epxilon
+            + Based on idea of Opposition-based Learning
+    + SLO:
+        + BaseSLO: is the changed version from my student
+        + ImprovedSLO: is the improved version 
+    + SpaSA:
+        + BaseSpaSA: is my modified version, the original paper is fake, tons of unclear like parameters or equations
+    + MRFO:
+        + BaseMRFO: is the original version
+        + LevyMRFO: is my modified version based on levy-flight
+    + HHO:
+        + BaseHHO: is the original version 
+    + SSA:
+        + OriginalSSA: is the original version
+        + BaseSSA: my modified version 
+    + CSO:
+        + BaseCSO: is the original version
+    + BFO:
+        + BaseBFO: is the adaptive version of BFO
+        + OriginalBFO: is the original version taken from Clever Algorithms
+    + SSO:
+        + BaseSSO: is the original version
+    
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: 
+    + Update and Add examples for all algorithms
+    + All examples tested with CEC benchmark and large-scale problem (1000 - 2000 dimensions)
+    
+---------------------------------------------------------------------
+
+
+
 # Version 0.8.6
 
 ### Change models
@@ -362,7 +635,7 @@
     * MVO - Multi-Verse Optimizer 
     * TWO - Tug of War Optimization
         + BaseTWO: The original version
-        + OppoTWO / OTWO: Opposition-based + TWO
+        + OppoTWO / OppoTWO: Opposition-based + TWO
         + LevyTWO: Levy + TWO
         + ITWO: Levy + Opposition-based + TWO
     * EFO - Electromagnetic Field Optimization
