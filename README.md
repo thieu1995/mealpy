@@ -261,15 +261,12 @@ If you use mealpy in your project, please cite my works:
 |        | 6   | Earthworm Optimisation Algorithm           | EOA   | 2018 | no   | changed   | no         | no   | strong | yes         | 8     | medium |
 |        | 7   | Wildebeest Herd Optimization               | WHO   | 2019 | no   | changed   | no         | no   | strong | yes         | 12    | medium |
 |        | 8   | Black Widow Optimization                   | BWO   | 2020 | fake | changed   | no         | no   | strong | yes         | 5     | medium |
-|        | 9   |                                            |       |      |      |           |            |      |        |             |       |        |
+|        | 9   | Slime Mould Algorithm                      | SMA   | 2020 | no   | changed   | yes        | no   | strong | yes         | 3     | easy   |
+|        | 10  |                                            |       |      |      |           |            |      |        |             |       |        |
 | System | 1   | Germinal Center Optimization               | GCO   | 2018 | no   | changed   | yes        | no   | strong | yes         | 4     | medium |
 |        | 2   | Artificial Ecosystem\-based Optimization   | AEO   | 2019 | no   | changed   | yes        | no   | best   | yes         | 2     | easy   |
 |        | 3   |                                            |       |      |      |           |            |      |        |             |       |        |
 | Math   | 1   | Sine Cosine Algorithm                      | SCA   | 2016 | no   | changed   | yes        | no   | strong | no          | 2     | easy   |
-|        | 2   |                                            |       |      |      |           |            |      |        |             |       |        |
-| Music  | 1   | Harmony Search                             | HS    | 2001 | no   | changed   | yes        | no   | strong | no          | 5     | easy   |
-|        | 2   |                                            |       |      |      |           |            |      |        |             |       |        |
-| Proba  | 1   | Cross\-Entropy Method                      | CEM   | 1997 | no   | original  | no         | no   | strong | no          | 4     | easy   |
 |        | 2   |                                            |       |      |      |           |            |      |        |             |       |        |
 
 
@@ -434,6 +431,7 @@ If you use mealpy in your project, please cite my works:
 
 * **SSDO - Social Ski-Driver Optimization** . Tharwat, A., & Gabel, T. (2019). Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm. Neural Computing and Applications, 1-14.
 
+* **SMA - Slime Mould Algorithm**. Li, S., Chen, H., Wang, M., Heidari, A. A., & Mirjalili, S. (2020). Slime mould algorithm: A new method for stochastic optimization. Future Generation Computer Systems.
 
 ### T
 
