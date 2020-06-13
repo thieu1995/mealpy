@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 19:05, 29/05/2020                                                        %
+# Created by "Thieu Nguyen" at 09:40, 13/06/2020                                                        %
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
@@ -8,10 +8,10 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.SpaSA import BaseSpaSA
+from mealpy.fake.SOA import BaseSOA, OriginalSOA
 
 ## Setting parameters
-obj_func = F19
+obj_func = F30
 # lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
 # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
 lb = [-100]
@@ -22,9 +22,14 @@ verbose = True
 epoch = 100
 pop_size = 50
 
-md1 = BaseSpaSA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+md1 = BaseSOA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
+md1 = OriginalSOA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
