@@ -1,3 +1,68 @@
+
+
+# Version 1.0.1
+
+### Change models
++ Added Slime Mould Algorithm (SMA) to bio_based group:
+    + OriginalSMA: the original verion of SMA
+    + BaseSMA: my modified version:
+        + Selected 2 unique and random solution to create new solution (not to create variable) --> remove third loop in original version
+        + Check bound and update fitness after each individual move instead of after the whole population move in the original version
+        + My version not only faster but also better
+        
++ Added Spotted Hyena Optimizer (SHO) to swarm_based group:
+    + BaseSHO: my modified version
+
+       
++ Add category for fake algorithms (papers) and proofs: 
+    + Butterfly Optimization Algorithm (BOA) to swarm_based group:
+        + OriginalBOA: this is fake algorithm 
+        + AdaptiveBOA:
+        + BaseBOA:
+            + Look at this guy (the author of this algorithm):
+            + https://scholar.google.co.in/citations?hl=en&user=KvcHovcAAAAJ&view_op=list_works&sortby=pubdate
+            + He invent BOA algorithm and public it in 2019, but so many variant version of BOA has been created since 2015.
+            + How the hell that happened?
+            + This is a plagiarism? I think this is one of the most biggest reason why mathematician researchers
+             calling out meta-heuristics community is completely bullshit and unethical.
+            + Just for producing more trash paper without any knowledge in it? This is why I listed BOA as the totally
+             trash and fake
+             
+    + Sandpiper Optimization Algorithm (SOA) to swarm_based group:
+        + OriginalSOA: the original version is fake
+            + This algorithm is trash, unethical when summit a paper to 2 journals.
+            + Can't even update its position.
+            + A detailed explain in this comment section 
+            (https://www.researchgate.net/publication/334897831_Sandpiper_optimization_algorithm_a_novel_approach_for_solving_real-life_engineering_problems/comments)
+        + BaseSOA: my modified version which changed some equations and flow.
+        
+    + Sooty Tern Optimization Algorithm (STOA) is another name of Sandpiper Optimization Algorithm (SOA) 
+        + Amandeep Kaur, Sushma Jain, Shivani Goel,  Gaurav Dhiman. What they are doing are plagiarism, uneducated
+         and unethical to meta-heuristics community.
+    
+    + Blue Monkey Optimization (BMO) to swarm_based group:
+        + OriginalBMO: the original version is fake 
+            + The idea look like "Chicken Swarm Optimization"
+            + The pseudo-code totally bullshit in my opinion, just read the paper you will understand.
+            + The unclear point here is the "Rate equation": really confuse because It's contain the position. As you know,
+                The position is the vector, but finally, the author conclude that Rate is random number in range [0, 1]
+                Luckily, using number we can plus/add number and vector or vector and vector.
+                So at first, Rate is random number then after the 1st loop, its become vector. 
+            + Morever, both equtions movement of blue monkey and children is the same.
+            + In addition, they don't check the bound after update position.
+            + Keep going, they don't tell you the how to find the global best (I mean from blue monkey group or child group)
+        + BaseBMO: my modified version which used my knowledge about meta-heuristics to do it. 
+
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: 
+    + Update and Add examples for all algorithms
+    + All examples tested with CEC benchmark and large-scale problem (1000 - 2000 dimensions)
+    
+---------------------------------------------------------------------
+
+
 # Version 1.0.0
 
 ### Change models
