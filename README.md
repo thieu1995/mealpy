@@ -195,7 +195,6 @@ If you use mealpy in your project, please cite my works:
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
 
-
 | Group           | STT | Name                                       | Short | Year | Version   | Batch Size | Levy | Type   | Large Scale | Paras | Difficulty |
 |-----------------|-----|--------------------------------------------|-------|------|-----------|------------|------|--------|-------------|-------|------------|
 | Evolutionary    | 1   | Evolutionary Programming                   | EP    | 1964 | original  | no         | no   | weak   | no          | 3     | easy       |
@@ -248,6 +247,7 @@ If you use mealpy in your project, please cite my works:
 |                 | 6   | Social Ski\-Driver Optimization            | SSDO  | 2019 | original  | no         | no   | BEST   | yes         | 2     | easy       |
 |                 | 7   | Gaining Sharing Knowledge\-based Algorithm | GSKA  | 2019 | original  | no         | no   | weak   | no          | 6     | easy       |
 |                 | 8   | Coronavirus Herd Immunity Optimization     | CHIO  | 2020 | changed   | no         | no   | weak   | no          | 4     | medium     |
+|                 | 9   | Forensic\-Based Investigation Optimization | FBIO  | 2020 | original  | no         | no   | best   | yes         | 2     | medium     |
 |                 |     |                                            |       |      |           |            |      |        |             |       |            |
 | Bio             | 1   | Invasive Weed Optimization                 | IWO   | 2006 | original  | no         | no   | strong | yes         | 5     | easy       |
 |                 | 2   | Biogeography\-Based Optimization           | BBO   | 2008 | changed   | no         | no   | strong | yes         | 4     | easy       |
@@ -344,6 +344,8 @@ If you use mealpy in your project, please cite my works:
 * **FA - Fireworks algorithm** . Tan, Y., & Zhu, Y. (2010, June). Fireworks algorithm for optimization. In International conference in swarm intelligence (pp. 355-364). Springer, Berlin, Heidelberg.
 
 * **FPA - Flower Pollination Algorithm** . Yang, X. S. (2012, September). Flower pollination algorithm for global optimization. In International conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
+
+* **FBIO - Forensic-Based Investigation Optimization** . Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, p.106339.
 
 
 ### G

@@ -1,4 +1,22 @@
 
+# Version 1.0.2
+
+### Change models
++ Add Forensic-Based Investigation Optimization (FBIO) to human_based group: 
+    + OriginalFBIO: the original version
+    + BaseFBIO: my modified version:
+        + Implement the fastest way (Remove all third loop)
+        + Change equations
+        + Change the flow of algorithm
+  
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: 
+    + Add FBIO examples with large-scale benchmark functions
+    
+---------------------------------------------------------------------
+
 
 # Version 1.0.1
 
