@@ -43,15 +43,15 @@ class BaseSMA(Root):
 
         for epoch in range(self.epoch):
 
-            s = pop[0][self.ID_FIT] - pop[-1][self.ID_FIT] + self.EPSILON  # plus eps to avoid denominator zero
+            s = g_best[self.ID_FIT] - pop[-1][self.ID_FIT] + self.EPSILON  # plus eps to avoid denominator zero
 
             # calculate the fitness weight of each slime mold
             for i in range(0, self.pop_size):
                 # Eq.(2.5)
                 if i <= int(self.pop_size / 2):
-                    pop[i][self.ID_WEI] = 1 + uniform(0, 1, self.problem_size) * log10((pop[0][self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
+                    pop[i][self.ID_WEI] = 1 + uniform(0, 1, self.problem_size) * log10((g_best[self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
                 else:
-                    pop[i][self.ID_WEI] = 1 - uniform(0, 1, self.problem_size) * log10((pop[0][self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
+                    pop[i][self.ID_WEI] = 1 - uniform(0, 1, self.problem_size) * log10((g_best[self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
 
             a = arctanh(-((epoch + 1) / self.epoch) + 1)                        # Eq.(2.4)
             b = 1 - (epoch + 1) / self.epoch
@@ -118,15 +118,15 @@ class OriginalSMA(Root):
 
         for epoch in range(self.epoch):
 
-            s = pop[0][self.ID_FIT] - pop[-1][self.ID_FIT] + self.EPSILON         # plus eps to avoid denominator zero
+            s = g_best[self.ID_FIT] - pop[-1][self.ID_FIT] + self.EPSILON         # plus eps to avoid denominator zero
 
             # calculate the fitness weight of each slime mold
             for i in range(0, self.pop_size):
                 # Eq.(2.5)
                 if i <= int(self.pop_size/2):
-                    pop[i][self.ID_WEI] = 1 + uniform(0, 1, self.problem_size) * log10((pop[0][self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
+                    pop[i][self.ID_WEI] = 1 + uniform(0, 1, self.problem_size) * log10((g_best[self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
                 else:
-                    pop[i][self.ID_WEI] = 1 - uniform(0, 1, self.problem_size) * log10((pop[0][self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
+                    pop[i][self.ID_WEI] = 1 - uniform(0, 1, self.problem_size) * log10((g_best[self.ID_FIT] - pop[i][self.ID_FIT]) / s + 1)
 
             a = arctanh(-((epoch+1) / self.epoch) + 1)  # Eq.(2.4)
             b = 1 - (epoch+1) / self.epoch
