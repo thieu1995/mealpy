@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import ceil, sqrt, abs, array, mean, repeat, sin, cos, clip, where
-from numpy.random import uniform, normal
+from numpy.random import uniform, normal, choice, randint
 from copy import deepcopy
 from mealpy.root import Root
 from mealpy.human_based.LCBO import BaseLCBO
@@ -431,3 +431,258 @@ class CEBaseSBO(BaseSBO):
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class CEBaseFBIO(Root):
+    """
+    My hybrid version of: Cross-Entropy and Forensic-Based Investigation Optimization (CE-FBIO)
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.n_best = int(sqrt(self.pop_size))  # n nest position in CE
+        self.alpha = 0.94                       # alpha in CE
+        self.epoch_ce = int(sqrt(epoch))        # Epoch in CE
+        self.means, self.stdevs = None, None
+
+    def _create_solution_ce_(self):
+        pos = normal(self.means, self.stdevs, self.problem_size)
+        pos = self.amend_position_random_faster(pos)
+        fit = self.get_fitness_position(pos)
+        return [pos, fit]
+
+    def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
+        prob = (max(list_fitness) - list_fitness) / (max(list_fitness) - min(list_fitness))
+        return prob
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        # Optimization Cycle
+        for epoch in range(self.epoch):
+            # Investigation team - team A
+            # Step A1
+            for i in range(0, self.pop_size):
+                n_change = randint(0, self.problem_size)
+                nb1, nb2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
+                # Eq.(2) in FBI Inspired Meta - Optimization
+                pos_a = deepcopy(pop[i][self.ID_POS])
+                pos_a[n_change] = pop[i][self.ID_POS][n_change] + normal() * (pop[i][self.ID_POS][n_change] -
+                                                                              (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change]) / 2)
+                pos_a = self.amend_position_random_faster(pos_a)
+                fit_a = self.get_fitness_position(pos_a)
+                if fit_a < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_a, fit_a]
+                    if fit_a < g_best[self.ID_FIT]:
+                        g_best = [pos_a, fit_a]
+            # Step A2
+            list_fitness = array([item[self.ID_FIT] for item in pop])
+            prob = self.probability(list_fitness)
+            for i in range(0, self.pop_size):
+                if uniform() > prob[i]:
+                    r1, r2, r3 = choice(list(set(range(0, self.pop_size)) - {i}), 3, replace=False)
+                    ## Remove third loop here, the condition also not good, need to remove also. No need Rnd variable
+                    pos_a = deepcopy(pop[i][self.ID_POS])
+                    temp = g_best[self.ID_POS] + pop[r1][self.ID_POS] + uniform() * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
+                    pos_a = where(uniform(0, 1, self.problem_size) < 0.5, temp, pos_a)
+                    pos_a = self.amend_position_random_faster(pos_a)
+                    fit_a = self.get_fitness_position(pos_a)
+                    if fit_a < pop[i][self.ID_FIT]:
+                        pop[i] = [pos_a, fit_a]
+                        if fit_a < g_best[self.ID_FIT]:
+                            g_best = [pos_a, fit_a]
+            ## Persuing team - team B
+            ## Step B1
+            for i in range(0, self.pop_size):
+                ### Remove third loop here also
+                ### Eq.(6) in FBI Inspired Meta-Optimization
+                pos_b = uniform(0, 1, self.problem_size) * pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                pos_b = self.amend_position_random_faster(pos_b)
+                fit_b = self.get_fitness_position(pos_b)
+                if fit_b < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_b, fit_b]
+                    if fit_b < g_best[self.ID_FIT]:
+                        g_best = [pos_b, fit_b]
+
+            ## Step B2
+            for i in range(0, self.pop_size):
+                rr = choice(list(set(range(0, self.pop_size)) - {i}))
+                ## Eq.(7) + Eq. (8) in FBI Inspired Meta-Optimization
+                pos_b = pop[i][self.ID_POS] + normal(0, 1, self.problem_size) * (pop[rr][self.ID_POS] - pop[i][self.ID_POS]) + \
+                        uniform() * (g_best[self.ID_POS] - pop[rr][self.ID_POS])
+                pos_b = self.amend_position_random_faster(pos_b)
+                fit_b = self.get_fitness_position(pos_b)
+                if fit_b < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_b, fit_b]
+                    if fit_b < g_best[self.ID_FIT]:
+                        g_best = [pos_b, fit_b]
+
+            ## Update elite if a bower becomes fitter than the elite
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+
+            pop_ce = deepcopy(pop)
+            # Initialization process of CE
+            pos_list = array([item[self.ID_POS] for item in pop_ce])
+            self.means = mean(pos_list, axis=0)
+            means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
+            self.stdevs = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+
+            ## Here for CE algorithm (Exploitation)
+            for epoch_ce in range(self.epoch_ce):
+                ## Selected the best samples and update means and stdevs
+                pop_best = pop_ce[:self.n_best]
+                pos_list = array([item[self.ID_POS] for item in pop_best])
+
+                means_new = mean(pos_list, axis=0)
+                means_new_repeat = repeat(means_new.reshape((1, -1)), self.n_best, axis=0)
+                stdevs_new = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+
+                self.means = self.alpha * self.means + (1.0 - self.alpha) * means_new
+                self.stdevs = abs(self.alpha * self.stdevs + (1.0 - self.alpha) * stdevs_new)
+
+                ## Update elite if a bower becomes fitter than the elite
+                g_best = self.update_global_best_solution(pop_best, self.ID_MIN_PROB, g_best)
+
+                ## Create new population for next generation
+                pop_ce = [self._create_solution_ce_() for _ in range(self.n_best)]
+                pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
+
+            ## Replace the worst in pop by pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
+            # Update the final global best
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class CEBaseFBIONew(Root):
+    """
+    My hybrid version of: Cross-Entropy and Forensic-Based Investigation Optimization (CE-FBIO)
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.n_best = int(sqrt(self.pop_size))      # n nest position in CE
+        self.alpha = 0.94                           # alpha in CE
+        self.epoch_ce = int(sqrt(epoch))            # Epoch in CE
+        self.means, self.stdevs = None, None
+
+    def _create_solution_ce_(self):
+        pos = normal(self.means, self.stdevs, self.problem_size)
+        pos = self.amend_position_random_faster(pos)
+        fit = self.get_fitness_position(pos)
+        return [pos, fit]
+
+    def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
+        prob = (max(list_fitness) - list_fitness) / (max(list_fitness) - min(list_fitness))
+        return prob
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        # Optimization Cycle
+        for epoch in range(self.epoch):
+            # Investigation team - team A
+            # Step A1
+            for i in range(0, self.pop_size):
+                n_change = randint(0, self.problem_size)
+                nb1, nb2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
+                # Eq.(2) in FBI Inspired Meta - Optimization
+                pos_a = deepcopy(pop[i][self.ID_POS])
+                pos_a[n_change] = pop[i][self.ID_POS][n_change] + normal() * (pop[i][self.ID_POS][n_change] -
+                                                                              (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change]) / 2)
+                pos_a = self.amend_position_random_faster(pos_a)
+                fit_a = self.get_fitness_position(pos_a)
+                if fit_a < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_a, fit_a]
+                    if fit_a < g_best[self.ID_FIT]:
+                        g_best = [pos_a, fit_a]
+            # Step A2
+            list_fitness = array([item[self.ID_FIT] for item in pop])
+            prob = self.probability(list_fitness)
+            for i in range(0, self.pop_size):
+                if uniform() > prob[i]:
+                    r1, r2, r3 = choice(list(set(range(0, self.pop_size)) - {i}), 3, replace=False)
+                    ## Remove third loop here, the condition also not good, need to remove also. No need Rnd variable
+                    pos_a = deepcopy(pop[i][self.ID_POS])
+                    temp = g_best[self.ID_POS] + pop[r1][self.ID_POS] + uniform() * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
+                    pos_a = where(uniform(0, 1, self.problem_size) < 0.5, temp, pos_a)
+                    pos_a = self.amend_position_random_faster(pos_a)
+                    fit_a = self.get_fitness_position(pos_a)
+                    if fit_a < pop[i][self.ID_FIT]:
+                        pop[i] = [pos_a, fit_a]
+                        if fit_a < g_best[self.ID_FIT]:
+                            g_best = [pos_a, fit_a]
+            ## Persuing team - team B
+            ## Step B1
+            for i in range(0, self.pop_size):
+                ### Remove third loop here also
+                ### Eq.(6) in FBI Inspired Meta-Optimization
+                pos_b = uniform(0, 1, self.problem_size) * pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                pos_b = self.amend_position_random_faster(pos_b)
+                fit_b = self.get_fitness_position(pos_b)
+                if fit_b < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_b, fit_b]
+                    if fit_b < g_best[self.ID_FIT]:
+                        g_best = [pos_b, fit_b]
+
+            ## Step B2
+            for i in range(0, self.pop_size):
+                rr = choice(list(set(range(0, self.pop_size)) - {i}))
+                ## Eq.(7) + Eq. (8) in FBI Inspired Meta-Optimization
+                pos_b = pop[i][self.ID_POS] + normal(0, 1, self.problem_size) * (pop[rr][self.ID_POS] - pop[i][self.ID_POS]) + \
+                        uniform() * (g_best[self.ID_POS] - pop[rr][self.ID_POS])
+                pos_b = self.amend_position_random_faster(pos_b)
+                fit_b = self.get_fitness_position(pos_b)
+                if fit_b < pop[i][self.ID_FIT]:
+                    pop[i] = [pos_b, fit_b]
+                    if fit_b < g_best[self.ID_FIT]:
+                        g_best = [pos_b, fit_b]
+
+            ##  Initialization process of CE
+            pos_list = array([item[self.ID_POS] for item in pop])
+            self.means = mean(pos_list, axis=0)
+            means_new_repeat = repeat(self.means.reshape((1, -1)), self.pop_size, axis=0)
+            self.stdevs = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+            ## Selected the best samples for CEM
+            pop_ce = deepcopy(pop[:self.n_best])
+
+            ## Here for CE algorithm (Exploitation)
+            for epoch_ce in range(self.epoch_ce):
+                ## Update means and stdevs
+                pos_list = array([item[self.ID_POS] for item in pop_ce])
+                means_new = mean(pos_list, axis=0)
+                means_new_repeat = repeat(means_new.reshape((1, -1)), self.n_best, axis=0)
+                stdevs_new = mean(((pos_list - means_new_repeat) ** 2), axis=0)
+
+                self.means = self.alpha * self.means + (1.0 - self.alpha) * means_new
+                self.stdevs = abs(self.alpha * self.stdevs + (1.0 - self.alpha) * stdevs_new)
+
+                ## Update elite if a bower becomes fitter than the elite
+                g_best = self.update_global_best_solution(pop_ce, self.ID_MIN_PROB, g_best)
+
+                ## Create new population for next generation
+                pop_ce = [self._create_solution_ce_() for _ in range(self.n_best)]
+                pop_ce = sorted(pop_ce, key=lambda item: item[self.ID_FIT])
+
+            ## Replace the worst in pop by pop_ce
+            pop = pop[:(self.pop_size - self.n_best)] + pop_ce
+            # Update the final global best
+            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
