@@ -41,7 +41,7 @@ class BaseIWO(Root):
             # Reproduction
             pop_new = []
             for item in pop:
-                ratio = (item[self.ID_FIT] - fit_worst) / (fit_best - fit_worst)
+                ratio = (item[self.ID_FIT] - fit_worst) / (fit_best - fit_worst + self.EPSILON)
                 s = int(ceil(self.seeds[0] + (self.seeds[1] - self.seeds[0]) * ratio))
                 for j in range(s):
                     # Initialize Offspring and Generate Random Location
