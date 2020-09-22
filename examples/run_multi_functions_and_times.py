@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieunguyen5991                                                  %
+#       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic import cec2014_nobias as cec

@@ -1,5 +1,5 @@
 # A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-1.0.1-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-1.0.2-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -32,9 +32,9 @@ under MIT license.
 ## Installation
 
 ### Dependencies
-* Python (>= 3.7)
+* Python (>= 3.6)
 * Numpy (>= 1.15.1)
-* Opfunu (>= 0.6.7)
+* Opfunu (>= 0.8.0)
 * Matplotlib (>=3.1.3)
 * Scipy (>= 1.4.1)
 
@@ -47,7 +47,7 @@ Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```
 Or install the development version from GitHub:
 ```bash
-    pip install git+https://github.com/thieunguyen5991/mealpy
+    pip install git+https://github.com/thieu1995/mealpy
 ```
 
 ### Example
@@ -90,13 +90,13 @@ The documentation includes more detailed installation instructions.
 
 ### Important links
 
-* Official source code repo: https://github.com/thieunguyen5991/mealpy
+* Official source code repo: https://github.com/thieu1995/mealpy
 * Download releases: https://pypi.org/project/mealpy/
-* Issue tracker: https://github.com/thieunguyen5991/mealpy/issues
+* Issue tracker: https://github.com/thieu1995/mealpy/issues
 
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
-    * https://github.com/thieunguyen5991/opfunu
-    * https://github.com/thieunguyen5991/metaheuristics
+    * https://github.com/thieu1995/opfunu
+    * https://github.com/thieu1995/metaheuristics
     * https://github.com/chasebk
     
 

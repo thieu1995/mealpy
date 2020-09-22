@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieunguyen5991                                                  %
+#       Github:     https://github.com/thieu1995                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
 from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil, multiply

@@ -2,6 +2,9 @@
 # Version 1.0.2
 
 ### Change models
++ Update : CEM
++ Fix bug division by 0 in: IWO, SMA
+
 + Add Forensic-Based Investigation Optimization (FBIO) to human_based group: 
     + OriginalFBIO: the original version
     + BaseFBIO: my modified version:
