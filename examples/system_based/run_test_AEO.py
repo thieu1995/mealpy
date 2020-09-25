@@ -8,16 +8,16 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.system_based.AEO import BaseAEO, OriginalAEO, LevyAEO
+from mealpy.system_based.AEO import BaseAEO, OriginalAEO, ImprovedAEO
 
 ## Setting parameters
-obj_func = F3
+obj_func = F5
 lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
 ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
 problem_size = 20
 batch_size = 25
 verbose = True
-epoch = 100
+epoch = 500
 pop_size = 50
 
 md1 = BaseAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
@@ -32,7 +32,7 @@ print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
-md1 = LevyAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+md1 = ImprovedAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])

@@ -154,14 +154,15 @@ class Root:
         muy = normal(0, sigma_muy ** 2)
         v = normal(0, sigma_v ** 2)
         s = muy / power(abs(v), 1 / beta)
-        LB = step * s * (position - g_best_position)
-        levy = uniform(self.lb, self.ub) * LB
+        levy = uniform(self.lb, self.ub) * step * s * (position - g_best_position)
 
         if case == 0:
             return levy
         elif case == 1:
             return position + 1.0 / sqrt(epoch + 1) * sign(random() - 0.5) * levy
         elif case == 2:
+            return position + normal(0, 1, len(self.lb)) * levy
+        elif case == 3:
             return position + 0.01 * levy
 
     def levy_flight_2(self, position=None, g_best_position=None):
@@ -170,6 +171,31 @@ class Root:
         xichma_u = ((gamma(1 + 1.5) * sin(pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
         levy_b = (normal(0, xichma_u ** 2)) / (sqrt(abs(normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
         return position + alpha * levy_b * (position - g_best_position)
+
+    def step_size_by_levy_flight(self, multiplier=0.001, beta=1, case=0):
+        """
+        Parameters
+        ----------
+        multiplier (float, optional): 0.01
+        beta: [0-2]
+            + 0-1: small range --> exploit
+            + 1-2: large range --> explore
+        """
+        # u and v are two random variables which follow normal distribution
+        # sigma_u : standard deviation of u
+        sigma_u = power(gamma(1 + beta) * sin(pi * beta / 2) / (gamma((1 + beta) / 2) * beta * power(2, (beta - 1) / 2)), 1 / beta)
+        # sigma_v : standard deviation of v
+        sigma_v = 1
+        u = normal(0, sigma_u ** 2)
+        v = normal(0, sigma_v ** 2)
+        s = u / power(abs(v), 1 / beta)
+        if case == 0:
+            step = multiplier * s * uniform()
+        elif case == 1:
+            step = multiplier * s * normal(0, 1)
+        else:
+            step = multiplier * s
+        return step
 
     def get_index_roulette_wheel_selection(self, list_fitness=None):
         """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""

@@ -187,9 +187,11 @@ class BaseAEO(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class LevyAEO(Root):
+class ImprovedAEO(Root):
     """
-        This is modified version of: Artificial Ecosystem-based Optimization based on Levy_flight
+        This is Improved Artificial Ecosystem Optimization based on
+            + Levy_flight
+            + Global best solution
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
@@ -210,10 +212,10 @@ class LevyAEO(Root):
             a = (1.0 - epoch / self.epoch) * uniform()
             x1 = (1 - a) * pop[self.ID_MAX_PROB][self.ID_POS] + a * uniform(self.lb, self.ub)
             fit = self.get_fitness_position(x1)
-            pop_new[0] = [x1, fit]              # From the best produce new one
+            pop_new[0] = [x1, fit]  # From the best produce new one
 
             ## Consumption
-            for i in range(2, self.pop_size):   # From others left
+            for i in range(2, self.pop_size):  # From others left
                 if uniform() < 0.5:
                     rand = uniform()
                     # Eq. 4, 5, 6
@@ -221,17 +223,18 @@ class LevyAEO(Root):
 
                     j = randint(1, i)
                     ### Herbivore
-                    if rand < 1.0/3:
+                    if rand < 1.0 / 3:
                         x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[0][self.ID_POS])  # Eq. 6
-                    ### Omnivore
-                    elif 1.0/3 <= rand <= 2.0/3:
-                        x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])  # Eq. 7
                     ### Carnivore
+                    elif 1.0 / 3 <= rand <= 2.0 / 3:
+                        x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])  # Eq. 7
+                    ### Omnivore
                     else:
                         r2 = uniform()
-                        x_t1 = pop[i][self.ID_POS] + c * (r2 * (pop[i][self.ID_POS] - pop[0][self.ID_POS]) + (1 - r2) * (pop[i][self.ID_POS] - pop[j][self.ID_POS]))
+                        x_t1 = pop[i][self.ID_POS] + c * (
+                                    r2 * (pop[i][self.ID_POS] - pop[0][self.ID_POS]) + (1 - r2) * (pop[i][self.ID_POS] - pop[j][self.ID_POS]))
                 else:
-                    x_t1 = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+                    x_t1 = pop[i][self.ID_POS] + self.step_size_by_levy_flight(0.01, 1.5)*(pop[i][self.ID_POS] - g_best[self.ID_POS])
                 x_t1 = self.amend_position_faster(x_t1)
                 fit_t1 = self.get_fitness_position(x_t1)
                 pop_new[i] = [x_t1, fit_t1]
@@ -246,12 +249,10 @@ class LevyAEO(Root):
             ## Decomposition
             ### Eq. 10, 11, 12, 9
             for i in range(0, self.pop_size):
-                u = normal(0, 1)
-                r3 = uniform()
-                d = 3 * u
-                e = r3 * randint(1, 3) - 1
-                h = 2 * r3 - 1
-                x_t1 = best[self.ID_POS] + d * (e * best[self.ID_POS] - h * pop[i][self.ID_POS])
+                if uniform() < 0.5:
+                    x_t1 = best[self.ID_POS] + normal(0, 1, self.problem_size)*(best[self.ID_POS] - pop[i][self.ID_POS])
+                else:
+                    x_t1 = g_best[self.ID_POS] + self.step_size_by_levy_flight(0.01, 0.5) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 x_t1 = self.amend_position_faster(x_t1)
                 fit_t1 = self.get_fitness_position(x_t1)
                 pop_new[i] = [x_t1, fit_t1]
