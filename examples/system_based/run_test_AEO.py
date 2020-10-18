@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.system_based.AEO import BaseAEO, OriginalAEO, ImprovedAEO
+from mealpy.system_based.AEO import BaseAEO, OriginalAEO, AdaptiveAEO, IAEO
 
 ## Setting parameters
 obj_func = F5
@@ -32,7 +32,13 @@ print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
-md1 = ImprovedAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+md1 = AdaptiveAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+md1 = IAEO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
