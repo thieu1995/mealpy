@@ -7,8 +7,8 @@
 #       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, normal, randint
-from numpy import abs, cos
+from numpy.random import uniform, normal, randint, random
+from numpy import abs, cos, sin, pi
 from copy import deepcopy
 from mealpy.root import Root
 
@@ -54,10 +54,10 @@ class OriginalAEO(Root):
                 ### Herbivore
                 if rand < 1.0/3:
                     x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[0][self.ID_POS])    # Eq. 6
-                ### Omnivore
+                ### Carnivore
                 elif 1.0/3 <= rand and rand <= 2.0/3:
                     x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])    # Eq. 7
-                ### Carnivore
+                ### Omnivore
                 else:
                     r2 = uniform()
                     x_t1 = pop[i][self.ID_POS] + c * (r2*(pop[i][self.ID_POS] - pop[0][self.ID_POS]) + (1-r2)*(pop[i][self.ID_POS] - pop[j][self.ID_POS]))
@@ -143,10 +143,10 @@ class BaseAEO(Root):
                     ### Herbivore
                     if rand < 1.0/3:
                         x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[0][self.ID_POS])    # Eq. 6
-                    ### Omnivore
+                    ### Carnivore
                     elif 1.0/3 <= rand and rand <= 2.0/3:
                         x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])    # Eq. 7
-                    ### Carnivore
+                    ### Omnivore
                     else:
                         r2 = uniform()
                         x_t1 = pop[i][self.ID_POS] + c * (r2*(pop[i][self.ID_POS] - pop[0][self.ID_POS]) + (1-r2)*(pop[i][self.ID_POS] - pop[j][self.ID_POS]))
@@ -225,10 +225,10 @@ class AdaptiveAEO(Root):
                     ### Herbivore
                     if rand < 1.0 / 3:
                         x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[0][self.ID_POS])  # Eq. 6
-                    ### Carnivore
+                    ### Omnivore
                     elif 1.0 / 3 <= rand <= 2.0 / 3:
                         x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])  # Eq. 7
-                    ### Omnivore
+                    ### Carnivore
                     else:
                         r2 = uniform()
                         x_t1 = pop[i][self.ID_POS] + c * (
@@ -313,13 +313,120 @@ class IAEO(Root):
                 ### Herbivore
                 if rand < 1.0 / 3:
                     x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[0][self.ID_POS])  # Eq. 6
-                ### Omnivore
+                ### Carnivore
                 elif 1.0 / 3 <= rand and rand <= 2.0 / 3:
                     x_t1 = pop[i][self.ID_POS] + c * (pop[i][self.ID_POS] - pop[j][self.ID_POS])  # Eq. 7
-                ### Carnivore
+                ### Omnivore
                 else:
                     r2 = uniform()
                     x_t1 = pop[i][self.ID_POS] + c * (r2 * (pop[i][self.ID_POS] - pop[0][self.ID_POS]) + (1 - r2) * (pop[i][self.ID_POS] - pop[j][self.ID_POS]))
+                x_t1 = self.amend_position_faster(x_t1)
+                fit_t1 = self.get_fitness_position(x_t1)
+                pop_new[i] = [x_t1, fit_t1]
+
+            for i in range(0, self.pop_size):
+                if pop_new[i][self.ID_FIT] < pop[i][self.ID_FIT]:
+                    pop[i] = deepcopy(pop_new[i])
+
+            ## find current best used in decomposition
+            best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+            ## Decomposition
+            ### Eq. 10, 11, 12, 9
+            for i in range(0, self.pop_size):
+                r3 = uniform()
+                d = 3 * normal(0, 1)
+                e = r3 * randint(1, 3) - 1
+                h = 2 * r3 - 1
+                x_new = best[self.ID_POS] + d * (e * best[self.ID_POS] - h * pop[i][self.ID_POS])
+                if uniform() < 0.5:
+                    beta = 1 - (1 - 0) * ((epoch + 1) / self.epoch)  # Eq. 21
+                    x_r = pop[randint(0, self.pop_size)][self.ID_POS]
+                    if uniform() < 0.5:
+                        x_new = beta * x_r + (1 - beta) * pop[i][self.ID_POS]
+                    else:
+                        x_new = beta * pop[i][self.ID_POS] + (1 - beta) * x_r
+                else:
+                    best[self.ID_POS] = best[self.ID_POS] + normal() * best[self.ID_POS]
+                x_new = self.amend_position_faster(x_new)
+                fit_new = self.get_fitness_position(x_new)
+                pop_new[i] = [x_new, fit_new]
+
+            for i in range(0, self.pop_size):
+                if pop_new[i][self.ID_FIT] < pop[i][self.ID_FIT]:
+                    pop[i] = deepcopy(pop_new[i])
+
+            pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
+            current_best = deepcopy(pop[self.ID_MAX_PROB])
+            if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
+                g_best = deepcopy(current_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class EnhancedAEO(Root):
+    """
+    Original version of: Enhanced Artificial Ecosystem-Based Optimization
+        (An Enhanced Artificial Ecosystem-Based Optimization for Optimal Allocation of Multiple Distributed Generations)
+    Link:
+        https://doi.org/10.1109/ACCESS.2020.3027654
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
+                 epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        # Sorted population in the descending order of the function fitness value
+        pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
+        g_best = deepcopy(pop[self.ID_MAX_PROB])
+        pop_new = deepcopy(pop)
+        for epoch in range(self.epoch):
+            ## Production
+            # Eq. 13
+            a = 2* (1 - (epoch+1) / self.epoch)
+            x1 = (1 - a) * pop[self.ID_MAX_PROB][self.ID_POS] + a * uniform(self.lb, self.ub)
+            fit = self.get_fitness_position(x1)
+            pop_new[0] = [x1, fit]
+
+            ## Consumption
+            for i in range(2, self.pop_size):
+                rand = uniform()
+                old_position = pop[i][self.ID_POS]
+                # Eq. 4, 5, 6
+                v1 = normal(0, 1)
+                v2 = normal(0, 1)
+                c = 0.5 * v1 / abs(v2)  # Consumption factor
+
+                r3 = 2*pi*random()
+                r4 = random()
+
+                j = randint(1, i)
+                ### Herbivore
+                if rand <= 1.0 / 3:  # Eq. 15
+                    if r4 <= 0.5:
+                        x_t1 = old_position + sin(r3) * c * (old_position - pop[0][self.ID_POS])
+                    else:
+                        x_t1 = old_position + cos(r3) * c * (old_position - pop[0][self.ID_POS])
+                ### Carnivore
+                elif 1.0 / 3 <= rand and rand <= 2.0 / 3:  # Eq. 16
+                    if r4 <= 0.5:
+                        x_t1 = old_position + sin(r3) * c * (old_position - pop[j][self.ID_POS])
+                    else:
+                        x_t1 = old_position + cos(r3) * c * (old_position - pop[j][self.ID_POS])
+                ### Omnivore
+                else:               # Eq. 17
+                    r5 = random()
+                    if r4 <= 0.5:
+                        x_t1 = old_position + sin(r5) * c * (r5 * (old_position - pop[0][self.ID_POS]) + (1 - r5) * (old_position - pop[j][self.ID_POS]))
+                    else:
+                        x_t1 = old_position + cos(r5) * c * (r5 * (old_position - pop[0][self.ID_POS]) + (1 - r5) * (old_position - pop[j][self.ID_POS]))
                 x_t1 = self.amend_position_faster(x_t1)
                 fit_t1 = self.get_fitness_position(x_t1)
                 pop_new[i] = [x_t1, fit_t1]
