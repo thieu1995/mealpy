@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                  %
 # -------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil, multiply
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil, multiply, mean
 from numpy.random import uniform, random, normal, choice
 from math import gamma
 from copy import deepcopy
@@ -230,6 +230,37 @@ class Root:
         w = deepcopy(parent_pos)
         w[idx] = uniform(self.lb[idx], self.ub[idx])
         return w
+
+
+    #### Improved techniques can be used in any algorithms: 1
+    ## This scheme used after the original and including 4 step:
+    ##  s1: sort population, take p1 = 1/2 best population for next round
+    ##  s2: do the mutation for p1, using greedy method to select the better solution
+    ##  s3: do the search mechanism for p1 (based on global best solution and the updated p1 above), to make p2 population
+    ##  s4: construct the new population for next generation
+    def improved_ms(self, pop=None, g_best=None):    ## m: mutation, s: search
+        pop_len = int(len(pop) / 2)
+        ## Sort the updated population based on fitness
+        pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+        pop_s1, pop_s2 = pop[:pop_len], pop[pop_len:]
+        ## Mutation scheme
+        for i in range(0, pop_len):
+            pos_new = pop_s1[i][self.ID_POS] * (1 + normal(0, 1, self.problem_size))
+            fit = self.get_fitness_position(pos_new)
+            if fit < pop_s1[i][self.ID_FIT]:        ## Greedy method --> improved exploitation
+                pop_s1[i] = [pos_new, fit]
+        ## Search Mechanism
+        pos_s1_list = [item[self.ID_POS] for item in pop_s1]
+        pos_s1_mean = mean(pos_s1_list, axis=0)
+        for i in range(0, pop_len):
+            pos_new = (g_best[self.ID_POS] - pos_s1_mean) - random() * (self.lb + random() * (self.ub - self.lb))
+            fit = self.get_fitness_position(pos_new)
+            pop_s2[i] = [pos_new, fit]              ## Keep the diversity of populatoin and still improved the exploration
+
+        ## Construct a new population
+        pop = pop_s1 + pop_s2
+        pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+        return pop, g_best
 
     def train(self):
         pass
