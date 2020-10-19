@@ -7,14 +7,14 @@
 #       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform
-from numpy import array, mean, sqrt, ceil
+from numpy.random import uniform, random, normal
+from numpy import array, mean, sqrt, ceil, sin, cos
 from mealpy.root import Root
 
 
 class BaseLCBO(Root):
     """
-    The original version of: Life Choice-Based Optimization (LCBO)
+    The original version of: Life Choice-based Optimization (LCBO)
         (A novel life choice-based optimizer)
     Link:
         DOI: https://doi.org/10.1007/s00500-019-04443-z
@@ -34,7 +34,7 @@ class BaseLCBO(Root):
         # epoch: current chance, self.epoch: number of chances
         for epoch in range(self.epoch):
             for i in range(0, self.pop_size):
-                rand = uniform()
+                rand = random()
 
                 if rand > 0.875:    # Update using Eq. 1, update from n best position
                     n = int(ceil(sqrt(self.pop_size)))
@@ -64,15 +64,17 @@ class BaseLCBO(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class LevyLCBO(BaseLCBO):
+class ModifiedLCO(Root):
     """
     The modified version of: Life Choice-Based Optimization (LCBO) based on Levy_flight
         (A novel life choice-based optimizer)
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, r1=2.35):
-        BaseLCBO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, r1)
+                 epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
@@ -81,23 +83,25 @@ class LevyLCBO(BaseLCBO):
         # epoch: current chance, self.epoch: number of chances
         for epoch in range(self.epoch):
             for i in range(0, self.pop_size):
-                rand = uniform()
+                rand = random()
+                wf = 2 * (1 - (epoch+1) / self.epoch)       # weight factor
 
                 if rand > 0.875:  # Update using Eq. 1, update from n best position
                     n = int(ceil(sqrt(self.pop_size)))
-                    pos_new = array([uniform() * pop[j][self.ID_POS] for j in range(0, n)])
+                    pos_new = array([wf * uniform() * pop[j][self.ID_POS] for j in range(0, n)])
                     pos_new = mean(pos_new, axis=0)
                 elif rand < 0.7:  # Update using Eq. 2-6
-                    if uniform() < 0.5:
+                    if uniform() < 0.25:
                         f = (epoch + 1) / self.epoch
                         if i != 0:
-                            better_diff = f * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                            better_diff = uniform() * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
                         else:
-                            better_diff = f * self.r1 * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                        best_diff = (1 - f) * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
-                        pos_new = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
+                            better_diff = uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                        best_diff = uniform() * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
+                        pos_new = wf * pop[i][self.ID_POS] + f * better_diff + (1 - f) * best_diff
                     else:
-                        pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], case=0)  # My new updated here
+                        # My new updated here
+                        pos_new = pop[i][self.ID_POS] + self.step_size_by_levy_flight(0.01, 1.0) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 else:
                     pos_new = self.ub - (pop[i][self.ID_POS] - self.lb) * uniform(self.lb, self.ub)
 
@@ -115,15 +119,17 @@ class LevyLCBO(BaseLCBO):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class ImprovedLCBO(BaseLCBO):
+class ImprovedLCO(Root):
     """
     The improved version of: Life Choice-Based Optimization (LCBO) based on new ideas
         (A novel life choice-based optimizer)
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, r1=2.35):
-        BaseLCBO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, r1)
+                 epoch=750, pop_size=100):
+        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        self.epoch = epoch
+        self.pop_size = pop_size
         self.n1 = int(ceil(sqrt(self.pop_size)))                        # n best position
         self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)          # 50% for both 2 group left
 
@@ -133,20 +139,20 @@ class ImprovedLCBO(BaseLCBO):
 
         # epoch: current chance, self.epoch: number of chances
         for epoch in range(self.epoch):
+            wf = 2 * (1 - (epoch + 1) / self.epoch)  # weight factor
             for i in range(0, self.pop_size):
                 ## Since we already sorted population, we know which ones are 1st group
                 if i < self.n1:
-                    pos_new = array([uniform() * pop[j][self.ID_POS] for j in range(0, self.n1)])
+                    pos_new = array([wf * uniform() * pop[j][self.ID_POS] for j in range(0, self.n1)])
                     pos_new = mean(pos_new, axis=0)
                 elif self.n1 <= i < self.n2:  # People in group 2 learning from the best person in the history,
                     # because they want to be better than the current best person
-                    pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], case=0)
+                    pos_new = g_best[self.ID_POS] + self.step_size_by_levy_flight(0.01, 1.5) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 else:  # People in group 3 learning from the current best person and the person slightly better than them,
                     # because they don't have vision
-                    f = 1 - (epoch + 1) / self.epoch
-                    better_diff = f * self.r1 * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
-                    best_diff = (1 - f) * self.r1 * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
-                    pos_new = pop[i][self.ID_POS] + uniform() * better_diff + uniform() * best_diff
+                    better_diff = wf * uniform() * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS])
+                    best_diff = (2 - wf) * uniform() * (pop[0][self.ID_POS] - pop[i][self.ID_POS])
+                    pos_new = pop[i][self.ID_POS] + wf * uniform() * (normal() * better_diff + best_diff)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]

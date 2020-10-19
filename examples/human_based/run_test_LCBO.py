@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.human_based.LCBO import BaseLCBO, LevyLCBO, ImprovedLCBO
+from mealpy.human_based.LCBO import BaseLCBO, ModifiedLCO, ImprovedLCO
 
 ## Setting parameters
 obj_func = F11
@@ -16,10 +16,10 @@ obj_func = F11
 # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
 lb = [-100]
 ub = [100]
-problem_size = 2000
+problem_size = 100
 batch_size = 25
 verbose = True
-epoch = 1000
+epoch = 200
 pop_size = 50
 
 md1 = BaseLCBO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
@@ -28,13 +28,13 @@ print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
-md1 = LevyLCBO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+md1 = ModifiedLCO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
-md1 = ImprovedLCBO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+md1 = ImprovedLCO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
