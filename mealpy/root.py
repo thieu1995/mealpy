@@ -233,6 +233,7 @@ class Root:
 
 
     #### Improved techniques can be used in any algorithms: 1
+    ## Based on this paper: An efficient equilibrium optimizer with mutation strategy for numerical optimization (but still different)
     ## This scheme used after the original and including 4 step:
     ##  s1: sort population, take p1 = 1/2 best population for next round
     ##  s2: do the mutation for p1, using greedy method to select the better solution
