@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.GWO import BaseGWO
+from mealpy.swarm_based.GWO import BaseGWO, RW_GWO
 
 ## Setting parameters
 obj_func = F19
@@ -16,7 +16,7 @@ obj_func = F19
 # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
 lb = [-100]
 ub = [100]
-problem_size = 2000
+problem_size = 200
 batch_size = 25
 verbose = True
 epoch = 100
@@ -27,3 +27,10 @@ best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
+
+md1 = RW_GWO(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
