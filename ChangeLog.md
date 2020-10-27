@@ -1,3 +1,45 @@
+# Version 1.0.3
+
+### Change models
++ Update AEO and its variants
+    + Replace LevyAEO by AdaptiveAEO by using levy-flight in both Consumption and Decomposition process.
+    + Added Improved version by paper "Artificial ecosystem optimizer for parameters identification of proton exchange
+     membrane fuel cells model"
+    + Added Enhanced version by paper "An Enhanced Artificial Ecosystem-Based Optimization for Optimal Allocation of
+      Multiple Distributed Generations"
+    + Added Modified version by paper "Effective Parameter Extraction of Different Polymer Electrolyte Membrane Fuel
+     Cell Stack Models Using a Modified Artificial Ecosystem Optimization Algorithm"
+
++ Update LCBO and its variants (ILCO > MLCO > LCBO)
+    + Changed LevyLCBO to ModifiedLCO 
+    + Added the best version ImprovedLCO -- current best version
+    
++ Update EO and its variants (MEO > AEO > LevyEO > EO))
+    + Added ModifiedEO by paper "An efficient equilibrium optimizer with mutation strategy for numerical optimization"
+        + Currently the best version of EO
+        + Based on mutation strategy and gaussian distribution search
+    + Added AdaptiveEO by paper "A novel interdependence based multilevel thresholding technique using adaptive equilibrium optimizer"
+        + The second best version of EO, after ModifiedEO
+        + Based on Fitness average and memory saving of previous iteration
+
++ Update GWO and its variants (GWO > RW_GWO)
+    + Added Random Walk Grey Wolf Optimization - RW_GWO
+    + BaseGWO always perform better than RW_GWO
+    
+    
++ Update root.py
+    + Added improved_ms() function based on mutation and search mechanism - current better than levy-flight technique
+    
++ Add Forensic-Based Investigation Optimization (FBIO) to human_based group: 
+
+  
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: 
+    + Add FBIO examples with large-scale benchmark functions
+    
+---------------------------------------------------------------------
 
 # Version 1.0.2
 

@@ -8,7 +8,7 @@
 
 ---
 > "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality."
->  --- [Thieu Nguyen](https://www.researchgate.net/profile/Thieu_Nguyen6)
+>  --- [Nguyen Van Thieu](https://www.researchgate.net/profile/Nguyen_Thieu2)
 ---
 
 ## Introduction
@@ -118,7 +118,7 @@ If you use mealpy in your project, please cite my works:
 }
 
 @software{thieu_nguyen_2020_3711949,
-  author       = {Thieu Nguyen},
+  author       = {Nguyen Van Thieu},
   title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
   month        = march,
   year         = 2020,
