@@ -103,19 +103,33 @@ class OriginalGSKA(Root):
 
         for epoch in range(self.epoch):
             D = int(self.problem_size * (1 - (epoch+1)/self.epoch) ** self.k)
-            for i in range(1, self.pop_size-1):
+            for i in range(self.pop_size):
+                # If it is the best it chooses best+2, best+1
+                if i == 0:
+                    previ = i+2
+                    nexti = i+1
+                # If it is the worse it chooses worst-2, worst-1
+                elif i == self.pop_size-1:
+                    previ = i-2
+                    nexti = i-1
+                # Other case it chooses i-1, i+1
+                else:
+                    previ = i-1
+                    nexti = i+1
+
+                # The random individual is for all dimension values
+                rand_idx = choice(list(set(range(0, self.pop_size)) - {previ, i, nexti}))
 
                 pos_new = deepcopy(pop[i][self.ID_POS])
                 for j in range(0, self.problem_size):
                     if j < D:                       # junior gaining and sharing
                         if uniform() <= self.kr:
-                            rand_idx = choice(list(set(range(0, self.pop_size)) - {i - 1, i, i + 1}))
                             if pop[i][self.ID_FIT] > pop[rand_idx][self.ID_FIT]:
                                 pos_new[j] = pop[i][self.ID_POS][j] + self.kf * \
-                                          (pop[i-1][self.ID_POS][j] - pop[i+1][self.ID_POS][j] + pop[rand_idx][self.ID_POS][j] - pop[i][self.ID_POS][j])
+                                          (pop[previ][self.ID_POS][j] - pop[nexti][self.ID_POS][j] + pop[rand_idx][self.ID_POS][j] - pop[i][self.ID_POS][j])
                             else:
                                 pos_new[j] = pop[i][self.ID_POS][j] + self.kf * \
-                                          (pop[i - 1][self.ID_POS][j] - pop[i + 1][self.ID_POS][j] + pop[i][self.ID_POS][j] - pop[rand_idx][self.ID_POS][j])
+                                          (pop[previ][self.ID_POS][j] - pop[nexti][self.ID_POS][j] + pop[i][self.ID_POS][j] - pop[rand_idx][self.ID_POS][j])
                     else:                           # senior gaining and sharing
                         if uniform() <= self.kr:
                             id1 = int(self.p * self.pop_size)
