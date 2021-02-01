@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.SpaSA import BaseSpaSA
+from mealpy.swarm_based.SpaSA import BaseSpaSA, OriginalSpaSA
 
 ## Setting parameters
 obj_func = F19
@@ -21,6 +21,12 @@ batch_size = 25
 verbose = True
 epoch = 100
 pop_size = 50
+
+md1 = OriginalSpaSA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
 
 md1 = BaseSpaSA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
