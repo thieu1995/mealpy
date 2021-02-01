@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.human_based.BRO import OriginalBRO, BaseBRO
+from mealpy.fake.BRO import OriginalBRO, BaseBRO
 
 ## Setting parameters
 obj_func = F1

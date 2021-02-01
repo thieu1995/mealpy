@@ -103,6 +103,7 @@ class OriginalBRO(BaseBRO):
             (Battle royale optimization algorithm)
         Link:
             https://doi.org/10.1007/s00521-020-05004-4
+        - Original category: Human-based
     """
     ID_DAM = 2
 
