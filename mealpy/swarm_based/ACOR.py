@@ -16,7 +16,7 @@ from mealpy.root import Root
 
 class BaseACOR(Root):
     """
-        This version is converted from Matlab code of Hoang Nguyen (email):
+        This version is converted from Matlab code of Hoang Nguyen (nguyenhoang.mdc@gmail.com):
             Ant Colony Optimization for Continuous Domains (ACOR)
         My improvements:
             + Using Gaussian Distribution instead of random number (normal() function)      (1)
