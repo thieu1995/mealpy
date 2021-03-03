@@ -1,3 +1,34 @@
+# Version 1.0.5
+
+### Change models
++ System-based group added: 
+    + Water Cycle Algorithm (WCA)
+
++ Human-based group added:
+    + Imperialist Competitive Algorithm (ICA)
+    + Culture Algorithm (CA)
+
++ Swarm-based group added:
+    + Salp Swarm Optimization (SalpSO)
+    + Dragonfly Optimization (DO)
+    + Firefly Algorithm (FA)
+    + Bees Algorithm (Standard and Probilistic version)
+    + Ant Colony Optimization (ACO) for continuous domain
+    
++ Math-based group:
+    + Add Hill Climbing (HC) 
+
++ Physics-based group:
+    + Add Simulated Annealling (SA) 
+    
+### Change others
+
++ models_history.csv: Update history of meta-heuristic algorithms
++ examples: Add examples for all of above added algorithms.
+
+---------------------------------------------------------------------
+
+
 # Version 1.0.4
 
 ### Change models
