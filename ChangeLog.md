@@ -1,3 +1,106 @@
+# Version 1.0.5
+
+### Change models
++ System-based group added: 
+    + Water Cycle Algorithm (WCA)
+
++ Human-based group added:
+    + Imperialist Competitive Algorithm (ICA)
+    + Culture Algorithm (CA)
+
++ Swarm-based group added:
+    + Salp Swarm Optimization (SalpSO)
+    + Dragonfly Optimization (DO)
+    + Firefly Algorithm (FA)
+    + Bees Algorithm (Standard and Probilistic version)
+    + Ant Colony Optimization (ACO) for continuous domain
+    
++ Math-based group:
+    + Add Hill Climbing (HC) 
+
++ Physics-based group:
+    + Add Simulated Annealling (SA) 
+    
+### Change others
+
++ models_history.csv: Update history of meta-heuristic algorithms
++ examples: Add examples for all of above added algorithms.
+
+---------------------------------------------------------------------
+
+
+# Version 1.0.4
+
+### Change models
+
++ Changed category of Sparrow Search Algorithm (SpaSA) from Fake to Swarm-based group:
+    + Added the: OriginalSpaSA
+        + This version is taken from the original paper, very weak algorithm
+    + BaseSpaSA: My changed version
+        + Changed equations
+        + Changed flows and operators
+        + This version become the BEST algorithm 
+
++ Added Jaya Algorithm to Swarm-based group:
+    + OriginalJA: The original version from original paper
+    + BaseJA: My version of original JA for better running time.
+        + Remove all third loop in algorithm
+        + Change the second random variable r2 to Gaussian instead of uniform
+    + LJA: The original version of: Levy-flight Jaya Algorithm (LJA)
+        + Paper: An improved Jaya optimization algorithm with Levy flight
+        + Link: https://doi.org/10.1016/j.eswa.2020.113902
+        + Notes:
+            + This version I still remove all third loop in algorithm
+            + The beta value of Levy-flight equal to 1.8 as the best value in the paper.
+
++ DE, its state-of-the-art variants.
+    + DESAP: including DESAP-Abs and DESAP-Rel
+        + The main ideas is identified the population size without user-defined. Proposed equation: 
+            + Initial ps_init = 10*n (n: is the problem size, number of dimensions)
+            + DESAP-Abs: ps = round(ps_init + N (0, 1)), (N: is Gaussian value)
+            + DESAP-Rel: ps = round(ps_init + U (-0.5, 0.5)), (U: is uniform random function)
+            
++ Added Battle Royale Optimization Algorithm to Fake-algorithm
+    + OriginalBRO:
+        + The paper is very different than the author's matlab code. Even the algorithm's flow is wrong with index i, j.
+        + I tested the results is very slow convergence, even with small #dimensions. I guess that is why he cloned the
+        crossover process of Genetic Algorithm to his algorithm in the code (but not even mention it in the paper) to
+         get the results in the paper. Don't know what to say about this. 
+    + BaseBRO:
+        + First, I removed all third loop in the algorithm for faster computation.
+        + Second, Re-defined the algorithm's flow and algorithm's ideas
+        
++ Added Fruit-fly Optimization Algorithm and its variants to Swarm-based group:
+    + OriginalFOA:
+        + This algorithm is the weakest algorithm in MHAs. It can't run with complicated objective function.
+    + BaseFOA:
+        + I changed the fitness function (smell function) by taking the distance each 2 adjacent dimensions
+         --> Number of variables reduce from N to N-1
+        + Update the position if only it find the better fitness value.
+    + WFOA:
+        + The original version of Whale Fruit-fly Optimization Algorithm (WFOA)
+        + Paper: Boosted Hunting-based Fruit Fly Optimization and Advances in Real-world Problems
+        + From my point of view, this algorithm is almost the same as Whale, only different in calculate fitness
+         function. So it is not surprise that It outperforms BaseFOA
+         
+        https://www.sciencedirect.com/science/article/abs/pii/S0957417420307545
+        https://sci-hub.se/10.1016/j.eswa.2020.113976
+        https://sci-hub.se/10.1016/j.eij.2020.08.003
+        https://sci-hub.se/10.1016/j.eswa.2020.113902
+        https://www.x-mol.com/paper/1239433029684543488
+    
++ Update root.py
+    + Added improved_ms() function based on mutation and search mechanism - current better than levy-flight technique
+
+  
+
+### Change others
++ models_history.csv: Update history of meta-heuristic algorithms        
++ examples: 
+    + Add FBIO examples with large-scale benchmark functions
+    
+---------------------------------------------------------------------
+
 # Version 1.0.3
 
 ### Change models

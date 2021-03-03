@@ -8,7 +8,8 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
-from numpy import sqrt, exp, array
+from numpy import sqrt, exp, array, log, zeros, concatenate, sum, identity
+from numpy import matmul, clip, mean
 from mealpy.root import Root
 
 
@@ -108,3 +109,4 @@ class LevyES(BaseES):
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
