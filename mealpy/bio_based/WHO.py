@@ -21,9 +21,9 @@ class BaseWHO(Root):
         + Before updated old position, i check whether new position is better or not.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_s = n_s                  # default = 3, number of exploration step
@@ -111,9 +111,9 @@ class OriginalWHO(BaseWHO):
         http://doi.org/10.3233/JIFS-190495
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3), global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_s = n_s                  # default = 3, number of exploration step
