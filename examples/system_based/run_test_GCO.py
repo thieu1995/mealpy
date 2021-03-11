@@ -62,8 +62,10 @@ print(md1.loss_train)
 ## 2. Using batch size idea
 batchIdea = True
 batchSize = 5
+cr = 0.7
+f = 1.25
 
-md6 = BaseGCO(obj_func, lb4, ub4, verbose, epoch, pop_size, batch_idea=batchIdea, batch_size=batchSize)  # Remember the keywords
+md6 = BaseGCO(obj_func, lb4, ub4, verbose, epoch, pop_size, f=f, batch_idea=batchIdea, batch_size=batchSize)  # Remember the keywords
 best_pos1, best_fit1, list_loss1 = md6.train()
 print(md1.solution[0])
 print(md1.solution[1])

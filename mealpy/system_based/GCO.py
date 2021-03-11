@@ -4,11 +4,11 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, choice
-from numpy import max, min, array, where, ones
+from numpy import max, min, array, where, ones, exp
 from mealpy.root import Root
 from copy import deepcopy
 
@@ -67,7 +67,7 @@ class BaseGCO(Root):
                 fit_list = array([item[self.ID_FIT] for item in pop])
                 fit_max = max(fit_list)
                 fit_min = min(fit_list)
-                list_cell_counter[i] += 10 * (pop[i][self.ID_FIT] - fit_max) / (fit_min - fit_max)
+                list_cell_counter[i] += 10 * (pop[i][self.ID_FIT] - fit_max) / (fit_min - fit_max + self.EPSILON)
 
             ## Update the global best
             self.loss_train.append(g_best[self.ID_FIT])
