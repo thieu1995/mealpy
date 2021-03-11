@@ -25,9 +25,8 @@ class BaseSCA(Root):
         + Batch size ideas
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -55,8 +54,12 @@ class BaseSCA(Root):
                     pop[i] = [pos_new, fit]
 
                 ## Update the global best
-                if i % self.batch_size == 0:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) * self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -73,9 +76,8 @@ class OriginalSCA(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/54948-sca-a-sine-cosine-algorithm
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -123,9 +125,8 @@ class FasterSCA(Root):
     This is my version of SCA. The original version of SCA is not working. So I changed the flow of algorithm
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -159,11 +160,19 @@ class FasterSCA(Root):
                     pop[idx] = {0: pos_new, 1: fit}
 
                 ## Update the global best
-                if i % self.batch_size == 0:
-                    pop_sorted = {k: v for k, v in sorted(pop.items(), key=lambda encoded: encoded[1][self.ID_FIT])}
-                    current_best = next(iter(pop_sorted.values()))
-                    if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(current_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        pop_sorted = {k: v for k, v in sorted(pop.items(), key=lambda encoded: encoded[1][self.ID_FIT])}
+                        current_best = next(iter(pop_sorted.values()))
+                        if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
+                            g_best = deepcopy(current_best)
+                else:
+                    if (i + 1) * self.pop_size == 0:
+                        pop_sorted = {k: v for k, v in sorted(pop.items(), key=lambda encoded: encoded[1][self.ID_FIT])}
+                        current_best = next(iter(pop_sorted.values()))
+                        if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
+                            g_best = deepcopy(current_best)
+
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -181,9 +190,8 @@ class FastestSCA(Root):
     This is my version of SCA. The original version of SCA is not working. So I changed the flow of algorithm
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -216,8 +224,13 @@ class FastestSCA(Root):
                     pop[i] = {0: pos_new, 1: fit}
 
                 ## Update the global best
-                if i % self.batch_size == 0:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) * self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
