@@ -22,9 +22,9 @@ class BaseGCO(Root):
         + Instead randomize choosing 3 solution, I use 2 random solution and global best solution
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, cr=0.7, f=1.25):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 cr=0.7, f=1.25, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.cr = cr                # Same as DE algorithm  # default: 0.7
@@ -54,8 +54,12 @@ class BaseGCO(Root):
                     list_cell_counter[i] += 10
 
                 ## Update based on batch-size training
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i+1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             ## Light-zone process
             for i in range(0, self.pop_size):
@@ -81,9 +85,9 @@ class OriginalGCO(Root):
         DOI: https://doi.org/10.2991/ijcis.2018.25905179
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, cr=0.7, f=1.25):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 cr=0.7, f=1.25, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.cr = cr                # Same as DE algorithm  # default: 0.7
