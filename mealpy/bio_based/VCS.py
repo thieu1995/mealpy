@@ -23,9 +23,8 @@ class BaseVCS(Root):
             + Drop batch-size idea to 3 main process of this algorithm, make it more robust
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, lamda=0.5, xichma=0.3):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.xichma = xichma        # Weight factor
@@ -53,8 +52,12 @@ class BaseVCS(Root):
                     pop[i] = [pos_new, fit]
 
                 # Batch-size idea
-                if i % self.batch_size == 0:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             ## Host cells infection
             xichma = self.xichma * (1 - (epoch + 1) / self.epoch)
@@ -66,8 +69,12 @@ class BaseVCS(Root):
                     pop[i] = [pos_new, fit]
 
                 # Batch-size idea
-                if i % self.batch_size == 0:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             ## Calculate the weighted mean of the λ best individuals by
             pop = sorted(pop, key=lambda item: item[self.ID_FIT])
@@ -92,8 +99,12 @@ class BaseVCS(Root):
                     pop[i] = [pos_new, fit]
 
                 # Batch-size idea
-                if i % self.batch_size == 0:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             ## Update elite if a bower becomes fitter than the elite
             pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
@@ -113,9 +124,8 @@ class OriginalVCS(Root):
             https://doi.org/10.1016/j.advengsoft.2015.11.004
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, lamda=0.5, xichma=0.3):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.xichma = xichma                # Weight factor
