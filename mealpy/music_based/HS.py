@@ -20,9 +20,10 @@ class BaseHS(Root):
         - Using batch-size idea
         - Remove third for loop
     """
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 n_new=50, c_r=0.95, pa_r=0.05, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch              # Maximum Number of Iterations
         self.pop_size = pop_size        # Harmony Memory Size
         self.n_new = n_new              # Number of New Harmonies
@@ -54,8 +55,12 @@ class BaseHS(Root):
                 pop_new.append([pos_new, fit])
 
                 # Batch-size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i+1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             # Merge Harmony Memory and New Harmonies, Then sort them, Then truncate extra harmonies
             pop = pop + pop_new
@@ -82,9 +87,9 @@ class OriginalHS(BaseHS):
 
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_new=50, c_r=0.95, pa_r=0.05):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 n_new=50, c_r=0.95, pa_r=0.05, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch              # Maximum Number of Iterations
         self.pop_size = pop_size        # Harmony Memory Size
         self.n_new = n_new              # Number of New Harmonies
