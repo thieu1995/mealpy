@@ -22,9 +22,8 @@ class OriginalAEO(Root):
         https://www.mathworks.com/matlabcentral/fileexchange/72685-artificial-ecosystem-based-optimization-aeo
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -108,11 +107,17 @@ class BaseAEO(Root):
         + Original version move the population at the same time. My version move after each position move.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
+
+    def __update_population_and_global_best__(self, pop, g_best):
+        pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
+        current_best = deepcopy(pop[self.ID_MAX_PROB])
+        if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
+            g_best = deepcopy(current_best)
+        return pop, g_best
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
@@ -154,12 +159,12 @@ class BaseAEO(Root):
                 if fit_t1 < pop[i][self.ID_FIT]:
                     pop[i] = [x_t1, fit_t1]
 
-                if i % self.batch_size:
-                    ## Update global best base on batch_size
-                    pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
-                    current_best = deepcopy(pop[self.ID_MAX_PROB])
-                    if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(current_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        pop, g_best = self.__update_population_and_global_best__(pop, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        pop, g_best = self.__update_population_and_global_best__(pop, g_best)
 
             ## Decomposition
             ### Eq. 10, 11, 12, 9
@@ -173,11 +178,12 @@ class BaseAEO(Root):
                 if fit_t1 < pop[i][self.ID_FIT]:
                     pop[i] = [x_t1, fit_t1]
 
-                if i % self.batch_size:
-                    pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
-                    current_best = deepcopy(pop[self.ID_MAX_PROB])
-                    if current_best[self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(current_best)
+                if self.batch_idea:
+                    if (i+1) % self.batch_size == 0:
+                        pop, g_best = self.__update_population_and_global_best__(pop, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        pop, g_best = self.__update_population_and_global_best__(pop, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
@@ -195,9 +201,8 @@ class AdaptiveAEO(Root):
             + Global best solution
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -283,9 +288,8 @@ class ImprovedAEO(Root):
         https://doi.org/10.1016/j.ijhydene.2020.06.256
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -377,9 +381,8 @@ class EnhancedAEO(Root):
         https://doi.org/10.1109/ACCESS.2020.3027654
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -485,9 +488,8 @@ class ModifiedAEO(Root):
         https://doi.org/10.1109/ACCESS.2020.2973351
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
