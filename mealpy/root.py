@@ -259,7 +259,7 @@ class Root:
 
     def get_index_roulette_wheel_selection(self, list_fitness=None):
         """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""
-        scaled_fitness = (list_fitness - min(list_fitness)) / ptp(list_fitness)
+        scaled_fitness = (list_fitness - min(list_fitness)) / (ptp(list_fitness) + self.EPSILON)
         minimized_fitness = 1.0 - scaled_fitness
         total_sum = sum(minimized_fitness)
         r = uniform(low=0, high=total_sum)
