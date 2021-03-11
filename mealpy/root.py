@@ -24,50 +24,92 @@ class Root:
 
     EPSILON = 10E-10
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True):
+    DEFAULT_BATCH_IDEA = False
+    DEFAULT_BATCH_SIZE = 10
+    DEFAULT_LB = -1
+    DEFAULT_UB = 1
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, kwargs=None):
         """
         Parameters
         ----------
         obj_func : function
         lb : list
         ub : list
-        problem_size : int, optional
-        batch_size: int, optional
-        verbose : bool, optional
+        verbose : bool
         """
+        if kwargs is None:
+            kwargs = {}
+        self.verbose = verbose
         self.obj_func = obj_func
+        self.__check_parameters__(lb, ub, kwargs)
+        self.__check_optional_parameters__(kwargs)
+        self.epoch, self.pop_size = None, None
+        self.solution, self.loss_train = None, []
+
+    def __check_parameters__(self, lb, ub, kwargs):
         if (lb is None) or (ub is None):
-            if problem_size is None:
-                print("Problem size must be an int number")
-                exit(0)
-            elif problem_size <=0:
-                print("Problem size must > 0")
-                exit(0)
+            if "problem_size" in kwargs:
+                print(f"Default lb={self.DEFAULT_LB}, ub={self.DEFAULT_UB}.")
+                self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
+                self.lb = self.DEFAULT_LB * ones(self.problem_size)
+                self.ub = self.DEFAULT_UB * ones(self.problem_size)
             else:
-                self.problem_size = int(ceil(problem_size))
-                self.lb = -1 * ones(problem_size)
-                self.ub = 1 * ones(problem_size)
+                print("If lb, ub are undefined, then you must set problem size to be an integer.")
+                exit(0)
         else:
-            if isinstance(lb, list) and isinstance(ub, list) and not (problem_size is None):
-                if (len(lb) == len(ub)) and (problem_size > 0):
-                    if len(lb) == 1:
-                        self.problem_size = problem_size
-                        self.lb = lb[0] * ones(problem_size)
-                        self.ub = ub[0] * ones(problem_size)
+            if isinstance(lb, list) and isinstance(ub, list):
+                if len(lb) == len(ub):
+                    if len(lb) == 0:
+                        if "problem_size" in kwargs:
+                            print(f"Default lb={self.DEFAULT_LB}, ub={self.DEFAULT_UB}.")
+                            self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
+                            self.lb = self.DEFAULT_LB * ones(self.problem_size)
+                            self.ub = self.DEFAULT_UB * ones(self.problem_size)
+                        else:
+                            print("Wrong lower bound and upper bound parameters.")
+                            exit(0)
                     else:
                         self.problem_size = len(lb)
                         self.lb = array(lb)
                         self.ub = array(ub)
                 else:
-                    print("Lower bound and Upper bound need to be same length. Problem size must > 0")
+                    print("Lower bound and Upper bound need to be same length")
                     exit(0)
+            elif type(lb) in [int, float] and type(ub) in [int, float]:
+                self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
+                self.lb = lb * ones(self.problem_size)
+                self.ub = ub * ones(self.problem_size)
             else:
-                print("Lower bound and Upper bound need to be a list. Problem size is an int number")
+                print("Lower bound and Upper bound need to be a list.")
                 exit(0)
-        self.batch_size = batch_size
-        self.verbose = verbose
-        self.epoch, self.pop_size = None, None
-        self.solution, self.loss_train = None, []
+
+    def __check_problem_size__(self, problem_size):
+        if problem_size is None:
+            print("Problem size must be an int number")
+            exit(0)
+        elif problem_size <= 0:
+            print("Problem size must > 0")
+            exit(0)
+        return int(ceil(problem_size))
+
+    def __check_optional_parameters__(self, kwargs):
+        if "batch_idea" in kwargs:
+            batch_idea = kwargs["batch_idea"]
+            if type(batch_idea) == bool:
+                self.batch_idea = batch_idea
+            else:
+                self.batch_idea = self.DEFAULT_BATCH_IDEA
+            if "batch_size" in kwargs:
+                batch_size = kwargs["batch_size"]
+                if type(batch_size) == int:
+                    self.batch_size = batch_size
+                else:
+                    self.batch_size = self.DEFAULT_BATCH_SIZE
+            else:
+                self.batch_size = self.DEFAULT_BATCH_SIZE
+        else:
+            self.batch_idea = self.DEFAULT_BATCH_IDEA
 
     def create_solution(self, minmax=0):
         """ Return the position position with 2 element: position of position and fitness of position
