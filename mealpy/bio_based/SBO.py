@@ -57,10 +57,10 @@ class BaseSBO(Root):
 
                 ### Batch-size idea
                 if self.batch_idea:
-                    if (i + 1) % self.batch_size:
+                    if (i + 1) % self.batch_size == 0:
                         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
                 else:
-                    if (i + 1) % self.pop_size:
+                    if (i + 1) % self.pop_size == 0:
                         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             self.loss_train.append(g_best[self.ID_FIT])
