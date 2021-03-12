@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, choice, exponential, random
@@ -22,8 +22,8 @@ class BaseQSA(Root):
         + Using g_best solution in business 3 instead of random solution
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -141,8 +141,9 @@ class BaseQSA(Root):
 
 
 class OppoQSA(BaseQSA):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseQSA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def _opposition_based__(self, pop=None, g_best=None):
         pop = sorted(pop, key=lambda item: item[self.ID_FIT])
@@ -172,8 +173,9 @@ class OppoQSA(BaseQSA):
 
 
 class LevyQSA(BaseQSA):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseQSA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def _update_business_2__(self, pop=None, current_epoch=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
@@ -219,9 +221,10 @@ class LevyQSA(BaseQSA):
 
 
 class ImprovedQSA(OppoQSA, LevyQSA):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        OppoQSA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
-        LevyQSA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+        LevyQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
@@ -249,8 +252,8 @@ class OriginalQSA(BaseQSA):
 
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseQSA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def _update_business_3__(self, pop, g_best):
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
