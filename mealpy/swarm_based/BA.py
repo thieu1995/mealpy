@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
@@ -22,9 +22,8 @@ class BaseBA(Root):
         + 3rd: Otherwise, we proceed exploitation phase (using finding around the best position so far)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, r=0.95, pf=(0, 10)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, r=0.95, pf=(0, 10), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r = r              # (r_min, r_max): pulse rate / emission rate
@@ -52,8 +51,12 @@ class BaseBA(Root):
                         if fit < pop[i][self.ID_FIT]:
                             pop[i] = [x, fit, v]
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -69,9 +72,8 @@ class OriginalBA(Root):
             The value of A and r parameters are constant
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, A=0.8, r=0.95, pf=(0, 10), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r = r          # (r_min, r_max): pulse rate / emission rate
@@ -102,8 +104,12 @@ class OriginalBA(Root):
                     pop[i] = [x, fit]
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -119,9 +125,9 @@ class BasicBA(Root):
             The value of A and r are changing after each iteration
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 A=(0.2, 0.8), r=(0.2, 0.95), pf=(0, 10), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r = r          # (r_min, r_max): pulse rate / emission rate
@@ -162,8 +168,12 @@ class BasicBA(Root):
                     r = r_0 * (1 - exp(-gamma * (epoch + 1)))
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
