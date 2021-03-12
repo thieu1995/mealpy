@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, randint
@@ -24,9 +24,8 @@ class BaseSSO(Root):
     ID_GEN = 2
     ID_WEI = 3
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, fp=(0.65, 0.9)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, fp=(0.65, 0.9), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.fp = fp                # (fp_min, fp_max): Female Percent
@@ -124,7 +123,7 @@ class BaseSSO(Root):
             child2 = multiply(r, dad) + multiply((1 - r), mom)
 
         elif id == 1:
-            id1 = randint(1, self.problem_size / 2)
+            id1 = randint(1, int(self.problem_size / 2))
             id2 = int(id1 + self.problem_size / 2)
 
             child1[:id1] = mom[:id1]
@@ -165,7 +164,7 @@ class BaseSSO(Root):
         if couples:
             n_child = len(couples)
             for k in range(n_child):
-                child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 1)
+                child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
                 fit1 = self.get_fitness_position(child1)
                 fit2 = self.get_fitness_position(child2)
                 list_child.append([child1, fit1, "", 0.0])
