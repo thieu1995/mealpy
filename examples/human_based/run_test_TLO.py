@@ -4,11 +4,12 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.human_based.TLO import BaseTLO, OriginalTLO
+
 
 ## Setting parameters
 obj_func = F3
