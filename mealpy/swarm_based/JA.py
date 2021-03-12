@@ -8,43 +8,8 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal, rand
-from numpy import abs, exp, cos, pi
+from numpy import abs
 from mealpy.root import Root
-
-
-class OriginalJA(Root):
-    """
-        The original version of: Jaya Algorithm (JA)
-            (A simple and new optimization algorithm for solving constrained and unconstrained optimization problems)
-        Link:
-            http://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf
-    """
-
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=700, pop_size=50):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
-        self.epoch = epoch
-        self.pop_size = pop_size
-
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best, g_worst = self.get_global_best_global_worst_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-
-        for epoch in range(self.epoch):
-            for i in range(self.pop_size):
-                po = pop[i][self.ID_POS]
-                for j in range(0, self.problem_size):
-                    pos_new = po[j] + uniform()*(g_best[self.ID_POS][j] - abs(po[j])) - uniform()*(g_worst[self.ID_POS][j] - abs(po[j]))
-                pos_new = self.amend_position_faster(pos_new)
-                fit = self.get_fitness_position(pos_new)
-                pop[i] = [pos_new, fit]
-
-            ## Update global best and global worst
-            g_best, g_worst = self.update_global_best_global_worst_solution(pop, self.ID_MIN_PROB, self.ID_MAX_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
 class BaseJA(Root):
@@ -56,8 +21,8 @@ class BaseJA(Root):
             + Change the second random variable r2 to Gaussian instead of uniform
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=700, pop_size=50):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -82,7 +47,40 @@ class BaseJA(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class LJA(Root):
+class OriginalJA(BaseJA):
+    """
+        The original version of: Jaya Algorithm (JA)
+            (A simple and new optimization algorithm for solving constrained and unconstrained optimization problems)
+        Link:
+            http://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseJA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best, g_worst = self.get_global_best_global_worst_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+
+        for epoch in range(self.epoch):
+            for i in range(self.pop_size):
+                po = pop[i][self.ID_POS]
+                for j in range(0, self.problem_size):
+                    pos_new = po[j] + uniform()*(g_best[self.ID_POS][j] - abs(po[j])) - uniform()*(g_worst[self.ID_POS][j] - abs(po[j]))
+                pos_new = self.amend_position_faster(pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop[i] = [pos_new, fit]
+
+            ## Update global best and global worst
+            g_best, g_worst = self.update_global_best_global_worst_solution(pop, self.ID_MIN_PROB, self.ID_MAX_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class LJA(BaseJA):
     """
         The original version of: Levy-flight Jaya Algorithm (LJA)
             (An improved Jaya optimization algorithm with Levy flight)
@@ -93,10 +91,8 @@ class LJA(Root):
             + The beta value of Levy-flight equal to 1.8 as the best value in the paper.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=700, pop_size=50):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
-        self.epoch = epoch
-        self.pop_size = pop_size
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseJA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
