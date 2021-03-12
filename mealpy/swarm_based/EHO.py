@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, normal
+from numpy.random import uniform
 from numpy import array, mean
 from copy import deepcopy
 from mealpy.root import Root
