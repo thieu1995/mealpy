@@ -4,8 +4,8 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
 from numpy import pi, exp, cos, sin
 from numpy.random import uniform
@@ -20,8 +20,8 @@ class BaseSOA(Root):
             + Remember this paper and algorithm is dummy
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -61,7 +61,7 @@ class BaseSOA(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class OriginalSOA(Root):
+class OriginalSOA(BaseSOA):
     """
         The original version of: Sandpiper Optimization Algorithm (SOA)
             (Sandpiper optimization algorithm: a novel approach for solving real-life engineering problems or
@@ -71,10 +71,8 @@ class OriginalSOA(Root):
             + Can't even update its position.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
-        self.epoch = epoch
-        self.pop_size = pop_size
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseSOA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
