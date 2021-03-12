@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import exp, sqrt, sum
@@ -19,8 +19,8 @@ class BasePFA(Root):
             (A new meta-heuristic optimizer: Pathfinder algorithm)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -68,8 +68,12 @@ class BasePFA(Root):
 
                 ### Batch size idea
                 ## Update the best position found so far (current pathfinder)
-                if i % self.batch_size:
-                    pop, gbest_present = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        pop, gbest_present = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        pop, gbest_present = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, gbest_present[self.ID_FIT]))
@@ -81,8 +85,9 @@ class OPFA(BasePFA):
     """
         My opposition-based learning version of: Pathfinder algorithm (PFA)
     """
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BasePFA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BasePFA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         # Init pop and calculate fitness
@@ -133,8 +138,12 @@ class OPFA(BasePFA):
 
                 ## Update the best position found so far (current pathfinder)
                 ## batch size idea
-                if i % self.batch_size:
-                    gbest_present = self.update_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        gbest_present = self.update_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        gbest_present = self.update_global_best_solution(pop, self.ID_MIN_PROB, gbest_present)
             self.loss_train.append(gbest_present[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, gbest_present[self.ID_FIT]))
@@ -149,8 +158,8 @@ class ImprovedPFA(BasePFA):
             + use levy-flight trajectory
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BasePFA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BasePFA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         # Init pop and calculate fitness
