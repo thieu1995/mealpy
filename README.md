@@ -13,7 +13,14 @@
 
 * New version 1.1.0 is the very different then the previous version ( < 1.0.5) in term of passing hyper-parameters. 
 * So please careful check your version before using this library.
- 
+
+* If you guys are familiar with writing documentation and would like to join this project. Please send me an email 
+  to nguyenthieu2102@gmail.com. I am currently working on my master thesis, may not response instantly, so please be 
+  patient. Your contribution to this project is greatly appreciated. 
+  
+* If you guys want me to implement new algorithm, please open an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the 
+  original paper so I can read and implement it.
+
 
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
@@ -28,8 +35,7 @@
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
     * Helping other researchers in all field access to optimization algorithms as quickly as possible
-    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics 
-    - currently including almost 100 algorithms)
+    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics, currently including almost 100 algorithms)
     
 * What you can do with this library:
     * Analyse parameters of algorithms.
@@ -80,6 +86,25 @@ Or install the development version from GitHub:
 
 ### Example
 
+* Please don't misunderstand between parameters (hyper-parameters) and variables.
+* Assumption that you have to find minimum of function F(x) = x1^3 + x2^2 + x3^4 with
+  (-1 <= x1 <= 4), (5 <= x2 <= 10) and (-7 <= x2 <= -4). Then
+  
+  * Your solution is x = [x1, x2, x3], x1, x2, x3 here are the variables.
+  * The number of dimension (problem size) = 3 (variables)  
+  * Your fitness value is fx = F(x)
+  * lower bound and upper bound: lb = [-1, 5, -7] and ub = [4, 10, -4]
+  * parameters (hyper-parameters) is depended on each algorithm.
+  * objective function here is F(x) for minimize problem.
+  
+```python 
+# Define an objective function, for example above:
+def Fx(solution):
+  fx = solution[0] ** 3 + solution[1] ** 2 + solution[2] ** 4
+  return fx 
+```
+
+  
 ```python
 
 # This is basic example how you can call an optimizer, and its variants. For the version ( MEALPY >= 1.1.0)
@@ -89,14 +114,14 @@ from mealpy.swarm_based.PSO import BasePSO, PPSO, PSO_W, HPSO_TVA
 
 
 # Setting parameters
-obj_func = F5       # This objective function come from "opfunu" library. You can design your own objective function.
+obj_func = F5       # This objective function come from "opfunu" library. You can design your own objective function like above
 verbose = False     # Print out the training results
 epoch = 500         # Number of iterations / generations / epochs
 pop_size = 50       # Populations size (Number of individuals / Number of solutions)
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:
 
-## 1. When you have different lower bound and upper bound for each parameters
+## 1. When you have different lower bound and upper bound for each variables
 lb1 = [-3, -5, 1]
 ub1 = [5, 10, 100]
 
@@ -104,7 +129,7 @@ md1 = BasePSO(obj_func, lb1, ub1, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[1])
 
-## 2. When you have same lower bound and upper bound for each parameters, then you can use:
+## 2. When you have same lower bound and upper bound for each variables, then you can use:
 ##      + int or float: then you need to specify your problem size (number of dimensions)
 problemSize = 10
 lb2 = -5
@@ -175,7 +200,7 @@ print(md1.loss_train)
   hyper-parameters.
   
 * **And PLEASE read some examples inside folder "examples" before email asking me how to call the optimizer. 
-Lots of simply and complicated examples there. Take your time to learn how to use it.**
+Lots of simple and complicated examples there. Take your time to learn how to use it.**
   
 
 ```python 
