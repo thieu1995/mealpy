@@ -4,8 +4,8 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
 from numpy import array, where
 from numpy.random import uniform
@@ -20,10 +20,8 @@ class BaseGA(Root):
         https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
         https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
     """
-
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, pc=0.95, pm=0.025):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, pc=0.95, pm=0.025, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.pc = pc
