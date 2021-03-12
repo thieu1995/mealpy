@@ -22,7 +22,7 @@ class BaseSLO(Root):
             https://www.researchgate.net/publication/333516932_Sea_Lion_Optimization_Algorithm
             DOI: 10.14569/IJACSA.2019.0100548
         Notes:
-            + The original paper is fake, tons of unclear equations and parameters
+            + The original paper is dummy, tons of unclear equations and parameters
             + You can check my question on the ResearchGate link, the authors seem to be scare so they didn't reply.
     """
 

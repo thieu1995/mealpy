@@ -19,7 +19,7 @@ class OriginalBMO(Root):
         Link:
             http://dx.doi.org/10.21533/pen.v7i3.621
         Notes:
-            + This is fake algorithm and fake paper.
+            + This is dummy algorithm and dummy paper.
             + The idea look like "Chicken Swarm Optimization"
             + The pseudo-code totally bullshit in my opinion, just read the paper you will understand.
             + The unclear point here is the "Rate equation": really confuse because It's contain the position. As you know,

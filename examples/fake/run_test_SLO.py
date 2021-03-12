@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.SLO import BaseSLO, ImprovedSLO
+from mealpy.dummy.SLO import BaseSLO, ImprovedSLO
 
 ## Setting parameters
 obj_func = F19

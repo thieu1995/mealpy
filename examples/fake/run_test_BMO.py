@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.BMO import OriginalBMO, BaseBMO
+from mealpy.dummy.BMO import OriginalBMO, BaseBMO
 
 ## Setting parameters
 obj_func = F19

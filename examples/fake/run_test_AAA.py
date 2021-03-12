@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.AAA import OriginalAAA, BaseAAA
+from mealpy.dummy.AAA import OriginalAAA, BaseAAA
 
 ## Setting parameters
 obj_func = F5

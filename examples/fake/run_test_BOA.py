@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.BOA import OriginalBOA, AdaptiveBOA, BaseBOA
+from mealpy.dummy.BOA import OriginalBOA, AdaptiveBOA, BaseBOA
 
 ## Setting parameters
 obj_func = F19

@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.EPO import BaseEPO, OriginalEPO
+from mealpy.dummy.EPO import BaseEPO, OriginalEPO
 
 ## Setting parameters
 obj_func = F1

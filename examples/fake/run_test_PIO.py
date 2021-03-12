@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.PIO import BasePIO, LevyPIO
+from mealpy.dummy.PIO import BasePIO, LevyPIO
 
 ## Setting parameters
 obj_func = F19

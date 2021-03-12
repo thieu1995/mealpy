@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.RHO import LevyRH
+from mealpy.dummy.RHO import LevyRH
 
 ## Setting parameters
 obj_func = F1

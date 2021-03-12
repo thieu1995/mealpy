@@ -62,7 +62,7 @@ class OriginalBOA(Root):
         The original version of: Butterfly Optimization Algorithm (BOA)
             (Butterfly optimization algorithm: a novel approach for global optimization)
         Notes:
-            + This algorithm and paper is fake.
+            + This algorithm and paper is dummy.
             + This is the code of the original author of BOA. He public on mathworks. But take a look at his code and his paper. That is completely different.
             + I implement this version based on his paper, it can't converge at all.
         https://www.mathworks.com/matlabcentral/fileexchange/68209-butterfly-optimization-algorithm-boa
@@ -128,7 +128,7 @@ class AdaptiveBOA(OriginalBOA):
     How the hell that happened?
     This is a plagiarism? I think this is one of the most biggest reason why mathematician researchers calling out
         meta-heuristics community is completely bullshit and unethical.
-    Just for producing more trash paper without any knowledge in it? This is why I listed BOA as the totally trash and fake
+    Just for producing more trash paper without any knowledge in it? This is why I listed BOA as the totally trash and dummy
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,

@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.BWO import BaseBWO, OriginalBWO
+from mealpy.dummy.BWO import BaseBWO, OriginalBWO
 
 ## Setting parameters
 obj_func = F10

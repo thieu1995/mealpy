@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.fake.SOA import BaseSOA, OriginalSOA
+from mealpy.dummy.SOA import BaseSOA, OriginalSOA
 
 ## Setting parameters
 obj_func = F30

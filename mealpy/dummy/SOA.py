@@ -17,7 +17,7 @@ class BaseSOA(Root):
         My modified version of: Sandpiper Optimization Algorithm (SOA)
         Notes:
             + I changed some equations and the flow of algorithm
-            + Remember this paper and algorithm is fake
+            + Remember this paper and algorithm is dummy
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
