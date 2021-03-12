@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
@@ -21,9 +21,9 @@ class BaseEHO(Root):
         https://doi.org/10.1109/ISCBI.2015.8
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, alpha=0.5, beta=0.5, n_clans=5):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 alpha=0.5, beta=0.5, n_clans=5, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.alpha = alpha              # a factor that determines the influence of the best in each clan
@@ -96,9 +96,9 @@ class LevyEHO(BaseEHO):
         + Using global best solution 117789
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, alpha=0.5, beta=0.5, n_clans=5):
-        BaseEHO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, alpha, beta, n_clans)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 alpha=0.5, beta=0.5, n_clans=5, **kwargs):
+        BaseEHO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, alpha, beta, n_clans, kwargs=kwargs)
 
     def train(self):
         pop = self._creat_population__()
