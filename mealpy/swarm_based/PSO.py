@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal, randint
@@ -18,9 +18,9 @@ class BasePSO(Root):
         The original version of: Particle Swarm Optimization
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, c1=1.2, c2=1.2, w_min=0.4, w_max=0.9):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c1=1.2, c2=1.2, w_min=0.4, w_max=0.9, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c1 = c1            # [0-2]  -> [(1.2, 1.2), (0.8, 2.0), (1.6, 0.6)]  Local and global coefficient
@@ -52,8 +52,12 @@ class BasePSO(Root):
                     pop_local[i] = [x_new, fit_new]
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
@@ -68,8 +72,8 @@ class PPSO(Root):
         I convert matlab to python code
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -103,9 +107,12 @@ class PPSO(Root):
                     pop_local[i] = [x_temp, fit]
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -120,8 +127,8 @@ class PSO_W(Root):
         I convert matlab to python code
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -156,9 +163,12 @@ class PSO_W(Root):
                     pop_local[i] = [x_temp, fit]
 
                 ## batch size
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
-
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -173,9 +183,8 @@ class HPSO_TVA(Root):
         I convert matlab to python code
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, ci=0.5, cf=0.0):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, ci=0.5, cf=0.0, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ci = ci
@@ -219,9 +228,12 @@ class HPSO_TVA(Root):
                     pop_local[i] = [x_temp, fit]
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
-
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size:
+                        g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
