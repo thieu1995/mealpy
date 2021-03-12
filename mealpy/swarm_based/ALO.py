@@ -107,7 +107,7 @@ class OriginalALO(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class BaseALO(OriginalALO):
+class BaseALO(Root):
     """
     The is my version of: Ant Lion Optimizer (ALO)
         (The Ant Lion Optimizer)
@@ -117,7 +117,9 @@ class BaseALO(OriginalALO):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        OriginalALO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
+        self.epoch = epoch
+        self.pop_size = pop_size
 
     def _random_walk_around_antlion__(self, solution, current_epoch):
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
