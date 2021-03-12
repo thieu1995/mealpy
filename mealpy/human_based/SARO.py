@@ -4,11 +4,11 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
 from numpy.random import randint, uniform, choice
-from numpy import mean, array, zeros, where, logical_and
+from numpy import zeros, where, logical_and
 from copy import deepcopy
 from mealpy.root import Root
 
@@ -23,9 +23,8 @@ class BaseSARO(Root):
         + Update whole position at the same time, but this seem make this algorithm less efficient than the original
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, se=0.5, mu=50):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, se=0.5, mu=50, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.se = se
@@ -83,8 +82,12 @@ class BaseSARO(Root):
                 pop = deepcopy(pop_x + pop_m)
 
                 # batch-size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -100,9 +103,8 @@ class OriginalSARO(BaseSARO):
         https://doi.org/10.1155/2019/2482543
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, se=0.5, mu=50):
-        BaseSARO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, se, mu)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, se=0.5, mu=50, **kwargs):
+        BaseSARO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, se, mu, kwargs)
 
     def train(self):
         pop = [self.create_solution(minmax=0) for _ in range(self.pop_size * 2)]
