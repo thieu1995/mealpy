@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import argsort, exp
@@ -21,9 +21,8 @@ class BaseHGSO(Root):
             DOI:
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_clusters=2):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_clusters=2, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_clusters = n_clusters
@@ -118,9 +117,9 @@ class BaseHGSO(Root):
 
 
 class OppoHGSO(BaseHGSO):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_clusters=2):
-        BaseHGSO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, n_clusters)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_clusters=2, **kwargs):
+        BaseHGSO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, n_clusters, kwargs = kwargs)
 
     def train(self):
         pop, group = self._create_population__(self.ID_MIN_PROB, self.n_clusters)
@@ -182,9 +181,9 @@ class OppoHGSO(BaseHGSO):
 
 
 class LevyHGSO(BaseHGSO):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_clusters=2):
-        BaseHGSO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, n_clusters)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_clusters=2, **kwargs):
+        BaseHGSO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, n_clusters, kwargs=kwargs)
 
     def train(self):
         pop, group = self._create_population__(self.ID_MIN_PROB, self.n_clusters)
