@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, choice
@@ -20,9 +20,9 @@ class BaseBES(Root):
         DOI: https://doi.org/10.1007/s10462-019-09732-5
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, a=10, R=1.5, alpha=2, c1=2, c2=2):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 a=10, R=1.5, alpha=2, c1=2, c2=2, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.a = a           # default: 10, determining the corner between point search in the central point, in [5, 10]
