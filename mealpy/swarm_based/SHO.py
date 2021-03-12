@@ -4,7 +4,7 @@
 #                                                                                                       #
 #       Email:      nguyenthieu2102@gmail.com                                                           #
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  #
-#       Github:     https://github.com/thieu1995                                                  #
+#       Github:     https://github.com/thieu1995                                                        #
 #-------------------------------------------------------------------------------------------------------#
 
 from numpy import Inf, dot, abs, mean, array
@@ -20,9 +20,9 @@ class BaseSHO(Root):
         https://doi.org/10.1016/j.advengsoft.2017.05.014
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, h=5, M=(0.5, 1), N_tried=10):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 h=5, M=(0.5, 1), N_tried=10, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.h = h                  # default = 5
