@@ -23,9 +23,8 @@ class BaseBRO(Root):
     """
     ID_DAM = 2
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, threshold=3):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, threshold=3, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.threshold = threshold
@@ -105,14 +104,8 @@ class OriginalBRO(BaseBRO):
             https://doi.org/10.1007/s00521-020-05004-4
         - Original category: Human-based
     """
-    ID_DAM = 2
-
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, threshold=3):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.threshold = threshold
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, threshold=3, **kwargs):
+        BaseBRO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, threshold, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
