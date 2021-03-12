@@ -45,7 +45,7 @@ print(md3.solution[1])
 
 lb4 = [-5] * problemSize
 ub4 = [10] * problemSize
-md4 = BaseFOA(obj_func, lb4, ub4, verbose, epoch, pop_size)  # No need the keyword "problem_size"
+md4 = BaseGOA(obj_func, lb4, ub4, verbose, epoch, pop_size)  # No need the keyword "problem_size"
 best_pos1, best_fit1, list_loss1 = md4.train()
 print(md4.solution[1])
 
