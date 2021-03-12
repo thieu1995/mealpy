@@ -18,9 +18,8 @@ class BaseMRFO(Root):
         (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, S=2):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, S=2, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.S = S                   # somersault factor that decides the somersault range of manta rays
@@ -86,9 +85,8 @@ class LevyMRFO(BaseMRFO):
         My modified version of: Manta Ray Foraging Optimization (MRFO) based on Levy_flight
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, S=2):
-        BaseMRFO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, S)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, S=2, **kwargs):
+        BaseMRFO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, S, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
