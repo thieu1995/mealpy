@@ -104,7 +104,7 @@ class OriginalSARO(BaseSARO):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, se=0.5, mu=50, **kwargs):
-        BaseSARO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, se, mu, kwargs)
+        BaseSARO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, se, mu, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution(minmax=0) for _ in range(self.pop_size * 2)]
