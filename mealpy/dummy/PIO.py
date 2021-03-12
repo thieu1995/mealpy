@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform
@@ -24,9 +24,8 @@ class BasePIO(Root):
             + Also the personal best no need in this version (So it is now much different than PSO)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, R=0.2, n_switch=0.75):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, R=0.2, n_switch=0.75, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch                                  # Nc1 + Nc2
         self.pop_size = pop_size                            # Np
         self.R = R
@@ -88,9 +87,8 @@ class LevyPIO(BasePIO):
             + I applied the levy-flight here for more robust
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, R=0.2, n_switch=0.75):
-        BasePIO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, R, n_switch)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, R=0.2, n_switch=0.75, **kwargs):
+        BasePIO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, R, n_switch, kwargs = kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
