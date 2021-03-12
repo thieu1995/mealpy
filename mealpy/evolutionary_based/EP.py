@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal, choice, randint
@@ -25,9 +25,8 @@ class BaseEP(Root):
     ID_STR = 2  # strategy
     ID_WIN = 3
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, bout_size=0.05):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bout_size=0.05, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         if bout_size < 1:                               # Number of tried with tournament selection (5% of pop_size)
@@ -84,9 +83,8 @@ class LevyEP(BaseEP):
             + Change the flow and add more equations
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, bout_size=0.05):
-        BaseEP.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, bout_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bout_size=0.05, **kwargs):
+        BaseEP.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, bout_size, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
