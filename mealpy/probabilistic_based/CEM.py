@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import ceil, sqrt, abs, array, mean, repeat, sin, cos, clip, where
@@ -21,9 +21,8 @@ class BaseCEM(Root):
             https://github.com/clever-algorithms/CleverAlgorithms
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, n_best=30, alpha=0.7):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_best=30, alpha=0.7, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.alpha = alpha
@@ -72,9 +71,8 @@ class CEBaseLCBO(BaseLCBO):
         The hybrid version of: Cross-Entropy Method (CEM) and Life Choice-Based Optimization
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, alpha=0.7, r1=2.35):
-        BaseLCBO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, r1)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, alpha=0.7, r1=2.35, **kwargs):
+        BaseLCBO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, r1, kwargs = kwargs)
         self.n1 = int(ceil(sqrt(self.pop_size)))                    # n best position in LCBO
         self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)      # 50% for both 2 group left
         self.n_best = int(sqrt(self.pop_size))                      # n nest position in CE
@@ -160,9 +158,8 @@ class CEBaseLCBONew(BaseLCBO):
         Version 2: Instead replace the old population, now it will replace only few worst individuals
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, alpha=0.7, r1=2.35):
-        BaseLCBO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, r1)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, alpha=0.7, r1=2.35, **kwargs):
+        BaseLCBO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, r1, kwargs=kwargs)
         self.n1 = int(ceil(sqrt(self.pop_size)))                # n best position in LCBO
         self.n2 = self.n1 + int((self.pop_size - self.n1) / 2)  # 50% for both 2 group left
         self.n_best = int(sqrt(pop_size))                       # n best position in CE
@@ -250,9 +247,8 @@ class CEBaseSSDO(Root):
     ID_VEL = 2  # velocity
     ID_LBS = 3  # local best position
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, alpha=0.7):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, alpha=0.7, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = int(sqrt(self.pop_size))              # n nest position in CE
@@ -355,9 +351,8 @@ class CEBaseSBO(BaseSBO):
         The hybrid version of: Cross-Entropy Method (CEM) and Satin Bowerbird Optimizer (SBO)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, alpha=0.94, pm=0.05, z=0.02):
-        BaseSBO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, alpha, pm, z)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, alpha=0.94, pm=0.05, z=0.02, **kwargs):
+        BaseSBO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, alpha, pm, z, kwargs=kwargs)
         self.n_best = int(sqrt(self.pop_size))          # n nest position in CE
         self.alpha = alpha                              # alpha in CE
         self.epoch_ce = int(sqrt(epoch))                # Epoch in CE
@@ -438,8 +433,8 @@ class CEBaseFBIO(Root):
     My hybrid version of: Cross-Entropy and Forensic-Based Investigation Optimization (CE-FBIO)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = int(sqrt(self.pop_size))  # n nest position in CE
@@ -454,7 +449,9 @@ class CEBaseFBIO(Root):
         return [pos, fit]
 
     def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
-        prob = (max(list_fitness) - list_fitness) / (max(list_fitness) - min(list_fitness))
+        max1 = max(list_fitness)
+        min1 = min(list_fitness)
+        prob = (max1 - list_fitness) / (max1 - min1 + self.EPSILON)
         return prob
 
     def train(self):
@@ -567,8 +564,8 @@ class CEBaseFBIONew(Root):
     My hybrid version of: Cross-Entropy and Forensic-Based Investigation Optimization (CE-FBIO)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = int(sqrt(self.pop_size))      # n nest position in CE
@@ -583,7 +580,9 @@ class CEBaseFBIONew(Root):
         return [pos, fit]
 
     def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
-        prob = (max(list_fitness) - list_fitness) / (max(list_fitness) - min(list_fitness))
+        max1 = max(list_fitness)
+        min1 = min(list_fitness)
+        prob = (max1 - list_fitness) / (max1 - min1 + self.EPSILON)
         return prob
 
     def train(self):
