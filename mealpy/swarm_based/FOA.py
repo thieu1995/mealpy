@@ -7,11 +7,9 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy import array, abs, exp, cos, pi, argmax, argmin, sum, where, logical_or
-from numpy.random import uniform, choice, randint, normal, rand
+from numpy import array, abs, exp, cos, pi
+from numpy.random import uniform, randint, rand
 from numpy.linalg import norm
-from scipy.spatial.distance import cdist
-from copy import deepcopy
 from mealpy.root import Root
 
 
@@ -28,9 +26,8 @@ class OriginalFOA(Root):
             on this algorithm (Easy to improve, and easy to implement).
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -68,9 +65,8 @@ class BaseFOA(Root):
             + 2) Update the position if only it find the better fitness value.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -94,8 +90,12 @@ class BaseFOA(Root):
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
                 ## Update the global best based on batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
@@ -111,9 +111,8 @@ class WFOA(BaseFOA):
             https://doi.org/10.1016/j.eswa.2020.113502
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100):
-        BaseFOA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseFOA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
@@ -146,8 +145,12 @@ class WFOA(BaseFOA):
                 pop[i] = [pos_new, fit]
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
