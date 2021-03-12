@@ -621,7 +621,7 @@ python examples/run_simple.py
 
 
 
-# Fakes
+# Dummy Algorithms
 
 
 * **AAA - Artificial Algae Algorithm** . Uymaz, S. A., Tezel, G., & Yel, E. (2015). Artificial algae algorithm (AAA) for nonlinear global optimization. Applied Soft Computing, 31, 153-171.
