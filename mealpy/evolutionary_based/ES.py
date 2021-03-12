@@ -8,8 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
-from numpy import sqrt, exp, array, log, zeros, concatenate, sum, identity
-from numpy import matmul, clip, mean
+from numpy import sqrt, exp, array
 from mealpy.root import Root
 
 
