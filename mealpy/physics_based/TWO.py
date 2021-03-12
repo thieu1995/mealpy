@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, randn, random, normal
@@ -22,8 +22,8 @@ class BaseTWO(Root):
     ID_FIT = 1
     ID_WEIGHT = 2
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -104,8 +104,9 @@ class BaseTWO(Root):
 
 
 class OppoTWO(BaseTWO):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseTWO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseTWO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop_temp = [self.create_solution(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
@@ -168,8 +169,9 @@ class OppoTWO(BaseTWO):
 
 
 class LevyTWO(BaseTWO):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseTWO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseTWO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop_old = [self.create_solution(minmax=self.ID_MAX_PROB) for _ in range(self.pop_size)]
@@ -214,9 +216,9 @@ class LevyTWO(BaseTWO):
 
 
 class ImprovedTWO(OppoTWO, LevyTWO):
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        OppoTWO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
-        LevyTWO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseTWO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+        LevyTWO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
 
