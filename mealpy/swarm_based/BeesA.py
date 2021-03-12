@@ -19,10 +19,9 @@ class BaseBeesA(Root):
         This is standard version.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, site_ratio=(0.5, 0.4), site_bee_ratio=(0.1, 2), recruited_bee_ratio=0.1,
-                 dance_radius=0.1, dance_radius_damp=0.99):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, site_ratio=(0.5, 0.4),
+                 site_bee_ratio=(0.1, 2), recruited_bee_ratio=0.1, dance_radius=0.1, dance_radius_damp=0.99, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -105,9 +104,9 @@ class ProbBeesA(Root):
         This is Probabilistic version.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, recruited_bee_ratio=0.1, dance_radius=0.1, dance_radius_damp=0.99):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 recruited_bee_ratio=0.1, dance_radius=0.1, dance_radius_damp=0.99, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.recruited_bee_ratio = recruited_bee_ratio
