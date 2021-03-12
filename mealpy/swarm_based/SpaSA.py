@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
@@ -27,9 +27,9 @@ class BaseSpaSA(Root):
             + After change some equations and flows --> this become the BEST algorithm
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, ST=0.8, PD=0.2, SD=0.1):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 ST=0.8, PD=0.2, SD=0.1, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ST = ST       # ST in [0.5, 1.0]
@@ -48,7 +48,7 @@ class BaseSpaSA(Root):
             # Using equation (3) update the sparrow’s location;
             for i in range(0, n1):
                 if r2 < self.ST:
-                    x_new = pop[i][self.ID_POS] * exp((i+1) / (uniform() * self.epoch))
+                    x_new = pop[i][self.ID_POS] * exp((i+1) / ((uniform() + self.EPSILON) * self.epoch))
                 else:
                     x_new = pop[i][self.ID_POS] + normal() * ones(self.problem_size)
                 x_new = self.amend_position_random_faster(x_new)
@@ -100,9 +100,9 @@ class OriginalSpaSA(Root):
             + Very weak algorithm
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, ST=0.8, PD=0.2, SD=0.1):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 ST=0.8, PD=0.2, SD=0.1, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ST = ST  # ST in [0.5, 1.0]
@@ -138,7 +138,7 @@ class OriginalSpaSA(Root):
                     L = ones((1, self.problem_size))
                     A = sign(uniform(-1, 1, (1, self.problem_size)))
                     A1 = A.T * inv(matmul(A, A.T)) * L
-                    x_new = g_best + matmul(abs(pop[i][self.ID_POS] - g_best), A1)
+                    x_new = g_best[self.ID_POS] + matmul(abs(pop[i][self.ID_POS] - g_best[self.ID_POS]), A1)
                 x_new = self.amend_position_random_faster(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
