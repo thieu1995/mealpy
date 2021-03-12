@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, normal
@@ -23,9 +23,9 @@ class OriginalRHO(Root):
         https://doi.org/10.3384/ecp171421026
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.53, a=2831, r=0.04, A=1, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c              # shape parameter - default = 0.53 > 0
@@ -92,9 +92,9 @@ class BaseRHO(Root):
         + Remove third loop
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.53, a=2831, r=0.04, A=1, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c                  # shape parameter - default = 0.53 > 0
@@ -171,10 +171,9 @@ class LevyRHO(BaseRHO):
         + Uses levy-flight instead of uniform-equation
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, c=0.53, a=2831, r=0.04, A=1):
-        BaseRHO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, c, a, r, A)
-
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.53, a=2831, r=0.04, A=1, **kwargs):
+        BaseRHO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, c, a, r, A, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
