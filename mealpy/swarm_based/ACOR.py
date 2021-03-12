@@ -9,7 +9,7 @@
 
 # Socha, K., & Dorigo, M. (2008). Ant colony optimization for continuous domains. European journal of operational research, 185(3), 1155-1173.
 
-from numpy.random import uniform, normal
+from numpy.random import normal
 from numpy import sqrt, pi, exp, array, sum, zeros, repeat, abs
 from mealpy.root import Root
 
@@ -23,9 +23,9 @@ class BaseACOR(Root):
             + Amend solution when they went out of space    (2)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, sample_count=50, q=0.5, zeta=1):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 sample_count=50, q=0.5, zeta=1, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.sample_count = sample_count # Number of Newly Generated Samples
