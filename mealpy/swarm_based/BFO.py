@@ -4,8 +4,8 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
 from numpy import sqrt, dot, exp, abs, sum, zeros, append, delete
 from numpy.random import uniform, normal
@@ -25,9 +25,9 @@ class OriginalBFO(Root):
     ID_INTER = 3
     ID_SUM_NUTRIENTS = 4
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 pop_size=50, Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10, attract_repesls=(0.1, 0.2, 0.1, 10)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10, attract_repesls=(0.1, 0.2, 0.1, 10), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.pop_size = pop_size
         self.step_size = Ci                 # p_eliminate
         self.p_eliminate = Ped              # p_eliminate
@@ -120,15 +120,15 @@ class OriginalBFO(Root):
 
 class BaseBFO(Root):
     """
-    The adaptive verion of: Bacterial Foraging Optimization (BFO)
+    The adaptive version of: Bacterial Foraging Optimization (BFO)
     Notes:
         + This is the best improvement version of BFO
         + Based on this paper: An Adaptive Bacterial Foraging Optimization Algorithm with Lifecycle and Social Learning
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, Ci=(0.1, 0.001), Ped=0.1, Ns=4, N_minmax=(2, 40)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(2, 40), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.step_size = Ci  # C_s (start), C_e (end)  -=> step size # step size in BFO
