@@ -45,7 +45,7 @@ class BaseASO(Root):
         worst_fit = pop[-1][self.ID_FIT]
         sum_fit = sum([item[self.ID_FIT] for item in pop])
         for it in population:
-            it[self.ID_M] = exp( (it[self.ID_FIT] - best_fit)/(worst_fit - best_fit) ) / sum_fit
+            it[self.ID_M] = exp( (it[self.ID_FIT] - best_fit)/(worst_fit - best_fit + self.EPSILON) ) / sum_fit
         return population
 
     def _find_LJ_potential__(self, iteration, average_dist, radius):
