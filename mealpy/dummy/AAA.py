@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import array, pi, power, cos, sin, argmax, argmin, ones, zeros
@@ -23,9 +23,9 @@ class BaseAAA(Root):
         + Still not working
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, energy=0.3, delta=2, ap=0.5):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 energy=0.3, delta=2, ap=0.5, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.energy = energy        # the loss of energy, e = 0.3,
@@ -119,9 +119,9 @@ class OriginalAAA(Root):
     ID_FRIC = 4             # friction surface
     ID_STAR = 5             # starvation
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, energy=0.3, delta=2, ap=0.5):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 energy=0.3, delta=2, ap=0.5, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.energy = energy        # the loss of energy, e = 0.3,
