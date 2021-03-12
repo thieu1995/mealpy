@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import abs, exp, cos, pi, ones, where
@@ -23,8 +23,8 @@ class BaseMFO(Root):
             + Remove third loop for faster
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -74,7 +74,7 @@ class BaseMFO(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class OriginalMFO(Root):
+class OriginalMFO(BaseMFO):
     """
         The original version of: Moth-flame optimization (MFO)
             (Moth-flame optimization algorithm: A novel nature-inspired heuristic paradigm)
@@ -82,10 +82,8 @@ class OriginalMFO(Root):
             + https://www.mathworks.com/matlabcentral/fileexchange/52269-moth-flame-optimization-mfo-algorithm?s_tid=FX_rc1_behav
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
-        self.epoch = epoch
-        self.pop_size = pop_size
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseMFO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def train(self):
         pop_moths = [self.create_solution() for _ in range(self.pop_size)]
