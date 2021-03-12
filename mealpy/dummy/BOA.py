@@ -4,8 +4,8 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, randint
 from numpy import zeros
@@ -19,9 +19,9 @@ class BaseBOA(Root):
         Butterfly optimization algorithm: a novel approach for global optimization
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, c=0.01, p=0.8, alpha=(0.1, 0.3)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.01, p=0.8, alpha=(0.1, 0.3), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c              # 0.01, is the sensory modality
@@ -71,9 +71,9 @@ class OriginalBOA(Root):
         "Honestly,this algorithm looks like Flower Pollination Algorithm developed by Yang."
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, c=0.01, p=0.8, alpha=(0.1, 0.3)):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.01, p=0.8, alpha=(0.1, 0.3), **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c                  # 0.01, is the sensory modality
@@ -131,9 +131,10 @@ class AdaptiveBOA(OriginalBOA):
     Just for producing more trash paper without any knowledge in it? This is why I listed BOA as the totally trash and dummy
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=700, pop_size=50, c=0.01, p=0.8, alpha=(0.1, 0.3)):
-        OriginalBOA.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, c, p, alpha)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c=0.01, p=0.8, alpha=(0.1, 0.3), **kwargs):
+        OriginalBOA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, c, p, alpha, kwargs = kwargs)
+
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
