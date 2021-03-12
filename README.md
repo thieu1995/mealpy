@@ -1,10 +1,9 @@
-# A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)
-[![GitHub release](https://img.shields.io/badge/release-1.0.5-yellow.svg)]()
+# The state-of-the-art MEta-heuristics ALgorithms in PYthon (MEALPY)
+[![GitHub release](https://img.shields.io/badge/release-1.1.0-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711949.svg)](https://doi.org/10.5281/zenodo.3711948)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
 [![License](https://img.shields.io/packagist/l/doctrine/orm.svg)]()
-
 ---
 > "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality."
 >  --- [Nguyen Van Thieu](https://www.researchgate.net/profile/Nguyen_Thieu2)
@@ -12,24 +11,25 @@
 
 ## Quick Notification
 
-* Hey hey, after receiving many questions about how to solve multiple (many) objective optimization problems with
- this library?.
-* Sorry to tell you that, this library for solving single (uni) objective optimization problems only. Since dealing
- with multiple objective functions is completely different (harder) than a single objective function. (Finding a
-  Pareto front (reference front - true Pareto front) is NP-hard problem).
-* Therefore, I'm currently making a new library "momapy" - (A collection of the state-of-the-art Multiple/Many
- Objective Metaheuristic Algorithms in PYthon) for solving multiple/many objective optimizations.
-* "MOMAPY" will be hosted here: [link](https://github.com/thieu1995/momapy)
+* New version 1.1.0 is the very different then the previous version ( < 1.0.5) in term of passing hyper-parameters. 
+* So please careful check your version before using this library.
  
 
 ## Introduction
-* MEALPY is a python module for the most of cutting-edge population meta-heuristic algorithms and is distributed
-under MIT license.
+* MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
+  algorithms (population-based) and is distributed under MIT license. 
+  
+* But this library for solving single (uni or 1) objective optimization problem only. If you are facing 
+  multiple/many objective optimization problems (Finding a Pareto front or reference front) check out my new library 
+  "momapy" (A collection of the state-of-the-art Multiple/Many Objective Metaheuristic Algorithms in PYthon). 
+  "MOMAPY" will be hosted here: [link](https://github.com/thieu1995/momapy)
+
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
     * Helping other researchers in all field access to optimization algorithms as quickly as possible
-    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics)
+    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics 
+    - currently including almost 100 algorithms)
     
 * What you can do with this library:
     * Analyse parameters of algorithms.
@@ -39,13 +39,30 @@ under MIT license.
     * Test the scalability of algorithms.
     * Analyse the stability of algorithms.
     * Analyse the robustness of algorithms.
+    
+* And please giving me some credit if you are using this library. Lots of people just use it without reference. 
+
+```code 
+@software{thieu_nguyen_2020_3711949,
+  author       = {Nguyen Van Thieu},
+  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
+  month        = march,
+  year         = 2020,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.3711948},
+  url          = {https://doi.org/10.5281/zenodo.3711948}
+}
+```
+
+and if you want to cite my paper, take a look at some of my first-author paper here: [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa)
+
 
 ## Installation
 
 ### Dependencies
 * Python (>= 3.6)
 * Numpy (>= 1.15.1)
-* Opfunu (>= 0.8.0)
+* Opfunu (>= 0.8.0)         
 * Matplotlib (>=3.1.3)
 * Scipy (>= 1.4.1)
 
@@ -62,38 +79,136 @@ Or install the development version from GitHub:
 ```
 
 ### Example
-```code 
-* Simple example:
+
+```python
+
+# This is basic example how you can call an optimizer, and its variants. For the version ( MEALPY >= 1.1.0)
+
+from opfunu.cec_basic.cec2014_nobias import *
+from mealpy.swarm_based.PSO import BasePSO, PPSO, PSO_W, HPSO_TVA
+
+
+# Setting parameters
+obj_func = F5       # This objective function come from "opfunu" library. You can design your own objective function.
+verbose = False     # Print out the training results
+epoch = 500         # Number of iterations / generations / epochs
+pop_size = 50       # Populations size (Number of individuals / Number of solutions)
+
+# A - Different way to provide lower bound and upper bound. Here are some examples:
+
+## 1. When you have different lower bound and upper bound for each parameters
+lb1 = [-3, -5, 1]
+ub1 = [5, 10, 100]
+
+md1 = BasePSO(obj_func, lb1, ub1, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[1])
+
+## 2. When you have same lower bound and upper bound for each parameters, then you can use:
+##      + int or float: then you need to specify your problem size (number of dimensions)
+problemSize = 10
+lb2 = -5
+ub2 = 10
+md2 = BasePSO(obj_func, lb2, ub2, verbose, epoch, pop_size, problem_size=problemSize)  # Remember the keyword "problem_size"
+best_pos1, best_fit1, list_loss1 = md2.train()
+print(md2.solution[1])
+
+##      + array: 2 ways
+lb3 = [-5]
+ub3 = [10]
+md3 = BasePSO(obj_func, lb3, ub3, verbose, epoch, pop_size, problem_size=problemSize)  # Remember the keyword "problem_size"
+best_pos1, best_fit1, list_loss1 = md3.train()
+print(md3.solution[1])
+
+lb4 = [-5] * problemSize
+ub4 = [10] * problemSize
+md4 = BasePSO(obj_func, lb4, ub4, verbose, epoch, pop_size)  # No need the keyword "problem_size"
+best_pos1, best_fit1, list_loss1 = md4.train()
+print(md4.solution[1])
+
+# B - Test with algorithm has batch size idea
+
+## 1. Not using batch size idea
+
+md5 = BasePSO(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md5.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+## 2. Using batch size idea
+batchIdea = True
+batchSize = 5
+
+md6 = BasePSO(obj_func, lb4, ub4, verbose, epoch, pop_size, batch_idea=batchIdea, batch_size=batchSize)  # Remember the keywords
+best_pos1, best_fit1, list_loss1 = md6.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+
+# C - Test with different variants of this algorithm
+
+md1 = PPSO(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+md1 = PSO_W(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+md1 = HPSO_TVA(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+```
+
+* The batch-size idea is not existed in Meta-heuristics field. I just take an inspiration from training batch-size 
+  of neural network field and combine it with metaheuristics. Therefore, some algorithms will have it, some won't. 
+  Don't worry, if you don't want to use it, just call the algorithm like usual, you don't need to specify any 
+  additional parameters. But if you want to use it, check the example above, you need to specify some additional 
+  hyper-parameters.
+  
+* **And PLEASE read some examples inside folder "examples" before email asking me how to call the optimizer. 
+Lots of simply and complicated examples there. Take your time to learn how to use it.**
+  
+
+```python 
+# Simple example: this is for previous version ( version <= 1.0.5)
 
 from opfunu.cec_basic.cec2014_nobias import *
 from mealpy.evolutionary_based.GA import BaseGA
 
 ## Setting parameters
-    obj_func = F1
-    # lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
-    # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
-    lb = [-100]
-    ub = [100]
-    problem_size = 100
-    batch_size = 25
-    verbose = True
-    epoch = 1000
-    pop_size = 50
-    pc = 0.95
-    pm = 0.025
-    
-    md1 = BaseGA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, 0.85, 0.05)
-    best_pos1, best_fit1, list_loss1 = md1.train()
-    print(md1.solution[0])
-    print(md1.solution[1])
-    print(md1.loss_train)
+obj_func = F1
+# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
+# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
+lb = [-100]
+ub = [100]
+problem_size = 100
+batch_size = 25
+verbose = True
+epoch = 1000
+pop_size = 50
+pc = 0.95
+pm = 0.025
 
-* Or run the simple:
-    python examples/run_simple.py
+md1 = BaseGA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, 0.85, 0.05)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
 
-* The more complicated tests in the folder: examples
+# Or run the simple:
+python examples/run_simple.py
+
 ```
-The documentation includes more detailed installation instructions.
+
 
 ### Changelog
 * See the "ChangeLog.md" for a history of notable changes to mealpy.
@@ -111,36 +226,10 @@ The documentation includes more detailed installation instructions.
     * https://github.com/chasebk
     
 
-## Contributions 
-
-### Citation
-If you use mealpy in your project, please cite my works: 
-
-```code 
-@article{nguyen2019efficient,
-  title={Efficient Time-Series Forecasting Using Neural Network and Opposition-Based Coral Reefs Optimization},
-  author={Nguyen, Thieu and Nguyen, Tu and Nguyen, Binh Minh and Nguyen, Giang},
-  journal={International Journal of Computational Intelligence Systems},
-  volume={12},
-  number={2},
-  pages={1144--1161},
-  year={2019},
-  publisher={Atlantis Press}
-}
-
-@software{thieu_nguyen_2020_3711949,
-  author       = {Nguyen Van Thieu},
-  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
-  month        = march,
-  year         = 2020,
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.3711948},
-  url          = {https://doi.org/10.5281/zenodo.3711948}
-}
-```
+## Contributions
 
 ### Documents
-* Group: 
+* Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))
     + Evolutionary: Evolutionary-based
     + Swarm: Swarm-based
     + Physics: Physics-based
@@ -150,32 +239,27 @@ If you use mealpy in your project, please cite my works:
     + Math: Math-based
     + Music: Music-based
     + Probabilistic: Probabilistic based algorithm
-    + Fake: Fake algorithms and fake papers (code proofs)
+    + Dummy: Non-sense algorithms and Non-sense papers (code proofs)
         + All algorithms in this library were implemented by me (my code). Including the original version (I read the paper and implement it). Some original papers are very unclear (parameters, equations, algorithm's flow) as I
-         categories it to fake papers and algorithms (I have already checked carefully the paper, the related papers and searched for Matlab code or any programming code for it). 
-        + The results why I classify it to fake also explain in top of the algorithm file or in ChangeLog.md file.
-        + Most of the algorithms have the Original version and Base version. The Base version is my modified version of the
-         the algorithm, sometimes I change the flow, or how the new solution created/updated (equations) or remove some
-          unnecessary parameters. 
-        + The category Type below is based on the performance of the Base version. (Base version can be Original version)
-    
-* Version: 
+         categories it to dummy papers and algorithms (I have already checked carefully the paper, the related papers 
+          and searched for Matlab code or any programming code for it). 
+
+* Version: Most of the algorithms have the Original version and Base version.
     + original: Taken exactly from the paper
-    + changed: I changed the flow or equation to make algorithm works
-    
-* Batch size:
-    + The batch-size idea I have already explained above.
-    + The algorithm can use it or not
+    + changed: Sometimes I changed the flow or how the new solution created/updated (equations) or remove some
+      unnecessary parameters to make algorithm works
+
+* Batch size idea (Personal Choice): Explained in the ChangeLog.md file and above. An algorithm can used it or not.
     
 * Levy: Using levy-flight technique or not
 
-* Type:
+* Type (Personal Opinion): (Based on performance of Base version. The Base version can be Original version)
     + weak: working fine with uni-modal and some multi-modal functions
     + strong: working good with uni-modal, multi-modal, some hybrid and some composite functions
     + best: working well with almost all kind of functions
     + BEST: the best among all algorithms
 
-* Large-scale:
+* Large-scale (Personal Opinion):
     + All algorithm here have been tested with large-scale dimension (2000)
     + Remember in CEC competition:
         + Normal test: 10, 50, 100
@@ -183,123 +267,113 @@ If you use mealpy in your project, please cite my works:
 
 * Paras: The number of parameters in the algorithm (Not counting the fixed parameters in the original paper)
     + Almost algorithms have 2 paras (epoch, population_size) and plus some paras depend on each algorithm.
-    + Some algorithms belong to "best" or "BEST" type and have only 2 paras meaning that algorithm is outstanding
+    + Some algorithms belong to "best" or "BEST" type and have only 2 paras meaning the algorithms are outstanding
     
-* Difficulty - Difficulty Level: Objective observation from author.
-    + Depend on the number of parameters, number of equations, the original ideas, time spend for coding, source lines of code (SLOC)
+* Difficulty - Difficulty Level (Personal Opinion): Objective observation from author. Depend on the number of 
+  parameters, number of equations, the original ideas, time spend for coding, source lines of code (SLOC).
     + Easy: A few paras, few equations, SLOC very short
     + Medium: more equations than Easy level, SLOC longer than Easy level
     + Hard: Lots of equations, SLOC longer than Medium level, the paper hard to read.
     + Hard* - Very hard: Lots of equations, SLOC too long, the paper is very hard to read.
     
-* Some algorithm with original version and no levy techniques still belong to the best type such as:
-    + Whale Optimization Algorithm
-    + Bird Swarm Algorithm
-    + Swarm Robotics Search And Rescue
-    + Manta Ray Foraging Optimization
-    + Henry Gas Solubility Optimization	
-    + Atom Search Optimization
-    + Equilibrium Optimizer
-    + Artificial Ecosystem-based Optimization
-    + Sparrow Search Algorithm
-    
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
-|      Group        | STT    |                    Name                    |   Short    | Year    |  Version    | Batch Size    | Levy    |  Type    | Large Scale    | Paras    | Difficulty    |
-|:---------------:	|:---:	|:-----------------------------------------:	|:--------:	|:----:	|:---------:	|:----------:	|:----:	|:------:	|:-----------:	|:-----:	|:----------:	|
+
+|       Group        | STT    |                    Name                    |   Short    | Year    |  Version    | Batch Size    | Levy    |  Type    | Large Scale    | Paras    | Difficulty    |
+|:----------------:	|:---:	|:-----------------------------------------:	|:--------:	|:----:	|:---------:	|:----------:	|:----:	|:------:	|:-----------:	|:-----:	|:----------:	|
 |   Evolutionary    |  1    |          Evolutionary Programming            |    EP        | 1964    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
-|                 	|  2    |            Evolution Strategies            |    ES        | 1971    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
-|                 	|  3    |             Memetic Algorithm                |    MA        | 1989    |  original    |     no        |  no    |  weak    |      no        |   7    |    easy        |
-|                 	|  3    |             Genetic Algorithm                |    GA        | 1992    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
-|                 	|  4    |           Differential Evolution            |    DE        | 1997    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
-|                 	|  5    |        Flower Pollination Algorithm        |    FPA    | 2014    |  orginal    |     yes        |  yes    | strong    |      no        |   3    |    easy        |
-|                 	|  6    |          Coral Reefs Optimization            |    CRO    | 2014    |  original    |     no        |  no    | strong    |      no        |   7    |   medium    |
-|                 	|  7    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|      Swarm        |  1    |        Particle Swarm Optimization            |    PSO    | 1995    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
-|                 	|  2    |      Bacterial Foraging Optimization        |    BFO    | 2002    |  orginal    |     no        |  no    |  weak    |      no        |   11    |    hard        |
-|                 	|  3    |               Bees Algorithm                |   BeesA    | 2005    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
-|                 	|  4    |           Cat Swarm Optimization            |    CSO    | 2006    |  original    |     yes        |  no    |  weak    |      no        |   9    |    hard        |
-|                 	|  5    |          Ant Colony Optimization            |    ACO    | 2006    |  original    |     no        |  no    | strong    |      no        |   5    |   medium    |
-|                 	|  6    |           Artificial Bee Colony            |    ABC    | 2007    |  changed    |     no        |  no    | strong    |      no        |   8    |    easy        |
-|                 	|  7    |          Ant Colony Optimization            |   ACO-R    | 2008    |  original    |     no        |  no    | strong    |      no        |   5    |   medium    |
-|                 	|  8    |             Firefly Algorithm                | FireflyA    | 2009    |  original    |     no        |  no    | strong    |      no        |   8    |   medium    |
-|                 	|  9    |            Fireworks Algorithm                |    FA        | 2010    |  original    |     no        |  no    | strong    |      no        |   7    |   medium    |
-|                 	|  10    |               Bat Algorithm                |    BA        | 2010    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
-|                 	|  11    |      Fruit-fly Optimization Algorithm        |    FOA    | 2012    |  original    |     no        |  no    |  WEAK    |      no        |   2    |    easy        |
-|                 	|  12    |         Social Spider Optimization            |    SSO    | 2013    |  changed    |     no        |  no    |  weak    |      no        |   3    |    hard*    |
-|                 	|  13    |            Grey Wolf Optimizer                |    GWO    | 2014    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
-|                 	|  14    |          Social Spider Algorithm            |    SSA    | 2015    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
-|                 	|  15    |             Ant Lion Optimizer                |    ALO    | 2015    |  original    |     no        |  no    | strong    |     yes        |   2    |   medium    |
-|                 	|  16    |          Moth Flame Optimization            |    MFO    | 2015    |  changed    |     no        |  no    | strong    |      no        |   2    |    easy        |
-|                 	|  17    |       Elephant Herding Optimization        |    EHO    | 2015    |  original    |     no        |  no    |  best    |     yes        |   5    |    easy        |
-|                 	|  18    |               Jaya Algorithm                |    JA        | 2016    |  orignal    |     no        |  no    | strong    |     yes        |   2    |    easy        |
-|                 	|  19    |        Whale Optimization Algorithm        |    WOA    | 2016    |  original    |     yes        |  no    |  BEST    |     yes        |   2    |    easy        |
-|                 	|  20    |           Dragonfly Optimization            |    DO        | 2016    |  original    |     no        |  no    | strong    |      no        |   2    |   medium    |
-|                 	|  21    |            Bird Swarm Algorithm            |    BSA    | 2016    |  original    |     no        |  no    |  best    |     yes        |   9    |   medium    |
-|                 	|  22    |          Spotted Hyena Optimizer            |    SHO    | 2017    |  changed    |     no        |  no    |  weak    |      no        |   6    |   medium    |
-|                 	|  23    |          Salp Swarm Optimization            |  SalpSO    | 2017    |  original    |     no        |  no    | strong    |      no        |   2    |    easy        |
-|                 	|  24    |      Swarm Robotics Search And Rescue        |   SRSR    | 2017    |  original    |     no        |  no    |  best    |     yes        |   2    |    hard*    |
-|                 	|  25    |     Grasshopper Optimisation Algorithm        |    GOA    | 2017    |  original    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
-|                 	|  26    |           Moth Search Algorithm            |    MSA    | 2018    |  changed    |     no        |  yes    | strong    |      no        |   5    |    easy        |
-|                 	|  27    |          Nake Mole-rat Algorithm            |   NMRA    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   3    |    easy        |
-|                 	|  28    |             Bald Eagle Search                |    BES    | 2019    |  changed    |     no        |  no    | strong    |      no        |   7    |   medium    |
-|                 	|  29    |            Pathfinder Algorithm            |    PFA    | 2019    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
-|                 	|  30    |             Sailfish Optimizer                |    SFO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
-|                 	|  31    |         Harris Hawks Optimization            |    HHO    | 2019    |  original    |     yes        |  yes    |  best    |     yes        |   2    |   medium    |
-|                 	|  32    |      Manta Ray Foraging Optimization        |   MRFO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   3    |    easy        |
-|                 	|  33    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
-|                 	|  34    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|     Physics        |  1    |            Simulated Annealling            |    SA        | 1987    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
-|                 	|  2    |          Wind Driven Optimization            |    WDO    | 2013    |  original    |     yes        |  no    | strong    |     yes        |   7    |    easy        |
-|                 	|  3    |           Multi-Verse Optimizer            |    MVO    | 2016    |  changed    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
-|                 	|  4    |          Tug of War Optimization            |    TWO    | 2016    | original    |     no        |  no    | strong    |      no        |   2    |    easy        |
-|                 	|  5    |     Electromagnetic Field Optimization        |    EFO    | 2016    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
-|                 	|  6    |       Nuclear Reaction Optimization        |    NRO    | 2019    | original    |     no        |  yes    |  best    |     yes        |   2    |    hard*    |
-|                 	|  7    |     Henry Gas Solubility Optimization        |   HGSO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   3    |   medium    |
-|                 	|  8    |          Atom Search Optimization            |    ASO    | 2019    |  original    |     no        |  no    | strong    |      no        |   4    |   medium    |
-|                 	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
-|                 	|  10    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|      Human        |  1    |             Culture Algorithm                |    CA        | 1994    |  original    |     no        |  no    | strong    |      no        |   3    |    easy        |
-|                 	|  2    |     Imperialist Competitive Algorithm        |    ICA    | 2007    |  original    |     no        |  no    | strong    |     yes        |   10    |    hard*    |
-|                 	|  3    |       Teaching Learning Optimization        |    TLO    | 2011    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
-|                 	|  4    |          Brain Storm Optimization            |    BSO    | 2011    |  original    |     no        |  no    |  weak    |      no        |   10    |   medium    |
-|                 	|  5    |          Queuing Search Algorithm            |    QSA    | 2019    |  changed    |     no        |  no    | strong    |     yes        |   2    |    hard        |
-|                 	|  6    |       Search And Rescue Optimization        |   SARO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   4    |   medium    |
-|                 	|  7    |      Life Choice-Based Optimization        |   LCBO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   2    |    easy        |
-|                 	|  8    |       Social Ski-Driver Optimization        |   SSDO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
-|                 	|  9    | Gaining Sharing Knowledge-based Algorithm    |   GSKA    | 2019    |  original    |     no        |  no    | strong    |      no        |   6    |    easy        |
-|                 	|  10    |   Coronavirus Herd Immunity Optimization    |   CHIO    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   4    |   medium    |
-|                 	|  11    | Forensic-Based Investigation Optimization    |   FBIO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   2    |   medium    |
-|                 	|  12    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|       Bio        |  1    |         Invasive Weed Optimization            |    IWO    | 2006    |  original    |     no        |  no    | strong    |     yes        |   5    |    easy        |
-|                 	|  2    |      Biogeography-Based Optimization        |    BBO    | 2008    |  changed    |     no        |  no    | strong    |     yes        |   4    |    easy        |
-|                 	|  3    |            Virus Colony Search                |    VCS    | 2016    |  changed    |     yes        |  no    |  best    |      no        |   4    |    hard*    |
-|                 	|  4    |         Satin Bowerbird Optimizer            |    SBO    | 2017    |  changed    |     yes        |  no    | strong    |     yes        |   5    |    easy        |
-|                 	|  5    |      Earthworm Optimisation Algorithm        |    EOA    | 2018    |  changed    |     no        |  no    | strong    |     yes        |   8    |   medium    |
-|                 	|  6    |        Wildebeest Herd Optimization        |    WHO    | 2019    |  changed    |     no        |  no    | strong    |     yes        |   12    |   medium    |
-|                 	|  7    |           Slime Mould Algorithm            |    SMA    | 2020    |  changed    |     yes        |  no    | strong    |     yes        |   3    |    easy        |
-|                 	|  8    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  2    |            Evolution Strategies            |    ES        | 1971    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
+|                  	|  3    |             Memetic Algorithm                |    MA        | 1989    |  original    |     no        |  no    |  weak    |      no        |   7    |    easy        |
+|                  	|  3    |             Genetic Algorithm                |    GA        | 1992    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
+|                  	|  4    |           Differential Evolution            |    DE        | 1997    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
+|                  	|  5    |        Flower Pollination Algorithm        |    FPA    | 2014    |  orginal    |     yes        |  yes    | strong    |      no        |   3    |    easy        |
+|                  	|  6    |          Coral Reefs Optimization            |    CRO    | 2014    |  original    |     no        |  no    | strong    |      no        |   7    |   medium    |
+|                  	|  7    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|       Swarm        |  1    |        Particle Swarm Optimization            |    PSO    | 1995    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
+|                  	|  2    |      Bacterial Foraging Optimization        |    BFO    | 2002    |  orginal    |     no        |  no    |  weak    |      no        |   11    |    hard        |
+|                  	|  3    |               Bees Algorithm                |   BeesA    | 2005    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
+|                  	|  4    |           Cat Swarm Optimization            |    CSO    | 2006    |  original    |     yes        |  no    |  weak    |      no        |   9    |    hard        |
+|                  	|  5    |          Ant Colony Optimization            |    ACO    | 2006    |  original    |     no        |  no    | strong    |      no        |   5    |   medium    |
+|                  	|  6    |           Artificial Bee Colony            |    ABC    | 2007    |  changed    |     no        |  no    | strong    |      no        |   8    |    easy        |
+|                  	|  7    |          Ant Colony Optimization            |   ACO-R    | 2008    |  original    |     no        |  no    | strong    |      no        |   5    |   medium    |
+|                  	|  8    |             Firefly Algorithm                | FireflyA    | 2009    |  original    |     no        |  no    | strong    |      no        |   8    |   medium    |
+|                  	|  9    |            Fireworks Algorithm                |    FA        | 2010    |  original    |     no        |  no    | strong    |      no        |   7    |   medium    |
+|                  	|  10    |               Bat Algorithm                |    BA        | 2010    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
+|                  	|  11    |      Fruit-fly Optimization Algorithm        |    FOA    | 2012    |  original    |     no        |  no    |  WEAK    |      no        |   2    |    easy        |
+|                  	|  12    |         Social Spider Optimization            |    SSO    | 2013    |  changed    |     no        |  no    |  weak    |      no        |   3    |    hard*    |
+|                  	|  13    |            Grey Wolf Optimizer                |    GWO    | 2014    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
+|                  	|  14    |          Social Spider Algorithm            |    SSA    | 2015    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
+|                  	|  15    |             Ant Lion Optimizer                |    ALO    | 2015    |  original    |     no        |  no    | strong    |     yes        |   2    |   medium    |
+|                  	|  16    |          Moth Flame Optimization            |    MFO    | 2015    |  changed    |     no        |  no    | strong    |      no        |   2    |    easy        |
+|                  	|  17    |       Elephant Herding Optimization        |    EHO    | 2015    |  original    |     no        |  no    |  best    |     yes        |   5    |    easy        |
+|                  	|  18    |               Jaya Algorithm                |    JA        | 2016    |  orignal    |     no        |  no    | strong    |     yes        |   2    |    easy        |
+|                  	|  19    |        Whale Optimization Algorithm        |    WOA    | 2016    |  original    |     yes        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  20    |           Dragonfly Optimization            |    DO        | 2016    |  original    |     no        |  no    | strong    |      no        |   2    |   medium    |
+|                  	|  21    |            Bird Swarm Algorithm            |    BSA    | 2016    |  original    |     no        |  no    |  best    |     yes        |   9    |   medium    |
+|                  	|  22    |          Spotted Hyena Optimizer            |    SHO    | 2017    |  changed    |     no        |  no    |  weak    |      no        |   6    |   medium    |
+|                  	|  23    |          Salp Swarm Optimization            |  SalpSO    | 2017    |  original    |     no        |  no    | strong    |      no        |   2    |    easy        |
+|                  	|  24    |      Swarm Robotics Search And Rescue        |   SRSR    | 2017    |  original    |     no        |  no    |  best    |     yes        |   2    |    hard*    |
+|                  	|  25    |     Grasshopper Optimisation Algorithm        |    GOA    | 2017    |  original    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
+|                  	|  26    |           Moth Search Algorithm            |    MSA    | 2018    |  changed    |     no        |  yes    | strong    |      no        |   5    |    easy        |
+|                  	|  27    |          Nake Mole-rat Algorithm            |   NMRA    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   3    |    easy        |
+|                  	|  28    |             Bald Eagle Search                |    BES    | 2019    |  changed    |     no        |  no    | strong    |      no        |   7    |   medium    |
+|                  	|  29    |            Pathfinder Algorithm            |    PFA    | 2019    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
+|                  	|  30    |             Sailfish Optimizer                |    SFO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
+|                  	|  31    |         Harris Hawks Optimization            |    HHO    | 2019    |  original    |     yes        |  yes    |  best    |     yes        |   2    |   medium    |
+|                  	|  32    |      Manta Ray Foraging Optimization        |   MRFO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   3    |    easy        |
+|                  	|  33    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
+|                  	|  34    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|      Physics        |  1    |            Simulated Annealling            |    SA        | 1987    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
+|                  	|  2    |          Wind Driven Optimization            |    WDO    | 2013    |  original    |     yes        |  no    | strong    |     yes        |   7    |    easy        |
+|                  	|  3    |           Multi-Verse Optimizer            |    MVO    | 2016    |  changed    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
+|                  	|  4    |          Tug of War Optimization            |    TWO    | 2016    | original    |     no        |  no    | strong    |      no        |   2    |    easy        |
+|                  	|  5    |     Electromagnetic Field Optimization        |    EFO    | 2016    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
+|                  	|  6    |       Nuclear Reaction Optimization        |    NRO    | 2019    | original    |     no        |  yes    |  best    |     yes        |   2    |    hard*    |
+|                  	|  7    |     Henry Gas Solubility Optimization        |   HGSO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   3    |   medium    |
+|                  	|  8    |          Atom Search Optimization            |    ASO    | 2019    |  original    |     no        |  no    | strong    |      no        |   4    |   medium    |
+|                  	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  10    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|       Human        |  1    |             Culture Algorithm                |    CA        | 1994    |  original    |     no        |  no    | strong    |      no        |   3    |    easy        |
+|                  	|  2    |     Imperialist Competitive Algorithm        |    ICA    | 2007    |  original    |     no        |  no    | strong    |     yes        |   10    |    hard*    |
+|                  	|  3    |       Teaching Learning Optimization        |    TLO    | 2011    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
+|                  	|  4    |          Brain Storm Optimization            |    BSO    | 2011    |  original    |     no        |  no    |  weak    |      no        |   10    |   medium    |
+|                  	|  5    |          Queuing Search Algorithm            |    QSA    | 2019    |  changed    |     no        |  no    | strong    |     yes        |   2    |    hard        |
+|                  	|  6    |       Search And Rescue Optimization        |   SARO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   4    |   medium    |
+|                  	|  7    |      Life Choice-Based Optimization        |   LCBO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   2    |    easy        |
+|                  	|  8    |       Social Ski-Driver Optimization        |   SSDO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  9    | Gaining Sharing Knowledge-based Algorithm    |   GSKA    | 2019    |  original    |     no        |  no    | strong    |      no        |   6    |    easy        |
+|                  	|  10    |   Coronavirus Herd Immunity Optimization    |   CHIO    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   4    |   medium    |
+|                  	|  11    | Forensic-Based Investigation Optimization    |   FBIO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   2    |   medium    |
+|                  	|  12    |         Battle Royale Optimization            |    BRO    | 2020    |  original    |     no        |  no    |  weak    |      no        |   2    |   medium    |
+|                  	|  13    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|        Bio        |  1    |         Invasive Weed Optimization            |    IWO    | 2006    |  original    |     no        |  no    | strong    |     yes        |   5    |    easy        |
+|                  	|  2    |      Biogeography-Based Optimization        |    BBO    | 2008    |  changed    |     no        |  no    | strong    |     yes        |   4    |    easy        |
+|                  	|  3    |            Virus Colony Search                |    VCS    | 2016    |  changed    |     yes        |  no    |  best    |      no        |   4    |    hard*    |
+|                  	|  4    |         Satin Bowerbird Optimizer            |    SBO    | 2017    |  changed    |     yes        |  no    | strong    |     yes        |   5    |    easy        |
+|                  	|  5    |      Earthworm Optimisation Algorithm        |    EOA    | 2018    |  changed    |     no        |  no    | strong    |     yes        |   8    |   medium    |
+|                  	|  6    |        Wildebeest Herd Optimization        |    WHO    | 2019    |  changed    |     no        |  no    | strong    |     yes        |   12    |   medium    |
+|                  	|  7    |           Slime Mould Algorithm            |    SMA    | 2020    |  changed    |     yes        |  no    | strong    |     yes        |   3    |    easy        |
+|                  	|  8    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |      System        |  1    |        Germinal Center Optimization        |    GCO    | 2018    |  changed    |     yes        |  no    | strong    |     yes        |   4    |   medium    |
-|                 	|  2    |           Water Cycle Algorithm            |    WCA    | 2012    |  original    |     no        |  no    | strong    |     yes        |   5    |   medium    |
-|                 	|  3    |  Artificial Ecosystem-based Optimization    |    AEO    | 2019    |  changed    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
-|                 	|  4    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  2    |           Water Cycle Algorithm            |    WCA    | 2012    |  original    |     no        |  no    | strong    |     yes        |   5    |   medium    |
+|                  	|  3    |  Artificial Ecosystem-based Optimization    |    AEO    | 2019    |  changed    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
+|                  	|  4    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Math        |  1    |               Hill Climbing                |    HC        | 1993    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
-|                 	|  2    |           Sine Cosine Algorithm            |    SCA    | 2016    |  changed    |     yes        |  no    | strong    |      no        |   2    |    easy        |
-|                 	|  3    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|      Music        |  1    |               Harmony Search                |    HS        | 2001    |  changed    |     yes        |  no    | strong    |      no        |   5    |    easy        |
-|                 	|  2    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-|  Probabilistic    |  1    |           Cross-Entropy Method                |    CEM    | 1997    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
-|                 	|  2    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
-| Fake Algorithms    |  1    |        Pigeon-Inspired Optimization        |    PIO    | 2014    |  changed    |     no        |  no    | strong    |      no        |   2    |   medium    |
-|                 	|  2    |         Artificial Algae Algorithm            |    AAA    | 2015    |  changed    |     no        |  no    |  weak    |      no        |   5    |   medium    |
-|                 	|  3    |          Rhino Herd Optimization            |    RHO    | 2018    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
-|                 	|  4    |         Emperor Penguin Optimizer            |    EPO    | 2018    |  changed    |     yes        |  no    | strong    |      no        |   2    |    easy        |
-|                 	|  5    |      Butterfly Optimization Algorithm        |    BOA    | 2019    |  original    |     no        |  no    |  weak    |      no        |   6    |   medium    |
-|                 	|  6    |           Sea Lion Optimization            |    SLO    | 2019    |  changed    |     yes        |  no    | strong    |     yes        |   2    |    easy        |
-|                 	|  7    |          Blue Monkey Optimization            |    BMO    | 2019    |  changed    |     no        |  no    |  weak    |      no        |   3    |   medium    |
-|                 	|  8    |      Sandpiper Optimization Algorithm        |    SOA    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   2    |    easy        |
-|                 	|  9    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
-|                 	|  10    |         Battle Royale Optimization            |    BRO    | 2020    |  original    |     no        |  no    |  weak    |      no        |   2    |   medium    |
+|                  	|  2    |           Sine Cosine Algorithm            |    SCA    | 2016    |  changed    |     yes        |  no    | strong    |      no        |   2    |    easy        |
+|                  	|  3    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|       Music        |  1    |               Harmony Search                |    HS        | 2001    |  changed    |     yes        |  no    | strong    |      no        |   5    |    easy        |
+|                  	|  2    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|   Probabilistic    |  1    |           Cross-Entropy Method                |    CEM    | 1997    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
+|                  	|  2    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+| Dummy Algorithms    |  1    |        Pigeon-Inspired Optimization        |    PIO    | 2014    |  changed    |     no        |  no    | strong    |      no        |   2    |   medium    |
+|                  	|  2    |         Artificial Algae Algorithm            |    AAA    | 2015    |  changed    |     no        |  no    |  weak    |      no        |   5    |   medium    |
+|                  	|  3    |          Rhino Herd Optimization            |    RHO    | 2018    |  original    |     yes        |  no    | strong    |     yes        |   6    |    easy        |
+|                  	|  4    |         Emperor Penguin Optimizer            |    EPO    | 2018    |  changed    |     yes        |  no    | strong    |      no        |   2    |    easy        |
+|                  	|  5    |      Butterfly Optimization Algorithm        |    BOA    | 2019    |  original    |     no        |  no    |  weak    |      no        |   6    |   medium    |
+|                  	|  6    |           Sea Lion Optimization            |    SLO    | 2019    |  changed    |     yes        |  no    | strong    |     yes        |   2    |    easy        |
+|                  	|  7    |          Blue Monkey Optimization            |    BMO    | 2019    |  changed    |     no        |  no    |  weak    |      no        |   3    |   medium    |
+|                  	|  8    |      Sandpiper Optimization Algorithm        |    SOA    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   2    |    easy        |
+|                  	|  9    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
 
 
 ### A
@@ -332,6 +406,9 @@ If you use mealpy in your project, please cite my works:
 * **BSA - Bird Swarm Algorithm** . Meng, X. B., Gao, X. Z., Lu, L., Liu, Y., & Zhang, H. (2016). A new bio-inspired optimisation algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical Artificial Intelligence, 28(4), 673-687.
 
 * **BES - Bald Eagle Search** . Alsattar, H. A., Zaidan, A. A., & Zaidan, B. B. (2019). Novel meta-heuristic bald eagle search optimisation algorithm. Artificial Intelligence Review, 1-28.
+
+* **BRO - Battle Royale Optimization**. Rahkar Farshi, T. (2020). Battle royale optimization algorithm. Neural Computing and Applications, 1-19.
+  
 
 ### C
 
@@ -542,5 +619,4 @@ If you use mealpy in your project, please cite my works:
 
 * **STOA - Sooty Tern Optimization Algorithm**. Sooty Tern Optimization Algorithm: Dhiman, G., & Kaur, A. (2019). STOA: A bio-inspired based optimization algorithm for industrial engineering problems. Engineering Applications of Artificial Intelligence, 82, 148-174.
 
-* **BRO - Battle Royale Optimization**. Rahkar Farshi, T. (2020). Battle royale optimization algorithm. Neural Computing and Applications, 1-19.
 

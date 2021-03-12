@@ -1,3 +1,20 @@
+# Version 1.1.0
+
+### Change models
+
++ Update the way to passing hyper-parameters to root.py file (Big change)
+
++ Update all the hyper-parameters to all algorithms available.
+  
++ Fix all the division by 0 in some algorithms.
+
+### Change others
+
++ examples: Update all the examples of all algorithms
+
+---------------------------------------------------------------------
+
+
 # Version 1.0.5
 
 ### Change models
