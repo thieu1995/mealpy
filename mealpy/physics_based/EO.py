@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import exp, sign, ones, mean, multiply
@@ -22,8 +22,8 @@ class BaseEO(Root):
             https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.V = 1
@@ -94,8 +94,8 @@ class ModifiedEO(BaseEO):
         https://doi.org/10.1016/j.asoc.2020.106542
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseEO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseEO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs = kwargs)
 
     def _make_equilibrium_pool__(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
@@ -183,8 +183,8 @@ class AdaptiveEO(BaseEO):
         https://doi.org/10.1016/j.engappai.2020.103836
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseEO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseEO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def _make_equilibrium_pool__(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
@@ -253,8 +253,8 @@ class LevyEO(BaseEO):
         My modified version of: Equilibrium Optimizer (EO)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True, epoch=750, pop_size=100):
-        BaseEO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
+        BaseEO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
 
     def _make_equilibrium_pool__(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
