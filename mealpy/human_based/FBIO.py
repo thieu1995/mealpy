@@ -29,7 +29,9 @@ class BaseFBIO(Root):
         self.pop_size = pop_size
 
     def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
-        prob = (max(list_fitness) - list_fitness) / (max(list_fitness) - min(list_fitness))
+        max1 = max(list_fitness)
+        min1 = min(list_fitness)
+        prob = (max1 - list_fitness) / (max1 - min1 + self.EPSILON)
         return prob
 
     def train(self):
