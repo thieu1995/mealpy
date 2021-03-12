@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, random
@@ -23,8 +23,8 @@ class BaseCSO(Root):
     ID_VEL = 2      # velocity
     ID_FLAG = 3     # status
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, mixture_ratio=0.15, smp=10, spc=False, cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=1):
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 mixture_ratio=0.15, smp=10, spc=False, cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=1, **kwargs):
         """
         # mixture_ratio - joining seeking mode with tracing mode
         # smp - seeking memory pool, 10 clones  (larger is better but time-consuming)
@@ -35,7 +35,7 @@ class BaseCSO(Root):
         # c1 - same in PSO
         # selected_strategy : 0: best fitness, 1: tournament, 2: roulette wheel, else: random  (decrease by quality)
         """
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
         self.epoch =  epoch
         self.pop_size = pop_size
         self.mixture_ratio = mixture_ratio
@@ -112,8 +112,12 @@ class BaseCSO(Root):
                     pop[i] = self._seeking_mode__(pop[i])
 
                 ## batch size idea
-                if i % self.batch_size:
-                    g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                if self.batch_idea:
+                    if (i + 1) % self.batch_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                else:
+                    if (i + 1) % self.pop_size == 0:
+                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
             for i in range(0, self.pop_size):
                 if uniform() < self.mixture_ratio:
