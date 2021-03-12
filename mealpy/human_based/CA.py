@@ -18,9 +18,8 @@ class OriginalCA(Root):
         Based on Ruby version in the book: Clever Algorithm (Jason Brown)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, accepted_rate=0.2):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, accepted_rate=0.2, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.accepted_rate = accepted_rate
