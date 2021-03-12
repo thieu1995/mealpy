@@ -4,7 +4,7 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
+#       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy import where
@@ -21,9 +21,8 @@ class BaseNMR(Root):
         https://www.doi.org10.1007/s00521-019-04464-7
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, bp=0.75):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bp=0.75, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.size_b = int(self.pop_size / 5)
@@ -67,9 +66,8 @@ class LevyNMR(BaseNMR):
 
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, bp=0.75):
-        BaseNMR.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, bp)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bp=0.75, **kwargs):
+        BaseNMR.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, bp, kwargs=kwargs)
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
@@ -114,9 +112,8 @@ class ImprovedNMR(BaseNMR):
         + Using crossover operator
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, bp=0.75, pm=0.01):
-        BaseNMR.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, bp)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bp=0.75, pm=0.01, **kwargs):
+        BaseNMR.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, bp, kwargs=kwargs)
         self.pm = pm
 
     def _crossover_random__(self, pop, g_best):
