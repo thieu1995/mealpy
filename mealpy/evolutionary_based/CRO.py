@@ -20,9 +20,9 @@ class BaseCRO(Root):
     """
     HEALTH = inf
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         # reef_size: size of the reef, NxM square grids, each  grid stores a position
         # po: the rate between free/occupied at the beginning
         # Fb: BroadcastSpawner/ExistingCorals rate
@@ -171,9 +171,9 @@ class OCRO(BaseCRO):
         This is a variant of CRO which is combined Opposition-based learning and Coral Reefs Optimization
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, restart_count=55):
-        BaseCRO.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, po, Fb, Fa, Fd, Pd, G, GCR, k)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, restart_count=55, **kwargs):
+        BaseCRO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, po, Fb, Fa, Fd, Pd, G, GCR, k, kwargs=kwargs)
         self.best_sol = []
         self.restart_count = restart_count
 

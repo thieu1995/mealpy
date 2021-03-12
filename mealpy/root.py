@@ -69,6 +69,11 @@ class Root:
                         else:
                             print("Wrong lower bound and upper bound parameters.")
                             exit(0)
+                    elif len(lb) == 1:
+                        if "problem_size" in kwargs:
+                            self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
+                            self.lb = lb[0] * ones(self.problem_size)
+                            self.ub = ub[0] * ones(self.problem_size)
                     else:
                         self.problem_size = len(lb)
                         self.lb = array(lb)
