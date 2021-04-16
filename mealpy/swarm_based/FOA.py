@@ -60,8 +60,7 @@ class BaseFOA(Root):
         My version of: Fruit-fly Optimization Algorithm (FOA)
             (A new Fruit Fly Optimization Algorithm: Taking the financial distress model as an example)
         Notes:
-            + 1) I changed the fitness function (smell function) by taking the distance each 2 adjacent dimensions --> Number of
-            variables reduce from N to N-1
+            + 1) I changed the fitness function (smell function) by taking the distance each 2 adjacent dimensions
             + 2) Update the position if only it find the better fitness value.
     """
 
@@ -71,7 +70,7 @@ class BaseFOA(Root):
         self.pop_size = pop_size
 
     def norm_consecutive_adjacent(self, position=None):
-        return array([norm([position[x], position[x+1]]) for x in range(0, self.problem_size-1)])
+        return array([norm([position[x], position[x+1]]) for x in range(0, self.problem_size-1)] + [uniform()])
 
     def create_solution(self, minmax=0):
         position = uniform(self.lb, self.ub)
