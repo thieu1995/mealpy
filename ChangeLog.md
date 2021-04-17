@@ -1,3 +1,19 @@
+# Version 1.1.1-alpha
+
+### Change models
+
++ Fix bug reduction dimension in FOA
++ Update Firefly Algorithm for better timing performance
++ Add Hunger Games Optimization (HGS) to swarm-based group
+
+
+### Change others
+
++ examples: Update all the examples of above algorithms
+
+---------------------------------------------------------------------
+
+
 # Version 1.1.0
 
 ### Change models

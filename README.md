@@ -303,7 +303,6 @@ python examples/run_simple.py
     
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
 
-
 |       Group        | STT    |                    Name                    |   Short    | Year    |  Version    | Batch Size    | Levy    |  Type    | Large Scale    | Paras    | Difficulty    |
 |:----------------:	|:---:	|:-----------------------------------------:	|:--------:	|:----:	|:---------:	|:----------:	|:----:	|:------:	|:-----------:	|:-----:	|:----------:	|
 |   Evolutionary    |  1    |          Evolutionary Programming            |    EP        | 1964    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
@@ -347,7 +346,8 @@ python examples/run_simple.py
 |                  	|  31    |         Harris Hawks Optimization            |    HHO    | 2019    |  original    |     yes        |  yes    |  best    |     yes        |   2    |   medium    |
 |                  	|  32    |      Manta Ray Foraging Optimization        |   MRFO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   3    |    easy        |
 |                  	|  33    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
-|                  	|  34    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  34    |            Hunger Games Search                |    HGS    | 2021    |  original    |     no        |  no    |  BEST    |     yes        |   4    |   medium    |
+|                  	|  35    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |      Physics        |  1    |            Simulated Annealling            |    SA        | 1987    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
 |                  	|  2    |          Wind Driven Optimization            |    WDO    | 2013    |  original    |     yes        |  no    | strong    |     yes        |   7    |    easy        |
 |                  	|  3    |           Multi-Verse Optimizer            |    MVO    | 2016    |  changed    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
@@ -399,6 +399,8 @@ python examples/run_simple.py
 |                  	|  7    |          Blue Monkey Optimization            |    BMO    | 2019    |  changed    |     no        |  no    |  weak    |      no        |   3    |   medium    |
 |                  	|  8    |      Sandpiper Optimization Algorithm        |    SOA    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   2    |    easy        |
 |                  	|  9    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
+
+
 
 
 ### A
@@ -506,6 +508,8 @@ python examples/run_simple.py
 * **HHO - Harris Hawks Optimization** . Heidari, A. A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M., & Chen, H. (2019). Harris hawks optimization: Algorithm and applications. Future Generation Computer Systems, 97, 849-872.
 
 * **HGSO - Henry Gas Solubility Optimization** . Hashim, F. A., Houssein, E. H., Mabrouk, M. S., Al-Atabany, W., & Mirjalili, S. (2019). Henry gas solubility optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, 646-667.
+
+* **HGS -- Hunger Games Search** . Yang, Y., Chen, H., Heidari, A. A., & Gandomi, A. H. (2021). Hunger games search:Visions, conception, implementation, deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, 114864.
 
 ### I
 
