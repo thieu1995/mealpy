@@ -48,9 +48,9 @@ class BaseFireflyA(Root):
             # Decision Vector Size
 
             pop_new = deepcopy(pop)
-            for i in range(0, self.pop_size):
+            for i in range(0, self.pop_size-1):
 
-                for j in range(0, self.pop_size):
+                for j in range(i+1, self.pop_size):
                     # Move Towards Better Solutions
 
                     if pop[j][self.ID_FIT] < pop[i][self.ID_FIT]:
