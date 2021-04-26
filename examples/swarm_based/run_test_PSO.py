@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.PSO import BasePSO, PPSO, PSO_W, HPSO_TVA
+from mealpy.swarm_based.PSO import BasePSO, PPSO, PSO_W, HPSO_TVA, CPSO
 
 
 # Setting parameters
@@ -85,6 +85,14 @@ print(md1.solution[1])
 print(md1.loss_train)
 
 md1 = HPSO_TVA(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+print("shit")
+
+md1 = CPSO(obj_func, lb4, ub4, True, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
