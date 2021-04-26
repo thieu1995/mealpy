@@ -250,7 +250,7 @@ class CPSO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 c1=1.2, c2=1.2, w_min=0.4, w_max=0.9, **kwargs):
+                 c1=1.2, c2=1.2, w_min=0.2, w_max=1.2, **kwargs):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
