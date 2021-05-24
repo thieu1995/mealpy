@@ -17,15 +17,17 @@ class BaseBWO(Root):
     """
     My version of: Black Widow Optimization (BWO)
         (Black Widow Optimization Algorithm: A novel meta-heuristic approach for solving engineering optimization problems)
+    Link:
+        https://doi.org/10.1016/j.engappai.2019.103249
     Notes:
         + Using k-way tournamemt selection to select parent instead of randomize
         + Repeat cross-over population_size / 2 instead of n_var/2
         + Mutation 50% of position instead of swap only 2 variable in single position
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, pp=0.6, cr=0.44, pm=0.5):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 pp=0.6, cr=0.44, pm=0.5, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p_p = pp       # procreating probability (crossover probability)   # default: 0.6
@@ -93,9 +95,9 @@ class OriginalBWO(Root):
         ==> It make the algorithm is much more slower even running in parallel as author claim.
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, problem_size=50, batch_size=10, verbose=True,
-                 epoch=750, pop_size=100, pp=0.6, cr=0.44, pm=0.4):
-        Root.__init__(self, obj_func, lb, ub, problem_size, batch_size, verbose)
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 pp=0.6, cr=0.44, pm=0.4, **kwargs):
+        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p_p = pp                   # procreating probability (crossover probability)   # default: 0.6

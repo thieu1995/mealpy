@@ -17,6 +17,8 @@ class BaseAAA(Root):
     """
     My version of: Artificial Algae Algorithm (SBO)
         (Artificial algae algorithm (AAA) for nonlinear global optimization)
+    Link:
+        https://doi.org/10.1016/j.asoc.2015.03.003
     Notes:
         + Remove size value and replace by fitness. Then friction surface will change by time
         + In Adaptation phase, instead of change starving value, I change position value
