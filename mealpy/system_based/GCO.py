@@ -15,8 +15,10 @@ from copy import deepcopy
 
 class BaseGCO(Root):
     """
-    My modified verion of: Germinal Center Optimization (GCO)
+    My modified version of: Germinal Center Optimization (GCO)
         (Germinal Center Optimization Algorithm)
+    Link:
+        https://www.atlantis-press.com/journals/ijcis/25905179/view
     Noted:
         + Using batch-size updating
         + Instead randomize choosing 3 solution, I use 2 random solution and global best solution

@@ -16,7 +16,8 @@ from copy import deepcopy
 class BaseWCA(Root):
     """
     The original version of: Water Cycle Algorithm (WCA)
-
+    Link:
+        https://doi.org/10.1016/j.compstruc.2012.07.010
     Noted: The idea are:
         + 1 sea is global best solution
         + a few river which are second, third, ...
@@ -30,7 +31,7 @@ class BaseWCA(Root):
         self.epoch = epoch
         self.pop_size = pop_size
         self.nsr = nsr      # Number of rivers + sea (sea = 1)
-        self.C = C
+        self.C = C          # Coefficient
         self.dmax = dmax    # Evaporation condition constant
 
     def train(self):
