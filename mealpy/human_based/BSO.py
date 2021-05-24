@@ -25,13 +25,13 @@ class BaseBSO(Root):
                  m=5, p1=0.2, p2=0.8, p3=0.4, p4=0.5, k=20, miu=0, xichma=1, **kwargs):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
-        self.pop_size = pop_size  # n: pop_size, m: clusters
-        self.m = m
-        self.p1 = p1
-        self.p2 = p2
-        self.p3 = p3
-        self.p4 = p4
-        self.k = k
+        self.pop_size = pop_size  # n: pop_size,
+        self.m = m  #  m: clusters
+        self.p1 = p1  # probability
+        self.p2 = p2  # probability
+        self.p3 = p3  # probability
+        self.p4 = p4  # probability
+        self.k = k  # changing logsig() function's slope
         self.miu = miu
         self.xichma = xichma
         self.m_solution = int(self.pop_size / self.m)

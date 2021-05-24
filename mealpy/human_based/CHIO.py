@@ -18,15 +18,15 @@ class OriginalCHIO(Root):
     The original version of: Coronavirus Herd Immunity Optimization (CHIO)
         (Coronavirus herd immunity Optimization)
     Link:
-        DOI:
+        https://link.springer.com/article/10.1007/s00521-020-05296-6
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, brr=0.06, max_age=150, **kwargs):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.brr = brr
-        self.max_age = max_age
+        self.brr = brr              # Basic reproduction rate
+        self.max_age = max_age      # Maximum infected cases age
 
     def train(self):
         pop = [self.create_solution() for _ in range(0, self.pop_size)]
@@ -109,8 +109,8 @@ class BaseCHIO(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.brr = brr
-        self.max_age = max_age
+        self.brr = brr  # Basic reproduction rate
+        self.max_age = max_age  # Maximum infected cases age
 
     def train(self):
         pop = [self.create_solution() for _ in range(0, self.pop_size)]

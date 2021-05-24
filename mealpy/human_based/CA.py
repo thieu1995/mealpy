@@ -22,7 +22,7 @@ class OriginalCA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.accepted_rate = accepted_rate
+        self.accepted_rate = accepted_rate      # probability of accepted rate
 
     def binary_tournament(self, population):
         id1, id2 = choice(list(range(0, len(population))), 2, replace=False)
