@@ -15,10 +15,10 @@ from mealpy.root import Root
 
 class BaseHGSO(Root):
     """
-        The original verion of:
+        The original version of: Henry gas solubility optimization (HGSO)
             Henry gas solubility optimization: A novel physics-based algorithm
         Link:
-            DOI:
+            https://www.sciencedirect.com/science/article/abs/pii/S0167739X19306557
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_clusters=2, **kwargs):

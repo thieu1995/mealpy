@@ -16,6 +16,8 @@ class BaseEFO(Root):
     """
     My version of : Electromagnetic Field Optimization (EFO)
         (Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm)
+    Link:
+        https://www.sciencedirect.com/science/article/abs/pii/S2210650215000528
     Notes:
         + The flow of algorithm is changed like other metaheuristics.
         + Apply levy-flight for large-scale optimization problems
@@ -29,8 +31,8 @@ class BaseEFO(Root):
         self.pop_size = pop_size
         self.r_rate = r_rate        # default = 0.3     # Like mutation parameter in GA but for one variable
         self.ps_rate = ps_rate      # default = 0.85    # Like crossover parameter in GA
-        self.p_field = p_field      # default = 0.1
-        self.n_field = n_field      # default = 0.45
+        self.p_field = p_field      # default = 0.1     # portion of population, positive field
+        self.n_field = n_field      # default = 0.45    # portion of population, negative field
 
     def train(self):
         phi = (1 + sqrt(5)) / 2     # golden ratio
