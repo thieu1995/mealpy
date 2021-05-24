@@ -18,6 +18,8 @@ class BaseABC(Root):
         My version of: Artificial Bee Colony (ABC)
             + Taken from book: Clever Algorithms
             + Improved: _create_neigh_bee__ function
+        Link:
+            https://www.sciencedirect.com/topics/computer-science/artificial-bee-colony
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
