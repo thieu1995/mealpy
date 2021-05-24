@@ -23,7 +23,7 @@ class BaseFPA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.p = p
+        self.p = p      # Switch probability
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
