@@ -22,6 +22,8 @@ class BaseNRO(Root):
     The original version of: Nuclear Reaction Optimization (NRO)
         An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization
         Nuclear Reaction Optimization: A novel and powerful physics-based algorithm for global optimization
+    Link:
+        https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8720256
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):

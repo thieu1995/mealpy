@@ -15,8 +15,10 @@ from mealpy.root import Root
 
 class BaseTWO(Root):
     """
-    The original version of: Tug of War Optimization
+    The original version of: Tug of War Optimization (TWO)
         A novel meta-heuristic algorithm: tug of war optimization
+    Link:
+        https://www.researchgate.net/publication/332088054_Tug_of_War_Optimization_Algorithm
     """
     ID_POS = 0
     ID_FIT = 1

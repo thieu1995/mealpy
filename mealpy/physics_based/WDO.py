@@ -16,6 +16,8 @@ class BaseWDO(Root):
     """
     The original version of : Wind Driven Optimization (WDO)
         The Wind Driven Optimization Technique and its Application in Electromagnetics
+    Link:
+        https://ieeexplore.ieee.org/abstract/document/6407788
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
