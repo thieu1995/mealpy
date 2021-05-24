@@ -18,6 +18,8 @@ class BaseHHO(Root):
     """
         The original version of: Harris Hawks Optimization (HHO)
             (Harris Hawks Optimization: Algorithm and Applications)
+        Link:
+            https://doi.org/10.1016/j.future.2019.02.028
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):

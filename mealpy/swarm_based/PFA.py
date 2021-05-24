@@ -17,6 +17,8 @@ class BasePFA(Root):
     """
         The original version of: Pathfinder algorithm (PFA)
             (A new meta-heuristic optimizer: Pathfinder algorithm)
+        Link:
+            https://doi.org/10.1016/j.asoc.2019.03.012
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):

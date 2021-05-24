@@ -17,6 +17,8 @@ class BaseJA(Root):
         My original version of: Jaya Algorithm (JA)
             (A simple and new optimization algorithm for solving constrained and unconstrained optimization problems)
         Link:
+            https://www.researchgate.net/publication/282532308_Jaya_A_simple_and_new_optimization_algorithm_for_solving_constrained_and_unconstrained_optimization_problems
+        Notes:
             + Remove all third loop in algorithm
             + Change the second random variable r2 to Gaussian instead of uniform
     """
