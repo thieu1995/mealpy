@@ -16,7 +16,8 @@ from mealpy.root import Root
 class BaseSFO(Root):
     """
     The original version of: Sailfish Optimizer (SFO)
-        (The Sailfish Optimizer: A novel nature-inspired metaheuristic algorithm for solving constrained engineering optimization problems)
+    Link:
+        https://doi.org/10.1016/j.engappai.2019.01.001
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
@@ -25,7 +26,7 @@ class BaseSFO(Root):
         self.epoch = epoch
         self.pop_size = pop_size        # SailFish pop size
         self.pp = pp                    # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-        self.A = A                      # A = 4, 6,...
+        self.A = A                      # A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from A to 0)
         self.epxilon = epxilon          # = 0.0001, 0.001
 
     def train(self):

@@ -25,9 +25,9 @@ class BaseSHO(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.h = h                  # default = 5
-        self.M = M                  # default = [0.5, 1]
-        self.N_tried = N_tried      # default = 10
+        self.h = h                  # default = 5, coefficient linearly decreased from 5 to 0
+        self.M = M                  # default = [0.5, 1], random vector in [0.5, 1]
+        self.N_tried = N_tried      # default = 10,
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]

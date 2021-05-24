@@ -17,6 +17,8 @@ class BaseSRSR(Root):
     """
         The original version of: Swarm Robotics Search And Rescue (SRSR)
             Swarm Robotics Search And Rescue: A Novel Artificial Intelligence-inspired Optimization Approach
+        Link:
+            https://doi.org/10.1016/j.asoc.2017.02.028
     """
     ID_POS = 0
     ID_FIT = 1

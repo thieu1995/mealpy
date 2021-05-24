@@ -16,6 +16,8 @@ class BaseWOA(Root):
     """
         The original version of: Whale Optimization Algorithm (WOA)
             - In this algorithms: Prey means the best position
+        Link:
+            https://doi.org/10.1016/j.advengsoft.2016.01.008
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
@@ -53,7 +55,8 @@ class BaseWOA(Root):
 
                 new_position = self.amend_position_faster(new_position)
                 fit = self.get_fitness_position(new_position)
-                pop[i] = [new_position, fit]
+                if fit < pop[i][self.ID_FIT]:
+                    pop[i] = [new_position, fit]
 
                 ## batch size idea
                 if self.batch_idea:

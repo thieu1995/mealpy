@@ -18,6 +18,8 @@ class BaseSSA(Root):
     """
         My modified version of: Social Spider Algorithm (SSA)
             (A social spider algorithm for global optimization)
+        Link:
+            https://doi.org/10.1016/j.asoc.2015.02.014
         Notes:
             + Uses batch-size idea
             + Changes the idea of intensity, which one has better intensity, others will move toward to it

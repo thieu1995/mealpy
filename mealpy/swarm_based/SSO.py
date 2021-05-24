@@ -18,6 +18,8 @@ class BaseSSO(Root):
     """
     The original version of: Social Spider Optimization (SSO)
         (A Social Spider Algorithm for Global Optimization)
+    Link:
+        https://www.hindawi.com/journals/mpe/2018/6843923/
     """
     ID_POS = 0
     ID_FIT = 1

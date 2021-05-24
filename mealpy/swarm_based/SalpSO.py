@@ -15,6 +15,8 @@ from mealpy.root import Root
 class BaseSalpSO(Root):
     """
     The original version of: Salp Swarm Optimization (SalpSO)
+    Link:
+        https://doi.org/10.1016/j.advengsoft.2017.07.002
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):

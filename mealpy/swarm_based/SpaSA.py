@@ -32,7 +32,7 @@ class BaseSpaSA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.ST = ST       # ST in [0.5, 1.0]
+        self.ST = ST       # ST in [0.5, 1.0], safety threshold value
         self.PD = PD       # number of producers
         self.SD = SD       # number of sparrows who perceive the danger
 
@@ -105,7 +105,7 @@ class OriginalSpaSA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.ST = ST  # ST in [0.5, 1.0]
+        self.ST = ST  # ST in [0.5, 1.0], safety threshold value
         self.PD = PD  # number of producers
         self.SD = SD  # number of sparrows who perceive the danger
 
