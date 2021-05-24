@@ -17,6 +17,9 @@ from mealpy.root import Root
 class BaseCSO(Root):
     """
         The original version of: Cat Swarm Optimization (CSO)
+        Link:
+            https://link.springer.com/chapter/10.1007/978-3-540-36668-3_94
+            https://www.hindawi.com/journals/cin/2020/4854895/
     """
     ID_POS = 0      # position of the cat
     ID_FIT = 1      # fitness
