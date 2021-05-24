@@ -20,6 +20,8 @@ class BaseBA(Root):
         + 1st: We proceed exploration phase (using frequency)
         + 2nd: If new position has better fitness we replace the old position
         + 3rd: Otherwise, we proceed exploitation phase (using finding around the best position so far)
+    Link:
+        https://link.springer.com/chapter/10.1007/978-3-642-12538-6_6
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, r=0.95, pf=(0, 10), **kwargs):

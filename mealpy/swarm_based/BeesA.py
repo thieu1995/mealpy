@@ -14,9 +14,10 @@ from mealpy.root import Root
 
 class BaseBeesA(Root):
     """
-        This version is converted from Matlab code of Hoang Nguyen (nguyenhoang.mdc@gmail.com):
-            Bees Algorithm
-        This is standard version.
+        The original version of: Bees Algorithm (BeesA)
+        Link:
+            https://www.sciencedirect.com/science/article/pii/B978008045157250081X
+            https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, site_ratio=(0.5, 0.4),
@@ -99,9 +100,12 @@ class BaseBeesA(Root):
 
 class ProbBeesA(Root):
     """
-        This version is converted from Matlab code of Hoang Nguyen (nguyenhoang.mdc@gmail.com):
-            Bees Algorithm
-        This is Probabilistic version.
+        The original version of: Bees Algorithm (BeesA)
+        Link:
+            https://www.sciencedirect.com/science/article/pii/B978008045157250081X
+            https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
+        Version:
+            Probabilistic version
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
