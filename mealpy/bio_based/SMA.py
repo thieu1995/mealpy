@@ -109,7 +109,7 @@ class OriginalSMA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.z = z
+        self.z = z  # probability threshold
 
     def create_solution(self, minmax=0):
         pos = uniform(self.lb, self.ub)

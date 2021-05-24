@@ -17,6 +17,8 @@ class BaseWHO(Root):
     """
     My version of: Wildebeest Herd Optimization (WHO)
         (Wildebeest herd optimization: A new global optimization algorithm inspired by wildebeest herding behaviour)
+    Link:
+        http://doi.org/10.3233/JIFS-190495
     Noted:
         + Before updated old position, i check whether new position is better or not.
     """

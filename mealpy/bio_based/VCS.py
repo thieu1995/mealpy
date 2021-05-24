@@ -17,6 +17,8 @@ class BaseVCS(Root):
     """
         My version of: Virus Colony Search (VCS)
             A Novel Nature-inspired Algorithm For Optimization: Virus Colony Search
+        Link:
+            https://doi.org/10.1016/j.advengsoft.2015.11.004
         Notes:
             + Remove all third loop, make algrithm 10 times faster than original
             + In Immune response process, updating whole position instead of updating each variable in position
