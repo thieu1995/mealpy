@@ -16,9 +16,11 @@ from mealpy.root import Root
 
 class BaseFireflyA(Root):
     """
-        This version is converted from Matlab code of Hoang Nguyen (nguyenhoang.mdc@gmail.com):
+        The original version of: Firefly Algorithm (FireflyA)
+            Firefly Algorithm for Optimization Problem
         Link:
             DOI:
+            https://www.researchgate.net/publication/259472546_Firefly_Algorithm_for_Optimization_Problem
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
