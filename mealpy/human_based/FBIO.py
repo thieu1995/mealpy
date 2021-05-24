@@ -17,6 +17,8 @@ class BaseFBIO(Root):
     """
     My modified version of: Forensic-Based Investigation Optimization (FBIO)
         (FBI inspired meta-optimization)
+    Link:
+        https://www.sciencedirect.com/science/article/abs/pii/S1568494620302799
     Notes:
         + Implement the fastest way (Remove all third loop)
         + Change equations

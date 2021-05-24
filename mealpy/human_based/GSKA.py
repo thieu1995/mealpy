@@ -17,6 +17,8 @@ class BaseGSKA(Root):
     """
     My version of: Gaining Sharing Knowledge-based Algorithm (GSKA)
         (Gaining‑sharing Knowledge-Based Algorithm For Solving Optimization Problems: A Novel Nature‑inspired Algorithm)
+    Link:
+        DOI: https://doi.org/10.1007/s13042-019-01053-x
     Notes:
         + Remove all third loop
         + Solution represent junior or senior instead of dimension of solution

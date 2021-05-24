@@ -16,6 +16,8 @@ from mealpy.root import Root
 class BaseICA(Root):
     """
         The original version of: Imperialist Competitive Algorithm (ICA)
+        Link:
+            https://ieeexplore.ieee.org/document/4425083
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,

@@ -17,6 +17,8 @@ class BaseSARO(Root):
     """
     My version of: Search And Rescue Optimization (SAR)
         (A New Optimization Algorithm Based on Search and Rescue Operations)
+    Link:
+        https://doi.org/10.1155/2019/2482543
     Notes:
         + Remove all third loop
         + Using batch-size idea
@@ -27,8 +29,8 @@ class BaseSARO(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.se = se
-        self.mu = mu
+        self.se = se    # social effect
+        self.mu = mu    # maximum unsuccessful search number
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size * 2)]
