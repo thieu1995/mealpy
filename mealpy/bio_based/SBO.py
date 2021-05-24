@@ -17,6 +17,8 @@ class BaseSBO(Root):
     """
     My version of: Satin Bowerbird Optimizer (SBO)
         A new optimization algorithm to optimize ANFIS for software development effort estimation
+    Link:
+        https://doi.org/10.1016/j.engappai.2017.01.006
     Notes:
         + Remove all third loop, n-times faster than original
         + No need equation (1, 2) in the paper, calculate probability by roulette-wheel. Also can handle negative values
