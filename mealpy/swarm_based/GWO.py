@@ -16,6 +16,8 @@ from mealpy.root import Root
 class BaseGWO(Root):
     """
         The original version of: Grey Wolf Optimizer (GWO)
+        Link:
+            https://ieeexplore.ieee.org/document/7867415
         Notes:
             In this algorithms: Prey means the best position
             https://www.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo?s_tid=FX_rc3_behav

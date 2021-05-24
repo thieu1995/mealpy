@@ -29,7 +29,7 @@ class BaseGOA(Root):
         Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        self.c_minmax = c_minmax
+        self.c_minmax = c_minmax    # coefficient c
 
     def _s_function__(self, r_vector=None):
         f = 0.5

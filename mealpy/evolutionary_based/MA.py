@@ -15,7 +15,7 @@ from mealpy.root import Root
 
 class BaseMA(Root):
     """
-        The original verion of: Memetic Algorithm (MA)
+        The original version of: Memetic Algorithm (MA)
             (On evolution, search, optimization, genetic algorithms and martial arts: Towards memetic algorithms)
         Link:
             Clever Algorithms: Nature-Inspired Programming Recipes - Memetic Algorithm (MA)

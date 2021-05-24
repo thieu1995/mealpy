@@ -203,7 +203,7 @@
 
 ### Change models
 + Added Slime Mould Algorithm (SMA) to bio_based group:
-    + OriginalSMA: the original verion of SMA
+    + OriginalSMA: the original version of SMA
     + BaseSMA: my modified version:
         + Selected 2 unique and random solution to create new solution (not to create variable) --> remove third loop in original version
         + Check bound and update fitness after each individual move instead of after the whole population move in the original version
@@ -993,7 +993,7 @@
     * DE : Change the format of input parameters
 ### Change others
 + Examples: Adding more complex examples
-+ Library: "Opfunu" update the latest verion 0.4.3
++ Library: "Opfunu" update the latest version 0.4.3
     
 ---------------------------------------------------------------------
 # Version 0.1.0 (First version)
