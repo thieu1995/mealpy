@@ -7,14 +7,14 @@ def readme():
 
 setup(
     name="mealpy",
-    version="1.1.1-alpha",
+    version="1.2.0",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon (mealpy)",
     long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/thieu1995/mealpy",
-    download_url="https://github.com/thieu1995/mealpy/archive/v1.1.1-alpha.zip",
+    download_url="https://github.com/thieu1995/mealpy/archive/v1.2.0.zip",
     packages=find_packages(),
     include_package_data=True,
     license="MIT",

@@ -1,15 +1,19 @@
-# Version 1.1.1-alpha
+# Version 1.2.0
 
 ### Change models
 
 + Fix bug reduction dimension in FOA
 + Update Firefly Algorithm for better timing performance
+  
 + Add Hunger Games Optimization (HGS) to swarm-based group
++ Add Cuckoo Search Algorithm (CSA) to swarm-based group
 
++ Replace Root.\_\_init\_\_() function by super().\_\_init()\_\_ function in all algorithms.
 
 ### Change others
 
-+ examples: Update all the examples of above algorithms
++ history: Update new algorithms
++ examples: Update all the examples based on algorithm's input
 
 ---------------------------------------------------------------------
 
