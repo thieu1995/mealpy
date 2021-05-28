@@ -17,12 +17,12 @@ from mealpy.root import Root
 
 class BasePSO(Root):
     """
-        The original version of: Particle Swarm Optimization
+        The original version of: Particle Swarm Optimization (PSO)
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  c1=1.2, c2=1.2, w_min=0.4, w_max=0.9, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c1 = c1            # [0-2]  -> [(1.2, 1.2), (0.8, 2.0), (1.6, 0.6)]  Local and global coefficient
@@ -75,7 +75,7 @@ class PPSO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -130,7 +130,7 @@ class PSO_W(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -186,7 +186,7 @@ class HPSO_TVA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, ci=0.5, cf=0.0, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ci = ci
@@ -251,7 +251,7 @@ class CPSO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  c1=1.2, c2=1.2, w_min=0.2, w_max=1.2, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c1 = c1  # [0-2]  -> [(1.2, 1.2), (0.8, 2.0), (1.6, 0.6)]  Local and global coefficient

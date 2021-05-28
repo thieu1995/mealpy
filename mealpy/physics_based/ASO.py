@@ -16,7 +16,7 @@ from mealpy.root import Root
 
 class BaseASO(Root):
     """
-        The original version of: Atom Search Optimization (WDO)
+        The original version of: Atom Search Optimization (ASO)
             https://doi.org/10.1016/j.knosys.2018.08.030
             https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
     """
@@ -26,7 +26,7 @@ class BaseASO(Root):
     ID_M = 3        # Mass of atom
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, alpha=50, beta=0.2, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.alpha = alpha                  # Depth weight

@@ -13,7 +13,7 @@ from mealpy.human_based.FBIO import OriginalFBIO, BaseFBIO
 # Setting parameters
 obj_func = F5
 verbose = False
-epoch = 500
+epoch = 10
 pop_size = 50
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:

@@ -15,7 +15,7 @@ from mealpy.root import Root
 
 class BaseSSDO(Root):
     """
-    The original version of: Social Ski-Driver (SSD) optimization algorithm
+    The original version of: Social Ski-Driver Optimization (SSDO)
         (Parameters optimization of support vector machines for imbalanced data using social ski driver algorithm)
     Noted:
         https://doi.org/10.1007/s00521-019-04159-z
@@ -23,7 +23,7 @@ class BaseSSDO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 

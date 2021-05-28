@@ -22,7 +22,7 @@ class BaseCRO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  po=0.4, Fb=0.9, Fa=0.1, Fd=0.1, Pd=0.1, G=(0.02, 0.2), GCR=0.1, k=3, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         # reef_size: size of the reef, NxM square grids, each  grid stores a position
         # po: the rate between free/occupied at the beginning
         # Fb: BroadcastSpawner/ExistingCorals rate

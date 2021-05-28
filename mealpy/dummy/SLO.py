@@ -16,7 +16,7 @@ from mealpy.root import Root
 
 class BaseSLO(Root):
     """
-        This version developed by one on my student: Sea Lion Optimization Algorithm
+        This version developed by one on my student: Sea Lion Optimization Algorithm (SLO)
             (Sea Lion Optimization Algorithm)
         Link:
             https://www.researchgate.net/publication/333516932_Sea_Lion_Optimization_Algorithm
@@ -27,7 +27,7 @@ class BaseSLO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 

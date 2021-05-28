@@ -38,7 +38,7 @@ class BaseCSO(Root):
         # c1 - same in PSO
         # selected_strategy : 0: best fitness, 1: tournament, 2: roulette wheel, else: random  (decrease by quality)
         """
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch =  epoch
         self.pop_size = pop_size
         self.mixture_ratio = mixture_ratio

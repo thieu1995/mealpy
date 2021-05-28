@@ -19,7 +19,7 @@ class OriginalCA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, accepted_rate=0.2, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.accepted_rate = accepted_rate      # probability of accepted rate

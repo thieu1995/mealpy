@@ -23,7 +23,7 @@ class BaseHS(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  n_new=50, c_r=0.95, pa_r=0.05, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch              # Maximum Number of Iterations
         self.pop_size = pop_size        # Harmony Memory Size
         self.n_new = n_new              # Number of New Harmonies
@@ -89,7 +89,7 @@ class OriginalHS(BaseHS):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  n_new=50, c_r=0.95, pa_r=0.05, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch              # Maximum Number of Iterations
         self.pop_size = pop_size        # Harmony Memory Size
         self.n_new = n_new              # Number of New Harmonies

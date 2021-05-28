@@ -12,20 +12,16 @@ from mealpy.evolutionary_based.GA import BaseGA
 
 
 ## Setting parameters
-obj_func = F1
-# lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
-# ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
-lb = [-100]
-ub = [100]
-problem_size = 100
-batch_size = 25
-verbose = True
-epoch = 1000
+obj_func = F5
+verbose = False
+epoch = 10
 pop_size = 50
 
-md1 = BaseGA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, 0.85, 0.05)
+lb1 = [-3, -5, 1, -10]
+ub1 = [5, 10, 100, 30]
+
+md1 = BaseGA(obj_func, lb1, ub1, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
-print(md1.solution[0])
 print(md1.solution[1])
-print(md1.loss_train)
+
 

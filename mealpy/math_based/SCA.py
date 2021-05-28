@@ -15,7 +15,8 @@ from mealpy.root import Root
 
 class BaseSCA(Root):
     """
-        A Sine Cosine Algorithm for solving optimization problems (SCA)
+    The original version of: Sine Cosine Algorithm (SCA)
+        A Sine Cosine Algorithm for solving optimization problems
     Link:
         https://doi.org/10.1016/j.knosys.2015.12.022
         https://www.mathworks.com/matlabcentral/fileexchange/54948-sca-a-sine-cosine-algorithm
@@ -26,7 +27,7 @@ class BaseSCA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -77,7 +78,7 @@ class OriginalSCA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -126,7 +127,7 @@ class FasterSCA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -191,7 +192,7 @@ class FastestSCA(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 

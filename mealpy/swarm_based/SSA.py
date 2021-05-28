@@ -33,7 +33,7 @@ class BaseSSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  r_a=1, p_c=0.7, p_m=0.1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r_a = r_a          # the rate of vibration attenuation when propagating over the spider web.
@@ -125,7 +125,7 @@ class OriginalSSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  r_a=1, p_c=0.7, p_m=0.1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.r_a = r_a     # the rate of vibration attenuation when propagating over the spider web.

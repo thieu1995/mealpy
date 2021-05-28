@@ -27,7 +27,8 @@ class BaseBWO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  pp=0.6, cr=0.44, pm=0.5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p_p = pp       # procreating probability (crossover probability)   # default: 0.6
@@ -97,7 +98,7 @@ class OriginalBWO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  pp=0.6, cr=0.44, pm=0.4, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p_p = pp                   # procreating probability (crossover probability)   # default: 0.6

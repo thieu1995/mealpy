@@ -511,6 +511,8 @@ python examples/run_simple.py
 
 * **HGS -- Hunger Games Search** . Yang, Y., Chen, H., Heidari, A. A., & Gandomi, A. H. (2021). Hunger games search:Visions, conception, implementation, deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, 114864.
 
+* **HHOA - Horse Herd Optimization Algorithm** . MiarNaeimi, F., Azizyan, G., & Rashki, M. (2021). Horse herd optimization algorithm: A nature-inspired algorithm for high-dimensional optimization problems. Knowledge-Based Systems, 213, 106711.
+  
 ### I
 
 

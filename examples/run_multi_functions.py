@@ -20,19 +20,16 @@ if not path.exists(check_dir1):
     makedirs(check_dir1)
 
 ## Setting parameters
-lb = [-100]
-ub = [100]
-problem_size = 1000
-batch_size = 25
 verbose = True
-epoch = 1000
+lb1 = [-100, ] * 30
+ub1 = [100, ] * 30
+epoch = 10
 pop_size = 50
+
 wf = 0.8
 cr = 0.9
 
 func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19"]
-
-
 
 ## Run model
 best_fit_full = {}
@@ -41,7 +38,7 @@ best_fit_columns = []
 error_full = {}
 error_columns = []
 for id_paras, func_name in enumerate(func_names):
-    md = BaseDE(getattr(cec, func_name), lb, ub, problem_size, batch_size, verbose, epoch, pop_size, wf, cr)
+    md = BaseDE(getattr(cec, func_name), lb1, ub1, verbose, epoch, pop_size, wf, cr)
     _, best_fit, list_loss = md.train()
 
     error_full[func_names[id_paras]] = list_loss
@@ -51,8 +48,8 @@ for id_paras, func_name in enumerate(func_names):
     best_fit_columns.append(func_names[id_paras])
 
 df_err = DataFrame(error_full, columns=error_columns)
-df_err.to_csv(PATH_RESULTS + str(problem_size) + "D_" + model_name + "_error.csv", header=True, index=False)
+df_err.to_csv(PATH_RESULTS + str(len(lb1)) + "D_" + model_name + "_error.csv", header=True, index=False)
 
 df_fit = DataFrame(best_fit_full, columns=best_fit_columns)
-df_fit.to_csv(PATH_RESULTS + str(problem_size) + "D_" + model_name + "_best_fit.csv", header=True, index=False)
+df_fit.to_csv(PATH_RESULTS + str(len(lb1)) + "D_" + model_name + "_best_fit.csv", header=True, index=False)
 

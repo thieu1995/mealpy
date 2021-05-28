@@ -15,13 +15,14 @@ from mealpy.root import Root
 
 class BaseGA(Root):
     """
+        Genetic Algorithm (GA)
     Link:
         https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
         https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
         https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
     """
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, pc=0.95, pm=0.025, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.pc = pc

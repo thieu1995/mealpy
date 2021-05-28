@@ -22,10 +22,8 @@ def my_elliptic_function(solution=None):
 obj_func = my_elliptic_function
 # lb = [-15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3, -15, -10, -3]
 # ub = [15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3, 15, 10, 3]
-lb = [-100]
-ub = [100]
-problem_size = 100
-batch_size = 25
+lb = [-100, ] * 15
+ub = [100, ] * 15
 verbose = True
 epoch = 1000
 pop_size = 50
@@ -33,7 +31,7 @@ pop_size = 50
 pc = 0.95
 pm = 0.025
 
-md1 = BaseGA(obj_func, lb, ub, problem_size, batch_size, verbose, epoch, pop_size, pc, pm)
+md1 = BaseGA(obj_func, lb, ub, verbose, epoch, pop_size, pc, pm)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])

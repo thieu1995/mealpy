@@ -15,13 +15,14 @@ from mealpy.root import Root
 
 class BaseBOA(Root):
     """
+            Butterfly Optimization Algorithm (BOA)
         This is the version I implemented as the paper:
         Butterfly optimization algorithm: a novel approach for global optimization
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  c=0.01, p=0.8, alpha=(0.1, 0.3), **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c              # 0.01, is the sensory modality
@@ -73,7 +74,7 @@ class OriginalBOA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  c=0.01, p=0.8, alpha=(0.1, 0.3), **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.c = c                  # 0.01, is the sensory modality

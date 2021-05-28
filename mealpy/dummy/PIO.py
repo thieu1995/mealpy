@@ -25,7 +25,7 @@ class BasePIO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, R=0.2, n_switch=0.75, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch                                  # Nc1 + Nc2
         self.pop_size = pop_size                            # Np
         self.R = R

@@ -23,7 +23,7 @@ class BaseBSO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  m=5, p1=0.2, p2=0.8, p3=0.4, p4=0.5, k=20, miu=0, xichma=1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size  # n: pop_size,
         self.m = m  #  m: clusters
@@ -110,7 +110,7 @@ class ImprovedBSO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  m=5, p1=0.25, p2=0.5, p3=0.75, p4=0.5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.m = m              # n: pop_size, m: clusters

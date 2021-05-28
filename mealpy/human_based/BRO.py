@@ -16,7 +16,7 @@ from mealpy.root import Root
 
 class BaseBRO(Root):
     """
-        My best version of: Battle royale optimization (BRO)
+        My best version of: Battle Royale Optimization (BRO)
             (Battle royale optimization algorithm)
         Link:
             https://doi.org/10.1007/s00521-020-05004-4
@@ -24,7 +24,7 @@ class BaseBRO(Root):
     ID_DAM = 2
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, threshold=3, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.threshold = threshold

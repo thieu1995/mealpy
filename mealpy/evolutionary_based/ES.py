@@ -24,7 +24,7 @@ class BaseES(Root):
     ID_STR = 2      # strategy
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_child=0.75, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size        # miu
         if n_child < 1:                 # lamda, 75% of pop_size

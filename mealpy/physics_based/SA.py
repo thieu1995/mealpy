@@ -20,7 +20,7 @@ class BaseSA(Root):
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  max_sub_iter=10, t0=1000, t1=1, move_count=5, mutation_rate=0.1,
                  mutation_step_size=0.1, mutation_step_size_damp=0.99, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.max_sub_iter = max_sub_iter    # Maximum Number of Sub-Iteration (within fixed temperature)

@@ -15,14 +15,14 @@ from mealpy.root import Root
 
 class BaseSFO(Root):
     """
-    The original version of: Sailfish Optimizer (SFO)
+    The original version of: SailFish Optimizer (SFO)
     Link:
         https://doi.org/10.1016/j.engappai.2019.01.001
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  pp=0.1, A=4, epxilon=0.0001, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size        # SailFish pop size
         self.pp = pp                    # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
@@ -101,7 +101,7 @@ class ImprovedSFO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, pp=0.1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size       # SailFish pop size
         self.pp = pp                   # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1

@@ -15,7 +15,7 @@ from mealpy.root import Root
 
 class OriginalBFO(Root):
     """
-        The original version of: Bacterial Foraging Optimization Algorithm
+        The original version of: Bacterial Foraging Optimization (BFO)
         Link:
             + Taken from here: http://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
     """
@@ -27,7 +27,7 @@ class OriginalBFO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10, attract_repesls=(0.1, 0.2, 0.1, 10), **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.pop_size = pop_size
         self.step_size = Ci                 # p_eliminate
         self.p_eliminate = Ped              # p_eliminate
@@ -128,7 +128,7 @@ class BaseBFO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(2, 40), **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.step_size = Ci  # C_s (start), C_e (end)  -=> step size # step size in BFO

@@ -16,7 +16,7 @@ from mealpy.root import Root
 
 class BaseSpaSA(Root):
     """
-        My version of: Sparrow Search Algorithm
+        My version of: Sparrow Search Algorithm (SpaSA)
             (A novel swarm intelligence optimization approach: sparrow search algorithm)
         Link:
             https://doi.org/10.1080/21642583.2019.1708830
@@ -29,7 +29,7 @@ class BaseSpaSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  ST=0.8, PD=0.2, SD=0.1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ST = ST       # ST in [0.5, 1.0], safety threshold value
@@ -102,7 +102,7 @@ class OriginalSpaSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  ST=0.8, PD=0.2, SD=0.1, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ST = ST  # ST in [0.5, 1.0], safety threshold value

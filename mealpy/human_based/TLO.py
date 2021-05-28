@@ -15,6 +15,7 @@ from mealpy.root import Root
 
 class BaseTLO(Root):
     """
+        Teaching-Learning-based Optimization (TLO)
     An elitist teaching-learning-based optimization algorithm for solving complex constrained optimization problems(TLO)
         This is my version taken the advantages of numpy array to faster handler operations.
     Notes:
@@ -24,7 +25,7 @@ class BaseTLO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 

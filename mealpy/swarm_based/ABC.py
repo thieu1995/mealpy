@@ -24,7 +24,7 @@ class BaseABC(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1), **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.e_bees = couple_bees[0]                # number of bees which provided for good location and other location

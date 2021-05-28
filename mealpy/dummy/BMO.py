@@ -14,7 +14,7 @@ from mealpy.root import Root
 
 class OriginalBMO(Root):
     """
-        The original version of: Blue Monkey Optimization
+        The original version of: Blue Monkey Optimization (BMO)
             (The blue monkey: A new nature inspired metaheuristic optimization algorithm)
         Link:
             http://dx.doi.org/10.21533/pen.v7i3.621
@@ -36,7 +36,7 @@ class OriginalBMO(Root):
     ID_WEI = 3      # weight
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bm_teams=5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.bm_teams = bm_teams                                # Number of blue monkey teams (5, 10, 20, ...)
@@ -122,7 +122,7 @@ class BaseBMO(Root):
     ID_RATE = 2
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, bm_teams=5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.bm_teams = bm_teams                                # Number of blue monkey teams (5, 10, 20, ...)

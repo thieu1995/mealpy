@@ -15,7 +15,7 @@ from mealpy.root import Root
 
 class BaseMFO(Root):
     """
-        My modified version of: Moth-flame optimization (MFO)
+        My modified version of: Moth-Flame Optimization (MFO)
             (Moth-flame optimization algorithm: A novel nature-inspired heuristic paradigm)
         Notes:
             + Changed the flow of algorithm
@@ -24,7 +24,7 @@ class BaseMFO(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
 

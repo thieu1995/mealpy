@@ -28,7 +28,7 @@ class BaseBSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  ff=10, p=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs=kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.ff = ff                # flight frequency - default = 10

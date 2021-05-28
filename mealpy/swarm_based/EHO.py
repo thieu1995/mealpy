@@ -23,7 +23,7 @@ class BaseEHO(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  alpha=0.5, beta=0.5, n_clans=5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.alpha = alpha              # a factor that determines the influence of the best in each clan

@@ -15,7 +15,7 @@ from mealpy.root import Root
 
 class BaseAAA(Root):
     """
-    My version of: Artificial Algae Algorithm (SBO)
+    My version of: Artificial Algae Algorithm (AAA)
         (Artificial algae algorithm (AAA) for nonlinear global optimization)
     Link:
         https://doi.org/10.1016/j.asoc.2015.03.003
@@ -27,7 +27,7 @@ class BaseAAA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  energy=0.3, delta=2, ap=0.5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.energy = energy        # the loss of energy, e = 0.3,
@@ -123,7 +123,7 @@ class OriginalAAA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  energy=0.3, delta=2, ap=0.5, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.energy = energy        # the loss of energy, e = 0.3,

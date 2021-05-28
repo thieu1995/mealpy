@@ -27,7 +27,7 @@ class BaseMSA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  n_best=5, partition=0.5, max_step_size=1.0, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_best = n_best            # how many of the best moths to keep from one generation to the next

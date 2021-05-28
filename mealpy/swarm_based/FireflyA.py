@@ -25,7 +25,7 @@ class BaseFireflyA(Root):
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
                  gamma=1, beta_base=1, alpha=0.2, alpha_damp=0.99, delta=0.05, m=2, **kwargs):
-        Root.__init__(self, obj_func, lb, ub, verbose, kwargs)
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.gamma = gamma              # Light Absorption Coefficient
