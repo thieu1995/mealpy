@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.dummy.SLO import BaseSLO, ImprovedSLO
+from mealpy.swarm_based.SLO import BaseSLO, ISLO, ModifiedSLO
 
 
 # Setting parameters
@@ -71,7 +71,13 @@ print(md1.loss_train)
 
 # C - Test with different variants of this algorithm
 
-md1 = ImprovedSLO(obj_func, lb4, ub4, verbose, epoch, pop_size)
+md1 = ISLO(obj_func, lb4, ub4, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+md1 = ModifiedSLO(obj_func, lb4, ub4, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
