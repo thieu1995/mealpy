@@ -7,14 +7,22 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from opfunu.cec_basic.cec2014_nobias import *
+from opfunu.cec.cec2014.function import *
 from mealpy.human_based.LCBO import BaseLCBO, ModifiedLCO, ImprovedLCO
+from numpy import sum
+
+# def F20(solution):
+#     return sum(solution**2) + 10
 
 # Setting parameters
-obj_func = F5
-verbose = False
-epoch = 10
+obj_func = F17
+verbose = True
+epoch = 50
 pop_size = 50
+
+
+lb = [-1] * 30
+ub = [1000] * 30
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:
 
@@ -22,9 +30,16 @@ pop_size = 50
 lb1 = [-3, -5, 1]
 ub1 = [5, 10, 100]
 
-md1 = BaseLCBO(obj_func, lb1, ub1, verbose, epoch, pop_size)
+md1 = ModifiedLCO(obj_func, lb, ub, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[1])
+
+md1 = BaseLCBO(obj_func, lb, ub, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[1])
+
+
+
 
 ## 2. When you have same lower bound and upper bound for each parameters, then you can use:
 ##      + int or float: then you need to specify your problem size (number of dimensions)
