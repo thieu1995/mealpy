@@ -8,13 +8,13 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.WOA import BaseWOA
+from mealpy.swarm_based.WOA import BaseWOA, HI_WOA
 
 
 # Setting parameters
 obj_func = F5
-verbose = False
-epoch = 10
+verbose = True
+epoch = 100
 pop_size = 50
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:
@@ -70,3 +70,6 @@ print(md1.solution[1])
 print(md1.loss_train)
 
 # C - Test with different variants of this algorithm
+md1 = HI_WOA(obj_func, lb1, ub1, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[1])
