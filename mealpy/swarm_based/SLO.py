@@ -121,8 +121,8 @@ class ISLO(Root):
                         fit_new_oppo = self.get_fitness_position(pos_new_oppo)
                         if fit_new_oppo < fit_new:
                             pos_new = pos_new_oppo
-                else:
-                    pos_new = abs(g_best[self.ID_POS] - pop[i][self.ID_POS]) * cos(2 * pi * uniform(-1, 1)) + g_best[self.ID_POS]
+                else:   # Exploitation
+                    pos_new = g_best[self.ID_POS] + cos(2 * pi * uniform(-1, 1)) * abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
                 pos_new = self.amend_position_random_faster(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_POS_FIT]:
