@@ -48,10 +48,10 @@ class BaseWOA(Root):
                         #x_rand = pop[np.random.randint(self.pop_size)]         # select random 1 position in pop
                         x_rand = self.create_solution()
                         D = abs(C * x_rand[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = (x_rand[self.ID_POS] - A * D)
+                        new_position = x_rand[self.ID_POS] - A * D
                 else:
                     D1 = abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    new_position = D1 * exp(b * l) * cos(2 * pi * l) + g_best[self.ID_POS]
+                    new_position = g_best[self.ID_POS] + exp(b * l) * cos(2 * pi * l) * D1
 
                 new_position = self.amend_position_faster(new_position)
                 fit = self.get_fitness_position(new_position)
@@ -107,12 +107,12 @@ class HI_WOA(Root):
                 if uniform() < p:
                     if abs(A) < 1:
                         D = abs(C * g_best[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = g_best[self.ID_POS] - A * D
+                        new_position = w * g_best[self.ID_POS] - A * D
                     else:
                         x_rand = pop[randint(self.pop_size)]         # select random 1 position in pop
                         # x_rand = self.create_solution()
                         D = abs(C * x_rand[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = w * x_rand[self.ID_POS] - A * D
+                        new_position = x_rand[self.ID_POS] - A * D
                 else:
                     D1 = abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
                     new_position = w * g_best[self.ID_POS] + exp(b * l) * cos(2 * pi * l) * D1
