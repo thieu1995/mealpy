@@ -126,7 +126,6 @@ class HI_WOA(Root):
             current_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
             if current_best[self.ID_FIT] == g_best[self.ID_FIT]:
                 feedback_count += 1
-                print(feedback_count)
             else:
                 feedback_count = 0
                 g_best = current_best
