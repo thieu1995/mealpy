@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.evolutionary_based.DE import BaseDE, DESAP
+from mealpy.evolutionary_based.DE import BaseDE, SAP_DE
 
 ## Setting parameters
 obj_func = F5
@@ -53,10 +53,17 @@ print(md4.solution[1])
 
 ## C - Test with different variants of this algorithm
 
-md1 = DESAP(obj_func, lb4, ub4, verbose, epoch, pop_size)
+md1 = SAP_DE(obj_func, lb4, ub4, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
+
+md1 = BaseDE(obj_func, lb4, ub4, verbose, epoch, pop_size, strategy=2)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
 
 

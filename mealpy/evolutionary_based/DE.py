@@ -12,6 +12,16 @@ from numpy.random import uniform, choice, normal, randint, random
 from copy import deepcopy
 from mealpy.root import Root
 
+"""
+BaseDE: - the very first DE algorithm (Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization)
+    strategy = 0: DE/current-to-rand/1/bin
+             = 1: DE/best/1/bin             
+             = 2: DE/best/2/bin
+             = 3: DE/rand/2/bin
+             = 4: DE/current-to-best/1/bin
+             = 5: DE/current-to-rand/1/bin
+"""
+
 
 class BaseDE(Root):
     """
@@ -19,30 +29,73 @@ class BaseDE(Root):
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 wf=0.8, cr=0.9, **kwargs):
+                 wf=0.8, cr=0.9, strategy=0, **kwargs):
         super().__init__(obj_func, lb, ub, verbose, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.weighting_factor = wf
         self.crossover_rate = cr
+        self.strategy = strategy
 
-    def _mutation__(self, p0, p1, p2, p3):
-        ### Remove third loop here
-        pos_new = deepcopy(p0)
-        temp = p1 + self.weighting_factor * (p2 - p3)
-        pos_new = where(uniform(0, 1, self.problem_size) < self.crossover_rate, temp, pos_new)
+    def _mutation__(self, current_pos, new_pos):
+        pos_new = where(uniform(0, 1, self.problem_size) < self.crossover_rate, current_pos, new_pos)
         return self.amend_position_faster(pos_new)
 
-    def _create_children__(self, pop):
+    def _create_children__(self, pop, g_best):
         pop_child = deepcopy(pop)
-        for i in range(0, self.pop_size):
-            # Choose 3 random element and different to i
-            temp = choice(list(set(range(0, self.pop_size)) - {i}), 3, replace=False)
-            #create new child and append in children array
-            child = self._mutation__(pop[i][self.ID_POS], pop[temp[0]][self.ID_POS], pop[temp[1]][self.ID_POS], pop[temp[2]][self.ID_POS])
-            fit = self.get_fitness_position(child)
-            pop_child[i] = [child, fit]
-        return pop_child
+        if self.strategy == 0:
+            for i in range(0, self.pop_size):
+                # Choose 3 random element and different to i
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 3, replace=False)
+                pos_new = pop[idx_list[0]][self.ID_POS] + self.weighting_factor * (pop[idx_list[1]][self.ID_POS] - pop[idx_list[2]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
+        elif self.strategy == 1:
+            for i in range(0, self.pop_size):
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
+                pos_new = g_best[self.ID_POS] + self.weighting_factor * (pop[idx_list[0]][self.ID_POS] - pop[idx_list[1]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
+        elif self.strategy == 2:
+            for i in range(0, self.pop_size):
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 4, replace=False)
+                pos_new = g_best[self.ID_POS] + self.weighting_factor * (pop[idx_list[0]][self.ID_POS] - pop[idx_list[1]][self.ID_POS]) + \
+                          self.weighting_factor * (pop[idx_list[2]][self.ID_POS] - pop[idx_list[3]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
+        elif self.strategy == 3:
+            for i in range(0, self.pop_size):
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 5, replace=False)
+                pos_new = pop[idx_list[0]][self.ID_POS] + self.weighting_factor * (pop[idx_list[1]][self.ID_POS] - pop[idx_list[2]][self.ID_POS]) + \
+                          self.weighting_factor * (pop[idx_list[3]][self.ID_POS] - pop[idx_list[4]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
+        elif self.strategy == 4:
+            for i in range(0, self.pop_size):
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
+                pos_new = pop[i][self.ID_POS] + self.weighting_factor * (g_best[self.ID_POS] - pop[i][self.ID_POS]) + \
+                          self.weighting_factor * (pop[idx_list[0]][self.ID_POS] - pop[idx_list[1]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
+        elif self.strategy == 5:
+            for i in range(0, self.pop_size):
+                idx_list = choice(list(set(range(0, self.pop_size)) - {i}), 3, replace=False)
+                pos_new = pop[i][self.ID_POS] + self.weighting_factor * (pop[idx_list[0]][self.ID_POS] - pop[i][self.ID_POS]) + \
+                          self.weighting_factor * (pop[idx_list[1]][self.ID_POS] - pop[idx_list[2]][self.ID_POS])
+                pos_new = self._mutation__(pop[i][self.ID_POS], pos_new)
+                fit = self.get_fitness_position(pos_new)
+                pop_child[i] = [pos_new, fit]
+            return pop_child
 
     ### Survivor Selection
     def _greedy_selection__(self, pop_old=None, pop_new=None):
@@ -55,7 +108,7 @@ class BaseDE(Root):
 
         for epoch in range(self.epoch):
             # create children
-            pop_child = self._create_children__(pop)
+            pop_child = self._create_children__(pop, g_best)
             # create new pop by comparing fitness of corresponding each member in pop and children
             pop = self._greedy_selection__(pop, pop_child)
 
@@ -68,7 +121,7 @@ class BaseDE(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class DESAP(Root):
+class SAP_DE(Root):
     """
         The original version of: Differential Evolution with Self-Adaptive Populations
         Link:
