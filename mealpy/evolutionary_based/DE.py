@@ -7,9 +7,10 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import where, sum
+from numpy import where, sum, any, mean, array, clip
 from numpy.random import uniform, choice, normal, randint, random
 from copy import deepcopy
+from scipy.stats import cauchy
 from mealpy.root import Root
 
 """
@@ -119,6 +120,94 @@ class BaseDE(Root):
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class JADE(Root):
+    """
+        The original version of: Differential Evolution (JADE)
+        Link:
+            JADE: Adaptive Differential Evolution with Optional External Archive
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 miu_f=0.5, miu_cr=0.5, p=0.1, c=0.1, **kwargs):
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.miu_f = miu_f              # the initial f, location is changed then that f is good
+        self.miu_cr = miu_cr            # the initial cr,
+        self.p = p # uniform(0.05, 0.2) # the x_best is select from the top 100p % solutions
+        self.c = c # uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
+
+    ### Survivor Selection
+    def lehmer_mean(self, list_objects):
+        return sum(list_objects**2) / sum(list_objects)
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        miu_cr = self.miu_cr
+        miu_f = self.miu_f
+        archive_pop = list()
+
+        for epoch in range(self.epoch):
+            list_f = list()
+            list_cr = list()
+
+            sorted_pop = sorted(pop, key=lambda x:x[self.ID_FIT])
+            for i in range(0, self.pop_size):
+                ## Calculate adaptive parameter cr and f
+                cr = normal(miu_cr, 0.1)
+                cr = clip(cr, 0, 1)
+                while True:
+                    f = cauchy.rvs(miu_f, 0.1)
+                    if f < 0:
+                        continue
+                    elif f > 1:
+                        f = 1
+                    break
+                top = int(self.pop_size * self.p)
+                x_best = sorted_pop[randint(0, top)]
+                x_r1 = pop[choice(list(set(range(0, self.pop_size)) - {i}))]
+                new_pop = pop + archive_pop
+                while True:
+                    x_r2 = new_pop[randint(0, len(new_pop))]
+                    if any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and any(x_r2[self.ID_POS] - pop[i][self.ID_POS]):
+                        break
+                x_new = pop[i][self.ID_POS] + f * (x_best[self.ID_POS] - pop[i][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
+                pos_new = where(uniform(0, 1, self.problem_size) < cr, x_new, pop[i][self.ID_POS])
+                j_rand = randint(0, self.problem_size)
+                pos_new[j_rand] = x_new[j_rand]
+                fit_new = self.get_fitness_position(pos_new)
+                if fit_new < pop[i][self.ID_FIT]:
+                    archive_pop.append(pop[i])
+                    list_cr.append(cr)
+                    list_f.append(f)
+                    pop[i] = [pos_new, fit_new]
+
+            # Randomly remove solution
+            temp = len(archive_pop) - self.pop_size
+            if temp > 0:
+                idx_list = choice(range(0, len(archive_pop)), len(archive_pop) - self.pop_size, replace=False)
+                archive_pop_new = []
+                for idx, solution in enumerate(archive_pop):
+                    if idx not in idx_list:
+                        archive_pop_new.append(solution)
+                archive_pop = deepcopy(archive_pop_new)
+
+            # Update miu_cr and miu_f
+            miu_cr = (1 - self.c) * miu_cr + self.c * mean(array(list_cr))
+            miu_f = (1 - self.c) * miu_f + self.c * self.lehmer_mean(array(list_f))
+
+            # update global best position
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
 
 
 class SAP_DE(Root):

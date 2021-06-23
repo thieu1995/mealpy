@@ -8,12 +8,12 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.evolutionary_based.DE import BaseDE, SAP_DE
+from mealpy.evolutionary_based.DE import BaseDE, SAP_DE, JADE
 
 ## Setting parameters
 obj_func = F5
 verbose = False
-epoch = 10
+epoch = 100
 pop_size = 50
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:
@@ -65,5 +65,10 @@ print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
 
+md1 = JADE(obj_func, lb1, ub1, True, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
 
 
