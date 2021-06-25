@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.evolutionary_based.DE import BaseDE, SAP_DE, JADE, SHADE, L_SHADE
+from mealpy.evolutionary_based.DE import BaseDE, SAP_DE, JADE, SHADE, L_SHADE, SADE
 
 ## Setting parameters
 obj_func = F5
@@ -79,6 +79,12 @@ print(md1.solution[1])
 print(md1.loss_train)
 
 md1 = L_SHADE(obj_func, lb1, ub1, True, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution[0])
+print(md1.solution[1])
+print(md1.loss_train)
+
+md1 = SADE(obj_func, lb1, ub1, True, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution[0])
 print(md1.solution[1])
