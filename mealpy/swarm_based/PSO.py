@@ -7,8 +7,8 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, normal, randint, rand
-from numpy import pi, sin, cos, zeros, minimum, maximum, abs, where, sign, mean, stack
+from numpy.random import uniform, normal, randint, rand, choice
+from numpy import pi, sin, cos, zeros, minimum, maximum, abs, where, sign, mean, stack, exp, any
 from numpy import min as np_min
 from numpy import max as np_max
 from copy import deepcopy
@@ -322,4 +322,79 @@ class C_PSO(Root):
                 print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
         self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+class CL_PSO(Root):
+    """
+        Version: Comprehensive Learning Particle Swarm Optimization (CL-PSO)
+        Link
+            Comprehensive Learning Particle Swarm Optimizer for Global Optimization of Multimodal Functions
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 c_local=1.2, w_min=0.4, w_max=0.9, **kwargs):
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.c_local = c_local  # Local coefficient
+        self.w_min = w_min  # [0-1] -> [0.4-0.9]      Weight of bird
+        self.w_max = w_max
+        self.max_flag = 7
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop_local = [self.create_solution() for _ in range(self.pop_size)]
+        flags = zeros(self.pop_size)
+
+        v_max = 0.5 * (self.ub - self.lb)
+        v_min = zeros(self.problem_size)
+        v_list = uniform(v_min, v_max, (self.pop_size, self.problem_size))
+        pop_local = deepcopy(pop)
+        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+
+        for epoch in range(self.epoch):
+
+            wk = self.w_max * (epoch / self.epoch) * (self.w_max - self.w_min)
+
+            for i in range(0, self.pop_size):
+                if flags[i] >= self.max_flag:
+                    flags[i] = 0
+                    pop[i] = self.create_solution()
+
+                pci = 0.05 + 0.45 *(exp(10*(i+1) / self.pop_size) - 1)/ (exp(10) - 1)
+                pos_new = deepcopy(pop[i][self.ID_POS])
+
+                for j in range(0, self.problem_size):
+                    if rand() > pci:
+                        vj = wk * v_list[i][j] + self.c_local * rand() * (pop_local[i][self.ID_POS][j] - pop[i][self.ID_POS][j])
+                    else:
+                        id1, id2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
+                        if pop[id1][self.ID_FIT] < pop[id2][self.ID_FIT]:
+                            vj = wk * v_list[i][j] + self.c_local * rand() * (pop_local[id1][self.ID_POS][j] - pop[i][self.ID_POS][j])
+                        else:
+                            vj = wk * v_list[i][j] + self.c_local * rand() * (pop_local[id2][self.ID_POS][j] - pop[i][self.ID_POS][j])
+                    pos_new[j] = vj
+                v_list[i] = pos_new
+                pos_new = pos_new + pop[i][self.ID_POS]
+                fit_x = self.get_fitness_position(pos_new)
+                pop[i] = [pos_new, fit_x]
+                if not any(self.ub - pos_new < 0) and not any(pos_new - self.lb < 0):
+                    if fit_x < pop_local[i][self.ID_FIT]:
+                        pop_local[i] = [pos_new, fit_x]
+                        flags[i] = 0
+                    else:
+                        flags[i] += 1
+                    if fit_x < g_best[self.ID_FIT]:
+                        g_best = [pos_new, fit_x]
+
+            g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
+
+
+
 
