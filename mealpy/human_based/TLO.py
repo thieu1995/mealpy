@@ -7,9 +7,10 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, randint, choice, rand
+from numpy.random import uniform, randint, choice, rand, permutation
 from numpy import array, mean, setxor1d
 from copy import deepcopy
+from functools import reduce
 from mealpy.root import Root
 
 
@@ -121,3 +122,92 @@ class OriginalTLO(BaseTLO):
                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, best[self.ID_FIT]))
         self.solution = best
         return best[self.ID_POS], best[self.ID_FIT], self.loss_train
+
+
+class ITLO(Root):
+    """
+    My version of: Improved Teaching-Learning-based Optimization (ITLO)
+    Link:
+        An improved teaching-learning-based optimization algorithm for solving unconstrained optimization problems
+    Notes:
+        + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, n_teachers=5, **kwargs):
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.n_teachers = n_teachers                # Number of teams / group
+        self.n_students = pop_size - n_teachers
+        self.n_students_in_team = int(self.n_students / self.n_teachers)
+
+    def classify(self, pop):
+        sorted_pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+        best = deepcopy(sorted_pop[0])
+        teachers = sorted_pop[:self.n_teachers]
+        sorted_pop = sorted_pop[self.n_teachers:]
+        idx_list = permutation(range(0, self.n_students))
+        teams = []
+        for id_teacher in range(0, self.n_teachers):
+            group = []
+            for idx in range(0, self.n_students_in_team):
+                start_index = id_teacher * self.n_students_in_team + idx
+                group.append(sorted_pop[idx_list[start_index]])
+            teams.append(group)
+        return teachers, teams, best
+
+    def train(self):
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        teachers, teams, g_best = self.classify(pop)
+
+        for epoch in range(self.epoch):
+
+            for id_teach, teacher in enumerate(teachers):
+                team = teams[id_teach]
+                list_pos = array([student[self.ID_POS] for student in teams[id_teach]])       # Step 7
+                mean_team = mean(list_pos, axis=0)
+                for id_stud, student in enumerate(team):
+                    if teacher[self.ID_FIT] == 0:
+                        TF = 1
+                    else:
+                        TF = student[self.ID_FIT] / teacher[self.ID_FIT]
+                    diff_mean = rand() * (teacher[self.ID_POS] - TF * mean_team)            # Step 8
+
+                    id2 = choice(list(set(range(0, self.n_teachers)) - {id_teach}))
+                    if teacher[self.ID_FIT] > team[id2][self.ID_FIT]:
+                        pos_new = (student[self.ID_POS] + diff_mean) + rand() * (team[id2][self.ID_POS] - student[self.ID_POS])
+                    else:
+                        pos_new = (student[self.ID_POS] + diff_mean) + rand() * (student[self.ID_POS] - team[id2][self.ID_POS])
+                    fit_new = self.get_fitness_position(pos_new)
+                    if fit_new < student[self.ID_FIT]:
+                        teams[id_teach][id_stud] = [pos_new, fit_new]
+
+            for id_teach, teacher in enumerate(teachers):
+                ef = round(1 + rand())
+                team = teams[id_teach]
+                for id_stud, student in enumerate(team):
+                    id2 = choice(list(set(range(0, self.n_students_in_team)) - {id_stud}))
+                    if student[self.ID_FIT] < team[id2][self.ID_FIT]:
+                        pos_new = student[self.ID_POS] + rand() * (student[self.ID_POS] - team[id2][self.ID_POS]) +\
+                                  rand() * (teacher[self.ID_POS] - ef * team[id2][self.ID_POS])
+                    else:
+                        pos_new = student[self.ID_POS] + rand() * (team[id2][self.ID_POS] - student[self.ID_POS]) + \
+                                  rand() * (teacher[self.ID_POS] - ef * student[self.ID_POS])
+                    fit_new = self.get_fitness_position(pos_new)
+                    if fit_new < student[self.ID_FIT]:
+                        teams[id_teach][id_stud] = [pos_new, fit_new]
+
+            for id_teach, teacher in enumerate(teachers):
+                team = teams[id_teach] + [teacher]
+                team = sorted(team, key=lambda item:item[self.ID_FIT])
+                teachers[id_teach] = team[0]
+                teams[id_teach] = team[1:]
+
+            pop = teachers + reduce(lambda x, y: x + y, teams)
+            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+
