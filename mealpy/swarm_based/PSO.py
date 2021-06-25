@@ -122,11 +122,13 @@ class PPSO(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class PSO_W(Root):
+class P_PSO(Root):
     """
         A variant version of PSO: Phasor particle swarm optimization: a simple and efficient variant of PSO
-        Matlab code sent by one of the author: Ebrahim Akbari
-        I convert matlab to python code
+        Link:
+            Phasor particle swarm optimization: a simple and efficient variant of PSO
+        Notes:
+            This code is converted from matlab code (sent from author: Ebrahim Akbari)
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
@@ -178,11 +180,14 @@ class PSO_W(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class HPSO_TVA(Root):
+class HPSO_TVAC(Root):
     """
-        A variant version of PSO: New self-organising hierarchical PSO with jumping time-varying acceleration coefficients
-        Matlab code sent by one of the author: Ebrahim Akbari
-        I convert matlab to python code
+        The variant version of PSO:
+            Self-organising Hierarchical PSO with Time-Varying Acceleration Coefficients (HPSO_TVAC)
+        Link:
+            New self-organising hierarchical PSO with jumping time-varying acceleration coefficients
+        Note:
+            This code is converted from matlab code (sent from author: Ebrahim Akbari)
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, ci=0.5, cf=0.0, **kwargs):
@@ -243,10 +248,11 @@ class HPSO_TVA(Root):
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
 
-class CPSO(Root):
+class C_PSO(Root):
     """
-            Chaos Particle Swarm Optimization
-        Paper: Improved particle swarm optimization combined with chaos
+        Version: Chaos Particle Swarm Optimization (C-PSO)
+        Link
+            Improved particle swarm optimization combined with chaos
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,

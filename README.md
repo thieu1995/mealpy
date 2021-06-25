@@ -105,20 +105,18 @@ def Fx(solution):
   return fx 
 ```
 
-  
 ```python
 
 # This is basic example how you can call an optimizer, and its variants. For the version ( MEALPY >= 1.1.0)
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.PSO import BasePSO, PPSO, PSO_W, HPSO_TVA
-
+from mealpy.swarm_based.PSO import BasePSO, PPSO, P_PSO, HPSO_TVAC
 
 # Setting parameters
-obj_func = F5       # This objective function come from "opfunu" library. You can design your own objective function like above
-verbose = False     # Print out the training results
-epoch = 500         # Number of iterations / generations / epochs
-pop_size = 50       # Populations size (Number of individuals / Number of solutions)
+obj_func = F5  # This objective function come from "opfunu" library. You can design your own objective function like above
+verbose = False  # Print out the training results
+epoch = 500  # Number of iterations / generations / epochs
+pop_size = 50  # Populations size (Number of individuals / Number of solutions)
 
 # A - Different way to provide lower bound and upper bound. Here are some examples:
 
@@ -135,14 +133,16 @@ print(md1.solution[1])
 problemSize = 10
 lb2 = -5
 ub2 = 10
-md2 = BasePSO(obj_func, lb2, ub2, verbose, epoch, pop_size, problem_size=problemSize)  # Remember the keyword "problem_size"
+md2 = BasePSO(obj_func, lb2, ub2, verbose, epoch, pop_size,
+              problem_size=problemSize)  # Remember the keyword "problem_size"
 best_pos1, best_fit1, list_loss1 = md2.train()
 print(md2.solution[1])
 
 ##      + array: 2 ways
 lb3 = [-5]
 ub3 = [10]
-md3 = BasePSO(obj_func, lb3, ub3, verbose, epoch, pop_size, problem_size=problemSize)  # Remember the keyword "problem_size"
+md3 = BasePSO(obj_func, lb3, ub3, verbose, epoch, pop_size,
+              problem_size=problemSize)  # Remember the keyword "problem_size"
 best_pos1, best_fit1, list_loss1 = md3.train()
 print(md3.solution[1])
 
@@ -166,12 +166,12 @@ print(md1.loss_train)
 batchIdea = True
 batchSize = 5
 
-md6 = BasePSO(obj_func, lb4, ub4, verbose, epoch, pop_size, batch_idea=batchIdea, batch_size=batchSize)  # Remember the keywords
+md6 = BasePSO(obj_func, lb4, ub4, verbose, epoch, pop_size, batch_idea=batchIdea,
+              batch_size=batchSize)  # Remember the keywords
 best_pos1, best_fit1, list_loss1 = md6.train()
 print(md1.solution[0])
 print(md1.solution[1])
 print(md1.loss_train)
-
 
 # C - Test with different variants of this algorithm
 
