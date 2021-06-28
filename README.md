@@ -1,5 +1,5 @@
 # The state-of-the-art MEta-heuristics ALgorithms in PYthon (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-1.2.0-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-1.2.1-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -11,7 +11,7 @@
 
 ## Quick Notification
 
-* Current version: 1.2.0
+* Current version: 1.2.1
 * There are a big different between version (>= 1.1.0) and previous version (< 1.0.5) in term of passing 
   hyper-parameters. So please careful check your version before using this library.
 

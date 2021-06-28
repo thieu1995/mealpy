@@ -1,3 +1,24 @@
+# Version 1.2.1
+
+### Change models
+
++ Add Coyote Optimization Algorithm (COA) to Swarm-based group
++ Update code LCBO and MLCO
++ Add variant version of:
+    + WOA: Hybrid Improved WOA 
+    + DE:
+        + SADE: Self-Adaptive DE
+        + JADE: Adaptive DE with Optional External Archive
+        + SHADE: Success-History Based Parameter Adaptation DE 
+        + LSHADE: Linear Population Size Reduction for SHADE
+    + PSO: Comprehensive Learning PSO (CL-PSO)
+    
+### Change others
+
++ examples: Update all the examples based on algorithm's input
+
+---------------------------------------------------------------------
+
 # Version 1.2.0
 
 ### Change models
