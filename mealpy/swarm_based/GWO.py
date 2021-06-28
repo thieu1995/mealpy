@@ -68,7 +68,10 @@ class BaseGWO(Root):
 class RW_GWO(Root):
     """
         The original version of: Random Walk Grey Wolf Optimizer (RW-GWO)
-        - A novel Random Walk Grey Wolf Optimizer (What a trash paper, the random walk GWO always perform worst than original GWO)
+        Link:
+            A novel Random Walk Grey Wolf Optimizer
+        Note:
+            What a trash paper, the random walk GWO always perform worst than original GWO
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):

@@ -122,7 +122,7 @@ class OriginalBA(Root):
 
 class BasicBA(Root):
     """
-        The original versino of: Bat-Inspired Algorithm (BA)
+        The original version of: Bat-Inspired Algorithm (BA)
             A New Metaheuristic Bat-Inspired Algorithm
         Notes:
             The value of A and r are changing after each iteration

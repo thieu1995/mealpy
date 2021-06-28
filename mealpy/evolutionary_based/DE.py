@@ -212,7 +212,7 @@ class SADE(Root):
     """
         The original version of: Self-Adaptive Differential Evolution(SADE)
         Link:
-            JADE: Self-adaptive Differential Evolution Algorithm for Numerical Optimization
+            Self-adaptive differential evolution algorithm for numerical optimization
     """
 
     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
