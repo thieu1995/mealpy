@@ -8,10 +8,10 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.dummy.RRO import OriginalRRO, IRRO
+from mealpy.dummy.RRO import OriginalRRO, IRRO, BaseRRO
 
 # Setting parameters
-obj_func = F5
+obj_func = F20
 verbose = True
 epoch = 100
 pop_size = 50
@@ -27,5 +27,9 @@ best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution)
 
 md1 = IRRO(obj_func, lb1, ub1, verbose, epoch, pop_size)
+best_pos1, best_fit1, list_loss1 = md1.train()
+print(md1.solution)
+
+md1 = BaseRRO(obj_func, lb1, ub1, verbose, epoch, pop_size)
 best_pos1, best_fit1, list_loss1 = md1.train()
 print(md1.solution)

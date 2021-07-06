@@ -43,3 +43,25 @@
 1. How much money you have to pay to get accepted in this journal? Iran author?
 2. Please send me your code, if I'm wrong, I will publicly apology.
 ```
+
+#### 1c) BaseRRO: My developed version
+
+* What I have done?
+
+```code 
+1. My dev version based on the Improved version but.
+2. I removed the food source probability --> Remove 1 parameter (probability stopping)
+This means when raven found better location, it will stop flying immediately.
+3. The updating equation is changed like this:
+  x_new = g_best + rand * (g_best - x_old)          # Fly to global best
+  x_new = local_best + rand * (local_best - x_old)  # Fly to local best
+4. So using those two above equations above, no need to use radius --> Remove 2 parameters (R perception and R leader)        
+```
+
+* **Conclusion**:
+
+```code 
+1. Reduce 3 parameters of algorithm.
+2. Can truly optimize CEC benchmark functions.
+3. Faster than both dummy version above.
+```

@@ -7,8 +7,8 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, normal, randint, rand, choice
-from numpy import pi, sin, cos, zeros, minimum, maximum, abs, where, sign, mean, stack, power
+from numpy.random import uniform, rand, choice
+from numpy import zeros, power
 from copy import deepcopy
 from mealpy.root import Root
 
@@ -169,7 +169,7 @@ class IRRO(Root):
                 pop[i] = pop1[idx]
                 pop_local[i] = pop_local1[idx]
             if pop_local[0][self.ID_FIT] < g_best[self.ID_FIT]:
-                g_best = deepcopy(pop_local[0][self.ID_FIT])
+                g_best = deepcopy(pop_local[0])
 
             self.loss_train.append(g_best[self.ID_FIT])
             if self.verbose:
@@ -177,3 +177,66 @@ class IRRO(Root):
         self.solution = g_best
         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
 
+
+class BaseRRO(Root):
+    """
+        My developed version: Raven Roosting Optimization (RRO)
+    """
+
+    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
+                 n_steps=10, weak_percent=0.4, **kwargs):
+        super().__init__(obj_func, lb, ub, verbose, kwargs)
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.n_steps = n_steps  # Default: [5, 10, 20], Number of moving steps of each raven towards the best solution
+        self.weak_percent = weak_percent  # Default: [0,2, 0.4, 0.6] Percentage of population will be moved towards by global best solution
+
+    def train(self):
+        n_ravens = self.pop_size - int(self.weak_percent * self.pop_size)  # Number of greedy ravens
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+        pop_local = deepcopy(pop)
+
+        for epoch in range(self.epoch):
+
+            for i in range(self.pop_size):
+
+                if i < n_ravens:  # Fly to global best
+                    step = 0
+                    while step < self.n_steps:
+                        pos_new = g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                        pos_new = self.amend_position_faster(pos_new)
+                        fit_new = self.get_fitness_position(pos_new)
+                        if fit_new < pop_local[i][self.ID_FIT]:
+                            pop_local[i] = [pos_new, fit_new]
+                            break
+                        step += 1
+                        pop[i] = [pos_new, fit_new]
+                else:  # Fly to personal best
+                    step = 0
+                    while step < self.n_steps:
+                        pos_new = pop_local[i][self.ID_POS] + uniform() * (pop_local[i][self.ID_POS] - pop[i][self.ID_POS])
+                        pos_new = self.amend_position_faster(pos_new)
+                        fit_new = self.get_fitness_position(pos_new)
+                        if fit_new < pop_local[i][self.ID_FIT]:
+                            pop_local[i] = [pos_new, fit_new]
+                            break
+                        step += 1
+                        pop[i] = [pos_new, fit_new]
+
+            pop_idx = list(range(0, self.pop_size))
+            pop_fit = [item[self.ID_FIT] for item in pop_local]
+            zipped_pop = zip(pop_fit, pop_idx)
+            zipped_pop = sorted(zipped_pop)
+            pop1, pop_local1 = deepcopy(pop), deepcopy(pop_local)
+            for i, (fit, idx) in enumerate(zipped_pop):
+                pop[i] = pop1[idx]
+                pop_local[i] = pop_local1[idx]
+            if pop_local[0][self.ID_FIT] < g_best[self.ID_FIT]:
+                g_best = deepcopy(pop_local[0])
+
+            self.loss_train.append(g_best[self.ID_FIT])
+            if self.verbose:
+                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
+        self.solution = g_best
+        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
