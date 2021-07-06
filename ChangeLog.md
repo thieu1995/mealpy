@@ -1,3 +1,14 @@
+# Version 1.2.2
+
+### Change models
+
++ Add Raven Roosting Optimization (RRO) and its variants to Dummy group
+    + OriginalRRO: The original version of RRO
+    + IRRO: Impproved RRO
+    + BaseRRO: My developed version (On this version work)
+    
+---------------------------------------------------------------------
+
 # Version 1.2.1
 
 ### Change models

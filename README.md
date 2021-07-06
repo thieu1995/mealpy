@@ -814,8 +814,8 @@ python examples/run_simple.py
 
 * **RHO - Rhino Herd Optimization** . 
   * **OriginalRHO**: Wang, G. G., Gao, X. Z., Zenger, K., & Coelho, L. D. S. (2018, December). A novel metaheuristic algorithm inspired by rhino herd behavior. In Proceedings of The 9th EUROSIM Congress on Modelling and Simulation, EUROSIM 2016, The 57th SIMS Conference on Simulation and Modelling SIMS 2016 (No. 142, pp. 1026-1033). Linköping University Electronic Press.
-  * **BaseRHO**: My version
-  * **LevyRHO**: My version using Levy-flight
+  * **BaseRHO**: My developed version
+  * **LevyRHO**: My developed using Levy-flight
 
 * **SOA - Sandpiper Optimization Algorithm** . 
   * **OriginalSOA**: Kaur, A., Jain, S., & Goel, S. (2020). Sandpiper optimization algorithm: a novel approach for solving real-life engineering problems. Applied Intelligence, 50(2), 582-619.
@@ -823,4 +823,8 @@ python examples/run_simple.py
 
 * **STOA - Sooty Tern Optimization Algorithm**. Sooty Tern Optimization Algorithm: Dhiman, G., & Kaur, A. (2019). STOA: A bio-inspired based optimization algorithm for industrial engineering problems. Engineering Applications of Artificial Intelligence, 82, 148-174.
 
+* **RRO - Raven Roosting Optimizaiton**. 
+  * **OriginalRRO**: Brabazon, A., Cui, W., & O’Neill, M. (2016). The raven roosting optimisation algorithm. Soft Computing, 20(2), 525-545.
+  * **IRRO**: Torabi, S., & Safi-Esfahani, F. (2018). Improved raven roosting optimization algorithm (IRRO). Swarm and Evolutionary Computation, 40, 144-154.
+  * **BaseRRO**: My developed version
 
