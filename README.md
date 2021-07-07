@@ -346,7 +346,8 @@ python examples/run_simple.py
 |                  	|  34    |      Manta Ray Foraging Optimization        |   MRFO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   3    |    easy        |
 |                  	|  35    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  best    |     yes        |   5    |   medium    |
 |                  	|  36    |            Hunger Games Search                |    HGS    | 2021    |  original    |     no        |  no    |  best    |     yes        |   4    |   medium    |
-|                  	|  37    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  37    |              Aquila Optimizer                |    AO        | 2021    |  original    |     no        |  yes    | strong    |     yes        |   2    |    easy        |
+|                  	|  38    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |      Physics        |  1    |            Simulated Annealling            |    SA        | 1987    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
 |                  	|  2    |          Wind Driven Optimization            |    WDO    | 2013    |  original    |     yes        |  no    | strong    |     yes        |   7    |    easy        |
 |                  	|  3    |           Multi-Verse Optimizer            |    MVO    | 2016    |  changed    |     yes        |  no    |  weak    |      no        |   3    |    easy        |
@@ -400,7 +401,6 @@ python examples/run_simple.py
 |                  	|  8    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
 
 
-
 ### A
 
 * **ABC - Artificial Bee Colony**
@@ -426,7 +426,9 @@ python examples/run_simple.py
 
 * **AOA - Arithmetic Optimization Algorithm**
   * **OriginalAOA**: Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M., & Gandomi, A. H. (2021). The arithmetic optimization algorithm. Computer methods in applied mechanics and engineering, 376, 113609.
-  
+
+* **AO - Aquila Optimizer**
+  * **OriginalAO**: Abualigah, L., Yousri, D., Abd Elaziz, M., Ewees, A. A., Al-qaness, M. A., & Gandomi, A. H. (2021). Aquila Optimizer: A novel meta-heuristic optimization Algorithm. Computers & Industrial Engineering, 157, 107250.
 
 ### B
 

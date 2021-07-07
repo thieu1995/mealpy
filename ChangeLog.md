@@ -10,7 +10,8 @@
 + Add some newest algorithm to the library
     + Arithmetic Optimization Algorithm (AOA) to Math-based group
         + OriginalAOA: The original version of AOA
-    + 
+    + Aquila Optimizer (AO) to Swarm-based group
+        + OriginalAO: The original vesion of AO 
     
 ---------------------------------------------------------------------
 
