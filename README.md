@@ -280,7 +280,6 @@ python examples/run_simple.py
     + weak: working fine with uni-modal and some multi-modal functions
     + strong: working good with uni-modal, multi-modal, some hybrid and some composite functions
     + best: working well with almost all kind of functions
-    + BEST: the best among all algorithms
 
 * Large-scale (Personal Opinion):
     + All algorithm here have been tested with large-scale dimension (2000)
@@ -300,8 +299,6 @@ python examples/run_simple.py
     + Hard* - Very hard: Lots of equations, SLOC too long, the paper is very hard to read.
     
 ** For newbie, I recommend to read the paper of algorithms belong to "best or strong" type, "easy or medium" difficulty level.
-
-
 
 |       Group        | STT    |                    Name                    |   Short    | Year    |  Version    | Batch Size    | Levy    |  Type    | Large Scale    | Paras    | Difficulty    |
 |:----------------:	|:---:	|:-----------------------------------------:	|:--------:	|:----:	|:---------:	|:----------:	|:----:	|:------:	|:-----------:	|:-----:	|:----------:	|
@@ -324,7 +321,7 @@ python examples/run_simple.py
 |                  	|  9    |             Firefly Algorithm                | FireflyA    | 2009    |  original    |     no        |  no    | strong    |      no        |   8    |   medium    |
 |                  	|  10    |            Fireworks Algorithm                |    FA        | 2010    |  original    |     no        |  no    | strong    |      no        |   7    |   medium    |
 |                  	|  11    |               Bat Algorithm                |    BA        | 2010    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
-|                  	|  12    |      Fruit-fly Optimization Algorithm        |    FOA    | 2012    |  original    |     no        |  no    |  WEAK    |      no        |   2    |    easy        |
+|                  	|  12    |      Fruit-fly Optimization Algorithm        |    FOA    | 2012    |  original    |     no        |  no    |  weak    |      no        |   2    |    easy        |
 |                  	|  13    |         Social Spider Optimization            |    SSO    | 2013    |  changed    |     no        |  no    |  weak    |      no        |   3    |    hard*    |
 |                  	|  14    |            Grey Wolf Optimizer                |    GWO    | 2014    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
 |                  	|  15    |          Social Spider Algorithm            |    SSA    | 2015    |  original    |     yes        |  no    |  weak    |      no        |   5    |    easy        |
@@ -332,7 +329,7 @@ python examples/run_simple.py
 |                  	|  17    |          Moth Flame Optimization            |    MFO    | 2015    |  changed    |     no        |  no    | strong    |      no        |   2    |    easy        |
 |                  	|  18    |       Elephant Herding Optimization        |    EHO    | 2015    |  original    |     no        |  no    |  best    |     yes        |   5    |    easy        |
 |                  	|  19    |               Jaya Algorithm                |    JA        | 2016    |  orignal    |     no        |  no    | strong    |     yes        |   2    |    easy        |
-|                  	|  20    |        Whale Optimization Algorithm        |    WOA    | 2016    |  original    |     yes        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  20    |        Whale Optimization Algorithm        |    WOA    | 2016    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
 |                  	|  21    |           Dragonfly Optimization            |    DO        | 2016    |  original    |     no        |  no    | strong    |      no        |   2    |   medium    |
 |                  	|  22    |            Bird Swarm Algorithm            |    BSA    | 2016    |  original    |     no        |  no    |  best    |     yes        |   9    |   medium    |
 |                  	|  23    |          Spotted Hyena Optimizer            |    SHO    | 2017    |  changed    |     no        |  no    |  weak    |      no        |   6    |   medium    |
@@ -344,11 +341,11 @@ python examples/run_simple.py
 |                  	|  29    |          Nake Mole-rat Algorithm            |   NMRA    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   3    |    easy        |
 |                  	|  30    |             Bald Eagle Search                |    BES    | 2019    |  changed    |     no        |  no    | strong    |      no        |   7    |   medium    |
 |                  	|  31    |            Pathfinder Algorithm            |    PFA    | 2019    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
-|                  	|  32    |             Sailfish Optimizer                |    SFO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
+|                  	|  32    |             Sailfish Optimizer                |    SFO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   5    |   medium    |
 |                  	|  33    |         Harris Hawks Optimization            |    HHO    | 2019    |  original    |     yes        |  yes    |  best    |     yes        |   2    |   medium    |
 |                  	|  34    |      Manta Ray Foraging Optimization        |   MRFO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   3    |    easy        |
-|                  	|  35    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  BEST    |     yes        |   5    |   medium    |
-|                  	|  36    |            Hunger Games Search                |    HGS    | 2021    |  original    |     no        |  no    |  BEST    |     yes        |   4    |   medium    |
+|                  	|  35    |          Sparrow Search Algorithm            |   SpaSA    | 2020    |  original    |     no        |  no    |  best    |     yes        |   5    |   medium    |
+|                  	|  36    |            Hunger Games Search                |    HGS    | 2021    |  original    |     no        |  no    |  best    |     yes        |   4    |   medium    |
 |                  	|  37    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |      Physics        |  1    |            Simulated Annealling            |    SA        | 1987    |  original    |     no        |  no    |  weak    |      no        |   9    |   medium    |
 |                  	|  2    |          Wind Driven Optimization            |    WDO    | 2013    |  original    |     yes        |  no    | strong    |     yes        |   7    |    easy        |
@@ -358,7 +355,7 @@ python examples/run_simple.py
 |                  	|  6    |       Nuclear Reaction Optimization        |    NRO    | 2019    | original    |     no        |  yes    |  best    |     yes        |   2    |    hard*    |
 |                  	|  7    |     Henry Gas Solubility Optimization        |   HGSO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   3    |   medium    |
 |                  	|  8    |          Atom Search Optimization            |    ASO    | 2019    |  original    |     no        |  no    | strong    |      no        |   4    |   medium    |
-|                  	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
 |                  	|  10    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Human        |  1    |             Culture Algorithm                |    CA        | 1994    |  original    |     no        |  no    | strong    |      no        |   3    |    easy        |
 |                  	|  2    |     Imperialist Competitive Algorithm        |    ICA    | 2007    |  original    |     no        |  no    | strong    |     yes        |   10    |    hard*    |
@@ -367,7 +364,7 @@ python examples/run_simple.py
 |                  	|  5    |          Queuing Search Algorithm            |    QSA    | 2019    |  changed    |     no        |  no    | strong    |     yes        |   2    |    hard        |
 |                  	|  6    |       Search And Rescue Optimization        |   SARO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   4    |   medium    |
 |                  	|  7    |      Life Choice-Based Optimization        |   LCBO    | 2019    |  original    |     yes        |  no    | strong    |     yes        |   2    |    easy        |
-|                  	|  8    |       Social Ski-Driver Optimization        |   SSDO    | 2019    |  original    |     no        |  no    |  BEST    |     yes        |   2    |    easy        |
+|                  	|  8    |       Social Ski-Driver Optimization        |   SSDO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
 |                  	|  9    | Gaining Sharing Knowledge-based Algorithm    |   GSKA    | 2019    |  original    |     no        |  no    | strong    |      no        |   6    |    easy        |
 |                  	|  10    |   Coronavirus Herd Immunity Optimization    |   CHIO    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   4    |   medium    |
 |                  	|  11    | Forensic-Based Investigation Optimization    |   FBIO    | 2020    |  original    |     no        |  no    |  best    |     yes        |   2    |   medium    |
@@ -387,7 +384,8 @@ python examples/run_simple.py
 |                  	|  4    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Math        |  1    |               Hill Climbing                |    HC        | 1993    |  original    |     no        |  no    |  weak    |      no        |   3    |    easy        |
 |                  	|  2    |           Sine Cosine Algorithm            |    SCA    | 2016    |  changed    |     yes        |  no    | strong    |      no        |   2    |    easy        |
-|                  	|  3    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  3    |     Arithmetic Optimization Algorithm        |    AOA    | 2021    |  original    |     no        |  no    | strong    |     yes        |   6    |    easy        |
+|                  	|  4    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Music        |  1    |               Harmony Search                |    HS        | 2001    |  changed    |     yes        |  no    | strong    |      no        |   5    |    easy        |
 |                  	|  2    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |   Probabilistic    |  1    |           Cross-Entropy Method                |    CEM    | 1997    |  original    |     no        |  no    | strong    |      no        |   4    |    easy        |
@@ -400,6 +398,7 @@ python examples/run_simple.py
 |                  	|  6    |          Blue Monkey Optimization            |    BMO    | 2019    |  changed    |     no        |  no    |  weak    |      no        |   3    |   medium    |
 |                  	|  7    |      Sandpiper Optimization Algorithm        |    SOA    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   2    |    easy        |
 |                  	|  8    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
+
 
 
 ### A
@@ -421,11 +420,14 @@ python examples/run_simple.py
   * **ImprovedAEO**: Rizk-Allah, R. M., & El-Fergany, A. A. (2020). Artificial ecosystem optimizer for parameters identification of proton exchange membrane fuel cells model. International Journal of Hydrogen Energy.
   * **EnhancedAEO**: Eid, A., Kamel, S., Korashy, A., & Khurshaid, T. (2020). An Enhanced Artificial Ecosystem-Based Optimization for Optimal Allocation of Multiple Distributed Generations. IEEE Access, 8, 178493-178513.
   * **ModifiedAEO**: Menesy, A. S., Sultan, H. M., Korashy, A., Banakhr, F. A., Ashmawy, M. G., & Kamel, S. (2020). Effective parameter extraction of different polymer electrolyte membrane fuel cell stack models using a modified artificial ecosystem optimization algorithm. IEEE Access, 8, 31892-31909.
-
-
+  
 * **ASO - Atom Search Optimization**   
   * **BaseASO**: Zhao, W., Wang, L., & Zhang, Z. (2019). Atom search optimization and its application to solve a hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, 283-304.
-    
+
+* **AOA - Arithmetic Optimization Algorithm**
+  * **OriginalAOA**: Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M., & Gandomi, A. H. (2021). The arithmetic optimization algorithm. Computer methods in applied mechanics and engineering, 376, 113609.
+  
+
 ### B
 
 

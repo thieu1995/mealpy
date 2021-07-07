@@ -7,6 +7,11 @@
     + IRRO: Impproved RRO
     + BaseRRO: My developed version (On this version work)
     
++ Add some newest algorithm to the library
+    + Arithmetic Optimization Algorithm (AOA) to Math-based group
+        + OriginalAOA: The original version of AOA
+    + 
+    
 ---------------------------------------------------------------------
 
 # Version 1.2.1
