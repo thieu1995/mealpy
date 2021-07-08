@@ -4,15 +4,22 @@
 
 + Add Raven Roosting Optimization (RRO) and its variants to Dummy group
     + OriginalRRO: The original version of RRO
-    + IRRO: Impproved RRO
+    + IRRO: The improved version of RRO
     + BaseRRO: My developed version (On this version work)
     
 + Add some newest algorithm to the library
     + Arithmetic Optimization Algorithm (AOA) to Math-based group
         + OriginalAOA: The original version of AOA
     + Aquila Optimizer (AO) to Swarm-based group
-        + OriginalAO: The original vesion of AO 
-    
+        + OriginalAO: The original version of AO 
+    + Archimedes Optimization Algorithm (ArchOA) to Physics-based group
+        + OriginalArchOA: The original version of ArchOA
+
+### Change others
+
++ examples: Update examples for all new algorithms
++ history: Update history of MHAs
+
 ---------------------------------------------------------------------
 
 # Version 1.2.1
@@ -32,7 +39,7 @@
     
 ### Change others
 
-+ examples: Update all the examples based on algorithm's input
++ examples: Update examples for all new algorithms
 
 ---------------------------------------------------------------------
 

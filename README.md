@@ -357,7 +357,8 @@ python examples/run_simple.py
 |                  	|  7    |     Henry Gas Solubility Optimization        |   HGSO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   3    |   medium    |
 |                  	|  8    |          Atom Search Optimization            |    ASO    | 2019    |  original    |     no        |  no    | strong    |      no        |   4    |   medium    |
 |                  	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
-|                  	|  10    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
+|                  	|  10    |     Archimedes Optimization Algorithm        |  ArchOA    | 2020    |  original    |     no        |  no    | strong    |     yes        |   6    |   medium    |
+|                  	|  11    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Human        |  1    |             Culture Algorithm                |    CA        | 1994    |  original    |     no        |  no    | strong    |      no        |   3    |    easy        |
 |                  	|  2    |     Imperialist Competitive Algorithm        |    ICA    | 2007    |  original    |     no        |  no    | strong    |     yes        |   10    |    hard*    |
 |                  	|  3    |       Teaching Learning Optimization        |    TLO    | 2011    |  original    |     yes        |  no    |  best    |     yes        |   2    |    easy        |
@@ -399,6 +400,8 @@ python examples/run_simple.py
 |                  	|  6    |          Blue Monkey Optimization            |    BMO    | 2019    |  changed    |     no        |  no    |  weak    |      no        |   3    |   medium    |
 |                  	|  7    |      Sandpiper Optimization Algorithm        |    SOA    | 2020    |  changed    |     no        |  no    |  weak    |      no        |   2    |    easy        |
 |                  	|  8    |          Black Widow Optimization            |    BWO    | 2020    |  changed    |     no        |  no    | strong    |     yes        |   5    |   medium    |
+
+
 
 
 ### A
