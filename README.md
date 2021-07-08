@@ -357,7 +357,7 @@ python examples/run_simple.py
 |                  	|  7    |     Henry Gas Solubility Optimization        |   HGSO    | 2019    |  original    |     no        |  no    |  best    |     yes        |   3    |   medium    |
 |                  	|  8    |          Atom Search Optimization            |    ASO    | 2019    |  original    |     no        |  no    | strong    |      no        |   4    |   medium    |
 |                  	|  9    |           Equilibrium Optimizer            |    EO        | 2019    |  original    |     no        |  no    |  best    |     yes        |   2    |    easy        |
-|                  	|  10    |     Archimedes Optimization Algorithm        |  ArchOA    | 2020    |  original    |     no        |  no    | strong    |     yes        |   6    |   medium    |
+|                  	|  10    |     Archimedes Optimization Algorithm        |  ArchOA    | 2021    |  original    |     no        |  no    | strong    |     yes        |   6    |   medium    |
 |                  	|  11    |                                           	|          	|      	|           	|            	|      	|        	|             	|       	|            	|
 |       Human        |  1    |             Culture Algorithm                |    CA        | 1994    |  original    |     no        |  no    | strong    |      no        |   3    |    easy        |
 |                  	|  2    |     Imperialist Competitive Algorithm        |    ICA    | 2007    |  original    |     no        |  no    | strong    |     yes        |   10    |    hard*    |
@@ -426,6 +426,9 @@ python examples/run_simple.py
   
 * **ASO - Atom Search Optimization**   
   * **BaseASO**: Zhao, W., Wang, L., & Zhang, Z. (2019). Atom search optimization and its application to solve a hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, 283-304.
+
+* **ArchOA - Archimedes Optimization Algorithm**
+  * **OriginalArchOA: Hashim, F. A., Hussain, K., Houssein, E. H., Mabrouk, M. S., & Al-Atabany, W. (2021). Archimedes optimization algorithm: a new metaheuristic algorithm for solving optimization problems. Applied Intelligence, 51(3), 1531-1551.
 
 * **AOA - Arithmetic Optimization Algorithm**
   * **OriginalAOA**: Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M., & Gandomi, A. H. (2021). The arithmetic optimization algorithm. Computer methods in applied mechanics and engineering, 376, 113609.
