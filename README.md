@@ -1,5 +1,5 @@
 # The state-of-the-art MEta-heuristics ALgorithms in PYthon (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-1.2.1-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-1.2.2-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -11,7 +11,7 @@
 
 ## Quick Notification
 
-* Current version: 1.2.1
+* Current version: 1.2.2, Total algorithms: 184 (original + variants), 89 original algorithms 
 * There are a big different between version (>= 1.1.0) and previous version (< 1.0.5) in term of passing 
   hyper-parameters. So please careful check your version before using this library.
 
@@ -428,7 +428,7 @@ python examples/run_simple.py
   * **BaseASO**: Zhao, W., Wang, L., & Zhang, Z. (2019). Atom search optimization and its application to solve a hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, 283-304.
 
 * **ArchOA - Archimedes Optimization Algorithm**
-  * **OriginalArchOA: Hashim, F. A., Hussain, K., Houssein, E. H., Mabrouk, M. S., & Al-Atabany, W. (2021). Archimedes optimization algorithm: a new metaheuristic algorithm for solving optimization problems. Applied Intelligence, 51(3), 1531-1551.
+  * **OriginalArchOA**: Hashim, F. A., Hussain, K., Houssein, E. H., Mabrouk, M. S., & Al-Atabany, W. (2021). Archimedes optimization algorithm: a new metaheuristic algorithm for solving optimization problems. Applied Intelligence, 51(3), 1531-1551.
 
 * **AOA - Arithmetic Optimization Algorithm**
   * **OriginalAOA**: Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M., & Gandomi, A. H. (2021). The arithmetic optimization algorithm. Computer methods in applied mechanics and engineering, 376, 113609.
