@@ -46,7 +46,7 @@ class BasePIO(Root):
                 for i in range(0, self.pop_size):
                     v_new = list_velocity[i] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                     x_new = pop[i][self.ID_POS] + v_new
-                    x_new = self.amend_position_random_faster(x_new)
+                    x_new = self.amend_position_random(x_new)
                     fit = self.get_fitness_position(x_new)
                     if fit < pop[i][self.ID_FIT]:
                         pop[i] = [x_new, fit]
@@ -102,7 +102,7 @@ class LevyPIO(BasePIO):
                 for i in range(0, self.pop_size):
                     v_new = list_velocity[i] * exp(-self.R * (epoch + 1)) + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                     x_new = pop[i][self.ID_POS] + v_new
-                    x_new = self.amend_position_random_faster(x_new)
+                    x_new = self.amend_position_random(x_new)
                     fit_new = self.get_fitness_position(x_new)
                     if fit_new < pop[i][self.ID_FIT]:
                         pop[i] = [x_new, fit_new]

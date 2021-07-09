@@ -45,7 +45,7 @@ class BasePSO(Root):
                 v_new = w * v_list[i] + self.c1 * uniform() * (pop_local[i][self.ID_POS] - pop[i][self.ID_POS]) +\
                             self.c2 * uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 x_new = pop[i][self.ID_POS] + v_new             # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit_new = self.get_fitness_position(x_new)
                 pop[i] = [x_new, fit_new]
 
@@ -291,7 +291,7 @@ class C_PSO(Root):
                 v_new = w * v_list[i] + self.c1 * rand() * (pop_local[i][self.ID_POS] - pop[i][self.ID_POS]) + \
                         self.c2 * rand() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
                 x_new = pop[i][self.ID_POS] + v_new
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit_new = self.get_fitness_position(x_new)
                 pop[i] = [x_new, fit_new]
                 # Update current position, current velocity and compare with past position, past fitness (local best)

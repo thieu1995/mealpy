@@ -49,7 +49,7 @@ class BaseSARO(Root):
                 pos_new_1 = pop[k][self.ID_POS] + uniform() * sd
                 pos_new_2 = pop_x[i][self.ID_POS] + uniform() * sd
                 pos_new = where(logical_and(uniform(0, 1, self.problem_size) < self.se, pop[k][self.ID_FIT] < pop_x[i][self.ID_FIT]), pos_new_1, pos_new_2)
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
 
                 if fit_new < pop_x[i][self.ID_FIT]:
@@ -65,7 +65,7 @@ class BaseSARO(Root):
 
                 #### Remove third loop here, and flight back strategy now be a random
                 pos_new = g_best[self.ID_POS] + uniform() * (pop[k1][self.ID_POS] - pop[k2][self.ID_POS])
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
 
                 fit_new = self.get_fitness_position(pos_new)
                 if fit_new < pop_x[i][self.ID_FIT]:

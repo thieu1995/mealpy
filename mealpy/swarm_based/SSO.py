@@ -73,7 +73,7 @@ class BaseSSO(Root):
             else:                               # Do a repulsion
                 temp = pop_females[i][self.ID_POS] - vibs * (x_s - pop_females[i][self.ID_POS]) * beta - \
                        vibb * (g_best[self.ID_POS] - pop_females[i][self.ID_POS]) * gamma + random
-            temp = self.amend_position_random_faster(temp)
+            temp = self.amend_position_random(temp)
             fit = self.get_fitness_position(temp)
             pop_females[i][self.ID_POS] = temp
             pop_females[i][self.ID_FIT] = fit
@@ -109,7 +109,7 @@ class BaseSSO(Root):
             else:
                 # Spider below median, go to weighted mean
                 temp = pop_males[i][self.ID_POS] + delta * (mean - pop_males[i][self.ID_POS]) + random
-            temp = self.amend_position_random_faster(temp)
+            temp = self.amend_position_random(temp)
             fit = self.get_fitness_position(temp)
             pop_males[i][self.ID_POS] = temp
             pop_males[i][self.ID_FIT] = fit

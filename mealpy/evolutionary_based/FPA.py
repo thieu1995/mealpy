@@ -37,7 +37,7 @@ class BaseFPA(Root):
                 else:
                     id1, id2 = choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     pos_new = pop[i][self.ID_POS] + uniform() * (pop[id1][self.ID_POS] - pop[id2][self.ID_POS])
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]

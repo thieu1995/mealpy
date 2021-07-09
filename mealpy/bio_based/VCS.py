@@ -48,7 +48,7 @@ class BaseVCS(Root):
                 xichma = (log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - g_best[self.ID_POS])
                 gauss = normal(normal(g_best[self.ID_POS], abs(xichma)))
                 pos_new = gauss + uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS]
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
@@ -65,7 +65,7 @@ class BaseVCS(Root):
             xichma = self.xichma * (1 - (epoch + 1) / self.epoch)
             for i in range(0, self.pop_size):
                 pos_new = x_mean + xichma * normal(0, 1, self.problem_size)  ## Basic / simple version, not the original version in the paper
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
@@ -149,7 +149,7 @@ class OriginalVCS(Root):
                 xichma = (log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - g_best[self.ID_POS])
                 gauss = array([normal(g_best[self.ID_POS][idx], abs(xichma[idx])) for idx in range(0, self.problem_size)])
                 pos_new = gauss + uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS]
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
@@ -158,7 +158,7 @@ class OriginalVCS(Root):
             xichma = self.xichma * (1 - (epoch+1)/self.epoch)
             for i in range(0, self.pop_size):
                 pos_new = x_mean + xichma * normal(0, 1, self.problem_size)         ## Basic / simple version, not the original version in the paper
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]

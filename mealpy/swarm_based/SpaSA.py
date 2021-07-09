@@ -51,7 +51,7 @@ class BaseSpaSA(Root):
                     x_new = pop[i][self.ID_POS] * exp((i+1) / ((uniform() + self.EPSILON) * self.epoch))
                 else:
                     x_new = pop[i][self.ID_POS] + normal() * ones(self.problem_size)
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
@@ -65,7 +65,7 @@ class BaseSpaSA(Root):
                     x_new = normal() * exp((worst[self.ID_POS] - pop[i][self.ID_POS]) / (i+1)**2)
                 else:
                     x_new = x_p + abs(pop[i][self.ID_POS] - x_p) * normal()
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
@@ -77,7 +77,7 @@ class BaseSpaSA(Root):
                 else:
                     x_new = pop[i][self.ID_POS] + uniform(-1, 1) * \
                             (abs(pop[i][self.ID_POS] - worst[self.ID_POS]) / (pop[i][self.ID_FIT] - worst[self.ID_FIT] + self.EPSILON))
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
@@ -125,7 +125,7 @@ class OriginalSpaSA(Root):
                     x_new = pop[i][self.ID_POS] * exp((i + 1) / (uniform() * self.epoch))
                 else:
                     x_new = pop[i][self.ID_POS] + normal() * ones(self.problem_size)
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
@@ -139,7 +139,7 @@ class OriginalSpaSA(Root):
                     A = sign(uniform(-1, 1, (1, self.problem_size)))
                     A1 = A.T * inv(matmul(A, A.T)) * L
                     x_new = g_best[self.ID_POS] + matmul(abs(pop[i][self.ID_POS] - g_best[self.ID_POS]), A1)
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]
@@ -151,7 +151,7 @@ class OriginalSpaSA(Root):
                 else:
                     x_new = pop[i][self.ID_POS] + uniform(-1, 1) * \
                             (abs(pop[i][self.ID_POS] - g_worst[self.ID_POS]) / (pop[i][self.ID_FIT] - g_worst[self.ID_FIT] + self.EPSILON))
-                x_new = self.amend_position_random_faster(x_new)
+                x_new = self.amend_position_random(x_new)
                 fit = self.get_fitness_position(x_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [x_new, fit]

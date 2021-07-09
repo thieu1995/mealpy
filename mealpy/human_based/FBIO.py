@@ -51,7 +51,7 @@ class BaseFBIO(Root):
                 pos_a = deepcopy(pop[i][self.ID_POS])
                 pos_a[n_change] = pop[i][self.ID_POS][n_change] + normal() * (pop[i][self.ID_POS][n_change] -
                                                                             (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change]) / 2)
-                pos_a = self.amend_position_random_faster(pos_a)
+                pos_a = self.amend_position_random(pos_a)
                 fit_a = self.get_fitness_position(pos_a)
                 if fit_a < pop[i][self.ID_FIT]:
                     pop[i] = [pos_a, fit_a]
@@ -67,7 +67,7 @@ class BaseFBIO(Root):
                     pos_a = deepcopy(pop[i][self.ID_POS])
                     temp = g_best[self.ID_POS] + pop[r1][self.ID_POS] + uniform() * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
                     pos_a = where(uniform(0, 1, self.problem_size) < 0.5, temp, pos_a)
-                    pos_a = self.amend_position_random_faster(pos_a)
+                    pos_a = self.amend_position_random(pos_a)
                     fit_a = self.get_fitness_position(pos_a)
                     if fit_a < pop[i][self.ID_FIT]:
                         pop[i] = [pos_a, fit_a]
@@ -79,7 +79,7 @@ class BaseFBIO(Root):
                 ### Remove third loop here also
                 ### Eq.(6) in FBI Inspired Meta-Optimization
                 pos_b = uniform(0, 1, self.problem_size) * pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -97,7 +97,7 @@ class BaseFBIO(Root):
                     ## Eq.(8) in FBI Inspired Meta-Optimization
                     pos_b = pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (pop[i][self.ID_POS] - pop[rr][self.ID_POS]) + \
                             uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -148,7 +148,7 @@ class OriginalFBIO(BaseFBIO):
                 pos_a[n_change] = pop[i][self.ID_POS][n_change] + (uniform() - 0.5)*2 * (pop[i][self.ID_POS][n_change] -
                                                                                (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change])/2)
                 ## Not good move here, change only 1 variable but check bound of all variable in solution
-                pos_a = self.amend_position_random_faster(pos_a)
+                pos_a = self.amend_position_random(pos_a)
                 fit_a = self.get_fitness_position(pos_a)
                 if fit_a < pop[i][self.ID_FIT]:
                     pop[i] = [pos_a, fit_a]
@@ -177,7 +177,7 @@ class OriginalFBIO(BaseFBIO):
                             pos_a[j] = g_best[self.ID_POS][j] + pop[r1][self.ID_POS][j] + uniform() * (pop[r2][self.ID_POS][j] - pop[r3][self.ID_POS][j])
                         ## In the original matlab code they do the else condition here, not good again because no need else here
                     ## Same here, they do check the bound of all variable in solution
-                    pos_a = self.amend_position_random_faster(pos_a)
+                    pos_a = self.amend_position_random(pos_a)
                     fit_a = self.get_fitness_position(pos_a)
                     if fit_a < pop[i][self.ID_FIT]:
                         pop[i] = [pos_a, fit_a]
@@ -190,7 +190,7 @@ class OriginalFBIO(BaseFBIO):
                 for j in range(0, self.problem_size):
                     ### Eq.(6) in FBI Inspired Meta-Optimization
                     pos_b[j] = uniform() * pop[i][self.ID_POS][j] + uniform() * (g_best[self.ID_POS][j] - pop[i][self.ID_POS][j])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -211,7 +211,7 @@ class OriginalFBIO(BaseFBIO):
                     ## Eq.(8) in FBI Inspired Meta-Optimization
                     pos_b = pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (pop[i][self.ID_POS] - pop[rr][self.ID_POS]) + \
                             uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]

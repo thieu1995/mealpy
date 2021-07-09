@@ -52,7 +52,7 @@ class BaseSLO(Root):
                 else:
                     pos_new = abs(g_best[self.ID_POS] - pop[i][self.ID_POS]) * cos(2 * pi * uniform(-1, 1)) + g_best[self.ID_POS]
 
-                pos_new = self.amend_position_random_faster(pos_new)    # In the paper doesn't check also doesn't update old solution at this point
+                pos_new = self.amend_position_random(pos_new)    # In the paper doesn't check also doesn't update old solution at this point
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit]
@@ -123,7 +123,7 @@ class ISLO(Root):
                             pos_new = pos_new_oppo
                 else:   # Exploitation
                     pos_new = g_best[self.ID_POS] + cos(2 * pi * uniform(-1, 1)) * abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_POS_FIT]:
                     pop[i] = [pos_new, fit, deepcopy(pos_new), deepcopy(fit)]
@@ -187,7 +187,7 @@ class ModifiedSLO(BaseSLO):
                         rand_SL = 2 * g_best[self.ID_POS] - rand_SL
                         new_pos = rand_SL - c * abs(uniform() * rand_SL - pop[i][self.ID_POS])
 
-                new_pos = self.amend_position_random_faster(new_pos)
+                new_pos = self.amend_position_random(new_pos)
                 new_fit = self.get_fitness_position(new_pos)
                 pop[i] = [new_pos, new_fit]  # Move to new position anyway
                 # Update current_pos, current_fit, compare and update past_pos and past_fit

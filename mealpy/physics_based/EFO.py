@@ -64,7 +64,7 @@ class BaseEFO(Root):
                     pos_new[randint(0, self.problem_size)] = uniform(self.lb[RI], self.ub[RI])
 
                 # checking whether the generated number is inside boundary or not
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
                 if fit_new < pop[i][self.ID_FIT]:
                     pop[i] = [pos_new, fit_new]
@@ -142,7 +142,7 @@ class OriginalEFO(BaseEFO):
                     RI = 0
 
             # checking whether the generated number is inside boundary or not
-            x_new = self.amend_position_random_faster(x_new)
+            x_new = self.amend_position_random(x_new)
             fit = self.get_fitness_position(x_new)
             # Updating the population if the fitness of the generated particle is better than worst fitness in
             #     the population (because the population is sorted by fitness, the last particle is the worst)

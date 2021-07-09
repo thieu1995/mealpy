@@ -49,7 +49,7 @@ class BaseSCA(Root):
                 pos_new2 = pop[i][self.ID_POS] + r1 * cos(r2) * abs(r3 * g_best[self.ID_POS] - pop[i][self.ID_POS])
                 pos_new = where(uniform(0, 1, self.problem_size) < 0.5, pos_new1, pos_new2)
                 # Check the bound
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:               # My improved part
                     pop[i] = [pos_new, fit]
@@ -104,7 +104,7 @@ class OriginalSCA(Root):
                     else:
                         pos_new[j] = pos_new[j] + r1 * cos(r2) * abs(r3 * g_best[self.ID_POS][j] - pos_new[j])
                 # Check the bound
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 pop[i] = [pos_new, fit]
 
@@ -155,7 +155,7 @@ class FasterSCA(Root):
                 pos_new2 = pop[i][self.ID_POS] + r1 * cos(r2) * abs(r3 * g_best[self.ID_POS] - pop[i][self.ID_POS])
                 pos_new = where(uniform(0, 1, self.problem_size) < 0.5, pos_new1, pos_new2)
                 # Check the bound
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < item[self.ID_FIT]:  # My improved part
                     pop[idx] = {0: pos_new, 1: fit}
@@ -219,7 +219,7 @@ class FastestSCA(Root):
                 pos_new2 = pop[i][self.ID_POS] + r1 * cos(r2) * abs(r3 * g_best[self.ID_POS] - pop[i][self.ID_POS])
                 pos_new = where(uniform(0, 1, self.problem_size) < 0.5, pos_new1, pos_new2)
                 # Check the bound
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[i][self.ID_FIT]:  # My improved part
                     pop[i] = {0: pos_new, 1: fit}

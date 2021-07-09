@@ -31,7 +31,7 @@ class BaseCEM(Root):
 
     def _create_solution_ce__(self, minmax=0):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos, minmax=minmax)
         return [pos, fit]
 
@@ -82,7 +82,7 @@ class CEBaseLCBO(BaseLCBO):
 
     def _create_solution_ce__(self, minmax=0):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos, minmax=minmax)
         return [pos, fit]
 
@@ -169,7 +169,7 @@ class CEBaseLCBONew(BaseLCBO):
 
     def _create_solution_ce__(self, minmax=0):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos, minmax=minmax)
         return [pos, fit]
 
@@ -265,7 +265,7 @@ class CEBaseSSDO(Root):
 
     def _create_solution_ce_(self, pop, idx):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos)
         velocity = pop[idx][self.ID_VEL]
         local_best_solution = pop[idx][self.ID_LBS]
@@ -360,7 +360,7 @@ class CEBaseSBO(BaseSBO):
 
     def _create_solution_ce_(self):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos)
         return [pos, fit]
 
@@ -444,7 +444,7 @@ class CEBaseFBIO(Root):
 
     def _create_solution_ce_(self):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos)
         return [pos, fit]
 
@@ -469,7 +469,7 @@ class CEBaseFBIO(Root):
                 pos_a = deepcopy(pop[i][self.ID_POS])
                 pos_a[n_change] = pop[i][self.ID_POS][n_change] + normal() * (pop[i][self.ID_POS][n_change] -
                                                                               (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change]) / 2)
-                pos_a = self.amend_position_random_faster(pos_a)
+                pos_a = self.amend_position_random(pos_a)
                 fit_a = self.get_fitness_position(pos_a)
                 if fit_a < pop[i][self.ID_FIT]:
                     pop[i] = [pos_a, fit_a]
@@ -485,7 +485,7 @@ class CEBaseFBIO(Root):
                     pos_a = deepcopy(pop[i][self.ID_POS])
                     temp = g_best[self.ID_POS] + pop[r1][self.ID_POS] + uniform() * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
                     pos_a = where(uniform(0, 1, self.problem_size) < 0.5, temp, pos_a)
-                    pos_a = self.amend_position_random_faster(pos_a)
+                    pos_a = self.amend_position_random(pos_a)
                     fit_a = self.get_fitness_position(pos_a)
                     if fit_a < pop[i][self.ID_FIT]:
                         pop[i] = [pos_a, fit_a]
@@ -497,7 +497,7 @@ class CEBaseFBIO(Root):
                 ### Remove third loop here also
                 ### Eq.(6) in FBI Inspired Meta-Optimization
                 pos_b = uniform(0, 1, self.problem_size) * pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -510,7 +510,7 @@ class CEBaseFBIO(Root):
                 ## Eq.(7) + Eq. (8) in FBI Inspired Meta-Optimization
                 pos_b = pop[i][self.ID_POS] + normal(0, 1, self.problem_size) * (pop[rr][self.ID_POS] - pop[i][self.ID_POS]) + \
                         uniform() * (g_best[self.ID_POS] - pop[rr][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -575,7 +575,7 @@ class CEBaseFBIONew(Root):
 
     def _create_solution_ce_(self):
         pos = normal(self.means, self.stdevs, self.problem_size)
-        pos = self.amend_position_random_faster(pos)
+        pos = self.amend_position_random(pos)
         fit = self.get_fitness_position(pos)
         return [pos, fit]
 
@@ -600,7 +600,7 @@ class CEBaseFBIONew(Root):
                 pos_a = deepcopy(pop[i][self.ID_POS])
                 pos_a[n_change] = pop[i][self.ID_POS][n_change] + normal() * (pop[i][self.ID_POS][n_change] -
                                                                               (pop[nb1][self.ID_POS][n_change] + pop[nb2][self.ID_POS][n_change]) / 2)
-                pos_a = self.amend_position_random_faster(pos_a)
+                pos_a = self.amend_position_random(pos_a)
                 fit_a = self.get_fitness_position(pos_a)
                 if fit_a < pop[i][self.ID_FIT]:
                     pop[i] = [pos_a, fit_a]
@@ -616,7 +616,7 @@ class CEBaseFBIONew(Root):
                     pos_a = deepcopy(pop[i][self.ID_POS])
                     temp = g_best[self.ID_POS] + pop[r1][self.ID_POS] + uniform() * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
                     pos_a = where(uniform(0, 1, self.problem_size) < 0.5, temp, pos_a)
-                    pos_a = self.amend_position_random_faster(pos_a)
+                    pos_a = self.amend_position_random(pos_a)
                     fit_a = self.get_fitness_position(pos_a)
                     if fit_a < pop[i][self.ID_FIT]:
                         pop[i] = [pos_a, fit_a]
@@ -628,7 +628,7 @@ class CEBaseFBIONew(Root):
                 ### Remove third loop here also
                 ### Eq.(6) in FBI Inspired Meta-Optimization
                 pos_b = uniform(0, 1, self.problem_size) * pop[i][self.ID_POS] + uniform(0, 1, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]
@@ -641,7 +641,7 @@ class CEBaseFBIONew(Root):
                 ## Eq.(7) + Eq. (8) in FBI Inspired Meta-Optimization
                 pos_b = pop[i][self.ID_POS] + normal(0, 1, self.problem_size) * (pop[rr][self.ID_POS] - pop[i][self.ID_POS]) + \
                         uniform() * (g_best[self.ID_POS] - pop[rr][self.ID_POS])
-                pos_b = self.amend_position_random_faster(pos_b)
+                pos_b = self.amend_position_random(pos_b)
                 fit_b = self.get_fitness_position(pos_b)
                 if fit_b < pop[i][self.ID_FIT]:
                     pop[i] = [pos_b, fit_b]

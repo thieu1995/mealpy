@@ -73,7 +73,7 @@ class BaseNRO(Root):
                     Xi = array([normal(pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem_size)])
 
                 ## Check the boundary and evaluate the fitness function
-                Xi = self.amend_position_random_faster(Xi)
+                Xi = self.amend_position_random(Xi)
                 fit = self.get_fitness_position(Xi, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [Xi, fit]
@@ -111,7 +111,7 @@ class BaseNRO(Root):
                             X_ion[j] = pop[i][self.ID_POS][j] + round(uniform()) * uniform()*(X_worst[self.ID_POS][j] - g_best[self.ID_POS][j])
 
                 ## Check the boundary and evaluate the fitness function for X_ion
-                X_ion = self.amend_position_random_faster(X_ion)
+                X_ion = self.amend_position_random(X_ion)
                 fit = self.get_fitness_position(X_ion, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_ion, fit]
@@ -143,7 +143,7 @@ class BaseNRO(Root):
                         else:
                             X_fu = pop[i][self.ID_POS] - 0.5 * (sin(2 * pi * freq * epoch + pi) * epoch / self.epoch + 1) * (pop[i1][self.ID_POS] - pop[i2][self.ID_POS])
 
-                X_fu = self.amend_position_random_faster(X_fu)
+                X_fu = self.amend_position_random(X_fu)
                 fit = self.get_fitness_position(X_fu, self.ID_MIN_PROB)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [X_fu, fit]

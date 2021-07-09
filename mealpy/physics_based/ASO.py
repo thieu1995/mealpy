@@ -102,7 +102,7 @@ class BaseASO(Root):
                 velocity = velocity_rand * pop[i][self.ID_VEL] + atom_acc_list[i]
                 temp = pop[i][self.ID_POS] + velocity
                 # Relocate atom out of range
-                temp = self.amend_position_random_faster(temp)
+                temp = self.amend_position_random(temp)
                 fit = self.get_fitness_position(temp)
                 if fit < pop[i][self.ID_FIT]:
                     pop[i] = [temp, fit, pop[i][self.ID_VEL], 0.0]

@@ -84,7 +84,7 @@ class BaseBSO(Root):
                         rand_id1 = randint(0, self.m_solution)
                         rand_id2 = randint(0, self.m_solution)
                         pos_new = 0.5 * (pop[id1][rand_id1][self.ID_POS] + pop[id2][rand_id2][self.ID_POS]) + epxilon * normal(self.miu, self.xichma)
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[cluster_id][location_id][self.ID_FIT]:
                     pop[cluster_id][location_id] = [pos_new, fit]
@@ -164,7 +164,7 @@ class ImprovedBSO(Root):
                         rand_id1 = randint(0, self.m_solution)
                         rand_id2 = randint(0, self.m_solution)
                         pos_new = 0.5 * (pop[id1][rand_id1][self.ID_POS] + pop[id2][rand_id2][self.ID_POS]) + epxilon * uniform()
-                pos_new = self.amend_position_random_faster(pos_new)
+                pos_new = self.amend_position_random(pos_new)
                 fit = self.get_fitness_position(pos_new)
                 if fit < pop[cluster_id][location_id][self.ID_FIT]:
                     pop[cluster_id][location_id] = [pos_new, fit]
