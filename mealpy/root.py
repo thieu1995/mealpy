@@ -4,10 +4,11 @@
 #                                                                                                       %
 #       Email:      nguyenthieu2102@gmail.com                                                           %
 #       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                  %
-# -------------------------------------------------------------------------------------------------------%
+#       Github:     https://github.com/thieu1995                                                        %
+# ------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, sqrt, sign, ones, ptp, min, sum, array, ceil, multiply, mean
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, ptp
+from numpy import ndarray, array, min, sum, ceil, multiply, mean, sqrt, sign, ones, dot
 from numpy.random import uniform, random, normal, choice
 from math import gamma
 from copy import deepcopy
@@ -19,8 +20,19 @@ class Root:
     ID_MIN_PROB = 0  # min problem
     ID_MAX_PROB = -1  # max problem
 
-    ID_POS = 0  # Position
-    ID_FIT = 1  # Fitness
+    ## Assumption the A solution with format: [position, [target, [obj1, obj2, ...]]]
+    ID_POS = 0  # Index of position/location of solution/agent
+    ID_FIT = 1  # Index of fitness value of solution/agent
+
+    ID_TAR = 0  # Index of target (the final fitness) in fitness
+    ID_OBJ = 1  # Index of objective list in fitness
+
+    ## To get the position, fitness wrapper, target and obj list
+    ##      A[self.ID_POS]                  --> Return: position
+    ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+    ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
+    ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
 
     EPSILON = 10E-10
 
@@ -29,23 +41,32 @@ class Root:
     DEFAULT_LB = -1
     DEFAULT_UB = 1
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, kwargs=None):
+    def __init__(self, obj_func=None, lb=None, ub=None, minmax="min", verbose=True, kwargs=None):
         """
         Parameters
         ----------
         obj_func : function
         lb : list
         ub : list
+        minmax: "min" or "max" problem
         verbose : bool
         """
         if kwargs is None:
             kwargs = {}
+        self.problem_size, self.lb, self.ub, self.batch_size, self.batch_idea = None, None, None, None, None
+        self.n_objs, self.obj_weight, self.multi_objs, self.obj_is_list = None, None, None, True
         self.verbose = verbose
+        self.minmax = minmax
         self.obj_func = obj_func
         self.__check_parameters__(lb, ub, kwargs)
         self.__check_optional_parameters__(kwargs)
+        self.__check_objective_function__(kwargs)
         self.epoch, self.pop_size = None, None
         self.solution, self.loss_train = None, []
+        self.g_best_list = []         # List of global best solution found so far in all previous generations
+        self.c_best_list = []         # List of current best solution in each previous generations
+        self.epoch_time_list = []     # List of runtime for each generation
+
 
     def __check_parameters__(self, lb, ub, kwargs):
         if (lb is None) or (ub is None):
@@ -116,34 +137,103 @@ class Root:
         else:
             self.batch_idea = self.DEFAULT_BATCH_IDEA
 
-    def create_solution(self, minmax=0):
-        """ Return the position position with 2 element: position of position and fitness of position
+    def __check_objective_function__(self, kwargs):
+        tested_solution = uniform(self.lb, self.ub)
+        try:
+            result = self.obj_func(tested_solution)
+        except Exception as err:
+            print(f"Error: {err}\n")
+            print("Please check your defined objective function!")
+            exit(0)
+        if isinstance(result, list) or isinstance(result, ndarray):
+            self.n_objs = len(result)
+            if self.n_objs > 1:
+                self.multi_objs = True
+                if "obj_weight" in kwargs:
+                    self.obj_weight = kwargs["obj_weight"]
+                    if isinstance(self.obj_weight, list) or isinstance(self.obj_weight, ndarray):
+                        if self.n_objs != len(self.obj_weight):
+                            print(f"Please check your objective function/weight. N objs = {self.n_objs}, but N weights = {len(self.obj_weight)}")
+                            exit(0)
+                        if self.verbose:
+                            print(f"N objs = {self.n_objs} with weights = {self.obj_weight}")
+                    else:
+                        print(f"Please check your objective function/weight. N objs = {self.n_objs}, weights must be a list or numpy array with same length.")
+                        exit(0)
+                else:
+                    self.obj_weight = ones(self.n_objs)
+                    if self.verbose:
+                        print(f"N objs = {self.n_objs} with default weights = {self.obj_weight}")
+            elif self.n_objs == 1:
+                self.multi_objs = False
+                self.obj_weight = ones(1)
+                if self.verbose:
+                    print(f"N objs = {self.n_objs} with default weights = {self.obj_weight}")
+            else:
+                print(f"Please check your objective function. It returns nothing!")
+                exit(0)
+        else:
+            if type(result) in (int, float):
+                self.multi_objs = False
+                self.obj_is_list = False
+                self.obj_weight = ones(1)
 
-        Parameters
-        ----------
-        minmax
-            0 - minimum problem, else - maximum problem
+    def create_solution(self):
+        """ Return the position position with 2 element: index of position/location and index of fitness wrapper
+            The general format: [position, [target, [obj1, obj2, ...]]]
 
+        ## To get the position, fitness wrapper, target and obj list
+        ##      A[self.ID_POS]                  --> Return: position
+        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
+        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
         """
         position = uniform(self.lb, self.ub)
-        fitness = self.get_fitness_position(position=position, minmax=minmax)
+        fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 
-    def get_fitness_position(self, position=None, minmax=0):
+    def get_fitness_position(self, position=None):
         """     Assumption that objective function always return the original value
         :param position: 1-D numpy array
-        :param minmax: 0- min problem, 1 - max problem
         :return:
         """
-        return self.obj_func(position) if minmax == 0 else 1.0 / (self.obj_func(position) + self.EPSILON)
+        objs = self.obj_func(position)
+        if not self.obj_is_list:
+            objs = [objs]
+        fit = dot(objs, self.obj_weight)
+        fit = fit if self.minmax == "min" else 1.0 / (fit + self.EPSILON)
+        return [fit, objs]
 
-    def get_fitness_solution(self, solution=None, minmax=0):
-        return self.get_fitness_position(solution[self.ID_POS], minmax)
+    def get_fitness_solution(self, solution=None):
+        return self.get_fitness_position(solution[self.ID_POS])
 
-    def get_global_best_solution(self, pop=None, id_fit=None, id_best=None):
+    def get_global_best_solution(self, pop=None):
         """ Sort a copy of population and return the copy of the best position """
-        sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
-        return deepcopy(sorted_pop[id_best])
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        return deepcopy(sorted_pop[0]) if self.minmax == "min" else deepcopy(sorted_pop[-1])
+
+    def update_global_best_solution(self, pop=None):
+        """ Sort the copy of population and update the current best position. Return the new current best position """
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        if self.minmax == "min":
+            current_best = sorted_pop[0]
+            self.c_best_list.append(deepcopy(current_best))
+            if current_best[self.ID_FIT][self.ID_TAR] < self.g_best_list[-1][self.ID_FIT][self.ID_TAR]:
+                self.g_best_list.append(deepcopy(current_best))
+            else:
+                self.g_best_list.append(deepcopy(self.g_best_list[-1]))
+        else:
+            current_best = sorted_pop[-1]
+            self.c_best_list.append(current_best)
+            better = deepcopy(current_best) if current_best[self.ID_FIT][self.ID_TAR] > self.g_best_list[-1][self.ID_FIT][self.ID_TAR] \
+                else deepcopy(self.g_best_list[-1])
+            self.g_best_list.append(better)
+
+    def print_epoch(self, epoch, runtime):
+        if self.verbose:
+            print(f"> Epoch: {epoch}, Current best: {self.c_best_list[-1][self.ID_FIT][self.ID_TAR]}, "
+                  f"Global best: {self.g_best_list[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
+
 
     def get_global_best_global_worst_solution(self, pop=None, id_fit=None, id_best=None):
         sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
@@ -171,19 +261,7 @@ class Root:
         return clip(position, self.lb, self.ub)
 
     def amend_position_random(self, position=None):
-        for t in range(self.problem_size):
-            if position[t] < self.lb[t] or position[t] > self.ub[t]:
-                position[t] = uniform(self.lb[t], self.ub[t])
-        return position
-
-    def amend_position_random_faster(self, position=None):
         return where(logical_and(self.lb <= position, position <= self.ub), position, uniform(self.lb, self.ub))
-
-    def update_global_best_solution(self, pop=None, id_best=None, g_best=None):
-        """ Sort the copy of population and update the current best position. Return the new current best position """
-        sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-        current_best = sorted_pop[id_best]
-        return deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
 
     def update_sorted_population_and_global_best_solution(self, pop=None, id_best=None, g_best=None):
         """ Sort the population and update the current best position. Return the sorted population and the new current best position """
