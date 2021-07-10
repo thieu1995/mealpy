@@ -7,9 +7,10 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, ptp
+from numpy import where, clip, logical_and, maximum, minimum, power, sin, abs, pi, ptp, median
 from numpy import ndarray, array, min, sum, ceil, multiply, mean, sqrt, sign, ones, dot
 from numpy.random import uniform, random, normal, choice
+from numpy import max as np_max
 from math import gamma
 from copy import deepcopy
 
@@ -63,10 +64,15 @@ class Root:
         self.__check_objective_function__(kwargs)
         self.epoch, self.pop_size = None, None
         self.solution, self.loss_train = None, []
-        self.g_best_list = []         # List of global best solution found so far in all previous generations
-        self.c_best_list = []         # List of current best solution in each previous generations
-        self.epoch_time_list = []     # List of runtime for each generation
-
+        self.g_best_list = []           # List of global best solution found so far in all previous generations
+        self.c_best_list = []           # List of current best solution in each previous generations
+        self.epoch_time_list = []       # List of runtime for each generation
+        self.g_fit_best_list = []       # List of global best fitness found so far in all previous generations
+        self.c_fit_best_list = []       # List of current best fitness in each previous generations
+        self.pop_list = []              # List of population in each generations
+        self.div_list = None            # List of diversity of swarm in all generations
+        self.exploit_list = None        # List of exploitation percentages for all generations
+        self.explore_list = None        # List of exploration percentanges for all generations
 
     def __check_parameters__(self, lb, ub, kwargs):
         if (lb is None) or (ub is None):
@@ -234,6 +240,20 @@ class Root:
             print(f"> Epoch: {epoch}, Current best: {self.c_best_list[-1][self.ID_FIT][self.ID_TAR]}, "
                   f"Global best: {self.g_best_list[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
 
+    def save_data(self):
+        # Draw the convergence line with this data
+        self.g_fit_best_list = [agent[self.ID_FIT][self.ID_TAR] for agent in self.g_best_list]
+        self.c_fit_best_list = [agent[self.ID_FIT][self.ID_TAR] for agent in self.c_best_list]
+
+        # Draw the exploration and exploitation line with this data
+        self.div_list = ones(self.epoch)
+        for idx, pop in enumerate(self.pop_list):
+            pos_matrix = array([agent[self.ID_POS] for agent in pop])
+            div = mean(abs((median(pos_matrix, axis=0) - pos_matrix)), axis=0)
+            self.div_list[idx] = mean(div, axis=0)
+        div_max = np_max(self.div_list)
+        self.explore_list = 100 * (self.div_list / div_max)
+        self.exploit_list = 100 - self.explore_list
 
     def get_global_best_global_worst_solution(self, pop=None, id_fit=None, id_best=None):
         sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])

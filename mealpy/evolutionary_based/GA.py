@@ -68,5 +68,8 @@ class BaseGA(Root):
             time_start = time() - time_start
             self.epoch_time_list.append(time_start)
             self.print_epoch(epoch+1, time_start)
+            self.pop_list.append(deepcopy(pop))
+
         self.solution = self.g_best_list[-1]
+        self.save_data()
         return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR], self.g_best_list, self.c_best_list
