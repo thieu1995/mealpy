@@ -9,7 +9,6 @@
 
 from numpy import array, where
 from numpy.random import uniform
-from copy import deepcopy
 from time import time
 from mealpy.root import Root
 
@@ -33,7 +32,7 @@ class BaseGA(Root):
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
         self.g_best_list = [self.get_global_best_solution(pop) ]
-        self.c_best_list = deepcopy(self.g_best_list)
+        self.c_best_list = self.g_best_list.copy()
 
         for epoch in range(0, self.epoch):
             time_start = time()
@@ -57,19 +56,22 @@ class BaseGA(Root):
                 w1 = where(uniform(0, 1, self.problem_size) < self.pm, uniform(self.lb, self.ub), w1)
                 w2 = where(uniform(0, 1, self.problem_size) < self.pm, uniform(self.lb, self.ub), w2)
 
-                c1_new = [deepcopy(w1), self.get_fitness_position(w1)]
-                c2_new = [deepcopy(w2), self.get_fitness_position(w2)]
+                c1_new = [w1.copy(), self.get_fitness_position(w1)]
+                c2_new = [w2.copy(), self.get_fitness_position(w2)]
                 next_population.append(c1_new)
                 next_population.append(c2_new)
 
-            pop = deepcopy(next_population)
+            pop = next_population.copy()
             # update global best position
             self.update_global_best_solution(pop)
+
+            ## Additional information for the framework
             time_start = time() - time_start
             self.epoch_time_list.append(time_start)
             self.print_epoch(epoch+1, time_start)
-            self.pop_list.append(deepcopy(pop))
+            self.pop_list.append(pop.copy())
 
+        ## Additional information for the framework
         self.solution = self.g_best_list[-1]
         self.save_data()
         return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR], self.g_best_list, self.c_best_list

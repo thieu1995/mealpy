@@ -215,24 +215,24 @@ class Root:
 
     def get_global_best_solution(self, pop=None):
         """ Sort a copy of population and return the copy of the best position """
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        return deepcopy(sorted_pop[0]) if self.minmax == "min" else deepcopy(sorted_pop[-1])
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])     # Already returned a new sorted list
+        return sorted_pop[0] if self.minmax == "min" else sorted_pop[-1]
 
     def update_global_best_solution(self, pop=None):
         """ Sort the copy of population and update the current best position. Return the new current best position """
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
         if self.minmax == "min":
             current_best = sorted_pop[0]
-            self.c_best_list.append(deepcopy(current_best))
+            self.c_best_list.append(current_best.copy())
             if current_best[self.ID_FIT][self.ID_TAR] < self.g_best_list[-1][self.ID_FIT][self.ID_TAR]:
-                self.g_best_list.append(deepcopy(current_best))
+                self.g_best_list.append(current_best.copy())
             else:
-                self.g_best_list.append(deepcopy(self.g_best_list[-1]))
+                self.g_best_list.append(self.g_best_list[-1].copy())
         else:
             current_best = sorted_pop[-1]
             self.c_best_list.append(current_best)
-            better = deepcopy(current_best) if current_best[self.ID_FIT][self.ID_TAR] > self.g_best_list[-1][self.ID_FIT][self.ID_TAR] \
-                else deepcopy(self.g_best_list[-1])
+            better = current_best.copy() if current_best[self.ID_FIT][self.ID_TAR] > self.g_best_list[-1][self.ID_FIT][self.ID_TAR] \
+                else self.g_best_list[-1].copy()
             self.g_best_list.append(better)
 
     def print_epoch(self, epoch, runtime):
@@ -254,6 +254,25 @@ class Root:
         div_max = np_max(self.div_list)
         self.explore_list = 100 * (self.div_list / div_max)
         self.exploit_list = 100 - self.explore_list
+
+
+    ## Crossover techniques
+
+    def get_index_roulette_wheel_selection(self, list_fitness=None):
+        """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""
+        scaled_fitness = (list_fitness - min(list_fitness)) / (ptp(list_fitness) + self.EPSILON)
+        if self.minmax == "min":
+            final_fitness = 1.0 - scaled_fitness
+        else:
+            final_fitness = scaled_fitness
+        total_sum = sum(final_fitness)
+        r = uniform(low=0, high=total_sum)
+        for idx, f in enumerate(final_fitness):
+            r = r + f
+            if r > total_sum:
+                return idx
+
+
 
     def get_global_best_global_worst_solution(self, pop=None, id_fit=None, id_best=None):
         sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
@@ -359,17 +378,6 @@ class Root:
         else:
             step = multiplier * s
         return step
-
-    def get_index_roulette_wheel_selection(self, list_fitness=None):
-        """ It can handle negative also. Make sure your list fitness is 1D-numpy array"""
-        scaled_fitness = (list_fitness - min(list_fitness)) / (ptp(list_fitness) + self.EPSILON)
-        minimized_fitness = 1.0 - scaled_fitness
-        total_sum = sum(minimized_fitness)
-        r = uniform(low=0, high=total_sum)
-        for idx, f in enumerate(minimized_fitness):
-            r = r + f
-            if r > total_sum:
-                return idx
 
     def get_parent_kway_tournament_selection(self, pop=None, k_way=0.2, output=2):
         if 0 < k_way < 1:
