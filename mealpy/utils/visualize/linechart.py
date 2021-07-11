@@ -16,7 +16,7 @@ LIST_LINESTYLES = [
     '-',        # solid line style
     '--',       # dashed line style
     '-.',       # dash-dot line style
-    '.',        # point marker
+    ':',        # point marker
     's',        # square marker
     '*',        # star marker
     'p',        # pentagon marker
@@ -111,9 +111,9 @@ def export_diversity_chart(data=None, title='Diversity Measurement Chart', list_
                            list_styles=None, list_colors=None, x_label="#Iteration", y_label="Diversity Measurement",
                            filename="diversity_chart", exts=(".png", ".pdf"), verbose=True):
     if list_styles is None:
-        list_styles = LIST_LINESTYLES[len(data)]
+        list_styles = LIST_LINESTYLES[:len(data)]
     if list_colors is None:
-        list_colors = LIST_COLORS[len(data)]
+        list_colors = LIST_COLORS[:len(data)]
     _draw_multi_line_(data=data, title=title, list_legends=list_legends, list_styles=list_styles, list_colors=list_colors,
                       x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
@@ -124,8 +124,15 @@ def export_objectives_chart(data=None, title="Objectives chart", list_legends=No
                                      x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
 
-
-
+def export_trajectory_chart(data=None, title="Trajectory of some first agents after generations", list_legends=None,
+                                 list_styles=None, list_colors=None, x_label="#Iteration", y_label="x1",
+                                 filename="1d_trajectory", exts=(".png", ".pdf"), verbose=True):
+    if list_styles is None:
+        list_styles = LIST_LINESTYLES[:len(data)]
+    if list_colors is None:
+        list_colors = LIST_COLORS[:len(data)]
+    _draw_multi_line_(data=data, title=title, list_legends=list_legends, list_styles=list_styles, list_colors=list_colors,
+                      x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
 
 
