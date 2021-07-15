@@ -41,7 +41,7 @@ def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Itera
     plt.legend()  # show a legend on the plot
     if filename is not None:
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}.{ext}", bbox_inches='tight')
+            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
@@ -59,7 +59,7 @@ def _draw_multi_line_(data=None, title=None, list_legends=None, list_styles=None
     plt.legend()  # show a legend on the plot
     if filename is not None:
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}.{ext}", bbox_inches='tight')
+            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
@@ -93,7 +93,7 @@ def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, l
 
     if filename is not None:
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}.{ext}", bbox_inches='tight')
+            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()

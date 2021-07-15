@@ -119,12 +119,12 @@ export_diversity_chart([md5.history_list_div], list_legends=['GA'])  # Draw dive
 ## Need a little bit more pre-processing
 
 
-global_obj_list = array([agent[-1][-1] for agent in md5.history_list_g_best])  # 2D array / matrix 2D
+global_obj_list = array([agent[1][-1] for agent in md5.history_list_g_best])  # 2D array / matrix 2D
 global_obj_list = [global_obj_list[:, idx] for idx in range(0, len(global_obj_list[0]))]        # Make each obj_list as a element in array for drawing
 export_objectives_chart(global_obj_list, title='Global Objectives Chart')
 
 
-current_obj_list = array([agent[-1][-1] for agent in md5.history_list_c_best])
+current_obj_list = array([agent[1][-1] for agent in md5.history_list_c_best])
 current_obj_list = [current_obj_list[:, idx] for idx in range(0, len(current_obj_list[0]))]     # Make each obj_list as a element in array for drawing
 export_objectives_chart(current_obj_list, title='Local Objectives Chart')
 
