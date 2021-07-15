@@ -11,7 +11,7 @@ from numpy.random import uniform, random
 from numpy import where
 from random import sample, choice
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseCSO(Root):

@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, choice, rand
 from numpy import array,  sqrt, abs, sum, round
-from mealpy.root import Root
+from mealpy.optimizer import Root
 from copy import deepcopy
 
 

@@ -10,7 +10,7 @@
 from numpy.random import uniform, choice
 from numpy.linalg import norm
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseWHO(Root):

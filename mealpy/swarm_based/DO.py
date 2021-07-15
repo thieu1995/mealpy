@@ -11,7 +11,7 @@ from numpy import array, sum, all, abs, zeros, any, pi, sin
 from numpy.random import rand, randn
 from math import gamma
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseDO(Root):

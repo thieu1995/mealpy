@@ -10,7 +10,7 @@
 from numpy import array
 from numpy.random import uniform, choice
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseMA(Root):

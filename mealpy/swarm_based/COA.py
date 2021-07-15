@@ -9,7 +9,7 @@
 
 from numpy.random import choice, uniform, permutation, rand, randint
 from numpy import ones, zeros, argmin, argsort, median, logical_not, logical_or, flatnonzero
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseCOA(Root):

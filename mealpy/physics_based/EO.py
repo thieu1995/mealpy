@@ -10,7 +10,7 @@
 from numpy import exp, sign, ones, mean, multiply
 from numpy.random import uniform, randint, normal, random, choice
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseEO(Root):

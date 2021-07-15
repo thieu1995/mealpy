@@ -11,7 +11,7 @@ from numpy import where, sum, any, mean, array, clip, ones, abs
 from numpy.random import uniform, choice, normal, randint, random, rand
 from copy import deepcopy
 from scipy.stats import cauchy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 """
 BaseDE: - the very first DE algorithm (Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization)

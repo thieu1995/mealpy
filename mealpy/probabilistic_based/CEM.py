@@ -10,7 +10,7 @@
 from numpy import ceil, sqrt, abs, array, mean, repeat, sin, cos, clip, where
 from numpy.random import uniform, normal, choice, randint
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 from mealpy.human_based.LCBO import BaseLCBO
 from mealpy.bio_based.SBO import BaseSBO
 

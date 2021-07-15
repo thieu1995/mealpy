@@ -9,7 +9,7 @@
 
 from numpy.random import random
 from numpy import exp, where
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSalpSO(Root):

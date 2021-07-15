@@ -11,7 +11,7 @@ from numpy.random import uniform, randint
 from numpy import zeros, exp, median, array, sum, multiply, min, max
 from numpy.linalg import norm
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSSO(Root):

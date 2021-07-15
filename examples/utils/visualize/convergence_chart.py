@@ -35,10 +35,10 @@ best_position, best_fitness, g_best_fit_list, c_best_fit_list = optimizer.train(
 print(best_position)
 
 ## Draw convergence chart for globest solution found so far in each previous generation
-export_convergence_chart(optimizer.g_fit_best_list, title='Global Best Fitness', filename="Global-best-convergence-chart")
+export_convergence_chart(optimizer.history_list_g_best_fit, title='Global Best Fitness', filename="Global-best-convergence-chart")
 
 # Parameter for this function
-# data: optimizer.g_fit_best_list -> List of global best fitness found so far in each previous generation
+# data: optimizer.history_list_g_best_fit -> List of global best fitness found so far in each previous generation
 # title: title of the figure
 # linestyle: matplotlib API, default = "-"
 # color: matplotlib API, default = "b"  -> Blue
@@ -49,10 +49,10 @@ export_convergence_chart(optimizer.g_fit_best_list, title='Global Best Fitness',
 # verbose: show the figure on Python IDE, default = True
 
 ## Draw convergence chart for current best solution in each generation
-export_convergence_chart(optimizer.c_fit_best_list, title='Local Best Fitness', filename='Current-best-convergence-chart')
+export_convergence_chart(optimizer.history_list_c_best_fit, title='Local Best Fitness', filename='Current-best-convergence-chart')
 
 ## Draw runtime for each generation
-export_convergence_chart(optimizer.epoch_time_list, title='Runtime chart', y_label="Second", filename='Runtime-per-epoch-chart')
+export_convergence_chart(optimizer.history_list_epoch_time, title='Runtime chart', y_label="Second", filename='Runtime-per-epoch-chart')
 
 
 

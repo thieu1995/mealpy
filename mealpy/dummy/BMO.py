@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, normal
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalBMO(Root):

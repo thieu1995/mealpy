@@ -12,7 +12,7 @@ from numpy.linalg import norm
 from numpy import exp, power, pi, zeros, array, mean, ones, dot
 from math import gamma
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalRHO(Root):

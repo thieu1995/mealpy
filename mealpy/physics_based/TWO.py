@@ -10,7 +10,7 @@
 from numpy.random import uniform, randn, random, normal
 from numpy import power, where, logical_and, logical_or
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseTWO(Root):

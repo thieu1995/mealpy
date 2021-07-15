@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from numpy.random import rand
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalAOA(Root):

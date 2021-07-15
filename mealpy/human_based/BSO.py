@@ -10,7 +10,7 @@
 from numpy.random import uniform, randint, choice, normal
 from math import exp
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBSO(Root):

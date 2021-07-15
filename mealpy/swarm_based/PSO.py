@@ -12,7 +12,7 @@ from numpy import pi, sin, cos, zeros, minimum, maximum, abs, where, sign, mean,
 from numpy import min as np_min
 from numpy import max as np_max
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BasePSO(Root):

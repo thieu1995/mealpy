@@ -10,7 +10,7 @@
 from numpy import array, pi, power, cos, sin, argmax, argmin, ones, zeros
 from numpy.random import uniform, choice, randint
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseAAA(Root):

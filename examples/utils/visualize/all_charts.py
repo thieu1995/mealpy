@@ -35,17 +35,17 @@ optimizer = BaseGA(obj_function, lb1, ub1, "max", verbose, epoch, pop_size, obj_
 best_position, best_fitness, g_best_fit_list, c_best_fit_list = optimizer.train()
 print(best_position)
 
-export_convergence_chart(optimizer.g_fit_best_list, title='Global Best Fitness')            # Draw global best fitness found so far in previous generations
-export_convergence_chart(optimizer.c_fit_best_list, title='Local Best Fitness')             # Draw current best fitness in each previous generation
-export_convergence_chart(optimizer.epoch_time_list, title='Runtime chart', y_label="Second")        # Draw runtime for each generation
+export_convergence_chart(optimizer.history_list_g_best_fit, title='Global Best Fitness')            # Draw global best fitness found so far in previous generations
+export_convergence_chart(optimizer.history_list_c_best_fit, title='Local Best Fitness')             # Draw current best fitness in each previous generation
+export_convergence_chart(optimizer.history_list_epoch_time, title='Runtime chart', y_label="Second")        # Draw runtime for each generation
 
 ## On the exploration and exploitation in popular swarm-based metaheuristic algorithms
 
 # This exploration/exploitation chart should draws for single algorithm and single fitness function
-export_explore_exploit_chart([optimizer.explore_list, optimizer.exploit_list])  # Draw exploration and exploitation chart
+export_explore_exploit_chart([optimizer.history_list_explore, optimizer.history_list_exploit])  # Draw exploration and exploitation chart
 
 # This diversity chart should draws for multiple algorithms for a single fitness function at the same time to compare the diversity spreading
-export_diversity_chart([optimizer.div_list], list_legends=['GA'])        # Draw diversity measurement chart
+export_diversity_chart([optimizer.history_list_div], list_legends=['GA'])        # Draw diversity measurement chart
 
 ## Because convergence chart is formulated from objective values and weights, thus we also want to draw objective charts to understand the convergence
 # Need a little bit more pre-processing
@@ -64,7 +64,7 @@ list_legends = []
 dimension = 2
 y_label = f"x{dimension+1}"
 for i in range(0, 5, 2):   # Get the third dimension of position of the first 3 solutions
-    x = [pop[0][0][dimension] for pop in optimizer.pop_list]
+    x = [pop[0][0][dimension] for pop in optimizer.history_list_pop]
     pos_list.append(x)
     list_legends.append(f"Agent {i+1}.")
     # pop[0]: Get the first solution

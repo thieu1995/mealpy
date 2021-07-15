@@ -10,7 +10,7 @@
 from numpy import exp, sqrt, sum
 from numpy.random import uniform
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BasePFA(Root):

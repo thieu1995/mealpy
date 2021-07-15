@@ -46,7 +46,7 @@ current_obj_list = [current_obj_list[:, idx] for idx in range(0, len(current_obj
 export_objectives_chart(current_obj_list, title='Local Objectives Chart', filename="local-objective-chart")
 
 # Parameter for this function
-# data: optimizer.g_fit_best_list -> List of global best fitness found so far in each previous generation
+# data: optimizer.history_list_g_best_fit -> List of global best fitness found so far in each previous generation
 # title: title of the figure
 # list_legends: list of line's name
 # list_styles: matplotlib API, default = None

@@ -10,7 +10,7 @@
 from numpy import array, take, where, concatenate, inf
 from random import sample, random, randint
 from numpy.random import uniform, normal
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseCRO(Root):

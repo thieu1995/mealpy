@@ -10,7 +10,7 @@
 from numpy.random import uniform, random, normal, choice
 from numpy import array, mean, sqrt, ceil, abs, cos, pi, sin
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalLCBO(Root):

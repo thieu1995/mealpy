@@ -10,7 +10,7 @@
 from numpy.random import uniform, choice, exponential, random
 from numpy import power, abs, array, where
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseQSA(Root):

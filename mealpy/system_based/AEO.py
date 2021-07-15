@@ -10,7 +10,7 @@
 from numpy.random import uniform, normal, randint, random
 from numpy import abs, cos, sin, pi
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalAEO(Root):

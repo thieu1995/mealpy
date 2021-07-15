@@ -11,7 +11,7 @@ from numpy.random import uniform, randint, normal, random, choice, rand
 from numpy import abs, sign, cos, pi, sin, sqrt, power
 from math import gamma
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSLO(Root):

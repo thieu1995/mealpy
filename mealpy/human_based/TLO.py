@@ -11,7 +11,7 @@ from numpy.random import uniform, randint, choice, rand, permutation
 from numpy import array, mean, setxor1d
 from copy import deepcopy
 from functools import reduce
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseTLO(Root):

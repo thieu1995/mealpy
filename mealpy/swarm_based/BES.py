@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, choice
 from numpy import array, mean, pi, sin, cos, max, sinh, cosh
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBES(Root):

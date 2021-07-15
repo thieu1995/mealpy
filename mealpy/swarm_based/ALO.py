@@ -10,7 +10,7 @@
 from numpy.random import rand
 from numpy import cumsum, array, min, max, reshape
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalALO(Root):

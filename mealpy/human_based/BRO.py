@@ -11,7 +11,7 @@ from numpy.random import uniform
 from numpy import ceil, log10, round, reshape, array, argmin, nonzero, std, clip, maximum, minimum, mean
 from scipy.spatial.distance import cdist
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBRO(Root):

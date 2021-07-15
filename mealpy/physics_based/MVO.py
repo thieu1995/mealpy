@@ -10,7 +10,7 @@
 from numpy.random import uniform, normal
 from numpy import cumsum, array, max, reshape, where, min, sum, ptp
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseMVO(Root):

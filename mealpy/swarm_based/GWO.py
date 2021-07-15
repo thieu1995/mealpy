@@ -10,7 +10,7 @@
 from numpy import abs
 from numpy.random import uniform, standard_cauchy
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseGWO(Root):

@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from numpy.random import choice, uniform
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseCSA(Root):

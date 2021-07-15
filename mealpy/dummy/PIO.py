@@ -9,7 +9,7 @@
 
 from numpy.random import uniform
 from numpy import exp, sum
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BasePIO(Root):

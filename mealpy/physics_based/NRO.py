@@ -14,7 +14,7 @@ from numpy.linalg import norm
 from copy import deepcopy
 from math import gamma
 from scipy.stats import rankdata
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseNRO(Root):

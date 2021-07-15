@@ -10,7 +10,7 @@
 from numpy import zeros, abs, ceil, int, clip, floor, round, argmax, argwhere, reshape, sign, concatenate, power
 from numpy.random import uniform, randint, permutation, normal
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSRSR(Root):

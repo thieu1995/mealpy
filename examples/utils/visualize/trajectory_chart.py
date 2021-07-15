@@ -41,7 +41,7 @@ list_legends = []
 dimension = 2
 y_label = f"x{dimension + 1}"
 for i in range(0, 5, 2):  # Get the third dimension of position of the first 3 solutions
-    x = [pop[0][0][dimension] for pop in optimizer.pop_list]
+    x = [pop[0][0][dimension] for pop in optimizer.history_list_pop]
     pos_list.append(x)
     list_legends.append(f"Agent {i + 1}.")
     # pop[0]: Get the first solution

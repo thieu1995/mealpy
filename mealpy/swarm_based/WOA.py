@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, rand, randint, choice
 from numpy import abs, exp, cos, pi
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseWOA(Root):

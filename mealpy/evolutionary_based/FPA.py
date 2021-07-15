@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from numpy.random import uniform, choice
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseFPA(Root):

@@ -9,7 +9,7 @@
 
 from numpy import Inf, dot, abs, mean, array
 from numpy.random import uniform, choice
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSHO(Root):

@@ -11,7 +11,7 @@ from numpy import exp, sin, pi, mean, zeros
 from numpy.random import uniform, randint
 from numpy.linalg import norm
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseASO(Root):

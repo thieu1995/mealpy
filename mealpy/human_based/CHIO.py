@@ -10,7 +10,7 @@
 from numpy.random import uniform, randint, choice
 from numpy import array, zeros, where, argmin, mean
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalCHIO(Root):

@@ -9,7 +9,7 @@
 
 from numpy.random import normal
 from numpy import sqrt, pi, exp, array, sum, zeros, repeat, abs
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseACOR(Root):

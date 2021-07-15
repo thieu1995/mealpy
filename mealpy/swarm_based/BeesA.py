@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, choice
 from numpy import array, mean, ceil
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBeesA(Root):

@@ -9,7 +9,7 @@
 
 from numpy import sqrt, zeros
 from numpy.random import uniform, randint
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseEFO(Root):

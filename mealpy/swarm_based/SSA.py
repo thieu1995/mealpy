@@ -11,7 +11,7 @@ from numpy import where, argmax, array, log, zeros, mean, exp, reshape, std, arg
 from numpy.random import rand, uniform, normal, randint
 from copy import deepcopy
 from scipy.spatial.distance import cdist
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSSA(Root):

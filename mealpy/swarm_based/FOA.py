@@ -10,7 +10,7 @@
 from numpy import array, abs, exp, cos, pi
 from numpy.random import uniform, randint, rand
 from numpy.linalg import norm
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalFOA(Root):

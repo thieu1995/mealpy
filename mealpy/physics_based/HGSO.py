@@ -10,7 +10,7 @@
 from numpy import argsort, exp
 from numpy.random import uniform
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseHGSO(Root):

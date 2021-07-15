@@ -10,7 +10,7 @@
 from numpy.random import uniform, choice, randint
 from numpy import where, array, mean
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseEOA(Root):

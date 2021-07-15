@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, normal
 from numpy import sqrt, exp, array
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseES(Root):

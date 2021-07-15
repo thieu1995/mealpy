@@ -10,7 +10,7 @@
 from numpy.random import randint, uniform, choice
 from numpy import zeros, where, logical_and
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSARO(Root):

@@ -7,7 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from mealpy.root import Root
+from mealpy.optimizer import Root
 from numpy import array, mean, exp, ones
 from numpy.random import rand, normal
 

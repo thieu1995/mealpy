@@ -10,7 +10,7 @@
 from numpy import array, floor, min, max, where
 from numpy.random import uniform, choice, normal, randint
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseFBIO(Root):

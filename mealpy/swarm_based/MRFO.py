@@ -9,7 +9,7 @@
 
 from numpy import exp, sin, pi, abs, sqrt, log
 from numpy.random import uniform
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseMRFO(Root):

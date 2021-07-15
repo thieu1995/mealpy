@@ -11,7 +11,7 @@ from numpy import sqrt, exp, matmul
 from numpy.random import uniform
 from scipy.linalg import norm
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseFireflyA(Root):

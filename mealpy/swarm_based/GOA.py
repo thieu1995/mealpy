@@ -9,7 +9,7 @@
 
 from numpy import exp, zeros, sqrt, remainder, sum
 from numpy.random import normal
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseGOA(Root):

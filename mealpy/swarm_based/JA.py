@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, normal, rand
 from numpy import abs
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseJA(Root):

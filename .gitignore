@@ -3,6 +3,8 @@
 .idea/
 drafts/
 docs/
+commands.md
+testcase/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

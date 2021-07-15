@@ -9,7 +9,7 @@
 
 from numpy.random import normal
 from numpy import sum, mean, exp, array
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalHC(Root):

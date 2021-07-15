@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, choice
 from numpy import max, min, array, where, ones, exp
-from mealpy.root import Root
+from mealpy.optimizer import Root
 from copy import deepcopy
 
 

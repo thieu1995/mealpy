@@ -9,7 +9,7 @@
 
 from numpy import pi, exp, cos, sin
 from numpy.random import uniform
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSOA(Root):

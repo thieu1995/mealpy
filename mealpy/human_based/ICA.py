@@ -10,7 +10,7 @@
 from numpy.random import uniform, choice, normal, rand
 from numpy import array, max, abs, sum, mean, argmax, min
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseICA(Root):

@@ -10,7 +10,7 @@
 from numpy.random import normal, rand, choice
 from numpy import mean, pi, sin, cos, array
 from math import gamma
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalAO(Root):

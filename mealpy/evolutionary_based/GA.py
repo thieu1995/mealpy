@@ -7,13 +7,12 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy import array, where
-from numpy.random import uniform
-from time import time
-from mealpy.root import Root
+import numpy as np
+import time
+from mealpy.optimizer import Optimizer
 
 
-class BaseGA(Root):
+class BaseGA(Optimizer):
     """
         Genetic Algorithm (GA)
     Link:
@@ -22,8 +21,16 @@ class BaseGA(Root):
         https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, minmax='min', verbose=True, epoch=750, pop_size=100, pc=0.95, pm=0.025, **kwargs):
-        super().__init__(obj_func, lb, ub, minmax, verbose, kwargs)
+    def __init__(self, problem: dict, epoch=1000, pop_size=100, pc=0.95, pm=0.025):
+        """
+        Args:
+            problem (dict): a dictionary of your problem
+            epoch (int): maximum number of iterations, default = 1000
+            pop_size (int): number of population size, default = 100
+            pc (float): cross-over probability, default = 0.95
+            pm (float): mutation probability, default = 0.025
+        """
+        super().__init__(problem)
         self.epoch = epoch
         self.pop_size = pop_size
         self.pc = pc
@@ -31,30 +38,30 @@ class BaseGA(Root):
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
-        self.g_best_list = [self.get_global_best_solution(pop) ]
-        self.c_best_list = self.g_best_list.copy()
+        self.history_list_g_best = [self.get_global_best_solution(pop)]
+        self.history_list_c_best = self.history_list_g_best.copy()
 
         for epoch in range(0, self.epoch):
-            time_start = time()
+            time_start = time.time()
 
             # Next generations
             next_population = []
             while (len(next_population) < self.pop_size):
                 ### Selection
                 # c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
-                fitness_list = array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+                fitness_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
                 id_c1 = self.get_index_roulette_wheel_selection(fitness_list)
                 id_c2 = self.get_index_roulette_wheel_selection(fitness_list)
 
                 w1 = pop[id_c1][self.ID_POS]
                 w2 = pop[id_c2][self.ID_POS]
                 ### Crossover
-                if uniform() < self.pc:
+                if np.random.uniform() < self.pc:
                     w1, w2 = self.crossover_arthmetic_recombination(w1, w2)
 
                 ### Mutation, remove third loop here
-                w1 = where(uniform(0, 1, self.problem_size) < self.pm, uniform(self.lb, self.ub), w1)
-                w2 = where(uniform(0, 1, self.problem_size) < self.pm, uniform(self.lb, self.ub), w2)
+                w1 = np.where(np.random.uniform(0, 1, self.problem_size) < self.pm, np.random.uniform(self.lb, self.ub), w1)
+                w2 = np.where(np.random.uniform(0, 1, self.problem_size) < self.pm, np.random.uniform(self.lb, self.ub), w2)
 
                 c1_new = [w1.copy(), self.get_fitness_position(w1)]
                 c2_new = [w2.copy(), self.get_fitness_position(w2)]
@@ -66,12 +73,12 @@ class BaseGA(Root):
             self.update_global_best_solution(pop)
 
             ## Additional information for the framework
-            time_start = time() - time_start
-            self.epoch_time_list.append(time_start)
+            time_start = time.time() - time_start
+            self.history_list_epoch_time.append(time_start)
             self.print_epoch(epoch+1, time_start)
-            self.pop_list.append(pop.copy())
+            self.history_list_pop.append(pop.copy())
 
         ## Additional information for the framework
-        self.solution = self.g_best_list[-1]
+        self.solution = self.history_list_g_best[-1]
         self.save_data()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR], self.g_best_list, self.c_best_list
+        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR], self.history_list_g_best, self.history_list_c_best

@@ -10,7 +10,7 @@
 from numpy.random import uniform, choice
 from numpy import abs
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSFO(Root):

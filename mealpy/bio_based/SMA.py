@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, choice
 from numpy import abs, zeros, log10, where, arctanh, tanh
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSMA(Root):

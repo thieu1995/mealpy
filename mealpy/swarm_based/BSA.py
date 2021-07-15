@@ -10,7 +10,7 @@
 from numpy import array, mean, sum, exp, argmin, argmax
 from numpy.random import uniform, randint, choice
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBSA(Root):

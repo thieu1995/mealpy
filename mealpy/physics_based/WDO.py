@@ -9,7 +9,7 @@
 
 from numpy.random import uniform, randint
 from numpy import ones, clip
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseWDO(Root):

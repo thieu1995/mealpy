@@ -10,7 +10,7 @@
 from numpy.random import uniform, rand, choice
 from numpy import zeros, power
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalRRO(Root):

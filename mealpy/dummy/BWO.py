@@ -10,7 +10,7 @@
 from numpy.random import uniform, randint
 from numpy import argmax, argmin, array, where
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBWO(Root):

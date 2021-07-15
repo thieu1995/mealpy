@@ -9,7 +9,7 @@
 
 from numpy import where
 from numpy.random import uniform, randint, normal
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseHS(Root):

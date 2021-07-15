@@ -11,7 +11,7 @@ from numpy import abs, array, argmax, argmin, sum, where, logical_or
 from numpy.random import uniform, choice, randint, normal
 from scipy.spatial.distance import cdist
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseFA(Root):

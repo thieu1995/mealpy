@@ -11,7 +11,7 @@ from numpy import exp
 from numpy.random import uniform, choice, rand
 from numpy import min as np_min
 from numpy import max as np_max
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class OriginalArchOA(Root):

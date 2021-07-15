@@ -11,7 +11,7 @@ from numpy import mean, abs, power, pi, sin
 from numpy.random import uniform, randint
 from copy import deepcopy
 from math import gamma
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseHHO(Root):

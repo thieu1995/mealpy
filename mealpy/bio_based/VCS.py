@@ -10,7 +10,7 @@
 from numpy import sum, log1p, array, mean, prod, abs, where
 from numpy.random import uniform, normal, choice
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseVCS(Root):

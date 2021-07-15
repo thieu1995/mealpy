@@ -11,7 +11,7 @@ from numpy import abs, pi, ceil, sqrt, sin, clip
 from numpy.random import uniform
 from math import gamma
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseMSA(Root):

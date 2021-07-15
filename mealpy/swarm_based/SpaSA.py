@@ -11,7 +11,7 @@ from numpy.random import uniform, normal
 from numpy import abs, exp, ones, sign, matmul
 from numpy.linalg import inv
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseSpaSA(Root):

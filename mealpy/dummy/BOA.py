@@ -10,7 +10,7 @@
 from numpy.random import uniform, randint
 from numpy import zeros
 from copy import deepcopy
-from mealpy.root import Root
+from mealpy.optimizer import Root
 
 
 class BaseBOA(Root):
