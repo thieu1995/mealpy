@@ -152,6 +152,7 @@ class Problem:
             exit(0)
         if isinstance(result, list) or isinstance(result, np.ndarray):
             self.n_objs = len(result)
+            self.obj_is_list = True
             if self.n_objs > 1:
                 self.multi_objs = True
                 if "obj_weight" in kwargs:

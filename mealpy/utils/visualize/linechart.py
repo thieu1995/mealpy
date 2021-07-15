@@ -73,7 +73,10 @@ def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, l
 
     if n_lines == 1:
         fig, ax = plt.subplots()
-        ax.plot(x, data[0], label=list_legends[0])
+        if list_legends is None:
+            ax.plot(x, data[0])
+        else:
+            ax.plot(x, data[0], label=list_legends[0])
         ax.set_title(title)
     elif n_lines > 1:
         fig, ax_list = plt.subplots(n_lines, sharex=True)
