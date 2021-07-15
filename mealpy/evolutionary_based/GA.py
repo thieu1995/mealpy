@@ -38,7 +38,8 @@ class BaseGA(Optimizer):
 
     def train(self):
         pop = [self.create_solution() for _ in range(self.pop_size)]
-        self.history_list_g_best = [self.get_global_best_solution(pop)]
+        _, g_best = self.get_global_best_solution(pop)                  # We don't sort the population
+        self.history_list_g_best = [g_best]
         self.history_list_c_best = self.history_list_g_best.copy()
 
         for epoch in range(0, self.epoch):
@@ -81,4 +82,4 @@ class BaseGA(Optimizer):
         ## Additional information for the framework
         self.solution = self.history_list_g_best[-1]
         self.save_data()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR], self.history_list_g_best, self.history_list_c_best
+        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]

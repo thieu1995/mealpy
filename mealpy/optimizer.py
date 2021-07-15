@@ -52,10 +52,14 @@ class Problem:
         self.multi_objs = False
         self.obj_is_list = False
         self.problem_size, self.lb, self.ub = None, None, None
-
+        self.__set_parameters__(problem)
         self.__check_parameters__(problem)
         self.__check_optional_parameters__(problem)
         self.__check_objective_function__(problem)
+
+    def __set_parameters__(self, kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def __check_parameters__(self, kwargs):
         if "lb" in kwargs and "ub" in kwargs:
@@ -251,7 +255,7 @@ class Optimizer(Problem):
         if not self.obj_is_list:
             objs = [objs]
         fit = np.dot(objs, self.obj_weight)
-        fit = fit if self.minmax == "min" else 1.0 / (fit + self.EPSILON)
+        # fit = fit if self.minmax == "min" else 1.0 / (fit + self.EPSILON)
         return [fit, objs]
 
     def get_fitness_solution(self, solution=None):
@@ -264,38 +268,55 @@ class Optimizer(Problem):
         """
         return self.get_fitness_position(solution[self.ID_POS])
 
-    def get_global_best_solution(self, pop=None):
+    def get_global_best_solution(self, pop: list):
         """
-        Sort a copy of population and return the copy of the best position
+        Sort population and return the sorted population and the best solution
+
         Args:
             pop (list): The population of pop_size individuals
 
         Returns:
-            sorted population
+            Sorted population and global best solution
         """
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])     # Already returned a new sorted list
-        return sorted_pop[0] if self.minmax == "min" else sorted_pop[-1]
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])  # Already returned a new sorted list
+        if self.minmax == "min":
+            return sorted_pop, sorted_pop[0].copy()
+        else:
+            return sorted_pop, sorted_pop[-1].copy()
+
+    def get_better_solution(self, agent1: list, agent2: list):
+        """
+        Args:
+            agent1 (list): A solution
+            agent2 (list): Another solution
+
+        Returns:
+            The better solution between them
+        """
+        if self.minmax == "min":
+            if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
+                return agent1.copy()
+            return agent2.copy()
+        else:
+            if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
+                return agent2.copy()
+            return agent1.copy()
 
     def update_global_best_solution(self, pop=None):
         """
         Update the global best solution saved in variable named: self.history_list_g_best
         Args:
             pop (list): The population of pop_size individuals
+
+        Returns:
+            sorted population
         """
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        if self.minmax == "min":
-            current_best = sorted_pop[0]
-            self.history_list_c_best.append(current_best.copy())
-            if current_best[self.ID_FIT][self.ID_TAR] < self.history_list_g_best[-1][self.ID_FIT][self.ID_TAR]:
-                self.history_list_g_best.append(current_best.copy())
-            else:
-                self.history_list_g_best.append(self.history_list_g_best[-1].copy())
-        else:
-            current_best = sorted_pop[-1]
-            self.history_list_c_best.append(current_best)
-            better = current_best.copy() if current_best[self.ID_FIT][self.ID_TAR] > self.history_list_g_best[-1][self.ID_FIT][self.ID_TAR] \
-                else self.history_list_g_best[-1].copy()
-            self.history_list_g_best.append(better)
+        current_best = sorted_pop[0] if self.minmax == "min" else sorted_pop[-1]
+        self.history_list_c_best.append(current_best)
+        better = self.get_better_solution(current_best, self.history_list_g_best[-1])
+        self.history_list_g_best.append(better)
+        return sorted_pop.copy()
 
     def print_epoch(self, epoch, runtime):
         """
@@ -330,10 +351,9 @@ class Optimizer(Problem):
         self.history_list_explore = 100 * (self.history_list_div / div_max)
         self.history_list_exploit = 100 - self.history_list_explore
 
-
     ## Crossover techniques
 
-    def get_index_roulette_wheel_selection(self, list_fitness=None):
+    def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
         This method can handle min/max problem, and negative or positive fitness value.
         Args:
@@ -342,7 +362,7 @@ class Optimizer(Problem):
         Returns:
             Index of selected solution
         """
-        scaled_fitness = (list_fitness - min(list_fitness)) / (np.ptp(list_fitness) + self.EPSILON)
+        scaled_fitness = (list_fitness - np.min(list_fitness)) / (np.ptp(list_fitness) + self.EPSILON)
         if self.minmax == "min":
             final_fitness = 1.0 - scaled_fitness
         else:
@@ -353,6 +373,22 @@ class Optimizer(Problem):
             r = r + f
             if r > total_sum:
                 return idx
+
+    def get_solution_kway_tournament_selection(self, pop: list, k_way=0.2, output=2):
+        if 0 < k_way < 1:
+            k_way = int(k_way * len(pop))
+        k_way = round(k_way)
+        list_id = np.random.choice(range(len(pop)), k_way, replace=False)
+        list_parents = [pop[i] for i in list_id]
+        list_parents = sorted(list_parents, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        if self.minmax == "min":
+            return list_parents[:output]
+        else:
+            return list_parents[-output:]
+
+
+
+
 
 
 
@@ -369,11 +405,6 @@ class Optimizer(Problem):
         current_best = sorted_pop[id_best]
         g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
         return g_best, sorted_pop[id_worst]
-
-    def get_sorted_pop_and_global_best_solution(self, pop=None, id_fit=None, id_best=None):
-        """ Sort population and return the sorted population and the best position """
-        sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
-        return sorted_pop, deepcopy(sorted_pop[id_best])
 
     def amend_position(self, position=None):
         return np.maximum(self.lb, np.minimum(self.ub, position))
