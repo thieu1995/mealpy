@@ -387,6 +387,72 @@ class Optimizer(Problem):
         else:
             return list_parents[-output:]
 
+    def get_step_size_levy_flight(self, beta=1.0, multiplier=0.001, case=0):
+        """
+        Parameters
+        ----------
+        multiplier (float, optional): 0.01
+        beta: [0-2]
+            + 0-1: small range --> exploit
+            + 1-2: large range --> explore
+        case: 0, 1, -1
+            + 0: return multiplier * s * np.random.uniform()
+            + 1: return multiplier * s * np.random.normal(0, 1)
+            + -1: return multiplier * s
+        """
+        # u and v are two random variables which follow np.random.normal distribution
+        # sigma_u : standard deviation of u
+        sigma_u = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
+        # sigma_v : standard deviation of v
+        sigma_v = 1
+        u = np.random.normal(0, sigma_u ** 2)
+        v = np.random.normal(0, sigma_v ** 2)
+        s = u / np.power(abs(v), 1 / beta)
+        if case == 0:
+            step = multiplier * s * np.random.uniform()
+        elif case == 1:
+            step = multiplier * s * np.random.normal(0, 1)
+        else:
+            step = multiplier * s
+        return step
+
+    def levy_flight_2(self, position=None, g_best_position=None):
+        alpha = 0.01
+        xichma_v = 1
+        xichma_u = ((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
+        levy_b = (np.random.normal(0, xichma_u ** 2)) / (np.sqrt(abs(np.random.normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
+        return position + alpha * levy_b * (position - g_best_position)
+
+    def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
+        """
+        Parameters
+        ----------
+        epoch (int): current iteration
+        position : 1-D numpy np.array
+        g_best_position : 1-D numpy np.array
+        step (float, optional): 0.001
+        case (int, optional): 0, 1, 2
+
+        """
+        beta = 1
+        # muy and v are two random variables which follow np.random.normal distribution
+        # sigma_muy : standard deviation of muy
+        sigma_muy = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
+        # sigma_v : standard deviation of v
+        sigma_v = 1
+        muy = np.random.normal(0, sigma_muy ** 2)
+        v = np.random.normal(0, sigma_v ** 2)
+        s = muy / np.power(abs(v), 1 / beta)
+        levy = np.random.uniform(self.lb, self.ub) * step * s * (position - g_best_position)
+
+        if case == 0:
+            return levy
+        elif case == 1:
+            return position + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy
+        elif case == 2:
+            return position + np.random.normal(0, 1, len(self.lb)) * levy
+        elif case == 3:
+            return position + 0.01 * levy
 
 
 
@@ -426,72 +492,8 @@ class Optimizer(Problem):
     def create_opposition_position(self, position=None, g_best=None):
         return self.lb + self.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - position)
 
-    def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
-        """
-        Parameters
-        ----------
-        epoch (int): current iteration
-        position : 1-D numpy np.array
-        g_best_position : 1-D numpy np.array
-        step (float, optional): 0.001
-        case (int, optional): 0, 1, 2
 
-        """
-        beta = 1
-        # muy and v are two random variables which follow np.random.normal distribution
-        # sigma_muy : standard deviation of muy
-        sigma_muy = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = np.random.normal(0, sigma_muy ** 2)
-        v = np.random.normal(0, sigma_v ** 2)
-        s = muy / np.power(abs(v), 1 / beta)
-        levy = np.random.uniform(self.lb, self.ub) * step * s * (position - g_best_position)
 
-        if case == 0:
-            return levy
-        elif case == 1:
-            return position + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy
-        elif case == 2:
-            return position + np.random.normal(0, 1, len(self.lb)) * levy
-        elif case == 3:
-            return position + 0.01 * levy
-
-    def levy_flight_2(self, position=None, g_best_position=None):
-        alpha = 0.01
-        xichma_v = 1
-        xichma_u = ((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (np.random.normal(0, xichma_u ** 2)) / (np.sqrt(abs(np.random.normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
-        return position + alpha * levy_b * (position - g_best_position)
-
-    def step_size_by_levy_flight(self, multiplier=0.001, beta=1.0, case=0):
-        """
-        Parameters
-        ----------
-        multiplier (float, optional): 0.01
-        beta: [0-2]
-            + 0-1: small range --> exploit
-            + 1-2: large range --> explore
-        case: 0, 1, -1
-            + 0: return multiplier * s * np.random.uniform()
-            + 1: return multiplier * s * np.random.normal(0, 1)
-            + -1: return multiplier * s
-        """
-        # u and v are two random variables which follow np.random.normal distribution
-        # sigma_u : standard deviation of u
-        sigma_u = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        u = np.random.normal(0, sigma_u ** 2)
-        v = np.random.normal(0, sigma_v ** 2)
-        s = u / np.power(abs(v), 1 / beta)
-        if case == 0:
-            step = multiplier * s * np.random.uniform()
-        elif case == 1:
-            step = multiplier * s * np.random.normal(0, 1)
-        else:
-            step = multiplier * s
-        return step
 
     def get_parent_kway_tournament_selection(self, pop=None, k_way=0.2, output=2):
         if 0 < k_way < 1:
