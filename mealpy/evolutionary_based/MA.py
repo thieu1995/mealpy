@@ -24,7 +24,7 @@ class BaseMA(Optimizer):
     ID_FIT = 1
     ID_BIT = 2
 
-    def __init__(self, problem: dict, epoch=750, pop_size=100, pc=0.98, pm=0.025, p_local=0.5, max_local_gens=10, bits_per_param=16):
+    def __init__(self, problem: dict, epoch=1000, pop_size=100, pc=0.98, pm=0.025, p_local=0.5, max_local_gens=10, bits_per_param=16):
         """
         Args:
             problem (dict): a dictionary of your problem

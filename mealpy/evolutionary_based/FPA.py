@@ -20,7 +20,7 @@ class BaseFPA(Optimizer):
         https://doi.org/10.1007/978-3-642-32894-7_27
     """
 
-    def __init__(self, problem: dict, epoch=750, pop_size=100, p_s=0.8):
+    def __init__(self, problem: dict, epoch=1000, pop_size=100, p_s=0.8):
         """
         Args:
             problem (dict): a dictionary of your problem
