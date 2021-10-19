@@ -43,6 +43,16 @@ def __clean_filename__(filename):
     return fname
 
 
+def __check_filepath__(filename):
+    filename.replace("\\", "/")                     # For better handling the parent folder
+    if "/" in filename:
+        list_names = filename.split("/")[:-1]       # Remove last element because it is filename
+        filepath = "/".join(list_names)
+        print(f"Fucking for real? {filepath}")
+        Path(filepath).mkdir(parents=True, exist_ok=True)
+    return filename
+
+
 def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Iteration", y_label="Function Value",
                      filename=None, exts=(".png", ".pdf"), verbose=True):
     x = arange(0, len(data))
@@ -53,10 +63,9 @@ def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Itera
     plt.plot(x, y, linestyle=linestyle, color=color,)
     plt.legend()  # show a legend on the plot
     if filename is not None:
-        filename = __clean_filename__(filename)
-        Path(filename).mkdir(parents=True, exist_ok=True)
+        filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
+            plt.savefig(f"{filepath}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
@@ -73,10 +82,9 @@ def _draw_multi_line_(data=None, title=None, list_legends=None, list_styles=None
     plt.ylabel(y_label)
     plt.legend()  # show a legend on the plot
     if filename is not None:
-        filename = __clean_filename__(filename)
-        Path(filename).mkdir(parents=True, exist_ok=True)
+        filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
+            plt.savefig(f"{filepath}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
@@ -108,10 +116,9 @@ def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, l
                 ax.set_xlabel(x_label)
 
     if filename is not None:
-        filename = __clean_filename__(filename)
-        Path(filename).mkdir(parents=True, exist_ok=True)
+        filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
+            plt.savefig(f"{filepath}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
@@ -173,10 +180,9 @@ def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some
     plt.ylabel(y_label)
     plt.legend()  # show a legend on the plot
     if filename is not None:
-        filename = __clean_filename__(filename)
-        Path(filename).mkdir(parents=True, exist_ok=True)
+        filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
-            plt.savefig(f"./{filename}{ext}", bbox_inches='tight')
+            plt.savefig(f"{filepath}{ext}", bbox_inches='tight')
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
