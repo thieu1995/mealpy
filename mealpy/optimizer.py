@@ -10,197 +10,28 @@
 import numpy as np
 from math import gamma
 from copy import deepcopy
+from mealpy.utils.history import History
+from mealpy.problem import Problem
+from mealpy.utils.termination import Termination
+import time
 
 
-class Problem:
-
-    ID_MIN_PROB = 0  # min problem
-    ID_MAX_PROB = -1  # max problem
-
-    ID_TAR = 0  # Index of target (the final fitness) in fitness
-    ID_OBJ = 1  # Index of objective list in fitness
-
-    DEFAULT_BATCH_IDEA = False
-    DEFAULT_BATCH_SIZE = 10
-    DEFAULT_LB = -1
-    DEFAULT_UB = 1
-
-    def __init__(self, problem: dict):
-        """
-        Args:
-            problem (dict): Dict properties of your problem
-
-        Examples:
-             problem = {
-                "obj_func": your objective function,
-                "lb": list of value
-                "ub": list of value
-                "minmax": "min" or "max"
-                "verbose": True or False
-                "problem_size": int (Optional)
-                "batch_idea": True or False (Optional)
-                "batch_size": int (Optional, smaller than population size)
-                "obj_weight": list weights for all your objectives (Optional, default = [1, 1, ...1])
-             }
-        """
-        self.minmax = "min"
-        self.verbose = True
-        self.batch_size = 10
-        self.batch_idea = False
-        self.n_objs = 1
-        self.obj_weight = None
-        self.multi_objs = False
-        self.obj_is_list = False
-        self.problem_size, self.lb, self.ub = None, None, None
-        self.__set_parameters__(problem)
-        self.__check_parameters__(problem)
-        self.__check_optional_parameters__(problem)
-        self.__check_objective_function__(problem)
-
-    def __set_parameters__(self, kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __check_parameters__(self, kwargs):
-        if "lb" in kwargs and "ub" in kwargs:
-            lb, ub = kwargs["lb"], kwargs["ub"]
-            if (lb is None) or (ub is None):
-                if "problem_size" in kwargs:
-                    print(f"Default lb={self.DEFAULT_LB}, ub={self.DEFAULT_UB}.")
-                    self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
-                    self.lb = self.DEFAULT_LB * np.ones(self.problem_size)
-                    self.ub = self.DEFAULT_UB * np.ones(self.problem_size)
-                else:
-                    print("If lb, ub are undefined, then you must set problem size to be an integer.")
-                    exit(0)
-            else:
-                if isinstance(lb, list) and isinstance(ub, list):
-                    if len(lb) == len(ub):
-                        if len(lb) == 0:
-                            if "problem_size" in kwargs:
-                                print(f"Default lb={self.DEFAULT_LB}, ub={self.DEFAULT_UB}.")
-                                self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
-                                self.lb = self.DEFAULT_LB * np.ones(self.problem_size)
-                                self.ub = self.DEFAULT_UB * np.ones(self.problem_size)
-                            else:
-                                print("Wrong lower bound and upper bound parameters.")
-                                exit(0)
-                        elif len(lb) == 1:
-                            if "problem_size" in kwargs:
-                                self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
-                                self.lb = lb[0] * np.ones(self.problem_size)
-                                self.ub = ub[0] * np.ones(self.problem_size)
-                        else:
-                            self.problem_size = len(lb)
-                            self.lb = np.array(lb)
-                            self.ub = np.array(ub)
-                    else:
-                        print("Lower bound and Upper bound need to be same length")
-                        exit(0)
-                elif type(lb) in [int, float] and type(ub) in [int, float]:
-                    self.problem_size = self.__check_problem_size__(kwargs["problem_size"])
-                    self.lb = lb * np.ones(self.problem_size)
-                    self.ub = ub * np.ones(self.problem_size)
-                else:
-                    print("Lower bound and Upper bound need to be a list.")
-                    exit(0)
-        else:
-            print("Please define lb and ub values!")
-            exit(0)
-
-    def __check_problem_size__(self, problem_size):
-        if problem_size is None:
-            print("Problem size must be an int number")
-            exit(0)
-        elif problem_size <= 0:
-            print("Problem size must > 0")
-            exit(0)
-        return int(np.ceil(problem_size))
-
-    def __check_optional_parameters__(self, kwargs):
-        if "batch_idea" in kwargs:
-            batch_idea = kwargs["batch_idea"]
-            if type(batch_idea) == bool:
-                self.batch_idea = batch_idea
-            else:
-                self.batch_idea = self.DEFAULT_BATCH_IDEA
-            if "batch_size" in kwargs:
-                batch_size = kwargs["batch_size"]
-                if type(batch_size) == int:
-                    self.batch_size = batch_size
-                else:
-                    self.batch_size = self.DEFAULT_BATCH_SIZE
-            else:
-                self.batch_size = self.DEFAULT_BATCH_SIZE
-        else:
-            self.batch_idea = self.DEFAULT_BATCH_IDEA
-
-    def __check_objective_function__(self, kwargs):
-        if "obj_func" in kwargs:
-            obj_func = kwargs["obj_func"]
-            if callable(obj_func):
-                self.obj_func = obj_func
-            else:
-                print("Please check your function. It needs to return value!")
-                exit(0)
-        tested_solution = np.random.uniform(self.lb, self.ub)
-        try:
-            result = self.obj_func(tested_solution)
-        except Exception as err:
-            print(f"Error: {err}\n")
-            print("Please check your defined objective function!")
-            exit(0)
-        if isinstance(result, list) or isinstance(result, np.ndarray):
-            self.n_objs = len(result)
-            self.obj_is_list = True
-            if self.n_objs > 1:
-                self.multi_objs = True
-                if "obj_weight" in kwargs:
-                    self.obj_weight = kwargs["obj_weight"]
-                    if isinstance(self.obj_weight, list) or isinstance(self.obj_weight, np.ndarray):
-                        if self.n_objs != len(self.obj_weight):
-                            print(f"Please check your objective function/weight. N objs = {self.n_objs}, but N weights = {len(self.obj_weight)}")
-                            exit(0)
-                        if self.verbose:
-                            print(f"N objs = {self.n_objs} with weights = {self.obj_weight}")
-                    else:
-                        print(f"Please check your objective function/weight. N objs = {self.n_objs}, weights must be a list or numpy np.array with same length.")
-                        exit(0)
-                else:
-                    self.obj_weight = np.ones(self.n_objs)
-                    if self.verbose:
-                        print(f"N objs = {self.n_objs} with default weights = {self.obj_weight}")
-            elif self.n_objs == 1:
-                self.multi_objs = False
-                self.obj_weight = np.ones(1)
-                if self.verbose:
-                    print(f"N objs = {self.n_objs} with default weights = {self.obj_weight}")
-            else:
-                print(f"Please check your objective function. It returns nothing!")
-                exit(0)
-        else:
-            if isinstance(result, np.floating) or type(result) in (int, float):
-                self.multi_objs = False
-                self.obj_is_list = False
-                self.obj_weight = np.ones(1)
-            else:
-                print("Please check your objective function. It needs to return value!")
-                exit(0)
-
-
-class Optimizer(Problem):
+class Optimizer:
     """ This is base class of all Algorithms """
 
     ## Assumption the A solution with format: [position, [target, [obj1, obj2, ...]]]
     ID_POS = 0  # Index of position/location of solution/agent
     ID_FIT = 1  # Index of fitness value of solution/agent
 
+    ID_TAR = 0  # Index of target (the final fitness) in fitness
+    ID_OBJ = 1  # Index of objective list in fitness
+
     EPSILON = 10E-10
 
-    def __init__(self, problem: dict):
+    def __init__(self, problem, kwargs):
         """
         Args:
-            problem (dict): Dict properties of your problem
+            problem: Design your problem based on the format of the Problem class
 
         Examples:
             problem = {
@@ -209,24 +40,106 @@ class Optimizer(Problem):
                 "ub": list of value
                 "minmax": "min" or "max"
                 "verbose": True or False
-                "problem_size": int (Optional)
+                "n_dims": int (Optional)
                 "batch_idea": True or False (Optional)
                 "batch_size": int (Optional, smaller than population size)
                 "obj_weight": list weights for all your objectives (Optional, default = [1, 1, ...1])
              }
         """
-        super(Optimizer, self).__init__(problem)
-        self.epoch, self.pop_size = None, None
-        self.solution, self.loss_train = None, []
-        self.history_list_g_best = []           # List of global best solution found so far in all previous generations
-        self.history_list_c_best = []           # List of current best solution in each previous generations
-        self.history_list_epoch_time = []       # List of runtime for each generation
-        self.history_list_g_best_fit = []       # List of global best fitness found so far in all previous generations
-        self.history_list_c_best_fit = []       # List of current best fitness in each previous generations
-        self.history_list_pop = []              # List of population in each generations
-        self.history_list_div = None            # List of diversity of swarm in all generations
-        self.history_list_exploit = None        # List of exploitation percentages for all generations
-        self.history_list_explore = None        # List of exploration percentages for all generations
+        super(Optimizer, self).__init__()
+        self.epoch, self.pop_size, self.solution = None, None, None
+        self.history = History()
+        if not isinstance(problem, Problem):
+            problem = Problem(problem)
+        self.problem = problem
+        self.verbose = problem.verbose
+        self.termination_flag = False       # Check if exist object or not
+        if "termination" in kwargs:
+            termination = kwargs["termination"]
+            if not isinstance(termination, Termination):
+                print("Please create and input your Termination object!")
+                exit(0)
+            else:
+                self.termination = termination
+            self.termination_flag = True
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
+
+    def termination_start(self):
+        if self.termination_flag:
+            if self.termination.mode == 'TB':
+                self.count_terminate = time.time()
+            elif self.termination.mode == 'ES':
+                self.count_terminate = 0
+            elif self.termination.mode == 'MG':
+                self.count_terminate = self.epoch
+            else:                       # number of function evaluation (NFE)
+                self.count_terminate = self.pop_size        # First out of loop
+        else:
+            pass
+
+    def solve(self, mode='sequential'):
+        """
+            Args:
+                mode (str): 'sequential', 'thread', 'process'
+                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+            Returns:
+                [position, fitness value]
+            """
+        self.termination_start()
+        pop = [self.create_solution() for _ in range(self.pop_size)]
+        if self.sort_flag:
+            pop, g_best = _, g_best = self.get_global_best_solution(pop)  # We sort the population
+        else:
+            _, g_best = self.get_global_best_solution(pop)  # We don't sort the population
+        self.history.save_initial_best(g_best)
+
+        for epoch in range(0, self.epoch):
+            time_epoch = time.time()
+
+            ## Evolve method will be called in child class
+            pop = self.evolve(mode, epoch, pop, g_best)
+
+            # update global best position
+            if self.sort_flag:
+                pop, g_best = _, g_best = self.update_global_best_solution(pop)  # We sort the population
+            else:
+                _, g_best = self.update_global_best_solution(pop)  # We don't sort the population
+
+            ## Additional information for the framework
+            time_epoch = time.time() - time_epoch
+            self.history.list_epoch_time.append(time_epoch)
+            self.history.list_population.append(pop.copy())
+            self.print_epoch(epoch + 1, time_epoch)
+            if self.termination_flag:
+                if self.termination.mode == 'TB':
+                    if time.time() - self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'FE':
+                    self.count_terminate += self.nfe_per_epoch
+                    if self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'MG':
+                    if epoch >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                else:                       # Early Stopping
+                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
+                    if temp >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+
+        ## Additional information for the framework
+        self.save_optimization_process()
+        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
+
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        pass
 
     def create_solution(self):
         """
@@ -240,7 +153,7 @@ class Optimizer(Problem):
         ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
         ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
         """
-        position = np.random.uniform(self.lb, self.ub)
+        position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 
@@ -252,10 +165,10 @@ class Optimizer(Problem):
         Returns:
             [target, [obj1, obj2, ...]]
         """
-        objs = self.obj_func(position)
-        if not self.obj_is_list:
+        objs = self.problem.obj_func(position)
+        if not self.problem.obj_is_list:
             objs = [objs]
-        fit = np.dot(objs, self.obj_weight)
+        fit = np.dot(objs, self.problem.obj_weight)
         # fit = fit if self.minmax == "min" else 1.0 / (fit + self.EPSILON)
         return [fit, objs]
 
@@ -280,7 +193,7 @@ class Optimizer(Problem):
             Sorted population and global best solution
         """
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])  # Already returned a new sorted list
-        if self.minmax == "min":
+        if self.problem.minmax == "min":
             return sorted_pop, sorted_pop[0].copy()
         else:
             return sorted_pop, sorted_pop[-1].copy()
@@ -294,7 +207,7 @@ class Optimizer(Problem):
         Returns:
             The better solution between them
         """
-        if self.minmax == "min":
+        if self.problem.minmax == "min":
             if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
                 return agent1.copy()
             return agent2.copy()
@@ -310,14 +223,18 @@ class Optimizer(Problem):
             pop (list): The population of pop_size individuals
 
         Returns:
-            sorted population
+            Sorted population and the global best solution
         """
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        current_best = sorted_pop[0] if self.minmax == "min" else sorted_pop[-1]
-        self.history_list_c_best.append(current_best)
-        better = self.get_better_solution(current_best, self.history_list_g_best[-1])
-        self.history_list_g_best.append(better)
-        return sorted_pop.copy()
+        current_best = sorted_pop[0] if self.problem.minmax == "min" else sorted_pop[-1]
+        # self.history_list_c_best.append(current_best)
+        # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
+        # self.history_list_g_best.append(better)
+
+        self.history.list_current_best.append(current_best)
+        better = self.get_better_solution(current_best, self.history.list_global_best[-1])
+        self.history.list_global_best.append(better)
+        return sorted_pop.copy(), better.copy()
 
     def print_epoch(self, epoch, runtime):
         """
@@ -327,10 +244,13 @@ class Optimizer(Problem):
             runtime (float): the runtime for current iteration
         """
         if self.verbose:
-            print(f"> Epoch: {epoch}, Current best: {self.history_list_c_best[-1][self.ID_FIT][self.ID_TAR]}, "
-                  f"Global best: {self.history_list_g_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
+            # print(f"> Epoch: {epoch}, Current best: {self.history_list_c_best[-1][self.ID_FIT][self.ID_TAR]}, "
+            #       f"Global best: {self.history_list_g_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
 
-    def save_data(self):
+            print(f"> Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_FIT][self.ID_TAR]}, "
+                  f"Global best: {self.history.list_global_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
+
+    def save_optimization_process(self):
         """
         Detail: Save important data for later use such as:
             + history_list_g_best_fit
@@ -339,18 +259,34 @@ class Optimizer(Problem):
             + history_list_explore
             + history_list_exploit
         """
-        self.history_list_g_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_g_best]
-        self.history_list_c_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_c_best]
+        # self.history_list_g_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_g_best]
+        # self.history_list_c_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_c_best]
+        #
+        # # Draw the exploration and exploitation line with this data
+        # self.history_list_div = np.ones(self.epoch)
+        # for idx, pop in enumerate(self.history_list_pop):
+        #     pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
+        #     div = np.mean(abs((np.median(pos_matrix, axis=0) - pos_matrix)), axis=0)
+        #     self.history_list_div[idx] = np.mean(div, axis=0)
+        # div_max = np.max(self.history_list_div)
+        # self.history_list_explore = 100 * (self.history_list_div / div_max)
+        # self.history_list_exploit = 100 - self.history_list_explore
+
+        self.history.epoch = len(self.history.list_global_best)
+        self.history.list_global_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history.list_global_best]
+        self.history.list_current_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history.list_current_best]
 
         # Draw the exploration and exploitation line with this data
-        self.history_list_div = np.ones(self.epoch)
-        for idx, pop in enumerate(self.history_list_pop):
+        self.history.list_diversity = np.ones(self.history.epoch)
+        for idx, pop in enumerate(self.history.list_population):
             pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
             div = np.mean(abs((np.median(pos_matrix, axis=0) - pos_matrix)), axis=0)
-            self.history_list_div[idx] = np.mean(div, axis=0)
-        div_max = np.max(self.history_list_div)
-        self.history_list_explore = 100 * (self.history_list_div / div_max)
-        self.history_list_exploit = 100 - self.history_list_explore
+            self.history.list_diversity[idx] = np.mean(div, axis=0)
+        div_max = np.max(self.history.list_diversity)
+        self.history.list_exploration = 100 * (self.history.list_diversity / div_max)
+        self.history.list_exploitation = 100 - self.history.list_exploration
+
+        self.solution = self.history.list_global_best[-1]
 
     ## Crossover techniques
 
@@ -364,7 +300,7 @@ class Optimizer(Problem):
             Index of selected solution
         """
         scaled_fitness = (list_fitness - np.min(list_fitness)) / (np.ptp(list_fitness) + self.EPSILON)
-        if self.minmax == "min":
+        if self.problem.minmax == "min":
             final_fitness = 1.0 - scaled_fitness
         else:
             final_fitness = scaled_fitness
@@ -382,7 +318,7 @@ class Optimizer(Problem):
         list_id = np.random.choice(range(len(pop)), k_way, replace=False)
         list_parents = [pop[i] for i in list_id]
         list_parents = sorted(list_parents, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        if self.minmax == "min":
+        if self.problem.minmax == "min":
             return list_parents[:output]
         else:
             return list_parents[-output:]
@@ -443,14 +379,14 @@ class Optimizer(Problem):
         muy = np.random.normal(0, sigma_muy ** 2)
         v = np.random.normal(0, sigma_v ** 2)
         s = muy / np.power(abs(v), 1 / beta)
-        levy = np.random.uniform(self.lb, self.ub) * step * s * (position - g_best_position)
+        levy = np.random.uniform(self.problem.lb, self.problem.ub) * step * s * (position - g_best_position)
 
         if case == 0:
             return levy
         elif case == 1:
             return position + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy
         elif case == 2:
-            return position + np.random.normal(0, 1, len(self.lb)) * levy
+            return position + np.random.normal(0, 1, len(self.problem.lb)) * levy
         elif case == 3:
             return position + 0.01 * levy
 
