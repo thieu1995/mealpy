@@ -323,7 +323,7 @@ class Optimizer:
         else:
             return list_parents[-output:]
 
-    def get_step_size_levy_flight(self, beta=1.0, multiplier=0.001, case=0):
+    def get_levy_flight_step(self, beta=1.0, multiplier=0.001, case=0):
         """
         Parameters
         ----------
@@ -423,17 +423,26 @@ class Optimizer:
         return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
                         position, np.random.uniform(self.problem.lb, self.problem.ub))
 
+    def get_global_best_global_worst_solution(self, pop=None):
+        """
+        Args:
+            pop (): The population
+
+        Returns:
+            The global best and the global worst solution
+        """
+        # Already returned a new sorted list
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        if self.problem.minmax == "min":
+            return sorted_pop[0].copy(), sorted_pop[-1].copy()
+        else:
+            return sorted_pop[-1].copy(), sorted_pop[0].copy()
 
 
 
 
 
-    def get_global_best_global_worst_solution(self, pop=None, id_fit=None, id_best=None):
-        sorted_pop = sorted(pop, key=lambda temp: temp[id_fit])
-        if id_best == self.ID_MIN_PROB:
-            return deepcopy(sorted_pop[id_best]), deepcopy(sorted_pop[self.ID_MAX_PROB])
-        elif id_best == self.ID_MAX_PROB:
-            return deepcopy(sorted_pop[id_best]), deepcopy(sorted_pop[self.ID_MIN_PROB])
+
 
     def update_global_best_global_worst_solution(self, pop=None, id_best=None, id_worst=None, g_best=None):
         """ Sort the copy of population and update the current best position. Return the new current best position """
