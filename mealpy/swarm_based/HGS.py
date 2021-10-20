@@ -90,7 +90,7 @@ class OriginalHGS(Optimizer):
         return [pos_new, fit_new, 1.0]
 
     def update_hunger_value(self, pop=None, g_best=None, g_worst=None):
-        # min_index = pop.index(min(pop, key=lambda x: x[self.ID_FIT]))
+        # min_index = pop.index(min(pop, key=lambda x: x[self.ID_FIT][self.ID_TAR]))
         # Eq (2.8) and (2.9)
         for i in range(0, self.pop_size):
             r = np.random.rand()
@@ -102,7 +102,7 @@ class OriginalHGS(Optimizer):
                 H = self.LH * (1 + r)
             pop[i][self.ID_HUN] += H
 
-            if g_best[self.ID_FIT] == pop[i][self.ID_FIT]:
+            if g_best[self.ID_FIT][self.ID_TAR] == pop[i][self.ID_FIT][self.ID_TAR]:
                 pop[i][self.ID_HUN] = 0
         return pop
 
