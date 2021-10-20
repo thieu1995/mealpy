@@ -7,8 +7,9 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
+import concurrent.futures as parallel
+from functools import partial
 import numpy as np
-import time
 from mealpy.optimizer import Optimizer
 
 
@@ -21,65 +22,72 @@ class BaseGA(Optimizer):
         https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
     """
 
-    def __init__(self, problem: dict, epoch=1000, pop_size=100, pc=0.95, pm=0.025):
+    def __init__(self, problem, epoch=10000, pop_size=100, pc=0.95, pm=0.025, **kwargs):
         """
         Args:
-            problem (dict): a dictionary of your problem
             epoch (int): maximum number of iterations, default = 1000
             pop_size (int): number of population size, default = 100
             pc (float): cross-over probability, default = 0.95
             pm (float): mutation probability, default = 0.025
         """
-        super().__init__(problem)
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = 2 * pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
         self.pc = pc
         self.pm = pm
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        _, g_best = self.get_global_best_solution(pop)                  # We don't sort the population
-        self.history_list_g_best = [g_best]
-        self.history_list_c_best = self.history_list_g_best.copy()
+    def create_child(self, agent_i, pop_copy, list_fitness):
+        ### Selection
+        # c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
+        id_c1 = self.get_index_roulette_wheel_selection(list_fitness)
+        id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
 
-        for epoch in range(0, self.epoch):
-            time_start = time.time()
+        w1 = pop_copy[id_c1][self.ID_POS]
+        w2 = pop_copy[id_c2][self.ID_POS]
+        ### Crossover
+        if np.random.uniform() < self.pc:
+            w1, w2 = self.crossover_arthmetic_recombination(w1, w2)
 
-            # Next generations
-            next_population = []
-            while (len(next_population) < self.pop_size):
-                ### Selection
-                # c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
-                fitness_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
-                id_c1 = self.get_index_roulette_wheel_selection(fitness_list)
-                id_c2 = self.get_index_roulette_wheel_selection(fitness_list)
+        ### Mutation, remove third loop here
+        w1 = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, np.random.uniform(self.problem.lb, self.problem.ub), w1)
+        w2 = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, np.random.uniform(self.problem.lb, self.problem.ub), w2)
 
-                w1 = pop[id_c1][self.ID_POS]
-                w2 = pop[id_c2][self.ID_POS]
-                ### Crossover
-                if np.random.uniform() < self.pc:
-                    w1, w2 = self.crossover_arthmetic_recombination(w1, w2)
+        if np.random.uniform() < 0.5:
+            return [w1.copy(), self.get_fitness_position(w1)]
+        else:
+            return [w2.copy(), self.get_fitness_position(w2)]
 
-                ### Mutation, remove third loop here
-                w1 = np.where(np.random.uniform(0, 1, self.problem_size) < self.pm, np.random.uniform(self.lb, self.ub), w1)
-                w2 = np.where(np.random.uniform(0, 1, self.problem_size) < self.pm, np.random.uniform(self.lb, self.ub), w2)
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+            Args:
+                mode (str): 'sequential', 'thread', 'process'
+                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-                c1_new = [w1.copy(), self.get_fitness_position(w1)]
-                c2_new = [w2.copy(), self.get_fitness_position(w2)]
-                next_population.append(c1_new)
-                next_population.append(c2_new)
+            Returns:
+                [position, fitness value]
+        """
+        # c1, c2 = self._get_parents_kway_tournament_selection__(pop, k_way=0.2)
+        list_fitness = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+        pop_copy = pop.copy()
 
-            pop = next_population.copy()
-            # update global best position
-            self.update_global_best_solution(pop)
-
-            ## Additional information for the framework
-            time_start = time.time() - time_start
-            self.history_list_epoch_time.append(time_start)
-            self.print_epoch(epoch+1, time_start)
-            self.history_list_pop.append(pop.copy())
-
-        ## Additional information for the framework
-        self.solution = self.history_list_g_best[-1]
-        self.save_data()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, list_fitness=list_fitness), pop)
+            pop = [x for x in pop_child]
+            return pop
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, list_fitness=list_fitness), pop)
+            pop = [x for x in pop_child]
+            return pop
+        else:
+            pop_child = []
+            list_fitness = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+            for i in range(0, self.pop_size):
+                pop_child.append(self.create_child(pop[i], pop_copy, list_fitness))
+            return pop_child
