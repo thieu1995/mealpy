@@ -390,6 +390,39 @@ class Optimizer:
         elif case == 3:
             return position + 0.01 * levy
 
+    def amend_position(self, position=None):
+        """
+        Args:
+            position (): vector position (location) of the solution.
+
+        Returns:
+            Amended position (make the position is in bound)
+        """
+        return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
+
+    def amend_position_faster(self, position=None):
+        """
+        This is method is faster than "amend_position" in most cases.
+        Args:
+            position (): vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.clip(position, self.problem.lb, self.problem.ub)
+
+    def amend_position_random(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Args:
+            position (): vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
 
 
 
@@ -408,15 +441,6 @@ class Optimizer:
         current_best = sorted_pop[id_best]
         g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
         return g_best, sorted_pop[id_worst]
-
-    def amend_position(self, position=None):
-        return np.maximum(self.lb, np.minimum(self.ub, position))
-
-    def amend_position_faster(self, position=None):
-        return np.clip(position, self.lb, self.ub)
-
-    def amend_position_random(self, position=None):
-        return np.where(np.logical_and(self.lb <= position, position <= self.ub), position, np.random.uniform(self.lb, self.ub))
 
     def update_sorted_population_and_global_best_solution(self, pop=None, id_best=None, g_best=None):
         """ Sort the population and update the current best position. Return the sorted population and the new current best position """
