@@ -33,7 +33,7 @@ class OriginalHGS(Optimizer):
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
-        self.sort_flag = True
+        self.sort_flag = False
 
         self.epoch = epoch
         self.pop_size = pop_size
