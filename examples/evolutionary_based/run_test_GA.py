@@ -161,12 +161,19 @@ model8.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[3],
 
 ## Define your objective function, your constraint
 def obj_function(solution):
-    t1 = solution[0] ** 2
-    t2 = ((2 * solution[1]) / 5) ** 2
-    t3 = 0
+    f1 = solution[0] ** 2
+    f2 = ((2 * solution[1]) / 5) ** 2
+    f3 = 0
     for i in range(3, len(solution)):
-        t3 += (1 + solution[i] ** 2) ** 0.5
-    return [t1, t2, t3]
+        f3 += (1 + solution[i] ** 2) ** 0.5
+    return [f1, f2, f3]
+
+## Define your objective weights. For example:
+###  f1: 50% important
+###  f2: 20% important
+###  f3: 30% important
+### Then weight = [0.5, 0.2, 0.3] ==> Fitness value = 0.5*f1 + 0.2*f2 + 0.3*f3
+### Default weight = [1, 1, 1]
 
 problem_dict9 = {
     "obj_func": obj_function,
@@ -174,18 +181,20 @@ problem_dict9 = {
     "ub": [5, 10, 100, 30, ],
     "minmax": "min",
     "verbose": True,
+    "obj_weight": [0.5, 0.2, 0.3]       # Remember the keyword "obj_weight"
 }
 problem_obj9 = Problem(problem_dict9)
-model8 = GA.BaseGA(problem_obj9, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model9 = GA.BaseGA(problem_obj9, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model9.solve()
 
 ## To access the results, you can get the results by solve() method
-position, fitness_value = model8.solve()
+position, fitness_value = model9.solve()
 
 ## To get all fitness value and all objective values, get it via "solution" attribute
 ## A agent / solution format [position, [fitness, [obj1, obj2, ..., obj_n]]]
-position = model8.solution[0]
-fitness_value = model8.solution[1][0]
-objective_values = model8.solution[1][1]
+position = model9.solution[0]
+fitness_value = model9.solution[1][0]
+objective_values = model9.solution[1][1]
 
 
 # F - Test with different variants of this algorithm
