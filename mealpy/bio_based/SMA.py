@@ -36,7 +36,7 @@ class BaseSMA(Optimizer):
             pr (float): probability threshold (z in the paper), default = 0.03
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
         self.epoch = epoch
@@ -157,7 +157,7 @@ class OriginalSMA(BaseSMA):
             pr (float): probability threshold (z in the paper), default = 0.03
         """
         super().__init__(problem, epoch, pop_size, pr, **kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
         self.epoch = epoch
