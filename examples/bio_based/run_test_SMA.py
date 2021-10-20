@@ -61,10 +61,10 @@ problem_dict4 = {
 ## Run the algorithm
 
 ### Your parameter problem can be an instane of Problem class or just dict like above
-model1 = SMA.BaseSMA(problem_obj1, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model1 = SMA.BaseSMA(problem_obj1, epoch=100, pop_size=50, pr=0.03)
 model1.solve()
 
-model2 = SMA.BaseSMA(problem_dict4, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model2 = SMA.BaseSMA(problem_dict4, epoch=100, pop_size=50, pr=0.03)
 model2.solve()
 
 # B - Test with different Stopping Condition (Termination) by creating an Termination object
@@ -98,7 +98,7 @@ termination_obj3 = Termination(termination_dict3)
 termination_obj4 = Termination(termination_dict4)
 
 ### Pass your termination object into your model as a addtional parameter with the keyword "termination"
-model3 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.05, termination=termination_obj1)
+model3 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03, termination=termination_obj1)
 model3.solve()
 ### Remember you can't pass termination dict, it only accept the Termination object
 
@@ -110,14 +110,14 @@ model3.solve()
 ## + process: create multiple cores to run your algorithm.
 ## Note: For windows, your program need the if __nam__ == "__main__" condition to avoid creating infinite processors
 
-model5 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model5 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
 model5.solve(mode='sequential')  # Default
 
-model6 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model6 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
 model6.solve(mode='thread')
 
 if __name__ == "__main__":
-    model7 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+    model7 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
     model7.solve(mode='process')
 
 # D - Drawing all available figures
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 ## D.6: Based on trajectory value (1D, 2D only)
 ##      8. Trajectory chart
 
-model8 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model8 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
 model8.solve()
 
 ## You can access them all via object "history" like this:
@@ -182,7 +182,7 @@ problem_dict9 = {
     "obj_weight": [0.5, 0.2, 0.3]  # Remember the keyword "obj_weight"
 }
 problem_obj9 = Problem(problem_dict9)
-model9 = SMA.BaseSMA(problem_obj9, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model9 = SMA.BaseSMA(problem_obj9, epoch=100, pop_size=50, pr=0.03)
 model9.solve()
 
 ## To access the results, you can get the results by solve() method
@@ -197,5 +197,5 @@ objective_values = model9.solution[1][1]
 
 # F - Test with different variants of this algorithm
 
-model10 = SMA.OriginalSMA(problem_obj9, epoch=100, pop_size=50, pc=0.85, pm=0.05)
+model10 = SMA.OriginalSMA(problem_obj9, epoch=100, pop_size=50, pr=0.03)
 model10.solve()
