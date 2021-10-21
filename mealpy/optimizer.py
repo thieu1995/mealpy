@@ -216,6 +216,24 @@ class Optimizer:
                 return agent2.copy()
             return agent1.copy()
 
+    def compare_agent(self, agent_a: list, agent_b: list):
+        """
+        Args:
+            agent_a (list): Solution a
+            agent_b (list): Solution b
+
+        Returns:
+            boolean: Return True if solution a better than solution b and otherwise
+        """
+        if self.problem.minmax == "min":
+            if agent_a[self.ID_FIT][self.ID_TAR] < agent_b[self.ID_FIT][self.ID_TAR]:
+                return True
+            return False
+        else:
+            if agent_a[self.ID_FIT][self.ID_TAR] < agent_b[self.ID_FIT][self.ID_TAR]:
+                return False
+            return True
+
     def update_global_best_solution(self, pop=None):
         """
         Update the global best solution saved in variable named: self.history_list_g_best
@@ -438,8 +456,22 @@ class Optimizer:
         else:
             return sorted_pop[-1].copy(), sorted_pop[0].copy()
 
+    ### Survivor Selection
+    def greedy_selection_population(self, pop_old=None, pop_new=None):
+        """
+        Args:
+            pop_old (): The current population
+            pop_new (): The next population
 
-
+        Returns:
+            The new population with better solutions
+        """
+        if self.problem.minmax == "min":
+            return [pop_new[i] if pop_new[i][self.ID_FIT][self.ID_TAR] < pop_old[i][self.ID_FIT][self.ID_TAR]
+                    else pop_old[i] for i in range(self.pop_size)]
+        else:
+            return [pop_new[i] if pop_new[i][self.ID_FIT] > pop_old[i][self.ID_FIT]
+                    else pop_old[i] for i in range(self.pop_size)]
 
 
 
