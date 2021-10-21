@@ -108,17 +108,13 @@ class BaseGSKA(Optimizer):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, D=D), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, D=D), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, g_best, D))
-            return pop_child
+            pop = [self.create_child(idx, pop_copy, g_best, D) for idx in pop_idx]
+        return pop
 
 
 class OriginalGSKA(Optimizer):
@@ -221,14 +217,10 @@ class OriginalGSKA(Optimizer):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, D=D), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, D=D), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, D))
-            return pop_child
+            pop = [self.create_child(idx, pop_copy, D) for idx in pop_idx]
+        return pop

@@ -25,7 +25,7 @@ class BaseGA(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, pc=0.95, pm=0.025, **kwargs):
         """
         Args:
-            epoch (int): maximum number of iterations, default = 1000
+            epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pc (float): cross-over probability, default = 0.95
             pm (float): mutation probability, default = 0.025

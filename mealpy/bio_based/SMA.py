@@ -31,7 +31,7 @@ class BaseSMA(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, pr=0.03, **kwargs):
         """
         Args:
-            epoch (int): maximum number of iterations, default = 1000
+            epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pr (float): probability threshold (z in the paper), default = 0.03
         """
@@ -126,17 +126,13 @@ class BaseSMA(Optimizer):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, a=a, b=b), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, a=a, b=b), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, g_best, a, b))
-            return pop_child
+            pop = [self.create_child(idx, pop_copy, g_best, a, b) for idx in pop_idx]
+        return pop
 
 
 class OriginalSMA(BaseSMA):
@@ -221,9 +217,7 @@ class OriginalSMA(BaseSMA):
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, a=a, b=b), pop_idx)
             pop = [x for x in pop_child]
         else:
-            pop = []
-            for idx in range(0, self.pop_size):
-                pop.append(self.create_child(idx, pop_copy, g_best, a, b))
+            pop = [self.create_child(idx, pop_copy, g_best, a, b) for idx in pop_idx]
 
         # Check bound and re-calculate fitness after the whole population move
         for i in range(0, self.pop_size):

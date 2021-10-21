@@ -90,17 +90,13 @@ class BaseEO(Optimizer):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, c_pool, t))
-            return pop_child
+            pop = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
+        return pop
 
 
 class ModifiedEO(BaseEO):
@@ -154,10 +150,7 @@ class ModifiedEO(BaseEO):
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
             pop = [x for x in pop_child]
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, c_pool, t))
-            pop = pop_child.copy()
+            pop = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
 
         ## Sort the updated population based on fitness
         pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
@@ -268,11 +261,7 @@ class AdaptiveEO(BaseEO):
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
             pop_copy = [x for x in pop_child]
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, c_pool, t))
-            pop_copy = pop_child.copy()
-
+            pop_copy = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
         return pop_copy
 
 
@@ -339,15 +328,11 @@ class LevyEO(BaseEO):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child_new, pop_copy=pop_copy, c_pool=c_pool, t=t, epoch=epoch, g_best=g_best), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child_new, pop_copy=pop_copy, c_pool=c_pool, t=t, epoch=epoch, g_best=g_best), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child_new(idx, pop_copy, c_pool, t, epoch, g_best))
-            return pop_child
+            pop = [self.create_child_new(idx, pop_copy, c_pool, t, epoch, g_best) for idx in pop_idx]
+        return pop
 

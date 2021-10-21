@@ -26,7 +26,7 @@ class OriginalHGS(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, PUP=0.08, LH=10000, **kwargs):
         """
         Args:
-            epoch (int): maximum number of iterations, default = 1000
+            epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             PUP (float): The probability of updating position (L in the paper), default = 0.08
             LH (float): Largest hunger / threshold, default = 10000
@@ -134,15 +134,11 @@ class OriginalHGS(Optimizer):
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best,
                                                  shrink=shrink, total_hunger=total_hunger), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best,
                                                  shrink=shrink, total_hunger=total_hunger), pop_idx)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            for idx in range(0, self.pop_size):
-                pop_child.append(self.create_child(idx, pop_copy, g_best, shrink, total_hunger))
-            return pop_child
+            pop = [self.create_child(idx, pop_copy, g_best, shrink, total_hunger) for idx in pop_idx]
+        return pop

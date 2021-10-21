@@ -7,8 +7,8 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, random, normal, choice
-from numpy import array, mean, sqrt, ceil, abs, cos, pi, sin
+from numpy.random import uniform, random, normal
+from numpy import array, mean, sqrt, ceil
 from copy import deepcopy
 from mealpy.optimizer import Root
 
