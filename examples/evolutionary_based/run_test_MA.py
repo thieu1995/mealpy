@@ -8,136 +8,201 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.evolutionary_based.MA import BaseMA
-from mealpy.utils.visualize import export_convergence_chart, export_explore_exploit_chart, \
-    export_diversity_chart, export_objectives_chart, export_trajectory_chart
-from numpy import array
+from mealpy.evolutionary_based import MA
+from mealpy.problem import Problem
+from mealpy.utils.termination import Termination
 
+# Setting parameters
 
-# ## Setting parameters
-# problem1 = {
-#     "obj_func": F5,
-#     "lb": [-3, -5, 1, -10],
-#     "ub": [5, 10, 100, 30],
-#     "minmax": "max",
-#     "verbose": True,
-# }
-#
-# # A - Different way to provide lower bound and upper bound. Here are some examples:
-#
-# ## 1. When you have different lower bound and upper bound for each parameters
-# md1 = BaseMA(problem1, epoch=10, pop_size=50)
-# best_pos1, best_fit1 = md1.train()
-# print(md1.solution[1])
-#
-# ## 2. When you have same lower bound and upper bound for each parameters, then you can use:
-# ##      + int or float: then you need to specify your problem size (number of dimensions)
-# problem2 = {
-#     "obj_func": F5,
-#     "lb": -10,
-#     "ub": 30,
-#     "minmax": "min",
-#     "verbose": True,
-#     "problem_size": 30,  # Remember the keyword "problem_size"
-# }
-# md2 = BaseMA(problem2, epoch=10, pop_size=50)  # Remember the keyword "problem_size"
-# md2.train()
-# print(md2.solution[1])
-#
-# ##      + array: 2 ways
-# problem3 = {
-#     "obj_func": F5,
-#     "lb": [-5],
-#     "ub": [10],
-#     "minmax": "min",
-#     "verbose": True,
-#     "problem_size": 30,  # Remember the keyword "problem_size"
-# }
-# md3 = BaseMA(problem3, epoch=10, pop_size=50)  # Remember the keyword "problem_size"
-# md3.train()
-# print(md3.solution[1])
-#
-# problem_size = 30
-# problem4 = {
-#     "obj_func": F5,
-#     "lb": [-5] * problem_size,
-#     "ub": [10] * problem_size,
-#     "minmax": "min",
-#     "verbose": True,
-# }
-# md4 = BaseMA(problem4, epoch=10, pop_size=50)  # Remember the keyword "problem_size"
-# md4.train()
-# print(md4.solution[1])
-#
-#
-# # B - Test with algorithm has batch size idea
-#
-#
-# # C - Test with different variants of this algorithm
-#
-#
-# D - Drawing all available figures
+# A - Different way to provide lower bound and upper bound. Here are some examples:
 
-## Multi-objective but single fitness/target function. By using weighting method to convert from multiple to single.
-def obj_function(solution):
-    t1 = solution[0] ** 2
-    t2 = ((2 * solution[1]) / 5) ** 2
-    t3 = 0
-    for i in range(3, len(solution)):
-        t3 += (1 + solution[i] ** 2) ** 0.5
-    return [t1, t2, t3]
-
-
-## Setting parameters
-problem_size = 30
-problem5 = {
-    "obj_func": obj_function,
-    "lb": [-5] * problem_size,
-    "ub": [10] * problem_size,
+## A1. When you have different lower bound and upper bound for each parameters
+problem_dict1 = {
+    "obj_func": F5,
+    "lb": [-3, -5, 1, -10, ],
+    "ub": [5, 10, 100, 30, ],
     "minmax": "min",
     "verbose": True,
 }
-md5 = BaseMA(problem5, epoch=10, pop_size=50)  # Remember the keyword "problem_size"
-best_position, best_fitness = md5.train()
+problem_obj1 = Problem(problem_dict1)
 
-export_convergence_chart(md5.history_list_g_best_fit, title='Global Best Fitness')  # Draw global best fitness found so far in previous generations
-export_convergence_chart(md5.history_list_c_best_fit, title='Local Best Fitness')  # Draw current best fitness in each previous generation
-export_convergence_chart(md5.history_list_epoch_time, title='Runtime chart', y_label="Second")  # Draw runtime for each generation
+## A2. When you have same lower bound and upper bound for each parameters, then you can use:
+##      + int or float: then you need to specify your problem size / number of dimensions (n_dims)
+problem_dict2 = {
+    "obj_func": F5,
+    "lb": -10,
+    "ub": 30,
+    "minmax": "min",
+    "verbose": True,
+    "n_dims": 30,  # Remember the keyword "n_dims"
+}
+problem_obj2 = Problem(problem_dict2)
 
-## On the exploration and exploitation in popular swarm-based metaheuristic algorithms
+##      + array: 2 ways
+problem_dict3 = {
+    "obj_func": F5,
+    "lb": [-5],
+    "ub": [10],
+    "minmax": "min",
+    "verbose": True,
+    "n_dims": 30,  # Remember the keyword "n_dims"
+}
+problem_obj3 = Problem(problem_dict3)
 
-# This exploration/exploitation chart should draws for single algorithm and single fitness function
-export_explore_exploit_chart([md5.history_list_explore, md5.history_list_exploit])  # Draw exploration and exploitation chart
+n_dims = 100
+problem_dict4 = {
+    "obj_func": F5,
+    "lb": [-5] * n_dims,
+    "ub": [10] * n_dims,
+    "minmax": "min",
+    "verbose": True,
+}
 
-# This diversity chart should draws for multiple algorithms for a single fitness function at the same time to compare the diversity spreading
-export_diversity_chart([md5.history_list_div], list_legends=['GA'])  # Draw diversity measurement chart
+## Run the algorithm
 
-## Because convergence chart is formulated from objective values and weights,
-## thus we also want to draw objective charts to understand the convergence
-## Need a little bit more pre-processing
+### Your parameter problem can be an instane of Problem class or just dict like above
+model1 = MA.BaseMA(problem_obj1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model1.solve()
+
+model2 = MA.BaseMA(problem_dict4, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model2.solve()
+
+# B - Test with different Stopping Condition (Termination) by creating an Termination object
+
+## There are 4 termination cases:
+### 1. FE (Number of Function Evaluation)
+### 2. MG (Maximum Generations / Epochs): This is default in all algorithms
+### 3. ES (Early Stopping): Same idea in training neural network (If the global best solution not better an epsilon
+###     after K epoch then stop the program
+### 4. TB (Time Bound): You just want your algorithm run in K seconds. Especially when comparing different algorithms.
+
+termination_dict1 = {
+    "mode": "FE",
+    "quantity": 100000  # 100000 number of function evaluation
+}
+termination_dict2 = {  # When creating this object, it will override the default epoch you define in your model
+    "mode": "MG",
+    "quantity": 1000  # 1000 epochs
+}
+termination_dict3 = {
+    "mode": "ES",
+    "quantity": 30  # after 30 epochs, if the global best doesn't improve then we stop the program
+}
+termination_dict4 = {
+    "mode": "ES",
+    "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
+}
+termination_obj1 = Termination(termination_dict1)
+termination_obj2 = Termination(termination_dict2)
+termination_obj3 = Termination(termination_dict3)
+termination_obj4 = Termination(termination_dict4)
+
+### Pass your termination object into your model as a addtional parameter with the keyword "termination"
+model3 = MA.BaseMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16, termination=termination_obj1)
+model3.solve()
+### Remember you can't pass termination dict, it only accept the Termination object
 
 
-global_obj_list = array([agent[1][-1] for agent in md5.history_list_g_best])  # 2D array / matrix 2D
-global_obj_list = [global_obj_list[:, idx] for idx in range(0, len(global_obj_list[0]))]  # Make each obj_list as a element in array for drawing
-export_objectives_chart(global_obj_list, title='Global Objectives Chart')
+# C - Test with different training mode (sequential, threading parallelization, processing parallelization)
 
-current_obj_list = array([agent[1][-1] for agent in md5.history_list_c_best])
-current_obj_list = [current_obj_list[:, idx] for idx in range(0, len(current_obj_list[0]))]  # Make each obj_list as a element in array for drawing
-export_objectives_chart(current_obj_list, title='Local Objectives Chart')
+## + sequential: Default for all algorithm (single core)
+## + thread: create multiple threading depend on your chip
+## + process: create multiple cores to run your algorithm.
+## Note: For windows, your program need the if __nam__ == "__main__" condition to avoid creating infinite processors
 
-## Drawing trajectory of some agents in the first and second dimensions
-# Need a little bit more pre-processing
-pos_list = []
-list_legends = []
-dimension = 2
-y_label = f"x{dimension + 1}"
-for i in range(0, 5, 2):  # Get the third dimension of position of the first 3 solutions
-    x = [pop[0][0][dimension] for pop in md5.history_list_pop]
-    pos_list.append(x)
-    list_legends.append(f"Agent {i + 1}.")
-    # pop[0]: Get the first solution
-    # pop[0][0]: Get the position of the first solution
-    # pop[0][0][0]: Get the first dimension of the position of the first solution
-export_trajectory_chart(pos_list, list_legends=list_legends, y_label=y_label)
+model5 = MA.BaseMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model5.solve(mode='sequential')  # Default
 
+model6 = MA.BaseMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model6.solve(mode='thread')
+
+if __name__ == "__main__":
+    model7 = MA.BaseMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+    model7.solve(mode='process')
+
+# D - Drawing all available figures
+
+## There are 8 different figures for each algorithm.
+## D.1: Based on fitness value:
+##      1. Global best fitness chart
+##      2. Local best fitness chart
+## D.2: Based on objective value:
+##      3. Global objective chart
+##      4. Local objective chart
+## D.3: Based on runtime value (runtime for each epoch)
+##      5. Runtime chart
+## D.4: Based on exploration verse exploration value
+##      6. Exploration vs Exploitation chart
+## D.5: Based on diversity of population
+##      7. Diversity chart
+## D.6: Based on trajectory value (1D, 2D only)
+##      8. Trajectory chart
+
+model8 = MA.BaseMA(problem_dict1, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model8.solve()
+
+## You can access them all via object "history" like this:
+model8.history.save_global_objectives_chart(filename="hello/goc")
+model8.history.save_local_objectives_chart(filename="hello/loc")
+model8.history.save_global_best_fitness_chart(filename="hello/gbfc")
+model8.history.save_local_best_fitness_chart(filename="hello/lbfc")
+model8.history.save_runtime_chart(filename="hello/rtc")
+model8.history.save_exploration_exploitation_chart(filename="hello/eec")
+model8.history.save_diversity_chart(filename="hello/dc")
+model8.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[3], filename="hello/tc")
+
+
+# E - Handling Multi-Objective function and Constraint Method
+
+## To handling Multi-Objective, mealpy is using weighting method which converting multiple objectives to a single target (fitness value)
+
+## Define your objective function, your constraint
+def obj_function(solution):
+    f1 = solution[0] ** 2
+    f2 = ((2 * solution[1]) / 5) ** 2
+    f3 = 0
+    for i in range(3, len(solution)):
+        f3 += (1 + solution[i] ** 2) ** 0.5
+    return [f1, f2, f3]
+
+
+## Define your objective weights. For example:
+###  f1: 50% important
+###  f2: 20% important
+###  f3: 30% important
+### Then weight = [0.5, 0.2, 0.3] ==> Fitness value = 0.5*f1 + 0.2*f2 + 0.3*f3
+### Default weight = [1, 1, 1]
+
+problem_dict9 = {
+    "obj_func": obj_function,
+    "lb": [-3, -5, 1, -10, ],
+    "ub": [5, 10, 100, 30, ],
+    "minmax": "min",
+    "verbose": True,
+    "obj_weight": [0.5, 0.2, 0.3]  # Remember the keyword "obj_weight"
+}
+problem_obj9 = Problem(problem_dict9)
+model9 = MA.BaseMA(problem_obj9, epoch=100, pop_size=50, pc=0.85, pm=0.15,
+                 p_local=0.5, max_local_gens=20, bits_per_param=16)
+model9.solve()
+
+## To access the results, you can get the results by solve() method
+position, fitness_value = model9.solve()
+
+## To get all fitness value and all objective values, get it via "solution" attribute
+## A agent / solution format [position, [fitness, [obj1, obj2, ..., obj_n]]]
+position = model9.solution[0]
+fitness_value = model9.solution[1][0]
+objective_values = model9.solution[1][1]
+
+# F - Test with different variants of this algorithm
+
+## This algorithm hadn't has any variant yet.
 
