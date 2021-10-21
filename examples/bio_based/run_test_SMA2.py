@@ -12,7 +12,7 @@ from mealpy.bio_based import SMA
 from mealpy.swarm_based import HGS
 from mealpy.human_based import GSKA
 from mealpy.physics_based import EO
-from mealpy.evolutionary_based import MA, FPA
+from mealpy.evolutionary_based import MA, FPA, ES
 from mealpy.problem import Problem
 from mealpy.utils.termination import Termination
 
@@ -32,5 +32,5 @@ problem_dict1 = {
 if __name__ == "__main__":
     problem_obj1 = Problem(problem_dict1)
     ### Your parameter problem can be an instane of Problem class or just dict like above
-    model1 = FPA.BaseFPA(problem_obj1, epoch=100, pop_size=50)
-    model1.solve(mode="sequential")
+    model1 = ES.BaseES(problem_obj1, epoch=100, pop_size=50)
+    model1.solve(mode="thread")
