@@ -79,15 +79,10 @@ class BaseGA(Optimizer):
             with parallel.ThreadPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, list_fitness=list_fitness), pop)
             pop = [x for x in pop_child]
-            return pop
         elif mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, list_fitness=list_fitness), pop)
             pop = [x for x in pop_child]
-            return pop
         else:
-            pop_child = []
-            list_fitness = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
-            for i in range(0, self.pop_size):
-                pop_child.append(self.create_child(pop[i], pop_copy, list_fitness))
-            return pop_child
+            pop = [self.create_child(agent, pop_copy, list_fitness) for agent in pop]
+        return pop
