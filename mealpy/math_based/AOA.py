@@ -25,10 +25,10 @@ class OriginalAOA(Optimizer):
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (Harmony Memory Size), default = 100
-            alpha (): fixed parameter, sensitive exploitation parameter, Default: 5,
-            miu (): fixed parameter , control parameter to adjust the search process, Default: 0.5,
-            moa_min (): range min of Math Optimizer Accelerated, Default: 0.2,
-            moa_max (): range max of Math Optimizer Accelerated, Default: 0.9,
+            alpha (int): fixed parameter, sensitive exploitation parameter, Default: 5,
+            miu (float): fixed parameter , control parameter to adjust the search process, Default: 0.5,
+            moa_min (float): range min of Math Optimizer Accelerated, Default: 0.2,
+            moa_max (float): range max of Math Optimizer Accelerated, Default: 0.9,
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
