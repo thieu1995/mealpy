@@ -26,9 +26,9 @@ class BaseHS(Optimizer):
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (Harmony Memory Size), default = 100
-            n_new (int): cross-over probability (Number of New Harmonies), default = 0.85
-            c_r (float): mutation probability (Harmony Memory Consideration Rate), default = 0.15
-            pa_r (float): Probability of local search for each agent (Pitch Adjustment Rate), default=0.5
+            n_new (int): Number of New Harmonies, default = 0.85
+            c_r (float): Harmony Memory Consideration Rate, default = 0.15
+            pa_r (float): Pitch Adjustment Rate, default=0.5
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size

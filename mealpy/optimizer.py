@@ -92,7 +92,7 @@ class Optimizer:
         self.termination_start()
         pop = [self.create_solution() for _ in range(self.pop_size)]
         if self.sort_flag:
-            pop, g_best = _, g_best = self.get_global_best_solution(pop)  # We sort the population
+            pop, g_best = self.get_global_best_solution(pop)  # We sort the population
         else:
             _, g_best = self.get_global_best_solution(pop)  # We don't sort the population
         self.history.save_initial_best(g_best)
@@ -105,7 +105,7 @@ class Optimizer:
 
             # update global best position
             if self.sort_flag:
-                pop, g_best = _, g_best = self.update_global_best_solution(pop)  # We sort the population
+                pop, g_best = self.update_global_best_solution(pop)  # We sort the population
             else:
                 _, g_best = self.update_global_best_solution(pop)  # We don't sort the population
 
