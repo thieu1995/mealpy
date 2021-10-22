@@ -7,13 +7,13 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, choice
-from numpy import max, min, array, where, ones, exp
-from mealpy.optimizer import Root
-from copy import deepcopy
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseGCO(Root):
+class BaseGCO(Optimizer):
     """
     My modified version of: Germinal Center Optimization (GCO)
         (Germinal Center Optimization Algorithm)
@@ -24,62 +24,91 @@ class BaseGCO(Root):
         + Instead randomize choosing 3 solution, I use 2 random solution and global best solution
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 cr=0.7, f=1.25, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
+            wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.cr = cr                # Same as DE algorithm  # default: 0.7
-        self.f = f                  # Same as DE algorithm  # default: 1.25
+        self.cr = cr
+        self.wf = wf
 
-    def train(self):
-        list_cell_counter = ones(self.pop_size)             # CEll Counter
-        list_life_signal = 70 * ones(self.pop_size)         # 70% to duplicate, and 30% to die  # LIfe-Signal
-        pop = [self.create_solution() for _ in range(self.pop_size)]  # B-cells population
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+        ## Dynamic variables
+        self.dyn_list_cell_counter = np.ones(self.pop_size)         # CEll Counter
+        self.dyn_list_life_signal = 70 * np.ones(self.pop_size)     # 70% to duplicate, and 30% to die  # LIfe-Signal
 
-        for epoch in range(self.epoch):
-            ## Dark-zone process
-            for i in range(0, self.pop_size):
-                if uniform(0, 100) < list_life_signal[i]:
-                    list_cell_counter[i] += 1
-                else:
-                    list_cell_counter[i] = 1
+    def create_child(self, idx, pop, g_best):
+        if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
+            self.dyn_list_cell_counter[idx] += 1
+        else:
+            self.dyn_list_cell_counter[idx] = 1
 
-                # Mutate process
-                r1, r2 = choice(range(0, self.pop_size), 2, replace=False)
-                pos_new = g_best[self.ID_POS] + self.f * (pop[r2][self.ID_POS] - pop[r1][self.ID_POS])
-                pos_new = where(uniform(0, 1, self.problem_size) < self.cr, pos_new, pop[i][self.ID_POS])
-                fit_new = self.get_fitness_position(pos_new)
-                if fit_new < pop[i][self.ID_FIT]:
-                    pop[i] = [pos_new, fit_new]
-                    list_cell_counter[i] += 10
+        # Mutate process
+        r1, r2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
+        pos_new = g_best[self.ID_POS] + self.wf * (pop[r2][self.ID_POS] - pop[r1][self.ID_POS])
+        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, pop[idx][self.ID_POS])
+        pos_new = self.amend_position_faster(pos_new)
+        fit_new = self.get_fitness_position(pos_new)
 
-                ## Update based on batch-size training
-                if self.batch_idea:
-                    if (i+1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            self.dyn_list_cell_counter[idx] += 10
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-            ## Light-zone process
-            for i in range(0, self.pop_size):
-                list_cell_counter[i] = 10
-                fit_list = array([item[self.ID_FIT] for item in pop])
-                fit_max = max(fit_list)
-                fit_min = min(fit_list)
-                list_cell_counter[i] += 10 * (pop[i][self.ID_FIT] - fit_max) / (fit_min - fit_max + self.EPSILON)
-
-            ## Update the global best
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        # ## Update based on batch-size training
+        # if self.batch_idea:
+        #     if (i + 1) % self.batch_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+        # else:
+        #     if (i + 1) % self.pop_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
 
-class OriginalGCO(Root):
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+        Returns:
+            [position, fitness value]
+        """
+        pop_copy = pop.copy()
+        pop_idx = np.array(range(0, self.pop_size))
+
+        ## Dark-zone process    (can be parallelization)
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
+            pop_new = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
+            pop_new = [x for x in pop_child]
+        else:
+            pop_new = [self.create_child(idx, pop_copy, g_best) for idx in pop_idx]
+
+        ## Light-zone process   (no needs parallelization)
+        for i in range(0, self.pop_size):
+            self.dyn_list_cell_counter[i] = 10
+            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop_new])
+            fit_max = max(fit_list)
+            fit_min = min(fit_list)
+            self.dyn_list_cell_counter[i] += 10 * (pop[i][self.ID_FIT][self.ID_TAR] - fit_max) / (fit_min - fit_max + self.EPSILON)
+        return pop_new
+
+
+class OriginalGCO(BaseGCO):
     """
     Original version of: Germinal Center Optimization (GCO)
         (Germinal Center Optimization Algorithm)
@@ -87,50 +116,31 @@ class OriginalGCO(Root):
         DOI: https://doi.org/10.2991/ijcis.2018.25905179
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 cr=0.7, f=1.25, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.cr = cr                # Same as DE algorithm  # default: 0.7
-        self.f = f                  # Same as DE algorithm  # default: 1.25
+    def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
+            wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+        """
+        super().__init__(problem, epoch, pop_size, cr, wf, **kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
 
-    def train(self):
-        list_cell_counter = ones(self.pop_size)
-        list_life_signal = 70 * ones(self.pop_size)         # 70% to duplicate, and 30% to die
-        pop = [self.create_solution() for _ in range(self.pop_size)]  # B-cells population
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child(self, idx, pop, g_best):
+        if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
+            self.dyn_list_cell_counter[idx] += 1
+        else:
+            self.dyn_list_cell_counter[idx] = 1
 
-        for epoch in range(self.epoch):
-            ## Dark-zone process
-            for i in range(0, self.pop_size):
-                if uniform(0, 100) < list_life_signal[i]:
-                    list_cell_counter[i] += 1
-                else:
-                    list_cell_counter[i] = 1
-
-                # Mutate process
-                r1, r2, r3 = choice(range(0, self.pop_size), 3, replace=False)
-                pos_new = pop[r1][self.ID_POS] + self.f * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
-                pos_new = where(uniform(0, 1, self.problem_size) < self.cr, pos_new, pop[i][self.ID_POS])
-                fit_new = self.get_fitness_position(pos_new)
-                if fit_new < pop[i][self.ID_FIT]:
-                    pop[i] = [pos_new, fit_new]
-                    list_cell_counter[i] += 10
-                    if pop[i][self.ID_FIT] < g_best[self.ID_FIT]:
-                        g_best = deepcopy(pop[i])
-
-            ## Light-zone process
-            for i in range(0, self.pop_size):
-                list_cell_counter[i] = 10
-                fit_list = array([item[self.ID_FIT] for item in pop])
-                fit_max = max(fit_list)
-                fit_min = min(fit_list)
-                list_cell_counter[i] += 10 * (pop[i][self.ID_FIT] - fit_max) / (fit_min - fit_max)
-
-            ## Update the global best
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        # Mutate process
+        r1, r2, r3 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
+        pos_new = pop[r1][self.ID_POS] + self.wf * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
+        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, pop[idx][self.ID_POS])
+        pos_new = self.amend_position_faster(pos_new)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            self.dyn_list_cell_counter[idx] += 10
+            return [pos_new, fit_new]
+        return pop[idx].copy()
