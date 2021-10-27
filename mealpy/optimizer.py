@@ -159,6 +159,14 @@ class Optimizer:
         return [position, fitness]
 
     def create_population(self, mode='sequential', pop_size=None):
+        """
+        Args:
+            mode (str): processing mode, it can be "sequential", "thread" or "process"
+            pop_size (int): number of solutions
+
+        Returns:
+            population: list of solutions/agents
+        """
         if pop_size is not None:
             pop_size = self.pop_size
         pop = []
@@ -254,6 +262,31 @@ class Optimizer:
             if agent_a[self.ID_FIT][self.ID_TAR] < agent_b[self.ID_FIT][self.ID_TAR]:
                 return False
             return True
+
+    def get_special_solutions(self, pop=None, best=3, worst=3):
+        """
+        Args:
+            pop (list): Your population
+            best (int): Top k1 best solutions, default k1=3, it can be None
+            worst (int): Top k2 worst solutions, default k2=3, it can be None
+
+        Returns:
+            sorted_population, k1 best solutions and k2 worst solutions
+        """
+        if self.problem.minmax == "min":
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        else:
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+        if best is None:
+            if worst is None:
+                exit(0)
+            else:
+                return pop, None, pop[:-worst].copy()
+        else:
+            if worst is None:
+                return pop, pop[:best].copy(), None
+            else:
+                return pop, pop[:best].copy(), pop[:-worst].copy()
 
     def update_global_best_solution(self, pop=None):
         """
