@@ -7,94 +7,122 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, normal
-from numpy import cumsum, array, max, reshape, where, min, sum, ptp
-from copy import deepcopy
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseMVO(Root):
+class BaseMVO(Optimizer):
     """
         My version of: Multi-Verse Optimizer (MVO)
             http://dx.doi.org/10.1007/s00521-015-1870-7
         Notes:
             + Using my routtele wheel selection which can handle negative values
-            + No need condition when normalize fitness. So the chance to choose while whole higher --> better
+            + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
             + Change equation 3.3 to match the name of parameter wep_minmax
             + Using levy-flight to adapt large-scale dimensions
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, wep_minmax=(0.2, 1.0), **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
+            wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.wep_minmax = wep_minmax  # Wormhole Existence Probability (min and max in Eq.(3.3) paper
+        self.wep_min = wep_min
+        self.wep_max = wep_max
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child(self, idx, pop, g_best, epoch, wep, tdr):
+        if np.random.uniform() < wep:
+            if np.random.rand() < 0.5:
+                list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
 
-        for epoch in range(0, self.epoch):
-            # Eq. (3.3) in the paper
-            wep = self.wep_minmax[1] - (epoch + 1) * ((self.wep_minmax[1] - self.wep_minmax[0]) / self.epoch)
+                white_hole_id = self.get_index_roulette_wheel_selection(list_fitness)
 
-            # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
-            tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
+                black_hole_pos_1 = pop[idx][self.ID_POS] + tdr * np.random.normal(0, 1) * (pop[white_hole_id][self.ID_POS] - pop[idx][self.ID_POS])
 
-            # Update the position of universes
-            for i in range(1, self.pop_size):  # Starting from 1 since 0 is the elite
+                black_hole_pos_2 = g_best[self.ID_POS] + tdr * np.random.normal(0, 1) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
 
-                if uniform() < wep:
-                    if uniform() < 0.5:
-                        list_fitness = array([item[self.ID_FIT] for item in pop])
+                black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
+            else:
+                black_hole_pos = self.levy_flight(epoch + 1, pop[idx][self.ID_POS], g_best[self.ID_POS])
+        else:
+            black_hole_pos = np.random.uniform(self.problem.lb, self.problem.ub)
 
-                        white_hole_id = self.get_index_roulette_wheel_selection(list_fitness)
+        pos_new = self.amend_position_faster(black_hole_pos)
+        fit_new = self.get_fitness_position(black_hole_pos)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-                        black_hole_pos_1 = pop[i][self.ID_POS] + tdr * normal(0, 1) * (pop[white_hole_id][self.ID_POS] - pop[i][self.ID_POS])
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-                        black_hole_pos_2 = g_best[self.ID_POS] + tdr * normal(0, 1) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+        Returns:
+            [position, fitness value]
+        """
+        # Eq. (3.3) in the paper
+        wep = self.wep_max - (epoch + 1) * ((self.wep_max - self.wep_min) / self.epoch)
 
-                        black_hole_pos = where(uniform(0, 1, self.problem_size) < 0.5, black_hole_pos_1, black_hole_pos_2)
-                    else:
-                        black_hole_pos = self.levy_flight(epoch + 1, pop[i][self.ID_POS], g_best[self.ID_POS])
-                else:
-                    black_hole_pos = uniform(self.lb, self.ub)
+        # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
+        tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
 
-                # black_hole_pos = self.amend_position_faster(black_hole_pos)
-                fit = self.get_fitness_position(black_hole_pos)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [black_hole_pos, fit]
-
-                if self.batch_idea:
-                    if (i + 1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        # Update the position of universes
+        pop_idx = np.array(range(0, self.pop_size))  # Starting from 1 since 0 is the elite
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, wep=wep, tdr=tdr), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, wep=wep, tdr=tdr), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best, epoch, wep, tdr) for idx in pop_idx]
+        return child
 
 
-class OriginalMVO(Root):
+class OriginalMVO(BaseMVO):
     """
     Original: Multi-Verse Optimizer (MVO)
         http://dx.doi.org/10.1007/s00521-015-1870-7
         https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, wep_minmax=(0.2, 1.0), **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.wep_minmax = wep_minmax       # Wormhole Existence Probability (min and max in Eq.(3.3) paper
+    def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
+            wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, wep_min, wep_max, **kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = True
 
-    # sorted_Inflation_rates
+    # sorted_inflation_rates
     def _roulette_wheel_selection__(self, weights=None):
-        accumulation = cumsum(weights)
-        p = uniform() * accumulation[-1]
+        accumulation = np.cumsum(weights)
+        p = np.random.uniform() * accumulation[-1]
         chosen_idx = None
         for idx in range(len(accumulation)):
             if accumulation[idx] > p:
@@ -103,57 +131,70 @@ class OriginalMVO(Root):
         return chosen_idx
 
     def normalize(self, d, to_sum=True):
-        # d is a (n x dimension) np array
-        d -= min(d, axis=0)
-        d /= (sum(d, axis=0) if to_sum else ptp(d, axis=0))
+        # d is a (n x dimension) np np.array
+        d -= np.min(d, axis=0)
+        d /= (np.sum(d, axis=0) if to_sum else np.ptp(d, axis=0))
         return d
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child2(self, idx, pop, g_best, wep, tdr, list_fitness_normalized, list_fitness_raw):
+        black_hole_pos = pop[idx][self.ID_POS].copy()
+        for j in range(0, self.problem.n_dims):
+            r1 = np.random.uniform()
+            if r1 < list_fitness_normalized[idx]:
+                white_hole_id = self._roulette_wheel_selection__((-1 * list_fitness_raw))
+                if white_hole_id == None or white_hole_id == -1:
+                    white_hole_id = 0
+                # Eq. (3.1) in the paper
+                black_hole_pos[j] = pop[white_hole_id][self.ID_POS][j]
 
-        for epoch in range(0, self.epoch):
-            # Eq. (3.3) in the paper
-            wep = self.wep_minmax[0] + (epoch+1) * ((self.wep_minmax[1] - self.wep_minmax[0]) / self.epoch)
+            # Eq. (3.2) in the paper if the boundaries are all the same
+            r2 = np.random.uniform()
+            if r2 < wep:
+                r3 = np.random.uniform()
+                if r3 < 0.5:
+                    black_hole_pos[j] = g_best[self.ID_POS][j] + tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
+                else:
+                    black_hole_pos[j] = g_best[self.ID_POS][j] - tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
+        pos_new = self.amend_position_faster(black_hole_pos)
+        fit_new = self.get_fitness_position(black_hole_pos)
+        return [pos_new, fit_new]
 
-            # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
-            tdr = 1 - (epoch+1)**(1.0/6) / self.epoch ** (1.0/6)
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-            list_fitness_raw = array([item[self.ID_FIT] for item in pop])
-            maxx = max(list_fitness_raw)
-            if maxx > (2**64-1):
-                list_fitness_normalized = uniform(0, 0.1, self.pop_size)
-                # print("Fitness value too large for dtype('float64')")
-            else:
-                ### Normalize inflation rates (NI in Eq. (3.1) in the paper)
-                list_fitness_normalized = reshape(self.normalize(array([list_fitness_raw])), self.pop_size)  # Matrix
+        Returns:
+            [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        # Eq. (3.3) in the paper
+        wep = self.wep_min + (epoch + 1) * ((self.wep_max - self.wep_min) / self.epoch)
 
-            # Update the position of universes
-            for i in range(1, self.pop_size):           # Starting from 1 since 0 is the elite
-                black_hole_pos = deepcopy(pop[i][self.ID_POS])
-                for j in range(0, self.problem_size):
-                    r1 = uniform()
-                    if r1 < list_fitness_normalized[i]:
-                        white_hole_id = self._roulette_wheel_selection__((-1 * list_fitness_raw))
-                        if white_hole_id == None or white_hole_id == -1:
-                            white_hole_id = 0
-                        # Eq. (3.1) in the paper
-                        black_hole_pos[j] = pop[white_hole_id][self.ID_POS][j]
+        # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
+        tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
 
-                    # Eq. (3.2) in the paper if the boundaries are all the same
-                    r2 = uniform()
-                    if r2 < wep:
-                        r3 = uniform()
-                        if r3 < 0.5:
-                            black_hole_pos[j] = g_best[self.ID_POS][j] + tdr * uniform(self.lb[j], self.ub[j])
-                        else:
-                            black_hole_pos[j] = g_best[self.ID_POS][j] - tdr * uniform(self.lb[j], self.ub[j])
-                fit = self.get_fitness_position(black_hole_pos)
-                pop[i] = [black_hole_pos, fit]
+        list_fitness_raw = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
+        maxx = max(list_fitness_raw)
+        if maxx > (2 ** 64 - 1):
+            list_fitness_normalized = np.random.uniform(0, 0.1, self.pop_size)
+        else:
+            ### Normalize inflation rates (NI in Eq. (3.1) in the paper)
+            list_fitness_normalized = np.reshape(self.normalize(np.array([list_fitness_raw])), self.pop_size)  # Matrix
 
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, wep=wep, tdr=tdr,
+                                                 list_fitness_normalized=list_fitness_normalized, list_fitness_raw=list_fitness_raw), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, wep=wep, tdr=tdr,
+                                                 list_fitness_normalized=list_fitness_normalized, list_fitness_raw=list_fitness_raw), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child2(idx, pop, g_best, wep, tdr, list_fitness_normalized, list_fitness_raw) for idx in pop_idx]
+        return child
