@@ -266,7 +266,7 @@ class Optimizer:
     def get_special_solutions(self, pop=None, best=3, worst=3):
         """
         Args:
-            pop (list): Your population
+            pop (list): The population
             best (int): Top k1 best solutions, default k1=3, it can be None
             worst (int): Top k2 worst solutions, default k2=3, it can be None
 
@@ -287,6 +287,22 @@ class Optimizer:
                 return pop, pop[:best].copy(), None
             else:
                 return pop, pop[:best].copy(), pop[:-worst].copy()
+
+    def get_special_fitness(self, pop=None):
+        """
+        Args:
+            pop (list): The population
+
+        Returns:
+            Total fitness, best fitness, worst fitness
+        """
+        total_fitness = np.sum([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+        if self.problem.minmax == "min":
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        else:
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+        return total_fitness, pop[0][self.ID_FIT][self.ID_TAR], pop[-1][self.ID_FIT][self.ID_TAR]
+
 
     def update_global_best_solution(self, pop=None):
         """
