@@ -7,68 +7,94 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, randint
-from numpy import ones, clip
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseWDO(Root):
+class BaseWDO(Optimizer):
     """
     The original version of : Wind Driven Optimization (WDO)
         The Wind Driven Optimization Technique and its Application in Electromagnetics
     Link:
         https://ieeexplore.ieee.org/abstract/document/6407788
-    """
-
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 RT=3, g=0.2, alp=0.4, c=0.4, max_v=0.3, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.RT = RT                # RT coefficient
-        self.g = g                  # gravitational constant
-        self.alp = alp              # constants in the update equation
-        self.c = c                  # coriolis effect
-        self.max_v = max_v          # maximum allowed speed
-
-    def train(self):
-        """
+    Note:
         # pop is the set of "air parcel" - "position"
         # air parcel: is the set of gas atoms . Each atom represents a dimension in position and has its own velocity
         # pressure represented by fitness value
+    """
+
+    def __init__(self, problem, epoch=10000, pop_size=100, RT=3, g_c=0.2, alp=0.4, c_e=0.4, max_v=0.3, **kwargs):
         """
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-        list_velocity = self.max_v * uniform(self.lb, self.ub, (self.pop_size, self.problem_size))
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            RT (): RT coefficient, d
+            g_c (): gravitational constant
+            alp (): constants in the update equation
+            c_e (): coriolis effect
+            max_v (): maximum allowed speed
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
 
-        for epoch in range(self.epoch):
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.RT = RT
+        self.g_c = g_c
+        self.alp = alp
+        self.c_e = c_e
+        self.max_v = max_v
 
-            # Update velocity based on random dimensions and position of global best
-            for i in range(self.pop_size):
+        ## Dynamic variable
+        self.dyn_list_velocity = self.max_v * np.random.uniform(self.problem.lb, self.problem.ub, (self.pop_size, self.problem.n_dims))
 
-                rand_dim = randint(0, self.problem_size)
-                temp = list_velocity[i][rand_dim] * ones(self.problem_size)
-                vel = (1 - self.alp)*list_velocity[i] - self.g * pop[i][self.ID_POS] + \
-                      (1 - 1.0/(i+1)) * self.RT * (g_best[self.ID_POS] - pop[i][self.ID_POS]) + self.c * temp / (i+1)
-                vel = clip(vel, -self.max_v, self.max_v)
+    def create_child(self, idx, pop, g_best):
+        rand_dim = np.random.randint(0, self.problem.n_dims)
+        temp = self.dyn_list_velocity[idx][rand_dim] * np.ones(self.problem.n_dims)
+        vel = (1 - self.alp) * self.dyn_list_velocity[idx] - self.g_c * pop[idx][self.ID_POS] + \
+              (1 - 1.0 / (idx + 1)) * self.RT * (g_best[self.ID_POS] - pop[idx][self.ID_POS]) + self.c_e * temp / (idx + 1)
+        vel = np.clip(vel, -self.max_v, self.max_v)
 
-                # Update air parcel positions, check the bound and calculate pressure (fitness)
-                pos = pop[i][self.ID_POS] + vel
-                pos = self.amend_position_faster(pos)
-                fit = self.get_fitness_position(pos)
-                pop[i] = [pos, fit]
-                list_velocity[i] = vel
+        # Update air parcel positions, check the bound and calculate pressure (fitness)
+        self.dyn_list_velocity[idx] = vel
+        pos = pop[idx][self.ID_POS] + vel
+        pos_new = self.amend_position_faster(pos)
+        fit_new = self.get_fitness_position(pos_new)
+        return [pos_new, fit_new]
 
-                ## batch size idea
-                if self.batch_idea:
-                    if (i + 1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        # ## batch size idea
+        # if self.batch_idea:
+        #     if (i + 1) % self.batch_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+        # else:
+        #     if (i + 1) % self.pop_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+        Returns:
+            [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best) for idx in pop_idx]
+        return child
