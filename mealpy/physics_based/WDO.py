@@ -31,11 +31,11 @@ class BaseWDO(Optimizer):
             problem ():
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            RT (): RT coefficient, d
-            g_c (): gravitational constant
-            alp (): constants in the update equation
-            c_e (): coriolis effect
-            max_v (): maximum allowed speed
+            RT (int): RT coefficient, default = 3
+            g_c (float): gravitational constant, default = 0.2
+            alp (float): constants in the update equation, default=0.4
+            c_e (float): coriolis effect, default=0.4
+            max_v (float): maximum allowed speed, default=0.3
             **kwargs ():
         """
         super().__init__(problem, kwargs)
