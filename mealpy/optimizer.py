@@ -13,6 +13,7 @@ from copy import deepcopy
 from mealpy.utils.history import History
 from mealpy.problem import Problem
 from mealpy.utils.termination import Termination
+import concurrent.futures as parallel
 import time
 
 
@@ -90,7 +91,7 @@ class Optimizer:
                 [position, fitness value]
             """
         self.termination_start()
-        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop = self.create_population(mode, self.pop_size)
         if self.sort_flag:
             pop, g_best = self.get_global_best_solution(pop)  # We sort the population
         else:
@@ -156,6 +157,26 @@ class Optimizer:
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
+
+    def create_population(self, mode='sequential', pop_size=None):
+        if pop_size is not None:
+            pop_size = self.pop_size
+        pop = []
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
+                # This method yield the result everytime a thread finished their job (not by order)
+                for f in parallel.as_completed(list_executors):
+                    pop.append(f.result())
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
+                # This method yield the result everytime a cpu finished their job (not by order).
+                for f in parallel.as_completed(list_executors):
+                    pop.append(f.result())
+        else:
+            pop = [self.create_solution() for _ in range(0, self.pop_size)]
+        return pop
 
     def get_fitness_position(self, position=None):
         """
