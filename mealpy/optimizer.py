@@ -81,15 +81,15 @@ class Optimizer:
 
     def solve(self, mode='sequential'):
         """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-            Returns:
-                [position, fitness value]
-            """
+        Returns:
+            [position, fitness value]
+        """
         self.termination_start()
         pop = self.create_population(mode, self.pop_size)
         if self.sort_flag:
