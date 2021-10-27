@@ -54,7 +54,7 @@ class BaseSARO(Optimizer):
                 [position, fitness value]
             """
         self.termination_start()
-        pop = [self.create_solution() for _ in range(2 * self.pop_size)]
+        pop = self.create_population(mode, 2*self.pop_size)
         pop, g_best = self.get_global_best_solution(pop)
         self.history.save_initial_best(g_best)
 
