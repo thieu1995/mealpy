@@ -7,12 +7,13 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, rand, randint, choice
-from numpy import abs, exp, cos, pi
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseWOA(Root):
+class BaseWOA(Optimizer):
     """
         The original version of: Whale Optimization Algorithm (WOA)
             - In this algorithms: Prey means the best position
@@ -20,125 +21,167 @@ class BaseWOA(Root):
             https://doi.org/10.1016/j.advengsoft.2016.01.008
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def create_child(self, idx, pop, g_best, a):
+        r = np.random.rand()
+        A = 2 * a * r - a
+        C = 2 * r
+        l = np.random.uniform(-1, 1)
+        p = 0.5
+        b = 1
+        if np.random.uniform() < p:
+            if np.abs(A) < 1:
+                D = np.abs(C * g_best[self.ID_POS] - pop[idx][self.ID_POS])
+                pos_new = g_best[self.ID_POS] - A * D
+            else:
+                # x_rand = pop[np.random.np.random.randint(self.pop_size)]         # select random 1 position in pop
+                x_rand = self.create_solution()
+                D = np.abs(C * x_rand[self.ID_POS] - pop[idx][self.ID_POS])
+                pos_new = x_rand[self.ID_POS] - A * D
+        else:
+            D1 = np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS])
+            pos_new = g_best[self.ID_POS] + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
 
-        for epoch in range(self.epoch):
-            a = 2 - 2 * epoch / (self.epoch - 1)            # linearly decreased from 2 to 0
+        pos_new = self.amend_position_faster(pos_new)
+        fit_new = self.get_fitness_position(pos_new)
+        return [pos_new, fit_new]
 
-            for i in range(self.pop_size):
+        ## batch size idea
+        # if self.batch_idea:
+        #     if (i + 1) % self.batch_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+        # else:
+        #     if (i + 1) % self.pop_size == 0:
+        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
-                r = rand()
-                A = 2 * a * r - a
-                C = 2 * r
-                l = uniform(-1, 1)
-                p = 0.5
-                b = 1
-                if uniform() < p:
-                    if abs(A) < 1:
-                        D = abs(C * g_best[self.ID_POS] - pop[i][self.ID_POS] )
-                        new_position = g_best[self.ID_POS] - A * D
-                    else :
-                        #x_rand = pop[np.random.randint(self.pop_size)]         # select random 1 position in pop
-                        x_rand = self.create_solution()
-                        D = abs(C * x_rand[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = x_rand[self.ID_POS] - A * D
-                else:
-                    D1 = abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    new_position = g_best[self.ID_POS] + exp(b * l) * cos(2 * pi * l) * D1
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-                new_position = self.amend_position_faster(new_position)
-                fit = self.get_fitness_position(new_position)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [new_position, fit]
-
-                ## batch size idea
-                if self.batch_idea:
-                    if (i + 1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT],self.loss_train
+        Returns:
+            [position, fitness value]
+        """
+        a = 2 - 2 * epoch / (self.epoch - 1)  # linearly decreased from 2 to 0
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, a=a), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, a=a), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best, a) for idx in pop_idx]
+        return child
 
 
-class HI_WOA(Root):
+class HI_WOA(Optimizer):
     """
         The original version of: Hybrid Improved Whale Optimization Algorithm (HI-WOA)
             A hybrid improved whale optimization algorithm
         Link:
-            https://ieeexplore.ieee.org/document/8900003
+            https://ieenp.explore.ieee.org/document/8900003
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, feedback_max=10, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, feedback_max=10, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.feedback_max = feedback_max        # The maximum of times g_best doesn't change -> need to change half of population
+        self.feedback_max = feedback_max
+        # The maximum of times g_best doesn't change -> need to change half of population
         self.n_changes = int(pop_size/2)
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
-        feedback_count = 0
+        ## Dynamic variable
+        self.dyn_feedback_count = 0
 
-        for epoch in range(self.epoch):
-            a = 2 + 2 *cos(pi/2 * (1 + epoch/self.epoch))   # Eq. 8
-            w = 0.5 + 0.5 * (epoch/self.epoch)**2           # Eq. 9
-
-            for i in range(self.pop_size):
-
-                r = rand()
-                A = 2 * a * r - a
-                C = 2 * r
-                l = uniform(-1, 1)
-                p = 0.5
-                b = 1
-                if uniform() < p:
-                    if abs(A) < 1:
-                        D = abs(C * g_best[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = w * g_best[self.ID_POS] - A * D
-                    else:
-                        x_rand = pop[randint(self.pop_size)]         # select random 1 position in pop
-                        # x_rand = self.create_solution()
-                        D = abs(C * x_rand[self.ID_POS] - pop[i][self.ID_POS])
-                        new_position = x_rand[self.ID_POS] - A * D
-                else:
-                    D1 = abs(g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    new_position = w * g_best[self.ID_POS] + exp(b * l) * cos(2 * pi * l) * D1
-
-                new_position = self.amend_position_faster(new_position)
-                fit = self.get_fitness_position(new_position)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [new_position, fit]
-
-            ## Feedback Mechanism
-            current_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            if current_best[self.ID_FIT] == g_best[self.ID_FIT]:
-                feedback_count += 1
+    def create_child(self, idx, pop, g_best, a):
+        r = np.random.rand()
+        A = 2 * a * r - a
+        C = 2 * r
+        l = np.random.uniform(-1, 1)
+        p = 0.5
+        b = 1
+        if np.random.uniform() < p:
+            if np.abs(A) < 1:
+                D = np.abs(C * g_best[self.ID_POS] - pop[idx][self.ID_POS])
+                pos_new = g_best[self.ID_POS] - A * D
             else:
-                feedback_count = 0
-                g_best = current_best
+                # x_rand = pop[np.random.np.random.randint(self.pop_size)]         # select random 1 position in pop
+                x_rand = self.create_solution()
+                D = np.abs(C * x_rand[self.ID_POS] - pop[idx][self.ID_POS])
+                pos_new = x_rand[self.ID_POS] - A * D
+        else:
+            D1 = np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS])
+            pos_new = g_best[self.ID_POS] + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
 
-            if feedback_count >= self.feedback_max:
-                idx_list = choice(range(0, self.pop_size), self.n_changes, replace=False)
-                pop_new = [self.create_solution() for _ in range(0, self.n_changes)]
-                for idx_counter, idx in enumerate(idx_list):
-                    pop[idx] = pop_new[idx_counter]
+        pos_new = self.amend_position_faster(pos_new)
+        fit_new = self.get_fitness_position(pos_new)
+        return [pos_new, fit_new]
 
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
+        Returns:
+            [position, fitness value]
+        """
+        a = 2 + 2 * np.cos(np.pi / 2 * (1 + epoch / self.epoch))    # Eq. 8
+        w = 0.5 + 0.5 * (epoch / self.epoch) ** 2                   # Eq. 9
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, a=a), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, a=a), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best, a) for idx in pop_idx]
+
+        ## Feedback Mechanism
+        _, current_best = self.get_global_best_solution(child)
+        if current_best[self.ID_FIT][self.ID_TAR] == g_best[self.ID_FIT][self.ID_TAR]:
+            self.dyn_feedback_count += 1
+        else:
+            self.dyn_feedback_count = 0
+
+        if self.dyn_feedback_count >= self.feedback_max:
+            idx_list = np.random.choice(range(0, self.pop_size), self.n_changes, replace=False)
+            pop_new = [self.create_solution() for _ in range(0, self.n_changes)]
+            for idx_counter, idx in enumerate(idx_list):
+                child[idx] = pop_new[idx_counter]
+        return child
