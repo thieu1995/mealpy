@@ -7,12 +7,13 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import exp, sin, pi, abs, sqrt, log
-from numpy.random import uniform
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseMRFO(Root):
+class BaseMRFO(Optimizer):
     """
     The original version of: Manta Ray Foraging Optimization (MRFO)
         (Manta ray foraging optimization: An effective bio-inspired optimizer for engineering applications)
@@ -20,102 +21,100 @@ class BaseMRFO(Root):
         https://doi.org/10.1016/j.engappai.2019.103300
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, S=2, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, somersault_range=2, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            somersault_range (): somersault factor that decides the somersault range of manta rays, default=2
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = 2 * pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.S = S                   # somersault factor that decides the somersault range of manta rays
+        self.somersault_range = somersault_range
 
-    def _next_move__(self, pop=None, g_best=None, epoch=None, i=None):
-        if uniform() < 0.5:  # Cyclone foraging (Eq. 5, 6, 7)
-            r1 = uniform()
-            beta = 2 * exp(r1 * (self.epoch - epoch) / self.epoch) * sin(2 * pi * r1)
+    def create_child(self, idx, pop, epoch, g_best):
+        # Cyclone foraging (Eq. 5, 6, 7)
+        if np.random.rand() < 0.5:
+            r1 = np.random.uniform()
+            beta = 2 * np.exp(r1 * (self.epoch - epoch) / self.epoch) * np.sin(2 * np.pi * r1)
 
-            if (epoch + 1) / self.epoch < uniform():
-                x_rand = uniform(self.lb, self.ub)
-                if i == 0:
-                    x_t1 = x_rand + uniform() * (x_rand - pop[i][self.ID_POS]) + beta * (x_rand - pop[i][self.ID_POS])
+            if (epoch + 1) / self.epoch < np.random.uniform():
+                x_rand = np.random.uniform(self.problem.lb, self.problem.ub)
+                if idx == 0:
+                    x_t1 = x_rand + np.random.uniform() * (x_rand - pop[idx][self.ID_POS]) + \
+                           beta * (x_rand - pop[idx][self.ID_POS])
                 else:
-                    x_t1 = x_rand + uniform() * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS]) + beta * (
-                                x_rand - pop[i][self.ID_POS])
+                    x_t1 = x_rand + np.random.uniform() * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
+                           beta * (x_rand - pop[idx][self.ID_POS])
             else:
-                if i == 0:
-                    x_t1 = g_best[self.ID_POS] + uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS]) + beta * (
-                                g_best[self.ID_POS] - pop[i][self.ID_POS])
+                if idx == 0:
+                    x_t1 = g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - pop[idx][self.ID_POS]) + \
+                           beta * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
                 else:
-                    x_t1 = g_best[self.ID_POS] + uniform() * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS]) + beta * (
-                                g_best[self.ID_POS] - pop[i][self.ID_POS])
-
-        else:  # Chain foraging (Eq. 1,2)
-            r = uniform()
-            alpha = 2 * r * sqrt(abs(log(r)))
-            if i == 0:
-                x_t1 = pop[i][self.ID_POS] + r * (g_best[self.ID_POS] - pop[i][self.ID_POS]) + alpha * (
-                            g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    x_t1 = g_best[self.ID_POS] + np.random.uniform() * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
+                           beta * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
+        # Chain foraging (Eq. 1,2)
+        else:
+            r = np.random.uniform()
+            alpha = 2 * r * np.sqrt(np.abs(np.log(r)))
+            if idx == 0:
+                x_t1 = pop[idx][self.ID_POS] + r * (g_best[self.ID_POS] - pop[idx][self.ID_POS]) + \
+                       alpha * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
             else:
-                x_t1 = pop[i][self.ID_POS] + r * (pop[i - 1][self.ID_POS] - pop[i][self.ID_POS]) + alpha * (
-                            g_best[self.ID_POS] - pop[i][self.ID_POS])
-        return x_t1
+                x_t1 = pop[idx][self.ID_POS] + r * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
+                       alpha * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
+        pos_new = self.amend_position_faster(x_t1)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child2(self, idx, pop, g_best):
+        # Somersault foraging   (Eq. 8)
+        x_t1 = pop[idx][self.ID_POS] + self.somersault_range * \
+               (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop[idx][self.ID_POS])
+        pos_new = self.amend_position_faster(x_t1)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-        for epoch in range(0, self.epoch):
-            for i in range(0, self.pop_size):
-                x_t1 = self._next_move__(pop, g_best, epoch, i)
-                fit = self.get_fitness_position(x_t1)
-                pop[i] = [x_t1, fit]
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-            # Somersault foraging   (Eq. 8)
-            for i in range(0, self.pop_size):
-                x_t1 = pop[i][self.ID_POS] + self.S * (uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
-                fit = self.get_fitness_position(x_t1)
-                pop[i] = [x_t1, fit]
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
-
-
-class LevyMRFO(BaseMRFO):
-    """
-        My modified version of: Manta Ray Foraging Optimization (MRFO) based on Levy_flight
-    """
-
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, S=2, **kwargs):
-        BaseMRFO.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, S, kwargs=kwargs)
-
-    def train(self):
-        pop = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-
-        for epoch in range(0, self.epoch):
-            for i in range(0, self.pop_size):
-                x_t1 = self._next_move__(pop, g_best, epoch, i)
-                x_t1 = self.amend_position_faster(x_t1)
-                fit = self.get_fitness_position(x_t1)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [x_t1, fit]
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-            # Somersault foraging   (Eq. 8)
-            for i in range(0, self.pop_size):
-                if uniform() < 0.5:
-                    x_t1 = pop[i][self.ID_POS] + self.S * (uniform() * g_best[self.ID_POS] - uniform() * pop[i][self.ID_POS])
-                else:
-                    x_t1 = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-                x_t1 = self.amend_position_faster(x_t1)
-                fit = self.get_fitness_position(x_t1)
-                pop[i] = [x_t1, fit]
-
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        Returns:
+            [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+            _, g_best = self.update_global_best_solution(child)
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child2, pop=child, g_best=g_best), pop_idx)
+            pop = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+            _, g_best = self.update_global_best_solution(child)
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child2, pop=child, g_best=g_best), pop_idx)
+            pop = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, epoch, g_best) for idx in pop_idx]
+            _, g_best = self.update_global_best_solution(child)
+            pop = [self.create_child2(idx, pop, g_best) for idx in pop_idx]
+        return pop
