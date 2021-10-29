@@ -303,7 +303,6 @@ class Optimizer:
             pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
         return total_fitness, pop[0][self.ID_FIT][self.ID_TAR], pop[-1][self.ID_FIT][self.ID_TAR]
 
-
     def update_global_best_solution(self, pop=None):
         """
         Update the global best solution saved in variable named: self.history_list_g_best
@@ -313,8 +312,11 @@ class Optimizer:
         Returns:
             Sorted population and the global best solution
         """
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        current_best = sorted_pop[0] if self.problem.minmax == "min" else sorted_pop[-1]
+        if self.problem.minmax == "min":
+            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        else:
+            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+        current_best = sorted_pop[0]
         # self.history_list_c_best.append(current_best)
         # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
         # self.history_list_g_best.append(better)
@@ -543,7 +545,7 @@ class Optimizer:
             return [pop_new[i] if pop_new[i][self.ID_FIT] > pop_old[i][self.ID_FIT]
                     else pop_old[i] for i in range(self.pop_size)]
 
-    def get_sorted_strim_population(self, pop=None, pop_size=None):
+    def get_sorted_strim_population(self, pop=None, pop_size=None, reverse=False):
         """
         Args:
             pop (list): The population
@@ -553,11 +555,10 @@ class Optimizer:
             The sorted population with pop_size size
         """
         if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=reverse)
         else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=reverse)
         return pop[:pop_size]
-
 
 
 

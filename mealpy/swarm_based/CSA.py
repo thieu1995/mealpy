@@ -7,11 +7,13 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy.random import choice, uniform
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseCSA(Root):
+class BaseCSA(Optimizer):
     """
         The original version of: Cuckoo Search Algorithm (CSA)
             (Cuckoo search via Levy flights)
@@ -19,43 +21,60 @@ class BaseCSA(Root):
             https://doi.org/10.1109/NABIC.2009.5393690
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, p_a=0.3, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, p_a=0.3, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            p_a (float): probability a
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
         self.p_a = p_a
+        self.n_cut = int(self.p_a * self.pop_size)
+        self.nfe_per_epoch = self.pop_size + self.n_cut
+        self.sort_flag = False
 
-    def train(self):
-        n_cut = int(self.p_a * self.pop_size)
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-        for epoch in range(self.epoch):
+        Returns:
+            [position, fitness value]
+        """
+        if mode != "sequential":
+            print("CSA is only support sequential mode!")
+            exit(0)
 
-            for i in range(0, self.pop_size):
-                ## Generate levy-flight solution
-                # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], step=0.001, case=2)
-                pos_new = pop[i][self.ID_POS] + self.step_size_by_levy_flight(multiplier=0.001, case=-1)
-                fit_new = self.get_fitness_position(pos_new)
+        for i in range(0, self.pop_size):
+            ## Generate levy-flight solution
+            # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], step=0.001, case=2)
+            pos_new = pop[i][self.ID_POS] + self.get_levy_flight_step(multiplier=0.001, case=-1)
+            levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
+            pos_new = pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                      levy_step * (pop[i][self.ID_POS] - g_best[self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            fit_new = self.get_fitness_position(pos_new)
+            j_idx = np.random.choice(list(set(range(0, self.pop_size)) - {i}))
+            if self.compare_agent([pos_new, fit_new], pop[j_idx]):
+                pop[j_idx] = [pos_new, fit_new]
 
-                j_idx = choice(list(set(range(0, self.pop_size)) - {i}))
-                if fit_new < pop[j_idx][self.ID_FIT]:
-                    pop[j_idx] = [pos_new, fit_new]
-
-            ## Abandoned some worst nests
-            pop = sorted(pop, key=lambda item: item[self.ID_FIT], reverse=True)
-            for i in range(0, n_cut):
-                # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-                pos_new = self.step_size_by_levy_flight(multiplier=0.001, case=-1)
-                # pos_new = uniform(self.lb, self.ub, self.problem_size)
-                fit_new = self.get_fitness_position(pos_new)
-                pop[i] = [pos_new, fit_new]
-
-            ## Update the global best
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
-
+        ## Abandoned some worst nests
+        pop = self.get_sorted_strim_population(pop, self.pop_size, reverse=True)
+        for i in range(0, self.n_cut):
+            # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
+            # levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
+            pos_new = pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                      levy_step * (pop[i][self.ID_POS] - g_best[self.ID_POS])
+            pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position_faster(pos_new)
+            fit_new = self.get_fitness_position(pos_new)
+            pop[i] = [pos_new ,fit_new]
+        return pop
