@@ -7,12 +7,13 @@
 #       Github:     https://github.com/thieu1995                                                        #
 #-------------------------------------------------------------------------------------------------------#
 
-from numpy import Inf, dot, abs, mean, array
-from numpy.random import uniform, choice
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseSHO(Root):
+class BaseSHO(Optimizer):
     """
     My modified version: Spotted Hyena Optimizer (SHO)
         (Spotted hyena optimizer: A novel bio-inspired based metaheuristic technique for engineering applications)
@@ -20,57 +21,81 @@ class BaseSHO(Root):
         https://doi.org/10.1016/j.advengsoft.2017.05.014
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 h=5, M=(0.5, 1), N_tried=10, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, h=5, M=(0.5, 1), N_tried=10, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            h (float): default = 5, coefficient linearly decreased from 5 to 0
+            M (list): default = [0.5, 1], random vector in [0.5, 1]
+            N_tried (int): default = 10,
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.h = h                  # default = 5, coefficient linearly decreased from 5 to 0
-        self.M = M                  # default = [0.5, 1], random vector in [0.5, 1]
-        self.N_tried = N_tried      # default = 10,
+        self.h = h
+        self.M = M
+        self.N_tried = N_tried
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child(self, idx, pop, g_best, epoch):
+        h = 5 - (epoch + 1.0) * (5 / self.epoch)
+        rd1 = np.random.uniform(0, 1, self.problem.n_dims)
+        rd2 = np.random.uniform(0, 1, self.problem.n_dims)
+        B = 2 * rd1
+        E = 2 * h * rd2 - h
 
-        # Epoch loop
-        for epoch in range(self.epoch):
+        if np.random.rand() < 0.5:
+            D_h = np.abs(np.dot(B, g_best[self.ID_POS]) - pop[idx][self.ID_POS])
+            x_new = g_best[self.ID_POS] - np.dot(E, D_h)
+        else:
+            N = 0
+            for i in range(0, self.N_tried):
+                pos_new = g_best[self.ID_POS] + np.random.uniform(self.M[0], self.M[1]) * np.random.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                if self.compare_agent(g_best, [pos_new, fit_new]):
+                    N += 1
+                    break
+                N += 1
+            circle_list = []
+            idx_list = np.random.choice(range(0, self.pop_size), N, replace=False)
+            for j in range(0, N):
+                D_h = np.abs(np.dot(B, g_best[self.ID_POS]) - pop[idx_list[j]][self.ID_POS])
+                p_k = g_best[self.ID_POS] - np.dot(E, D_h)
+                circle_list.append(p_k)
+            x_new = np.mean(np.array(circle_list))
+        pos_new = self.amend_position_faster(x_new)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-            ## Each individual loop
-            for i in range(self.pop_size):
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-                h = 5 - (epoch + 1.0) * (5 / self.epoch)
-                rd1 = uniform(0, 1, self.problem_size)
-                rd2 = uniform(0, 1, self.problem_size)
-                B = 2 * rd1
-                E = 2 * h * rd2 - h
+        Returns:
+            [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best, epoch=epoch) for idx in pop_idx]
+        return child
 
-                if uniform() < 0.5:
-                    D_h = abs( dot(B, g_best[self.ID_POS]) - pop[i][self.ID_POS] )
-                    x_new = g_best[self.ID_POS] - dot(E, D_h)
-                else:
-                    N = 0
-                    fit = Inf
-                    while fit > g_best[self.ID_FIT] and N < self.N_tried:
-                        temp = g_best[self.ID_POS] + uniform(self.M[0], self.M[1], self.problem_size)
-                        fit = self.get_fitness_position(temp)
-                        N += 1
-                    circle_list = []
-                    idx_list = choice(range(0, self.pop_size), N, replace=False)
-                    for j in range(0, N):
-                        D_h = abs(dot(B, g_best[self.ID_POS]) - pop[idx_list[j]][self.ID_POS])
-                        p_k = g_best[self.ID_POS] - dot(E, D_h)
-                        circle_list.append(p_k)
-                    x_new = mean(array(circle_list))
-                x_new = self.amend_position_faster(x_new)
-                fit = self.get_fitness_position(x_new)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [x_new, fit]
-
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
