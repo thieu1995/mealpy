@@ -543,6 +543,21 @@ class Optimizer:
             return [pop_new[i] if pop_new[i][self.ID_FIT] > pop_old[i][self.ID_FIT]
                     else pop_old[i] for i in range(self.pop_size)]
 
+    def get_sorted_strim_population(self, pop=None, pop_size=None):
+        """
+        Args:
+            pop (list): The population
+            pop_size (int): The number of population
+
+        Returns:
+            The sorted population with pop_size size
+        """
+        if self.problem.minmax == "min":
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        else:
+            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+        return pop[:pop_size]
+
 
 
 
