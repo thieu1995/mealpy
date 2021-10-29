@@ -7,14 +7,14 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import mean, abs, power, pi, sin
-from numpy.random import uniform, randint
-from copy import deepcopy
 from math import gamma
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseHHO(Root):
+class BaseHHO(Optimizer):
     """
         The original version of: Harris Hawks Optimization (HHO)
             (Harris Hawks Optimization: Algorithm and Applications)
@@ -22,73 +22,95 @@ class BaseHHO(Root):
             https://doi.org/10.1016/j.future.2019.02.028
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = 1.5*pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(0, self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def create_child(self, idx, pop, g_best, epoch):
+        # -1 < E0 < 1
+        E0 = 2 * np.random.uniform() - 1
+        # factor to show the decreasing energy of rabbit
+        E = 2 * E0 * (1 - (epoch + 1) * 1.0 / self.epoch)
+        J = 2 * (1 - np.random.uniform())
 
-        for epoch in range(0, self.epoch):
-            # Update the location of Harris' hawks
-            for i in range(0, self.pop_size):
-                E0 = 2 * uniform() - 1                        # -1 < E0 < 1
-                E = 2 * E0 * (1 - (epoch + 1) * 1.0 / self.epoch)       # factor to show the decreasing energy of rabbit
-                J = 2 * (1 - uniform())
+        # -------- Exploration phase Eq. (1) in paper -------------------
+        if (np.abs(E) >= 1):
+            # Harris' hawks perch randomly based on 2 strategy:
+            if np.random.rand() >= 0.5:  # perch based on other family members
+                X_rand = pop[np.random.randint(0, self.pop_size)][self.ID_POS].copy()
+                pos_new = X_rand - np.random.uniform() * np.abs(X_rand - 2 * np.random.uniform() * pop[idx][self.ID_POS])
 
-                # -------- Exploration phase Eq. (1) in paper -------------------
-                if (abs(E) >= 1):
-                    # Harris' hawks perch randomly based on 2 strategy:
-                    if (uniform() >= 0.5):        # perch based on other family members
-                        X_rand = deepcopy(pop[randint(0, self.pop_size)][self.ID_POS])
-                        pop[i][self.ID_POS] = X_rand - uniform() * abs(X_rand - 2 * uniform() * pop[i][self.ID_POS])
+            else:  # perch on a random tall tree (random site inside group's home range)
+                X_m = np.mean([x[self.ID_POS] for x in pop])
+                pos_new = (g_best[self.ID_POS] - X_m) - np.random.uniform() * \
+                          (self.problem.lb + np.random.uniform() * (self.problem.ub - self.problem.lb))
+            pos_new = self.amend_position_faster(pos_new)
+            fit_new = self.get_fitness_position(pos_new)
+            return [pos_new, fit_new]
+        # -------- Exploitation phase -------------------
+        else:
+            # Attacking the rabbit using 4 strategies regarding the behavior of the rabbit
+            # phase 1: ----- surprise pounce (seven kills) ----------
+            # surprise pounce (seven kills): multiple, short rapid dives by different hawks
+            if (np.random.rand() >= 0.5):
+                delta_X = g_best[self.ID_POS] - pop[idx][self.ID_POS]
+                if np.abs(E) >= 0.5:  # Hard besiege Eq. (6) in paper
+                    pos_new = delta_X - E * np.abs(J * g_best[self.ID_POS] - pop[idx][self.ID_POS])
+                else:  # Soft besiege Eq. (4) in paper
+                    pos_new = g_best[self.ID_POS] - E * np.abs(delta_X)
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                return [pos_new, fit_new]
+            else:
+                xichma = np.power((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2.0)) /
+                                  (gamma((1 + 1.5) * 1.5 * np.power(2, (1.5 - 1) / 2)) / 2.0), 1.0 / 1.5)
+                LF_D = 0.01 * np.random.uniform() * xichma / np.power(np.abs(np.random.uniform()), 1.0 / 1.5)
+                if np.abs(E) >= 0.5:  # Soft besiege Eq. (10) in paper
+                    Y = g_best[self.ID_POS] - E * np.abs(J * g_best[self.ID_POS] - pop[idx][self.ID_POS])
+                else:  # Hard besiege Eq. (11) in paper
+                    X_m = np.mean([x[self.ID_POS] for x in pop])
+                    Y = g_best[self.ID_POS] - E * np.abs(J * g_best[self.ID_POS] - X_m)
+                pos_Y = self.amend_position_faster(Y)
+                fit_Y = self.get_fitness_position(pos_Y)
+                Z = Y + np.random.uniform(self.problem.lb, self.problem.ub) * LF_D
+                pos_Z = self.amend_position_faster(Z)
+                fit_Z = self.get_fitness_position(pos_Z)
 
-                    else:           # perch on a random tall tree (random site inside group's home range)
-                        X_m = mean([x[self.ID_POS] for x in pop])
-                        pop[i][self.ID_POS] = (g_best[self.ID_POS] - X_m) - uniform()*(self.lb + uniform() * (self.ub - self.lb))
+                if self.compare_agent([pos_Y, fit_Y], pop[idx]):
+                    return [pos_Y, fit_Y]
+                if self.compare_agent([pos_Z, fit_Z], pop[idx]):
+                    return [pos_Z, fit_Z]
+                return pop[idx].copy()
 
-                # -------- Exploitation phase -------------------
-                else:
-                    # Attacking the rabbit using 4 strategies regarding the behavior of the rabbit
-                    # phase 1: ----- surprise pounce (seven kills) ----------
-                    # surprise pounce (seven kills): multiple, short rapid dives by different hawks
-                    if (uniform() >= 0.5):
-                        delta_X = g_best[self.ID_POS] - pop[i][self.ID_POS]
-                        if (abs(E) >= 0.5):          # Hard besiege Eq. (6) in paper
-                            pop[i][self.ID_POS] = delta_X - E * abs( J * g_best[self.ID_POS] - pop[i][self.ID_POS] )
-                        else:                           # Soft besiege Eq. (4) in paper
-                            pop[i][self.ID_POS] = g_best[self.ID_POS] - E * abs(delta_X)
-                    else:
-                        xichma = power((gamma(1 + 1.5) * sin(pi * 1.5 / 2.0)) / (gamma((1 + 1.5) * 1.5 * power(2, (1.5 - 1) / 2)) / 2.0), 1.0 / 1.5)
-                        LF_D = 0.01 * uniform() * xichma / power(abs(uniform()), 1.0 / 1.5)
-                        if (abs(E) >= 0.5):      # Soft besiege Eq. (10) in paper
-                            Y = g_best[self.ID_POS] - E * abs( J * g_best[self.ID_POS] - pop[i][self.ID_POS] )
-                            fit_Y = self.get_fitness_position(Y)
-                        else:                       # Hard besiege Eq. (11) in paper
-                            X_m = mean([x[self.ID_POS] for x in pop])
-                            Y = g_best[self.ID_POS] - E * abs( J * g_best[self.ID_POS] - X_m )
-                            fit_Y = self.get_fitness_position(Y)
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+            Args:
+                mode (str): 'sequential', 'thread', 'process'
+                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-                        Z = Y + uniform(self.lb, self.ub) * LF_D
-                        fit_Z = self.get_fitness_position(Z)
-
-                        if fit_Y < pop[i][self.ID_FIT]:
-                            pop[i] = [Y, fit_Y]
-                        if fit_Z < pop[i][self.ID_FIT]:
-                            pop[i] = [Z, fit_Z]
-
-                ## batch size idea
-                if self.batch_idea:
-                    if (i + 1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
-
+            Returns:
+                [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
+            pop = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
+            pop = [x for x in pop_child]
+        else:
+            pop = [self.create_child(idx, pop=pop, g_best=g_best, epoch=epoch) for idx in pop_idx]
+        return pop
