@@ -57,7 +57,7 @@ class BaseWCA(Optimizer):
             print("WCA is not support parallel process!")
             exit(0)
         self.termination_start()
-        pop = [self.create_solution() for _ in range(self.pop_size)]
+        pop = self.create_population(mode, self.pop_size)
         pop, g_best = self.get_global_best_solution(pop)  # We sort the population
         self.history.save_initial_best(g_best)
 

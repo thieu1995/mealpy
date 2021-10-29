@@ -34,7 +34,7 @@ class BaseSLO(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = self.pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
         self.epoch = epoch
@@ -107,7 +107,7 @@ class ModifiedSLO(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = self.pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
         self.epoch = epoch
@@ -219,7 +219,7 @@ class ISLO(ModifiedSLO):
             **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = self.pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
         self.epoch = epoch

@@ -36,7 +36,7 @@ class BaseACOR(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = self.pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
         self.epoch = epoch
