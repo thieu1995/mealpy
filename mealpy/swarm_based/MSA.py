@@ -7,14 +7,14 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy import abs, pi, ceil, sqrt, sin, clip
-from numpy.random import uniform
 from math import gamma
-from copy import deepcopy
-from mealpy.optimizer import Root
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseMSA(Root):
+class BaseMSA(Optimizer):
     """
     My modified version of: Moth Search Algorithm (MSA)
         (Moth search algorithm: a bio-inspired metaheuristic algorithm for global optimization problems.)
@@ -23,74 +23,88 @@ class BaseMSA(Root):
         http://doi.org/10.1007/s12293-016-0212-3
     Notes:
         + Simply the matlab version above is not working (or bad at convergence characteristics).
+        + Need to add normal random number (gaussian) in each updating equation. (Better performance)
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 n_best=5, partition=0.5, max_step_size=1.0, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, n_best=5, partition=0.5, max_step_size=1.0, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            n_best (): how many of the best moths to keep from one generation to the next
+            partition (): The proportional of first partition
+            max_step_size ():
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.n_best = n_best            # how many of the best moths to keep from one generation to the next
-        self.partition = partition      # The proportional of first partition
+        self.n_best = n_best
+        self.partition = partition
         self.max_step_size = max_step_size
-        self.n_moth1 = int(ceil(self.partition * self.pop_size))     # np1 in paper
-        self.n_moth2 = self.pop_size - self.n_moth1                  # np2 in paper
-        self.golden_ratio = (sqrt(5) - 1) / 2.0     # you can change this ratio so as to get much better performance
+        # np1 in paper
+        self.n_moth1 = int(np.ceil(self.partition * self.pop_size))
+        # np2 in paper, we actually don't need this variable
+        self.n_moth2 = self.pop_size - self.n_moth1
+        # you can change this ratio so as to get much better performance
+        self.golden_ratio = (np.sqrt(5) - 1) / 2.0
 
     def _levy_walk__(self, iteration):
         beta = 1.5      # Eq. 2.23
-        sigma = (gamma(1+beta) * sin(pi*(beta-1)/2) / (gamma(beta/2) * (beta-1) * 2 ** ((beta-2) / 2))) ** (1/(beta-1))
-        u = uniform(self.lb, self.ub) * sigma
-        v = uniform(self.lb, self.ub)
-        step = u / abs(v) ** (1.0 / (beta - 1))     # Eq. 2.21
+        sigma = (gamma(1+beta) * np.sin(np.pi*(beta-1)/2) / (gamma(beta/2) * (beta-1) * 2 ** ((beta-2) / 2))) ** (1/(beta-1))
+        u = np.random.uniform(self.problem.lb, self.problem.ub) * sigma
+        v = np.random.uniform(self.problem.lb, self.problem.ub)
+        step = u / np.abs(v) ** (1.0 / (beta - 1))     # Eq. 2.21
         scale = self.max_step_size / (iteration+1)
         delta_x = scale * step
         return delta_x
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-        pop_best = deepcopy(pop[:self.n_best])
+    def create_child(self, idx, pop, epoch, g_best):
+        # Migration operator
+        if idx < self.n_moth1:
+            # scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
+            pos_new = pop[idx][self.ID_POS] + np.random.normal() * self._levy_walk__(epoch)
+        else:
+        # Flying in a straight line
+            temp_case1 = pop[idx][self.ID_POS] + np.random.normal() * self.golden_ratio * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
+            temp_case2 = pop[idx][self.ID_POS] + np.random.normal() * (1.0 / self.golden_ratio) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
+            pos_new = np.where(np.random.uniform(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
+        pos_new = self.amend_position_faster(pos_new)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        return pop[idx].copy()
 
-        for epoch in range(self.epoch):
-            # Migration operator
-            for i in range(0, self.n_moth1):
-                #scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
-                temp = pop[i][self.ID_POS] + self._levy_walk__(epoch)
-                temp = clip(temp, self.lb, self.ub)
-                fit = self.get_fitness_position(temp)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [temp, fit]
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
-            # Flying in a straight line
-            for i in range(self.n_moth1, self.n_moth2):
-                temp = pop[i][self.ID_POS]
-                for j in range(0, self.problem_size):
-                    if uniform() >= 0.5:
-                        temp[j] = pop[i][self.ID_POS][j] + self.golden_ratio * (pop_best[0][self.ID_POS][j] - pop[i][self.ID_POS][j])
-                    else:
-                        temp[j] = pop[i][self.ID_POS][j] + (1.0/self.golden_ratio) * (pop_best[0][self.ID_POS][j] - pop[i][self.ID_POS][j])
+        Returns:
+            [position, fitness value]
+        """
+        pop_best = pop[:self.n_best].copy()
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, epoch, g_best) for idx in pop_idx]
+        pop, _ = self.get_global_best_solution(child)
+        # Replace the worst with the previous generation's elites.
+        for i in range(0, self.n_best):
+            pop[-1 - i] = pop_best[i].copy()
+        return pop
 
-                temp = uniform() * temp
-                temp = clip(temp, self.lb, self.ub)
-                fit = self.get_fitness_position(temp)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i][self.ID_POS] = [temp, fit]
-
-            # Replace the worst with the previous generation's elites.
-            for i in range(0, self.n_best):
-                pop[-1-i] = deepcopy(pop_best[i])
-
-            pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-            pop_current_best = deepcopy(pop[:self.n_best])
-
-            # Update the global best population
-            for i in range(0, self.n_best):
-                if pop_best[i][self.ID_FIT] > pop_current_best[i][self.ID_FIT]:
-                    pop_best[i] = deepcopy(pop_current_best[i])
-
-            self.loss_train.append(pop_best[0][self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, pop_best[0][self.ID_FIT]))
-        self.solution = pop_best[0]
-        return pop_best[0][self.ID_POS], pop_best[0][self.ID_FIT], self.loss_train
