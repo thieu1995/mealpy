@@ -115,7 +115,6 @@ class BasicBA(Optimizer):
         return child
 
 
-
 class BaseBA(Optimizer):
     """
     My modified version of: Bat-inspired Algorithm (BA)
@@ -129,46 +128,68 @@ class BaseBA(Optimizer):
         https://link.springer.com/chapter/10.1007/978-3-642-12538-6_6
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, r=0.95, pf=(0, 10), **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, pulse_rate=0.95, pulse_frequency=(0, 10), **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            pulse_rate (float): (r_min, r_max): pulse rate / emission rate, default = (0.15, 0.85)
+            pulse_frequency (list): (pf_min, pf_max): pulse frequency, default = (0, 10)
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.r = r              # (r_min, r_max): pulse rate / emission rate
-        self.pf = pf            # (pf_min, pf_max): pulse frequency
+        self.pulse_rate = pulse_rate
+        self.pulse_frequency = pulse_frequency
+        self.alpha = self.gamma = 0.9
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        g_best = self.get_global_best_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
-        list_velocity = np.zeros((self.pop_size, self.problem_size))
+        self.dyn_list_velocity = np.zeros((self.pop_size, self.problem.n_dims))
 
-        for epoch in range(self.epoch):
-            for i in range(self.pop_size):
-                pf = self.pf[0] + (self.pf[1] - self.pf[0]) * np.random.uniform()                                 # Eq. 2
-                v = np.random.uniform() * list_velocity[i] + (g_best[self.ID_POS] - pop[i][self.ID_POS]) * pf     # Eq. 3
-                x = pop[i][self.ID_POS] + v                                                             # Eq. 4
-                x = self.amend_position_faster(x)
-                fit = self.get_fitness_position(x)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [x, fit, v]
-                else:
-                    if np.random.uniform() > self.r:
-                        x = g_best[self.ID_POS] + 0.01 * np.random.uniform(self.lb, self.ub)
-                        x = self.amend_position_faster(x)
-                        fit = self.get_fitness_position(x)
-                        if fit < pop[i][self.ID_FIT]:
-                            pop[i] = [x, fit, v]
-                ## batch size idea
-                if self.batch_idea:
-                    if (i + 1) % self.batch_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-                else:
-                    if (i + 1) % self.pop_size == 0:
-                        g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def create_child(self, idx, pop, g_best):
+        pf = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()  # Eq. 2
+        self.dyn_list_velocity[idx] = np.random.uniform() * self.dyn_list_velocity[idx] + (g_best[self.ID_POS] - pop[idx][self.ID_POS]) * pf  # Eq. 3
+        x = pop[idx][self.ID_POS] + self.dyn_list_velocity[idx]  # Eq. 4
+        pos_new = self.amend_position_faster(x)
+        fit_new = self.get_fitness_position(pos_new)
+        if self.compare_agent([pos_new, fit_new], pop[idx]):
+            return [pos_new, fit_new]
+        else:
+            if np.random.uniform() > self.pulse_rate:
+                x = g_best[self.ID_POS] + 0.01 * np.random.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.amend_position_faster(x)
+                fit_new = self.get_fitness_position(x)
+                if self.compare_agent([pos_new, fit_new], pop[idx]):
+                    return [pos_new, fit_new]
+            return pop[idx].copy()
+
+    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+        Returns:
+            [position, fitness value]
+        """
+        pop_idx = np.array(range(0, self.pop_size))
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
+            child = [x for x in pop_child]
+        else:
+            child = [self.create_child(idx, pop, g_best) for idx in pop_idx]
+        return child
 
 
 class OriginalBA(Optimizer):
