@@ -186,6 +186,30 @@ class Optimizer:
             pop = [self.create_solution() for _ in range(0, self.pop_size)]
         return pop
 
+    def update_fitness_population(self, mode='sequential', pop=None):
+        """
+        Args:
+            mode (str): processing mode, it can be "sequential", "thread" or "process"
+            pop (list): the population
+
+        Returns:
+            population: with updated fitness value
+        """
+        if mode == "thread":
+            with parallel.ThreadPoolExecutor() as executor:
+                list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
+                for idx, fit in enumerate(list_results):
+                    pop[idx][self.ID_FIT] = fit
+        elif mode == "process":
+            with parallel.ProcessPoolExecutor() as executor:
+                list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
+                for idx, fit in enumerate(list_results):
+                    pop[idx][self.ID_FIT] = fit
+        else:
+            for idx, agent in enumerate(pop):
+                pop[idx][self.ID_FIT] = self.get_fitness_solution(agent)
+        return pop
+
     def get_fitness_position(self, position=None):
         """
         Args:
