@@ -7,91 +7,143 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, choice
-from numpy import abs
-from copy import deepcopy
-from mealpy.optimizer import Root
+
+import concurrent.futures as parallel
+from functools import partial
+import numpy as np
+import time
+from mealpy.optimizer import Optimizer
 
 
-class BaseSFO(Root):
+class BaseSFO(Optimizer):
     """
     The original version of: SailFish Optimizer (SFO)
     Link:
         https://doi.org/10.1016/j.engappai.2019.01.001
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 pp=0.1, A=4, epxilon=0.0001, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size        # SailFish pop size
-        self.pp = pp                    # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-        self.A = A                      # A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from A to 0)
-        self.epxilon = epxilon          # = 0.0001, 0.001
+    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, A=4, epxilon=0.0001, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100, SailFish pop size
+            pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+            A (int): A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from A to 0)
+            epxilon (float): should be 0.0001, 0.001
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
-    def train(self):
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.pp = pp
+        self.A = A
+        self.epxilon = epxilon
+
+    def solve(self, mode='sequential'):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+        Returns:
+            [position, fitness value]
+        """
+        self.termination_start()
         s_size = int(self.pop_size / self.pp)
-        sf_pop = [self.create_solution() for _ in range(0, self.pop_size)]
-        s_pop = [self.create_solution() for _ in range(0, s_size)]
-        sf_gbest = self.get_global_best_solution(sf_pop, self.ID_FIT, self.ID_MIN_PROB)
-        s_gbest = self.get_global_best_solution(s_pop, self.ID_FIT, self.ID_MIN_PROB)
+        sf_pop = self.create_population(mode, self.pop_size)
+        s_pop = self.create_population(mode, s_size)
+        _, sf_gbest = self.get_global_best_solution(sf_pop)
+        _, s_gbest = self.get_global_best_solution(s_pop)
+        self.history.save_initial_best(sf_gbest)
 
         for epoch in range(0, self.epoch):
+            time_epoch = time.time()
 
             ## Calculate lamda_i using Eq.(7)
             ## Update the position of sailfish using Eq.(6)
             for i in range(0, self.pop_size):
-                PD = 1 - len(sf_pop) / ( len(sf_pop) + len(s_pop) )
-                lamda_i = 2 * uniform() * PD - PD
-                sf_pop[i][self.ID_POS] = s_gbest[self.ID_POS] - lamda_i * ( uniform() *
-                                        ( sf_gbest[self.ID_POS] + s_gbest[self.ID_POS] ) / 2 - sf_pop[i][self.ID_POS] )
+                PD = 1 - len(sf_pop) / (len(sf_pop) + len(s_pop))
+                lamda_i = 2 * np.random.uniform() * PD - PD
+                sf_pop[i][self.ID_POS] = s_gbest[self.ID_POS] - lamda_i * \
+                    (np.random.uniform() * (sf_gbest[self.ID_POS] + s_gbest[self.ID_POS]) / 2 - sf_pop[i][self.ID_POS])
 
             ## Calculate AttackPower using Eq.(10)
-            AP = self.A * ( 1 - 2 * (epoch + 1) * self.epxilon )
+            AP = self.A * (1 - 2 * (epoch + 1) * self.epxilon)
             if AP < 0.5:
-                alpha = int(len(s_pop) * abs(AP) )
-                beta = int(self.problem_size * abs(AP))
-                ### Random choice number of sardines which will be updated their position
-                list1 = choice(range(0, len(s_pop)), alpha)
+                alpha = int(len(s_pop) * np.abs(AP))
+                beta = int(self.problem.n_dims * np.abs(AP))
+                ### Random np.random.choice number of sardines which will be updated their position
+                list1 = np.random.choice(range(0, len(s_pop)), alpha)
                 for i in range(0, len(s_pop)):
                     if i in list1:
-                        #### Random choice number of dimensions in sardines updated, remove third loop by numpy vector computation
-                        list2 = choice(range(0, self.problem_size), beta, replace=False)
-                        s_pop[i][self.ID_POS][list2] = (uniform(0, 1, self.problem_size) * (sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP))[list2]
+                        #### Random np.random.choice number of dimensions in sardines updated, remove third loop by numpy vector computation
+                        list2 = np.random.choice(range(0, self.problem.n_dims), beta, replace=False)
+                        s_pop[i][self.ID_POS][list2] = (np.random.uniform(0, 1, self.problem.n_dims) *
+                                                        (sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP))[list2]
             else:
                 ### Update the position of all sardine using Eq.(9)
                 for i in range(0, len(s_pop)):
-                    s_pop[i][self.ID_POS] = uniform()*( sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP )
+                    s_pop[i][self.ID_POS] = np.random.uniform() * (sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP)
 
             ## Recalculate the fitness of all sardine
-            for i in range(0, len(s_pop)):
-                s_pop[i][self.ID_FIT] = self.get_fitness_position(s_pop[i][self.ID_POS], self.ID_MIN_PROB)
+            s_pop = self.update_fitness_population(mode, s_pop)
 
             ## Sort the population of sailfish and sardine (for reducing computational cost)
-            sf_pop = sorted(sf_pop, key=lambda temp: temp[self.ID_FIT])
-            s_pop = sorted(s_pop, key=lambda temp: temp[self.ID_FIT])
+            sf_pop = self.get_sorted_strim_population(sf_pop, len(sf_pop))
+            s_pop = self.get_sorted_strim_population(sf_pop, len(s_pop))
             for i in range(0, self.pop_size):
                 for j in range(0, len(s_pop)):
                     ### If there is a better position in sardine population.
-                    if sf_pop[i][self.ID_FIT] > s_pop[j][self.ID_FIT]:
-                        sf_pop[i] = deepcopy(s_pop[j])
+                    if self.compare_agent(s_pop[j], sf_pop[i]):
+                        sf_pop[i] = s_pop[j].copy()
                         del s_pop[j]
-                    break   #### This simple keyword helped reducing ton of comparing operation.
-                            #### Especially when sardine pop size >> sailfish pop size
+                    break  #### This simple keyword helped reducing ton of comparing operation.
+                    #### Especially when sardine pop size >> sailfish pop size
 
-            s_pop = s_pop + [self.create_solution() for _ in range(0, s_size - len(s_pop))]
+            s_pop = s_pop + self.create_population(mode, s_size - len(s_pop))
+            _, sf_gbest = self.get_global_best_solution(sf_pop)
+            _, s_gbest = self.get_global_best_solution(s_pop)
 
-            sf_gbest = self.update_global_best_solution(sf_pop, self.ID_MIN_PROB, sf_gbest)
-            s_gbest = self.update_global_best_solution(s_pop, self.ID_MIN_PROB, s_gbest)
+            _, g_best = self.update_global_best_solution([sf_gbest, s_gbest])
 
-            self.loss_train.append(sf_gbest[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, sf_gbest[self.ID_FIT]))
-        self.solution = sf_gbest
-        return sf_gbest[self.ID_POS], sf_gbest[self.ID_FIT], self.loss_train
+            ## Additional information for the framework
+            time_epoch = time.time() - time_epoch
+            self.history.list_epoch_time.append(time_epoch)
+            self.history.list_population.append(sf_pop.copy())
+            self.print_epoch(epoch + 1, time_epoch)
+            if self.termination_flag:
+                if self.termination.mode == 'TB':
+                    if time.time() - self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'FE':
+                    self.count_terminate += self.nfe_per_epoch
+                    if self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'MG':
+                    if epoch >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                else:  # Early Stopping
+                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
+                    if temp >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+
+        ## Additional information for the framework
+        self.save_optimization_process()
+        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
 
 
-class ImprovedSFO(Root):
+
+class ImprovedSFO(Optimizer):
     """
     My improved version of: Sailfish Optimizer (SFO)
     Notes:
@@ -100,27 +152,52 @@ class ImprovedSFO(Root):
         + Based on idea of Opposition-based Learning
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, pp=0.1, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size       # SailFish pop size
-        self.pp = pp                   # the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100, SailFish pop size
+            pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
-    def train(self):
+        self.epoch = epoch
+        self.pop_size = pop_size
+        self.pp = pp
+
+    def solve(self, mode='sequential'):
+        """
+        Args:
+            mode (str): 'sequential', 'thread', 'process'
+                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+
+        Returns:
+            [position, fitness value]
+        """
+        self.termination_start()
         s_size = int(self.pop_size / self.pp)
-        sf_pop = [self.create_solution() for _ in range(0, self.pop_size)]
-        s_pop = [self.create_solution() for _ in range(0, s_size)]
-        sf_gbest = self.get_global_best_solution(sf_pop, self.ID_FIT, self.ID_MIN_PROB)
-        s_gbest = self.get_global_best_solution(s_pop, self.ID_FIT, self.ID_MIN_PROB)
+        sf_pop = self.create_population(mode, self.pop_size)
+        s_pop = self.create_population(mode, s_size)
+        _, sf_gbest = self.get_global_best_solution(sf_pop)
+        _, s_gbest = self.get_global_best_solution(s_pop)
+        self.history.save_initial_best(sf_gbest)
 
         for epoch in range(0, self.epoch):
+            time_epoch = time.time()
+
             ## Calculate lamda_i using Eq.(7)
             ## Update the position of sailfish using Eq.(6)
             for i in range(0, self.pop_size):
-                PD = 1 - len(sf_pop) / ( len(sf_pop) + len(s_pop) )
-                lamda_i = 2 * uniform() * PD - PD
-                sf_pop[i][self.ID_POS] = s_gbest[self.ID_POS] - lamda_i * ( uniform() *
-                                        ( sf_gbest[self.ID_POS] + s_gbest[self.ID_POS] ) / 2 - sf_pop[i][self.ID_POS] )
+                PD = 1 - len(sf_pop) / (len(sf_pop) + len(s_pop))
+                lamda_i = 2 * np.random.uniform() * PD - PD
+                sf_pop[i][self.ID_POS] = s_gbest[self.ID_POS] - lamda_i * \
+                        (np.random.uniform() * (sf_gbest[self.ID_POS] + s_gbest[self.ID_POS]) / 2 - sf_pop[i][self.ID_POS])
 
             ## ## Calculate AttackPower using my Eq.thieu
             #### This is our proposed, simple but effective, no need A and epxilon parameters
@@ -128,34 +205,61 @@ class ImprovedSFO(Root):
             if AP < 0.5:
                 for i in range(0, len(s_pop)):
                     temp = (sf_gbest[self.ID_POS] + AP) / 2
-                    s_pop[i][self.ID_POS] = self.lb + self.ub - temp + uniform() * (temp - s_pop[i][self.ID_POS])
+                    s_pop[i][self.ID_POS] = self.problem.lb + self.problem.ub - temp + np.random.uniform() * (temp - s_pop[i][self.ID_POS])
             else:
                 ### Update the position of all sardine using Eq.(9)
                 for i in range(0, len(s_pop)):
-                    s_pop[i][self.ID_POS] = uniform() * (sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP)
+                    s_pop[i][self.ID_POS] = np.random.uniform() * (sf_gbest[self.ID_POS] - s_pop[i][self.ID_POS] + AP)
 
             ## Recalculate the fitness of all sardine
-            for i in range(0, len(s_pop)):
-                s_pop[i][self.ID_FIT] = self.get_fitness_position(s_pop[i][self.ID_POS], self.ID_MIN_PROB)
+            s_pop = self.update_fitness_population(mode, s_pop)
 
             ## Sort the population of sailfish and sardine (for reducing computational cost)
-            sf_pop = sorted(sf_pop, key=lambda temp: temp[self.ID_FIT])
-            s_pop = sorted(s_pop, key=lambda temp: temp[self.ID_FIT])
+            sf_pop = self.get_sorted_strim_population(sf_pop, len(sf_pop))
+            s_pop = self.get_sorted_strim_population(sf_pop, len(s_pop))
             for i in range(0, self.pop_size):
                 for j in range(0, len(s_pop)):
                     ### If there is a better position in sardine population.
-                    if sf_pop[i][self.ID_FIT] > s_pop[j][self.ID_FIT]:
-                        sf_pop[i] = deepcopy(s_pop[j])
+                    if self.compare_agent(s_pop[j], sf_pop[i]):
+                        sf_pop[i] = s_pop[j].copy()
                         del s_pop[j]
-                    break   #### This simple keyword helped reducing ton of comparing operation.
-                            #### Especially when sardine pop size >> sailfish pop size
-            s_pop = s_pop + [self.create_solution() for _ in range(0, s_size - len(s_pop))]
+                    break  #### This simple keyword helped reducing ton of comparing operation.
+                    #### Especially when sardine pop size >> sailfish pop size
 
-            sf_gbest = self.update_global_best_solution(sf_pop, self.ID_MIN_PROB, sf_gbest)
-            s_gbest = self.update_global_best_solution(s_pop, self.ID_MIN_PROB, s_gbest)
+            s_pop = s_pop + self.create_population(mode, s_size - len(s_pop))
+            _, sf_gbest = self.get_global_best_solution(sf_pop)
+            _, s_gbest = self.get_global_best_solution(s_pop)
 
-            self.loss_train.append(sf_gbest[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fit: {}".format(epoch + 1, sf_gbest[self.ID_FIT]))
-        self.solution = sf_gbest
-        return sf_gbest[self.ID_POS], sf_gbest[self.ID_FIT], self.loss_train
+            _, g_best = self.update_global_best_solution([sf_gbest, s_gbest])
+
+            ## Additional information for the framework
+            ## Additional information for the framework
+            time_epoch = time.time() - time_epoch
+            self.history.list_epoch_time.append(time_epoch)
+            self.history.list_population.append(sf_pop.copy())
+            self.print_epoch(epoch + 1, time_epoch)
+            if self.termination_flag:
+                if self.termination.mode == 'TB':
+                    if time.time() - self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'FE':
+                    self.count_terminate += self.nfe_per_epoch
+                    if self.count_terminate >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                elif self.termination.mode == 'MG':
+                    if epoch >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+                else:  # Early Stopping
+                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
+                    if temp >= self.termination.quantity:
+                        self.termination.logging(self.verbose)
+                        break
+
+        ## Additional information for the framework
+        self.save_optimization_process()
+        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
+
+
