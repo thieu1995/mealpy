@@ -134,6 +134,7 @@ class ImprovedBSO(Root):
             centers.append(deepcopy(pop_sorted[self.ID_MIN_PROB]))
         return centers
 
+
     def train(self):
         pop = self._creat_population__()
         centers = self._find_cluster__(pop)
