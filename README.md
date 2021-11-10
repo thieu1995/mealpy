@@ -86,8 +86,33 @@ Or install the development version from GitHub:
 
 ### Examples
 
+* Normal Objective Function
+
+```python 
+
+from mealpy.bio_based import SMA
+import numpy as np
+
+def obj_function(solution):
+    return np.sum(solution**2)
+
+problem_dict1 = {
+    "obj_func": obj_function,
+    "lb": [-100, ] * 30,
+    "ub": [100, ] * 30,
+    "minmax": "min",
+    "verbose": True,
+}
+
+## Run the algorithm
+model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+model1.solve()
+
+```
+
+
 * The Constrained Benchmark Function (G01)
-* 
+
 ```python
 ## Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
 
