@@ -327,11 +327,12 @@ class Optimizer:
             pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
         return total_fitness, pop[0][self.ID_FIT][self.ID_TAR], pop[-1][self.ID_FIT][self.ID_TAR]
 
-    def update_global_best_solution(self, pop=None):
+    def update_global_best_solution(self, pop=None, save=True):
         """
         Update the global best solution saved in variable named: self.history_list_g_best
         Args:
             pop (list): The population of pop_size individuals
+            save (bool): True if you want to add new current global best and False if you just want update the current one.
 
         Returns:
             Sorted population and the global best solution
@@ -345,10 +346,17 @@ class Optimizer:
         # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
         # self.history_list_g_best.append(better)
 
-        self.history.list_current_best.append(current_best)
-        better = self.get_better_solution(current_best, self.history.list_global_best[-1])
-        self.history.list_global_best.append(better)
-        return sorted_pop.copy(), better.copy()
+        if save:
+            self.history.list_current_best.append(current_best)
+            better = self.get_better_solution(current_best, self.history.list_global_best[-1])
+            self.history.list_global_best.append(better)
+            return sorted_pop.copy(), better.copy()
+        else:
+            local_better = self.get_better_solution(current_best, self.history.list_current_best[-1])
+            self.history.list_current_best[-1] = local_better
+            global_better = self.get_better_solution(current_best, self.history.list_global_best[-1])
+            self.history.list_global_best[-1] = global_better
+            return sorted_pop.copy(), global_better.copy()
 
     def print_epoch(self, epoch, runtime):
         """
