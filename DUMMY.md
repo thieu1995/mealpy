@@ -1,4 +1,10 @@
-## This file describes the dummy algorithm based on my implementation
+## This file describes the dummy algorithm based on my understanding and my implementation
+
+* All algorithms in this library were implemented by me (my code). Including the original version (I read the paper and
+  implement it). Some original papers are very unclear (parameters, equations, algorithm's flow) as I categories it to
+  dummy papers and algorithms (I have already checked carefully the paper, the related papers and searched for Matlab
+  code or any programming code for it).
+
 
 ### 1. Raven Roosting Optimization (RRO)
 
