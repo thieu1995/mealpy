@@ -1,3 +1,33 @@
+# Version 2.0.0
+
+### Change models
++ Update entire the library based on Optimizer class:
+    + Add class Problem and class Termination
+    + Add 3 training modes (sequential, thread and process)
+    + Add visualization charts:
+        + Global fitness value after generations
+        + Local fitness value after generations
+        + Global Objectives chart (For multi-objective functions)
+        + Local Objective chart (For multi-objective functions)
+        + The Diversity of population chart
+        + The Exploration verse Exploitation chart
+        + The Running time chart for each iteration (epoch / generation)
+        + The Trajectory of some agents after generations 
++ My batch-size idea is removed due to the parallel training mode
++ User can define the Stopping Condition based on:
+    + Epoch (Generation / Iteration) - default
+    + Function Evaluation 
+    + Early Stopping
+    + Time-bound (The running time for a single algorithm for a single task)
+
+
+### Change others
+
++ examples: Update examples for all new algorithms
++ history: Update history of MHAs
+
+---------------------------------------------------------------------
+
 # Version 1.2.2
 
 ### Change models
