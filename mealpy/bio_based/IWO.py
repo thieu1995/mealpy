@@ -42,24 +42,21 @@ class OriginalIWO(Optimizer):
         self.exponent = exponent
         self.sigma = sigma
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch=None):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Update Standard Deviation
         sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigma[0] - self.sigma[1]) + self.sigma[1]
-        pop, best, worst = self.get_special_solutions(pop)
-        pop_new = pop.copy()
+        pop, best, worst = self.get_special_solutions(self.pop)
+        pop_new = []
         for idx in range(0, self.pop_size):
-            ratio = (pop[idx][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR]) / \
-                    (best[0][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR] + self.EPSILON)
+            temp = best[0][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR]
+            if temp == 0:
+                ratio = 0.5
+            else:
+                ratio = (pop[idx][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR]) / temp
             s = int(np.ceil(self.seeds[0] + (self.seeds[1] - self.seeds[0]) * ratio))
             if s > int(np.sqrt(self.pop_size)):
                 s = int(np.sqrt(self.pop_size))
@@ -69,11 +66,6 @@ class OriginalIWO(Optimizer):
                 pos_new = pop[idx][self.ID_POS] + sigma * np.random.normal(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position_faster(pos_new)
                 pop_local.append([pos_new, None])
-            pop_local = self.update_fitness_population(mode, pop_local)
+            pop_local = self.update_fitness_population(pop_local)
             pop_new += pop_local
-        pop = self.get_sorted_strim_population(pop_new, self.pop_size)
-        return pop
-
-
-
-
+        self.pop = self.get_sorted_strim_population(pop_new, self.pop_size)
