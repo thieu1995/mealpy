@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -39,58 +37,36 @@ class BaseSCA(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def create_child(self, idx, pop, g_best, epoch):
-        # Eq 3.4, r1 decreases linearly from a to 0
-        a = 2.0
-        r1 = a - (epoch + 1) * (a / self.epoch)
-        # Update r2, r3, and r4 for Eq. (3.3), remove third loop here
-        r2 = 2 * np.pi * np.random.uniform(0, 1, self.problem.n_dims)
-        r3 = 2 * np.random.uniform(0, 1, self.problem.n_dims)
-        # Eq. 3.3, 3.1 and 3.2
-        pos_new1 = pop[idx][self.ID_POS] + r1 * np.sin(r2) * abs(r3 * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        pos_new2 = pop[idx][self.ID_POS] + r1 * np.cos(r2) * abs(r3 * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
-        # Check the bound
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-        # ## Update the global best
-        # if self.batch_idea:
-        #     if (i + 1) % self.batch_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        # else:
-        #     if (i + 1) * self.pop_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        #
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Eq 3.4, r1 decreases linearly from a to 0
+            a = 2.0
+            r1 = a - (epoch + 1) * (a / self.epoch)
+            # Update r2, r3, and r4 for Eq. (3.3), remove third loop here
+            r2 = 2 * np.pi * np.random.uniform(0, 1, self.problem.n_dims)
+            r3 = 2 * np.random.uniform(0, 1, self.problem.n_dims)
+            # Eq. 3.3, 3.1 and 3.2
+            pos_new1 = self.pop[idx][self.ID_POS] + r1 * np.sin(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new2 = self.pop[idx][self.ID_POS] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
+            # Check the bound
+            pos_new = self.amend_position_random(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best, epoch=epoch), pop_idx)
-            pop_new = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best, epoch=epoch), pop_idx)
-            pop_new = [x for x in pop_child]
-        else:
-            pop_new = [self.create_child(idx, pop_copy, g_best, epoch) for idx in pop_idx]
-        return pop_new
+            # ## Update the global best
+            # if self.batch_idea:
+            #     if (i + 1) % self.batch_size == 0:
+            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+            # else:
+            #     if (i + 1) * self.pop_size == 0:
+            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
 
 class OriginalSCA(BaseSCA):
@@ -112,27 +88,33 @@ class OriginalSCA(BaseSCA):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def create_child(self, idx, pop, g_best, epoch):
-        # Eq 3.4, r1 decreases linearly from a to 0
-        a = 2.0
-        r1 = a - (epoch + 1) * (a / self.epoch)
-        pos_new = pop[idx][self.ID_POS].copy()
-        for j in range(self.problem.n_dims):  # j-th dimension
-            # Update r2, r3, and r4 for Eq. (3.3)
-            r2 = 2 * np.pi * np.random.uniform()
-            r3 = 2 * np.random.uniform()
-            r4 = np.random.uniform()
-            # Eq. 3.3, 3.1 and 3.2
-            if r4 < 0.5:
-                pos_new[j] = pos_new[j] + r1 * np.sin(r2) * abs(r3 * g_best[self.ID_POS][j] - pos_new[j])
-            else:
-                pos_new[j] = pos_new[j] + r1 * np.cos(r2) * abs(r3 * g_best[self.ID_POS][j] - pos_new[j])
-        # Check the bound
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Eq 3.4, r1 decreases linearly from a to 0
+            a = 2.0
+            r1 = a - (epoch + 1) * (a / self.epoch)
+            pos_new = self.pop[idx][self.ID_POS].copy()
+            for j in range(self.problem.n_dims):  # j-th dimension
+                # Update r2, r3, and r4 for Eq. (3.3)
+                r2 = 2 * np.pi * np.random.uniform()
+                r3 = 2 * np.random.uniform()
+                r4 = np.random.uniform()
+                # Eq. 3.3, 3.1 and 3.2
+                if r4 < 0.5:
+                    pos_new[j] = pos_new[j] + r1 * np.sin(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
+                else:
+                    pos_new[j] = pos_new[j] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
+            # Check the bound
+            pos_new = self.amend_position_random(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
-#
+
 # class FasterSCA(BaseSCA):
 #     """
 #         A Sine Cosine Algorithm for solving optimization problems (SCA)
