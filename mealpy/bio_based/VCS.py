@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -58,50 +56,41 @@ class BaseVCS(Optimizer):
         x_mean = weight * np.sum(pos_list, axis=0)
         return x_mean
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         ## Viruses diffusion
         for i in range(0, self.pop_size):
-            xichma = (np.log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - g_best[self.ID_POS])
-            gauss = np.random.normal(np.random.normal(g_best[self.ID_POS], np.abs(xichma)))
-            pos_new = gauss + np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop[i][self.ID_POS]
+            xichma = (np.log1p(epoch + 1) / self.epoch) * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
+            gauss = np.random.normal(np.random.normal(self.g_best[self.ID_POS], np.abs(xichma)))
+            pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * self.pop[i][self.ID_POS]
             pos_new = self.amend_position_random(pos_new)
-            pop[i][self.ID_POS] = pos_new
-        pop = self.update_fitness_population(mode, pop)
+            self.pop[i][self.ID_POS] = pos_new
+        self.pop = self.update_fitness_population(self.pop)
 
         ## Host cells infection
-        x_mean = self._calculate_xmean(pop)
+        x_mean = self._calculate_xmean(self.pop)
         xichma = self.xichma * (1 - (epoch + 1) / self.epoch)
         for i in range(0, self.pop_size):
             ## Basic / simple version, not the original version in the paper
             pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position_random(pos_new)
-            pop[i][self.ID_POS] = pos_new
-        pop = self.update_fitness_population(mode, pop)
+            self.pop[i][self.ID_POS] = pos_new
+        self.pop = self.update_fitness_population(self.pop)
 
         ## Calculate the weighted mean of the λ best individuals by
-        pop, g_best = self.get_global_best_solution(pop)
-        pos_list = [agent[self.ID_POS] for agent in pop[:self.n_best]]
+        self.pop, g_best = self.get_global_best_solution(self.pop)
 
         ## Immune response
         for i in range(0, self.pop_size):
             pr = (self.problem.n_dims - i + 1) / self.problem.n_dims
             id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
-            temp = pop[id1][self.ID_POS] - (pop[id2][self.ID_POS] - pop[i][self.ID_POS]) * np.random.uniform()
-            pos_new = pop[i][self.ID_POS].copy()
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < pr, pos_new, temp)
-            pop[i][self.ID_POS] = self.amend_position_faster(pos_new)
-        pop = self.update_fitness_population(mode, pop)
-        return pop
+            temp = self.pop[id1][self.ID_POS] - (self.pop[id2][self.ID_POS] - self.pop[i][self.ID_POS]) * np.random.uniform()
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < pr, self.pop[i][self.ID_POS], temp)
+            self.pop[i][self.ID_POS] = self.amend_position_faster(pos_new)
+        self.pop = self.update_fitness_population(self.pop)
 
 
 class OriginalVCS(BaseVCS):
@@ -124,27 +113,20 @@ class OriginalVCS(BaseVCS):
             **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, lamda, xichma, **kwargs)
-        self.nfe_per_epoch = 3 * pop_size
-        self.sort_flag = True
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
+        pop = self.pop.copy()
         ## Viruses diffusion
         for i in range(0, self.pop_size):
-            xichma = (np.log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - g_best[self.ID_POS])
-            gauss = np.array([np.random.normal(g_best[self.ID_POS][idx], np.abs(xichma[idx])) for idx in range(0, self.problem.n_dims)])
-            pos_new = gauss + np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop[i][self.ID_POS]
+            xichma = (np.log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - self.g_best[self.ID_POS])
+            gauss = np.array([np.random.normal(self.g_best[self.ID_POS][idx], np.abs(xichma[idx])) for idx in range(0, self.problem.n_dims)])
+            pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * pop[i][self.ID_POS]
             pop[i][self.ID_POS] = self.amend_position_random(pos_new)
-        pop = self.update_fitness_population(mode, pop)
+        pop = self.update_fitness_population(pop)
 
         ## Host cells infection
         x_mean = self._calculate_xmean(pop)
@@ -154,7 +136,7 @@ class OriginalVCS(BaseVCS):
             pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position_random(pos_new)
             pop[i][self.ID_POS] = pos_new
-        pop = self.update_fitness_population(mode, pop)
+        pop = self.update_fitness_population(pop)
 
         ## Immune response
         for i in range(0, self.pop_size):
@@ -164,8 +146,10 @@ class OriginalVCS(BaseVCS):
                 if np.random.uniform() > pr:
                     id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     pos_new[j] = pop[id1][self.ID_POS][j] - (pop[id2][self.ID_POS][j] - pop[i][self.ID_POS][j]) * np.random.uniform()
-            fit = self.get_fitness_position(pos_new)
-            if fit < pop[i][self.ID_FIT]:
-                pop[i] = [pos_new, fit]
-        return pop
+            pos_new = self.amend_position_faster(pos_new)
+        pop = self.update_fitness_population(pop)
 
+        ## Greedy selection
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(self.pop[idx], pop[idx]):
+                self.pop[idx] = pop[idx].copy()
