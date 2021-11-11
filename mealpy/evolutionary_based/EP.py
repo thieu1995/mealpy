@@ -7,7 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -61,52 +60,32 @@ class BaseEP(Optimizer):
         times_win = 0
         return [position, fitness, strategy, times_win]
 
-    def create_child(self, agent_i):
-        child = agent_i[self.ID_POS] + agent_i[self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-        child = self.amend_position_faster(child)
-        fit = self.get_fitness_position(child)
-        s_old = agent_i[self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(agent_i[self.ID_STR]) ** 0.5
-        return [child, fit, s_old, 0]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(self.create_child, pop_copy)
-            children = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(self.create_child, pop_copy)
-            children = [x for x in pop_child]
-        else:
-            children = [self.create_child(agent) for agent in pop_copy]
+        child = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
+            pos_new = self.amend_position_faster(pos_new)
+            s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
+            child.append([pos_new, None, s_old, 0])
+        child = self.update_fitness_population(child)
 
         # Update the global best
-        children, g_best = self.update_global_best_solution(children)
-        pop = children + pop
+        children, self.g_best = self.update_global_best_solution(child, save=False)
+        pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
             for idx in range(0, self.bout_size):
                 rand_idx = np.random.randint(0, len(pop))
-                if self.problem.minmax == "min":
-                    if pop[i][self.ID_FIT][self.ID_TAR] < pop[rand_idx][self.ID_FIT][self.ID_TAR]:
-                        pop[i][self.ID_WIN] += 1
+                if self.compare_agent(pop[i], pop[rand_idx]):
+                    pop[i][self.ID_WIN] += 1
                 else:
-                    if pop[i][self.ID_FIT][self.ID_TAR] > pop[rand_idx][self.ID_FIT][self.ID_TAR]:
-                        pop[rand_idx][self.ID_WIN] += 1
+                    pop[rand_idx][self.ID_WIN] += 1
         pop = sorted(pop, key=lambda item: item[self.ID_WIN], reverse=True)
-        pop = pop[:self.pop_size]
-        return pop
+        self.pop = pop[:self.pop_size]
 
 
 class LevyEP(BaseEP):
@@ -131,54 +110,42 @@ class LevyEP(BaseEP):
     def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(self.create_child, pop_copy)
-            children = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(self.create_child, pop_copy)
-            children = [x for x in pop_child]
-        else:
-            children = [self.create_child(agent) for agent in pop_copy]
+
+        child = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
+            pos_new = self.amend_position_faster(pos_new)
+            s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
+            child.append([pos_new, None, s_old, 0])
+        child = self.update_fitness_population(child)
 
         # Update the global best
-        children, g_best = self.update_global_best_solution(children)
-
-        pop = children + pop
+        children, self.g_best = self.update_global_best_solution(child, save=False)
+        pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
             for idx in range(0, self.bout_size):
                 rand_idx = np.random.randint(0, len(pop))
-                if self.problem.minmax == "min":
-                    if pop[i][self.ID_FIT][self.ID_TAR] < pop[rand_idx][self.ID_FIT][self.ID_TAR]:
-                        pop[i][self.ID_WIN] += 1
+                if self.compare_agent(pop[i], pop[rand_idx]):
+                    pop[i][self.ID_WIN] += 1
                 else:
-                    if pop[i][self.ID_FIT][self.ID_TAR] > pop[rand_idx][self.ID_FIT][self.ID_TAR]:
-                        pop[rand_idx][self.ID_WIN] += 1
+                    pop[rand_idx][self.ID_WIN] += 1
 
         ## Keep the top population, but 50% of left population will make a comeback an take the good position
         pop = sorted(pop, key=lambda agent: agent[self.ID_WIN], reverse=True)
-        pop = pop[:self.pop_size]
+        pop = pop[:self.pop_size].copy()
         pop_left = pop[self.pop_size:].copy()
 
         ## Choice random 50% of population left
         pop_comeback = []
         idx_list = np.random.choice(range(0, len(pop_left)), int(0.5 * len(pop_left)), replace=False)
         for idx in idx_list:
-            pos_new = self.levy_flight(epoch, pop_left[idx][self.ID_POS], g_best[self.ID_POS])
-            fit = self.get_fitness_position(pos_new)
+            levy = self.get_levy_flight_step(multiplier=0.001, case=-1)
+            pos_new = pop_left[idx][self.ID_POS] + 0.01 * levy
             strategy = self.distance = 0.05 * (self.problem.ub - self.problem.lb)
-            pop_comeback.append([pos_new, fit, strategy, 0])
-        pop = pop + pop_comeback
-        pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
-        return pop[:self.pop_size]
+            pop_comeback.append([pos_new, None, strategy, 0])
+        pop_comeback = self.update_fitness_population(pop_comeback)
+        self.nfe_per_epoch = self.pop_size + int(0.5 * len(pop_left))
+        self.pop = self.get_sorted_strim_population(pop + pop_comeback, self.pop_size)
