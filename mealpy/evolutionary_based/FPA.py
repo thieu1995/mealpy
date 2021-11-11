@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -36,48 +34,21 @@ class BaseFPA(Optimizer):
         self.pop_size = pop_size
         self.p_s = p_s
 
-    def create_child(self, idx, pop_copy, g_best, epoch):
-        if np.random.uniform() < self.p_s:
-            levy = self.get_levy_flight_step(multiplier=0.001, case=-1)
-            pos_new = pop_copy[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
-                      levy * (pop_copy[idx][self.ID_POS] - g_best[self.ID_POS])
-        else:
-            id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-            pos_new = pop_copy[idx][self.ID_POS] + np.random.uniform() * (pop_copy[id1][self.ID_POS] - pop_copy[id2][self.ID_POS])
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-        # batch size idea to update the global best
-        # if self.batch_idea:
-        #     if (idx + 1) % self.batch_size == 0:
-        #         self.update_global_best_solution(pop_copy)
-        # else:
-        #     if (idx + 1) % self.pop_size == 0:
-        #         self.update_global_best_solution(pop_copy)
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-            Returns:
-                [position, fitness value]
+        Args:
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
+        pop = []
+        for idx in range(0, self.pop_size):
+            if np.random.uniform() < self.p_s:
+                levy = self.get_levy_flight_step(multiplier=0.001, case=-1)
+                pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                          levy * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
+            else:
+                id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
+                pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[id1][self.ID_POS] - self.pop[id2][self.ID_POS])
+            pos_new = self.amend_position_random(pos_new)
+            pop.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop)
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, epoch=epoch), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, epoch=epoch), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy, g_best, epoch) for idx in pop_idx]
-        return pop
