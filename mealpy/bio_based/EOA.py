@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -58,40 +56,50 @@ class BaseEOA(Optimizer):
         ## Dynamic variable
         self.dyn_beta = beta
 
-    def create_child(self, idx, pop):
-        ### Reproduction 1: the first way of reproducing
-        x_t1 = self.problem.lb + self.problem.ub - self.alpha * pop[idx][self.ID_POS]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        ## Update the pop best
+        pop_elites, local_best = self.get_global_best_solution(self.pop)
+        nfe_epoch = 0
+        pop = []
+        for idx in range(0, self.pop_size):
+            ### Reproduction 1: the first way of reproducing
+            x_t1 = self.problem.lb + self.problem.ub - self.alpha * self.pop[idx][self.ID_POS]
 
-        ### Reproduction 2: the second way of reproducing
-        if idx >= self.n_best:  ### Select two parents to mate and create two children
-            idx = int(self.pop_size * 0.2)
-            if np.random.uniform() < 0.5:  ## 80% parents selected from best population
-                idx1, idx2 = np.random.choice(range(0, idx), 2, replace=False)
-            else:  ## 20% left parents selected from worst population (make more diversity)
-                idx1, idx2 = np.random.choice(range(idx, self.pop_size), 2, replace=False)
-            r = np.random.uniform()
-            x_child = r * pop[idx2][self.ID_POS] + (1 - r) * pop[idx1][self.ID_POS]
-        else:
-            r1 = np.random.randint(0, self.pop_size)
-            x_child = pop[r1][self.ID_POS]
-        x_t1 = self.dyn_beta * x_t1 + (1.0 - self.dyn_beta) * x_child
-        pos_new = self.amend_position_faster(x_t1)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
+            ### Reproduction 2: the second way of reproducing
+            if idx >= self.n_best:  ### Select two parents to mate and create two children
+                idx = int(self.pop_size * 0.2)
+                if np.random.uniform() < 0.5:  ## 80% parents selected from best population
+                    idx1, idx2 = np.random.choice(range(0, idx), 2, replace=False)
+                else:  ## 20% left parents selected from worst population (make more diversity)
+                    idx1, idx2 = np.random.choice(range(idx, self.pop_size), 2, replace=False)
+                r = np.random.uniform()
+                x_child = r * self.pop[idx2][self.ID_POS] + (1 - r) * self.pop[idx1][self.ID_POS]
+            else:
+                r1 = np.random.randint(0, self.pop_size)
+                x_child = self.pop[r1][self.ID_POS]
+            x_t1 = self.dyn_beta * x_t1 + (1.0 - self.dyn_beta) * x_child
+            pos_new = self.amend_position_faster(x_t1)
+            pop.append([pos_new, None])
+        pop = self.update_fitness_population(pop)
+        pop = self.greedy_selection_population(self.pop, pop)
+        nfe_epoch += self.pop_size
+        self.dyn_beta = self.gamma * self.beta
 
-    def _updating_process(self, mode, pop, pop_elites, g_best):
         pos_list = np.array([item[self.ID_POS] for item in pop])
         x_mean = np.mean(pos_list, axis=0)
         ## Cauchy mutation (CM)
-        cauchy_w = g_best[self.ID_POS].copy()
+        cauchy_w = self.g_best[self.ID_POS].copy()
         for i in range(self.n_best, self.pop_size):  # Don't allow the elites to be mutated
             cauchy_w = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, x_mean, cauchy_w)
-            x_t1 = (cauchy_w + g_best[self.ID_POS]) / 2
+            x_t1 = (cauchy_w + self.g_best[self.ID_POS]) / 2
             pos_new = self.amend_position_faster(x_t1)
             pop[i][self.ID_POS] = pos_new
-        pop = self.update_fitness_population(mode, pop)
+            nfe_epoch += 1
+        pop = self.update_fitness_population(pop)
 
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
         pop, local_best = self.get_global_best_solution(pop)
@@ -103,38 +111,9 @@ class BaseEOA(Optimizer):
         for idx, obj in enumerate(pop):
             if tuple(obj[self.ID_POS].tolist()) in new_set:
                 pop[idx] = self.create_solution()
+                nfe_epoch += 1
             else:
                 new_set.add(tuple(obj[self.ID_POS].tolist()))
-        return pop
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
-        """
-        Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
-        """
-        ## Update the pop best
-        pop_elites, local_best = self.get_global_best_solution(pop)
-        pop_idx = np.array(range(0, self.pop_size))
-
-        self.dyn_beta = self.gamma * self.beta
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            pop = [x for x in pop_child]
-            pop = self._updating_process(mode, pop, pop_elites, g_best)
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            pop = [x for x in pop_child]
-            pop = self._updating_process(mode, pop, pop_elites, g_best)
-        else:
-            pop = [self.create_child(idx, pop) for idx in pop_idx]
-            pop = self._updating_process(mode, pop, pop_elites, g_best)
-        return pop
+        self.nfe_per_epoch = nfe_epoch
+        self.pop = pop
 
