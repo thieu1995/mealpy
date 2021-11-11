@@ -49,6 +49,8 @@ class Optimizer:
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
+        self.mode = "sequential"
+        self.pop, self.g_best = None, None
         self.history = History()
         if not isinstance(problem, Problem):
             problem = Problem(problem)
@@ -79,6 +81,19 @@ class Optimizer:
         else:
             pass
 
+    def initialization(self):
+        self.pop = self.create_population(self.pop_size)
+        if self.sort_flag:
+            self.pop, self.g_best = self.get_global_best_solution(self.pop)  # We sort the population
+        else:
+            _, self.g_best = self.get_global_best_solution(self.pop)  # We don't sort the population
+
+    def before_evolve(self, epoch):
+        pass
+
+    def after_evolve(self, epoch):
+        pass
+
     def solve(self, mode='sequential'):
         """
         Args:
@@ -90,30 +105,33 @@ class Optimizer:
         Returns:
             [position, fitness value]
         """
+        self.mode = mode
         self.termination_start()
-        pop = self.create_population(mode, self.pop_size)
-        if self.sort_flag:
-            pop, g_best = self.get_global_best_solution(pop)  # We sort the population
-        else:
-            _, g_best = self.get_global_best_solution(pop)  # We don't sort the population
-        self.history.save_initial_best(g_best)
+        self.initialization()
+        self.history.save_initial_best(self.g_best)
 
         for epoch in range(0, self.epoch):
             time_epoch = time.time()
 
+            ## Call before evolve function
+            self.before_evolve(epoch)
+
             ## Evolve method will be called in child class
-            pop = self.evolve(mode, epoch, pop, g_best)
+            self.evolve(epoch)
+
+            ## Call after evolve function
+            self.after_evolve(epoch)
 
             # update global best position
             if self.sort_flag:
-                pop, g_best = self.update_global_best_solution(pop)  # We sort the population
+                self.pop, self.g_best = self.update_global_best_solution(self.pop)  # We sort the population
             else:
-                _, g_best = self.update_global_best_solution(pop)  # We don't sort the population
+                _, self.g_best = self.update_global_best_solution(self.pop)  # We don't sort the population
 
             ## Additional information for the framework
             time_epoch = time.time() - time_epoch
             self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
+            self.history.list_population.append(self.pop.copy())
             self.print_epoch(epoch + 1, time_epoch)
             if self.termination_flag:
                 if self.termination.mode == 'TB':
@@ -139,7 +157,7 @@ class Optimizer:
         self.save_optimization_process()
         return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         pass
 
     def create_solution(self):
@@ -158,7 +176,7 @@ class Optimizer:
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 
-    def create_population(self, mode='sequential', pop_size=None):
+    def create_population(self, pop_size=None):
         """
         Args:
             mode (str): processing mode, it can be "sequential", "thread" or "process"
@@ -170,13 +188,13 @@ class Optimizer:
         if pop_size is not None:
             pop_size = self.pop_size
         pop = []
-        if mode == "thread":
+        if self.mode == "thread":
             with parallel.ThreadPoolExecutor() as executor:
                 list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
                 # This method yield the result everytime a thread finished their job (not by order)
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
-        elif mode == "process":
+        elif self.mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
                 # This method yield the result everytime a cpu finished their job (not by order).
@@ -186,7 +204,7 @@ class Optimizer:
             pop = [self.create_solution() for _ in range(0, self.pop_size)]
         return pop
 
-    def update_fitness_population(self, mode='sequential', pop=None):
+    def update_fitness_population(self, pop=None):
         """
         Args:
             mode (str): processing mode, it can be "sequential", "thread" or "process"
@@ -195,12 +213,12 @@ class Optimizer:
         Returns:
             population: with updated fitness value
         """
-        if mode == "thread":
+        if self.mode == "thread":
             with parallel.ThreadPoolExecutor() as executor:
                 list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
                 for idx, fit in enumerate(list_results):
                     pop[idx][self.ID_FIT] = fit
-        elif mode == "process":
+        elif self.mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
                 for idx, fit in enumerate(list_results):
