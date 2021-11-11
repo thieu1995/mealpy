@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -36,7 +34,7 @@ class BaseMA(Optimizer):
             bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=16
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
         self.epoch = epoch
@@ -65,7 +63,7 @@ class BaseMA(Optimizer):
         bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
         return [position, fitness, bitstring]
 
-    def _decode__(self, bitstring=None):
+    def _decode(self, bitstring=None):
         """
         Decode the random bitstring into real number
         Args:
@@ -80,7 +78,7 @@ class BaseMA(Optimizer):
             vector[idx] = self.problem.lb[idx] + ((self.problem.ub[idx] - self.problem.lb[idx]) / ((2.0 ** self.bits_per_param) - 1)) * int(param, 2)
         return vector
 
-    def _crossover__(self, dad=None, mom=None):
+    def _crossover(self, dad=None, mom=None):
         if np.random.uniform() >= self.pc:
             temp = [dad].copy()
             return temp[0]
@@ -93,7 +91,7 @@ class BaseMA(Optimizer):
                     child += mom[idx]
             return child
 
-    def _point_mutation__(self, bitstring=None):
+    def _point_mutation(self, bitstring=None):
         child = ""
         for bit in bitstring:
             if np.random.uniform() < self.pc:
@@ -102,12 +100,12 @@ class BaseMA(Optimizer):
                 child += bit
         return child
 
-    def _bits_climber__(self, child=None):
+    def _bits_climber(self, child=None):
         current = child.copy()
         for idx in range(0, self.max_local_gens):
             child = current.copy()
-            bitstring_new = self._point_mutation__(child[self.ID_BIT])
-            pos_new = self._decode__(bitstring_new)
+            bitstring_new = self._point_mutation(child[self.ID_BIT])
+            pos_new = self._decode(bitstring_new)
             fit_new = self.get_fitness_position(pos_new)
             current = self.get_better_solution(child, [pos_new, fit_new, bitstring_new])
         return current
@@ -116,13 +114,13 @@ class BaseMA(Optimizer):
         ancient = pop_copy[idx + 1] if idx % 2 == 0 else pop_copy[idx - 1]
         if idx == self.pop_size - 1:
             ancient = pop_copy[0]
-        bitstring_new = self._crossover__(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
-        bitstring_new = self._point_mutation__(bitstring_new)
-        pos_new = self._decode__(bitstring_new)
+        bitstring_new = self._crossover(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
+        bitstring_new = self._point_mutation(bitstring_new)
+        pos_new = self._decode(bitstring_new)
         fit_new = self.get_fitness_position(pos_new)
         return [pos_new, fit_new, bitstring_new]
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
             Args:
                 mode (str): 'sequential', 'thread', 'process'
@@ -133,25 +131,23 @@ class BaseMA(Optimizer):
             Returns:
                 [position, fitness value]
         """
+        nfe_epoch = self.pop_size
         ## Binary tournament
-        children = [self.get_solution_kway_tournament_selection(pop, k_way=2, output=1)[0] for _ in range(self.pop_size)]
-        pop_copy = children.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
-        ## Reproduction
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy) for idx in pop_idx]
+        children = [self.get_solution_kway_tournament_selection(self.pop, k_way=2, output=1)[0] for _ in range(self.pop_size)]
+        pop = []
+        for idx in range(0, self.pop_size):
+            ancient = children[idx + 1] if idx % 2 == 0 else children[idx - 1]
+            if idx == self.pop_size - 1:
+                ancient = children[0]
+            bitstring_new = self._crossover(children[idx][self.ID_BIT], ancient[self.ID_BIT])
+            bitstring_new = self._point_mutation(bitstring_new)
+            pos_new = self._decode(bitstring_new)
+            pop.append([pos_new, None, bitstring_new])
+        self.pop = self.update_fitness_population(pop)
 
         # Searching in local
         for i in range(0, self.pop_size):
-            if np.random.uniform() < self.p_local:
-                pop[i] = self._bits_climber__(pop[i])
-        return pop
+            if np.random.rand() < self.p_local:
+                self.pop[i] = self._bits_climber(pop[i])
+                nfe_epoch += self.max_local_gens
+        self.nfe_per_epoch = nfe_epoch
