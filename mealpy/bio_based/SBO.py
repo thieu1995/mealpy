@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -47,35 +45,27 @@ class BaseSBO(Optimizer):
         # (percent of the difference between the upper and lower limit (Eq. 7))
         self.sigma = self.psw * (self.problem.ub - self.problem.lb)
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         ## Calculate the probability of bowers using my equation
-        fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
-
+        fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+        pop_new = []
         for i in range(0, self.pop_size):
             ### Select a bower using roulette wheel
             idx = self.get_index_roulette_wheel_selection(fit_list)
             ### Calculating Step Size
             lamda = self.alpha * np.random.uniform()
-            pos_new = pop[i][self.ID_POS] + lamda * ((pop[idx][self.ID_POS] + g_best[self.ID_POS]) / 2 - pop[i][self.ID_POS])
+            pos_new = self.pop[i][self.ID_POS] + lamda * ((self.pop[idx][self.ID_POS] + self.g_best[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             ### Mutation
-            temp = pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * self.sigma
+            temp = self.pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * self.sigma
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
             ### In-bound position
             pos_new = np.clip(pos_new, self.problem.lb, self.problem.ub)
-            pop[i][self.ID_POS] = pos_new
-
-        pop = self.update_fitness_population(mode, pop)
-        return pop
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class OriginalSBO(BaseSBO):
@@ -106,19 +96,13 @@ class OriginalSBO(BaseSBO):
         f = np.where(r < c)[0][0]
         return f
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         ## Calculate the probability of bowers using Eqs. (1) and (2)
-        fx_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+        fx_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in self.pop])
         fit_list = fx_list.copy()
         for i in range(0, self.pop_size):
             if fx_list[i] < 0:
@@ -128,20 +112,20 @@ class OriginalSBO(BaseSBO):
         fit_sum = np.sum(fit_list)
         ## Calculating the probability of each bower
         prob_list = fit_list / fit_sum
-
+        pop_new = []
         for i in range(0, self.pop_size):
-            pos_new = pop[i][self.ID_POS].copy()
+            pos_new = self.pop[i][self.ID_POS].copy()
             for j in range(0, self.problem.n_dims):
                 ### Select a bower using roulette wheel
                 idx = self._roulette_wheel_selection__(prob_list)
                 ### Calculating Step Size
                 lamda = self.alpha / (1 + prob_list[idx])
-                pos_new[j] = pop[i][self.ID_POS][j] + lamda * ((pop[idx][self.ID_POS][j] + g_best[self.ID_POS][j]) / 2 - pop[i][self.ID_POS][j])
+                pos_new[j] = self.pop[i][self.ID_POS][j] + lamda * ((self.pop[idx][self.ID_POS][j] +
+                                        self.g_best[self.ID_POS][j]) / 2 - self.pop[i][self.ID_POS][j])
                 ### Mutation
                 if np.random.uniform() < self.p_m:
-                    pos_new[j] = pop[i][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
             pos_new = np.clip(pos_new, self.problem.lb, self.problem.ub)
-            pop[i][self.ID_POS] = pos_new
-        pop = self.update_fitness_population(mode, pop)
-        return pop
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
