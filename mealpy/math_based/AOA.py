@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -41,54 +39,33 @@ class OriginalAOA(Optimizer):
         self.moa_min = moa_min
         self.moa_max = moa_max
 
-    def create_child(self, idx, pop, g_best, moa, mop):
-        pos_new = pop[idx][self.ID_POS].copy()
-        for j in range(0, self.problem.n_dims):
-            r1, r2, r3 = np.random.rand(3)
-            if r1 > moa:  # Exploration phase
-                if r2 < 0.5:
-                    pos_new[j] = g_best[self.ID_POS][j] / (mop + self.EPSILON) * \
-                                 ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-                else:
-                    pos_new[j] = g_best[self.ID_POS][j] * mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-            else:  # Exploitation phase
-                if r3 < 0.5:
-                    pos_new[j] = g_best[self.ID_POS][j] - mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-                else:
-                    pos_new[j] = g_best[self.ID_POS][j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         moa = self.moa_min + epoch * ((self.moa_max - self.moa_min) / self.epoch)  # Eq. 2
         mop = 1 - (epoch ** (1.0 / self.alpha)) / (self.epoch ** (1.0 / self.alpha))  # Eq. 4
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best, moa=moa, mop=mop), pop_idx)
-            pop_new = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best, moa=moa, mop=mop), pop_idx)
-            pop_new = [x for x in pop_child]
-        else:
-            pop_new = [self.create_child(idx, pop_copy, g_best, moa, mop) for idx in pop_idx]
-        return pop_new
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS].copy()
+            for j in range(0, self.problem.n_dims):
+                r1, r2, r3 = np.random.rand(3)
+                if r1 > moa:  # Exploration phase
+                    if r2 < 0.5:
+                        pos_new[j] = self.g_best[self.ID_POS][j] / (mop + self.EPSILON) * \
+                                     ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+                    else:
+                        pos_new[j] = self.g_best[self.ID_POS][j] * mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+                else:  # Exploitation phase
+                    if r3 < 0.5:
+                        pos_new[j] = self.g_best[self.ID_POS][j] - mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+                    else:
+                        pos_new[j] = self.g_best[self.ID_POS][j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
