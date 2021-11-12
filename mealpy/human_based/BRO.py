@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
@@ -27,9 +25,10 @@ class BaseBRO(Optimizer):
         """
         Args:
             problem ():
-            epoch ():
-            pop_size ():
-            threshold ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            threshold (int): dead threshold, default=3
+            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -68,61 +67,55 @@ class BaseBRO(Optimizer):
         idx = np.argmin(dist_list[np.nonzero(dist_list)])
         return idx
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("BRO algorithm is support sequential only!")
-            exit(0)
-
+        nfe_epoch = 0
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_argmin_distance(pop[i][self.ID_POS], pop)
-            if pop[i][self.ID_FIT] < pop[j][self.ID_FIT]:
+            j = self.find_argmin_distance(self.pop[i][self.ID_POS], self.pop)
+            if self.compare_agent(self.pop[i], self.pop[j]):
                 ## Update Winner based on global best solution
-                pos_new = pop[i][self.ID_POS] + np.random.uniform() * np.mean(np.array([pop[i][self.ID_POS], g_best[self.ID_POS]]), axis=0)
+                pos_new = self.pop[i][self.ID_POS] + np.random.uniform() * \
+                          np.mean(np.array([self.pop[i][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
                 fit_new = self.get_fitness_position(pos_new)
-                dam_new = pop[i][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
-                pop[i] = [pos_new, fit_new, dam_new]
+                dam_new = self.pop[i][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
+                self.pop[i] = [pos_new, fit_new, dam_new]
                 ## Update Loser
-                if pop[j][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
-                    pos_new = np.random.uniform() * (np.maximum(pop[j][self.ID_POS], g_best[self.ID_POS]) -
-                                                       np.minimum(pop[j][self.ID_POS], g_best[self.ID_POS])) + \
-                                          np.maximum(pop[j][self.ID_POS], g_best[self.ID_POS])
-                    dam_new =  pop[j][self.ID_DAM] + 1
+                if self.pop[j][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
+                    pos_new = np.random.uniform() * (np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS]) -
+                                                       np.minimum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])) + \
+                                          np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
+                    dam_new = self.pop[j][self.ID_DAM] + 1
 
-                    pop[j][self.ID_FIT] = self.get_fitness_position(pop[j][self.ID_POS])
+                    self.pop[j][self.ID_FIT] = self.get_fitness_position(self.pop[j][self.ID_POS])
                 else:  ## Loser dead and respawn again
                     pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
                     dam_new = 0
                 pos_new = self.amend_position_faster(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
-                pop[j] = [pos_new, fit_new, dam_new]
+                self.pop[j] = [pos_new, fit_new, dam_new]
+                nfe_epoch += 2
             else:
                 ## Update Loser by following position of Winner
-                pop[i] = pop[j].copy()
+                self.pop[i] = self.pop[j].copy()
                 ## Update Winner by following position of General to protect the King and General
-                pos_new = pop[j][self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - pop[j][self.ID_POS])
+                pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
                 fit_new = self.get_fitness_position(pos_new)
                 dam_new = 0
-                pop[j] = [pos_new, fit_new, dam_new]
+                self.pop[j] = [pos_new, fit_new, dam_new]
+                nfe_epoch += 1
+        self.nfe_per_epoch = nfe_epoch
         if epoch >= self.dyn_delta:  # max_epoch = 1000 -> delta = 300, 450, >500,....
-            pos_list = np.array([pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
+            pos_list = np.array([self.pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
             pos_std = np.std(pos_list, axis=0)
-            lb = g_best[self.ID_POS] - pos_std
-            ub = g_best[self.ID_POS] + pos_std
+            lb = self.g_best[self.ID_POS] - pos_std
+            ub = self.g_best[self.ID_POS] + pos_std
             self.problem.lb = np.clip(lb, self.problem.lb, self.problem.ub)
             self.problem.ub = np.clip(ub, self.problem.lb, self.problem.ub)
             self.dyn_delta += np.round(self.dyn_delta / 2)
-        return pop
 
 
 class OriginalBRO(BaseBRO):
@@ -138,50 +131,40 @@ class OriginalBRO(BaseBRO):
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (Harmony Memory Size), default = 100
-            threshold ():
+            threshold (int): dead threshold, default=3
         """
         super().__init__(problem, epoch, pop_size, threshold, **kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("BRO algorithm is support sequential only!")
-            exit(0)
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_argmin_distance(pop[i][self.ID_POS], pop)
+            j = self.find_argmin_distance(self.pop[i][self.ID_POS], self.pop)
             dam, vic = i, j  ## This error in the algorithm's flow in the paper, But in the matlab code, he changed.
-            if pop[i][self.ID_FIT] < pop[j][self.ID_FIT]:
+            if self.compare_agent(self.pop[i], self.pop[j]):
                 dam, vic = j, i  ## The mistake also here in the paper.
-            if pop[dam][self.ID_DAM] < self.threshold:
-                pos_new = pop[dam][self.ID_POS].copy()
-                for d in range(0, self.problem.n_dims):
-                    pos_new[d] = np.random.uniform() * (max(pop[dam][self.ID_POS][d], g_best[self.ID_POS][d]) -
-                                min(pop[dam][self.ID_POS][d], g_best[self.ID_POS][d])) + max(pop[dam][self.ID_POS][d], g_best[self.ID_POS][d])
-                pop[dam][self.ID_POS] = self.amend_position_faster(pos_new)
-                pop[dam][self.ID_FIT] = self.get_fitness_position(pop[dam][self.ID_POS])
-                pop[dam][self.ID_DAM] += 1
-                pop[vic][self.ID_DAM] = 0
+            if self.pop[dam][self.ID_DAM] < self.threshold:
+                pos_new = np.random.uniform(0, 1, self.problem.n_dims) * \
+                          (np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS]) -
+                            np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
+                            np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
+                self.pop[dam][self.ID_POS] = self.amend_position_faster(pos_new)
+                self.pop[dam][self.ID_FIT] = self.get_fitness_position(self.pop[dam][self.ID_POS])
+                self.pop[dam][self.ID_DAM] += 1
+                self.pop[vic][self.ID_DAM] = 0
             else:
-                pop[dam] = self.create_solution()
+                self.pop[dam] = self.create_solution()
         if epoch >= self.dyn_delta:
-            pos_list = np.array([pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
+            pos_list = np.array([self.pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
             pos_std = np.std(pos_list, axis=0)
-            lb = g_best[self.ID_POS] - pos_std
-            ub = g_best[self.ID_POS] + pos_std
+            lb = self.g_best[self.ID_POS] - pos_std
+            ub = self.g_best[self.ID_POS] + pos_std
             self.problem.lb = np.clip(lb, self.problem.lb, self.problem.ub)
             self.problem.ub = np.clip(ub, self.problem.lb, self.problem.ub)
             self.dyn_delta += round(self.dyn_delta / 2)
-        return pop
 
