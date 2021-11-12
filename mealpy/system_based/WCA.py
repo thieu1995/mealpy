@@ -9,7 +9,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-import time
 
 
 class BaseWCA(Optimizer):
@@ -42,36 +41,23 @@ class BaseWCA(Optimizer):
         self.C = C
         self.dmax = dmax
 
-    def solve(self, mode='sequential'):
-        """
-        Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+        self.streams, self.pop_bset, self.pop_stream = None, None, None
 
-        Returns:
-            [position, fitness value]
-        """
-        if mode != "sequential":
-            print("WCA is not support parallel process!")
-            exit(0)
-        self.termination_start()
-        pop = self.create_population(mode, self.pop_size)
-        pop, g_best = self.get_global_best_solution(pop)  # We sort the population
-        self.history.save_initial_best(g_best)
+    def initialization(self):
+        pop = self.create_population(self.pop_size)
+        self.pop, self.g_best = self.get_global_best_solution(pop)  # We sort the population
 
-        dmax = self.dmax
+        self.ecc = self.dmax    # Evaporation condition constant - variable
         n_stream = self.pop_size - self.nsr
         g_best = pop[0].copy()  # Global best solution (sea)
-        pop_best = pop[:self.nsr].copy()  # Including sea and river (1st solution is sea)
-        pop_stream = pop[self.nsr:].copy()  # Forming Stream
+        self.pop_best = pop[:self.nsr].copy()  # Including sea and river (1st solution is sea)
+        self.pop_stream = pop[self.nsr:].copy()  # Forming Stream
 
         # Designate streams to rivers and sea
-        cost_river_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in pop_best])
-        num_child_in_river_list = np.round(abs(cost_river_list / sum(cost_river_list)) * n_stream).astype(int)
-        if sum(num_child_in_river_list) < n_stream:
-            num_child_in_river_list[-1] += n_stream - sum(num_child_in_river_list)
+        cost_river_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop_best])
+        num_child_in_river_list = np.round(np.abs(cost_river_list / np.sum(cost_river_list)) * n_stream).astype(int)
+        if np.sum(num_child_in_river_list) < n_stream:
+            num_child_in_river_list[-1] += n_stream - np.sum(num_child_in_river_list)
         streams = {}
         idx_already_selected = []
         for i in range(0, self.nsr - 1):
@@ -79,82 +65,51 @@ class BaseWCA(Optimizer):
             idx_list = np.random.choice(list(set(range(0, n_stream)) - set(idx_already_selected)), num_child_in_river_list[i], replace=False).tolist()
             idx_already_selected += idx_list
             for idx in idx_list:
-                streams[i].append(pop_stream[idx])
+                streams[i].append(self.pop_stream[idx])
         idx_last = list(set(range(0, n_stream)) - set(idx_already_selected))
         streams[self.nsr - 1] = []
         for idx in idx_last:
-            streams[self.nsr - 1].append(pop_stream[idx])
+            streams[self.nsr - 1].append(self.pop_stream[idx])
+        self.streams = streams
 
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
-
-            ## Evolve method will be called in child class
-            # pop = self.evolve(mode, epoch, pop, g_best)
-
-            # Update stream and river
-            for idx, stream_list in streams.items():
-                # Update stream
-                for idx_stream, stream in enumerate(stream_list):
-                    pos_new = stream[self.ID_POS] + np.random.uniform() * self.C * (pop_best[idx][self.ID_POS] - stream[self.ID_POS])
-                    pos_new = self.amend_position_faster(pos_new)
-                    fit_new = self.get_fitness_position(pos_new)
-                    streams[idx][idx_stream] = [pos_new, fit_new]
-                    if self.compare_agent([pos_new, fit_new], pop_best[idx]):
-                        pop_best[idx] = [pos_new, fit_new]
-                    # if fit_new < pop_best[idx][self.ID_FIT]:
-                    #     pop_best[idx] = [pos_new, fit_new]
-                        # if fit_new < g_best[self.ID_FIT]:
-                        #     g_best = [pos_new, fit_new]
-                # Update river
-                pos_new = pop_best[idx][self.ID_POS] + np.random.uniform() * self.C * (g_best[self.ID_POS] - pop_best[idx][self.ID_POS])
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        # Update stream and river
+        for idx, stream_list in self.streams.items():
+            # Update stream
+            stream_new = []
+            for idx_stream, stream in enumerate(stream_list):
+                pos_new = stream[self.ID_POS] + np.random.uniform() * self.C * (self.pop_best[idx][self.ID_POS] - stream[self.ID_POS])
                 pos_new = self.amend_position_faster(pos_new)
-                fit_new = self.get_fitness_position(pos_new)
-                pop_best[idx] = [pos_new, fit_new]
-                # if fit_new < g_best[self.ID_FIT]:
-                #     g_best = [pos_new, fit_new]
+                stream_new.append([pos_new, None])
+            stream_new = self.update_fitness_population(stream_new)
+            stream_new, stream_best = self.get_global_best_solution(stream_new)
+            self.streams[idx] = stream_new
+            if self.compare_agent(stream_best, self.pop_best[idx]):
+                self.pop_best[idx] = stream_best.copy()
 
-            # Evaporation
-            for i in range(1, self.nsr):
-                distance = np.sqrt(sum((g_best[self.ID_POS] - pop_best[i][self.ID_POS]) ** 2))
-                if distance < dmax or np.random.rand() < 0.1:
-                    child = self.create_solution()
-                    pop_current_best = sorted(streams[i] + [child], key=lambda item: item[self.ID_FIT][self.ID_TAR])
-                    pop_best[i] = pop_current_best.pop(0)
-                    streams[i] = pop_current_best
+            # Update river
+            pos_new = self.pop_best[idx][self.ID_POS] + np.random.uniform() * self.C * (self.g_best[self.ID_POS] - self.pop_best[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            fit_new = self.get_fitness_position(pos_new)
+            if self.compare_agent([pos_new, fit_new], self.pop_best[idx]):
+                self.pop_best[idx] = [pos_new, fit_new]
 
-            # Reduce the dmax
-            dmax = dmax - dmax / self.epoch
+        # Evaporation
+        for i in range(1, self.nsr):
+            distance = np.sqrt(np.sum((self.g_best[self.ID_POS] - self.pop_best[i][self.ID_POS]) ** 2))
+            if distance < self.ecc or np.random.rand() < 0.1:
+                child = self.create_solution()
+                pop_current_best, _ = self.get_global_best_solution(self.streams[i] + [child])
+                self.pop_best[i] = pop_current_best.pop(0)
+                self.streams[i] = pop_current_best
 
-            # update global best position
-            pop, g_best = self.update_global_best_solution(pop)  # We sort the population
+        self.pop = self.pop_best.copy()
+        for idx, stream_list in self.streams.items():
+            self.pop += stream_list
 
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
-
-
+        # Reduce the ecc
+        self.ecc = self.ecc - self.ecc / self.epoch
