@@ -44,63 +44,31 @@ class BaseHS(Optimizer):
 
         self.dyn_fw = self.fw
 
-    def create_child(self, idx, pop, g_best):
-        # Create New Harmony Position
-        pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-        delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)
-
-        # Use Harmony Memory
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.c_r, g_best[self.ID_POS], pos_new)
-        # Pitch Adjustment
-        x_new = pos_new + delta
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
-
-        pos_new = self.amend_position_faster(pos_new)   # Check the bound
-        fit_new = self.get_fitness_position(pos_new)    # Evaluation
-        return [pos_new, fit_new]
-
-        # Batch-size idea
-        # if self.batch_idea:
-        #     if (i + 1) % self.batch_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        # else:
-        #     if (i + 1) % self.pop_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Create New Harmony Position
+            pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)
 
-        ## Reproduction
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
-            pop_new = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
-            pop_new = [x for x in pop_child]
-        else:
-            pop_new = [self.create_child(idx, pop_copy, g_best) for idx in pop_idx]
+            # Use Harmony Memory
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.c_r, self.g_best[self.ID_POS], pos_new)
+            # Pitch Adjustment
+            x_new = pos_new + delta
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
+            pos_new = self.amend_position_faster(pos_new)  # Check the bound
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
 
         # Update Damp Fret Width
         self.dyn_fw = self.dyn_fw * self.fw_damp
 
         # Merge Harmony Memory and New Harmonies, Then sort them, Then truncate extra harmonies
-        pop = pop + pop_new
-        pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-        return pop[:self.pop_size]
+        self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
 
 
 class OriginalHS(BaseHS):
@@ -124,17 +92,29 @@ class OriginalHS(BaseHS):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def create_child(self, idx, pop, g_best):
-        pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-        for j in range(self.problem.n_dims):
-            # Use Harmony Memory
-            if np.random.uniform() <= self.c_r:
-                random_index = np.random.randint(0, self.pop_size)
-                pos_new[j] = pop[random_index][self.ID_POS][j]
-            # Pitch Adjustment
-            if np.random.uniform() <= self.pa_r:
-                delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)  # Gaussian(Normal)
-                pos_new[j] = pos_new[j] + delta[j]
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            for j in range(self.problem.n_dims):
+                # Use Harmony Memory
+                if np.random.uniform() <= self.c_r:
+                    random_index = np.random.randint(0, self.pop_size)
+                    pos_new[j] = self.pop[random_index][self.ID_POS][j]
+                # Pitch Adjustment
+                if np.random.uniform() <= self.pa_r:
+                    delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)  # Gaussian(Normal)
+                    pos_new[j] = pos_new[j] + delta[j]
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+
+        # Update Damp Fret Width
+        self.dyn_fw = self.dyn_fw * self.fw_damp
+
+        # Merge Harmony Memory and New Harmonies, Then sort them, Then truncate extra harmonies
+        self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
