@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -45,58 +43,38 @@ class BaseGCO(Optimizer):
         self.dyn_list_cell_counter = np.ones(self.pop_size)         # CEll Counter
         self.dyn_list_life_signal = 70 * np.ones(self.pop_size)     # 70% to duplicate, and 30% to die  # LIfe-Signal
 
-    def create_child(self, idx, pop, g_best):
-        if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
-            self.dyn_list_cell_counter[idx] += 1
-        else:
-            self.dyn_list_cell_counter[idx] = 1
-
-        # Mutate process
-        r1, r2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-        pos_new = g_best[self.ID_POS] + self.wf * (pop[r2][self.ID_POS] - pop[r1][self.ID_POS])
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            self.dyn_list_cell_counter[idx] += 10
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-        # ## Update based on batch-size training
-        # if self.batch_idea:
-        #     if (i + 1) % self.batch_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        # else:
-        #     if (i + 1) % self.pop_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         ## Dark-zone process    (can be parallelization)
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
-            pop_new = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop_copy, g_best=g_best), pop_idx)
-            pop_new = [x for x in pop_child]
-        else:
-            pop_new = [self.create_child(idx, pop_copy, g_best) for idx in pop_idx]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
+                self.dyn_list_cell_counter[idx] += 1
+            else:
+                self.dyn_list_cell_counter[idx] = 1
+
+            # Mutate process
+            r1, r2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
+            pos_new = self.g_best[self.ID_POS] + self.wf * (self.pop[r2][self.ID_POS] - self.pop[r1][self.ID_POS])
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.dyn_list_cell_counter[idx] += 10
+                self.pop[idx] = pop_new[idx].copy()
+
+            # ## Update based on batch-size training
+            # if self.batch_idea:
+            #     if (i + 1) % self.batch_size == 0:
+            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+            # else:
+            #     if (i + 1) % self.pop_size == 0:
+            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
 
         ## Light-zone process   (no needs parallelization)
         for i in range(0, self.pop_size):
@@ -104,8 +82,7 @@ class BaseGCO(Optimizer):
             fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop_new])
             fit_max = max(fit_list)
             fit_min = min(fit_list)
-            self.dyn_list_cell_counter[i] += 10 * (pop[i][self.ID_FIT][self.ID_TAR] - fit_max) / (fit_min - fit_max + self.EPSILON)
-        return pop_new
+            self.dyn_list_cell_counter[i] += 10 * (self.pop[i][self.ID_FIT][self.ID_TAR] - fit_max) / (fit_min - fit_max + self.EPSILON)
 
 
 class OriginalGCO(BaseGCO):
@@ -128,19 +105,26 @@ class OriginalGCO(BaseGCO):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def create_child(self, idx, pop, g_best):
-        if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
-            self.dyn_list_cell_counter[idx] += 1
-        else:
-            self.dyn_list_cell_counter[idx] = 1
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
+                self.dyn_list_cell_counter[idx] += 1
+            else:
+                self.dyn_list_cell_counter[idx] = 1
 
-        # Mutate process
-        r1, r2, r3 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
-        pos_new = pop[r1][self.ID_POS] + self.wf * (pop[r2][self.ID_POS] - pop[r3][self.ID_POS])
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            self.dyn_list_cell_counter[idx] += 10
-            return [pos_new, fit_new]
-        return pop[idx].copy()
+            # Mutate process
+            r1, r2, r3 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
+            pos_new = self.pop[r1][self.ID_POS] + self.wf * (self.pop[r2][self.ID_POS] - self.pop[r3][self.ID_POS])
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.dyn_list_cell_counter[idx] += 10
+                self.pop[idx] = pop_new[idx].copy()
