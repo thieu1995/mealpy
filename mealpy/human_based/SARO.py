@@ -7,10 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
-import time
 from mealpy.optimizer import Optimizer
 
 
@@ -32,7 +29,8 @@ class BaseSARO(Optimizer):
             mu (int): maximum unsuccessful search number, default = 50
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 3 * pop_size
+        self.nfe_per_epoch = 2 * pop_size
+        self.sort_flag = True
 
         self.epoch = epoch
         self.pop_size = pop_size
@@ -42,108 +40,54 @@ class BaseSARO(Optimizer):
         ## Dynamic variable
         self.dyn_USN = np.zeros(self.pop_size)
 
-    def solve(self, mode='sequential'):
-        """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+    def initialization(self):
+        pop = self.create_population(pop_size=(2 * self.pop_size))
+        self.pop, self.g_best = self.get_global_best_solution(pop)
 
-            Returns:
-                [position, fitness value]
-            """
-        self.termination_start()
-        pop = self.create_population(mode, 2*self.pop_size)
-        pop, g_best = self.get_global_best_solution(pop)
-        self.history.save_initial_best(g_best)
-
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
-
-            ## Evolve method will be called in child class
-            pop = self.evolve(mode, epoch, pop, g_best)
-
-            # update global best position
-            pop, g_best = self.update_global_best_solution(pop)  # We sort the population
-
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("SARO algorithm is support sequential mode only!")
-            exit(0)
+        pop_x = self.pop[:self.pop_size].copy()
+        pop_m = self.pop[self.pop_size:].copy()
 
-        pop_x = pop[:self.pop_size].copy()
-        pop_m = pop[self.pop_size:].copy()
-
+        pop_new = []
         for idx in range(self.pop_size):
             ## Social Phase
             k = np.random.choice(list(set(range(0, 2 * self.pop_size)) - {idx}))
-            sd = pop_x[idx][self.ID_POS] - pop[k][self.ID_POS]
+            sd = pop_x[idx][self.ID_POS] - self.pop[k][self.ID_POS]
 
             #### Remove third loop here, also using random flight back when out of bound
-            pos_new_1 = pop[k][self.ID_POS] + np.random.uniform() * sd
+            pos_new_1 = self.pop[k][self.ID_POS] + np.random.uniform() * sd
             pos_new_2 = pop_x[idx][self.ID_POS] + np.random.uniform() * sd
             pos_new = np.where(np.logical_and(np.random.uniform(0, 1, self.problem.n_dims) < self.se,
-                                              pop[k][self.ID_FIT] < pop_x[idx][self.ID_FIT]), pos_new_1, pos_new_2)
+                                              self.pop[k][self.ID_FIT] < pop_x[idx][self.ID_FIT]), pos_new_1, pos_new_2)
             pos_new = self.amend_position_random(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], pop_x[idx]):
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(self.pop_size):
+            if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = pop_x[idx].copy()
-                pop_x[idx] = [pos_new, fit_new]
+                pop_x[idx] = pop_new[idx].copy()
                 self.dyn_USN[idx] = 0
             else:
                 self.dyn_USN[idx] += 1
 
+        pop = pop_x.copy() + pop_m.copy()
+        pop_new = []
+        for idx in range(self.pop_size):
             ## Individual phase
-            pop = pop_x.copy() + pop_m.copy()
             k1, k2 = np.random.choice(list(set(range(0, 2 * self.pop_size)) - {idx}), 2, replace=False)
-
             #### Remove third loop here, and flight back strategy now be a random
-            pos_new = g_best[self.ID_POS] + np.random.uniform() * (pop[k1][self.ID_POS] - pop[k2][self.ID_POS])
+            pos_new = self.g_best[self.ID_POS] + np.random.uniform() * (pop[k1][self.ID_POS] - pop[k2][self.ID_POS])
             pos_new = self.amend_position_random(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], pop_x[idx]):
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = pop_x[idx].copy()
-                pop_x[idx] = [pos_new, fit_new]
+                pop_x[idx] = pop_new[idx].copy()
                 self.dyn_USN[idx] = 0
             else:
                 self.dyn_USN[idx] += 1
@@ -151,7 +95,7 @@ class BaseSARO(Optimizer):
             if self.dyn_USN[idx] > self.mu:
                 pop_x[idx] = self.create_solution()
                 self.dyn_USN[idx] = 0
-            return (pop_x + pop_m)
+        self.pop = pop_x + pop_m
 
 
 class OriginalSARO(BaseSARO):
@@ -172,36 +116,27 @@ class OriginalSARO(BaseSARO):
         """
         super().__init__(problem, epoch, pop_size, se, mu, **kwargs)
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("SARO algorithm is support sequential mode only!")
-            exit(0)
+        pop_x = self.pop[:self.pop_size].copy()
+        pop_m = self.pop[self.pop_size:].copy()
 
-        pop_x = pop[:self.pop_size].copy()
-        pop_m = pop[self.pop_size:].copy()
-
+        pop_new = []
         for idx in range(self.pop_size):
             ## Social Phase
             k = np.random.choice(list(set(range(0, 2 * self.pop_size)) - {idx}))
-            sd = pop_x[idx][self.ID_POS] - pop[k][self.ID_POS]
+            sd = pop_x[idx][self.ID_POS] - self.pop[k][self.ID_POS]
             j_rand = np.random.randint(0, self.problem.n_dims)
             r1 = np.random.uniform(-1, 1)
 
             pos_new = pop_x[idx][self.ID_POS].copy()
             for j in range(0, self.problem.n_dims):
                 if np.random.uniform() < self.se or j == j_rand:
-                    if self.compare_agent(pop[k], pop_x[idx]):
-                        pos_new[j] = pop[k][self.ID_POS][j] + r1 * sd[j]
+                    if self.compare_agent(self.pop[k], pop_x[idx]):
+                        pos_new[j] = self.pop[k][self.ID_POS][j] + r1 * sd[j]
                     else:
                         pos_new[j] = pop_x[idx][self.ID_POS][j] + r1 * sd[j]
 
@@ -209,17 +144,21 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.lb[j]) / 2
                 if pos_new[j] > self.problem.ub[j]:
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], pop_x[idx]):
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = pop_x[idx].copy()
-                pop_x[idx] = [pos_new, fit_new]
+                pop_x[idx] = pop_new[idx].copy()
                 self.dyn_USN[idx] = 0
             else:
                 self.dyn_USN[idx] += 1
 
-            ## Individual phase
-            pop = pop_x.copy() + pop_m.copy()
-
+        ## Individual phase
+        pop = pop_x.copy() + pop_m.copy()
+        pop_new = []
+        for idx in range(0, self.pop_size):
             k, m = np.random.choice(list(set(range(0, 2 * self.pop_size)) - {idx}), 2, replace=False)
             pos_new = pop_x[idx][self.ID_POS] + np.random.uniform() * (pop[k][self.ID_POS] - pop[m][self.ID_POS])
             for j in range(0, self.problem.n_dims):
@@ -227,11 +166,13 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.lb[j]) / 2
                 if pos_new[j] > self.problem.ub[j]:
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
-
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], pop_x[idx]):
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = pop_x[idx]
-                pop_x[idx] = [pos_new, fit_new]
+                pop_x[idx] = pop_new[idx].copy()
                 self.dyn_USN[idx] = 0
             else:
                 self.dyn_USN[idx] += 1
@@ -239,4 +180,4 @@ class OriginalSARO(BaseSARO):
             if self.dyn_USN[idx] > self.mu:
                 pop_x[idx] = self.create_solution()
                 self.dyn_USN[idx] = 0
-            return pop_x.copy() + pop_m.copy()
+        self.pop = pop_x + pop_m
