@@ -7,13 +7,11 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, choice, exponential, random
-from numpy import power, abs, array, where
-from copy import deepcopy
-from mealpy.optimizer import Root
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class BaseQSA(Root):
+class BaseQSA(Optimizer):
     """
     My version of: Queuing search algorithm (QSA)
         (Queuing search algorithm: A novel metaheuristic algorithm for solving engineering optimization problems)
@@ -24,8 +22,19 @@ class BaseQSA(Root):
         + Using g_best solution in business 3 instead of random solution
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
+
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = 3 * pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -46,204 +55,222 @@ class BaseQSA(Root):
         q3 = self.pop_size - q1 - q2
         return q1, q2, q3
 
-    def _update_business_1__(self, pop=None, current_epoch=None):
+    def _update_business_1(self, pop=None, current_epoch=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT], pop[1][self.ID_FIT], pop[2][self.ID_FIT]
+        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         case = None
         for i in range(self.pop_size):
             if i < q1:
                 if i == 0:
                     case = 1
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
                 if i == q1:
                     case = 1
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
                 if i == q1 + q2:
                     case = 1
-                A = deepcopy(A3)
-            beta = power(current_epoch, power(current_epoch / self.epoch, 0.5))
-            alpha = uniform(-1, 1)
-            E = exponential(0.5, self.problem_size)
-            F1 = beta * alpha * (E * abs(A - pop[i][self.ID_POS])) + exponential(0.5) * (A - pop[i][self.ID_POS])
-            F2 = beta * alpha * (E * abs(A - pop[i][self.ID_POS]))
+                A = A3.copy()
+            beta = np.power(current_epoch, np.power(current_epoch / self.epoch, 0.5))
+            alpha = np.random.uniform(-1, 1)
+            E = np.random.exponential(0.5, self.problem.n_dims)
+            F1 = beta * alpha * (E * np.abs(A - pop[i][self.ID_POS])) + np.random.exponential(0.5) * (A - pop[i][self.ID_POS])
+            F2 = beta * alpha * (E * np.abs(A - pop[i][self.ID_POS]))
             if case == 1:
-                X_new = A + F1
-                new_fit = self.get_fitness_position(X_new)
-                if new_fit < pop[i][self.ID_FIT]:
-                    pop[i] = [X_new, new_fit]
-                    case = 1
+                pos_new = A + F1
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                if self.compare_agent([pos_new, fit_new], pop[i]):
+                    pop[i] = [pos_new, fit_new]
                 else:
                     case = 2
             else:
-                X_new = pop[i][self.ID_POS] + F2
-                new_fit = self.get_fitness_position(X_new)
-                if new_fit < pop[i][self.ID_FIT]:
-                    pop[i] = [X_new, new_fit]
-                    case = 2
+                pos_new = pop[i][self.ID_POS] + F2
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                if self.compare_agent([pos_new, fit_new], pop[i]):
+                    pop[i] = [pos_new, fit_new]
                 else:
                     case = 1
-        return sorted(pop, key=lambda item: item[self.ID_FIT])
+        pop, _ = self.get_global_best_solution(pop)
+        return pop
 
-    def _update_business_2__(self, pop=None):
+    def _update_business_2(self, pop=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT], pop[1][self.ID_FIT], pop[2][self.ID_FIT]
+        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
         if t1 > 1.0e-005:
             cv = t1 / (t2 + t3)
         else:
             cv = 1.0 / 2
+        pop_new = []
         for i in range(self.pop_size):
             if i < q1:
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
-                A = deepcopy(A3)
-            if random() < pr[i]:
-                i1, i2 = choice(self.pop_size, 2, replace=False)
-                if random() < cv:
-                    X_new = pop[i][self.ID_POS] + exponential(0.5) * (pop[i1][self.ID_POS] - pop[i2][self.ID_POS])
+                A = A3.copy()
+            if np.random.random() < pr[i]:
+                i1, i2 = np.random.choice(self.pop_size, 2, replace=False)
+                if np.random.random() < cv:
+                    X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (pop[i1][self.ID_POS] - pop[i2][self.ID_POS])
                 else:
-                    X_new = pop[i][self.ID_POS] + exponential(0.5) * (A - pop[i1][self.ID_POS])
-                fit = self.get_fitness_position(X_new)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [X_new, fit]
-        return sorted(pop, key=lambda item: item[self.ID_FIT])
-
-    def _update_business_3__(self, pop, g_best):
-        pr = array([i / self.pop_size for i in range(1, self.pop_size + 1)])
-        for i in range(self.pop_size):
-            X_new = deepcopy(pop[i][self.ID_POS])
-            id1= choice(self.pop_size)
-            temp = g_best[self.ID_POS] + exponential(0.5, self.problem_size) * (pop[id1][self.ID_POS] - pop[i][self.ID_POS])
-            X_new = where(random(self.problem_size) > pr[i], temp, X_new)
-            fit = self.get_fitness_position(X_new)
-            if fit < pop[i][self.ID_FIT]:
-                pop[i] = [X_new, fit]
+                    X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[i1][self.ID_POS])
+                pos_new = self.amend_position_faster(X_new)
+            else:
+                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop = self.greedy_selection_population(pop, pop_new)
+        pop, _ = self.get_global_best_solution(pop)
         return pop
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-        for epoch in range(self.epoch):
-            pop = self._update_business_1__(pop, epoch+1)
-            pop = self._update_business_2__(pop)
-            pop = self._update_business_3__(pop, g_best)
+    def _update_business_3(self, pop, g_best):
+        pr = np.array([i / self.pop_size for i in range(1, self.pop_size + 1)])
+        pop_new = []
+        for i in range(self.pop_size):
+            X_new = pop[i][self.ID_POS].copy()
+            id1 = np.random.choice(self.pop_size)
+            temp = g_best[self.ID_POS] + np.random.exponential(0.5, self.problem.n_dims) * (pop[id1][self.ID_POS] - pop[i][self.ID_POS])
+            X_new = np.where(np.random.random(self.problem.n_dims) > pr[i], temp, X_new)
+            pos_new = self.amend_position_faster(X_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(pop, pop_new)
+        return pop_new
 
-            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop = self._update_business_1(self.pop, epoch + 1)
+        pop = self._update_business_2(pop)
+        self.pop = self._update_business_3(pop, self.g_best)
 
 
 class OppoQSA(BaseQSA):
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
 
-    def _opposition_based__(self, pop=None, g_best=None):
-        pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, **kwargs)
+        self.nfe_per_epoch = 4 * pop_size
+        self.sort_flag = True
+
+    def _opposition_based(self, pop=None, g_best=None):
+        pop, _ = self.get_global_best_solution(pop)
+        pop_new = []
         for i in range(0, self.pop_size):
-            X_new = self.create_opposition_position(pop[i][self.ID_POS], g_best[self.ID_POS])
-            fitness = self.get_fitness_position(X_new)
-            if fitness < pop[i][self.ID_FIT]:
-                pop[i] = [X_new, fitness]
-        return pop
+            X_new = self.create_opposition_position(pop[i], g_best)
+            pos_new = self.amend_position_faster(X_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        return self.greedy_selection_population(pop, pop_new)
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-
-        for epoch in range(self.epoch):
-            pop = self._update_business_1__(pop, epoch)
-            pop = self._update_business_2__(pop)
-            pop = self._update_business_3__(pop, g_best)
-            pop = self._opposition_based__(pop, g_best)
-
-            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop = self._update_business_1(self.pop, epoch+1)
+        pop = self._update_business_2(pop)
+        pop = self._update_business_3(pop, self.g_best)
+        self.pop = self._opposition_based(pop, self.g_best)
 
 
 class LevyQSA(BaseQSA):
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
 
-    def _update_business_2__(self, pop=None, current_epoch=None):
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, **kwargs)
+        self.nfe_per_epoch = 3 * pop_size
+        self.sort_flag = True
+
+    def _update_business_2(self, pop=None, current_epoch=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT], pop[1][self.ID_FIT], pop[2][self.ID_FIT]
+        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
         if t1 > 1.0e-6:
             cv = t1 / (t2 + t3)
         else:
             cv = 1 / 2
+        pop_new = []
         for i in range(self.pop_size):
             if i < q1:
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
-                A = deepcopy(A3)
-            if random() < pr[i]:
-                id1= choice(self.pop_size)
-                if random() < cv:
-                    X_new = self.levy_flight(current_epoch, pop[i][self.ID_POS], A)
+                A = A3.copy()
+            if np.random.random() < pr[i]:
+                id1= np.random.choice(self.pop_size)
+                if np.random.random() < cv:
+                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
+                    X_new = pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * levy_step
                 else:
-                    X_new = pop[i][self.ID_POS] + exponential(0.5) * (A - pop[id1][self.ID_POS])
-                fit = self.get_fitness_position(X_new)
-                if fit < pop[i][self.ID_FIT]:
-                    pop[i] = [X_new, fit]
-        return sorted(pop, key=lambda item: item[self.ID_FIT])
+                    X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[id1][self.ID_POS])
+                pos_new = self.amend_position_faster(X_new)
+            else:
+                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new , None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(pop, pop_new)
+        pop_new, _ = self.get_global_best_solution(pop_new)
+        return pop_new
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-        for epoch in range(self.epoch):
-            pop = self._update_business_1__(pop, epoch+1)
-            pop = self._update_business_2__(pop, epoch+1)
-            pop = self._update_business_3__(pop, g_best)
-
-            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch+1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop = self._update_business_1(self.pop, epoch + 1)
+        pop = self._update_business_2(pop, epoch + 1)
+        self.pop = self._update_business_3(pop, self.g_best)
 
 
 class ImprovedQSA(OppoQSA, LevyQSA):
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
-        LevyQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, **kwargs)
+        self.nfe_per_epoch = 4 * pop_size
+        self.sort_flag = True
 
-        for epoch in range(self.epoch):
-            pop = self._update_business_1__(pop, epoch+1)
-            pop = self._update_business_2__(pop, epoch+1)
-            pop = self._update_business_3__(pop, g_best)
-            pop = self._opposition_based__(pop, g_best)
-
-            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop = self._update_business_1(self.pop, epoch + 1)
+        pop = self._update_business_2(pop, epoch + 1)
+        pop = self._update_business_3(pop, self.g_best)
+        self.pop = self._opposition_based(pop, self.g_best)
 
 
 class OriginalQSA(BaseQSA):
@@ -254,36 +281,41 @@ class OriginalQSA(BaseQSA):
         https://www.sciencedirect.com/science/article/abs/pii/S0307904X18302890
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        BaseQSA.__init__(self, obj_func, lb, ub, verbose, epoch, pop_size, kwargs=kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
 
-    def _update_business_3__(self, pop, g_best):
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, **kwargs)
+        self.nfe_per_epoch = 3 * pop_size
+        self.sort_flag = True
+
+    def _update_business_3(self, pop, g_best):
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
+        pop_new = []
         for i in range(self.pop_size):
-            X_new = deepcopy(pop[i][self.ID_POS])
-            for j in range(self.problem_size):
-                if random() > pr[i]:
-                    i1, i2 = choice(self.pop_size, 2, replace=False)
-                    e = exponential(0.5)
+            pos_new = pop[i][self.ID_POS].copy()
+            for j in range(self.problem.n_dims):
+                if np.random.random() > pr[i]:
+                    i1, i2 = np.random.choice(self.pop_size, 2, replace=False)
+                    e = np.random.exponential(0.5)
                     X1 = pop[i1][self.ID_POS]
                     X2 = pop[i2][self.ID_POS]
-                    X_new[j] = X1[j] + e * (X2[j] - pop[i][self.ID_POS][j])
-            fit = self.get_fitness_position(position=X_new, minmax=self.ID_MIN_PROB)
-            if fit < pop[i][self.ID_FIT]:
-                pop[i] = [X_new, fit]
-        return pop
+                    pos_new[j] = X1[j] + e * (X2[j] - pop[i][self.ID_POS][j])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        return self.greedy_selection_population(pop, pop_new)
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(self.pop_size)]
-        pop, g_best = self.get_sorted_pop_and_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
-        for epoch in range(self.epoch):
-            pop = self._update_business_1__(pop, epoch)
-            pop = self._update_business_2__(pop)
-            pop = self._update_business_3__(pop, g_best)
-
-            pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop = self._update_business_1(self.pop, epoch)
+        pop = self._update_business_2(pop)
+        self.pop = self._update_business_3(pop, self.g_best)
