@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -44,77 +42,55 @@ class BaseGSKA(Optimizer):
         self.pb = pb
         self.kr = kr
 
-    def create_child(self, idx, pop_copy, g_best, D):
-        # If it is the best it chooses best+2, best+1
-        if idx == 0:
-            previ, nexti = idx + 2, idx + 1
-        # If it is the worse it chooses worst-2, worst-1
-        elif idx == self.pop_size - 1:
-            previ, nexti = idx - 2, idx - 1
-        # Other case it chooses i-1, i+1
-        else:
-            previ, nexti = idx - 1, idx + 1
-
-        if idx < D:  # senior gaining and sharing
-            if np.random.uniform() <= self.kr:
-                rand_idx = np.random.choice(list(set(range(0, self.pop_size)) - {previ, idx, nexti}))
-                if pop_copy[idx][self.ID_FIT][self.ID_TAR] > pop_copy[rand_idx][self.ID_FIT][self.ID_TAR]:
-                    pos_new = pop_copy[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
-                              (pop_copy[previ][self.ID_POS] - pop_copy[nexti][self.ID_POS] +
-                               pop_copy[rand_idx][self.ID_POS] - pop_copy[idx][self.ID_POS])
-                else:
-                    pos_new = g_best[self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
-                              (pop_copy[rand_idx][self.ID_POS] - pop_copy[idx][self.ID_POS])
-            else:
-                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-        else:  # junior gaining and sharing
-            if np.random.uniform() <= self.kr:
-                id1 = int(self.pb * self.pop_size)
-                id2 = id1 + int(self.pop_size - 2 * 100 * self.pb)
-                rand_best = np.random.choice(list(set(range(0, id1)) - {idx}))
-                rand_worst = np.random.choice(list(set(range(id2, self.pop_size)) - {idx}))
-                rand_mid = np.random.choice(list(set(range(id1, id2)) - {idx}))
-                if pop_copy[idx][self.ID_FIT][self.ID_TAR] > pop_copy[rand_mid][self.ID_FIT][self.ID_TAR]:
-                    pos_new = pop_copy[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
-                              (pop_copy[rand_best][self.ID_POS] - pop_copy[rand_worst][self.ID_POS] +
-                               pop_copy[rand_mid][self.ID_POS] - pop_copy[idx][self.ID_POS])
-                else:
-                    pos_new = g_best[self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
-                              (pop_copy[rand_mid][self.ID_POS] - pop_copy[idx][self.ID_POS])
-            else:
-                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-            Returns:
-                [position, fitness value]
+        Args:
+            epoch (int): The current iteration
         """
-
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         D = int(np.ceil(self.pop_size * (1 - (epoch + 1) / self.epoch)))
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # If it is the best it chooses best+2, best+1
+            if idx == 0:
+                previ, nexti = idx + 2, idx + 1
+            # If it is the worse it chooses worst-2, worst-1
+            elif idx == self.pop_size - 1:
+                previ, nexti = idx - 2, idx - 1
+            # Other case it chooses i-1, i+1
+            else:
+                previ, nexti = idx - 1, idx + 1
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, D=D), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, g_best=g_best, D=D), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy, g_best, D) for idx in pop_idx]
-        return pop
+            if idx < D:  # senior gaining and sharing
+                if np.random.uniform() <= self.kr:
+                    rand_idx = np.random.choice(list(set(range(0, self.pop_size)) - {previ, idx, nexti}))
+                    if self.compare_agent(self.pop[rand_idx], self.pop[idx]):
+                        pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
+                                  (self.pop[previ][self.ID_POS] - self.pop[nexti][self.ID_POS] +
+                                   self.pop[rand_idx][self.ID_POS] - self.pop[idx][self.ID_POS])
+                    else:
+                        pos_new = self.g_best[self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
+                                  (self.pop[rand_idx][self.ID_POS] - self.pop[idx][self.ID_POS])
+                else:
+                    pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            else:  # junior gaining and sharing
+                if np.random.uniform() <= self.kr:
+                    id1 = int(self.pb * self.pop_size)
+                    id2 = id1 + int(self.pop_size - 2 * 100 * self.pb)
+                    rand_best = np.random.choice(list(set(range(0, id1)) - {idx}))
+                    rand_worst = np.random.choice(list(set(range(id2, self.pop_size)) - {idx}))
+                    rand_mid = np.random.choice(list(set(range(id1, id2)) - {idx}))
+                    if self.compare_agent(self.pop[rand_mid], self.pop[idx]):
+                        pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
+                                  (self.pop[rand_best][self.ID_POS] - self.pop[rand_worst][self.ID_POS] +
+                                   self.pop[rand_mid][self.ID_POS] - self.pop[idx][self.ID_POS])
+                    else:
+                        pos_new = self.g_best[self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
+                                  (self.pop[rand_mid][self.ID_POS] - self.pop[idx][self.ID_POS])
+                else:
+                    pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class OriginalGSKA(Optimizer):
@@ -147,80 +123,58 @@ class OriginalGSKA(Optimizer):
         self.kr = kr
         self.k = k
 
-    def create_child(self, idx, pop_copy, D):
-        # If it is the best it chooses best+2, best+1
-        if idx == 0:
-            previ, nexti = idx + 2, idx + 1
-        # If it is the worse it chooses worst-2, worst-1
-        elif idx == self.pop_size - 1:
-            previ, nexti = idx - 2, idx - 1
-        # Other case it chooses i-1, i+1
-        else:
-            previ, nexti = idx - 1, idx + 1
-
-        # The random individual is for all dimension values
-        rand_idx = np.random.choice(list(set(range(0, self.pop_size)) - {previ, idx, nexti}))
-        pos_new = pop_copy[idx][self.ID_POS]
-
-        for j in range(0, self.problem.n_dims):
-            if j < D:  # junior gaining and sharing
-                if np.random.uniform() <= self.kr:
-                    if pop_copy[idx][self.ID_FIT][self.ID_TAR] > pop_copy[rand_idx][self.ID_FIT][self.ID_TAR]:
-                        pos_new[j] = pop_copy[idx][self.ID_POS][j] + self.kf * \
-                                     (pop_copy[previ][self.ID_POS][j] - pop_copy[nexti][self.ID_POS][j] +
-                                      pop_copy[rand_idx][self.ID_POS][j] - pop_copy[idx][self.ID_POS][j])
-                    else:
-                        pos_new[j] = pop_copy[idx][self.ID_POS][j] + self.kf * \
-                                     (pop_copy[previ][self.ID_POS][j] - pop_copy[nexti][self.ID_POS][j] +
-                                      pop_copy[idx][self.ID_POS][j] - pop_copy[rand_idx][self.ID_POS][j])
-            else:  # senior gaining and sharing
-                if np.random.uniform() <= self.kr:
-                    id1 = int(self.pb * self.pop_size)
-                    id2 = id1 + int(self.pop_size - 2 * 100 * self.pb)
-                    rand_best = np.random.choice(list(set(range(0, id1)) - {idx}))
-                    rand_worst = np.random.choice(list(set(range(id2, self.pop_size)) - {idx}))
-                    rand_mid = np.random.choice(list(set(range(id1, id2)) - {idx}))
-                    if pop_copy[idx][self.ID_FIT][self.ID_TAR] > pop_copy[rand_mid][self.ID_FIT][self.ID_TAR]:
-                        pos_new[j] = pop_copy[idx][self.ID_POS][j] + self.kf * \
-                                     (pop_copy[rand_best][self.ID_POS][j] - pop_copy[rand_worst][self.ID_POS][j] +
-                                      pop_copy[rand_mid][self.ID_POS][j] - pop_copy[idx][self.ID_POS][j])
-                    else:
-                        pos_new[j] = pop_copy[idx][self.ID_POS][j] + self.kf * \
-                                     (pop_copy[rand_best][self.ID_POS][j] - pop_copy[rand_worst][self.ID_POS][j] +
-                                      pop_copy[idx][self.ID_POS][j] - pop_copy[rand_mid][self.ID_POS][j])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-        # current_agent = pop_copy[idx].copy()
-        # if fit_new[self.ID_TAR] < pop_copy[idx][self.ID_FIT][self.ID_TAR]:
-        #     current_agent = [pos_new, fit_new]
-        # return current_agent
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-            Returns:
-                [position, fitness value]
+        Args:
+            epoch (int): The current iteration
         """
-
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         D = int(self.problem.n_dims * (1 - (epoch + 1) / self.epoch) ** self.k)
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # If it is the best it chooses best+2, best+1
+            if idx == 0:
+                previ, nexti = idx + 2, idx + 1
+            # If it is the worse it chooses worst-2, worst-1
+            elif idx == self.pop_size - 1:
+                previ, nexti = idx - 2, idx - 1
+            # Other case it chooses i-1, i+1
+            else:
+                previ, nexti = idx - 1, idx + 1
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, D=D), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, D=D), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy, D) for idx in pop_idx]
-        return pop
+            # The random individual is for all dimension values
+            rand_idx = np.random.choice(list(set(range(0, self.pop_size)) - {previ, idx, nexti}))
+            pos_new = self.pop[idx][self.ID_POS].copy()
+
+            for j in range(0, self.problem.n_dims):
+                if j < D:  # junior gaining and sharing
+                    if np.random.uniform() <= self.kr:
+                        if self.compare_agent(self.pop[rand_idx], self.pop[idx]):
+                            pos_new[j] = self.pop[idx][self.ID_POS][j] + self.kf * \
+                                         (self.pop[previ][self.ID_POS][j] - self.pop[nexti][self.ID_POS][j] +
+                                          self.pop[rand_idx][self.ID_POS][j] - self.pop[idx][self.ID_POS][j])
+                        else:
+                            pos_new[j] = self.pop[idx][self.ID_POS][j] + self.kf * \
+                                         (self.pop[previ][self.ID_POS][j] - self.pop[nexti][self.ID_POS][j] +
+                                          self.pop[idx][self.ID_POS][j] - self.pop[rand_idx][self.ID_POS][j])
+                else:  # senior gaining and sharing
+                    if np.random.uniform() <= self.kr:
+                        id1 = int(self.pb * self.pop_size)
+                        id2 = id1 + int(self.pop_size - 2 * 100 * self.pb)
+                        rand_best = np.random.choice(list(set(range(0, id1)) - {idx}))
+                        rand_worst = np.random.choice(list(set(range(id2, self.pop_size)) - {idx}))
+                        rand_mid = np.random.choice(list(set(range(id1, id2)) - {idx}))
+                        if self.compare_agent(self.pop[rand_mid], self.pop[idx]):
+                            pos_new[j] = self.pop[idx][self.ID_POS][j] + self.kf * \
+                                         (self.pop[rand_best][self.ID_POS][j] - self.pop[rand_worst][self.ID_POS][j] +
+                                          self.pop[rand_mid][self.ID_POS][j] - self.pop[idx][self.ID_POS][j])
+                        else:
+                            pos_new[j] = self.pop[idx][self.ID_POS][j] + self.kf * \
+                                         (self.pop[rand_best][self.ID_POS][j] - self.pop[rand_worst][self.ID_POS][j] +
+                                          self.pop[idx][self.ID_POS][j] - self.pop[rand_mid][self.ID_POS][j])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
+            # current_agent = pop_copy[idx].copy()
+            # if fit_new[self.ID_TAR] < pop_copy[idx][self.ID_FIT][self.ID_TAR]:
+            #     current_agent = [pos_new, fit_new]
+            # return current_agent
