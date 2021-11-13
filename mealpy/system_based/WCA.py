@@ -27,7 +27,7 @@ class BaseWCA(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             nsr (int): Number of rivers + sea (sea = 1), default = 4
             C (int): Coefficient, default = 2
             dmax (float): Evaporation condition constant, default=1e-6

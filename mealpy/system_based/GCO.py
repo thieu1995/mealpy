@@ -26,7 +26,7 @@ class BaseGCO(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
@@ -97,7 +97,7 @@ class OriginalGCO(BaseGCO):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """

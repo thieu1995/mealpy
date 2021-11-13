@@ -24,7 +24,7 @@ class OriginalAEO(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -107,7 +107,7 @@ class ImprovedAEO(OriginalAEO):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
 
@@ -195,7 +195,7 @@ class EnhancedAEO(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -303,7 +303,7 @@ class ModifiedAEO(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -397,7 +397,7 @@ class AdaptiveAEO(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size

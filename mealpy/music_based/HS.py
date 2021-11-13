@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                  %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -25,7 +23,7 @@ class BaseHS(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             n_new (int): Number of New Harmonies, default = 0.85
             c_r (float): Harmony Memory Consideration Rate, default = 0.15
             pa_r (float): Pitch Adjustment Rate, default=0.5
@@ -83,7 +81,7 @@ class OriginalHS(BaseHS):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             n_new (int): Number of New Harmonies, default = 0.85
             c_r (float): Harmony Memory Consideration Rate), default = 0.15
             pa_r (float): Pitch Adjustment Rate, default=0.5

@@ -26,7 +26,7 @@ class BaseBRO(Optimizer):
         Args:
             problem ():
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
             **kwargs ():
         """
@@ -130,7 +130,7 @@ class OriginalBRO(BaseBRO):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
         """
         super().__init__(problem, epoch, pop_size, threshold, **kwargs)

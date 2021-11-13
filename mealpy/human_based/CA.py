@@ -21,7 +21,7 @@ class OriginalCA(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             accepted_rate (float): probability of accepted rate, Default: 0.15,
         """
         super().__init__(problem, kwargs)

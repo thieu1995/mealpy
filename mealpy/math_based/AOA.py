@@ -22,7 +22,7 @@ class OriginalAOA(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             alpha (int): fixed parameter, sensitive exploitation parameter, Default: 5,
             miu (float): fixed parameter , control parameter to adjust the search process, Default: 0.5,
             moa_min (float): range min of Math Optimizer Accelerated, Default: 0.2,

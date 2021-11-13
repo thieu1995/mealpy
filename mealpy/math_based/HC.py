@@ -23,7 +23,7 @@ class OriginalHC(Optimizer):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 5,
         """
         super().__init__(problem, kwargs)
@@ -64,7 +64,7 @@ class BaseHC(OriginalHC):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size (Harmony Memory Size), default = 100
+            pop_size (int): number of population size, default = 100
             neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 5,
         """
         super().__init__(problem, epoch, pop_size, neighbour_size, **kwargs)
