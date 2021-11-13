@@ -10,7 +10,6 @@
 from functools import reduce
 import numpy as np
 from mealpy.optimizer import Optimizer
-import time
 
 
 class BaseTLO(Optimizer):
@@ -85,8 +84,10 @@ class OriginalTLO(BaseTLO):
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem ():
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
+            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -140,6 +141,7 @@ class ITLO(BaseTLO):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_teachers (int): number of teachers in class
+            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
