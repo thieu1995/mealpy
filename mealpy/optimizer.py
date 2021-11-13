@@ -588,12 +588,16 @@ class Optimizer:
         Returns:
             The new population with better solutions
         """
+        len_old, len_new = len(pop_old), len(pop_new)
+        if len_old != len_new:
+            print("Pop old and Pop new should be the same length!")
+            exit(0)
         if self.problem.minmax == "min":
             return [pop_new[i] if pop_new[i][self.ID_FIT][self.ID_TAR] < pop_old[i][self.ID_FIT][self.ID_TAR]
-                    else pop_old[i] for i in range(self.pop_size)]
+                    else pop_old[i] for i in range(len_old)]
         else:
             return [pop_new[i] if pop_new[i][self.ID_FIT] > pop_old[i][self.ID_FIT]
-                    else pop_old[i] for i in range(self.pop_size)]
+                    else pop_old[i] for i in range(len_old)]
 
     def get_sorted_strim_population(self, pop=None, pop_size=None, reverse=False):
         """
