@@ -185,7 +185,7 @@ class Optimizer:
         Returns:
             population: list of solutions/agents
         """
-        if pop_size is not None:
+        if pop_size is None:
             pop_size = self.pop_size
         pop = []
         if self.mode == "thread":
@@ -201,7 +201,7 @@ class Optimizer:
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         else:
-            pop = [self.create_solution() for _ in range(0, self.pop_size)]
+            pop = [self.create_solution() for _ in range(0, pop_size)]
         return pop
 
     def update_fitness_population(self, pop=None):
