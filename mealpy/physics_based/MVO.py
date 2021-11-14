@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -21,7 +19,6 @@ class BaseMVO(Optimizer):
             + Using my routtele wheel selection which can handle negative values
             + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
             + Change equation 3.3 to match the name of parameter wep_minmax
-            + Using levy-flight to adapt large-scale dimensions
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
@@ -43,39 +40,10 @@ class BaseMVO(Optimizer):
         self.wep_min = wep_min
         self.wep_max = wep_max
 
-    def create_child(self, idx, pop, g_best, epoch, wep, tdr):
-        if np.random.uniform() < wep:
-            if np.random.rand() < 0.5:
-                list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
-
-                white_hole_id = self.get_index_roulette_wheel_selection(list_fitness)
-
-                black_hole_pos_1 = pop[idx][self.ID_POS] + tdr * np.random.normal(0, 1) * (pop[white_hole_id][self.ID_POS] - pop[idx][self.ID_POS])
-
-                black_hole_pos_2 = g_best[self.ID_POS] + tdr * np.random.normal(0, 1) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-
-                black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
-            else:
-                black_hole_pos = self.levy_flight(epoch + 1, pop[idx][self.ID_POS], g_best[self.ID_POS])
-        else:
-            black_hole_pos = np.random.uniform(self.problem.lb, self.problem.ub)
-
-        pos_new = self.amend_position_faster(black_hole_pos)
-        fit_new = self.get_fitness_position(black_hole_pos)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Eq. (3.3) in the paper
         wep = self.wep_max - (epoch + 1) * ((self.wep_max - self.wep_min) / self.epoch)
@@ -83,19 +51,21 @@ class BaseMVO(Optimizer):
         # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
         tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
 
-        # Update the position of universes
-        pop_idx = np.array(range(0, self.pop_size))  # Starting from 1 since 0 is the elite
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, wep=wep, tdr=tdr), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, wep=wep, tdr=tdr), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best, epoch, wep, tdr) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if np.random.uniform() < wep:
+                list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+                white_hole_id = self.get_index_roulette_wheel_selection(list_fitness)
+                black_hole_pos_1 = self.pop[idx][self.ID_POS] + tdr * np.random.normal(0, 1) * \
+                                   (self.pop[white_hole_id][self.ID_POS] - self.pop[idx][self.ID_POS])
+                black_hole_pos_2 = self.g_best[self.ID_POS] + tdr * np.random.normal(0, 1) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
+            else:
+                black_hole_pos = np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position_faster(black_hole_pos)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class OriginalMVO(BaseMVO):
@@ -130,71 +100,51 @@ class OriginalMVO(BaseMVO):
                 break
         return chosen_idx
 
-    def normalize(self, d, to_sum=True):
+    def _normalize(self, d, to_sum=True):
         # d is a (n x dimension) np np.array
         d -= np.min(d, axis=0)
         d /= (np.sum(d, axis=0) if to_sum else np.ptp(d, axis=0))
         return d
 
-    def create_child2(self, idx, pop, g_best, wep, tdr, list_fitness_normalized, list_fitness_raw):
-        black_hole_pos = pop[idx][self.ID_POS].copy()
-        for j in range(0, self.problem.n_dims):
-            r1 = np.random.uniform()
-            if r1 < list_fitness_normalized[idx]:
-                white_hole_id = self._roulette_wheel_selection__((-1 * list_fitness_raw))
-                if white_hole_id == None or white_hole_id == -1:
-                    white_hole_id = 0
-                # Eq. (3.1) in the paper
-                black_hole_pos[j] = pop[white_hole_id][self.ID_POS][j]
-
-            # Eq. (3.2) in the paper if the boundaries are all the same
-            r2 = np.random.uniform()
-            if r2 < wep:
-                r3 = np.random.uniform()
-                if r3 < 0.5:
-                    black_hole_pos[j] = g_best[self.ID_POS][j] + tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
-                else:
-                    black_hole_pos[j] = g_best[self.ID_POS][j] - tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
-        pos_new = self.amend_position_faster(black_hole_pos)
-        fit_new = self.get_fitness_position(black_hole_pos)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
         # Eq. (3.3) in the paper
         wep = self.wep_min + (epoch + 1) * ((self.wep_max - self.wep_min) / self.epoch)
 
         # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
         tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
 
-        list_fitness_raw = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
+        list_fitness_raw = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
         maxx = max(list_fitness_raw)
         if maxx > (2 ** 64 - 1):
             list_fitness_normalized = np.random.uniform(0, 0.1, self.pop_size)
         else:
             ### Normalize inflation rates (NI in Eq. (3.1) in the paper)
-            list_fitness_normalized = np.reshape(self.normalize(np.array([list_fitness_raw])), self.pop_size)  # Matrix
+            list_fitness_normalized = np.reshape(self._normalize(np.array([list_fitness_raw])), self.pop_size)  # Matrix
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, wep=wep, tdr=tdr,
-                                                 list_fitness_normalized=list_fitness_normalized, list_fitness_raw=list_fitness_raw), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, wep=wep, tdr=tdr,
-                                                 list_fitness_normalized=list_fitness_normalized, list_fitness_raw=list_fitness_raw), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child2(idx, pop, g_best, wep, tdr, list_fitness_normalized, list_fitness_raw) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            black_hole_pos = self.pop[idx][self.ID_POS].copy()
+            for j in range(0, self.problem.n_dims):
+                r1 = np.random.uniform()
+                if r1 < list_fitness_normalized[idx]:
+                    white_hole_id = self._roulette_wheel_selection__((-1 * list_fitness_raw))
+                    if white_hole_id == None or white_hole_id == -1:
+                        white_hole_id = 0
+                    # Eq. (3.1) in the paper
+                    black_hole_pos[j] = self.pop[white_hole_id][self.ID_POS][j]
+
+                # Eq. (3.2) in the paper if the boundaries are all the same
+                r2 = np.random.uniform()
+                if r2 < wep:
+                    r3 = np.random.uniform()
+                    if r3 < 0.5:
+                        black_hole_pos[j] = self.g_best[self.ID_POS][j] + tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
+                    else:
+                        black_hole_pos[j] = self.g_best[self.ID_POS][j] - tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
+            pos_new = self.amend_position_faster(black_hole_pos)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
