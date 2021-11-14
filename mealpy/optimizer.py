@@ -614,6 +614,17 @@ class Optimizer:
             pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=reverse)
         return pop[:pop_size]
 
+    def create_opposition_position(self, agent=None, g_best=None):
+        """
+        Args:
+            agent (): The current agent
+            g_best (): the global best solution
+
+        Returns:
+            The opposite solution
+        """
+        return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
+
 
 
     def update_global_best_global_worst_solution(self, pop=None, id_best=None, id_worst=None, g_best=None):
@@ -630,8 +641,6 @@ class Optimizer:
         g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
         return sorted_pop, g_best
 
-    def create_opposition_position(self, position=None, g_best=None):
-        return self.lb + self.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - position)
 
 
 
