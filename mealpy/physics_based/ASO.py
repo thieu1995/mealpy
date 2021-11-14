@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -110,45 +108,28 @@ class BaseASO(Optimizer):
             acc_list[i] = acc
         return acc_list
 
-    def create_child(self, idx, pop, atom_acc_list):
-        velocity_rand = np.random.uniform(self.problem.lb, self.problem.ub)
-        velocity = velocity_rand * pop[idx][self.ID_VEL] + atom_acc_list[idx]
-        pos_new = pop[idx][self.ID_POS] + velocity
-        # Relocate atom out of range
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new, pop[idx][self.ID_VEL], pop[idx][self.ID_MAS]]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Calculate acceleration.
-        atom_acc_list = self._acceleration__(pop, g_best, iteration=epoch)
+        atom_acc_list = self._acceleration__(self.pop, self.g_best, iteration=epoch)
 
         # Update velocity based on random dimensions and position of global best
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, atom_acc_list=atom_acc_list), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, atom_acc_list=atom_acc_list), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, atom_acc_list) for idx in pop_idx]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            velocity_rand = np.random.uniform(self.problem.lb, self.problem.ub)
+            velocity = velocity_rand * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
+            pos_new = self.pop[idx][self.ID_POS] + velocity
+            # Relocate atom out of range
+            agent[self.ID_POS] = self.amend_position_random(pos_new)
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
-        _, current_best = self.get_global_best_solution(child)
-        if self.compare_agent(g_best, current_best):
-            child[np.randint(0, self.pop_size)] = g_best.copy()
-        return child
+        _, current_best = self.get_global_best_solution(pop_new)
+        if self.compare_agent(self.g_best, current_best):
+            pop_new[np.randint(0, self.pop_size)] = self.g_best.copy()
+        self.pop = pop_new
