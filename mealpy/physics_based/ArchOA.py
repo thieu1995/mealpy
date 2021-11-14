@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -72,33 +70,10 @@ class OriginalArchOA(Optimizer):
         acc = self.problem.lb + np.random.uniform(self.problem.lb, self.problem.ub) * (self.problem.ub - self.problem.lb)
         return [position, fitness, den, vol, acc]
 
-    def create_child(self, idx, pop, g_best, tf, ddf):
-        if tf <= 0.5:  # update position using Eq. 13
-            id_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-            pos_new = pop[idx][self.ID_POS] + self.c1 * np.random.uniform() * \
-                      pop[idx][self.ID_ACC] * ddf * (pop[id_rand][self.ID_POS] - pop[idx][self.ID_POS])
-        else:
-            p = 2 * np.random.rand() - self.c4
-            f = 1 if p <= 0.5 else -1
-            t = self.c3 * tf
-            pos_new = g_best[self.ID_POS] + f * self.c2 * np.random.rand() * pop[idx][self.ID_ACC] * \
-                      ddf * (t * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new, pop[idx][self.ID_DEN], pop[idx][self.ID_VOL], pop[idx][self.ID_ACC]]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         ## Transfer operator Eq. 8
         tf = np.exp((epoch + 1) / self.epoch - 1)
@@ -109,35 +84,39 @@ class OriginalArchOA(Optimizer):
         ## Calculate new density, volume and acceleration
         for i in range(0, self.pop_size):
             # Update density and volume of each object using Eq. 7
-            new_den = pop[i][self.ID_DEN] + np.random.uniform() * (g_best[self.ID_DEN] - pop[i][self.ID_DEN])
-            new_vol = pop[i][self.ID_VOL] + np.random.uniform() * (g_best[self.ID_VOL] - pop[i][self.ID_VOL])
+            new_den = self.pop[i][self.ID_DEN] + np.random.uniform() * (self.g_best[self.ID_DEN] - self.pop[i][self.ID_DEN])
+            new_vol = self.pop[i][self.ID_VOL] + np.random.uniform() * (self.g_best[self.ID_VOL] - self.pop[i][self.ID_VOL])
 
             # Exploration phase
             if tf <= 0.5:
                 # Update acceleration using Eq. 10 and normalize acceleration using Eq. 12
                 id_rand = np.random.choice(list(set(range(0, self.pop_size)) - {i}))
-                new_acc = (pop[id_rand][self.ID_DEN] + pop[id_rand][self.ID_VOL] * pop[id_rand][self.ID_ACC]) / (new_den * new_vol)
+                new_acc = (self.pop[id_rand][self.ID_DEN] + self.pop[id_rand][self.ID_VOL] * self.pop[id_rand][self.ID_ACC]) / (new_den * new_vol)
             else:
-                new_acc = (g_best[self.ID_DEN] + g_best[self.ID_VOL] * g_best[self.ID_ACC]) / (new_den * new_vol)
+                new_acc = (self.g_best[self.ID_DEN] + self.g_best[self.ID_VOL] * self.g_best[self.ID_ACC]) / (new_den * new_vol)
             list_acc.append(new_acc)
-            pop[i][self.ID_DEN] = new_den
-            pop[i][self.ID_VOL] = new_vol
+            self.pop[i][self.ID_DEN] = new_den
+            self.pop[i][self.ID_VOL] = new_vol
         min_acc = np.min(list_acc)
         max_acc = np.max(list_acc)
         ## Normalize acceleration using Eq. 12
         for i in range(0, self.pop_size):
-            pop[i][self.ID_ACC] = self.acc_upper * (pop[i][self.ID_ACC] - min_acc) / (max_acc - min_acc) + self.acc_lower
+            self.pop[i][self.ID_ACC] = self.acc_upper * (self.pop[i][self.ID_ACC] - min_acc) / (max_acc - min_acc) + self.acc_lower
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, tf=tf, ddf=ddf), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, tf=tf, ddf=ddf), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best, tf, ddf) for idx in pop_idx]
-        return child
-
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            solution = self.pop[idx].copy()
+            if tf <= 0.5:  # update position using Eq. 13
+                id_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
+                pos_new = self.pop[idx][self.ID_POS] + self.c1 * np.random.uniform() * \
+                          self.pop[idx][self.ID_ACC] * ddf * (self.pop[id_rand][self.ID_POS] - self.pop[idx][self.ID_POS])
+            else:
+                p = 2 * np.random.rand() - self.c4
+                f = 1 if p <= 0.5 else -1
+                t = self.c3 * tf
+                pos_new = self.g_best[self.ID_POS] + f * self.c2 * np.random.rand() * self.pop[idx][self.ID_ACC] * \
+                          ddf * (t * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            solution[self.ID_POS] = self.amend_position_faster(pos_new)
+            pop_new.append(solution)
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
