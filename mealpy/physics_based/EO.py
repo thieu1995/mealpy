@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -47,56 +45,31 @@ class BaseEO(Optimizer):
         list_equilibrium.append([pos_mean, fit])
         return list_equilibrium
 
-    def create_child(self, idx, pop_copy, c_pool, t):
-        current_agent = pop_copy[idx].copy()
-        lamda = np.random.uniform(0, 1, self.problem.n_dims)                # lambda in Eq. 11
-        r = np.random.uniform(0, 1, self.problem.n_dims)                    # r in Eq. 11
-        c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
-        f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)         # Eq. 11
-        r1 = np.random.uniform()
-        r2 = np.random.uniform()                                            # r1, r2 in Eq. 15
-        gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)     # Eq. 15
-        g0 = gcp * (c_eq - lamda * current_agent[self.ID_POS])              # Eq. 14
-        g = g0 * f                                                          # Eq. 13
-        pos_new = c_eq + (current_agent[self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         # ---------------- Memory saving-------------------  make equilibrium pool
-        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
-        c_eq_list = pop_sorted[:4].copy()
+        _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
         c_pool = self.make_equilibrium_pool(c_eq_list)
-
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
-
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
-        return pop
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            lamda = np.random.uniform(0, 1, self.problem.n_dims)  # lambda in Eq. 11
+            r = np.random.uniform(0, 1, self.problem.n_dims)  # r in Eq. 11
+            c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
+            f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 11
+            r1 = np.random.uniform()
+            r2 = np.random.uniform()  # r1, r2 in Eq. 15
+            gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)  # Eq. 15
+            g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])  # Eq. 14
+            g = g0 * f  # Eq. 13
+            pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class ModifiedEO(BaseEO):
@@ -119,69 +92,62 @@ class ModifiedEO(BaseEO):
 
         self.pop_len = int(self.pop_size / 3)
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         # ---------------- Memory saving-------------------  make equilibrium pool
-        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
-        c_eq_list = pop_sorted[:4].copy()
+        _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
         c_pool = self.make_equilibrium_pool(c_eq_list)
 
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            lamda = np.random.uniform(0, 1, self.problem.n_dims)  # lambda in Eq. 11
+            r = np.random.uniform(0, 1, self.problem.n_dims)  # r in Eq. 11
+            c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
+            f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 11
+            r1 = np.random.uniform()
+            r2 = np.random.uniform()  # r1, r2 in Eq. 15
+            gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)  # Eq. 15
+            g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])  # Eq. 14
+            g = g0 * f  # Eq. 13
+            pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
 
         ## Sort the updated population based on fitness
-        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
-        pop_s1 = pop_sorted[:self.pop_len]
-        pop_s2 = pop_s1.copy()
-        pop_s3 = pop_s1.copy()
+        _, pop_s1, _ = self.get_special_solutions(pop_new, best=self.pop_len)
 
         ## Mutation scheme
+        pop_s2_new = []
         for i in range(0, self.pop_len):
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
             pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            pop_s2[i] = [pos_new, fit_new]
+            pop_s2_new.append([pos_new, None])
+        pop_s2 = self.update_fitness_population(pop_s2_new)
 
         ## Search Mechanism
         pos_s1_list = [item[self.ID_POS] for item in pop_s1]
         pos_s1_mean = np.mean(pos_s1_list, axis=0)
+        pop_s3 = []
         for i in range(0, self.pop_len):
             pos_new = (c_pool[0][self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
             pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            pop_s3[i] = [pos_new, fit_new]
+            pop_s3.append([pos_new, None])
+        pop_s3 = self.update_fitness_population(pop_s3)
 
         ## Construct a new population
-        pop = pop_s1 + pop_s2 + pop_s3
-        temp = self.pop_size - len(pop)
-        idx_selected = np.random.choice(range(0, len(c_pool)), temp, replace=False)
-        for i in range(0, temp):
-            pop.append(c_pool[idx_selected[i]])
-        return pop
+        self.pop = pop_s1 + pop_s2 + pop_s3
+        n_left = self.pop_size - len(self.pop)
+        idx_selected = np.random.choice(range(0, len(c_pool)), n_left, replace=False)
+        for i in range(0, n_left):
+            self.pop.append(c_pool[idx_selected[i]])
 
 
 class AdaptiveEO(BaseEO):
@@ -204,135 +170,39 @@ class AdaptiveEO(BaseEO):
 
         self.pop_len = int(self.pop_size / 3)
 
-    def create_child(self, idx, pop_copy, c_pool, t):
-        lamda = np.random.uniform(0, 1, self.problem.n_dims)
-        r = np.random.uniform(0, 1, self.problem.n_dims)
-        c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
-        f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 14
-
-        r1 = np.random.uniform()
-        r2 = np.random.uniform()
-        gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)
-        g0 = gcp * (c_eq - lamda * pop_copy[idx][self.ID_POS])
-        g = g0 * f
-
-        fit_average = np.mean([item[self.ID_FIT][self.ID_TAR] for item in pop_copy])  # Eq. 19
-        pos_new = c_eq + (pop_copy[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 9
-        if pop_copy[idx][self.ID_FIT][self.ID_TAR] >= fit_average:
-            pos_new = np.multiply(pos_new, (0.5 + np.random.uniform(0, 1, self.problem.n_dims)))
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
         # ---------------- Memory saving-------------------  make equilibrium pool
-        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
-        c_eq_list = pop_sorted[:4].copy()
+        _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
         c_pool = self.make_equilibrium_pool(c_eq_list)
 
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
 
         ## Memory saving, Eq 20, 21
-        if epoch != 0:
-            for i in range(0, self.pop_size):
-                pop_copy[i] = self.get_better_solution(pop[i], pop_copy[i])
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop_copy = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop_copy=pop_copy, c_pool=c_pool, t=t), pop_idx)
-            pop_copy = [x for x in pop_child]
-        else:
-            pop_copy = [self.create_child(idx, pop_copy, c_pool, t) for idx in pop_idx]
-        return pop_copy
-
-
-class LevyEO(BaseEO):
-    """
-        My modified version of: Equilibrium Optimizer (EO)
-    """
-
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
-    def create_child_new(self, idx, pop_copy, c_pool, t, epoch, g_best):
-        if np.random.uniform() < 0.5:
-            lamda = np.random.uniform(0, 1, self.problem.n_dims)  # lambda in Eq. 11
-            r = np.random.uniform(0, 1, self.problem.n_dims)  # r in Eq. 11
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            lamda = np.random.uniform(0, 1, self.problem.n_dims)
+            r = np.random.uniform(0, 1, self.problem.n_dims)
             c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
-            f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 11
+            f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 14
+
             r1 = np.random.uniform()
-            r2 = np.random.uniform()  # r1, r2 in Eq. 15
-            gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)  # Eq. 15
-            g0 = gcp * (c_eq - lamda * pop_copy[idx][self.ID_POS])  # Eq. 14
-            g = g0 * f  # Eq. 13
-            pos_new = c_eq + (pop_copy[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
-        else:
-            ## Idea: Sometimes, an unpredictable event happens, It make the status of equilibrium change.
-            step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
-            pos_new = pop_copy[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) \
-                      * step * (pop_copy[idx][self.ID_POS] - g_best[self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
+            r2 = np.random.uniform()
+            gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)
+            g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])
+            g = g0 * f
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
-        """
-        Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
-        """
-
-        pop_copy = pop.copy()
-        pop_idx = np.array(range(0, self.pop_size))
-
-        # ---------------- Memory saving-------------------  make equilibrium pool
-        pop_sorted = sorted(pop, key=lambda item: item[self.ID_FIT][self.ID_TAR])
-        c_eq_list = pop_sorted[:4].copy()
-        c_pool = self.make_equilibrium_pool(c_eq_list)
-
-        # Eq. 9
-        t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
-
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child_new, pop_copy=pop_copy, c_pool=c_pool, t=t, epoch=epoch, g_best=g_best), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child_new, pop_copy=pop_copy, c_pool=c_pool, t=t, epoch=epoch, g_best=g_best), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            pop = [self.create_child_new(idx, pop_copy, c_pool, t, epoch, g_best) for idx in pop_idx]
-        return pop
+            fit_average = np.mean([item[self.ID_FIT][self.ID_TAR] for item in self.pop])  # Eq. 19
+            pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 9
+            if self.pop[idx][self.ID_FIT][self.ID_TAR] >= fit_average:
+                pos_new = np.multiply(pos_new, (0.5 + np.random.uniform(0, 1, self.problem.n_dims)))
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
