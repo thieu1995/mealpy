@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -67,53 +65,38 @@ class BaseBSA(Optimizer):
         local_fitness = fitness.copy()
         return [position, fitness, local_position, local_fitness]
 
-    def _update_solution_(self, solution_old, solution_new):
-        solution_old = solution_old.copy()
-        pos_new = self.amend_position_faster(solution_new[self.ID_POS])
-        fit_new = self.get_fitness_position(pos_new)
-        solution_new[self.ID_FIT] = fit_new
-        if self.compare_agent(solution_new, solution_old):
-            solution_old[self.ID_LBP] = pos_new.copy()
-            solution_old[self.ID_LBF] = fit_new.copy()
-        solution_old[self.ID_POS] = pos_new.copy()
-        solution_old[self.ID_FIT] = fit_new.copy()
-        return solution_old
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("BSA algorithm is supported sequential mode only!")
-            exit(0)
-
-        pos_list = np.array([item[self.ID_POS] for item in pop])
-        fit_list = np.array([item[self.ID_LBF][self.ID_TAR] for item in pop])
+        pos_list = np.array([item[self.ID_POS] for item in self.pop])
+        fit_list = np.array([item[self.ID_LBF][self.ID_TAR] for item in self.pop])
         pos_mean = np.mean(pos_list, axis=0)
         fit_sum = np.sum(fit_list)
 
         if epoch % self.ff != 0:
+            pop_new = []
             for i in range(0, self.pop_size):
+                agent = self.pop[i].copy()
                 prob = np.random.uniform() * 0.2 + self.pff  # The probability of foraging for food
                 if np.random.uniform() < prob:  # Birds forage for food. Eq. 1
-                    x_new = pop[i][self.ID_POS] + self.c_minmax[0] * np.random.uniform() * (pop[i][self.ID_LBP] - pop[i][self.ID_POS]) + \
-                            self.c_minmax[1] * np.random.uniform() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    x_new = self.pop[i][self.ID_POS] + self.c_minmax[0] * \
+                            np.random.uniform() * (self.pop[i][self.ID_LBP] - self.pop[i][self.ID_POS]) + \
+                            self.c_minmax[1] * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 else:  # Birds keep vigilance. Eq. 2
-                    A1 = self.a_minmax[0] * np.exp(-self.pop_size * pop[i][self.ID_LBF][self.ID_TAR] / (self.EPSILON + fit_sum))
+                    A1 = self.a_minmax[0] * np.exp(-self.pop_size * self.pop[i][self.ID_LBF][self.ID_TAR] / (self.EPSILON + fit_sum))
                     k = np.random.choice(list(set(range(0, self.pop_size)) - {i}))
                     t1 = (fit_list[i] - fit_list[k]) / (abs(fit_list[i] - fit_list[k]) + self.EPSILON)
                     A2 = self.a_minmax[1] * np.exp(t1 * self.pop_size * fit_list[k] / (fit_sum + self.EPSILON))
-                    x_new = pop[i][self.ID_POS] + A1 * np.random.uniform(0, 1) * (pos_mean - pop[i][self.ID_POS]) + \
-                            A2 * np.random.uniform(-1, 1) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                pop[i] = self._update_solution_(pop[i], [x_new, None, None, None])
+                    x_new = self.pop[i][self.ID_POS] + A1 * np.random.uniform(0, 1) * (pos_mean - self.pop[i][self.ID_POS]) + \
+                            A2 * np.random.uniform(-1, 1) * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
+                agent[self.ID_POS] = self.amend_position_faster(x_new)
+                pop_new.append(agent)
+            pop_new = self.update_fitness_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
         else:
+            pop_new = self.pop.copy()
             # Divide the bird swarm into two parts: producers and scroungers.
             min_idx = np.argmin(fit_list)
             max_idx = np.argmax(fit_list)
@@ -129,28 +112,40 @@ class BaseBSA(Optimizer):
 
             if choose < 3:  # Producing (Equation 5)
                 for i in range(int(self.pop_size / 2 + 1), self.pop_size):
-                    x_new = pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * pop[i][self.ID_POS]
-                    pop[i] = self._update_solution_(pop[i], [x_new, None, None, None])
+                    agent = self.pop[i].copy()
+                    x_new = self.pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[i][self.ID_POS]
+                    agent[self.ID_POS] = self.amend_position_faster(x_new)
+                    pop_new[i] = agent
                 if choose == 1:
-                    x_new = pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * pop[min_idx][self.ID_POS]
-                    pop[min_idx] = self._update_solution_(pop[min_idx], [x_new, None, None, None])
+                    x_new = self.pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[min_idx][self.ID_POS]
+                    agent = self.pop[min_idx].copy()
+                    agent[self.ID_POS] = self.amend_position_faster(x_new)
+                    pop_new[min_idx] = agent
                 for i in range(0, int(self.pop_size / 2)):
                     if choose == 2 or min_idx != i:
+                        agent = self.pop[i].copy()
                         FL = np.random.uniform() * 0.4 + self.fl
                         idx = np.random.randint(0.5 * self.pop_size + 1, self.pop_size)
-                        x_new = pop[i][self.ID_POS] + (pop[idx][self.ID_POS] - pop[i][self.ID_POS]) * FL
-                        pop[min_idx] = self._update_solution_(pop[min_idx], [x_new, None, None, None])
+                        x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL
+                        agent[self.ID_POS] = self.amend_position_faster(x_new)
+                        pop_new[i] = agent
             else:  # Scrounging (Equation 6)
                 for i in range(0, int(0.5 * self.pop_size)):
-                    x_new = pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * pop[i][self.ID_POS]
-                    pop[i] = self._update_solution_(pop[i], [x_new, None, None, None])
+                    agent = self.pop[i].copy()
+                    x_new = self.pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[i][self.ID_POS]
+                    agent[self.ID_POS] = self.amend_position_faster(x_new)
+                    pop_new[i] = agent
                 if choose == 4:
-                    x_new = pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * pop[min_idx][self.ID_POS]
-                    pop[min_idx] = self._update_solution_(pop[min_idx], [x_new, None, None, None])
+                    agent = self.pop[min_idx].copy()
+                    x_new = self.pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[min_idx][self.ID_POS]
+                    agent[self.ID_POS] = self.amend_position_faster(x_new)
                 for i in range(int(self.pop_size / 2 + 1), self.pop_size):
                     if choose == 3 or min_idx != i:
+                        agent = self.pop[i].copy()
                         FL = np.random.uniform() * 0.4 + self.fl
                         idx = np.random.randint(0, 0.5 * self.pop_size)
-                        x_new = pop[i][self.ID_POS] + (pop[idx][self.ID_POS] - pop[i][self.ID_POS]) * FL
-                        pop[i] = self._update_solution_(pop[i], [x_new, None, None, None])
-        return pop
+                        x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL
+                        agent[self.ID_POS] = self.amend_position_faster(x_new)
+                        pop_new[i] = agent
+            pop_new = self.update_fitness_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
