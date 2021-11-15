@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -79,9 +77,9 @@ class BaseCSO(Optimizer):
         flag = True if np.random.uniform() < self.mixture_ratio else False
         return [position, fitness, velocity, flag]
 
-    def _seeking_mode__(self, mode, cat):
+    def _seeking_mode__(self, cat):
         candidate_cats = []
-        clone_cats = self.create_population(mode, self.smp)
+        clone_cats = self.create_population(self.smp)
         if self.spc:
             candidate_cats.append(cat.copy())
             clone_cats = [cat.copy() for _ in range(self.smp - 1)]
@@ -95,7 +93,7 @@ class BaseCSO(Optimizer):
             pos_new[idx] = clone[self.ID_POS][idx]
             pos_new = self.amend_position_faster(pos_new)
             candidate_cats.append([pos_new, None, clone[self.ID_VEL], clone[self.ID_FLAG]])
-        candidate_cats = self.update_fitness_population(mode, candidate_cats)
+        candidate_cats = self.update_fitness_population(candidate_cats)
 
         if self.selected_strategy == 0:                # Best fitness-self
             _, cat = self.get_global_best_solution(candidate_cats)
@@ -111,44 +109,25 @@ class BaseCSO(Optimizer):
         else:
             idx = np.random.choice(range(0, len(candidate_cats)))
             cat = candidate_cats[idx]               # Random
-        return cat
+        return cat[self.ID_POS]
 
-    def create_child(self, idx, pop, g_best, w, mode):
-        # tracing mode
-        if pop[idx][self.ID_FLAG]:
-            pos_new = pop[idx][self.ID_POS] + w * pop[idx][self.ID_VEL] + \
-                      np.random.uniform() * self.c1 * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            fit_new = self.get_fitness_position(pos_new)
-            pop[idx][self.ID_POS] = pos_new
-            pop[idx][self.ID_FIT] = fit_new
-        else:
-            pop[idx] = self._seeking_mode__(mode, pop[idx])
-
-        pop[idx][self.ID_FLAG] = True if np.random.uniform() < self.mixture_ratio else False
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, w=w, mode=mode), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, w=w, mode=mode), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best=g_best, w=w, mode=mode) for idx in pop_idx]
-        return child
-
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            # tracing mode
+            if self.pop[idx][self.ID_FLAG]:
+                pos_new = self.pop[idx][self.ID_POS] + w * self.pop[idx][self.ID_VEL] + \
+                          np.random.uniform() * self.c1 * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                pos_new = self.amend_position_faster(pos_new)
+            else:
+                pos_new = self._seeking_mode__(self.pop[idx])
+            agent[self.ID_POS] = pos_new
+            agent[self.ID_FLAG] = True if np.random.uniform() < self.mixture_ratio else False
+            pop_new.append(agent)
+        self.pop = self.update_fitness_population(pop_new)
