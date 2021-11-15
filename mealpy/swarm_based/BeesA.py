@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -62,59 +60,44 @@ class BaseBeesA(Optimizer):
         position[j] = position[j] + r*np.random.uniform(-1, 1)
         return self.amend_position_faster(position)
 
-    def create_child(self, idx, pop):
-        # Elite Sites
-        if idx < self.n_elite_bees:
-            pop_child = []
-            for j in range(0, self.n_elite_bees_local):
-                pos_new = self.perform_dance(pop[idx][self.ID_POS], self.dyn_radius)
-                fit_new = self.get_fitness_position(pos_new)
-                pop_child.append([pos_new, fit_new])
-            _, local_best = self.get_global_best_solution(pop_child)
-            if self.compare_agent(local_best, pop[idx]):
-                return local_best
-            return pop[idx].copy()
-        elif self.n_elite_bees <= idx < self.n_selected_bees:
-        # Selected Non-Elite Sites
-            pop_child = []
-            for j in range(0, self.n_selected_bees_local):
-                pos_new = self.perform_dance(pop[idx][self.ID_POS], self.dyn_radius)
-                fit_new = self.get_fitness_position(pos_new)
-                pop_child.append([pos_new, fit_new])
-            _, local_best = self.get_global_best_solution(pop_child)
-            if self.compare_agent(local_best, pop[idx]):
-                return local_best
-            return pop[idx].copy()
-        else:
-        # Non-Selected Sites
-            return self.create_solution()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop) for idx in pop_idx]
-
+        nfe_epoch = 0
+        pop_new = self.pop.copy()
+        for idx in range(0, self.pop_size):
+            # Elite Sites
+            if idx < self.n_elite_bees:
+                nfe_epoch += self.n_elite_bees_local
+                pop_child = []
+                for j in range(0, self.n_elite_bees_local):
+                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pop_child.append([pos_new, None])
+                pop_child = self.update_fitness_population(pop_child)
+                _, local_best = self.get_global_best_solution(pop_child)
+                if self.compare_agent(local_best, self.pop[idx]):
+                    pop_new[idx] = local_best
+            elif self.n_elite_bees <= idx < self.n_selected_bees:
+                # Selected Non-Elite Sites
+                nfe_epoch += self.n_selected_bees_local
+                pop_child = []
+                for j in range(0, self.n_selected_bees_local):
+                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pop_child.append([pos_new, None])
+                pop_child = self.update_fitness_population(pop_child)
+                _, local_best = self.get_global_best_solution(pop_child)
+                if self.compare_agent(local_best, self.pop[idx]):
+                    pop_new[idx] = local_best
+            else:
+                # Non-Selected Sites
+                nfe_epoch += 1
+                pop_new[idx] = self.create_solution()
+        self.pop = pop_new
         # Damp Dance Radius
         self.dyn_radius = self.dance_radius_damp * self.dance_radius
-        return child
+        self.nfe_per_epoch = nfe_epoch
 
 
 class ProbBeesA(Optimizer):
@@ -140,7 +123,7 @@ class ProbBeesA(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
         self.epoch = epoch
@@ -158,63 +141,47 @@ class ProbBeesA(Optimizer):
         position[j] = position[j] + r * np.random.uniform(-1, 1)
         return self.amend_position_faster(position)
 
-    def create_child(self, idx, pop, d_fit):
-        # Determine Rejection Probability based on Score
-        if d_fit[idx] < 0.9:
-            reject_prob = 0.6
-        elif 0.9 <= d_fit[idx] < 0.95:
-            reject_prob = 0.2
-        elif 0.95 <= d_fit[idx] < 1.15:
-            reject_prob = 0.05
-        else:
-            reject_prob = 0
-
-        # Check for Acceptance/Rejection
-        if np.random.rand() >= reject_prob:  # Acceptance
-            # Calculate New Bees Count
-            bee_count = int(np.ceil(d_fit[idx] * self.recruited_bee_count))
-            # Create New Bees(Solutions)
-            pop_child = []
-            for j in range(0, bee_count):
-                pos_new = self.perform_dance(pop[idx][self.ID_POS], self.dyn_radius)
-                fit_new = self.get_fitness_position(pos_new)
-                pop_child.append([pos_new, fit_new])
-            _, local_best = self.get_global_best_solution(pop_child)
-            if self.compare_agent(local_best, pop[idx]):
-                return local_best
-            return pop[idx].copy()
-        else:
-            return self.create_solution()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Calculate Scores
-        fit_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in pop])
+        fit_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop])
         fit_list = 1.0 / fit_list
         d_fit = fit_list / np.mean(fit_list)
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, d_fit=d_fit), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, d_fit=d_fit), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, d_fit) for idx in pop_idx]
+        nfe_epoch = 0
+        for idx in range(0, self.pop_size):
+            # Determine Rejection Probability based on Score
+            if d_fit[idx] < 0.9:
+                reject_prob = 0.6
+            elif 0.9 <= d_fit[idx] < 0.95:
+                reject_prob = 0.2
+            elif 0.95 <= d_fit[idx] < 1.15:
+                reject_prob = 0.05
+            else:
+                reject_prob = 0
 
+            # Check for Acceptance/Rejection
+            if np.random.rand() >= reject_prob:  # Acceptance
+                # Calculate New Bees Count
+                bee_count = int(np.ceil(d_fit[idx] * self.recruited_bee_count))
+                if bee_count < 2: bee_count = 2
+                if bee_count > self.pop_size: bee_count = self.pop_size
+                # Create New Bees(Solutions)
+                pop_child = []
+                nfe_epoch += bee_count
+                for j in range(0, bee_count):
+                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pop_child.append([pos_new, None])
+                pop_child = self.update_fitness_population(pop_child)
+                _, local_best = self.get_global_best_solution(pop_child)
+                if self.compare_agent(local_best, self.pop[idx]):
+                    self.pop[idx] = local_best
+            else:
+                nfe_epoch += 1
+                self.pop[idx] = self.create_solution()
+        self.nfe_per_epoch = nfe_epoch
         # Damp Dance Radius
         self.dyn_radius = self.dance_radius_damp * self.dance_radius
-        return child
-
