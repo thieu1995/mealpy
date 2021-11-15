@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -38,43 +36,30 @@ class BaseCSA(Optimizer):
         self.nfe_per_epoch = self.pop_size + self.n_cut
         self.sort_flag = False
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        if mode != "sequential":
-            print("CSA is only support sequential mode!")
-            exit(0)
-
+        pop_new = []
         for i in range(0, self.pop_size):
             ## Generate levy-flight solution
-            # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS], step=0.001, case=2)
-            pos_new = pop[i][self.ID_POS] + self.get_levy_flight_step(multiplier=0.001, case=-1)
             levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
-            pos_new = pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
-                      levy_step * (pop[i][self.ID_POS] - g_best[self.ID_POS])
+            pos_new = self.pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                      levy_step * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
             pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            j_idx = np.random.choice(list(set(range(0, self.pop_size)) - {i}))
-            if self.compare_agent([pos_new, fit_new], pop[j_idx]):
-                pop[j_idx] = [pos_new, fit_new]
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        list_idx_rand = np.random.choice(list(range(0, self.pop_size)), self.pop_size, replace=True)
+        for idx in range(self.pop_size):
+            if self.compare_agent(self.pop[list_idx_rand[idx]], pop_new[idx]):
+                pop_new[idx] = self.pop[list_idx_rand[idx]].copy()
 
         ## Abandoned some worst nests
-        pop = self.get_sorted_strim_population(pop, self.pop_size, reverse=True)
+        pop = self.get_sorted_strim_population(pop_new, self.pop_size)
+        pop_new = []
         for i in range(0, self.n_cut):
-            # pos_new = self.levy_flight(epoch, pop[i][self.ID_POS], g_best[self.ID_POS])
-            # levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
-            pos_new = pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
-                      levy_step * (pop[i][self.ID_POS] - g_best[self.ID_POS])
             pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            pop[i] = [pos_new ,fit_new]
-        return pop
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = pop[:(self.pop_size-self.n_cut)] + pop_new
