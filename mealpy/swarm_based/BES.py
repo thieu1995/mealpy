@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -89,76 +87,50 @@ class BaseBES(Optimizer):
             return [pos_new, fit_new]
         return pop[idx].copy()
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
         ## 0. Pre-definded
         x_list, y_list, x1_list, y1_list = self._create_x_y_x1_y1_()
 
         # Three parts: selecting the search space, searching within the selected search space and swooping.
         ## 1. Select space
-        pos_list = np.array([individual[self.ID_POS] for individual in pop])
+        pos_list = np.array([individual[self.ID_POS] for individual in self.pop])
         pos_mean = np.mean(pos_list, axis=0)
 
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                child1 = executor.map(partial(self.create_child1, pop=pop, g_best=g_best, pos_mean=pos_mean), pop_idx)
-            child = [x for x in child1]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.g_best[self.ID_POS] + self.alpha * np.random.uniform() * (pos_mean - self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
-            ## 2. Search in space
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
+        ## 2. Search in space
+        pos_list = np.array([individual[self.ID_POS] for individual in pop_new])
+        pos_mean = np.mean(pos_list, axis=0)
 
-            with parallel.ThreadPoolExecutor() as executor:
-                child2 = executor.map(partial(self.create_child2, pop=child, pos_mean=pos_mean, x_list=x_list, y_list=y_list), pop_idx)
-            child = [x for x in child2]
+        pop_child = []
+        for idx in range(0, self.pop_size):
+            idx_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
+            pos_new = pop_new[idx][self.ID_POS] + y_list[idx] * (pop_new[idx][self.ID_POS] - pop_new[idx_rand][self.ID_POS]) + \
+                      x_list[idx] * (pop_new[idx][self.ID_POS] - pos_mean)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_child.append([pos_new, None])
+        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.greedy_selection_population(pop_new, pop_child)
 
-            ## 3. Swoop
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
+        ## 3. Swoop
+        pos_list = np.array([individual[self.ID_POS] for individual in pop_child])
+        pos_mean = np.mean(pos_list, axis=0)
 
-            with parallel.ThreadPoolExecutor() as executor:
-                child3 = executor.map(partial(self.create_child3, pop=child, g_best=g_best, pos_mean=pos_mean, x1_list=x1_list, y1_list=y1_list), pop_idx)
-            child = [x for x in child3]
-
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                child1 = executor.map(partial(self.create_child1, pop=pop, g_best=g_best, pos_mean=pos_mean), pop_idx)
-            child = [x for x in child1]
-
-            ## 2. Search in space
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
-
-            with parallel.ProcessPoolExecutor() as executor:
-                child2 = executor.map(partial(self.create_child2, pop=child, pos_mean=pos_mean, x_list=x_list, y_list=y_list), pop_idx)
-            child = [x for x in child2]
-
-            ## 3. Swoop
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
-
-            with parallel.ProcessPoolExecutor() as executor:
-                child3 = executor.map(partial(self.create_child3, pop=child, g_best=g_best, pos_mean=pos_mean, x1_list=x1_list, y1_list=y1_list), pop_idx)
-            child = [x for x in child3]
-
-        else:
-            child = [self.create_child1(idx, pop=pop, g_best=g_best, pos_mean=pos_mean) for idx in pop_idx]
-            ## 2. Search in space
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
-            child = [self.create_child2(idx, pop=child, pos_mean=pos_mean, x_list=x_list, y_list=y_list) for idx in pop_idx]
-            ## 3. Swoop
-            pos_list = np.array([individual[self.ID_POS] for individual in child])
-            pos_mean = np.mean(pos_list, axis=0)
-            child = [self.create_child3(idx, pop=child, g_best=g_best, pos_mean=pos_mean, x1_list=x1_list, y1_list=y1_list) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = np.random.uniform() * self.g_best[self.ID_POS] + x1_list[idx] * (pop_child[idx][self.ID_POS] - self.c1 * pos_mean) \
+                      + y1_list[idx] * (pop_child[idx][self.ID_POS] - self.c2 * self.g_best[self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(pop_child, pop_new)
