@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -46,51 +44,36 @@ class BaseABC(Optimizer):
         self.nfe_per_epoch = self.e_bees * self.elite_sites + self.o_bees * self.num_sites + (self.pop_size - self.num_sites)
         self.sort_flag = True
 
-    def _create_neigh_bee__(self, individual=None, patch_size=None):
-        t1 = np.random.randint(0, len(individual) - 1)
-        new_bee = individual.copy()
-        new_bee[t1] = (individual[t1] + np.random.uniform() * patch_size) if np.random.uniform() < 0.5 else (individual[t1] - np.random.uniform() * patch_size)
-        new_bee[t1] = np.maximum(self.problem.lb[t1], np.minimum(self.problem.ub[t1], new_bee[t1]))
-        return [new_bee, self.get_fitness_position(new_bee)]
-
     def _search_neigh__(self, parent=None, neigh_size=None):
         """
         Search 1 best position in neigh_size position
         """
-        neigh = [self._create_neigh_bee__(parent[self.ID_POS], self.patch_size) for _ in range(0, neigh_size)]
-        _, current_best = self.get_global_best_solution(neigh)
+        pop_neigh = []
+        for idx in range(0, neigh_size):
+            t1 = np.random.randint(0, len(parent[self.ID_POS]) - 1)
+            new_bee = parent[self.ID_POS].copy()
+            new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
+                else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
+            new_bee[t1] = np.maximum(self.problem.lb[t1], np.minimum(self.problem.ub[t1], new_bee[t1]))
+            pop_neigh.append([new_bee, None])
+        pop_neigh = self.update_fitness_population(pop_neigh)
+        _, current_best = self.get_global_best_solution(pop_neigh)
         return current_best
 
-    def create_child(self, idx, pop):
-        if idx < self.num_sites:
-            if idx < self.elite_sites:
-                neigh_size = self.e_bees
-            else:
-                neigh_size = self.o_bees
-            return self._search_neigh__(pop[idx], neigh_size)
-        else:
-            return self.create_solution()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if idx < self.num_sites:
+                if idx < self.elite_sites:
+                    neigh_size = self.e_bees
+                else:
+                    neigh_size = self.o_bees
+                agent = self._search_neigh__(self.pop[idx], neigh_size)
+            else:
+                agent = self.create_solution()
+            pop_new.append(agent)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
