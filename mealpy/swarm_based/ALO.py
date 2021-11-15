@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -76,55 +74,38 @@ class OriginalALO(Optimizer):
             temp.append(X_norm)
         return np.array(temp)
 
-    def create_child(self, idx, pop, g_best, epoch, list_fitness):
-        # Select ant lions based on their fitness (the better anlion the higher chance of catching ant)
-        rolette_index = self.get_index_roulette_wheel_selection(list_fitness)
-
-        # RA is the random walk around the selected antlion by rolette wheel
-        RA = self._random_walk_around_antlion__(pop[rolette_index][self.ID_POS], epoch)
-
-        # RE is the random walk around the elite (best antlion so far)
-        RE = self._random_walk_around_antlion__(g_best[self.ID_POS], epoch)
-
-        temp = (RA[:, epoch] + RE[:, epoch]) / 2  # Equation(2.13) in the paper
-
-        # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
-        pos_new = self.amend_position_faster(temp)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop])
+        list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
         # This for loop simulate random walks
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, list_fitness=list_fitness), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, epoch=epoch, list_fitness=list_fitness), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best=g_best, epoch=epoch, list_fitness=list_fitness) for idx in pop_idx]
+
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Select ant lions based on their fitness (the better anlion the higher chance of catching ant)
+            rolette_index = self.get_index_roulette_wheel_selection(list_fitness)
+
+            # RA is the random walk around the selected antlion by rolette wheel
+            RA = self._random_walk_around_antlion__(self.pop[rolette_index][self.ID_POS], epoch)
+
+            # RE is the random walk around the elite (best antlion so far)
+            RE = self._random_walk_around_antlion__(self.g_best[self.ID_POS], epoch)
+
+            temp = (RA[:, epoch] + RE[:, epoch]) / 2  # Equation(2.13) in the paper
+
+            # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
+            pos_new = self.amend_position_faster(temp)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
 
         # Update antlion positions and fitnesses based of the ants (if an ant becomes fitter than an antlion we
         #   assume it was caught by the antlion and the antlion update goes to its position to build the trap)
-        pop = self.get_sorted_strim_population(pop+child, self.pop_size)
+        self.pop = self.get_sorted_strim_population(self.pop+ pop_new, self.pop_size)
 
         # Keep the elite in the population
-        pop[-1] = g_best.copy()
-        return pop
+        self.pop[-1] = self.g_best.copy()
 
 
 class BaseALO(OriginalALO):
