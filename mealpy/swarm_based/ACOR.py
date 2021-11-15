@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -45,29 +43,13 @@ class BaseACOR(Optimizer):
         self.q = q
         self.zeta = zeta
 
-    def create_child(self, idx, pop, matrix_p, matrix_sigma):
-        # Generate Samples
-        child = np.zeros(self.problem.n_dims)
-        for j in range(0, self.problem.n_dims):
-            idx = self.get_index_roulette_wheel_selection(matrix_p)
-            child[j] = pop[idx][self.ID_POS][j] + np.random.normal() * matrix_sigma[idx, j]  # (1)
-        pos_new = self.amend_position_faster(child)  # (2)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Calculate Selection Probabilities
-        pop = pop[:self.pop_size]
+        pop = self.pop[:self.pop_size]
         pop_rank = np.array([i for i in range(1, self.pop_size + 1)])
         qn = self.q * self.pop_size
         matrix_w = 1 / (np.sqrt(2 * np.pi) * qn) * np.exp(-0.5 * ((pop_rank - 1) / qn) ** 2)
@@ -84,15 +66,14 @@ class BaseACOR(Optimizer):
         matrix_sigma = np.array(matrix_sigma)
 
         # Generate Samples
-        pop_idx = np.array(range(0, self.sample_count))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, matrix_p=matrix_p, matrix_sigma=matrix_sigma), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, matrix_p=matrix_p, matrix_sigma=matrix_sigma), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, matrix_p, matrix_sigma) for idx in pop_idx]
-        return pop + child
+        pop_new = []
+        for idx in range(0, self.sample_count):
+            # Generate Samples
+            child = np.zeros(self.problem.n_dims)
+            for j in range(0, self.problem.n_dims):
+                idx = self.get_index_roulette_wheel_selection(matrix_p)
+                child[j] = pop[idx][self.ID_POS][j] + np.random.normal() * matrix_sigma[idx, j]  # (1)
+            pos_new = self.amend_position_faster(child)  # (2)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = pop + pop_new
