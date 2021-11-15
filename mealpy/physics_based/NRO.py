@@ -30,7 +30,7 @@ class BaseNRO(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = 3 * pop_size
         self.sort_flag = False
 
         self.epoch = epoch
