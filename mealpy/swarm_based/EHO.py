@@ -7,10 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
-import time
 from mealpy.optimizer import Optimizer
 
 
@@ -42,91 +39,46 @@ class BaseEHO(Optimizer):
         self.n_clans = n_clans
         self.n_individuals = int(self.pop_size / self.n_clans)
 
-    def _creat_population(self, mode=None):
-        pop = []
-        for i in range(0, self.n_clans):
-            group = self.create_population(mode, self.n_individuals)
-            pop.append(group)
-        return pop
+        self.nfe_per_epoch = pop_size + self.n_clans
+        self.sort_flag = False
 
-    def _sort_clan_find_center_pop_best(self, pop=None):
-        centers = []
-        pop_best = []
+    def _create_pop_group(self, pop):
+        pop_group = []
         for i in range(0, self.n_clans):
-            pop[i] = self.get_sorted_strim_population(pop[i], self.n_individuals)
-            center = np.mean(np.array([item[self.ID_POS] for item in pop[i]]), axis=0)
-            centers.append(center)
-            pop_best.append(pop[i][0].copy())
-        return pop, centers, pop_best
+            group = pop[i*self.n_individuals: (i+1)*self.n_individuals]
+            pop_group.append(group.copy())
+        return pop_group
 
-    def _composite_population(self, pop):
+    def initialization(self):
+        self.pop = self.create_population(self.pop_size)
+        self.pop_group = self._create_pop_group(self.pop)
+        _, self.g_best = self.get_global_best_solution(self.pop)
+
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        # Clan updating operator
         pop_new = []
+        for i in range(0, self.pop_size):
+            clan_idx = int(i / self.n_individuals)
+            pos_clan_idx = int(i % self.n_individuals)
+
+            if pos_clan_idx == 0:  # The best in clan, because all clans are sorted based on fitness
+                center = np.mean(np.array([item[self.ID_POS] for item in self.pop_group[clan_idx]]), axis=0)
+                pos_new = self.beta * center
+            else:
+                pos_new = self.pop_group[clan_idx][pos_clan_idx][self.ID_POS] + self.alpha * np.random.uniform() * \
+                          (self.pop_group[clan_idx][0][self.ID_POS] - self.pop_group[clan_idx][pos_clan_idx][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        # Update fitness value
+        self.pop = self.update_fitness_population(pop_new)
+        self.pop_group = self._create_pop_group(self.pop)
+
+        # Separating operator
         for i in range(0, self.n_clans):
-            pop_new += pop[i]
-        return pop_new
-
-    def solve(self, mode='sequential'):
-        self.termination_start()
-        pop = self._creat_population()
-        pop, centers, pop_best = self._sort_clan_find_center_pop_best(pop)
-        _, g_best = self.get_global_best_solution(pop_best)
-        self.history.save_initial_best(g_best)
-
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
-
-            # Clan updating operator
-            for i in range(0, self.pop_size):
-                clan_idx = int(i / self.n_individuals)
-                pos_clan_idx = int(i % self.n_individuals)
-
-                if pos_clan_idx == 0:  # The best in clan, because all clans are sorted based on fitness
-                    pos_new = self.beta * centers[clan_idx]
-                else:
-                    pos_new = pop[clan_idx][pos_clan_idx][self.ID_POS] + self.alpha * np.random.uniform() * \
-                              (pop[clan_idx][0][self.ID_POS] - pop[clan_idx][pos_clan_idx][self.ID_POS])
-                pos_new = self.amend_position_faster(pos_new)
-                pop[clan_idx][pos_clan_idx][self.ID_POS] = pos_new
-
-            # Update fitness value
-            for i in range(0, self.n_clans):
-                pop[i] = self.update_fitness_population(mode, pop[i])
-
-            # Separating operator
-            for i in range(0, self.n_clans):
-                pop[i] = self.get_sorted_strim_population(pop[i], self.n_individuals)
-                pop[i][-1] = self.create_solution()
-
-            ## Update the global best
-            pop, centers, pop_best = self._sort_clan_find_center_pop_best(pop)
-            _, g_best = self.update_global_best_solution(pop_best)
-
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(self._composite_population(pop))
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
-
+            self.pop_group[i], _ = self.get_global_best_solution(self.pop_group[i])
+            self.pop_group[i][-1] = self.create_solution()
+        self.pop = [agent for pack in self.pop_group for agent in pack]
