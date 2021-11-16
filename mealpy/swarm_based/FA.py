@@ -7,11 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
-import time
-from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
 
 
@@ -37,7 +33,7 @@ class BaseFA(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 5*pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
         self.epoch = epoch
@@ -48,100 +44,53 @@ class BaseFA(Optimizer):
         self.max_ea = max_ea
         self.m_sparks = m_sparks
 
-    def solve(self, mode='sequential'):
-        if mode != "sequential":
-            print("FA is supported sequential mode only!")
-            exit(0)
-        self.termination_start()
-        pop = self.create_population(mode, self.pop_size)
-        _, g_best = self.get_global_best_solution(pop)
-        self.history.save_initial_best(g_best)
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        nfe_epoch = 0
+        fit_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in self.pop])
+        fit_list = sorted(fit_list)
 
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
-            fit_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
-            fit_list = sorted(fit_list)
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            si = self.max_sparks * (fit_list[-1] - self.pop[idx][self.ID_FIT][self.ID_TAR] + self.EPSILON) / \
+                 (self.pop_size * fit_list[-1] - np.sum(fit_list) + self.EPSILON)
+            Ai = self.max_ea * (self.pop[idx][self.ID_FIT][self.ID_TAR] - fit_list[0] + self.EPSILON) / \
+                 (np.sum(fit_list) - fit_list[0] + self.EPSILON)
+            if si < self.p_a * self.max_sparks:
+                si_ = int(round(self.p_a * self.max_sparks) + 1)
+            elif si > self.p_b * self.m_sparks:
+                si_ = int(round(self.p_b * self.max_sparks) + 1)
+            else:
+                si_ = int(round(si) + 1)
 
+            ## Algorithm 1
             pop_new = []
-            for idx in range(0, self.pop_size):
-                si = self.max_sparks * (fit_list[-1] - pop[idx][self.ID_FIT][self.ID_TAR] + self.EPSILON) / \
-                     (self.pop_size * fit_list[-1] - np.sum(fit_list) + self.EPSILON)
-                Ai = self.max_ea * (pop[idx][self.ID_FIT][self.ID_TAR] - fit_list[0] + self.EPSILON) / \
-                     (np.sum(fit_list) - fit_list[0] + self.EPSILON)
-                if si < self.p_a * self.max_sparks:
-                    si_ = int(round(self.p_a * self.max_sparks) + 1)
-                elif si > self.p_b * self.m_sparks:
-                    si_ = int(round(self.p_b * self.max_sparks) + 1)
-                else:
-                    si_ = int(round(si) + 1)
-
-                ## Algorithm 1
-                for j in range(0, si_):
-                    pos_new = pop[idx][self.ID_POS].copy()
-                    list_idx = np.random.choice(range(0, self.problem.n_dims), round(np.random.uniform() * self.problem.n_dims), replace=False)
-                    displacement = Ai * np.random.uniform(-1, 1)
-                    pos_new[list_idx] = pos_new[list_idx] + displacement
-                    pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub),
-                                       self.problem.lb + np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
-                    fit_new = self.get_fitness_position(pos_new)
-                    pop_new.append([pos_new, fit_new])
-
-            for _ in range(0 ,self.m_sparks):
-                idx = np.random.randint(0, self.pop_size)
-                pos_new = pop[idx][self.ID_POS].copy()
+            for j in range(0, si_):
+                pos_new = self.pop[idx][self.ID_POS].copy()
                 list_idx = np.random.choice(range(0, self.problem.n_dims), round(np.random.uniform() * self.problem.n_dims), replace=False)
-                pos_new[list_idx] = pos_new[list_idx] + np.random.normal(1, 1)  # Gaussian
-                pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub), self.problem.lb + \
-                                   np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
-                fit_new = self.get_fitness_position(pos_new)
-                pop_new.append([pos_new, fit_new])
+                displacement = Ai * np.random.uniform(-1, 1)
+                pos_new[list_idx] = pos_new[list_idx] + displacement
+                pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub),
+                                   self.problem.lb + np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
+                pos_new = self.amend_position_faster(pos_new)
+                pop_new.append([pos_new, None])
+                nfe_epoch += 1
+            pop_new = self.update_fitness_population(pop_new)
 
-            ## Update the global best
-            pop.extend(pop_new)
-            _, g_best = self.update_global_best_solution(pop)
-            pop = self.get_sorted_strim_population(pop, self.pop_size)
+        for _ in range(0, self.m_sparks):
+            idx = np.random.randint(0, self.pop_size)
+            pos_new = self.pop[idx][self.ID_POS].copy()
+            list_idx = np.random.choice(range(0, self.problem.n_dims), round(np.random.uniform() * self.problem.n_dims), replace=False)
+            pos_new[list_idx] = pos_new[list_idx] + np.random.normal(0, 1)  # Gaussian
+            pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub), self.problem.lb + \
+                               np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+            nfe_epoch += 1
+        pop_new = self.update_fitness_population(pop_new)
 
-            ## Select n-1 fireworks left, using density-based distance to make diversity of the population
-            # list_dist = []
-            # list_pos = np.array([item[self.ID_POS] for item in pop])
-            # for i in range(0, len(pop)):
-            #     temp1 = cdist(list_pos[i].reshape(1, -1), list_pos)
-            #     list_dist.append(np.sum(temp1.flatten()))
-            # pop_new = [(pop[i], list_dist[i]) for i in range(0, len(pop))]
-            # pop_new = sorted(pop_new, key=lambda agent: agent[1], reverse=True)
-            # pop = [pop_new[i][0] for i in range(0, self.pop_size - 1)]
-            # pop.append(g_best)
-
-            # update global best position
-            _, g_best = self.update_global_best_solution(pop)  # We don't sort the population
-
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
-
-
+        ## Update the global best
+        self.pop = self.get_sorted_strim_population(pop_new + self.pop, self.pop_size)
