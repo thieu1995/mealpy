@@ -7,138 +7,134 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy import array, sum, all, abs, zeros, any, pi, sin
-from numpy.random import rand, randn
-from math import gamma
-from copy import deepcopy
-from mealpy.optimizer import Root
+import numpy as np
+import math
+from mealpy.optimizer import Optimizer
 
 
-class BaseDO(Root):
+class BaseDO(Optimizer):
     """
     The original version of: Dragonfly Optimization (DO)
     Link:
         https://link.springer.com/article/10.1007/s00521-015-1920-1
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            **kwargs ():
+        """
+
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = 2 * pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
 
     def dragonfly_levy(self):
         beta = 3 / 2
         # Eq.(3.10)
-        sigma = (gamma(1 + beta) * sin(pi * beta / 2) / (gamma((1 + beta) / 2) * beta * 2 ** ((beta - 1) / 2))) ** (1 / beta)
-        u = randn(self.problem_size) * sigma
-        v = randn(self.problem_size)
-        step = u / abs(v) ** (1 / beta)
+        sigma = (math.gamma(1 + beta) * np.sin(np.pi * beta / 2) / (math.gamma((1 + beta) / 2) * beta * 2 ** ((beta - 1) / 2))) ** (1 / beta)
+        u = np.random.randn(self.problem.n_dims) * sigma
+        v = np.random.randn(self.problem.n_dims)
+        step = u / np.abs(v) ** (1 / beta)
         # Eq.(3.9)
         return 0.01 * step
 
-    def train(self):
+    def initialization(self):
         # Initial radius of dragonflies' neighbouhoods
-        r = (self.ub - self.lb) / 10
-        delta_max = (self.ub - self.lb) / 10
+        self.radius = (self.problem.ub - self.problem.lb) / 10
+        self.delta_max = (self.problem.ub - self.problem.lb) / 10
 
         # Initial population
-        pop = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
-        g_best, g_worst = self.get_global_best_global_worst_solution(pop=pop, id_fit=self.ID_FIT, id_best=self.ID_MIN_PROB)
+        self.pop = self.create_population(self.pop_size)
+        _, self.g_best = self.get_global_best_solution(self.pop)
+        self.pop_delta = self.create_population(self.pop_size)
 
-        pop_delta = [self.create_solution(minmax=0) for _ in range(self.pop_size)]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        self.g_best, self.g_worst = best[0], worst[0]
 
-        # Main loop
-        for epoch in range(0, self.epoch):
+        r = (self.problem.ub - self.problem.lb) / 4 + ((self.problem.ub - self.problem.lb) * (2 * (epoch + 1) / self.epoch))
+        w = 0.9 - (epoch + 1) * ((0.9 - 0.4) / self.epoch)
+        my_c = 0.1 - (epoch + 1) * ((0.1 - 0) / (self.epoch / 2))
+        my_c = 0 if my_c < 0 else my_c
 
-            r = (self.ub - self.lb) / 4 + ((self.ub - self.lb) * (2 * (epoch+1) / self.epoch))
-            w = 0.9 - (epoch+1) * ((0.9 - 0.4) / self.epoch)
-            my_c = 0.1 - (epoch+1) * ((0.1 - 0) / (self.epoch / 2))
-            my_c = 0 if my_c < 0 else my_c
+        s = 2 * np.random.rand() * my_c  # Seperation weight
+        a = 2 * np.random.rand() * my_c  # Alignment weight
+        c = 2 * np.random.rand() * my_c  # Cohesion weight
+        f = 2 * np.random.rand()  # Food attraction weight
+        e = my_c  # Enemy distraction weight
 
-            s = 2 * rand() * my_c     # Seperation weight
-            a = 2 * rand() * my_c     # Alignment weight
-            c = 2 * rand() * my_c     # Cohesion weight
-            f = 2 * rand()            # Food attraction weight
-            e = my_c                  # Enemy distraction weight
+        for i in range(0, self.pop_size):
+            pos_neighbours = []
+            pos_neighbours_delta = []
+            neighbours_num = 0
+            # Find the neighbouring solutions
+            for j in range(0, self.pop_size):
+                dist = np.abs(self.pop[i][self.ID_POS] - self.pop[j][self.ID_POS])
+                if np.all(dist <= r) and np.all(dist != 0):
+                    neighbours_num += 1
+                    pos_neighbours.append(self.pop[j][self.ID_POS])
+                    pos_neighbours_delta.append(self.pop_delta[j][self.ID_POS])
 
-            for i in range(0, self.pop_size):
-                pos_neighbours = []
-                pos_neighbours_delta = []
-                neighbours_num = 0
-                # Find the neighbouring solutions
-                for j in range(0, self.pop_size):
-                    dist = abs(pop[i][self.ID_POS] - pop[j][self.ID_POS])
-                    if all(dist <= r) and all(dist != 0):
-                        neighbours_num += 1
-                        pos_neighbours.append(deepcopy(pop[j][self.ID_POS]))
-                        pos_neighbours_delta.append(deepcopy(pop_delta[j][self.ID_POS]))
+            pos_neighbours = np.array(pos_neighbours)
+            pos_neighbours_delta = np.array(pos_neighbours_delta)
 
-                pos_neighbours = array(pos_neighbours)
-                pos_neighbours_delta = array(pos_neighbours_delta)
+            # Separation: Eq 3.1, Alignment: Eq 3.2, Cohesion: Eq 3.3
+            if neighbours_num > 1:
+                S = np.sum(pos_neighbours, axis=0) - neighbours_num * self.pop[i][self.ID_POS]
+                A = np.sum(pos_neighbours_delta, axis=0) / neighbours_num
+                C_temp = np.sum(pos_neighbours, axis=0) / neighbours_num
+            else:
+                S = np.zeros(self.problem.n_dims)
+                A = self.pop_delta[i][self.ID_POS].copy()
+                C_temp = self.pop[i][self.ID_POS].copy()
+            C = C_temp - self.pop[i][self.ID_POS].copy()
 
-                # Separation: Eq 3.1, Alignment: Eq 3.2, Cohesion: Eq 3.3
+            # Attraction to food: Eq 3.4
+            dist_to_food = np.abs(self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
+            if np.all(dist_to_food <= r):
+                F = self.g_best[self.ID_POS] - self.pop[i][self.ID_POS]
+            else:
+                F = np.zeros(self.problem.n_dims)
+
+            # Distraction from enemy: Eq 3.5
+            dist_to_enemy = np.abs(self.pop[i][self.ID_POS] - self.g_worst[self.ID_POS])
+            if np.all(dist_to_enemy <= r):
+                enemy = self.g_worst[self.ID_POS] + self.pop[i][self.ID_POS]
+            else:
+                enemy = np.zeros(self.problem.n_dims)
+
+            if np.any(dist_to_food > r):
                 if neighbours_num > 1:
-                    S = sum(pos_neighbours, axis=0) - neighbours_num * pop[i][self.ID_POS]
-                    A = sum(pos_neighbours_delta, axis=0) / neighbours_num
-                    C_temp = sum(pos_neighbours, axis=0) / neighbours_num
-                else:
-                    S = zeros(self.problem_size)
-                    A = deepcopy(pop_delta[i][self.ID_POS])
-                    C_temp = deepcopy(pop[i][self.ID_POS])
-                C = C_temp - pop[i][self.ID_POS]
+                    temp = w * self.pop_delta[i][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * A + \
+                           np.random.uniform(0, 1, self.problem.n_dims) * C + np.random.uniform(0, 1, self.problem.n_dims) * S
+                    temp = np.clip(temp, -1*self.delta_max, self.delta_max)
+                    self.pop_delta[i][self.ID_POS] = temp
+                    self.pop[i][self.ID_POS] += temp
+                else:  # Eq. 3.8
+                    self.pop[i][self.ID_POS] += self.dragonfly_levy() * self.pop[i][self.ID_POS]
+                    self.pop_delta[i][self.ID_POS] = np.zeros(self.problem.n_dims)
+            else:
+                # Eq. 3.6
+                temp = (a * A + c * C + s * S + f * F + e * enemy) + w * self.pop_delta[i][self.ID_POS]
+                temp = np.clip(temp, -1*self.delta_max, self.delta_max)
+                self.pop_delta[i][self.ID_POS] = temp
+                self.pop[i][self.ID_POS] += temp
 
-                # Attraction to food: Eq 3.4
-                dist_to_food = abs(pop[i][self.ID_POS] - g_best[self.ID_POS])
-                if all(dist_to_food <= r):
-                    F = g_best[self.ID_POS] - pop[i][self.ID_POS]
-                else:
-                    F = zeros(self.problem_size)
+            # Amend solution
+            self.pop[i][self.ID_POS] = self.amend_position_faster(self.pop[i][self.ID_POS])
+            self.pop_delta[i][self.ID_POS] = self.amend_position_faster(self.pop_delta[i][self.ID_POS])
 
-                # Distraction from enemy: Eq 3.5
-                dist_to_enemy = abs(pop[i][self.ID_POS] - g_worst[self.ID_POS])
-                if all(dist_to_enemy <= r):
-                    enemy = g_worst[self.ID_POS] + pop[i][self.ID_POS]
-                else:
-                    enemy = zeros(self.problem_size)
+        self.pop = self.update_fitness_population(self.pop)
+        self.pop_delta = self.update_fitness_population(self.pop_delta)
 
-                if any(dist_to_food > r):
-                    if neighbours_num > 1:
-                        for j in range(0, self.problem_size):
-                            temp = w * pop_delta[i][self.ID_POS][j] + rand()*A[j] + rand() * C[j] + rand() * S[j]
-                            if temp > delta_max[j]:
-                                temp = delta_max[j]
-                            if temp < -delta_max[j]:
-                                temp = -delta_max[j]
-                            pop_delta[i][self.ID_POS][j] = temp
-                            pop[i][self.ID_POS][j] += temp
-                    else:   # Eq. 3.8
-                        pop[i][self.ID_POS] += self.dragonfly_levy() * pop[i][self.ID_POS]
-                        pop_delta[i][self.ID_POS] = zeros(self.problem_size)
-                else:
-                    for j in range(0, self.problem_size):
-                        # Eq. 3.6
-                        temp = (a * A[j] + c * C[j] + s * S[j] + f * F[j] + e * enemy[j]) + w * pop_delta[i][self.ID_POS][j]
-                        if temp > delta_max[j]:
-                            temp = delta_max[j]
-                        if temp < -delta_max[j]:
-                            temp = -delta_max[j]
-                        pop_delta[i][self.ID_POS][j] = temp
-                        pop[i][self.ID_POS][j] += temp
-
-                # Amend solution
-                pop[i][self.ID_POS] = self.amend_position_faster(pop[i][self.ID_POS])
-                pop_delta[i][self.ID_POS] = self.amend_position_faster(pop_delta[i][self.ID_POS])
-
-            # Update fitness of all solution
-            for i in range(0, self.pop_size):
-                pop[i][self.ID_FIT] = self.get_fitness_position(pop[i][self.ID_POS])
-                pop_delta[i][self.ID_FIT] = self.get_fitness_position(pop_delta[i][self.ID_POS])
-
-            # Update global best and global worst solution
-            g_best, g_worst = self.update_global_best_global_worst_solution(pop, self.ID_MIN_PROB, self.ID_MAX_PROB, g_best)
-
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Best fitness: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
