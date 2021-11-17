@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -40,37 +38,20 @@ class BaseJA(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def create_child(self, idx, pop, g_best, g_worst):
-        pos_new = pop[idx][self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - np.abs(pop[idx][self.ID_POS])) + \
-                  np.random.normal() * (g_worst[self.ID_POS] - np.abs(pop[idx][self.ID_POS]))
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        _, best, worst = self.get_special_solutions(pop, best=1, worst=1)
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=best[0], g_worst=worst[0]), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=best[0], g_worst=worst[0]), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, best[0], worst[0]) for idx in pop_idx]
-        return child
+        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        g_best, g_worst = best[0], worst[0]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) + \
+                      np.random.normal() * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class OriginalJA(BaseJA):
@@ -91,15 +72,22 @@ class OriginalJA(BaseJA):
             **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
 
-    def create_child(self, idx, pop, g_best, g_worst):
-        pos_new = pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * (g_best[self.ID_POS] - np.abs(pop[idx][self.ID_POS])) - \
-            np.random.uniform(0, 1, self.problem.n_dims) * (g_worst[self.ID_POS] - np.abs(pop[idx][self.ID_POS]))
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        g_best, g_worst = best[0], worst[0]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
+                      (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - \
+                      np.random.uniform(0, 1, self.problem.n_dims) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class LevyJA(BaseJA):
@@ -125,12 +113,19 @@ class LevyJA(BaseJA):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def create_child(self, idx, pop, g_best, g_worst):
-        L1 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
-        L2 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
-        pos_new = pop[idx][self.ID_POS] + np.abs(L1) * (g_best[self.ID_POS] - np.abs(pop[idx][self.ID_POS])) - \
-                  np.abs(L2) * (g_worst[self.ID_POS] - np.abs(pop[idx][self.ID_POS]))
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        g_best, g_worst = best[0], worst[0]
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            L1 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
+            L2 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
+            pos_new = self.pop[idx][self.ID_POS] + np.abs(L1) * (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - \
+                      np.abs(L2) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
