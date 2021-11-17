@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -47,46 +45,28 @@ class BaseGOA(Optimizer):
         # Eq.(2.3) in the paper
         return f * np.exp(-r_vector / l) - np.exp(-r_vector)
 
-    def create_child(self, idx, pop, g_best, c):
-        S_i_total = np.zeros(self.problem.n_dims)
-        for j in range(0, self.pop_size):
-            dist = np.sqrt(np.sum((pop[idx][self.ID_POS] - pop[j][self.ID_POS]) ** 2))
-            r_ij_vector = (pop[idx][self.ID_POS] - pop[j][self.ID_POS]) / (dist + self.EPSILON)  # xj - xi / dij in Eq.(2.7)
-            xj_xi = 2 + np.remainder(dist, 2)  # |xjd - xid| in Eq. (2.7)
-            ## The first part inside the big bracket in Eq. (2.7)   16 955 230 764    212 047 193 643
-            ran = (c / 2) * (self.problem.ub - self.problem.lb)
-            s_ij = ran * self._s_function__(xj_xi) * r_ij_vector
-            S_i_total += s_ij
-        x_new = c * np.random.normal() * S_i_total + g_best[self.ID_POS]  # Eq. (2.7) in the paper
-        pos_new = self.amend_position_faster(x_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Eq.(2.8) in the paper
         c = self.c_minmax[1] - epoch * ((self.c_minmax[1] - self.c_minmax[0]) / self.epoch)
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, c=c), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, c=c), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best=g_best, c=c) for idx in pop_idx]
-        return child
+
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            S_i_total = np.zeros(self.problem.n_dims)
+            for j in range(0, self.pop_size):
+                dist = np.sqrt(np.sum((self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]) ** 2))
+                r_ij_vector = (self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]) / (dist + self.EPSILON)  # xj - xi / dij in Eq.(2.7)
+                xj_xi = 2 + np.remainder(dist, 2)  # |xjd - xid| in Eq. (2.7)
+                ## The first part inside the big bracket in Eq. (2.7)   16 955 230 764    212 047 193 643
+                ran = (c / 2) * (self.problem.ub - self.problem.lb)
+                s_ij = ran * self._s_function__(xj_xi) * r_ij_vector
+                S_i_total += s_ij
+            x_new = c * np.random.normal() * S_i_total + self.g_best[self.ID_POS]  # Eq. (2.7) in the paper
+            pos_new = self.amend_position_faster(x_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
