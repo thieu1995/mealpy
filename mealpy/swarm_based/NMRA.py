@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -41,44 +39,25 @@ class BaseNMR(Optimizer):
         self.size_w = self.pop_size - self.size_b
         self.bp = bp
 
-    def create_child(self, idx, pop, g_best):
-        pos_new = pop[idx][self.ID_POS].copy()
-        if idx < self.size_b:  # breeding operators
-            if np.random.uniform() < self.bp:
-                alpha = np.random.uniform()
-                pos_new = (1 - alpha) * pop[idx][self.ID_POS] + alpha * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        else:  # working operators
-            t1, t2 = np.random.choice(range(self.size_b, self.pop_size), 2, replace=False)
-            pos_new = pop[idx][self.ID_POS] + np.random.uniform() * (pop[t1][self.ID_POS] - pop[t2][self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS].copy()
+            if idx < self.size_b:  # breeding operators
+                if np.random.uniform() < self.bp:
+                    alpha = np.random.uniform()
+                    pos_new = (1 - alpha) * self.pop[idx][self.ID_POS] + alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            else:  # working operators
+                t1, t2 = np.random.choice(range(self.size_b, self.pop_size), 2, replace=False)
+                pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[t1][self.ID_POS] - self.pop[t2][self.ID_POS])
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class ImprovedNMR(BaseNMR):
@@ -106,57 +85,7 @@ class ImprovedNMR(BaseNMR):
         self.sort_flag = True
         self.pm = pm
 
-    def create_child2(self, idx, pop, g_best, epoch):
-        # Exploration
-        if idx < self.size_b:  # breeding operators
-            if np.random.uniform() < self.bp:
-                pos_new = pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            else:
-                levy_step = self.get_levy_flight_step(beta=1, multiplier=0.001, case=-1)
-                pos_new = pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
-                            levy_step * (pop[idx][self.ID_POS] - g_best[self.ID_POS])
-        # Exploitation
-        else:  # working operators
-            if np.random.uniform() < 0.5:
-                t1, t2 = np.random.choice(range(self.size_b, self.pop_size), 2, replace=False)
-                pos_new = pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * (pop[t1][self.ID_POS] - pop[t2][self.ID_POS])
-            else:
-                pos_new = self._crossover_random__(pop, g_best)
-
-        # Mutation
-        temp = np.random.uniform(self.problem.lb, self.problem.ub)
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, temp, pos_new)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
-        """
-        Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
-        """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, epoch=epoch), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child2(idx, pop, g_best, epoch) for idx in pop_idx]
-        return child
-
-    def _crossover_random__(self, pop, g_best):
+    def _crossover_random(self, pop, g_best):
         start_point = np.random.randint(0, self.problem.n_dims / 2)
         id1 = start_point
         id2 = int(start_point + self.problem.n_dims / 3)
@@ -168,3 +97,35 @@ class ImprovedNMR(BaseNMR):
         new_temp[id1:id2] = partner[id1:id2]
         new_temp[id2:id3] = g_best[self.ID_POS][id2:id3]
         return new_temp
+
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Exploration
+            if idx < self.size_b:  # breeding operators
+                if np.random.uniform() < self.bp:
+                    pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * \
+                              (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                else:
+                    levy_step = self.get_levy_flight_step(beta=1, multiplier=0.001, case=-1)
+                    pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                              levy_step * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
+            # Exploitation
+            else:  # working operators
+                if np.random.uniform() < 0.5:
+                    t1, t2 = np.random.choice(range(self.size_b, self.pop_size), 2, replace=False)
+                    pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * \
+                              (self.pop[t1][self.ID_POS] - self.pop[t2][self.ID_POS])
+                else:
+                    pos_new = self._crossover_random(self.pop, self.g_best)
+            # Mutation
+            temp = np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, temp, pos_new)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
