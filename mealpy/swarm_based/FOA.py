@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -52,36 +50,18 @@ class OriginalFOA(Optimizer):
         fit = self.get_fitness_position(pos)
         return [position, fit]
 
-    def create_child(self, idx, pop, g_best):
-        pos_new = pop[idx][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub)
-        pos_new = self.norm_consecutive_adjacent(pos_new)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best=g_best) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub)
+            pos_new = self.norm_consecutive_adjacent(pos_new)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
 
 
 class BaseFOA(OriginalFOA):
@@ -103,20 +83,25 @@ class BaseFOA(OriginalFOA):
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
 
-    def create_child(self, idx, pop, g_best):
-        if np.random.rand() < 0.5:
-            pos_new = pop[idx][self.ID_POS] + 0.1 * np.random.normal(self.problem.lb, self.problem.ub)
-        else:
-            pos_new = g_best[self.ID_POS] + 0.1 * np.random.normal(self.problem.lb, self.problem.ub)
-        pos_new = self.norm_consecutive_adjacent(pos_new)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if np.random.rand() < 0.5:
+                pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims)
+            else:
+                pos_new = self.g_best[self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims)
+            pos_new = self.norm_consecutive_adjacent(pos_new)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
-class WFOA(OriginalFOA):
+class WhaleFOA(OriginalFOA):
     """
         The original version of: Whale Fruit-fly Optimization Algorithm (WFOA)
             (Boosted Hunting-based Fruit Fly Optimization and Advances in Real-world Problems)
@@ -134,51 +119,34 @@ class WFOA(OriginalFOA):
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
 
-    def create_child2(self, idx, pop, g_best, a):
-        r = np.random.rand()
-        A = 2 * a * r - a
-        C = 2 * r
-        l = np.random.uniform(-1, 1)
-        p = 0.5
-        b = 1
-        if np.random.rand() < p:
-            if np.abs(A) < 1:
-                D = np.abs(C * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-                pos_new = g_best[self.ID_POS] - A * D
-            else:
-                x_rand = pop[np.random.randint(self.pop_size)]  # select random 1 position in pop
-                D = np.abs(C * x_rand[self.ID_POS] - pop[idx][self.ID_POS])
-                pos_new = (x_rand[self.ID_POS] - A * D)
-        else:
-            D1 = np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            pos_new = D1 * np.exp(b * l) * np.cos(2 * np.pi * l) + g_best[self.ID_POS]
-
-        pos_new = self.amend_position_faster(pos_new)
-        smell = self.norm_consecutive_adjacent(pos_new)
-        fit_new = self.get_fitness_position(smell)
-        return [pos_new ,fit_new]
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         a = 2 - 2 * epoch / (self.epoch - 1)  # linearly decreased from 2 to 0
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, a=a), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, a=a), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child2(idx, pop, g_best=g_best, a=a) for idx in pop_idx]
-        return child
+
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            r = np.random.rand()
+            A = 2 * a * r - a
+            C = 2 * r
+            l = np.random.uniform(-1, 1)
+            p = 0.5
+            b = 1
+            if np.random.rand() < p:
+                if np.abs(A) < 1:
+                    D = np.abs(C * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    pos_new = self.g_best[self.ID_POS] - A * D
+                else:
+                    # select random 1 position in pop
+                    x_rand = self.pop[np.random.randint(self.pop_size)]
+                    D = np.abs(C * x_rand[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    pos_new = (x_rand[self.ID_POS] - A * D)
+            else:
+                D1 = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                pos_new = D1 * np.exp(b * l) * np.cos(2 * np.pi * l) + self.g_best[self.ID_POS]
+            smell = self.norm_consecutive_adjacent(pos_new)
+            pos_new = self.amend_position_faster(smell)
+            pop_new.append([pos_new, None])
+        self.pop = self.update_fitness_population(pop_new)
