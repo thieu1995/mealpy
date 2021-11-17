@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -38,83 +36,54 @@ class BaseMRFO(Optimizer):
         self.pop_size = pop_size
         self.somersault_range = somersault_range
 
-    def create_child(self, idx, pop, epoch, g_best):
-        # Cyclone foraging (Eq. 5, 6, 7)
-        if np.random.rand() < 0.5:
-            r1 = np.random.uniform()
-            beta = 2 * np.exp(r1 * (self.epoch - epoch) / self.epoch) * np.sin(2 * np.pi * r1)
-
-            if (epoch + 1) / self.epoch < np.random.uniform():
-                x_rand = np.random.uniform(self.problem.lb, self.problem.ub)
-                if idx == 0:
-                    x_t1 = x_rand + np.random.uniform() * (x_rand - pop[idx][self.ID_POS]) + \
-                           beta * (x_rand - pop[idx][self.ID_POS])
-                else:
-                    x_t1 = x_rand + np.random.uniform() * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
-                           beta * (x_rand - pop[idx][self.ID_POS])
-            else:
-                if idx == 0:
-                    x_t1 = g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - pop[idx][self.ID_POS]) + \
-                           beta * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-                else:
-                    x_t1 = g_best[self.ID_POS] + np.random.uniform() * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
-                           beta * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        # Chain foraging (Eq. 1,2)
-        else:
-            r = np.random.uniform()
-            alpha = 2 * r * np.sqrt(np.abs(np.log(r)))
-            if idx == 0:
-                x_t1 = pop[idx][self.ID_POS] + r * (g_best[self.ID_POS] - pop[idx][self.ID_POS]) + \
-                       alpha * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            else:
-                x_t1 = pop[idx][self.ID_POS] + r * (pop[idx - 1][self.ID_POS] - pop[idx][self.ID_POS]) + \
-                       alpha * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(x_t1)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def create_child2(self, idx, pop, g_best):
-        # Somersault foraging   (Eq. 8)
-        x_t1 = pop[idx][self.ID_POS] + self.somersault_range * \
-               (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(x_t1)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-            _, g_best = self.update_global_best_solution(child)
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=child, g_best=g_best), pop_idx)
-            pop = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-            _, g_best = self.update_global_best_solution(child)
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=child, g_best=g_best), pop_idx)
-            pop = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, epoch, g_best) for idx in pop_idx]
-            _, g_best = self.update_global_best_solution(child)
-            pop = [self.create_child2(idx, pop, g_best) for idx in pop_idx]
-        return pop
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Cyclone foraging (Eq. 5, 6, 7)
+            if np.random.rand() < 0.5:
+                r1 = np.random.uniform()
+                beta = 2 * np.exp(r1 * (self.epoch - epoch) / self.epoch) * np.sin(2 * np.pi * r1)
+
+                if (epoch + 1) / self.epoch < np.random.rand():
+                    x_rand = np.random.uniform(self.problem.lb, self.problem.ub)
+                    if idx == 0:
+                        x_t1 = x_rand + np.random.uniform() * (x_rand - self.pop[idx][self.ID_POS]) + \
+                               beta * (x_rand - self.pop[idx][self.ID_POS])
+                    else:
+                        x_t1 = x_rand + np.random.uniform() * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                               beta * (x_rand - self.pop[idx][self.ID_POS])
+                else:
+                    if idx == 0:
+                        x_t1 = self.g_best[self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                               beta * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    else:
+                        x_t1 = self.g_best[self.ID_POS] + np.random.uniform() * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                               beta * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            # Chain foraging (Eq. 1,2)
+            else:
+                r = np.random.uniform()
+                alpha = 2 * r * np.sqrt(np.abs(np.log(r)))
+                if idx == 0:
+                    x_t1 = self.pop[idx][self.ID_POS] + r * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                           alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                else:
+                    x_t1 = self.pop[idx][self.ID_POS] + r * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                           alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(x_t1)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(self.pop, pop_new)
+        _, g_best = self.update_global_best_solution(pop_new, save=False)
+        pop_child = []
+        for idx in range(0, self.pop_size):
+            # Somersault foraging   (Eq. 8)
+            x_t1 = pop_new[idx][self.ID_POS] + self.somersault_range * \
+                   (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop_new[idx][self.ID_POS])
+            pos_new = self.amend_position_faster(x_t1)
+            pop_child.append([pos_new, None])
+        pop_child = self.update_fitness_population(pop_child)
+        self.pop = self.greedy_selection_population(pop_new, pop_child)
