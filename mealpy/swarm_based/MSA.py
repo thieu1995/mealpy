@@ -8,8 +8,6 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from math import gamma
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -53,7 +51,7 @@ class BaseMSA(Optimizer):
         # you can change this ratio so as to get much better performance
         self.golden_ratio = (np.sqrt(5) - 1) / 2.0
 
-    def _levy_walk__(self, iteration):
+    def _levy_walk(self, iteration):
         beta = 1.5      # Eq. 2.23
         sigma = (gamma(1+beta) * np.sin(np.pi*(beta-1)/2) / (gamma(beta/2) * (beta-1) * 2 ** ((beta-2) / 2))) ** (1/(beta-1))
         u = np.random.uniform(self.problem.lb, self.problem.ub) * sigma
@@ -63,48 +61,32 @@ class BaseMSA(Optimizer):
         delta_x = scale * step
         return delta_x
 
-    def create_child(self, idx, pop, epoch, g_best):
-        # Migration operator
-        if idx < self.n_moth1:
-            # scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
-            pos_new = pop[idx][self.ID_POS] + np.random.normal() * self._levy_walk__(epoch)
-        else:
-        # Flying in a straight line
-            temp_case1 = pop[idx][self.ID_POS] + np.random.normal() * self.golden_ratio * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            temp_case2 = pop[idx][self.ID_POS] + np.random.normal() * (1.0 / self.golden_ratio) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            pos_new = np.where(np.random.uniform(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        pop_best = pop[:self.n_best].copy()
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, epoch, g_best) for idx in pop_idx]
-        pop, _ = self.get_global_best_solution(child)
+        pop_best = self.pop[:self.n_best].copy()
+
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Migration operator
+            if idx < self.n_moth1:
+                # scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
+                pos_new = self.pop[idx][self.ID_POS] + np.random.normal() * self._levy_walk(epoch)
+            else:
+                # Flying in a straight line
+                temp_case1 = self.pop[idx][self.ID_POS] + np.random.normal() * \
+                             self.golden_ratio * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                temp_case2 = self.pop[idx][self.ID_POS] + np.random.normal() * \
+                             (1.0 / self.golden_ratio) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                pos_new = np.where(np.random.uniform(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
+            pos_new = self.amend_position_faster(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.greedy_selection_population(self.pop, pop_new)
+
+        self.pop, _ = self.get_global_best_solution(pop_new)
         # Replace the worst with the previous generation's elites.
         for i in range(0, self.n_best):
-            pop[-1 - i] = pop_best[i].copy()
-        return pop
-
+            self.pop[-1 - i] = pop_best[i].copy()
