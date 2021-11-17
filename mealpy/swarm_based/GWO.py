@@ -77,7 +77,7 @@ class RW_GWO(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = pop_size + 3
         self.sort_flag = False
 
         self.epoch = epoch
@@ -95,12 +95,13 @@ class RW_GWO(Optimizer):
 
         _, leaders, _ = self.get_special_solutions(self.pop, best=3)
         ## Random walk here
+        leaders_new = []
         for i in range(0, len(leaders)):
             pos_new = leaders[i][self.ID_POS] + a * np.random.standard_cauchy(self.problem.n_dims)
             pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], leaders[i]):
-                leaders[i] = [pos_new, fit_new]
+            leaders_new.append([pos_new, None])
+        leaders_new = self.update_fitness_population(leaders_new)
+        leaders = self.greedy_selection_population(leaders, leaders_new)
 
         ## Update other wolfs
         pop_new = []
