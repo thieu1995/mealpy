@@ -7,10 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
-import time
 from mealpy.optimizer import Optimizer
 
 
@@ -41,7 +38,9 @@ class BaseSRSR(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 6 * pop_size
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = True
+
         self.epoch = epoch
         self.pop_size = pop_size
 
@@ -66,21 +65,9 @@ class BaseSRSR(Optimizer):
         fit_move = 0
         return [position, fitness, mu, sigma, x_new, fit_new, fit_move]
 
-    def solve(self, mode='sequential'):
-        """
-        Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
-        """
-        self.termination_start()
-        pop = self.create_population(mode, self.pop_size)
-        pop, g_best = self.get_global_best_solution(pop)  # We sort the population
-        self.history.save_initial_best(g_best)
+    def initialization(self):
+        self.pop = self.create_population(self.pop_size)
+        self.pop, self.g_best = self.get_global_best_solution(self.pop)
 
         # Control Parameters Of Algorithm
         # ==============================================================================================
@@ -90,178 +77,156 @@ class BaseSRSR(Optimizer):
         #  [c4] mu_factor       : Controls Mean Value For Master And Slave Robots
         #       Control Parameters C1, C2 And C3 Are Automatically Tuned While C4 Should Be Set By User
         # ==============================================================================================
-        mu_factor = 2 / 3  # [0.1-0.9] Controls Dominance Of Master Robot, Preferably 2/3
-        sigma_temp = np.zeros(self.pop_size)  # Initializing Temporary Stacks
-        SIF = None
-        movement_factor = self.problem.ub - self.problem.lb
+        self.mu_factor = 2 / 3  # [0.1-0.9] Controls Dominance Of Master Robot, Preferably 2/3
+        self.sigma_temp = np.zeros(self.pop_size)  # Initializing Temporary Stacks
+        self.SIF = None
+        self.movement_factor = self.problem.ub - self.problem.lb
 
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        # ========================================================================================= %%
+        #            PHASE 1 (ACCUMULATION): CALCULATING Mu AND SIGMA values FOR SOLUTIONS            %
+        # ===========================================================================================%%
 
-            # ========================================================================================= %%
-            #            PHASE 1 (ACCUMULATION): CALCULATING Mu AND SIGMA values FOR SOLUTIONS            %
-            # ===========================================================================================%%
+        # ------ CALCULATING MU AND SIGMA FOR MASTER ROBOT ----------
+        self.pop[0][self.ID_SIGMA] = np.random.uniform()
+        if epoch % 2 == 1:
+            self.pop[0][self.ID_MU] = (1 - self.pop[0][self.ID_SIGMA]) * self.pop[0][self.ID_POS]
+        else:
+            self.pop[0][self.ID_MU] = (1 + (1 - self.mu_factor) * self.pop[0][self.ID_SIGMA]) * self.pop[0][self.ID_POS]
 
-            # ------ CALCULATING MU AND SIGMA FOR MASTER ROBOT ----------
-            pop[0][self.ID_SIGMA] = np.random.uniform()
-            if epoch % 2 == 1:
-                pop[0][self.ID_MU] = (1 - pop[0][self.ID_SIGMA]) * pop[0][self.ID_POS]
-            else:
-                pop[0][self.ID_MU] = (1 + (1 - mu_factor) * pop[0][self.ID_SIGMA]) * pop[0][self.ID_POS]
+        pop_new = []
+        for i in range(0, self.pop_size):
+            agent = self.pop[i].copy()
+            # ---------- CALCULATING MU AND SIGMA FOR SLAVE ROBOTS ---------
+            self.pop[i][self.ID_MU] = self.mu_factor * self.pop[0][self.ID_POS] + (1 - self.mu_factor) * self.pop[i][self.ID_POS]
+            if epoch == 0:
+                self.SIF = 6
+            self.sigma_temp[i] = self.SIF * np.random.uniform()
+            self.pop[i][self.ID_SIGMA] = self.sigma_temp[i] * abs(self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
+                                    np.random.uniform() ** 2 * ((self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) < 0.05)
 
-            for i in range(1, self.pop_size):
-                # ---------- CALCULATING MU AND SIGMA FOR SLAVE ROBOTS ---------
-                pop[i][self.ID_MU] = mu_factor * pop[0][self.ID_POS] + (1 - mu_factor) * pop[i][self.ID_POS]
-                if epoch == 0:
-                    SIF = 6
-                sigma_temp[i] = SIF * np.random.uniform()
-                pop[i][self.ID_SIGMA] = sigma_temp[i] * abs(pop[0][self.ID_POS] - pop[i][self.ID_POS]) + \
-                                        np.random.uniform() ** 2 * ((pop[0][self.ID_POS] - pop[i][self.ID_POS]) < 0.05)
+            # ----- Generating New Positions Using New Obtained Mu And Sigma Values --------------
+            temp = np.random.normal(self.pop[i][self.ID_MU], self.pop[i][self.ID_SIGMA], self.problem.n_dims)
+            pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = pos_new
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
 
-                # ----- Generating New Positions Using New Obtained Mu And Sigma Values --------------
-                temp = np.random.normal(pop[i][self.ID_MU], pop[i][self.ID_SIGMA], self.problem.n_dims)
-                pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                pop[i][self.ID_POS_NEW] = pos_new
-                pop[i][self.ID_FIT_NEW] = fit_new
+        for idx in range(0, self.pop_size):
+            # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
+            self.pop[idx][self.ID_FIT_MOVE] = self.pop[idx][self.ID_FIT][self.ID_TAR] - self.pop[idx][self.ID_FIT_NEW][self.ID_TAR]
 
-                # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
-                pop[i][self.ID_FIT_MOVE] = pop[i][self.ID_FIT][self.ID_TAR] - pop[i][self.ID_FIT_NEW][self.ID_TAR]
+            self.pop[idx][self.ID_POS_NEW] = pop_new[idx][self.ID_POS].copy()
+            self.pop[idx][self.ID_FIT_NEW] = pop_new[idx][self.ID_FIT].copy()
 
-                # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
+            # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
+            # Replace Solution If It Reached To A More Quality Position
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS].copy()
+                self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT].copy()
 
-                # Replace Solution If It Reached To A More Quality Position
-                respec_id = int(np.floor(self.pop_size / (1 + round(np.random.uniform())))) - 1
-                if self.compare_agent([pos_new, fit_new], pop[respec_id]):
-                    pop[i][self.ID_POS] = pos_new.copy()
-                    pop[i][self.ID_FIT] = fit_new.copy()
-                else:
-                    # Replace Solution Whether It Reached A Better Position Or Not
-                    if self.compare_agent([pos_new, fit_new], pop[i]):
-                        pop[i][self.ID_POS] = pop[i][self.ID_POS_NEW].copy()
-                        pop[i][self.ID_FIT] = pop[i][self.ID_FIT_NEW].copy()
+        # --------- Determining Sigma Improvement Factor (Sif) Based On Vvss Movement -------------------
+        ## Get best improved fitness
+        fit_id = np.argmax([item[self.ID_FIT_MOVE] for item in self.pop])
+        sigma_factor = 1 + np.random.uniform() * np.max(self.problem.ub - self.problem.lb)
+        self.SIF = sigma_factor * self.sigma_temp[fit_id]
+        # Controlling Parameter Of Algorithm
+        if self.SIF > np.max(self.problem.ub):
+            self.SIF = np.max(self.problem.ub) * np.random.uniform()
 
-            # --------- Determining Sigma Improvement Factor (Sif) Based On Vvss Movement -------------------
-            ## Get best improved fitness
-            fit_id = np.argmax([item[self.ID_FIT_MOVE] for item in pop])
-            sigma_factor = 1 + np.random.uniform() * np.max(self.problem.ub - self.problem.lb)
-            SIF = sigma_factor * sigma_temp[fit_id]
-            # Controlling Parameter Of Algorithm
-            if SIF > np.max(self.problem.ub):
-                SIF = np.max(self.problem.ub) * np.random.uniform()
+        # ========================================================================================= %%
+        #            Phase 2 (Exploration): Moving Slave Robots Toward Master Robot                   %
+        # ===========================================================================================%%
+        pop_new = []
+        for i in range(0, self.pop_size):
+            agent = self.pop[i].copy()
+            gb = np.random.uniform(-1, 1, self.problem.n_dims)
+            gb[gb >= 0] = 1
+            gb[gb < 0] = -1
+            temp = self.pop[i][self.ID_POS] * np.random.uniform() + gb * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
+                   self.movement_factor * np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = pos_new
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
 
-            # ========================================================================================= %%
-            #            Phase 2 (Exploration): Moving Slave Robots Toward Master Robot                   %
-            # ===========================================================================================%%
-            for i in range(0, self.pop_size):
-                gb = np.random.uniform(-1, 1, self.problem.n_dims)
-                gb[gb >= 0] = 1
-                gb[gb < 0] = -1
-                temp = pop[i][self.ID_POS] * np.random.uniform() + gb * (pop[0][self.ID_POS] - pop[i][self.ID_POS]) + \
-                       movement_factor * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
+        for idx in range(0, self.pop_size):
+            # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
+            self.pop[idx][self.ID_FIT_MOVE] = self.pop[idx][self.ID_FIT][self.ID_TAR] - self.pop[idx][self.ID_FIT_NEW][self.ID_TAR]
 
-                # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
+            self.pop[idx][self.ID_POS_NEW] = pop_new[idx][self.ID_POS].copy()
+            self.pop[idx][self.ID_FIT_NEW] = pop_new[idx][self.ID_FIT].copy()
 
-                # Replace Solution If It Reached To A More Quality Position
-                respec_id = int(np.floor(self.pop_size / (1 + round(np.random.uniform())))) - 1
-                if self.compare_agent([pos_new, fit_new], pop[respec_id]):
-                    pop[i][self.ID_POS] = pos_new.copy()
-                    pop[i][self.ID_FIT] = fit_new.copy()
-                else:
-                    # Replace Solution Whether It Reached A Better Position Or Not
-                    if self.compare_agent([pos_new, fit_new], pop[i]):
-                        pop[i][self.ID_POS] = pop[i][self.ID_POS_NEW].copy()
-                        pop[i][self.ID_FIT] = pop[i][self.ID_FIT_NEW].copy()
+            # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
+            # Replace Solution If It Reached To A More Quality Position
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS].copy()
+                self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT].copy()
 
-            # ========================================================================================= %%
-            #        PHASE 3 (LOCAL SEARCH): CREATING SOME WORKER ROBOTS ASSIGNED TO SEARCH               %
-            #                      LOCATIONS AROUND POSITION OF MASTER ROBOT                              %
-            # ===========================================================================================%%
+        # ========================================================================================= %%
+        #        PHASE 3 (LOCAL SEARCH): CREATING SOME WORKER ROBOTS ASSIGNED TO SEARCH               %
+        #                      LOCATIONS AROUND POSITION OF MASTER ROBOT                              %
+        # ===========================================================================================%%
 
-            if epoch > 0:
-                # --- EXTRACTING "INTEGER PART" AND "FRACTIONAL PART"  OF THE ELEMENTS OF MASTER RPBOT POSITION------
-                master_robot = {"original": np.reshape(pop[0][self.ID_POS], (self.problem.n_dims, 1)).copy(),
-                                "sign": np.reshape(np.sign(pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
-                                "abs": np.reshape(abs(pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
-                                "int": np.reshape(np.floor(abs(pop[0][self.ID_POS])), (self.problem.n_dims, 1)).copy(),  # INTEGER PART
-                                "frac": np.reshape(abs(pop[0][self.ID_POS]) - np.floor(abs(pop[0][self.ID_POS])), (self.problem.n_dims, 1)).copy()
-                                }  # FRACTIONAL PART
+        if epoch > 0:
+            # --- EXTRACTING "INTEGER PART" AND "FRACTIONAL PART"  OF THE ELEMENTS OF MASTER RPBOT POSITION------
+            master_robot = {"original": np.reshape(self.pop[0][self.ID_POS], (self.problem.n_dims, 1)).copy(),
+                            "sign": np.reshape(np.sign(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
+                            "abs": np.reshape(abs(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
+                            "int": np.reshape(np.floor(abs(self.pop[0][self.ID_POS])), (self.problem.n_dims, 1)).copy(),  # INTEGER PART
+                            "frac": np.reshape(abs(self.pop[0][self.ID_POS]) - np.floor(abs(self.pop[0][self.ID_POS])),
+                                               (self.problem.n_dims, 1)).copy()}                    # FRACTIONAL PART
 
-                # ------- Applying Nth-root And Nth-exponent Operators To Create Position Of New Worker Robots -------
-                worker_robot1 = (master_robot["int"] + np.power(master_robot["frac"], 1 / (1 + np.random.randint(1, 4)))) * master_robot["sign"]
-                id_changed1 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
-                id_changed1 = np.reshape(id_changed1, (len(id_changed1)))
-                worker_robot1 = np.reshape(worker_robot1, (self.problem.n_dims, 1))
-                worker_robot1[id_changed1] = master_robot["original"][id_changed1]
+            # ------- Applying Nth-root And Nth-exponent Operators To Create Position Of New Worker Robots -------
+            worker_robot1 = (master_robot["int"] + np.power(master_robot["frac"], 1 / (1 + np.random.randint(1, 4)))) * master_robot["sign"]
+            id_changed1 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
+            id_changed1 = np.reshape(id_changed1, (len(id_changed1)))
+            worker_robot1 = np.reshape(worker_robot1, (self.problem.n_dims, 1))
+            worker_robot1[id_changed1] = master_robot["original"][id_changed1]
 
-                worker_robot2 = (master_robot["int"] + np.power(master_robot["frac"], (1 + np.random.randint(1, 4)))) * master_robot["sign"]
-                id_changed2 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
-                id_changed2 = np.reshape(id_changed2, (len(id_changed2)))
-                worker_robot2 = np.reshape(worker_robot2, (self.problem.n_dims, 1))
-                worker_robot2[id_changed2] = master_robot["original"][id_changed2]
+            worker_robot2 = (master_robot["int"] + np.power(master_robot["frac"], (1 + np.random.randint(1, 4)))) * master_robot["sign"]
+            id_changed2 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
+            id_changed2 = np.reshape(id_changed2, (len(id_changed2)))
+            worker_robot2 = np.reshape(worker_robot2, (self.problem.n_dims, 1))
+            worker_robot2[id_changed2] = master_robot["original"][id_changed2]
 
-                # -------- Applying A Combined Ga-like Operator To Create Position Of New Worker Robot -------------
-                random_per_mutation = np.random.permutation(self.problem.n_dims)
-                sec1 = random_per_mutation[0: int(self.problem.n_dims / 2)]
-                sec2 = random_per_mutation[int(self.problem.n_dims / 2):]
-                worker_robot3 = np.zeros((self.problem.n_dims, 1))
-                worker_robot3[sec1] = (master_robot["int"][sec1] + np.power(master_robot["frac"][sec1],
-                                                    1 / (1 + np.random.randint(1, 4)))) * master_robot["sign"][sec1]
-                worker_robot3[sec2] = (master_robot["int"][sec2] + master_robot["frac"][sec2] **
-                                       (1 + np.random.randint(1, 4))) * master_robot["sign"][sec2]
-                id_changed3 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
-                id_changed3 = np.reshape(id_changed3, (len(id_changed3)))
-                worker_robot3[id_changed3] = master_robot["original"][id_changed3]
+            # -------- Applying A Combined Ga-like Operator To Create Position Of New Worker Robot -------------
+            random_per_mutation = np.random.permutation(self.problem.n_dims)
+            sec1 = random_per_mutation[0: int(self.problem.n_dims / 2)]
+            sec2 = random_per_mutation[int(self.problem.n_dims / 2):]
+            worker_robot3 = np.zeros((self.problem.n_dims, 1))
+            worker_robot3[sec1] = (master_robot["int"][sec1] + np.power(master_robot["frac"][sec1],
+                                    1 / (1 + np.random.randint(1, 4)))) * master_robot["sign"][sec1]
+            worker_robot3[sec2] = (master_robot["int"][sec2] + master_robot["frac"][sec2] **
+                                   (1 + np.random.randint(1, 4))) * master_robot["sign"][sec2]
+            id_changed3 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
+            id_changed3 = np.reshape(id_changed3, (len(id_changed3)))
+            worker_robot3[id_changed3] = master_robot["original"][id_changed3]
 
-                # ------- Applying Round Operators To Create Position Of New Worker Robot -------------------
-                worker_robot4 = np.ceil(master_robot["abs"]) * master_robot["sign"]
-                id_changed4 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
-                id_changed4 = np.reshape(id_changed4, (len(id_changed4)))
-                worker_robot4[id_changed4] = master_robot["original"][id_changed4]
+            # ------- Applying Round Operators To Create Position Of New Worker Robot -------------------
+            worker_robot4 = np.ceil(master_robot["abs"]) * master_robot["sign"]
+            id_changed4 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
+            id_changed4 = np.reshape(id_changed4, (len(id_changed4)))
+            worker_robot4[id_changed4] = master_robot["original"][id_changed4]
 
-                worker_robot5 = np.floor(master_robot["abs"]) * master_robot["sign"]
-                id_changed5 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
-                id_changed5 = np.reshape(id_changed5, (len(id_changed5)))
-                worker_robot5[id_changed5] = master_robot["original"][id_changed5]
+            worker_robot5 = np.floor(master_robot["abs"]) * master_robot["sign"]
+            id_changed5 = np.argwhere(np.round(np.random.uniform(self.problem.lb, self.problem.ub)))
+            id_changed5 = np.reshape(id_changed5, (len(id_changed5)))
+            worker_robot5[id_changed5] = master_robot["original"][id_changed5]
 
-                # --------- Proogress Assessment: Replacing More Quality Solutions With Previous Ones ---------------
-                workers = np.concatenate((worker_robot1.T, worker_robot2.T, worker_robot3.T, worker_robot4.T, worker_robot5.T), axis=0)
-                for i in range(0, 5):
-                    workers[i] = np.clip(workers[i], self.problem.lb, self.problem.ub)
-                    fit = self.get_fitness_position(workers[i])
-                    if fit < pop[1][self.ID_FIT]:
-                        pop[-(i + 1)][self.ID_POS] = workers[i].copy()
-                        pop[-(i + 1)][self.ID_FIT] = fit.copy()
+            # --------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ---------------
+            workers = np.concatenate((worker_robot1.T, worker_robot2.T, worker_robot3.T, worker_robot4.T, worker_robot5.T), axis=0)
+            pop_workers = []
+            for i in range(0, 5):
+                workers[i] = np.clip(workers[i], self.problem.lb, self.problem.ub)
+                pop_workers.append([workers[i], None])
+            pop_workers = self.update_fitness_population(pop_workers)
 
-            pop, g_best = self.update_global_best_solution(pop)
-
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
+            for i in range(0, 5):
+                if self.compare_agent(pop_workers[i], self.pop[1]):
+                    self.pop[-(i + 1)][self.ID_POS] = pop_workers[i][self.ID_POS].copy()
+                    self.pop[-(i + 1)][self.ID_FIT] = pop_workers[i][self.ID_FIT].copy()
