@@ -90,7 +90,7 @@ class BaseSRSR(Optimizer):
         # ========================================================================================= %%
         #            PHASE 1 (ACCUMULATION): CALCULATING Mu AND SIGMA values FOR SOLUTIONS            %
         # ===========================================================================================%%
-
+        nfe_epoch = 0
         # ------ CALCULATING MU AND SIGMA FOR MASTER ROBOT ----------
         self.pop[0][self.ID_SIGMA] = np.random.uniform()
         if epoch % 2 == 1:
@@ -115,6 +115,7 @@ class BaseSRSR(Optimizer):
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
+        nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
@@ -153,6 +154,7 @@ class BaseSRSR(Optimizer):
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
+        nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
@@ -225,8 +227,10 @@ class BaseSRSR(Optimizer):
                 workers[i] = np.clip(workers[i], self.problem.lb, self.problem.ub)
                 pop_workers.append([workers[i], None])
             pop_workers = self.update_fitness_population(pop_workers)
+            nfe_epoch += 5
 
             for i in range(0, 5):
                 if self.compare_agent(pop_workers[i], self.pop[1]):
                     self.pop[-(i + 1)][self.ID_POS] = pop_workers[i][self.ID_POS].copy()
                     self.pop[-(i + 1)][self.ID_FIT] = pop_workers[i][self.ID_FIT].copy()
+            self.nfe_per_epoch = nfe_epoch
