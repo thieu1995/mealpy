@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
@@ -64,86 +62,60 @@ class BaseSSpiderA(Optimizer):
         ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         x: The position of s on the web.
-                train: The fitness of the current position of s.
-                target_vibration: The target vibration of s in the previous iteration.
-                intensity_vibration: intensity of vibration
-                movement_vector: The movement that s performed in the previous iteration.
-                dimension_mask: The dimension mask 1 that s employed to guide movement in the previous iteration.
-                    The dimension mask is a 0-1 binary vector of length problem size.
+        train: The fitness of the current position of s.
+        target_vibration: The target vibration of s in the previous iteration.
+        intensity_vibration: intensity of vibration
+        movement_vector: The movement that s performed in the previous iteration.
+        dimension_mask: The dimension mask 1 that s employed to guide movement in the previous iteration.
+        The dimension mask is a 0-1 binary vector of length problem size.
 
-                n_changed: The number of iterations since s has last changed its target vibration. (No need)
+        n_changed: The number of iterations since s has last changed its target vibration. (No need)
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
-        intensity = np.log(1. / (fitness[self.ID_TAR] + self.EPSILON) + 1)
+        intensity = np.log(1. / (abs(fitness[self.ID_TAR]) + self.EPSILON) + 1)
         target_position = position.copy()
         previous_movement_vector = np.zeros(self.problem.n_dims)
         dimension_mask = np.zeros(self.problem.n_dims)
         return [position, fitness, intensity, target_position, previous_movement_vector, dimension_mask]
 
-    def create_child(self, idx, pop, id_best_intennsity):
-        if pop[id_best_intennsity][self.ID_INT] > pop[idx][self.ID_INT]:
-            pop[idx][self.ID_TARGET_POS] = pop[id_best_intennsity][self.ID_TARGET_POS]
-
-        if np.random.uniform() > self.p_c:  ## changing mask
-            pop[idx][self.ID_MASK] = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, 0, 1)
-
-        pos_new = np.where(pop[idx][self.ID_MASK] == 0, pop[idx][self.ID_TARGET_POS], pop[np.random.randint(0, self.pop_size)][self.ID_POS])
-
-        ## Perform random walk
-        pos_new = pop[idx][self.ID_POS] + np.random.normal() * (pop[idx][self.ID_POS] - pop[idx][self.ID_PREV_MOVE_VEC]) + \
-                  (pos_new - pop[idx][self.ID_POS]) * np.random.normal()
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        agent = pop[idx].copy()
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            agent[self.ID_PREV_MOVE_VEC] = pos_new - pop[idx][self.ID_POS]
-            agent[self.ID_INT] = np.log(1. / (fit_new[self.ID_TAR] + self.EPSILON) + 1)
-            agent[self.ID_POS] = pos_new
-            agent[self.ID_FIT] = fit_new
-        return agent
-
-        ## Batch size idea
-        # if self.batch_idea:
-        #     if (i + 1) % self.batch_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        # else:
-        #     if (i + 1) % self.pop_size == 0:
-        #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        all_pos = np.array([it[self.ID_POS] for it in pop])  ## Matrix (pop_size, problem_size)
+        all_pos = np.array([it[self.ID_POS] for it in self.pop])  ## Matrix (pop_size, problem_size)
         base_distance = np.mean(np.std(all_pos, axis=0))  ## Number
         dist = cdist(all_pos, all_pos, 'euclidean')
 
-        intensity_source = np.array([it[self.ID_INT] for it in pop])
+        intensity_source = np.array([it[self.ID_INT] for it in self.pop])
         intensity_attenuation = np.exp(-dist / (base_distance * self.r_a))  ## vector (pop_size)
         intensity_receive = np.dot(np.reshape(intensity_source, (1, self.pop_size)), intensity_attenuation)  ## vector (1, pop_size)
         id_best_intennsity = np.argmax(intensity_receive)
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, id_best_intennsity=id_best_intennsity), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, id_best_intennsity=id_best_intennsity), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, id_best_intennsity) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            if self.pop[id_best_intennsity][self.ID_INT] > self.pop[idx][self.ID_INT]:
+                agent[self.ID_TARGET_POS] = self.pop[id_best_intennsity][self.ID_TARGET_POS]
+            if np.random.uniform() > self.p_c:  ## changing mask
+                agent[self.ID_MASK] = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, 0, 1)
+            pos_new = np.where(self.pop[idx][self.ID_MASK] == 0, self.pop[idx][self.ID_TARGET_POS],
+                               self.pop[np.random.randint(0, self.pop_size)][self.ID_POS])
+            ## Perform random walk
+            pos_new = self.pop[idx][self.ID_POS] + np.random.normal() * \
+                      (self.pop[idx][self.ID_POS] - self.pop[idx][self.ID_PREV_MOVE_VEC]) + \
+                      (pos_new - self.pop[idx][self.ID_POS]) * np.random.normal()
+            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
 
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx][self.ID_PREV_MOVE_VEC] = pop_new[idx][self.ID_POS] - self.pop[idx][self.ID_POS]
+                self.pop[idx][self.ID_INT] = np.log(1. / (abs(pop_new[idx][self.ID_FIT][self.ID_TAR]) + self.EPSILON) + 1)
+                self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS]
+                self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT]
 
 
 # class OriginalSSA(Root):
