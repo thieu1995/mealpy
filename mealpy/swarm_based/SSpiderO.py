@@ -7,10 +7,7 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
-import time
 from mealpy.optimizer import Optimizer
 
 
@@ -56,84 +53,93 @@ class BaseSSpiderO(Optimizer):
         weight = 0.0
         return [position, fitness, weight]
 
-    def _move_females__(self, mode=None, n_f=None, pop_females=None, pop_males=None, g_best=None, pm=None):
+    def initialization(self):
+        self.fp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
+        self.n_f = int(self.pop_size * self.fp)  # number of female
+        self.n_m = self.pop_size - self.n_f  # number of male
+        # Probabilities of attraction or repulsion Proper tuning for better results
+        self.p_m = (self.epoch + 1 - np.array(range(1, self.epoch + 1))) / (self.epoch + 1)
+
+        self.pop_males = self.create_population(self.n_m)
+        self.pop_females = self.create_population(self.n_f)
+        pop = self.pop_females.copy() + self.pop_males.copy()
+        self.pop = self._recalculate_weights(pop)
+        _, self.g_best = self.get_global_best_solution(self.pop)
+
+    def _move_females(self, epoch=None):
         scale_distance = np.sum(self.problem.ub - self.problem.lb)
-        pop = pop_females + pop_males
+        pop = self.pop_females + self.pop_males
         # Start looking for any stronger vibration
-        for i in range(0, n_f):    # Move the females
+        for i in range(0, self.n_f):    # Move the females
             ## Find the position s
             id_min = None
-            dist_min = 99999999
+            dist_min = 2**16
             for j in range(0, self.pop_size):
-                if pop[j][self.ID_WEI] > pop_females[i][self.ID_WEI]:
-                    dt = np.linalg.norm(pop[j][self.ID_POS] - pop_females[i][self.ID_POS]) / scale_distance
+                if self.pop_females[i][self.ID_WEI] < pop[j][self.ID_WEI]:
+                    dt = np.linalg.norm(pop[j][self.ID_POS] - self.pop_females[i][self.ID_POS]) / scale_distance
                     if dt < dist_min and dt != 0:
                         dist_min = dt
                         id_min = j
             x_s = np.zeros(self.problem.n_dims)
             vibs = 0
-            if not (id_min is None):
+            if id_min is not None:
                 vibs = 2*(pop[id_min][self.ID_WEI]*np.exp(-(np.random.uniform()*dist_min**2)))  # Vib for the shortest
                 x_s = pop[id_min][self.ID_POS]
 
             ## Find the position b
-            dtb = np.linalg.norm(g_best[self.ID_POS] - pop_females[i][self.ID_POS]) / scale_distance
-            vibb = 2 * (g_best[self.ID_WEI] * np.exp(-(np.random.uniform() * dtb ** 2)))
+            dtb = np.linalg.norm(self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) / scale_distance
+            vibb = 2 * (self.g_best[self.ID_WEI] * np.exp(-(np.random.uniform() * dtb ** 2)))
 
             ## Do attraction or repulsion
             beta = np.random.uniform(0, 1, self.problem.n_dims)
             gamma = np.random.uniform(0, 1, self.problem.n_dims)
-            random = 2 * pm * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
-            if np.random.uniform() >= pm:       # Do an attraction
-                temp = pop_females[i][self.ID_POS] + vibs * (x_s - pop_females[i][self.ID_POS]) * beta + \
-                    vibb * (g_best[self.ID_POS] - pop_females[i][self.ID_POS]) * gamma + random
+            random = 2 * self.p_m[epoch] * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
+            if np.random.uniform() >= self.p_m[epoch]:       # Do an attraction
+                pos_new = self.pop_females[i][self.ID_POS] + vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta + \
+                    vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
             else:                               # Do a repulsion
-                temp = pop_females[i][self.ID_POS] - vibs * (x_s - pop_females[i][self.ID_POS]) * beta - \
-                       vibb * (g_best[self.ID_POS] - pop_females[i][self.ID_POS]) * gamma + random
-            temp = self.amend_position_random(temp)
-            pop_females[i][self.ID_POS] = temp
-            # fit = self.get_fitness_position(temp)
-            # pop_females[i][self.ID_POS] = temp
-            # pop_females[i][self.ID_FIT] = fit
-        pop_females = self.update_fitness_population(mode, pop_females)
-        return pop_females
+                pos_new = self.pop_females[i][self.ID_POS] - vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta - \
+                       vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
+            pos_new = self.amend_position_random(pos_new)
+            self.pop_females[i][self.ID_POS] = pos_new
+        self.pop_females = self.update_fitness_population(self.pop_females)
+        self.nfe_epoch += self.n_f
 
-    def _move_males__(self, mode=None, n_f=None, n_m=None, pop_females=None, pop_males=None, pm=None):
+    def _move_males(self, epoch=None):
         scale_distance = np.sum(self.problem.ub - self.problem.lb)
-        my_median =np.median([it[self.ID_WEI] for it in pop_males])
-        pop = pop_females + pop_males
+        my_median =np.median([it[self.ID_WEI] for it in self.pop_males])
+        pop = self.pop_females + self.pop_males
         all_pos = np.array([it[self.ID_POS] for it in pop])
-        all_wei = np.array([it[self.ID_WEI] for it in pop]).reshape((2 * self.pop_size, 1))
+        all_wei = np.array([it[self.ID_WEI] for it in pop]).reshape((self.pop_size, 1))
         mean = np.sum(all_wei * all_pos, axis=0) / np.sum(all_wei)
-        for i in range(0, n_m):
+        for i in range(0, self.n_m):
             delta = 2 * np.random.uniform(0, 1, self.problem.n_dims) - 0.5
-            random = 2 * pm * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
+            random = 2 * self.p_m[epoch] * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
 
-            if pop_males[i][self.ID_WEI] >= my_median:         # Spider above the median
+            if self.pop_males[i][self.ID_WEI] >= my_median:         # Spider above the median
                 # Start looking for a female with stronger vibration
                 id_min = None
                 dist_min = 99999999
-                for j in range(0, n_f):
-                    if pop_females[j][self.ID_WEI] > pop_males[i][self.ID_WEI]:
-                        dt = np.linalg.norm(pop_females[j][self.ID_POS] - pop_males[i][self.ID_POS]) / scale_distance
+                for j in range(0, self.n_f):
+                    if self.pop_females[j][self.ID_WEI] > self.pop_males[i][self.ID_WEI]:
+                        dt = np.linalg.norm(self.pop_females[j][self.ID_POS] - self.pop_males[i][self.ID_POS]) / scale_distance
                         if dt < dist_min and dt != 0:
                             dist_min = dt
                             id_min = j
                 x_s = np.zeros(self.problem.n_dims)
                 vibs = 0
                 if id_min != None:
-                    vibs = 2 * (pop_females[id_min][self.ID_WEI] * np.exp(-(np.random.uniform() * dist_min ** 2)))      # Vib for the shortest
-                    x_s = pop_females[id_min][self.ID_POS]
-                temp = pop_males[i][self.ID_POS] + vibs * (x_s - pop_males[i][self.ID_POS])*delta + random
+                    # Vib for the shortest
+                    vibs = 2 * (self.pop_females[id_min][self.ID_WEI] * np.exp(-(np.random.uniform() * dist_min ** 2)))
+                    x_s = self.pop_females[id_min][self.ID_POS]
+                pos_new = self.pop_males[i][self.ID_POS] + vibs * (x_s - self.pop_males[i][self.ID_POS])*delta + random
             else:
                 # Spider below median, go to weighted mean
-                temp = pop_males[i][self.ID_POS] + delta * (mean - pop_males[i][self.ID_POS]) + random
-            temp = self.amend_position_random(temp)
-            pop_males[i][self.ID_POS] = temp
-            # fit = self.get_fitness_position(temp)
-            # pop_males[i][self.ID_FIT] = fit
-        pop_males = self.update_fitness_population(mode, pop_males)
-        return pop_males
+                pos_new = self.pop_males[i][self.ID_POS] + delta * (mean - self.pop_males[i][self.ID_POS]) + random
+            pos_new = self.amend_position_random(pos_new)
+            self.pop_males[i][self.ID_POS] = pos_new
+        self.pop_males = self.update_fitness_population(self.pop_males)
+        self.nfe_epoch += self.n_m
 
     ### Crossover
     def _crossover__(self, mom=None, dad=None, id=0):
@@ -164,13 +170,13 @@ class BaseSSpiderO(Optimizer):
 
         return child1, child2
 
-    def _mating__(self, mode, pop_females=None, pop_males=None, n_f=None, n_m=None):
+    def _mating(self):
         # Check whether a spider is good or not (above median)
-        my_median = np.median([it[self.ID_WEI] for it in pop_males])
-        pop_males_new = [pop_males[i] for i in range(n_m) if pop_males[i][self.ID_WEI] > my_median]
+        my_median = np.median([it[self.ID_WEI] for it in self.pop_males])
+        pop_males_new = [self.pop_males[i] for i in range(self.n_m) if self.pop_males[i][self.ID_WEI] > my_median]
 
         # Calculate the radio
-        pop = pop_females + pop_males
+        pop = self.pop_females + self.pop_males
         all_pos = np.array([it[self.ID_POS] for it in pop])
         rad = np.max(all_pos, axis=1) - np.min(all_pos, axis=1)
         r = np.sum(rad)/(2*self.problem.n_dims)
@@ -179,20 +185,21 @@ class BaseSSpiderO(Optimizer):
         list_child = []
         couples = []
         for i in range(0, len(pop_males_new)):
-            for j in range(0, n_f):
-                dist = np.linalg.norm(pop_males_new[i][self.ID_POS] - pop_females[j][self.ID_POS])
+            for j in range(0, self.n_f):
+                dist = np.linalg.norm(pop_males_new[i][self.ID_POS] - self.pop_females[j][self.ID_POS])
                 if dist < r:
-                    couples.append([pop_males_new[i], pop_females[j]])
+                    couples.append([pop_males_new[i], self.pop_females[j]])
         if couples:
             n_child = len(couples)
             for k in range(n_child):
                 child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
                 list_child.append([child1, None, 0.0])
                 list_child.append([child2, None, 0.0])
-        list_child = self.update_fitness_population(mode, list_child)
+        list_child = self.update_fitness_population(list_child)
+        self.nfe_epoch += len(list_child)
         return list_child
 
-    def _survive__(self, pop=None, pop_child=None):
+    def _survive(self, pop=None, pop_child=None):
         n_child = len(pop)
         pop_child = self.get_sorted_strim_population(pop_child, n_child)
         for i in range(0, n_child):
@@ -200,83 +207,31 @@ class BaseSSpiderO(Optimizer):
                 pop[i] = pop_child[i].copy()
         return pop
 
-    def _recalculate_weights__(self, pop=None):
+    def _recalculate_weights(self, pop=None):
         fit_total, fit_best, fit_worst = self.get_special_fitness(pop)
-        # This will automatically save weight in pop_males and pop_females because this is python.
         for i in range(len(pop)):
-            pop[i][self.ID_WEI] = 0.001 + (pop[i][self.ID_FIT][self.ID_TAR] - fit_worst) / (fit_best - fit_worst)
+            if fit_best == fit_worst:
+                pop[i][self.ID_WEI] = np.random.uniform(0.2, 0.8)
+            else:
+                pop[i][self.ID_WEI] = 0.001 + (pop[i][self.ID_FIT][self.ID_TAR] - fit_worst) / (fit_best - fit_worst)
         return pop
 
-    def solve(self, mode='sequential'):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        self.termination_start()
-        fp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
-        n_f = int(self.pop_size * fp)  # number of female
-        n_m = self.pop_size - n_f  # number of male
-        # Probabilities of attraction or repulsion Proper tuning for better results
-        p_m = (self.epoch + 1 - np.array(range(1, self.epoch + 1))) / (self.epoch + 1)
+        self.nfe_epoch = 0
+        ### Movement of spiders
+        self._move_females(epoch)
+        self._move_males(epoch)
 
-        pop_males = self.create_population(mode, n_m)
-        pop_females = self.create_population(mode, n_f)
-        pop = pop_females + pop_males
-        pop = self._recalculate_weights__(pop)
-        _, g_best = self.get_global_best_solution(pop)
-        self.history.save_initial_best(g_best)
+        # Recalculate weights
+        pop = self.pop_females + self.pop_males
+        pop = self._recalculate_weights(pop)
 
-        for epoch in range(0, self.epoch):
-            time_epoch = time.time()
-
-            ### Movement of spiders
-            pop_females = self._move_females__(mode, n_f, pop_females, pop_males, g_best, p_m[epoch])
-            pop_males = self._move_males__(mode, n_f, n_m, pop_females, pop_males, p_m[epoch])
-
-            # Recalculate weights
-            pop = pop_females + pop_males
-            pop = self._recalculate_weights__(pop)
-
-            # Mating Operator
-            pop_child = self._mating__(mode, pop_females, pop_males, n_f, n_m)
-            pop = self._survive__(pop, pop_child)
-            pop = self._recalculate_weights__(pop)
-
-            # update global best position
-            _, g_best = self.update_global_best_solution(pop)
-
-            ## Additional information for the framework
-            time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(pop.copy())
-            self.print_epoch(epoch + 1, time_epoch)
-            if self.termination_flag:
-                if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'FE':
-                    self.count_terminate += self.nfe_per_epoch
-                    if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-                else:  # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
-                    if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
-                        break
-
-        ## Additional information for the framework
-        self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
-
+        # Mating Operator
+        pop_child = self._mating()
+        pop = self._survive(pop, pop_child)
+        self.pop = self._recalculate_weights(pop)
+        self.nfe_per_epoch = self.nfe_epoch
