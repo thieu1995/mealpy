@@ -8,8 +8,6 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from math import gamma
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -40,32 +38,10 @@ class BaseSLO(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def create_child(self, idx, pop, g_best, SP_leader, c):
-        if SP_leader < 0.25:
-            if c < 1:
-                pos_new = g_best[self.ID_POS] - c * np.abs(2 * np.random.rand() * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-            else:
-                ri = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))  # random index
-                pos_new = pop[ri][self.ID_POS] - c * np.abs(2 * np.random.rand() * pop[ri][self.ID_POS] - pop[idx][self.ID_POS])
-        else:
-            pos_new = np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS]) * np.cos(2 * np.pi * np.random.uniform(-1, 1)) + g_best[self.ID_POS]
-        # In the paper doesn't check also doesn't update old solution at this point
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         c = 2 - 2 * epoch / self.epoch
         t0 = np.random.rand()
@@ -73,18 +49,24 @@ class BaseSLO(Optimizer):
         v2 = np.sin(2 * np.pi * (1 - t0))
         SP_leader = np.abs(v1 * (1 + v2) / v2)  # In the paper this is not clear how to calculate
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, SP_leader=SP_leader, c=c), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, SP_leader=SP_leader, c=c), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best, SP_leader, c) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if SP_leader < 0.25:
+                if c < 1:
+                    pos_new = self.g_best[self.ID_POS] - c * np.abs(2 * np.random.rand() *
+                                                                    self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                else:
+                    ri = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))  # random index
+                    pos_new = self.pop[ri][self.ID_POS] - c * np.abs(2 * np.random.rand() *
+                                                                self.pop[ri][self.ID_POS] - self.pop[idx][self.ID_POS])
+            else:
+                pos_new = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) * \
+                          np.cos(2 * np.pi * np.random.uniform(-1, 1)) + self.g_best[self.ID_POS]
+            # In the paper doesn't check also doesn't update old solution at this point
+            pos_new = self.amend_position_random(pos_new)
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class ModifiedSLO(Optimizer):
@@ -147,36 +129,10 @@ class ModifiedSLO(Optimizer):
         levy = LB * D
         return (current_pos - np.sqrt(epoch + 1) * np.sign(np.random.random(1) - 0.5)) * levy
 
-    def create_child(self, idx, pop, epoch, g_best, SP_leader, c, pa):
-        if SP_leader >= 0.6:
-            new_pos = np.cos(2 * np.pi * np.random.normal(0, 1)) * np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS]) + g_best[self.ID_POS]
-        else:
-            if np.random.uniform() < pa:
-                dist1 = np.random.uniform() * np.abs(2 * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-                new_pos = self._shrink_encircling_levy__(pop[idx][self.ID_POS], epoch, dist1, c)
-            else:
-                rand_SL = pop[np.random.randint(0, self.pop_size)][self.ID_LOC_POS]
-                rand_SL = 2 * g_best[self.ID_POS] - rand_SL
-                new_pos = rand_SL - c * np.abs(np.random.uniform() * rand_SL - pop[idx][self.ID_POS])
-
-        new_pos = self.amend_position_random(new_pos)
-        new_fit = self.get_fitness_position(new_pos)
-        if self.compare_agent([new_pos, new_fit], pop[idx]):
-            pop[idx][self.ID_LOC_POS] = new_pos.copy()
-            pop[idx][self.ID_LOC_FIT] = new_fit
-            return [new_pos, new_fit, pop[idx][self.ID_LOC_POS], pop[idx][self.ID_LOC_FIT]]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
 
         c = 2 - 2 * epoch / self.epoch
@@ -186,19 +142,30 @@ class ModifiedSLO(Optimizer):
             pa = 0.7  # But at the end of the process, it become larger. Because sea lion are shrinking encircling prey
         SP_leader = np.random.uniform(0, 1)
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best, SP_leader=SP_leader, c=c, pa=pa), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, epoch=epoch, g_best=g_best, SP_leader=SP_leader, c=c, pa=pa), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop=pop, epoch=epoch, g_best=g_best, SP_leader=SP_leader, c=c, pa=pa) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            if SP_leader >= 0.6:
+                pos_new = np.cos(2 * np.pi * np.random.normal(0, 1)) * \
+                          np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + self.g_best[self.ID_POS]
+            else:
+                if np.random.uniform() < pa:
+                    dist1 = np.random.uniform() * np.abs(2 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    pos_new = self._shrink_encircling_levy__(self.pop[idx][self.ID_POS], epoch, dist1, c)
+                else:
+                    rand_SL = self.pop[np.random.randint(0, self.pop_size)][self.ID_LOC_POS]
+                    rand_SL = 2 * self.g_best[self.ID_POS] - rand_SL
+                    pos_new = rand_SL - c * np.abs(np.random.uniform() * rand_SL - self.pop[idx][self.ID_POS])
+            agent[self.ID_POS] = self.amend_position_random(pos_new)
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
 
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOC_FIT]]):
+                    self.pop[idx][self.ID_LOC_POS] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOC_FIT] = pop_new[idx][self.ID_FIT].copy()
 
 
 class ISLO(ModifiedSLO):
@@ -227,59 +194,50 @@ class ISLO(ModifiedSLO):
         self.c1 = c1
         self.c2 = c2
 
-    def create_child2(self, idx, pop, g_best, SP_leader, c):
-        if SP_leader < 0.5:
-            if c < 1:  # Exploitation improved by historical movement + global best affect
-                # pos_new = g_best[self.ID_POS] - c * np.abs(2 * rand() * g_best[self.ID_POS] - pop[i][self.ID_POS])
-                dif1 = np.abs(2 * np.random.rand() * g_best[self.ID_POS] - pop[idx][self.ID_POS])
-                dif2 = np.abs(2 * np.random.rand() * pop[idx][self.ID_LOC_POS] - pop[idx][self.ID_POS])
-                pos_new = self.c1 * np.random.rand() * (pop[idx][self.ID_POS] - c * dif1) + self.c2 * np.random.rand() * (pop[idx][self.ID_POS] - c * dif2)
-            else:  # Exploration improved by opposition-based learning
-                # Create a new solution by equation below
-                # Then create an opposition solution of above solution
-                # Compare both of them and keep the good one (Searching at both direction)
-                pos_new = g_best[self.ID_POS] + c * np.random.normal(0, 1, self.problem.n_dims) * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-                fit_new = self.get_fitness_position(pos_new)
-                pos_new_oppo = self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.rand() * (g_best[self.ID_POS] - pos_new)
-                fit_new_oppo = self.get_fitness_position(pos_new_oppo)
-                if self.compare_agent([pos_new_oppo, fit_new_oppo], [pos_new, fit_new]):
-                    pos_new = pos_new_oppo
-        else:  # Exploitation
-            pos_new = g_best[self.ID_POS] + np.cos(2 * np.pi * np.random.uniform(-1, 1)) * np.abs(g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        pos_new = self.amend_position_random(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new, pos_new.copy(), fit_new]
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-
         c = 2 - 2 * epoch / self.epoch
         t0 = np.random.rand()
         v1 = np.sin(2 * np.pi * t0)
         v2 = np.sin(2 * np.pi * (1 - t0))
         SP_leader = np.abs(v1 * (1 + v2) / v2)
 
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, SP_leader=SP_leader, c=c), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child2, pop=pop, g_best=g_best, SP_leader=SP_leader, c=c), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child2(idx, pop, g_best, SP_leader, c) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            if SP_leader < 0.5:
+                if c < 1:  # Exploitation improved by historical movement + global best affect
+                    # pos_new = g_best[self.ID_POS] - c * np.abs(2 * rand() * g_best[self.ID_POS] - pop[i][self.ID_POS])
+                    dif1 = np.abs(2 * np.random.rand() * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    dif2 = np.abs(2 * np.random.rand() * self.pop[idx][self.ID_LOC_POS] - self.pop[idx][self.ID_POS])
+                    pos_new = self.c1 * np.random.rand() * (self.pop[idx][self.ID_POS] - c * dif1) + \
+                              self.c2 * np.random.rand() * (self.pop[idx][self.ID_POS] - c * dif2)
+                else:  # Exploration improved by opposition-based learning
+                    # Create a new solution by equation below
+                    # Then create an opposition solution of above solution
+                    # Compare both of them and keep the good one (Searching at both direction)
+                    pos_new = self.g_best[self.ID_POS] + c * np.random.normal(0, 1, self.problem.n_dims) * \
+                              (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    fit_new = self.get_fitness_position(self.amend_position_faster(pos_new))
+                    pos_new_oppo = self.problem.lb + self.problem.ub - self.g_best[self.ID_POS] + \
+                                   np.random.rand() * (self.g_best[self.ID_POS] - pos_new)
+                    fit_new_oppo = self.get_fitness_position(self.amend_position_faster(pos_new_oppo))
+                    if self.compare_agent([pos_new_oppo, fit_new_oppo], [pos_new, fit_new]):
+                        pos_new = pos_new_oppo
+            else:  # Exploitation
+                pos_new = self.g_best[self.ID_POS] + np.cos(2 * np.pi * np.random.uniform(-1, 1)) * \
+                          np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            agent[self.ID_POS] = self.amend_position_random(pos_new)
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
+
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOC_FIT]]):
+                    self.pop[idx][self.ID_LOC_POS] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOC_FIT] = pop_new[idx][self.ID_FIT].copy()
 
