@@ -7,8 +7,6 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-import concurrent.futures as parallel
-from functools import partial
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -45,7 +43,7 @@ class BasePSO(Optimizer):
         self.w_max = w_max
 
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
-        self.v_min = -1 * self.v_max
+        self.v_min = -self.v_max
 
     def create_solution(self):
         """
@@ -66,48 +64,33 @@ class BasePSO(Optimizer):
         local_fit = fitness.copy()
         return [position, fitness, velocity, local_pos, local_fit]
 
-    def create_child(self, idx, pop, g_best, w):
-        v_new = w * pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * (pop[idx][self.ID_LOP] - pop[idx][self.ID_POS]) + \
-                self.c2 * np.random.rand() * (g_best[self.ID_POS] - pop[idx][self.ID_POS])
-        # v_new = np.clip(v_new, self.v_min, self.v_max)
-        x_new = pop[idx][self.ID_POS] + v_new  # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
-        x_new = self.amend_position_random(x_new)
-        fit_new = self.get_fitness_position(x_new)
-
-        if self.compare_agent([x_new, fit_new], pop[idx]):
-            pop[idx][self.ID_POS] = x_new
-            pop[idx][self.ID_FIT] = fit_new
-            pop[idx][self.ID_VEC] = v_new
-            if self.compare_agent([x_new, fit_new], [None, pop[idx][self.ID_LOF]]):
-                pop[idx][self.ID_LOP] = x_new.copy()
-                pop[idx][self.ID_LOF] = fit_new.copy()
-        return pop[idx].copy()
-
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         # Update weight after each move count  (weight down)
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
-        pop_idx = np.array(range(0, self.pop_size))
-        if mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, w=w), pop_idx)
-            child = [x for x in pop_child]
-        elif mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
-                pop_child = executor.map(partial(self.create_child, pop=pop, g_best=g_best, w=w), pop_idx)
-            child = [x for x in pop_child]
-        else:
-            child = [self.create_child(idx, pop, g_best=g_best, w=w) for idx in pop_idx]
-        return child
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            agent = self.pop[idx].copy()
+            v_new = w * self.pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * \
+                    (self.pop[idx][self.ID_LOP] - self.pop[idx][self.ID_POS]) + \
+                    self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            # v_new = np.clip(v_new, self.v_min, self.v_max)
+            x_new = self.pop[idx][self.ID_POS] + v_new  # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
+            pos_new = self.amend_position_random(x_new)
+            agent[self.ID_POS] = pos_new
+            agent[self.ID_VEC] = v_new
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
+
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
 
 
 class PPSO(Optimizer):
@@ -137,7 +120,7 @@ class PPSO(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
-        self.v_min = -1 * self.v_max
+        self.v_min = -self.v_max
 
         # Dynamic variable
         self.dyn_delta_list = np.random.uniform(0, 2 * np.pi, self.pop_size)
@@ -150,43 +133,40 @@ class PPSO(Optimizer):
         local_fit = fitness.copy()
         return [position, fitness, velocity, local_pos, local_fit]
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
+        pop_new = []
         for i in range(0, self.pop_size):
+            agent = self.pop[i].copy()
             aa = 2 * (np.sin(self.dyn_delta_list[i]))
             bb = 2 * (np.cos(self.dyn_delta_list[i]))
             ee = np.abs(np.cos(self.dyn_delta_list[i])) ** aa
             tt = np.abs(np.sin(self.dyn_delta_list[i])) ** bb
 
-            v_new = ee * (pop[i][self.ID_LOP] - pop[i][self.ID_POS]) + tt * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+            v_new = ee * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + tt * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
             v_new = np.minimum(np.maximum(v_new, -self.v_max), self.v_max)
-            pop[i][self.ID_VEC] = v_new.copy()
+            agent[self.ID_VEC] = v_new.copy()
 
-            x_temp = pop[i][self.ID_POS] + v_new
+            x_temp = self.pop[i][self.ID_POS] + v_new
             x_temp = np.minimum(np.maximum(x_temp, self.problem.lb), self.problem.ub)
-            pop[i][self.ID_POS] = x_temp
+            agent[self.ID_POS] = x_temp
 
             self.dyn_delta_list[i] += np.abs(aa + bb) * (2 * np.pi)
             self.v_max = (np.abs(np.cos(self.dyn_delta_list[i])) ** 2) * (self.problem.ub - self.problem.lb)
-
+            pop_new.append(agent)
         # Update fitness for all solutions
-        pop = self.update_fitness_population(mode, pop)
+        pop_new = self.update_fitness_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
-        for i in range(self.pop_size):
-            if self.compare_agent([None, pop[i][self.ID_LOF]], pop[i]):
-                pop[i][self.ID_LOP] = pop[i][self.ID_POS].copy()
-                pop[i][self.ID_LOF] = pop[i][self.ID_FIT].copy()
-        return pop
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
 
 
 class HPSO_TVAC(PPSO):
@@ -216,20 +196,15 @@ class HPSO_TVAC(PPSO):
         self.ci = ci
         self.cf = cf
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         c_it = ((self.cf - self.ci) * ((epoch + 1) / self.epoch)) + self.ci
-
+        pop_new = []
         for i in range(0, self.pop_size):
+            agent = self.pop[i].copy()
             idx_k = np.random.randint(0, self.pop_size)
             w = np.random.normal()
             while (np.abs(w - 1.0) < 0.01):
@@ -238,33 +213,31 @@ class HPSO_TVAC(PPSO):
             c2_it = np.abs(1 - w) ** (c_it / (1 - w))
 
             #################### HPSO
-            v_new = c1_it * np.random.uniform(0, 1, self.problem.n_dims) * (pop[i][self.ID_LOP] - pop[i][self.ID_POS]) + \
-                        c2_it * np.random.uniform(0, 1, self.problem.n_dims) * (g_best[self.ID_POS] + pop[idx_k][self.ID_LOP] - 2 * pop[i][self.ID_POS])
+            v_new = c1_it * np.random.uniform(0, 1, self.problem.n_dims) * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + \
+                        c2_it * np.random.uniform(0, 1, self.problem.n_dims) * \
+                    (self.g_best[self.ID_POS] + self.pop[idx_k][self.ID_LOP] - 2 * self.pop[i][self.ID_POS])
 
             np.where(v_new == 0, np.sign(0.5 - np.random.uniform()) * np.random.uniform() * self.v_max, v_new)
             v_new = np.sign(v_new) * np.minimum(np.abs(v_new), self.v_max)
             #########################
 
             v_new = np.minimum(np.maximum(v_new, -self.v_max), self.v_max)
-            x_temp = pop[i][self.ID_POS] + v_new
-            x_temp = np.minimum(np.maximum(x_temp, self.problem.lb), self.problem.ub)
-
-            pop[i][self.ID_VEC] = v_new
-            pop[i][self.ID_POS] = x_temp
-
-            x_temp = pop[i][self.ID_POS] + v_new
-            x_temp = np.minimum(np.maximum(x_temp, self.problem.lb), self.problem.ub)
-            pop[i][self.ID_POS] = x_temp
+            x_temp = self.pop[i][self.ID_POS] + v_new
+            pos_new = np.minimum(np.maximum(x_temp, self.problem.lb), self.problem.ub)
+            agent[self.ID_VEC] = v_new
+            agent[self.ID_POS] = pos_new
+            pop_new.append(agent)
 
             # Update fitness for all solutions
-        pop = self.update_fitness_population(mode, pop)
+        pop_new = self.update_fitness_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
-        for i in range(self.pop_size):
-            if self.compare_agent([None, pop[i][self.ID_LOF]], pop[i]):
-                pop[i][self.ID_LOP] = pop[i][self.ID_POS].copy()
-                pop[i][self.ID_LOF] = pop[i][self.ID_FIT].copy()
-        return pop
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT].copy()
 
 
 class C_PSO(BasePSO):
@@ -298,7 +271,7 @@ class C_PSO(BasePSO):
         self.w_max = w_max
 
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
-        self.v_min = np.zeros(self.problem.n_dims)
+        self.v_min = -self.v_max
         self.N_CLS = int(self.pop_size / 5)  # Number of chaotic local searches
 
         # Dynamic variable
@@ -313,45 +286,47 @@ class C_PSO(BasePSO):
             output = self.w_max if fit <= fit_avg else temp1
         return output
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
-        list_fits = [item[self.ID_FIT][self.ID_TAR] for item in pop]
+        nfe_epoch = 0
+        list_fits = [item[self.ID_FIT][self.ID_TAR] for item in self.pop]
         fit_avg = np.mean(list_fits)
         fit_min = np.min(list_fits)
+        pop_new = []
         for i in range(self.pop_size):
-            w = self.__get_weights__(pop[i][self.ID_FIT][self.ID_TAR], fit_avg, fit_min)
-            v_new = w * pop[i][self.ID_VEC] + self.c1 * np.random.rand() * (pop[i][self.ID_LOP] - pop[i][self.ID_POS]) + \
-                    self.c2 * np.random.rand() * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+            agent = self.pop[i].copy()
+            w = self.__get_weights__(self.pop[i][self.ID_FIT][self.ID_TAR], fit_avg, fit_min)
+            v_new = w * self.pop[i][self.ID_VEC] + self.c1 * np.random.rand() * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + \
+                    self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
             v_new = np.clip(v_new, self.v_min, self.v_max)
-            x_new = pop[i][self.ID_POS] + v_new
-            pop[i][self.ID_VEC] = v_new
-            pop[i][self.ID_POS] = x_new
+            x_new = self.pop[i][self.ID_POS] + v_new
+            agent[self.ID_VEC] = v_new
+            agent[self.ID_POS] = x_new
+            pop_new.append(agent)
 
         # Update fitness for all solutions
-        pop = self.update_fitness_population(mode, pop)
+        pop_new = self.update_fitness_population(pop_new)
+        nfe_epoch += self.pop_size
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
-        for i in range(self.pop_size):
-            if self.compare_agent([None, pop[i][self.ID_LOF]], pop[i]):
-                pop[i][self.ID_LOP] = pop[i][self.ID_POS].copy()
-                pop[i][self.ID_LOF] = pop[i][self.ID_FIT].copy()
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
 
         ## Implement chaostic local search for the best solution
-        cx_best_0 = (g_best[self.ID_POS] - self.problem.lb) / (self.problem.ub - self.problem.lb)  # Eq. 7
+        g_best = self.g_best
+        cx_best_0 = (self.g_best[self.ID_POS] - self.problem.lb) / (self.problem.ub - self.problem.lb)  # Eq. 7
         cx_best_1 = 4 * cx_best_0 * (1 - cx_best_0)  # Eq. 6
         x_best = self.problem.lb + cx_best_1 * (self.problem.ub - self.problem.lb)  # Eq. 8
         x_best = self.amend_position_faster(x_best)
         fit_best = self.get_fitness_position(x_best)
-        if self.compare_agent([x_best, fit_best], g_best):
+        if self.compare_agent([x_best, fit_best], self.g_best):
             g_best = [x_best, fit_best]
 
         r = np.random.rand()
@@ -360,9 +335,10 @@ class C_PSO(BasePSO):
         bound_max = np.stack([self.dyn_ub, g_best[self.ID_POS] + r * (self.dyn_ub - self.dyn_lb)])
         self.dyn_ub = np.min(bound_max, axis=0)
 
-        pop_new_child = self.create_population(mode, self.pop_size - self.N_CLS)
-        pop = self.get_sorted_strim_population(pop + pop_new_child, self.pop_size)
-        return pop
+        pop_new_child = self.create_population(self.pop_size - self.N_CLS)
+        self.pop = self.get_sorted_strim_population(self.pop + pop_new_child, self.pop_size)
+        nfe_epoch += 1 + (self.pop_size - self.N_CLS)
+        self.nfe_per_epoch = nfe_epoch
 
 
 class CL_PSO(Optimizer):
@@ -389,7 +365,7 @@ class CL_PSO(Optimizer):
             **kwargs ():
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
         self.epoch = epoch
@@ -397,10 +373,10 @@ class CL_PSO(Optimizer):
         self.c_local = c_local  # Local coefficient
         self.w_min = w_min  # [0-1] -> [0.4-0.9]      Weight of bird
         self.w_max = w_max
-        self.max_flag = 7
+        self.max_flag = max_flag
 
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
-        self.v_min = np.zeros(self.problem.n_dims)
+        self.v_min = -self.v_max
 
         # Dynamic variable
         self.flags = np.zeros(self.pop_size)
@@ -413,51 +389,50 @@ class CL_PSO(Optimizer):
         local_fit = fitness.copy()
         return [position, fitness, velocity, local_pos, local_fit]
 
-    def evolve(self, mode='sequential', epoch=None, pop=None, g_best=None):
+    def evolve(self, epoch):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-        Returns:
-            [position, fitness value]
+            epoch (int): The current iteration
         """
         wk = self.w_max * (epoch / self.epoch) * (self.w_max - self.w_min)
-
+        pop_new = []
         for i in range(0, self.pop_size):
+            agent = self.pop[i].copy()
             if self.flags[i] >= self.max_flag:
                 self.flags[i] = 0
-                pop[i] = self.create_solution()
+                agent = self.create_solution()
 
             pci = 0.05 + 0.45 * (np.exp(10 * (i + 1) / self.pop_size) - 1) / (np.exp(10) - 1)
 
-            vec_new = pop[i][self.ID_VEC].copy()
+            vec_new = self.pop[i][self.ID_VEC].copy()
             for j in range(0, self.problem.n_dims):
                 if np.random.rand() > pci:
-                    vj = wk * pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * (pop[i][self.ID_LOP][j] - pop[i][self.ID_POS][j])
+                    vj = wk * self.pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * \
+                         (self.pop[i][self.ID_LOP][j] - self.pop[i][self.ID_POS][j])
                 else:
                     id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
-                    if self.compare_agent(pop[id1], pop[id2]):
-                        vj = wk * pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * (pop[id1][self.ID_LOP][j] - pop[i][self.ID_POS][j])
+                    if self.compare_agent(self.pop[id1], self.pop[id2]):
+                        vj = wk * self.pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() *\
+                             (self.pop[id1][self.ID_LOP][j] - self.pop[i][self.ID_POS][j])
                     else:
-                        vj = wk * pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * (pop[id2][self.ID_LOP][j] - pop[i][self.ID_POS][j])
+                        vj = wk * self.pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * \
+                             (self.pop[id2][self.ID_LOP][j] - self.pop[i][self.ID_POS][j])
                 vec_new[j] = vj
             vec_new = np.clip(vec_new, self.v_min, self.v_max)
-            pos_new = pop[i][self.ID_POS] + vec_new
+            pos_new = self.pop[i][self.ID_POS] + vec_new
             pos_new = self.amend_position_faster(pos_new)
-            fit_new = self.get_fitness_position(pos_new)
-            pop[i][self.ID_POS] = pos_new
-            pop[i][self.ID_FIT] = fit_new
+            agent[self.ID_VEC] = vec_new
+            agent[self.ID_POS] = pos_new
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
 
-            if not np.any(self.problem.ub - pos_new < 0) and not np.any(pos_new - self.problem.lb < 0):
-                if self.compare_agent([pos_new, fit_new], [None, pop[i][self.ID_LOF]]):
-                    pop[i][self.ID_LOP] = pos_new
-                    pop[i][self.ID_LOF] = fit_new
-                    self.flags[i] = 0
+        # Update current position, current velocity and compare with past position, past fitness (local best)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
+                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT].copy()
+                    self.flags[idx] = 0
                 else:
-                    self.flags[i] += 1
-        return pop
-
-
+                    self.flags[idx] += 1
