@@ -122,14 +122,8 @@ class BaseMA(Optimizer):
 
     def evolve(self, epoch):
         """
-            Args:
-                mode (str): 'sequential', 'thread', 'process'
-                    + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                    + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                    + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
-
-            Returns:
-                [position, fitness value]
+        Args:
+            epoch (int): The current iteration
         """
         nfe_epoch = self.pop_size
         ## Binary tournament
