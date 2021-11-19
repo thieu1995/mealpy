@@ -7,17 +7,19 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-from numpy import sqrt, dot, exp, abs, sum, zeros, append, delete
-from numpy.random import uniform, normal
-from copy import deepcopy
-from mealpy.optimizer import Root
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class OriginalBFO(Root):
+class OriginalBFO(Optimizer):
     """
         The original version of: Bacterial Foraging Optimization (BFO)
         Link:
-            + Taken from here: http://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
+            + Reference: http://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
+        Note:
+            + In this version I replace Ned and Nre parameter by epoch (generation)
+            + The Nc parameter will also decreased to reduce the computation time.
+            + Cost in this version equal to Fitness value in the paper.
     """
     ID_POS = 0
     ID_FIT = 1
@@ -25,216 +27,221 @@ class OriginalBFO(Root):
     ID_INTER = 3
     ID_SUM_NUTRIENTS = 4
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 Ci=0.01, Ped=0.25, Ns=4, Ned=5, Nre=50, Nc=10, attract_repesls=(0.1, 0.2, 0.1, 10), **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100,
+                 Ci=0.01, Ped=0.25, Nc=5, Ns=4, attract_repesls=(0.1, 0.2, 0.1, 10), **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            Ci (float): p_eliminate, default=0.01
+            Ped (float): p_eliminate, default=0.25
+            Ned (int): elim_disp_steps (Removed)         Ned=5,
+            Nre (int): reproduction_steps (Removed)      Nre=50,
+            Nc (int): chem_steps (Reduce)                Nc = Original Nc/2, default = 5
+            Ns (int): swim_length, default=4
+            attract_repesls (list): coefficient to calculate attract and repel force, default = (0.1, 0.2, 0.1, 10)
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
+
+        self.epoch = epoch
         self.pop_size = pop_size
-        self.step_size = Ci                 # p_eliminate
-        self.p_eliminate = Ped              # p_eliminate
-        self.swim_length = Ns               # swim_length
-        self.elim_disp_steps = Ned          # elim_disp_steps
-        self.repro_steps = Nre              # reproduction_steps
-        self.chem_steps = Nc                # chem_steps
+        self.step_size = Ci
+        self.p_eliminate = Ped
+        self.chem_steps = Nc
+        self.swim_length = Ns
         self.d_attr = attract_repesls[0]
         self.w_attr = attract_repesls[1]
         self.h_rep = attract_repesls[2]
         self.w_rep = attract_repesls[3]
+        self.half_pop_size = int(self.pop_size / 2)
 
-    def create_solution(self, minmax=None):
-        vector = uniform(self.lb, self.ub)
+    def create_solution(self):
+        position = np.random.uniform(self.problem.lb, self.problem.ub)
+        fitness = self.get_fitness_position(position)
         cost = 0.0
         interaction = 0.0
-        fitness = 0.0
         sum_nutrients = 0.0
-        return [vector, fitness, cost, interaction, sum_nutrients]
+        return [position, fitness, cost, interaction, sum_nutrients]
 
-    def _compute_cell_interaction__(self, cell, cells, d, w):
+    def _compute_cell_interaction(self, cell, cells, d, w):
         sum_inter = 0.0
         for other in cells:
-            diff = self.problem_size * ((cell[self.ID_POS] - other[self.ID_POS]) ** 2).mean(axis=None)
-            sum_inter += d * exp(w * diff)
+            diff = self.problem.n_dims * ((cell[self.ID_POS] - other[self.ID_POS]) ** 2).mean(axis=None)
+            sum_inter += d * np.exp(w * diff)
         return sum_inter
 
-    def _attract_repel__(self, cell, cells):
-        attract = self._compute_cell_interaction__(cell, cells, -self.d_attr, -self.w_attr)
-        repel = self._compute_cell_interaction__(cell, cells, self.h_rep, -self.w_rep)
+    def _attract_repel(self, idx, cells):
+        attract = self._compute_cell_interaction(cells[idx], cells, -self.d_attr, -self.w_attr)
+        repel = self._compute_cell_interaction(cells[idx], cells, self.h_rep, -self.w_rep)
         return attract + repel
 
-    def _evaluate__(self, cell, cells):
-        cell[self.ID_COST] = self.get_fitness_position(cell[self.ID_POS])
-        cell[self.ID_INTER] = self._attract_repel__(cell, cells)
-        cell[self.ID_FIT] = cell[self.ID_COST] + cell[self.ID_INTER]
+    def _evaluate(self, idx, cells):
+        cells[idx][self.ID_INTER] = self._attract_repel(idx, cells)
+        cells[idx][self.ID_COST] = cells[idx][self.ID_FIT][self.ID_TAR] + cells[idx][self.ID_INTER]
+        return cells
 
-    def _tumble_cell__(self, cell, step_size):
-        delta_i = uniform(self.lb, self.ub)
-        unit_vector = delta_i / sqrt(abs(dot(delta_i, delta_i.T)))
+    def _tumble_cell(self, cell, step_size):
+        delta_i = np.random.uniform(self.problem.lb, self.problem.ub)
+        unit_vector = delta_i / np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
         vector = cell[self.ID_POS] + step_size * unit_vector
         return [vector, 0.0, 0.0, 0.0, 0.0]
 
-    def _chemotaxis__(self, l=None, k=None, cells=None):
-        current_best = None
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        nfe_epoch = 0
         for j in range(0, self.chem_steps):
-            moved_cells = []  # New generation
-            for i, cell in enumerate(cells):
+            for idx in range(0, self.pop_size):
                 sum_nutrients = 0.0
-                self._evaluate__(cell, cells)
-                if (current_best is None) or cell[self.ID_COST] < current_best[self.ID_COST]:
-                    current_best = deepcopy(cell)
-                sum_nutrients += cell[self.ID_FIT]
+                self.pop = self._evaluate(idx, self.pop)
+                sum_nutrients += self.pop[idx][self.ID_COST]
 
                 for m in range(0, self.swim_length):
-                    new_cell = self._tumble_cell__(cell, self.step_size)
-                    self._evaluate__(new_cell, cells)
-                    if current_best[self.ID_COST] > new_cell[self.ID_COST]:
-                        current_best = deepcopy(new_cell)
-                    if new_cell[self.ID_FIT] > cell[self.ID_FIT]:
+                    delta_i = np.random.uniform(self.problem.lb, self.problem.ub)
+                    unit_vector = delta_i / np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
+                    pos_new = self.pop[idx][self.ID_POS] + self.step_size * unit_vector
+                    pos_new = self.amend_position_faster(pos_new)
+                    fit_new = self.get_fitness_position(pos_new)
+                    nfe_epoch += 1
+                    if self.compare_agent([pos_new, fit_new], self.pop[idx]):
+                        self.pop[idx][self.ID_POS] = pos_new
+                        self.pop[idx][self.ID_FIT] = fit_new
                         break
-                    cell = deepcopy(new_cell)
-                    sum_nutrients += cell[self.ID_FIT]
+                    sum_nutrients += self.pop[idx][self.ID_COST]
+                self.pop[idx][self.ID_SUM_NUTRIENTS] = sum_nutrients
 
-                cell[self.ID_SUM_NUTRIENTS] = sum_nutrients
-                moved_cells.append(deepcopy(cell))
-            cells = deepcopy(moved_cells)
-            self.loss_train.append(current_best[self.ID_COST])
-            if self.verbose:
-                print("> Elim: %d, Repro: %d, Chemo: %d, Best fit: %.6f" % (l + 1, k + 1, j + 1, current_best[self.ID_COST]))
-        return current_best, cells
+            cells = sorted(self.pop, key=lambda cell: cell[self.ID_SUM_NUTRIENTS])
+            self.pop = cells[0:self.half_pop_size].copy() + cells[0:self.half_pop_size].copy()
 
-    def train(self):
-        cells = [self.create_solution() for _ in range(0, self.pop_size)]
-        g_best = self.get_global_best_solution(cells, self.ID_FIT, self.ID_MIN_PROB)
-        half_pop_size = int(self.pop_size / 2)
-        for l in range(0, self.elim_disp_steps):
-            for k in range(0, self.repro_steps):
-                current_best, cells = self._chemotaxis__(l, k, cells)
-                if current_best[self.ID_COST] < g_best[self.ID_COST]:
-                    g_best = deepcopy(current_best)
-                cells = sorted(cells, key=lambda cell: cell[self.ID_SUM_NUTRIENTS])
-                cells = deepcopy(cells[0:half_pop_size]) + deepcopy(cells[0:half_pop_size])
             for idc in range(self.pop_size):
-                if uniform() < self.p_eliminate:
-                    cells[idc] = self.create_solution()
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+                if np.random.rand() < self.p_eliminate:
+                    self.pop[idc] = self.create_solution()
+                    nfe_epoch += 1
+        self.nfe_per_epoch = nfe_epoch
 
 
-class BaseBFO(Root):
+class ABFO(Optimizer):
     """
-    The adaptive version of: Bacterial Foraging Optimization (BFO)
+    The adaptive version of: Adaptive Bacterial Foraging Optimization (ABFO)
+        (An Adaptive Bacterial Foraging Optimization Algorithm with Lifecycle and Social Learning)
     Notes:
         + This is the best improvement version of BFO
-        + Based on this paper: An Adaptive Bacterial Foraging Optimization Algorithm with Lifecycle and Social Learning
+        + The population will remain the same length as initialization due to add and remove operators
     """
+    ID_NUT = 2
+    ID_LOC_POS = 3
+    ID_LOC_FIT = 4
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-                 Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(2, 40), **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100,
+                 Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(1, 40), **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            Ci (list): C_s (start), C_e (end)  -=> step size # step size in BFO, default=(0.1, 0.001)
+            Ped (float): Probability eliminate, default=0.01
+            Ns (int): swim_length, default=4
+            N_minmax (list): (Dead threshold value, split threshold value), default=(2, 40)
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.step_size = Ci  # C_s (start), C_e (end)  -=> step size # step size in BFO
-        self.p_eliminate = Ped  # Probability eliminate
-        self.swim_length = Ns  # swim_length
+        self.step_size = Ci
+        self.p_eliminate = Ped
+        self.swim_length = Ns
 
         # (Dead threshold value, split threshold value) -> N_adapt, N_split
         self.N_adapt = N_minmax[0]  # Dead threshold value
         self.N_split = N_minmax[1]  # split threshold value
 
-        self.C_s = self.step_size[0] * (self.ub - self.lb)
-        self.C_e = self.step_size[1] * (self.ub - self.lb)
+        self.C_s = self.step_size[0] * (self.problem.ub - self.problem.lb)
+        self.C_e = self.step_size[1] * (self.problem.ub - self.problem.lb)
 
-    def _tumble_cell__(self, cell=None, cell_local=None, step_size=None, g_best=None, nutrient=None):
-        delta_i = (g_best[self.ID_POS] - cell[self.ID_POS]) + (cell_local[self.ID_POS] - cell[self.ID_POS])
-        delta = sqrt(abs(dot(delta_i, delta_i.T)))
-        if delta == 0:
-            unit_vector = uniform(self.lb, self.ub)
-        else:
-            unit_vector = delta_i / delta
-        pos_new = cell[self.ID_POS] + step_size * unit_vector
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if fit_new < cell[self.ID_FIT]:
-            nutrient += 1
-            cell_local = [deepcopy(pos_new), fit_new]  # Update personal best
-        else:
-            nutrient -= 1
-        cell = [deepcopy(pos_new), fit_new]
+    def create_solution(self):
+        vector = np.random.uniform(self.problem.lb, self.problem.ub)
+        fitness = self.get_fitness_position(vector)
+        nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
+        local_pos_best = vector.copy()
+        local_fit_best = fitness.copy()
+        return [vector, fitness, nutrient, local_pos_best, local_fit_best]
 
-        # Update global best
-        g_best = deepcopy(cell) if g_best[self.ID_FIT] > cell[self.ID_FIT] else g_best
-        return cell, cell_local, nutrient, g_best
-
-    def _update_step_size__(self, pop=None, list_nutrient=None, idx=None):
-        total_fitness = sum(temp[self.ID_FIT] for temp in pop)
-        step_size = self.C_s - (self.C_s - self.C_e) * pop[idx][self.ID_FIT] / total_fitness
-        step_size = step_size / list_nutrient[idx] if list_nutrient[idx] > 0 else step_size
+    def _update_step_size(self, pop=None, idx=None):
+        total_fitness = np.sum(temp[self.ID_FIT][self.ID_TAR] for temp in pop)
+        step_size = self.C_s - (self.C_s - self.C_e) * pop[idx][self.ID_FIT][self.ID_TAR] / total_fitness
+        step_size = step_size / self.pop[idx][self.ID_NUT] if self.pop[idx][self.ID_NUT] > 0 else step_size
         return step_size
 
-    def create_solution(self, minmax=None):
-        vector = uniform(self.lb, self.ub)
-        fitness = self.get_fitness_position(vector)  # Current position
-        nutrient = 0
-        p_best = deepcopy(vector)
-        return [vector, fitness, nutrient, p_best]
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        nfe_epoch = 0
+        for i in range(0, self.pop_size):
+            step_size = self._update_step_size(self.pop, i)
+            for m in range(0, self.swim_length):        # Ns
+                delta_i = (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS]) + \
+                          (self.pop[i][self.ID_LOC_POS] - self.pop[i][self.ID_POS])
+                delta = np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
+                unit_vector = np.random.uniform(self.problem.lb, self.problem.ub) if delta == 0 else (delta_i / delta)
+                pos_new = self.pop[i][self.ID_POS] + step_size * unit_vector
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                nfe_epoch += 1
+                if self.compare_agent([pos_new, fit_new], self.pop[i]):
+                    self.pop[i][self.ID_POS] = pos_new
+                    self.pop[i][self.ID_FIT] = fit_new
+                    self.pop[i][self.ID_NUT] += 1
+                    # Update personal best
+                    if self.compare_agent([pos_new, fit_new], [None, self.pop[i][self.ID_LOC_FIT]]):
+                        self.pop[i][self.ID_LOC_POS] = pos_new.copy()
+                        self.pop[i][self.ID_LOC_FIT] =  fit_new.copy()
+                else:
+                    self.pop[i][self.ID_NUT] -= 1
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(0, self.pop_size)]  # Current population
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+            if self.pop[i][self.ID_NUT] > max(self.N_split, self.N_split + (len(self.pop) - self.pop_size) / self.N_adapt):
+                pos_new = self.pop[i][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub) * \
+                                        (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
+                pos_new = self.amend_position_faster(pos_new)
+                fit_new = self.get_fitness_position(pos_new)
+                self.pop.append([pos_new, fit_new, 0, pos_new.copy(), fit_new.copy()])
+                nfe_epoch += 1
 
-        list_nutrient = zeros(self.pop_size)    # total nutrient gained by the bacterium in its whole searching process.(int number)
-        pop_local = deepcopy(pop)               # The best population in history
+            nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)
+            if self.pop[i][self.ID_NUT] < nut_min or np.random.rand() < self.p_eliminate:
+                self.pop[i] = self.create_solution()
+                nfe_epoch += 1
 
-        for epoch in range(self.epoch):
-            i = 0
-            while i < len(pop):
-                step_size = self._update_step_size__(pop, list_nutrient, i)
-                JLast = pop[i][self.ID_FIT]
-                pop[i], pop_local[i], list_nutrient[i], g_best = self._tumble_cell__(cell=pop[i], cell_local=pop_local[i], step_size=step_size,
-                                                                                     g_best=g_best, nutrient=list_nutrient[i])
-                m = 0
-                while m < self.swim_length:  # Ns
-                    if pop[i][self.ID_FIT] < JLast:     # Found better location, move forward to find more nutrient
-                        step_size = self._update_step_size__(pop, list_nutrient, i)
-                        JLast = pop[i][self.ID_FIT]
-                        pop[i], pop_local[i], list_nutrient[i], g_best = self._tumble_cell__(cell=pop[i], cell_local=pop_local[i], step_size=step_size,
-                                                                                             g_best=g_best, nutrient=list_nutrient[i])
-                        m += 1
-                    else:       # Found worst location, stop moving
-                        m = self.swim_length
+        ## Make sure the population does not have duplicates.
+        new_set = set()
+        for idx, obj in enumerate(self.pop):
+            if tuple(obj[self.ID_POS].tolist()) in new_set:
+                self.pop.pop(idx)
+            else:
+                new_set.add(tuple(obj[self.ID_POS].tolist()))
 
-                S_current = len(pop)
-
-                if list_nutrient[i] > max(self.N_split, self.N_split + (S_current - self.pop_size) / self.N_adapt):
-                    pos_new = pop[i][self.ID_POS] + normal(self.lb, self.ub, self.problem_size) * (g_best[self.ID_POS] - pop[i][self.ID_POS])
-                    fit_new = self.get_fitness_position(pos_new)
-                    list_nutrient = append(list_nutrient, [0])
-                    pop.append(deepcopy([pos_new, fit_new]))
-                    pop_local.append(deepcopy([pos_new, fit_new]))
-
-                if list_nutrient[i] < min(self.N_adapt, self.N_adapt + (S_current - self.pop_size) / self.N_adapt):
-                    pop.pop(i)
-                    pop_local.pop(i)
-                    list_nutrient = delete(list_nutrient, [i])
-                    i -= 1
-
-                if uniform() < self.p_eliminate:
-                    pop.pop(i)
-                    pop_local.pop(i)
-                    list_nutrient = delete(list_nutrient, [i])
-                    i -= 1
-                ## Make sure the population does not have duplicates.
-                new_set = set()
-                for idx, obj in enumerate(pop):
-                    if tuple(obj[self.ID_POS].tolist()) in new_set:
-                        pop.pop(idx)
-                        pop_local.pop(idx)
-                        list_nutrient = delete(list_nutrient, [idx])
-                        i -= 1
-                    else:
-                        new_set.add(tuple(obj[self.ID_POS].tolist()))
-                i += 1
-            g_best = self.update_global_best_solution(pop_local, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print("> Epoch: {}, Pop_size: {}, Best fit: {}".format(epoch + 1, len(pop), g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+        ## Balance the population by adding more agents or remove some agents
+        n_agents = len(self.pop) - self.pop_size
+        if n_agents < 0:
+            for idx in range(0, n_agents):
+                self.pop.append(self.create_solution())
+                nfe_epoch += 1
+        elif n_agents > 0:
+            list_idx_removed = np.random.choice(range(0, len(self.pop)), n_agents, replace=False)
+            pop_new = []
+            for idx in range(0, len(self.pop)):
+                if idx not in list_idx_removed:
+                    pop_new.append(self.pop[idx])
+            self.pop = pop_new
+        self.nfe_per_epoch = nfe_epoch
