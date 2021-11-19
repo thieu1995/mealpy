@@ -7,13 +7,11 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from numpy.random import uniform, randint, choice
-from numpy import array, zeros, where, argmin, mean
-from copy import deepcopy
-from mealpy.optimizer import Root
+import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class OriginalCHIO(Root):
+class OriginalCHIO(Optimizer):
     """
     The original version of: Coronavirus Herd Immunity Optimization (CHIO)
         (Coronavirus herd immunity Optimization)
@@ -21,83 +19,94 @@ class OriginalCHIO(Root):
         https://link.springer.com/article/10.1007/s00521-020-05296-6
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, brr=0.06, max_age=150, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
+    def __init__(self, problem, epoch=10000, pop_size=100, brr=0.06, max_age=150, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            brr (float): Basic reproduction rate, default=0.06
+            max_age (int): Maximum infected cases age, default=150
+            **kwargs ():
+        """
+        super().__init__(problem, kwargs)
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
+
         self.epoch = epoch
         self.pop_size = pop_size
-        self.brr = brr              # Basic reproduction rate
-        self.max_age = max_age      # Maximum infected cases age
+        self.brr = brr
+        self.max_age = max_age
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(0, self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def initialization(self):
+        self.pop = self.create_population(self.pop_size)
+        _, self.g_best = self.get_global_best_solution(self.pop)
 
-        immunity_type_list = randint(0, 3, self.pop_size)           # Randint [0, 1, 2]
-        age_list = zeros(self.pop_size)                             # Control the age of each position
-        finished = False
+        self.immunity_type_list = np.random.randint(0, 3, self.pop_size)  # Randint [0, 1, 2]
+        self.age_list = np.zeros(self.pop_size)  # Control the age of each position
+        self.finished = False
 
-        for epoch in range(self.epoch):
-
-            for i in range(0, self.pop_size):
-                is_corona = False
-                pos_new = deepcopy(pop[i][self.ID_POS])
-                for j in range(0, self.problem_size):
-                    rand = uniform()
-                    if rand < (1.0/3)*self.brr:
-                        idx_candidates = where(immunity_type_list == 1)     # Infected list
-                        if idx_candidates[0].size == 0:
-                            finished = True
-                            print("Epoch: {}, i: {}, immunity_list: {}".format(epoch, i, immunity_type_list))
-                            break
-                        idx_selected = choice(idx_candidates[0])
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                        is_corona = True
-                    elif (1.0/3)*self.brr <= rand < (2.0/3)*self.brr:
-                        idx_candidates = where(immunity_type_list == 0)     # Susceptible list
-                        idx_selected = choice(idx_candidates[0])
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                    elif (2.0/3)*self.brr <= rand < self.brr:
-                        idx_candidates = where(immunity_type_list == 2)     # Immunity list
-                        fit_list = array([pop[item][self.ID_FIT] for item in idx_candidates[0]])
-                        idx_selected = idx_candidates[0][argmin(fit_list)]     # Found the index of best fitness
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                if finished:
-                    break
-                # Step 4: Update herd immunity population
-                fit_new = self.get_fitness_position(pos_new)
-                if fit_new < pop[i][self.ID_FIT]:
-                    pop[i] = [pos_new, fit_new]
-                else:
-                    age_list[i] += 1
-
-                ## Calculate immunity mean of population
-                fit_list = array([item[self.ID_FIT] for item in pop])
-                delta_fx = mean(fit_list)
-                if (fit_new < delta_fx) and (immunity_type_list[i] == 0) and is_corona:
-                    immunity_type_list[i] = 1
-                    age_list[i] = 1
-                if (fit_new > delta_fx) and (immunity_type_list[i] == 1):
-                    immunity_type_list[i] = 2
-                    age_list[i] = 0
-
-                # Step 5: Fatality condition
-                if (age_list[i] >= self.max_age) and (immunity_type_list[i] == 1):
-                    solution_new = self.create_solution()
-                    pop[i] = solution_new
-                    immunity_type_list[i] = 0
-                    age_list[i] = 0
-            if finished:
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        is_corona_list = [False, ]*self.pop_size
+        for i in range(0, self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].copy()
+            for j in range(0, self.problem.n_dims):
+                rand = np.random.uniform()
+                if rand < (1.0 / 3) * self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 1)  # Infected list
+                    if idx_candidates[0].size == 0:
+                        self.finished = True
+                        print("Epoch: {}, i: {}, immunity_list: {}".format(epoch, i, self.immunity_type_list))
+                        break
+                    idx_selected = np.random.choice(idx_candidates[0])
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+                    is_corona_list[i] = True
+                elif (1.0 / 3) * self.brr <= rand < (2.0 / 3) * self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 0)  # Susceptible list
+                    idx_selected = np.random.choice(idx_candidates[0])
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+                elif (2.0 / 3) * self.brr <= rand < self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 2)  # Immunity list
+                    fit_list = np.array([self.pop[item][self.ID_FIT][self.ID_TAR] for item in idx_candidates[0]])
+                    idx_selected = idx_candidates[0][np.argmin(fit_list)]  # Found the index of best fitness
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+            if self.finished:
                 break
-            # Needed to update the global best
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
+
+        for idx in range(0, self.pop_size):
+            # Step 4: Update herd immunity population
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+            else:
+                self.age_list[idx] += 1
+
+            ## Calculate immunity mean of population
+            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+            delta_fx = np.mean(fit_list)
+            if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx]==0) and is_corona_list[idx]:
+                self.immunity_type_list[idx] = 1
+                self.age_list[idx] = 1
+            if (self.compare_agent([None, [delta_fx, None]], pop_new[idx])) and (self.immunity_type_list[idx] == 1):
+                self.immunity_type_list[idx] = 2
+                self.age_list[idx] = 0
+            # Step 5: Fatality condition
+            if (self.age_list[idx] >= self.max_age) and (self.immunity_type_list[idx] == 1):
+                self.pop[idx] = self.create_solution()
+                self.immunity_type_list[idx] = 0
+                self.age_list[idx] = 0
 
 
-class BaseCHIO(Root):
+class BaseCHIO(OriginalCHIO):
     """
         My version of: Coronavirus Herd Immunity Optimization (CHIO)
             (Coronavirus herd immunity Optimization)
@@ -105,75 +114,77 @@ class BaseCHIO(Root):
             changed:
     """
 
-    def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100, brr=0.06, max_age=150, **kwargs):
-        super().__init__(obj_func, lb, ub, verbose, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.brr = brr  # Basic reproduction rate
-        self.max_age = max_age  # Maximum infected cases age
+    def __init__(self, problem, epoch=10000, pop_size=100, brr=0.06, max_age=150, **kwargs):
+        """
+        Args:
+            problem ():
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            brr (float): Basic reproduction rate, default=0.06
+            max_age (int): Maximum infected cases age, default=150
+            **kwargs ():
+        """
+        super().__init__(problem, epoch, pop_size, brr, max_age, **kwargs)
 
-    def train(self):
-        pop = [self.create_solution() for _ in range(0, self.pop_size)]
-        g_best = self.get_global_best_solution(pop, self.ID_FIT, self.ID_MIN_PROB)
+    def evolve(self, epoch):
+        """
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        is_corona_list = [False, ] * self.pop_size
+        for i in range(0, self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].copy()
+            for j in range(0, self.problem.n_dims):
+                rand = np.random.uniform()
+                if rand < (1.0 / 3) * self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 1)  # Infected list
+                    if idx_candidates[0].size == 0:
+                        rand_choice = np.random.choice(range(0, self.pop_size), int(0.33 * self.pop_size), replace=False)
+                        self.immunity_type_list[rand_choice] = 1
+                        idx_candidates = np.where(self.immunity_type_list == 1)
+                    idx_selected = np.random.choice(idx_candidates[0])
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+                    is_corona_list[i] = True
+                elif (1.0 / 3) * self.brr <= rand < (2.0 / 3) * self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 0)  # Susceptible list
+                    if idx_candidates[0].size == 0:
+                        rand_choice = np.random.choice(range(0, self.pop_size), int(0.33 * self.pop_size), replace=False)
+                        self.immunity_type_list[rand_choice] = 0
+                        idx_candidates = np.where(self.immunity_type_list == 0)
+                    idx_selected = np.random.choice(idx_candidates[0])
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+                elif (2.0 / 3) * self.brr <= rand < self.brr:
+                    idx_candidates = np.where(self.immunity_type_list == 2)  # Immunity list
+                    fit_list = np.array([self.pop[item][self.ID_FIT][self.ID_TAR] for item in idx_candidates[0]])
+                    idx_selected = idx_candidates[0][np.argmin(fit_list)]  # Found the index of best fitness
+                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
+                                 (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
+            if self.finished:
+                break
+            pop_new.append([pos_new, None])
+        pop_new = self.update_fitness_population(pop_new)
 
-        immunity_type_list = randint(0, 3, self.pop_size)   # Randint [0, 1, 2]
-        age_list = zeros(self.pop_size)                     # Control the age of each position
+        for idx in range(0, self.pop_size):
+            # Step 4: Update herd immunity population
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = pop_new[idx].copy()
+            else:
+                self.age_list[idx] += 1
 
-        for epoch in range(self.epoch):
-
-            for i in range(0, self.pop_size):
-                is_corona = False
-                pos_new = deepcopy(pop[i][self.ID_POS])
-                for j in range(0, self.problem_size):
-                    rand = uniform()
-                    if rand < (1.0 / 3) * self.brr:
-                        idx_candidates = where(immunity_type_list == 1)         # Infected list
-                        if idx_candidates[0].size == 0:
-                            rand_choice = choice(range(0, self.pop_size), int(0.33*self.pop_size), replace=False)
-                            immunity_type_list[rand_choice] = 1
-                            idx_candidates = where(immunity_type_list == 1)
-                        idx_selected = choice(idx_candidates[0])
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                        is_corona = True
-                    elif (1.0 / 3) * self.brr <= rand < (2.0 / 3) * self.brr:
-                        idx_candidates = where(immunity_type_list == 0)         # Susceptible list
-                        if idx_candidates[0].size == 0:
-                            rand_choice = choice(range(0, self.pop_size), int(0.33 * self.pop_size), replace=False)
-                            immunity_type_list[rand_choice] = 0
-                            idx_candidates = where(immunity_type_list == 0)
-                        idx_selected = choice(idx_candidates[0])
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                    elif (2.0 / 3) * self.brr <= rand < self.brr:
-                        idx_candidates = where(immunity_type_list == 2)         # Immunity list
-                        fit_list = array([pop[item][self.ID_FIT] for item in idx_candidates[0]])
-                        idx_selected = idx_candidates[0][argmin(fit_list)]  # Found the index of best fitness
-                        pos_new[j] = pop[i][self.ID_POS][j] + uniform() * (pop[i][self.ID_POS][j] - pop[idx_selected][self.ID_POS][j])
-                # Step 4: Update herd immunity population
-                fit_new = self.get_fitness_position(pos_new)
-                if fit_new < pop[i][self.ID_FIT]:
-                    pop[i] = [pos_new, fit_new]
-                else:
-                    age_list[i] += 1
-                ## Calculate immunity mean of population
-                fit_list = array([item[self.ID_FIT] for item in pop])
-                delta_fx = mean(fit_list)
-                if (fit_new < delta_fx) and (immunity_type_list[i] == 0) and is_corona:
-                    immunity_type_list[i] = 1
-                    age_list[i] = 1
-                if (fit_new > delta_fx) and (immunity_type_list[i] == 1):
-                    immunity_type_list[i] = 2
-                    age_list[i] = 0
-
-                # Step 5: Fatality condition
-                if (age_list[i] >= self.max_age) and (immunity_type_list[i] == 1):
-                    solution_new = self.create_solution()
-                    pop[i] = solution_new
-                    immunity_type_list[i] = 0
-                    age_list[i] = 0
-            # Needed to update the global best
-            g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            self.loss_train.append(g_best[self.ID_FIT])
-            if self.verbose:
-                print(">Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-        self.solution = g_best
-        return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
+            ## Calculate immunity mean of population
+            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+            delta_fx = np.mean(fit_list)
+            if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx] == 0) and is_corona_list[idx]:
+                self.immunity_type_list[idx] = 1
+                self.age_list[idx] = 1
+            if (self.compare_agent([None, [delta_fx, None]], pop_new[idx])) and (self.immunity_type_list[idx] == 1):
+                self.immunity_type_list[idx] = 2
+                self.age_list[idx] = 0
+            # Step 5: Fatality condition
+            if (self.age_list[idx] >= self.max_age) and (self.immunity_type_list[idx] == 1):
+                self.pop[idx] = self.create_solution()
+                self.immunity_type_list[idx] = 0
+                self.age_list[idx] = 0
