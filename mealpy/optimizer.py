@@ -492,13 +492,6 @@ class Optimizer:
             step = multiplier * s
         return step
 
-    def levy_flight_2(self, position=None, g_best_position=None):
-        alpha = 0.01
-        xichma_v = 1
-        xichma_u = ((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2)) / (gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (np.random.normal(0, xichma_u ** 2)) / (np.sqrt(abs(np.random.normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
-        return position + alpha * levy_b * (position - g_best_position)
-
     def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
         """
         Parameters
@@ -660,14 +653,6 @@ class Optimizer:
         w2 = np.multiply(r, mom_pos) + np.multiply((1 - r), dad_pos)
         return w1, w2
 
-    ### Mutation
-    ### This method won't be used in any algorithm because of it's slow performance
-    ### Using numpy vector for faster performance
-    def mutation_flip_point(self, parent_pos, idx):
-        w = deepcopy(parent_pos)
-        w[idx] = np.random.uniform(self.lb[idx], self.ub[idx])
-        return w
-
 
     #### Improved techniques can be used in any algorithms: 1
     ## Based on this paper: An efficient equilibrium optimizer with mutation strategy for numerical optimization (but still different)
@@ -681,24 +666,31 @@ class Optimizer:
         ## Sort the updated population based on fitness
         pop = sorted(pop, key=lambda item: item[self.ID_FIT])
         pop_s1, pop_s2 = pop[:pop_len], pop[pop_len:]
+
         ## Mutation scheme
+        pop_new = []
         for i in range(0, pop_len):
-            pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem_size))
-            fit = self.get_fitness_position(pos_new)
-            if fit < pop_s1[i][self.ID_FIT]:        ## Greedy method --> improved exploitation
-                pop_s1[i] = [pos_new, fit]
+            agent = pop_s1[i].copy()
+            pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
+            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            pop_new.append(agent)
+        pop_new = self.update_fitness_population(pop_new)
+        pop_s1 = self.greedy_selection_population(pop_s1, pop_new)  ## Greedy method --> improved exploitation
+
         ## Search Mechanism
         pos_s1_list = [item[self.ID_POS] for item in pop_s1]
         pos_s1_mean = np.mean(pos_s1_list, axis=0)
+        pop_new = []
         for i in range(0, pop_len):
-            pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * (self.lb + np.random.random() * (self.ub - self.lb))
-            fit = self.get_fitness_position(pos_new)
-            pop_s2[i] = [pos_new, fit]              ## Keep the diversity of populatoin and still improved the exploration
+            agent = pop_s2[i].copy()
+            pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
+                      (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
+            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            pop_new.append(agent)
+        ## Keep the diversity of populatoin and still improved the exploration
+        pop_s2 = self.update_fitness_population(pop_new)
+        pop_s2 = self.greedy_selection_population(pop_s2, pop_new)
 
         ## Construct a new population
         pop = pop_s1 + pop_s2
-        pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-        return pop, g_best
-
-    def train(self):
-        pass
+        return pop
