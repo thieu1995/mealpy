@@ -492,12 +492,6 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 
 * **CEM - Cross Entropy Method**
   * **BaseCEM**: Rubinstein, R. (1999). The cross-entropy method for combinatorial and continuous optimization. Methodology and computing in applied probability, 1(2), 127-190.
-  * **CEBaseLCBO**: LCBO combine with CEM
-  * **CEBaseLCBONew**: Improved LCBO combine with CEM
-  * **CEBaseSSDO**: SSDO combine with CEM
-  * **CEBaseSBO**: SBO combine with CEM
-  * **CEBaseFBIO**: FBIO combine with CEM
-  * **CEBaseFBIONew**: Improved FBIO combine with CEM
   
 * **CSO - Cat Swarm Optimization** 
   * **BaseCSO**: Chu, S. C., Tsai, P. W., & Pan, J. S. (2006, August). Cat swarm optimization. In Pacific Rim international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
@@ -523,7 +517,7 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **L_SHADE**: Tanabe, R., & Fukunaga, A. S. (2014, July). Improving the search performance of SHADE using linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
   * **SAP_DE**: Teo, J. (2006). Exploring dynamic self-adaptive populations in differential evolution. Soft Computing, 10(8), 673-686.
   
-* **DSA - Differential Search Algorithm** 
+* **DSA - Differential Search Algorithm (not done)** 
   * **BaseDSA**: Civicioglu, P. (2012). Transforming geocentric cartesian coordinates to geodetic coordinates by using differential search algorithm. Computers & Geosciences, 46, 229-247.
   
 * **DO - Dragonfly Optimization** 
@@ -554,7 +548,6 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **BaseEO**: Faramarzi, A., Heidarinejad, M., Stephens, B., & Mirjalili, S. (2019). Equilibrium optimizer: A novel optimization algorithm. Knowledge-Based Systems.
   * **ModifiedEO**: Gupta, S., Deep, K., & Mirjalili, S. (2020). An efficient equilibrium optimizer with mutation strategy for numerical optimization. Applied Soft Computing, 96, 106542.
   * **AdaptiveEO**: Wunnava, A., Naik, M. K., Panda, R., Jena, B., & Abraham, A. (2020). A novel interdependence based multilevel thresholding technique using adaptive equilibrium optimizer. Engineering Applications of Artificial Intelligence, 94, 103836.
-  * **LevyEO**: My modified version using Levy-flight
 
 ### F
 
@@ -613,10 +606,10 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 * **HGSO - Henry Gas Solubility Optimization** . 
   * **BaseHGSO**: Hashim, F. A., Houssein, E. H., Mabrouk, M. S., Al-Atabany, W., & Mirjalili, S. (2019). Henry gas solubility optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, 646-667.
 
-* **HGS -- Hunger Games Search** . 
+* **HGS - Hunger Games Search** . 
   * **OriginalHGS**: Yang, Y., Chen, H., Heidari, A. A., & Gandomi, A. H. (2021). Hunger games search:Visions, conception, implementation, deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, 114864.
   
-* **HHOA - Horse Herd Optimization Algorithm** . 
+* **HHOA - Horse Herd Optimization Algorithm (not done)** . 
   * **BaseHHOA**: MiarNaeimi, F., Azizyan, G., & Rashki, M. (2021). Horse herd optimization algorithm: A nature-inspired algorithm for high-dimensional optimization problems. Knowledge-Based Systems, 213, 106711.
   
 
@@ -624,7 +617,6 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 
 * **IWO - Invasive Weed Optimization** . 
   * **OriginalIWO**: Mehrabian, A. R., & Lucas, C. (2006). A novel numerical optimization algorithm inspired from weed colonization. Ecological informatics, 1(4), 355-366.
-  * **BaseIWO**: My modified version
 
 * **ICA - Imperialist Competitive Algorithm** 
   * **BaseICA**: Atashpaz-Gargari, E., & Lucas, C. (2007, September). Imperialist competitive algorithm: an algorithm for optimization inspired by imperialistic competition. In 2007 IEEE congress on evolutionary computation (pp. 4661-4667). Ieee.
@@ -634,15 +626,15 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 * **JA - Jaya Algorithm** 
   * **OriginalJA**: Rao, R. (2016). Jaya: A simple and new optimization algorithm for solving constrained and unconstrained optimization problems. International Journal of Industrial Engineering Computations, 7(1), 19-34.
   * **BaseJA**: My version
-  * **LJA**: Iacca, G., dos Santos Junior, V. C., & de Melo, V. V. (2021). An improved Jaya optimization algorithm with Levy flight. Expert Systems with Applications, 165, 113902.
+  * **LevyJA**: Iacca, G., dos Santos Junior, V. C., & de Melo, V. V. (2021). An improved Jaya optimization algorithm with Levy flight. Expert Systems with Applications, 165, 113902.
 
 ### K
 
 ### L
 
-* **LCBO - Life Choice-Based Optimization** 
-  * **OriginalLCBO**: Khatri, A., Gaba, A., Rana, K. P. S., & Kumar, V. (2019). A novel life choice-based optimizer. Soft Computing, 1-21.
-  * **BaseLCBO**: My version
+* **LCO - Life Choice-based Optimization** 
+  * **OriginalLCO**: Khatri, A., Gaba, A., Rana, K. P. S., & Kumar, V. (2019). A novel life choice-based optimizer. Soft Computing, 1-21.
+  * **BaseLCO**: My version
   * **ImprovedLCO**: My improved version using Gaussian distribution and Mutation Mechanism
 
 
@@ -672,7 +664,7 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 * **NRO - Nuclear Reaction Optimization** 
   * **BaseNRO**: Wei, Z., Huang, C., Wang, X., Han, T., & Li, Y. (2019). Nuclear Reaction Optimization: A novel and powerful physics-based algorithm for global optimization. IEEE Access. 
 
-* **NMRA - Nake Mole-rat Algorithm**
+* **NMR - Nake Mole-Rat Algorithm**
   * **BaseNMR**: Salgotra, R., & Singh, U. (2019). The naked mole-rat algorithm. Neural Computing and Applications, 31(12), 8837-8857.
   * **ImprovedNMR**: My version using mutation probability, levy-flight and crossover operator
 
@@ -708,12 +700,11 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
 * **SA - Simulated Annealling** 
   * **BaseSA**: . Van Laarhoven, P. J., & Aarts, E. H. (1987). Simulated annealing. In Simulated annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
 
-* **SSO - Social Spider Optimization** 
-  * **BaseSSO**: Cuevas, E., Cienfuegos, M., ZaldíVar, D., & Pérez-Cisneros, M. (2013). A swarm optimization algorithm inspired in the behavior of the social-spider. Expert Systems with Applications, 40(16), 6374-6384.
+* **SSpiderO - Social Spider Optimization** 
+  * **BaseSSpiderO**: Cuevas, E., Cienfuegos, M., ZaldíVar, D., & Pérez-Cisneros, M. (2013). A swarm optimization algorithm inspired in the behavior of the social-spider. Expert Systems with Applications, 40(16), 6374-6384.
 
-* **SSA - Social Spider Algorithm** 
-  * **OriginalSSA**: James, J. Q., & Li, V. O. (2015). A social spider algorithm for global optimization. Applied Soft Computing, 30, 614-627.
-  * **BaseSSA** My modified version
+* **SSpiderA - Social Spider Algorithm** 
+  * **BaseSSpiderA**: James, J. Q., & Li, V. O. (2015). A social spider algorithm for global optimization. Applied Soft Computing, 30, 614-627.
 
 * **SCA - Sine Cosine Algorithm** 
   * **OriginalSCA**: Mirjalili, S. (2016). SCA: a sine cosine algorithm for solving optimization problems. Knowledge-Based Systems, 96, 120-133.
@@ -726,8 +717,8 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **OriginalSBO**: Moosavi, S. H. S., & Bardsiri, V. K. (2017). Satin bowerbird optimizer: a new optimization algorithm to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, 1-15.
   * **BaseSBO**: My modified version
 
-* **SalpSO - Salp Swarm Optimization**
-  * **BaseSalpSO**: Mirjalili, S., Gandomi, A. H., Mirjalili, S. Z., Saremi, S., Faris, H., & Mirjalili, S. M. (2017). Salp Swarm Algorithm: A bio-inspired optimizer for engineering design problems. Advances in Engineering Software, 114, 163-191.
+* **SSO - Salp Swarm Optimization**
+  * **BaseSSO**: Mirjalili, S., Gandomi, A. H., Mirjalili, S. Z., Saremi, S., Faris, H., & Mirjalili, S. M. (2017). Salp Swarm Algorithm: A bio-inspired optimizer for engineering design problems. Advances in Engineering Software, 114, 163-191.
 
 * **SFO - Sailfish Optimizer** 
   * **BaseSFO**: Shadravan, S., Naji, H. R., & Bardsiri, V. K. (2019). The Sailfish Optimizer: A novel nature-inspired metaheuristic algorithm for solving constrained engineering optimization problems. Engineering Applications of Artificial Intelligence, 80, 20-34.
@@ -749,9 +740,9 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **OriginalSMA**: Li, S., Chen, H., Wang, M., Heidari, A. A., & Mirjalili, S. (2020). Slime mould algorithm: A new method for stochastic optimization. Future Generation Computer Systems.
   * **BaseSMA**: My modified version
 
-* **SpaSA - Sparrow Search Algorithm** 
-  * **OriginalSpaSA**: Jiankai Xue & Bo Shen (2020) A novel swarm intelligence optimization approach: sparrow search algorithm, Systems Science & Control Engineering, 8:1, 22-34, DOI: 10.1080/21642583.2019.1708830
-  * **BaseSpaSA**: My modified version
+* **SSA - Sparrow Search Algorithm** 
+  * **OriginalSSA**: Jiankai Xue & Bo Shen (2020) A novel swarm intelligence optimization approach: sparrow search algorithm, Systems Science & Control Engineering, 8:1, 22-34, DOI: 10.1080/21642583.2019.1708830
+  * **BaseSSA**: My modified version
 
 ### T
 
@@ -761,8 +752,7 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **ITLO**: Rao, R. V., & Patel, V. (2013). An improved teaching-learning-based optimization algorithm for solving unconstrained optimization problems. Scientia Iranica, 20(3), 710-720.
 
 * **TWO - Tug of War Optimization** 
-  * **OriginalTWO**: Kaveh, A., & Zolghadr, A. (2016). A novel meta-heuristic algorithm: tug of war optimization. Iran University of Science & Technology, 6(4), 469-492.
-  * **BaseTWO**: My version
+  * **BaseTWO**: Kaveh, A., & Zolghadr, A. (2016). A novel meta-heuristic algorithm: tug of war optimization. Iran University of Science & Technology, 6(4), 469-492.
   * **OppoTWO**: Nguyen, T., Hoang, B., Nguyen, G., & Nguyen, B. M. (2020). A new workload prediction model using extreme learning machine and enhanced tug of war optimization. Procedia Computer Science, 170, 362-369.
   * **LevyTWO**: My version using Levy-flight
   * **ImprovedTWO**: My version using both Levy-flight and opposition-based learning
@@ -785,8 +775,7 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   * **HI_WOA**: Tang, C., Sun, W., Wu, W., & Xue, M. (2019, July). A hybrid improved whale optimization algorithm. In 2019 IEEE 15th International Conference on Control and Automation (ICCA) (pp. 362-367). IEEE.
 
 * **WHO - Wildebeest Herd Optimization** 
-  * **OriginalWHO**: Amali, D., & Dinakaran, M. (2019). Wildebeest herd optimization: A new global optimization algorithm inspired by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, (Preprint), 1-14.
-  * **BaseWHO**: My modified version
+  * **BaseWHO**: Amali, D., & Dinakaran, M. (2019). Wildebeest herd optimization: A new global optimization algorithm inspired by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, (Preprint), 1-14.
 
 * **WDO - Wind Driven Optimization** 
   * **BaseWDO**: Bayraktar, Z., Komurcu, M., & Werner, D. H. (2010, July). Wind Driven Optimization (WDO): A novel nature-inspired optimization algorithm and its application to electromagnetics. In 2010 IEEE antennas and propagation society international symposium (pp. 1-4). IEEE.
