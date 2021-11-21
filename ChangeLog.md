@@ -1,3 +1,20 @@
+# Version 2.1.0
+
+### Change models
+
++ Move all parallel function to Optimizer class
++ Remove unused methods in Optimizer class
++ Update all algorithm models with the same code-style as previous version
++ Restructure some hard algorithms include BFO, CRO.
+
+### Change others
+
++ examples: Update examples for all new algorithms
++ history: Update history of MHAs
++ parallel: Add comment on parallel and sequential mode
+
+---------------------------------------------------------------------
+
 # Version 2.0.0
 
 ### Change models
