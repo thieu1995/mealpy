@@ -48,7 +48,6 @@ def __check_filepath__(filename):
     if "/" in filename:
         list_names = filename.split("/")[:-1]       # Remove last element because it is filename
         filepath = "/".join(list_names)
-        print(f"Fucking for real? {filepath}")
         Path(filepath).mkdir(parents=True, exist_ok=True)
     return filename
 
@@ -186,15 +185,4 @@ def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some
     if platform.system() != "Linux" and verbose:
         plt.show()
     plt.close()
-
-
-
-
-
-
-
-
-
-
-
 

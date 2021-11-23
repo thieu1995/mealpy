@@ -618,26 +618,6 @@ class Optimizer:
         """
         return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
 
-
-
-    def update_global_best_global_worst_solution(self, pop=None, id_best=None, id_worst=None, g_best=None):
-        """ Sort the copy of population and update the current best position. Return the new current best position """
-        sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-        current_best = sorted_pop[id_best]
-        g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
-        return g_best, sorted_pop[id_worst]
-
-    def update_sorted_population_and_global_best_solution(self, pop=None, id_best=None, g_best=None):
-        """ Sort the population and update the current best position. Return the sorted population and the new current best position """
-        sorted_pop = sorted(pop, key=lambda temp: temp[self.ID_FIT])
-        current_best = sorted_pop[id_best]
-        g_best = deepcopy(current_best) if current_best[self.ID_FIT] < g_best[self.ID_FIT] else deepcopy(g_best)
-        return sorted_pop, g_best
-
-
-
-
-
     def get_parent_kway_tournament_selection(self, pop=None, k_way=0.2, output=2):
         if 0 < k_way < 1:
             k_way = int(k_way * len(pop))

@@ -81,14 +81,6 @@ class BaseEFO(Optimizer):
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
 
-            # # batch size idea
-            # if self.batch_idea:
-            #     if (i + 1) % self.batch_size == 0:
-            #         pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            # else:
-            #     if (i + 1) % self.pop_size == 0:
-            #         pop, g_best = self.update_sorted_population_and_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-
 
 class OriginalEFO(BaseEFO):
     """
