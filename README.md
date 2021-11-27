@@ -9,7 +9,14 @@
 >  --- [Nguyen Van Thieu](https://www.researchgate.net/profile/Nguyen_Thieu2)
 ---
 
-## Quick Notification
+## Tutorial Videos
+* Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM)
+* Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
+* Please read the description in the video for timestamp notes
+
+## Introduction
+* MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
+  algorithms (population-based) and is distributed under MIT license.
 
 * Current version: 2.1.0, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
 * Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
@@ -17,28 +24,6 @@
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
   * mealpy >= 2.0.0
-
-* **Tutorial videos how to use Mealpy here:**
-  * Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM)
-  * Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
-  * Please read the description in the video for timestamp notes
-  
-* If you guys are familiar with writing documentation and would like to join this project. Please send me an email 
-  to nguyenthieu2102@gmail.com. Your contribution to this project is greatly appreciated. 
-  
-* If you guys want me to implement new algorithm, please open an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the 
-  original paper so I can read and implement it.
-
-
-## Introduction
-* MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
-  algorithms (population-based) and is distributed under MIT license. 
-  
-* But this library for solving single (uni or 1) objective optimization problem only. If you are facing 
-  multiple/many objective optimization problems (Finding a Pareto front or reference front) check out my new library 
-  "momapy" (A collection of the state-of-the-art Multiple/Many Objective Metaheuristic Algorithms in PYthon). 
-  "MOMAPY" will be hosted here: [link](https://github.com/thieu1995/momapy)
-
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
@@ -54,7 +39,8 @@
     * Analyse the stability of algorithms.
     * Analyse the robustness of algorithms.
     
-* And please giving me some credit if you are using this library. Lots of people just use it without reference. 
+* And please giving me some credit if you are using this library. Lots of people just use it without reference,
+and if you want to cite my paper, take a look at some of my first-author paper here: [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa)
 
 ```code 
 @software{thieu_nguyen_2020_3711949,
@@ -68,8 +54,18 @@
 }
 ```
 
-and if you want to cite my paper, take a look at some of my first-author paper here: [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa)
+* If you guys are familiar with writing documentation and would like to join this project. Please send me an email to
+  nguyenthieu2102@gmail.com. Your contribution to this project is greatly appreciated.
 
+* If you guys want me to implement new algorithm, please open
+  an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the original paper so I
+  can read and implement it.
+
+* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to 
+  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then 
+  I recommend to checkout the [PYMOO library](https://pymoo.org/). If I have time, I will also try to start a new 
+  library called "momapy" (A collection of the state-of-the-art Multiple/Many Objective Metaheuristic Algorithms in
+  PYthon). It will be hosted [here](https://github.com/thieu1995/momapy) in the future.
 
 ## Installation
 
