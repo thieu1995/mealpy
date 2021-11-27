@@ -17,6 +17,11 @@
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
   * mealpy >= 2.0.0
+
+* **Tutorial videos how to use Mealpy here:**
+  * Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM)
+  * Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
+  * Please read the description in the video for timestamp notes
   
 * If you guys are familiar with writing documentation and would like to join this project. Please send me an email 
   to nguyenthieu2102@gmail.com. Your contribution to this project is greatly appreciated. 
