@@ -12,6 +12,8 @@
 + examples: Update examples for all new algorithms
 + history: Update history of MHAs
 + parallel: Add comment on parallel and sequential mode
++ Add code-of-conduct
++ Add the complete example: examples/example_full_v210.py
 
 ---------------------------------------------------------------------
 
