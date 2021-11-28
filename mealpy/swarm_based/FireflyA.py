@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -60,7 +61,7 @@ class BaseFireflyA(Optimizer):
         dmax = np.sqrt(self.problem.n_dims)
 
         for idx in range(0, self.pop_size):
-            agent = self.pop[idx].copy()
+            agent = deepcopy(self.pop[idx])
             pop_child = []
             for j in range(idx+1, self.pop_size):
                 # Move Towards Better Solutions
@@ -73,6 +74,7 @@ class BaseFireflyA(Optimizer):
                     temp = np.matmul((self.pop[j][self.ID_POS] - agent[self.ID_POS]),
                                      np.random.uniform(0, 1, (self.problem.n_dims, self.problem.n_dims)))
                     pos_new = agent[self.ID_POS] + self.dyn_alpha * mutation_vector + beta * temp
+                    pos_new = self.amend_position_faster(pos_new)
                     pop_child.append([pos_new, None])
             if len(pop_child) < 2:
                 continue
