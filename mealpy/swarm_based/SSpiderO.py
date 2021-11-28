@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -62,7 +63,7 @@ class BaseSSpiderO(Optimizer):
 
         self.pop_males = self.create_population(self.n_m)
         self.pop_females = self.create_population(self.n_f)
-        pop = self.pop_females.copy() + self.pop_males.copy()
+        pop = deepcopy(self.pop_females) + deepcopy(self.pop_males)
         self.pop = self._recalculate_weights(pop)
         _, self.g_best = self.get_global_best_solution(self.pop)
 
@@ -111,7 +112,11 @@ class BaseSSpiderO(Optimizer):
         pop = self.pop_females + self.pop_males
         all_pos = np.array([it[self.ID_POS] for it in pop])
         all_wei = np.array([it[self.ID_WEI] for it in pop]).reshape((self.pop_size, 1))
-        mean = np.sum(all_wei * all_pos, axis=0) / np.sum(all_wei)
+        total_wei = np.sum(all_wei)
+        if total_wei == 0:
+            mean = np.mean(all_pos, axis=0)
+        else:
+            mean = np.sum(all_wei * all_pos, axis=0) / total_wei
         for i in range(0, self.n_m):
             delta = 2 * np.random.uniform(0, 1, self.problem.n_dims) - 0.5
             random = 2 * self.p_m[epoch] * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
@@ -195,6 +200,9 @@ class BaseSSpiderO(Optimizer):
                 child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
                 list_child.append([child1, None, 0.0])
                 list_child.append([child2, None, 0.0])
+
+        else:
+            list_child = self.create_population(self.pop_size)
         list_child = self.update_fitness_population(list_child)
         self.nfe_epoch += len(list_child)
         return list_child
@@ -204,7 +212,7 @@ class BaseSSpiderO(Optimizer):
         pop_child = self.get_sorted_strim_population(pop_child, n_child)
         for i in range(0, n_child):
             if self.compare_agent(pop_child[i], pop[i]):
-                pop[i] = pop_child[i].copy()
+                pop[i] = deepcopy(pop_child[i])
         return pop
 
     def _recalculate_weights(self, pop=None):
