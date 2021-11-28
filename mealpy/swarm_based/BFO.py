@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -117,7 +118,7 @@ class OriginalBFO(Optimizer):
                 self.pop[idx][self.ID_SUM_NUTRIENTS] = sum_nutrients
 
             cells = sorted(self.pop, key=lambda cell: cell[self.ID_SUM_NUTRIENTS])
-            self.pop = cells[0:self.half_pop_size].copy() + cells[0:self.half_pop_size].copy()
+            self.pop = deepcopy(cells[0:self.half_pop_size]) + deepcopy(cells[0:self.half_pop_size])
 
             for idc in range(self.pop_size):
                 if np.random.rand() < self.p_eliminate:
@@ -172,8 +173,8 @@ class ABFO(Optimizer):
         vector = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(vector)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
-        local_pos_best = vector.copy()
-        local_fit_best = fitness.copy()
+        local_pos_best = deepcopy(vector)
+        local_fit_best = deepcopy(fitness)
         return [vector, fitness, nutrient, local_pos_best, local_fit_best]
 
     def _update_step_size(self, pop=None, idx=None):
@@ -205,8 +206,8 @@ class ABFO(Optimizer):
                     self.pop[i][self.ID_NUT] += 1
                     # Update personal best
                     if self.compare_agent([pos_new, fit_new], [None, self.pop[i][self.ID_LOC_FIT]]):
-                        self.pop[i][self.ID_LOC_POS] = pos_new.copy()
-                        self.pop[i][self.ID_LOC_FIT] =  fit_new.copy()
+                        self.pop[i][self.ID_LOC_POS] = deepcopy(pos_new)
+                        self.pop[i][self.ID_LOC_FIT] =  deepcopy(fit_new)
                 else:
                     self.pop[i][self.ID_NUT] -= 1
 
@@ -215,7 +216,7 @@ class ABFO(Optimizer):
                                         (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 pos_new = self.amend_position_faster(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
-                self.pop.append([pos_new, fit_new, 0, pos_new.copy(), fit_new.copy()])
+                self.pop.append([pos_new, fit_new, 0, deepcopy(pos_new), deepcopy(fit_new)])
                 nfe_epoch += 1
 
             nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)
