@@ -146,7 +146,7 @@ class OriginalVCS(BaseVCS):
                 if np.random.uniform() > pr:
                     id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     pos_new[j] = pop[id1][self.ID_POS][j] - (pop[id2][self.ID_POS][j] - pop[i][self.ID_POS][j]) * np.random.uniform()
-            pos_new = self.amend_position_faster(pos_new)
+            pop[i][self.ID_POS] = self.amend_position_faster(pos_new)
         pop = self.update_fitness_population(pop)
 
         ## Greedy selection
