@@ -171,7 +171,7 @@ class Problem:
                 print(f"Please check your objective function. It returns nothing!")
                 exit(0)
         else:
-            if isinstance(result, np.floating) or type(result) in (int, float):
+            if type(result) in (int, float) or isinstance(result, np.floating) or isinstance(result, np.integer):
                 self.multi_objs = False
                 self.obj_is_list = False
                 self.obj_weight = np.ones(1)
