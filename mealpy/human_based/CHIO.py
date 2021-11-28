@@ -80,7 +80,11 @@ class OriginalCHIO(Optimizer):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
             if self.finished:
                 break
+            pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
+        if len(pop_new) != self.pop_size:
+            pop_child = self.create_population(self.pop_size - len(pop_new))
+            pop_new = pop_new + pop_child
         pop_new = self.update_fitness_population(pop_new)
 
         for idx in range(0, self.pop_size):
@@ -164,6 +168,7 @@ class BaseCHIO(OriginalCHIO):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
             if self.finished:
                 break
+            pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
