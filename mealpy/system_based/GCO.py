@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -66,15 +67,7 @@ class BaseGCO(Optimizer):
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
                 self.dyn_list_cell_counter[idx] += 10
-                self.pop[idx] = pop_new[idx].copy()
-
-            # ## Update based on batch-size training
-            # if self.batch_idea:
-            #     if (i + 1) % self.batch_size == 0:
-            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
-            # else:
-            #     if (i + 1) % self.pop_size == 0:
-            #         g_best = self.update_global_best_solution(pop, self.ID_MIN_PROB, g_best)
+                self.pop[idx] = deepcopy(pop_new[idx])
 
         ## Light-zone process   (no needs parallelization)
         for i in range(0, self.pop_size):
@@ -127,4 +120,4 @@ class OriginalGCO(BaseGCO):
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
                 self.dyn_list_cell_counter[idx] += 10
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
