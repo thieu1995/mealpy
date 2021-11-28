@@ -418,7 +418,11 @@ class SHADE(Optimizer):
                     list_fit_old[idx_increase] = pop_old[i][self.ID_FIT][self.ID_TAR]
                     list_fit_new[idx_increase] = self.pop[i][self.ID_FIT][self.ID_TAR]
                     idx_increase += 1
-            list_weights = abs(list_fit_new - list_fit_old) / sum(abs(list_fit_new - list_fit_old))
+            temp = sum(abs(list_fit_new - list_fit_old))
+            if temp == 0:
+                list_weights = 1.0/len(list_fit_new) * np.ones(len(list_fit_new))
+            else:
+                list_weights = abs(list_fit_new - list_fit_old) / temp
             self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
             self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean(np.array(list_f), list_weights)
             self.k_counter += 1
