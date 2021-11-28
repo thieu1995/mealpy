@@ -136,9 +136,9 @@ class HI_WOA(Optimizer):
 
         if self.dyn_feedback_count >= self.feedback_max:
             idx_list = np.random.choice(range(0, self.pop_size), self.n_changes, replace=False)
-            pop_new = self.create_population(self.n_changes)
+            pop_child = self.create_population(self.n_changes)
             nfe_epoch += self.n_changes
             for idx_counter, idx in enumerate(idx_list):
-                pop_new[idx] = pop_new[idx_counter]
+                pop_new[idx] = pop_child[idx_counter]
         self.pop = pop_new
         self.nfe_per_epoch = nfe_epoch
