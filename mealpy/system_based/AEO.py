@@ -422,7 +422,7 @@ class AdaptiveAEO(Optimizer):
 
         ## Consumption - Update the whole population left
         pop_new = []
-        for idx in range(0, self.pop_size):
+        for idx in range(0, self.pop_size-1):
             if np.random.random() < 0.5:
                 rand = np.random.random()
                 # Eq. 4, 5, 6
