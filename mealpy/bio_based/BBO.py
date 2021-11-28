@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -50,7 +51,7 @@ class OriginalBBO(Optimizer):
         pop = []
         for idx in range(0, self.pop_size):
             # Probabilistic migration to the i-th position
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             for j in range(self.problem.n_dims):
                 if np.random.uniform() < self.mr[idx]:  # Should we immigrate?
                     # Pick a position from which to emigrate (roulette wheel selection)
