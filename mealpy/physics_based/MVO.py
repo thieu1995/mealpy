@@ -103,8 +103,16 @@ class OriginalMVO(BaseMVO):
     def _normalize(self, d, to_sum=True):
         # d is a (n x dimension) np np.array
         d -= np.min(d, axis=0)
-        d /= (np.sum(d, axis=0) if to_sum else np.ptp(d, axis=0))
-        return d
+        if to_sum:
+            total_vector = np.sum(d, axis=0)
+            if 0 in total_vector:
+                return np.random.uniform(0.2, 0.8, self.pop_size)
+            return d / np.sum(d, axis=0)
+        else:
+            ptp_vector = np.ptp(d, axis=0)
+            if 0 in ptp_vector:
+                return np.random.uniform(0.2, 0.8, self.pop_size)
+            return d / np.ptp(d, axis=0)
 
     def evolve(self, epoch):
         """
