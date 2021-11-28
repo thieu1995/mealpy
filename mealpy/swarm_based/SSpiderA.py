@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
 
@@ -74,7 +75,7 @@ class BaseSSpiderA(Optimizer):
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         intensity = np.log(1. / (abs(fitness[self.ID_TAR]) + self.EPSILON) + 1)
-        target_position = position.copy()
+        target_position = deepcopy(position)
         previous_movement_vector = np.zeros(self.problem.n_dims)
         dimension_mask = np.zeros(self.problem.n_dims)
         return [position, fitness, intensity, target_position, previous_movement_vector, dimension_mask]
@@ -95,7 +96,7 @@ class BaseSSpiderA(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = self.pop[idx].copy()
+            agent = deepcopy(self.pop[idx])
             if self.pop[id_best_intennsity][self.ID_INT] > self.pop[idx][self.ID_INT]:
                 agent[self.ID_TARGET_POS] = self.pop[id_best_intennsity][self.ID_TARGET_POS]
             if np.random.uniform() > self.p_c:  ## changing mask
@@ -140,7 +141,7 @@ class BaseSSpiderA(Optimizer):
 #
 #         g_best = [np.zeros(self.problem_size), np.Inf]
 #         self.position = np.random.uniform(self.lb, self.ub, (self.pop_size, self.problem_size))
-#         target_position = self.position.copy()
+#         target_position = deepcopy(self.position)
 #         target_intensity = np.zeros(self.pop_size)
 #         mask = np.zeros((self.pop_size, self.problem_size))
 #         movement = np.zeros((self.pop_size, self.problem_size))
@@ -178,7 +179,7 @@ class BaseSSpiderA(Optimizer):
 #             self.position = self.position + movement
 #
 #             if min(spider_fitness) < g_best[self.ID_FIT]:
-#                 g_best = [self.position[argmin(spider_fitness)].copy(), min(spider_fitness)]
+#                 g_best = deepcopy([self.position[argmin(spider_fitness)]), min(spider_fitness)]
 #
 #             self.loss_train.append(g_best[self.ID_FIT])
 #             if self.verbose:
