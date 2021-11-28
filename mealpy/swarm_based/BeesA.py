@@ -9,6 +9,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from copy import deepcopy
 
 
 class BaseBeesA(Optimizer):
@@ -56,7 +57,7 @@ class BaseBeesA(Optimizer):
         self.sort_flag = True
 
     def perform_dance(self, position, r):
-        j = np.random.choice(list(range(0, self.problem.n_dims)))
+        j = np.random.choice(range(0, self.problem.n_dims))
         position[j] = position[j] + r*np.random.uniform(-1, 1)
         return self.amend_position_faster(position)
 
@@ -66,7 +67,7 @@ class BaseBeesA(Optimizer):
             epoch (int): The current iteration
         """
         nfe_epoch = 0
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         for idx in range(0, self.pop_size):
             # Elite Sites
             if idx < self.n_elite_bees:
