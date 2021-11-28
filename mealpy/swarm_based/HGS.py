@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -93,7 +94,7 @@ class OriginalHGS(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            current_agent = self.pop[idx].copy()
+            current_agent = deepcopy(self.pop[idx])
             #### Variation control
             E = self.sech(current_agent[self.ID_FIT][self.ID_TAR] - g_best[self.ID_FIT][self.ID_TAR])
 
