@@ -103,6 +103,7 @@ class BaseBRO(Optimizer):
                 self.pop[i] = self.pop[j].copy()
                 ## Update Winner by following position of General to protect the King and General
                 pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
+                pos_new = self.amend_position_faster(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
                 dam_new = 0
                 self.pop[j] = [pos_new, fit_new, dam_new]
