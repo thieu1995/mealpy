@@ -450,6 +450,7 @@ class Optimizer:
             r = r + f
             if r > total_sum:
                 return idx
+        return np.random.choice(range(0, len(list_fitness)))
 
     def get_solution_kway_tournament_selection(self, pop: list, k_way=0.2, output=2):
         if 0 < k_way < 1:
