@@ -9,6 +9,7 @@
 
 import numpy as np
 import math
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -96,9 +97,9 @@ class BaseDO(Optimizer):
                 C_temp = np.sum(pos_neighbours, axis=0) / neighbours_num
             else:
                 S = np.zeros(self.problem.n_dims)
-                A = self.pop_delta[i][self.ID_POS].copy()
-                C_temp = self.pop[i][self.ID_POS].copy()
-            C = C_temp - self.pop[i][self.ID_POS].copy()
+                A = deepcopy(self.pop_delta[i][self.ID_POS])
+                C_temp = deepcopy(self.pop[i][self.ID_POS])
+            C = C_temp - self.pop[i][self.ID_POS]
 
             # Attraction to food: Eq 3.4
             dist_to_food = np.abs(self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
