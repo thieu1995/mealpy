@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -103,7 +104,7 @@ class OriginalSBO(BaseSBO):
         """
         ## Calculate the probability of bowers using Eqs. (1) and (2)
         fx_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in self.pop])
-        fit_list = fx_list.copy()
+        fit_list = deepcopy(fx_list)
         for i in range(0, self.pop_size):
             if fx_list[i] < 0:
                 fit_list[i] = 1.0 + np.abs(fx_list[i])
@@ -114,7 +115,7 @@ class OriginalSBO(BaseSBO):
         prob_list = fit_list / fit_sum
         pop_new = []
         for i in range(0, self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[i][self.ID_POS])
             for j in range(0, self.problem.n_dims):
                 ### Select a bower using roulette wheel
                 idx = self._roulette_wheel_selection__(prob_list)
