@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -53,7 +54,7 @@ class OriginalLCO(Optimizer):
                 f1 = 1 - epoch / self.epoch
                 f2 = 1 - f1
                 if i == 0:
-                    pop_new.append(self.g_best.copy())
+                    pop_new.append(deepcopy(self.g_best))
                     continue
                 else:
                     best_diff = f1 * self.r1 * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
