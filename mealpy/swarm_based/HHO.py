@@ -7,8 +7,9 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from math import gamma
 import numpy as np
+from math import gamma
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -50,7 +51,7 @@ class BaseHHO(Optimizer):
             if (np.abs(E) >= 1):
                 # Harris' hawks perch randomly based on 2 strategy:
                 if np.random.rand() >= 0.5:  # perch based on other family members
-                    X_rand = self.pop[np.random.randint(0, self.pop_size)][self.ID_POS].copy()
+                    X_rand = deepcopy(self.pop[np.random.randint(0, self.pop_size)][self.ID_POS])
                     pos_new = X_rand - np.random.uniform() * np.abs(X_rand - 2 * np.random.uniform() * self.pop[idx][self.ID_POS])
 
                 else:  # perch on a random tall tree (random site inside group's home range)
@@ -93,5 +94,5 @@ class BaseHHO(Optimizer):
                     if self.compare_agent([pos_Z, fit_Z], self.pop[idx]):
                         pop_new.append([pos_Z, fit_Z])
                         continue
-                    pop_new.append(self.pop[idx].copy())
+                    pop_new.append(deepcopy(self.pop[idx]))
         self.pop = self.update_fitness_population(pop_new)
