@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -76,7 +77,7 @@ class BaseSFO(Optimizer):
             for i in range(0, self.s_size):
                 if i in list1:
                     #### Random np.random.choice number of dimensions in sardines updated, remove third loop by numpy vector computation
-                    pos_new = self.s_pop[i][self.ID_POS].copy()
+                    pos_new = deepcopy(self.s_pop[i][self.ID_POS])
                     list2 = np.random.choice(range(0, self.problem.n_dims), beta, replace=False)
                     pos_new[list2] = (np.random.uniform(0, 1, self.problem.n_dims) *
                                       (self.pop[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP))[list2]
@@ -98,13 +99,13 @@ class BaseSFO(Optimizer):
             for j in range(0, self.s_size):
                 ### If there is a better position in sardine population.
                 if self.compare_agent(self.s_pop[j], self.pop[i]):
-                    self.pop[i] = self.s_pop[j].copy()
+                    self.pop[i] = deepcopy(self.s_pop[j])
                     del self.s_pop[j]
                 break  #### This simple keyword helped reducing ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
         temp = self.s_size - len(self.s_pop)
-        if temp < 1:
-            self.s_pop = self.s_pop + [self.create_population()]
+        if temp == 1:
+            self.s_pop = self.s_pop + [self.create_solution()]
         else:
             self.s_pop = self.s_pop + self.create_population(self.s_size - len(self.s_pop))
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
@@ -187,7 +188,7 @@ class ImprovedSFO(Optimizer):
             for j in range(0, len(self.s_pop)):
                 ### If there is a better position in sardine population.
                 if self.compare_agent(self.s_pop[j], self.pop[i]):
-                    self.pop[i] = self.s_pop[j].copy()
+                    self.pop[i] = deepcopy(self.s_pop[j])
                     del self.s_pop[j]
                 break  #### This simple keyword helped reducing ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
