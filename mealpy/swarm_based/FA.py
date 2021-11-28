@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -69,7 +70,7 @@ class BaseFA(Optimizer):
             ## Algorithm 1
             pop_new = []
             for j in range(0, si_):
-                pos_new = self.pop[idx][self.ID_POS].copy()
+                pos_new = deepcopy(self.pop[idx][self.ID_POS])
                 list_idx = np.random.choice(range(0, self.problem.n_dims), round(np.random.uniform() * self.problem.n_dims), replace=False)
                 displacement = Ai * np.random.uniform(-1, 1)
                 pos_new[list_idx] = pos_new[list_idx] + displacement
@@ -82,7 +83,7 @@ class BaseFA(Optimizer):
 
         for _ in range(0, self.m_sparks):
             idx = np.random.randint(0, self.pop_size)
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             list_idx = np.random.choice(range(0, self.problem.n_dims), round(np.random.uniform() * self.problem.n_dims), replace=False)
             pos_new[list_idx] = pos_new[list_idx] + np.random.normal(0, 1)  # Gaussian
             pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub), self.problem.lb + \
