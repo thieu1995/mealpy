@@ -131,5 +131,5 @@ class BaseASO(Optimizer):
 
         _, current_best = self.get_global_best_solution(pop_new)
         if self.compare_agent(self.g_best, current_best):
-            pop_new[np.randint(0, self.pop_size)] = self.g_best.copy()
+            pop_new[np.random.randint(0, self.pop_size)] = self.g_best.copy()
         self.pop = pop_new
