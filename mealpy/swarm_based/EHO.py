@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -46,7 +47,7 @@ class BaseEHO(Optimizer):
         pop_group = []
         for i in range(0, self.n_clans):
             group = pop[i*self.n_individuals: (i+1)*self.n_individuals]
-            pop_group.append(group.copy())
+            pop_group.append(deepcopy(group))
         return pop_group
 
     def initialization(self):
