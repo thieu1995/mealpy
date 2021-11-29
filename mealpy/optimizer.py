@@ -127,11 +127,10 @@ class Optimizer:
                 self.pop, self.g_best = self.update_global_best_solution(self.pop)  # We sort the population
             else:
                 _, self.g_best = self.update_global_best_solution(self.pop)  # We don't sort the population
-
             ## Additional information for the framework
             time_epoch = time.time() - time_epoch
             self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(self.pop.copy())
+            self.history.list_population.append(deepcopy(self.pop))
             self.print_epoch(epoch + 1, time_epoch)
             if self.termination_flag:
                 if self.termination.mode == 'TB':
@@ -240,7 +239,6 @@ class Optimizer:
         if not self.problem.obj_is_list:
             objs = [objs]
         fit = np.dot(objs, self.problem.obj_weight)
-        # fit = fit if self.minmax == "min" else 1.0 / (fit + self.EPSILON)
         return [fit, objs]
 
     def get_fitness_solution(self, solution=None):
@@ -265,9 +263,9 @@ class Optimizer:
         """
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])  # Already returned a new sorted list
         if self.problem.minmax == "min":
-            return sorted_pop, sorted_pop[0].copy()
+            return sorted_pop, deepcopy(sorted_pop[0])
         else:
-            return sorted_pop, sorted_pop[-1].copy()
+            return sorted_pop, deepcopy(sorted_pop[-1])
 
     def get_better_solution(self, agent1: list, agent2: list):
         """
@@ -280,12 +278,12 @@ class Optimizer:
         """
         if self.problem.minmax == "min":
             if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
-                return agent1.copy()
-            return agent2.copy()
+                return deepcopy(agent1)
+            return deepcopy(agent2)
         else:
             if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
-                return agent2.copy()
-            return agent1.copy()
+                return deepcopy(agent2)
+            return deepcopy(agent1)
 
     def compare_agent(self, agent_a: list, agent_b: list):
         """
@@ -323,12 +321,12 @@ class Optimizer:
             if worst is None:
                 exit(0)
             else:
-                return pop, None, pop[:-worst].copy()
+                return pop, None, deepcopy(pop[:-worst])
         else:
             if worst is None:
-                return pop, pop[:best].copy(), None
+                return pop, deepcopy(pop[:best]), None
             else:
-                return pop, pop[:best].copy(), pop[:-worst].copy()
+                return pop, deepcopy(pop[:best]), deepcopy(pop[:-worst])
 
     def get_special_fitness(self, pop=None):
         """
@@ -363,18 +361,17 @@ class Optimizer:
         # self.history_list_c_best.append(current_best)
         # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
         # self.history_list_g_best.append(better)
-
         if save:
             self.history.list_current_best.append(current_best)
             better = self.get_better_solution(current_best, self.history.list_global_best[-1])
             self.history.list_global_best.append(better)
-            return sorted_pop.copy(), better.copy()
+            return deepcopy(sorted_pop), deepcopy(better)
         else:
             local_better = self.get_better_solution(current_best, self.history.list_current_best[-1])
             self.history.list_current_best[-1] = local_better
             global_better = self.get_better_solution(current_best, self.history.list_global_best[-1])
             self.history.list_global_best[-1] = global_better
-            return sorted_pop.copy(), global_better.copy()
+            return deepcopy(sorted_pop), deepcopy(global_better)
 
     def print_epoch(self, epoch, runtime):
         """
@@ -384,9 +381,6 @@ class Optimizer:
             runtime (float): the runtime for current iteration
         """
         if self.verbose:
-            # print(f"> Epoch: {epoch}, Current best: {self.history_list_c_best[-1][self.ID_FIT][self.ID_TAR]}, "
-            #       f"Global best: {self.history_list_g_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
-
             print(f"> Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_FIT][self.ID_TAR]}, "
                   f"Global best: {self.history.list_global_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
 
@@ -425,11 +419,9 @@ class Optimizer:
         div_max = np.max(self.history.list_diversity)
         self.history.list_exploration = 100 * (self.history.list_diversity / div_max)
         self.history.list_exploitation = 100 - self.history.list_exploration
-
         self.solution = self.history.list_global_best[-1]
 
     ## Crossover techniques
-
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
         This method can handle min/max problem, and negative or positive fitness value.
@@ -568,9 +560,9 @@ class Optimizer:
         # Already returned a new sorted list
         sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
         if self.problem.minmax == "min":
-            return sorted_pop[0].copy(), sorted_pop[-1].copy()
+            return deepcopy(sorted_pop[0]), deepcopy(sorted_pop[-1])
         else:
-            return sorted_pop[-1].copy(), sorted_pop[0].copy()
+            return deepcopy(sorted_pop[-1]), deepcopy(sorted_pop[0])
 
     ### Survivor Selection
     def greedy_selection_population(self, pop_old=None, pop_new=None):
@@ -651,7 +643,7 @@ class Optimizer:
         ## Mutation scheme
         pop_new = []
         for i in range(0, pop_len):
-            agent = pop_s1[i].copy()
+            agent = deepcopy(pop_s1[i])
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
             agent[self.ID_POS] = self.amend_position_faster(pos_new)
             pop_new.append(agent)
@@ -663,7 +655,7 @@ class Optimizer:
         pos_s1_mean = np.mean(pos_s1_list, axis=0)
         pop_new = []
         for i in range(0, pop_len):
-            agent = pop_s2[i].copy()
+            agent = deepcopy(pop_s2[i])
             pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
             agent[self.ID_POS] = self.amend_position_faster(pos_new)
