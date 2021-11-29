@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -49,7 +50,7 @@ class OriginalAOA(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             for j in range(0, self.problem.n_dims):
                 r1, r2, r3 = np.random.rand(3)
                 if r1 > moa:  # Exploration phase

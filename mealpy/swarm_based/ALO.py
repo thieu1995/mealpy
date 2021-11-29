@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -105,7 +106,7 @@ class OriginalALO(Optimizer):
         self.pop = self.get_sorted_strim_population(self.pop+ pop_new, self.pop_size)
 
         # Keep the elite in the population
-        self.pop[-1] = self.g_best.copy()
+        self.pop[-1] = deepcopy(self.g_best)
 
 
 class BaseALO(OriginalALO):

@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -111,14 +112,14 @@ class BaseCOA(Optimizer):
                 # Replace worst element by new child
                 # New born child with age = 0
                 packs[-1] = [pos_new, fit_new, 0]
-                self.pop_group[p] = packs.copy()
+                self.pop_group[p] = deepcopy(packs)
 
         # A coyote can leave a pack and enter in another pack (Eq. 4)
         if self.n_packs > 1:
             if np.random.rand() < self.p_leave:
                 id_pack1, id_pack2 = np.random.choice(list(range(0, self.n_packs)), 2, replace=False)
                 id1, id2 = np.random.choice(list(range(0, self.n_coyotes)), 2, replace=False)
-                self.pop_group[id_pack1][id1], self.pop_group[id_pack2][id2] = self.pop_group[id_pack2][id2].copy(), self.pop_group[id_pack1][id1].copy()
+                self.pop_group[id_pack1][id1], self.pop_group[id_pack2][id2] = self.pop_group[id_pack2][id2], self.pop_group[id_pack1][id1]
 
         # Update coyotes ages
         for id_pack in range(0, self.n_packs):

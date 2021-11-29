@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -80,7 +81,7 @@ class BaseMA(Optimizer):
 
     def _crossover(self, dad=None, mom=None):
         if np.random.uniform() >= self.pc:
-            temp = [dad].copy()
+            temp = deepcopy([dad])
             return temp[0]
         else:
             child = ""
@@ -101,9 +102,9 @@ class BaseMA(Optimizer):
         return child
 
     def _bits_climber(self, child=None):
-        current = child.copy()
+        current = deepcopy(child)
         for idx in range(0, self.max_local_gens):
-            child = current.copy()
+            child = deepcopy(current)
             bitstring_new = self._point_mutation(child[self.ID_BIT])
             pos_new = self._decode(bitstring_new)
             fit_new = self.get_fitness_position(pos_new)

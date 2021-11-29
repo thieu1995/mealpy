@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -51,7 +52,7 @@ class BaseABC(Optimizer):
         pop_neigh = []
         for idx in range(0, neigh_size):
             t1 = np.random.randint(0, len(parent[self.ID_POS]) - 1)
-            new_bee = parent[self.ID_POS].copy()
+            new_bee = deepcopy(parent[self.ID_POS])
             new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
                 else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
             new_bee[t1] = np.maximum(self.problem.lb[t1], np.minimum(self.problem.ub[t1], new_bee[t1]))

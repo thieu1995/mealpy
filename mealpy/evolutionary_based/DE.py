@@ -10,6 +10,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
+from copy import deepcopy
 """
 BaseDE: - the very first DE algorithm (Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization)
     strategy = 0: DE/current-to-rand/1/bin
@@ -185,10 +186,10 @@ class JADE(Optimizer):
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop[idx], self.pop[idx]):
-                self.dyn_pop_archive.append(self.pop[idx].copy())
+                self.dyn_pop_archive.append(deepcopy(self.pop[idx]))
                 list_cr.append(temp_cr[idx])
                 list_f.append(temp_f[idx])
-                self.pop[idx] = pop[idx].copy()
+                self.pop[idx] = deepcopy(pop[idx])
 
         # Randomly remove solution
         temp = len(self.dyn_pop_archive) - self.pop_size
@@ -198,7 +199,7 @@ class JADE(Optimizer):
             for idx, solution in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
                     archive_pop_new.append(solution)
-            self.dyn_pop_archive = archive_pop_new.copy()
+            self.dyn_pop_archive = deepcopy(archive_pop_new)
 
         # Update miu_cr and miu_f
         if len(list_cr) == 0:
@@ -286,14 +287,14 @@ class SADE(Optimizer):
             if list_probability[idx]:
                 if self.compare_agent(pop[idx], self.pop[idx]):
                     self.ns1 += 1
-                    self.pop[idx] = pop[idx].copy()
+                    self.pop[idx] = deepcopy(pop[idx])
                 else:
                     self.nf1 += 1
             else:
                 if self.compare_agent(pop[idx], self.pop[idx]):
                     self.ns2 += 1
                     self.dyn_list_cr.append(list_cr[idx])
-                    self.pop[idx] = pop[idx].copy()
+                    self.pop[idx] = deepcopy(pop[idx])
                 else:
                     self.nf2 += 1
 
@@ -353,7 +354,7 @@ class SHADE(Optimizer):
 
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
-        pop_old = self.pop.copy()
+        pop_old = deepcopy(self.pop)
         pop_sorted = self.get_sorted_strim_population(self.pop)
 
         pop = []
@@ -394,8 +395,8 @@ class SHADE(Optimizer):
                 list_f.append(list_f_new[i])
                 list_f_index.append(i)
                 list_cr_index.append(i)
-                self.pop[i] = pop[i].copy()
-                self.dyn_pop_archive.append(pop[i].copy())
+                self.pop[i] = deepcopy(pop[i])
+                self.dyn_pop_archive.append(deepcopy(pop[i]))
 
         # Randomly remove solution
         temp = len(self.dyn_pop_archive) - self.pop_size
@@ -405,7 +406,7 @@ class SHADE(Optimizer):
             for idx, solution in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
                     archive_pop_new.append(solution)
-            self.dyn_pop_archive = archive_pop_new.copy()
+            self.dyn_pop_archive = deepcopy(archive_pop_new)
 
         # Update miu_cr and miu_f
         if len(list_f) != 0 and len(list_cr) != 0:
@@ -478,7 +479,7 @@ class L_SHADE(Optimizer):
 
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
-        pop_old = self.pop.copy()
+        pop_old = deepcopy(self.pop)
         pop_sorted = self.get_sorted_strim_population(self.pop)
 
         pop = []
@@ -519,8 +520,8 @@ class L_SHADE(Optimizer):
                 list_f.append(list_f_new[i])
                 list_f_index.append(i)
                 list_cr_index.append(i)
-                self.pop[i] = pop[i].copy()
-                self.dyn_pop_archive.append(self.pop[i].copy())
+                self.pop[i] = deepcopy(pop[i])
+                self.dyn_pop_archive.append(deepcopy(self.pop[i]))
 
         # Randomly remove solution
         temp = len(self.dyn_pop_archive) - self.pop_size
@@ -530,7 +531,7 @@ class L_SHADE(Optimizer):
             for idx, solution in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
                     archive_pop_new.append(solution)
-            self.dyn_pop_archive = archive_pop_new.copy()
+            self.dyn_pop_archive = deepcopy(archive_pop_new)
 
         # Update miu_cr and miu_f
         if len(list_f) != 0 and len(list_cr) != 0:
@@ -639,7 +640,7 @@ class SAP_DE(Optimizer):
                 mr_new = self.edit_to_range(mr_new, 0, 1, np.random.random)
                 pop.append([pos_new, None, cr_new, mr_new, ps_new])
             else:
-                pop.append(self.pop[idx].copy())
+                pop.append(deepcopy(self.pop[idx]))
             ## Mutation
             if np.random.uniform(0, 1) < self.pop[idxs[0]][self.ID_MR]:
                 pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, self.pop[idxs[0]][self.ID_MR])

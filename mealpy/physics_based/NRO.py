@@ -9,6 +9,7 @@
 
 import numpy as np
 import math
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -90,7 +91,7 @@ class BaseNRO(Optimizer):
         pop_child = []
         ranked_pop = np.argsort([pop_new[i][self.ID_FIT][self.ID_TAR] for i in range(self.pop_size)])
         for i in range(self.pop_size):
-            X_ion = pop_new[i][self.ID_POS].copy()
+            X_ion = deepcopy(pop_new[i][self.ID_POS])
             if (ranked_pop[i] * 1.0 / self.pop_size) < np.random.random():
                 i1, i2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                 for j in range(self.problem.n_dims):

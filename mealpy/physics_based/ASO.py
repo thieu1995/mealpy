@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -87,9 +88,9 @@ class BaseASO(Optimizer):
         G = np.exp(-20.0 * (iteration+1) / self.epoch)
         k_best = int(self.pop_size - (self.pop_size - 2) * ((iteration + 1) / self.epoch) ** 0.5) + 1
         if self.problem.minmax == "min":
-            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best].copy()
+            k_best_pop = deepcopy(sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best])
         else:
-            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS])[:k_best].copy()
+            k_best_pop = deepcopy(sorted(pop, key=lambda agent: agent[self.ID_MAS])[:k_best])
         mk_average = np.mean([item[self.ID_POS] for item in k_best_pop])
 
         acc_list = np.zeros((self.pop_size, self.problem.n_dims))
@@ -119,7 +120,7 @@ class BaseASO(Optimizer):
         # Update velocity based on random dimensions and position of global best
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = self.pop[idx].copy()
+            agent = deepcopy(self.pop[idx])
             velocity_rand = np.random.uniform(self.problem.lb, self.problem.ub)
             velocity = velocity_rand * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
             pos_new = self.pop[idx][self.ID_POS] + velocity
@@ -131,5 +132,5 @@ class BaseASO(Optimizer):
 
         _, current_best = self.get_global_best_solution(pop_new)
         if self.compare_agent(self.g_best, current_best):
-            pop_new[np.random.randint(0, self.pop_size)] = self.g_best.copy()
+            pop_new[np.random.randint(0, self.pop_size)] = deepcopy(self.g_best)
         self.pop = pop_new
