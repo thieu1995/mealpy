@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -69,8 +70,8 @@ class BaseICA(Optimizer):
 
         # pop = Empires
         colony_count = self.pop_size - self.empire_count
-        self.pop_empires = self.pop[:self.empire_count].copy()
-        self.pop_colonies = self.pop[self.empire_count:].copy()
+        self.pop_empires = deepcopy(self.pop[:self.empire_count])
+        self.pop_colonies = deepcopy(self.pop[self.empire_count:])
 
         cost_empires_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop_empires])
         cost_empires_list_normalized = cost_empires_list - (np.max(cost_empires_list) + np.min(cost_empires_list))
@@ -124,7 +125,7 @@ class BaseICA(Optimizer):
         for idx, colonies in self.empires.items():
             for idx_colony, colony in enumerate(colonies):
                 if self.compare_agent(colony, self.pop_empires[idx]):
-                    self.empires[idx][idx_colony], self.pop_empires[idx] = self.pop_empires[idx], colony.copy()
+                    self.empires[idx][idx_colony], self.pop_empires[idx] = deepcopy(self.pop_empires[idx]), deepcopy(colony)
 
         # Update Total Objective Values of Empires
         cost_empires_list = []
