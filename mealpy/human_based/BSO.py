@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -53,13 +54,13 @@ class ImprovedBSO(Optimizer):
         centers = []
         for i in range(0, self.m_clusters):
             _, local_best = self.get_global_best_solution(pop_group[i])
-            centers.append(local_best.copy())
+            centers.append(deepcopy(local_best))
         return centers
 
     def _make_group(self, pop):
         pop_group = []
         for idx in range(0, self.m_clusters):
-            pop_group.append(pop[idx * self.m_solution:(idx + 1) * self.m_solution].copy())
+            pop_group.append(deepcopy(pop[idx * self.m_solution:(idx + 1) * self.m_solution]))
         return pop_group
 
     def initialization(self):
@@ -80,7 +81,7 @@ class ImprovedBSO(Optimizer):
             solution_new = self.create_solution()
             self.centers[idx] = solution_new
 
-        pop_group = self.pop_group.copy()
+        pop_group = deepcopy(self.pop_group)
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)
@@ -155,7 +156,7 @@ class BaseBSO(ImprovedBSO):
             solution_new = self.create_solution()
             self.centers[idx] = solution_new
 
-        pop_group = self.pop_group.copy()
+        pop_group = deepcopy(self.pop_group)
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)
