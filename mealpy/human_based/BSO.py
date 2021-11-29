@@ -90,7 +90,8 @@ class ImprovedBSO(Optimizer):
                 if np.random.uniform() < self.p3:
                     pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.uniform()
                 else:  # 2. Using levy flight here
-                    pos_new = self.levy_flight(epoch, self.pop_group[cluster_id][location_id][self.ID_POS], self.g_best[self.ID_POS])
+                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
+                    pos_new = self.pop_group[cluster_id][location_id][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * levy_step
             else:
                 id1, id2 = np.random.choice(range(0, self.m_clusters), 2, replace=False)
                 if np.random.uniform() < self.p4:
