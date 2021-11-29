@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -71,7 +72,7 @@ class BaseTWO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             for j in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
@@ -131,7 +132,7 @@ class OppoTWO(BaseTWO):
             epoch (int): The current iteration
         """
         ## Apply force of others solution on each individual solution
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             for j in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
@@ -157,7 +158,7 @@ class OppoTWO(BaseTWO):
         ## Opposition-based here
         for i in range(self.pop_size):
             if self.compare_agent(self.pop[i], pop_new[i]):
-                self.pop[i] = pop_new[i].copy()
+                self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
                 fit_op = self.get_fitness_position(C_op)
@@ -185,7 +186,7 @@ class LevyTWO(BaseTWO):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
@@ -217,7 +218,7 @@ class LevyTWO(BaseTWO):
         ### Apply levy-flight here
         for i in range(self.pop_size):
             if self.compare_agent(self.pop[i], pop_new[i]):
-                self.pop[i] = pop_new[i].copy()
+                self.pop[i] = deepcopy(pop_new[i])
             else:
                 levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
                 pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
@@ -243,21 +244,21 @@ class ImprovedTWO(OppoTWO, LevyTWO):
 
     def initialization(self):
         pop_temp = self.create_population(self.pop_size)
-        pop_oppo = pop_temp.copy()
+        pop_oppo = deepcopy(pop_temp)
         for i in range(self.pop_size):
             item_oppo = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
             pop_oppo[i][self.ID_POS] = item_oppo
         pop_oppo = self.update_fitness_population(pop_oppo)
         self.pop = self.get_sorted_strim_population(pop_temp + pop_oppo, self.pop_size)
         self.pop = self._update_weight(self.pop)
-        self.g_best = self.pop[0].copy()
+        self.g_best = deepcopy(self.pop[0])
 
     def evolve(self, epoch):
         """
         Args:
             epoch (int): The current iteration
         """
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
@@ -287,7 +288,7 @@ class ImprovedTWO(OppoTWO, LevyTWO):
 
         for i in range(self.pop_size):
             if self.compare_agent(self.pop[i], pop_new[i]):
-                self.pop[i] = pop_new[i].copy()
+                self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
                 fit_op = self.get_fitness_position(C_op)
