@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -46,7 +47,7 @@ class BaseNMR(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             if idx < self.size_b:  # breeding operators
                 if np.random.uniform() < self.bp:
                     alpha = np.random.uniform()
@@ -92,7 +93,7 @@ class ImprovedNMR(BaseNMR):
         id3 = int(self.problem.n_dims)
 
         partner = pop[np.random.randint(0, self.pop_size)][self.ID_POS]
-        new_temp = g_best[self.ID_POS].copy()
+        new_temp = deepcopy(g_best[self.ID_POS])
         new_temp[0:id1] = g_best[self.ID_POS][0:id1]
         new_temp[id1:id2] = partner[id1:id2]
         new_temp[id2:id3] = g_best[self.ID_POS][id2:id3]
