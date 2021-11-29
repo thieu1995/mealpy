@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.utils.visualize import export_convergence_chart, export_explore_exploit_chart, \
     export_diversity_chart, export_objectives_chart, export_trajectory_chart
 
@@ -35,7 +36,7 @@ class History:
 
     def save_initial_best(self, best_agent):
         self.list_global_best = [best_agent]
-        self.list_current_best = self.list_global_best.copy()
+        self.list_current_best = deepcopy(self.list_global_best)
 
     def get_global_repeated_times(self, id_fitness, id_target, epsilon):
         count = 0
