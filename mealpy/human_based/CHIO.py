@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -54,7 +55,7 @@ class OriginalCHIO(Optimizer):
         pop_new = []
         is_corona_list = [False, ]*self.pop_size
         for i in range(0, self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[i][self.ID_POS])
             for j in range(0, self.problem.n_dims):
                 rand = np.random.uniform()
                 if rand < (1.0 / 3) * self.brr:
@@ -90,7 +91,7 @@ class OriginalCHIO(Optimizer):
         for idx in range(0, self.pop_size):
             # Step 4: Update herd immunity population
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
             else:
                 self.age_list[idx] += 1
 
@@ -138,7 +139,7 @@ class BaseCHIO(OriginalCHIO):
         pop_new = []
         is_corona_list = [False, ] * self.pop_size
         for i in range(0, self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[i][self.ID_POS])
             for j in range(0, self.problem.n_dims):
                 rand = np.random.uniform()
                 if rand < (1.0 / 3) * self.brr:
@@ -175,7 +176,7 @@ class BaseCHIO(OriginalCHIO):
         for idx in range(0, self.pop_size):
             # Step 4: Update herd immunity population
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
             else:
                 self.age_list[idx] += 1
 

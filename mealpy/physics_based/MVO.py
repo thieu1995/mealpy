@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -135,7 +136,7 @@ class OriginalMVO(BaseMVO):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            black_hole_pos = self.pop[idx][self.ID_POS].copy()
+            black_hole_pos = deepcopy(self.pop[idx][self.ID_POS])
             for j in range(0, self.problem.n_dims):
                 r1 = np.random.uniform()
                 if r1 < list_fitness_normalized[idx]:

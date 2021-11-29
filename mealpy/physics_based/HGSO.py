@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -124,7 +125,7 @@ class BaseHGSO(Optimizer):
             nfe_epoch += 1
         pop_new = self.update_fitness_population(pop_new)
         for idx, id_selected in enumerate(pop_idx):
-            self.pop[id_selected] = pop_new[idx].copy()
+            self.pop[id_selected] = deepcopy(pop_new[idx])
         self.pop_group = self._create_group(self.pop)
         self.p_best = self._get_best_solution_in_team(self.pop_group)
         self.nfe_per_epoch = nfe_epoch

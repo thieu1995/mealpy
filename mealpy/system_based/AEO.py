@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -74,7 +75,7 @@ class OriginalAEO(Optimizer):
             pos_new = self.amend_position_faster(x_t1)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        pop_new.append(self.pop[-1].copy())
+        pop_new.append(deepcopy(self.pop[-1]))
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
@@ -152,7 +153,7 @@ class ImprovedAEO(OriginalAEO):
             pos_new = self.amend_position_faster(x_t1)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        pop_new.append(self.pop[-1].copy())
+        pop_new.append(deepcopy(self.pop[-1]))
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
@@ -257,7 +258,7 @@ class EnhancedAEO(Optimizer):
             pos_new = self.amend_position_faster(x_t1)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        pop_new.append(self.pop[-1].copy())
+        pop_new.append(deepcopy(self.pop[-1]))
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
@@ -352,7 +353,7 @@ class ModifiedAEO(Optimizer):
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        pop_new.append(self.pop[-1].copy())
+        pop_new.append(deepcopy(self.pop[-1]))
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
@@ -449,7 +450,7 @@ class AdaptiveAEO(Optimizer):
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        pop_new.append(self.pop[-1].copy())
+        pop_new.append(deepcopy(self.pop[-1]))
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
