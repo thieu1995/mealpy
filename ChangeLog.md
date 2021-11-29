@@ -1,3 +1,15 @@
+# Version 2.1.1
+
+### Update
+
++ Replace all .copy() operator by deepcopy() operator in module copy. Because shallow copy causing the problem with 
+  nested list inside list. Especially when copying population with nested of list position inside agent.
++ Add the Knapsack Problem example: examples/applications/discrete-problems/knapsack-problem.py
++ Add the Linear Regression example with Pytorch: examples/applications/pytorch/linear_regression.py
++ Add tutorial videos "How to use Mealpy library" to README.md
+
+---------------------------------------------------------------------
+
 # Version 2.1.0
 
 ### Change models
