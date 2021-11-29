@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -119,7 +120,7 @@ class OriginalVCS(BaseVCS):
         Args:
             epoch (int): The current iteration
         """
-        pop = self.pop.copy()
+        pop = deepcopy(self.pop)
         ## Viruses diffusion
         for i in range(0, self.pop_size):
             xichma = (np.log1p(epoch + 1) / self.epoch) * (pop[i][self.ID_POS] - self.g_best[self.ID_POS])
@@ -152,4 +153,4 @@ class OriginalVCS(BaseVCS):
         ## Greedy selection
         for idx in range(0, self.pop_size):
             if self.compare_agent(self.pop[idx], pop[idx]):
-                self.pop[idx] = pop[idx].copy()
+                self.pop[idx] = deepcopy(pop[idx])

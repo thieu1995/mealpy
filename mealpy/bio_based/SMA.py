@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -145,7 +146,7 @@ class OriginalSMA(BaseSMA):
         pop_new = []
         for idx in range(0, self.pop_size):
             # Update the Position of search agent
-            current_agent = self.pop[idx].copy()
+            current_agent = deepcopy(self.pop[idx])
             if np.random.uniform() < self.pr:  # Eq.(2.7)
                 current_agent[self.ID_POS] = np.random.uniform(self.problem.lb, self.problem.ub)
             else:
