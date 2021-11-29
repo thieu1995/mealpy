@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -107,7 +108,7 @@ class OriginalMFO(BaseMFO):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             for j in range(self.problem.n_dims):
                 #   D in Eq.(3.13)
                 distance_to_flame = np.abs(pop_flames[idx][self.ID_POS][j] - self.pop[idx][self.ID_POS][j])

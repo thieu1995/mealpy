@@ -7,8 +7,9 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from functools import reduce
 import numpy as np
+from functools import reduce
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -58,7 +59,7 @@ class BaseTLO(Optimizer):
         pop_child = []
         for idx in range(0, self.pop_size):
             ## Learning Phrase
-            temp = pop_new[idx][self.ID_POS].copy()
+            temp = deepcopy(pop_new[idx][self.ID_POS])
             id_partner = np.random.choice(np.setxor1d(np.array(range(self.pop_size)), np.array([idx])))
             # arr_random = np.random.rand(self.problem.n_dims)
             if self.compare_agent(pop_new[idx], pop_new[id_partner]):

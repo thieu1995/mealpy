@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -105,7 +106,7 @@ class OriginalArchOA(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            solution = self.pop[idx].copy()
+            solution = deepcopy(self.pop[idx])
             if tf <= 0.5:  # update position using Eq. 13
                 id_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
                 pos_new = self.pop[idx][self.ID_POS] + self.c1 * np.random.uniform() * \

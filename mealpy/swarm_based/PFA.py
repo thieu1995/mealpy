@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -51,7 +52,7 @@ class BasePFA(Optimizer):
 
         ## Update positions of members, check the bound and calculate new fitness
         for idx in range(1, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = deepcopy(self.pop[idx][self.ID_POS])
             for k in range(1, self.pop_size):
                 dist = np.sqrt(np.sum((self.pop[k][self.ID_POS] - self.pop[idx][self.ID_POS]) ** 2)) / self.problem.n_dims
                 t2 = alpha * np.random.uniform() * (self.pop[k][self.ID_POS] - self.pop[idx][self.ID_POS])

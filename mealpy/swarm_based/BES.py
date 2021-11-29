@@ -60,33 +60,6 @@ class BaseBES(Optimizer):
         y1_list = yr1 / max(yr1)
         return x_list, y_list, x1_list, y1_list
 
-    def create_child1(self, idx, pop, g_best, pos_mean):
-        pos_new = g_best[self.ID_POS] + self.alpha * np.random.uniform() * (pos_mean - pop[idx][self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def create_child2(self, idx, pop, pos_mean, x_list, y_list):
-        idx_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-        pos_new = pop[idx][self.ID_POS] + y_list[idx] * (pop[idx][self.ID_POS] - pop[idx_rand][self.ID_POS]) + \
-                  x_list[idx] * (pop[idx][self.ID_POS] - pos_mean)
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
-    def create_child3(self, idx, pop, g_best, pos_mean, x1_list, y1_list):
-        pos_new = np.random.uniform() * g_best[self.ID_POS] + x1_list[idx] * (pop[idx][self.ID_POS] - self.c1 * pos_mean) \
-                  + y1_list[idx] * (pop[idx][self.ID_POS] - self.c2 * g_best[self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
-        fit_new = self.get_fitness_position(pos_new)
-        if self.compare_agent([pos_new, fit_new], pop[idx]):
-            return [pos_new, fit_new]
-        return pop[idx].copy()
-
     def evolve(self, epoch):
         """
         Args:
