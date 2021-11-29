@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -90,13 +91,13 @@ class BaseSA(Optimizer):
             for i in range(0, self.pop_size):
                 # Check if new solution is better than current
                 if self.compare_agent(pop_new[i], self.pop[i]):
-                    self.pop[i] = pop_new[i].copy()
+                    self.pop[i] = deepcopy(pop_new[i])
                 else:
                     # Compute difference according to problem type
                     delta = abs(pop_new[i][self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR])
                     p = np.exp(-delta / self.dyn_t)  # Compute Acceptance Probability
                     if np.random.uniform() <= p:  # Accept / Reject
-                        self.pop[i] = pop_new[i].copy()
+                        self.pop[i] = deepcopy(pop_new[i])
         # Update Temperature
         self.dyn_t = self.t_damp * self.dyn_t
         self.dyn_sigma = self.mutation_step_size_damp * self.dyn_sigma

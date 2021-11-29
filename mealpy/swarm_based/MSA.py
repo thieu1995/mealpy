@@ -7,8 +7,9 @@
 #       Github:     https://github.com/thieu1995                                                        %
 #-------------------------------------------------------------------------------------------------------%
 
-from math import gamma
 import numpy as np
+from math import gamma
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -66,7 +67,7 @@ class BaseMSA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_best = self.pop[:self.n_best].copy()
+        pop_best = deepcopy(self.pop[:self.n_best])
 
         pop_new = []
         for idx in range(0, self.pop_size):
@@ -89,4 +90,4 @@ class BaseMSA(Optimizer):
         self.pop, _ = self.get_global_best_solution(pop_new)
         # Replace the worst with the previous generation's elites.
         for i in range(0, self.n_best):
-            self.pop[-1 - i] = pop_best[i].copy()
+            self.pop[-1 - i] = deepcopy(pop_best[i])

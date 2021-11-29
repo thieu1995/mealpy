@@ -9,6 +9,7 @@
 
 import numpy as np
 from scipy.spatial.distance import cdist
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -100,7 +101,7 @@ class BaseBRO(Optimizer):
                 nfe_epoch += 2
             else:
                 ## Update Loser by following position of Winner
-                self.pop[i] = self.pop[j].copy()
+                self.pop[i] = deepcopy(self.pop[j])
                 ## Update Winner by following position of General to protect the King and General
                 pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
                 pos_new = self.amend_position_faster(pos_new)

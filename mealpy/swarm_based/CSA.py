@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -53,7 +54,7 @@ class BaseCSA(Optimizer):
         list_idx_rand = np.random.choice(list(range(0, self.pop_size)), self.pop_size, replace=True)
         for idx in range(self.pop_size):
             if self.compare_agent(self.pop[list_idx_rand[idx]], pop_new[idx]):
-                pop_new[idx] = self.pop[list_idx_rand[idx]].copy()
+                pop_new[idx] = deepcopy(self.pop[list_idx_rand[idx]])
 
         ## Abandoned some worst nests
         pop = self.get_sorted_strim_population(pop_new, self.pop_size)
