@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -52,7 +53,7 @@ class BaseSSDO(Optimizer):
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
-        pos_local = position.copy()
+        pos_local = deepcopy(position)
         return [position, fitness, velocity, pos_local]
 
     def evolve(self, epoch):
@@ -66,7 +67,7 @@ class BaseSSDO(Optimizer):
         _, pop_best3, _ = self.get_special_solutions(self.pop, best=3)
         pos_mean = np.mean(np.array([item[self.ID_POS] for item in pop_best3]))
 
-        pop_new = self.pop.copy()
+        pop_new = deepcopy(self.pop)
         # Updating velocity vectors
         for i in range(0, self.pop_size):
             r1 = np.random.uniform()  # r1, r2 is a random number in [0,1]
