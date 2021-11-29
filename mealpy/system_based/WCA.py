@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -49,9 +50,9 @@ class BaseWCA(Optimizer):
 
         self.ecc = self.dmax    # Evaporation condition constant - variable
         n_stream = self.pop_size - self.nsr
-        g_best = pop[0].copy()  # Global best solution (sea)
-        self.pop_best = pop[:self.nsr].copy()  # Including sea and river (1st solution is sea)
-        self.pop_stream = pop[self.nsr:].copy()  # Forming Stream
+        g_best = deepcopy(pop[0])  # Global best solution (sea)
+        self.pop_best = deepcopy(pop[:self.nsr])  # Including sea and river (1st solution is sea)
+        self.pop_stream = deepcopy(pop[self.nsr:])  # Forming Stream
 
         # Designate streams to rivers and sea
         cost_river_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop_best])
@@ -89,7 +90,7 @@ class BaseWCA(Optimizer):
             stream_new, stream_best = self.get_global_best_solution(stream_new)
             self.streams[idx] = stream_new
             if self.compare_agent(stream_best, self.pop_best[idx]):
-                self.pop_best[idx] = stream_best.copy()
+                self.pop_best[idx] = deepcopy(stream_best)
 
             # Update river
             pos_new = self.pop_best[idx][self.ID_POS] + np.random.uniform() * self.C * (self.g_best[self.ID_POS] - self.pop_best[idx][self.ID_POS])
@@ -107,7 +108,7 @@ class BaseWCA(Optimizer):
                 self.pop_best[i] = pop_current_best.pop(0)
                 self.streams[i] = pop_current_best
 
-        self.pop = self.pop_best.copy()
+        self.pop = deepcopy(self.pop_best)
         for idx, stream_list in self.streams.items():
             self.pop += stream_list
 
