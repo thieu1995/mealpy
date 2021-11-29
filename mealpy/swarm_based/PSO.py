@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -60,8 +61,8 @@ class BasePSO(Optimizer):
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.v_min, self.v_max)
-        local_pos = position.copy()
-        local_fit = fitness.copy()
+        local_pos = deepcopy(position)
+        local_fit = deepcopy(fitness)
         return [position, fitness, velocity, local_pos, local_fit]
 
     def evolve(self, epoch):
@@ -73,7 +74,7 @@ class BasePSO(Optimizer):
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = self.pop[idx].copy()
+            agent = deepcopy(self.pop[idx])
             v_new = w * self.pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * \
                     (self.pop[idx][self.ID_LOP] - self.pop[idx][self.ID_POS]) + \
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
@@ -87,10 +88,10 @@ class BasePSO(Optimizer):
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
-                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
 
 
 class PPSO(Optimizer):
@@ -129,8 +130,8 @@ class PPSO(Optimizer):
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.v_min, self.v_max)
-        local_pos = position.copy()
-        local_fit = fitness.copy()
+        local_pos = deepcopy(position)
+        local_fit = deepcopy(fitness)
         return [position, fitness, velocity, local_pos, local_fit]
 
     def evolve(self, epoch):
@@ -140,7 +141,7 @@ class PPSO(Optimizer):
         """
         pop_new = []
         for i in range(0, self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             aa = 2 * (np.sin(self.dyn_delta_list[i]))
             bb = 2 * (np.cos(self.dyn_delta_list[i]))
             ee = np.abs(np.cos(self.dyn_delta_list[i])) ** aa
@@ -148,7 +149,7 @@ class PPSO(Optimizer):
 
             v_new = ee * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + tt * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
             v_new = np.minimum(np.maximum(v_new, -self.v_max), self.v_max)
-            agent[self.ID_VEC] = v_new.copy()
+            agent[self.ID_VEC] = deepcopy(v_new)
 
             x_temp = self.pop[i][self.ID_POS] + v_new
             x_temp = np.minimum(np.maximum(x_temp, self.problem.lb), self.problem.ub)
@@ -163,10 +164,10 @@ class PPSO(Optimizer):
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
-                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
 
 
 class HPSO_TVAC(PPSO):
@@ -204,7 +205,7 @@ class HPSO_TVAC(PPSO):
         c_it = ((self.cf - self.ci) * ((epoch + 1) / self.epoch)) + self.ci
         pop_new = []
         for i in range(0, self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             idx_k = np.random.randint(0, self.pop_size)
             w = np.random.normal()
             while (np.abs(w - 1.0) < 0.01):
@@ -234,10 +235,10 @@ class HPSO_TVAC(PPSO):
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
-                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT].copy()
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
 
 
 class C_PSO(BasePSO):
@@ -275,8 +276,8 @@ class C_PSO(BasePSO):
         self.N_CLS = int(self.pop_size / 5)  # Number of chaotic local searches
 
         # Dynamic variable
-        self.dyn_lb = self.problem.lb.copy()
-        self.dyn_ub = self.problem.ub.copy()
+        self.dyn_lb = deepcopy(self.problem.lb)
+        self.dyn_ub = deepcopy(self.problem.ub)
 
     def __get_weights__(self, fit, fit_avg, fit_min):
         temp1 = self.w_min + (self.w_max - self.w_min) * (fit - fit_min) / (fit_avg - fit_min)
@@ -297,7 +298,7 @@ class C_PSO(BasePSO):
         fit_min = np.min(list_fits)
         pop_new = []
         for i in range(self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             w = self.__get_weights__(self.pop[i][self.ID_FIT][self.ID_TAR], fit_avg, fit_min)
             v_new = w * self.pop[i][self.ID_VEC] + self.c1 * np.random.rand() * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + \
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
@@ -314,10 +315,10 @@ class C_PSO(BasePSO):
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
-                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT]
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
 
         ## Implement chaostic local search for the best solution
         g_best = self.g_best
@@ -385,8 +386,8 @@ class CL_PSO(Optimizer):
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.v_min, self.v_max)
-        local_pos = position.copy()
-        local_fit = fitness.copy()
+        local_pos = deepcopy(position)
+        local_fit = deepcopy(fitness)
         return [position, fitness, velocity, local_pos, local_fit]
 
     def evolve(self, epoch):
@@ -397,14 +398,14 @@ class CL_PSO(Optimizer):
         wk = self.w_max * (epoch / self.epoch) * (self.w_max - self.w_min)
         pop_new = []
         for i in range(0, self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             if self.flags[i] >= self.max_flag:
                 self.flags[i] = 0
                 agent = self.create_solution()
 
             pci = 0.05 + 0.45 * (np.exp(10 * (i + 1) / self.pop_size) - 1) / (np.exp(10) - 1)
 
-            vec_new = self.pop[i][self.ID_VEC].copy()
+            vec_new = deepcopy(self.pop[i][self.ID_VEC])
             for j in range(0, self.problem.n_dims):
                 if np.random.rand() > pci:
                     vj = wk * self.pop[i][self.ID_VEC][j] + self.c_local * np.random.rand() * \
@@ -429,10 +430,10 @@ class CL_PSO(Optimizer):
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+                self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = pop_new[idx][self.ID_POS].copy()
-                    self.pop[idx][self.ID_LOF] = pop_new[idx][self.ID_FIT].copy()
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
                     self.flags[idx] = 0
                 else:
                     self.flags[idx] += 1
