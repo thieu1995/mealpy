@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -60,8 +61,8 @@ class BaseSRSR(Optimizer):
         fitness = self.get_fitness_position(position=position)
         mu = 0
         sigma = 0
-        x_new = position.copy()
-        fit_new = fitness.copy()
+        x_new = deepcopy(position)
+        fit_new = deepcopy(fitness)
         fit_move = 0
         return [position, fitness, mu, sigma, x_new, fit_new, fit_move]
 
@@ -100,7 +101,7 @@ class BaseSRSR(Optimizer):
 
         pop_new = []
         for i in range(0, self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             # ---------- CALCULATING MU AND SIGMA FOR SLAVE ROBOTS ---------
             self.pop[i][self.ID_MU] = self.mu_factor * self.pop[0][self.ID_POS] + (1 - self.mu_factor) * self.pop[i][self.ID_POS]
             if epoch == 0:
@@ -121,14 +122,14 @@ class BaseSRSR(Optimizer):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
             self.pop[idx][self.ID_FIT_MOVE] = self.pop[idx][self.ID_FIT][self.ID_TAR] - self.pop[idx][self.ID_FIT_NEW][self.ID_TAR]
 
-            self.pop[idx][self.ID_POS_NEW] = pop_new[idx][self.ID_POS].copy()
-            self.pop[idx][self.ID_FIT_NEW] = pop_new[idx][self.ID_FIT].copy()
+            self.pop[idx][self.ID_POS_NEW] = deepcopy(pop_new[idx][self.ID_POS])
+            self.pop[idx][self.ID_FIT_NEW] = deepcopy(pop_new[idx][self.ID_FIT])
 
             # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
             # Replace Solution If It Reached To A More Quality Position
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS].copy()
-                self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT].copy()
+                self.pop[idx][self.ID_POS] = deepcopy(pop_new[idx][self.ID_POS])
+                self.pop[idx][self.ID_FIT] = deepcopy(pop_new[idx][self.ID_FIT])
 
         # --------- Determining Sigma Improvement Factor (Sif) Based On Vvss Movement -------------------
         ## Get best improved fitness
@@ -144,7 +145,7 @@ class BaseSRSR(Optimizer):
         # ===========================================================================================%%
         pop_new = []
         for i in range(0, self.pop_size):
-            agent = self.pop[i].copy()
+            agent = deepcopy(self.pop[i])
             gb = np.random.uniform(-1, 1, self.problem.n_dims)
             gb[gb >= 0] = 1
             gb[gb < 0] = -1
@@ -160,14 +161,14 @@ class BaseSRSR(Optimizer):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
             self.pop[idx][self.ID_FIT_MOVE] = self.pop[idx][self.ID_FIT][self.ID_TAR] - self.pop[idx][self.ID_FIT_NEW][self.ID_TAR]
 
-            self.pop[idx][self.ID_POS_NEW] = pop_new[idx][self.ID_POS].copy()
-            self.pop[idx][self.ID_FIT_NEW] = pop_new[idx][self.ID_FIT].copy()
+            self.pop[idx][self.ID_POS_NEW] = deepcopy(pop_new[idx][self.ID_POS])
+            self.pop[idx][self.ID_FIT_NEW] = deepcopy(pop_new[idx][self.ID_FIT])
 
             # ---------- Progress Assessment: Replacing More Quality Solutions With Previous Ones ------
             # Replace Solution If It Reached To A More Quality Position
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS].copy()
-                self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT].copy()
+                self.pop[idx][self.ID_POS] = deepcopy(pop_new[idx][self.ID_POS])
+                self.pop[idx][self.ID_FIT] = deepcopy(pop_new[idx][self.ID_FIT])
 
         # ========================================================================================= %%
         #        PHASE 3 (LOCAL SEARCH): CREATING SOME WORKER ROBOTS ASSIGNED TO SEARCH               %
@@ -176,12 +177,12 @@ class BaseSRSR(Optimizer):
 
         if epoch > 0:
             # --- EXTRACTING "INTEGER PART" AND "FRACTIONAL PART"  OF THE ELEMENTS OF MASTER RPBOT POSITION------
-            master_robot = {"original": np.reshape(self.pop[0][self.ID_POS], (self.problem.n_dims, 1)).copy(),
-                            "sign": np.reshape(np.sign(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
-                            "abs": np.reshape(abs(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1)).copy(),
-                            "int": np.reshape(np.floor(abs(self.pop[0][self.ID_POS])), (self.problem.n_dims, 1)).copy(),  # INTEGER PART
-                            "frac": np.reshape(abs(self.pop[0][self.ID_POS]) - np.floor(abs(self.pop[0][self.ID_POS])),
-                                               (self.problem.n_dims, 1)).copy()}                    # FRACTIONAL PART
+            master_robot = {"original": deepcopy(np.reshape(self.pop[0][self.ID_POS], (self.problem.n_dims, 1))),
+                            "sign": deepcopy(np.reshape(np.sign(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1))),
+                            "abs": deepcopy(np.reshape(abs(self.pop[0][self.ID_POS]), (self.problem.n_dims, 1))),
+                            "int": deepcopy(np.reshape(np.floor(abs(self.pop[0][self.ID_POS])), (self.problem.n_dims, 1))),  # INTEGER PART
+                            "frac": deepcopy(np.reshape(abs(self.pop[0][self.ID_POS]) - np.floor(abs(self.pop[0][self.ID_POS])), (self.problem.n_dims, 1)))
+                            }                    # FRACTIONAL PART
 
             # ------- Applying Nth-root And Nth-exponent Operators To Create Position Of New Worker Robots -------
             worker_robot1 = (master_robot["int"] + np.power(master_robot["frac"], 1 / (1 + np.random.randint(1, 4)))) * master_robot["sign"]
@@ -231,6 +232,6 @@ class BaseSRSR(Optimizer):
 
             for i in range(0, 5):
                 if self.compare_agent(pop_workers[i], self.pop[1]):
-                    self.pop[-(i + 1)][self.ID_POS] = pop_workers[i][self.ID_POS].copy()
-                    self.pop[-(i + 1)][self.ID_FIT] = pop_workers[i][self.ID_FIT].copy()
+                    self.pop[-(i + 1)][self.ID_POS] = deepcopy(pop_workers[i][self.ID_POS])
+                    self.pop[-(i + 1)][self.ID_FIT] = deepcopy(pop_workers[i][self.ID_FIT])
             self.nfe_per_epoch = nfe_epoch
