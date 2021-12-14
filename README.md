@@ -52,6 +52,28 @@
 1:39:28 - Metaheuristic Algorithm method for tunning hyper-parameters
 ```
 
+## Mealpy Application
+* Solving Knapsack Problem (Discrete problems)
+  * Idea: 
+  * Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
+
+* **Mealpy + Neural Network (Replace the Gradient Descent Optimizer)**
+  * Video: [Link](https://youtu.be/auq7Na1Meus)
+  * Time-series Problem:
+    * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/traditional-mlp-time-series.py)
+    * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/mha-hybrid-mlp-time-series.py)
+  * Classification Problem:
+    * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/traditional-mlp-classification.py)
+    * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hybrid-mlp-classification.py)
+
+* **Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)**
+  * Video: [Link](https://youtu.be/Fl3h9t087Pk)
+  * Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
+
+* Optimize SVM (SVC) model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/sklearn/svm_classification.py)
+
+* Optimize Linear Regression Model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/pytorch/linear_regression.py)
+
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms (population-based) and is distributed under MIT license.
