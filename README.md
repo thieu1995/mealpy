@@ -1,20 +1,26 @@
-# The state-of-the-art MEta-heuristics ALgorithms in PYthon (MEALPY)
+# Meta-Heuristic Algorithms using Python (MEALPY)
 [![GitHub release](https://img.shields.io/badge/release-2.1.1-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
 [![License](https://img.shields.io/packagist/l/doctrine/orm.svg)]()
----
-> "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality."
->  --- [Nguyen Van Thieu](https://www.researchgate.net/profile/Nguyen_Thieu2)
----
+
+[comment]: <> (---)
+
+[comment]: <> (> "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality.")
+
+[comment]: <> (>  --- [Nguyen Van Thieu]&#40;https://www.researchgate.net/profile/Nguyen_Thieu2&#41;)
+
+[comment]: <> (---)
 
 ## Tutorial Videos
-* Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM)
-* Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
+* Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM), Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
 * Please read the description in the video for timestamp notes
 
 * Or watch the full video with timestamp notes below: [Link](https://www.youtube.com/watch?v=HWc-yNcyPLw)
+
+[![MEALPY-TUTORIAL-FULL](https://img.youtube.com/vi/HWc-yNcyPLw/0.jpg)](https://www.youtube.com/watch?v=HWc-yNcyPLw)
+
 ```python 
 0:00 - Intro
 0:19 - Download and install Miniconda on Windows 11
@@ -53,30 +59,35 @@
 ```
 
 ## Mealpy Application
-* Solving Knapsack Problem (Discrete problems)
-  * Idea: 
-  * Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
 
-* **Mealpy + Neural Network (Replace the Gradient Descent Optimizer)**
-  * Video: [Link](https://youtu.be/auq7Na1Meus)
+### Mealpy + Neural Network (Replace the Gradient Descent Optimizer)
+[comment]: <> (  * Video: [Link]&#40;https://youtu.be/auq7Na1Meus&#41;)
   * Time-series Problem:
     * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/traditional-mlp-time-series.py)
     * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/mha-hybrid-mlp-time-series.py)
   * Classification Problem:
     * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/traditional-mlp-classification.py)
     * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hybrid-mlp-classification.py)
-
-* **Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)**
-  * Video: [Link](https://youtu.be/Fl3h9t087Pk)
+    
+[![Metaheuristic Algorithm Train Neural Network](https://img.youtube.com/vi/auq7Na1Meus/0.jpg)](https://www.youtube.com/watch?v=auq7Na1Meus)
+    
+### Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)
+[comment]: <> (  * Video: [Link]&#40;https://youtu.be/Fl3h9t087Pk&#41;)
   * Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
 
+[![Metaheuristic Algorithm Optimize Neural Network Hyper-Parameter](https://img.youtube.com/vi/Fl3h9t087Pk/0.jpg)](https://www.youtube.com/watch?v=Fl3h9t087Pk)
+
+### Other Applications
+* Solving Knapsack Problem (Discrete problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
+  
 * Optimize SVM (SVC) model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/sklearn/svm_classification.py)
 
 * Optimize Linear Regression Model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/pytorch/linear_regression.py)
 
+
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
-  algorithms (population-based) and is distributed under MIT license.
+  algorithms and is distributed under MIT license.
 
 * Current version: 2.1.1, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
 * Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
@@ -88,7 +99,7 @@
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
     * Helping other researchers in all field access to optimization algorithms as quickly as possible
-    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics, currently including almost 100 algorithms)
+    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics)
     
 * What you can do with this library:
     * Analyse parameters of algorithms.
@@ -137,13 +148,14 @@ and if you want to cite my paper, take a look at some of my first-author paper h
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
-    pip install mealpy==2.1.0 
+    pip install mealpy==2.1.1 
     pip install --upgrade mealpy 
 ```
-Or install the development version from GitHub:
-```bash
-    pip install git+https://github.com/thieu1995/mealpy
-```
+
+[comment]: <> (Or install the development version from GitHub:)
+[comment]: <> (```bash)
+[comment]: <> (    pip install git+https://github.com/thieu1995/mealpy)
+[comment]: <> (```)
 
 ### Examples
 
@@ -184,28 +196,20 @@ import numpy as np
 def obj_function(solution):
   def g1(x):
     return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
-
   def g2(x):
     return 2 * x[0] + 2 * x[2] + x[9] + x[10] - 10
-
   def g3(x):
     return 2 * x[1] + 2 * x[2] + x[10] + x[11] - 10
-
   def g4(x):
     return -8 * x[0] + x[9]
-
   def g5(x):
     return -8 * x[1] + x[10]
-
   def g6(x):
     return -8 * x[2] + x[11]
-
   def g7(x):
     return -2 * x[3] - x[4] + x[9]
-
   def g8(x):
     return -2 * x[5] - x[6] + x[10]
-
   def g9(x):
     return -2 * x[7] - x[8] + x[11]
 
@@ -245,18 +249,13 @@ import numpy as np
 
 
 def obj_function(solution):
-
     def booth(x, y):
         return (x + 2*y - 7)**2 + (2*x + y - 5)**2
-
     def bukin(x, y):
         return 100 * np.sqrt(np.abs(y - 0.01 * x**2)) + 0.01 * np.abs(x + 10)
-
     def matyas(x, y):
         return 0.26 * (x**2 + y**2) - 0.48 * x * y
-
     return [booth(solution[0], solution[1]), bukin(solution[0], solution[1]), matyas(solution[0], solution[1])]
-
 
 problem_dict1 = {
     "obj_func": obj_function,
@@ -280,7 +279,6 @@ model1.history.save_runtime_chart(filename="hello/rtc")
 model1.history.save_exploration_exploitation_chart(filename="hello/eec")
 model1.history.save_diversity_chart(filename="hello/dc")
 model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2], filename="hello/tc")
-
 ```
 
 * Global best fitness value and Local best fitness value after generations
