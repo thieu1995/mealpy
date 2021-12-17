@@ -1,3 +1,16 @@
+# Version 2.1.2
+
+### Update
+
++ Some algorithms have been updated in the GitHub release but not on PyPI such as Sparrow Search Algorithm.
++ I try to synchronize the version on GitHub and PyPI by trying to delete the vers
++ Add examples for applications of mealpy such as:
+  + Tuning hyper-parameter of neural network
+  + Replacing Gradient Descent optimizer in neural network
+  + Tuning hyper-parameter for other models such as SVM,...
+
+---------------------------------------------------------------------
+
 # Version 2.1.1
 
 ### Update

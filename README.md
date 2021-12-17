@@ -1,5 +1,5 @@
 # Meta-Heuristic Algorithms using Python (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-2.1.1-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-2.1.2-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -89,7 +89,7 @@
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under MIT license.
 
-* Current version: 2.1.1, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
+* Current version: 2.1.2, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
 * Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
@@ -148,7 +148,7 @@ and if you want to cite my paper, take a look at some of my first-author paper h
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
-    pip install mealpy==2.1.1 
+    pip install mealpy==2.1.2
     pip install --upgrade mealpy 
 ```
 
