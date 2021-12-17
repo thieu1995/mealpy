@@ -152,10 +152,11 @@ Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
     pip install --upgrade mealpy 
 ```
 
-[comment]: <> (Or install the development version from GitHub:)
-[comment]: <> (```bash)
-[comment]: <> (    pip install git+https://github.com/thieu1995/mealpy)
-[comment]: <> (```)
+I accidentally deleted version 2.1.1 on Pypi since it's not synced with version 2.1.1 on Github Release. But I've
+already put the new version 2.1.2 on PyPI. If you still want to use version 2.1.1. Please use this command:
+```bash
+    pip install -e git+https://github.com/thieu1995/mealpy@ead414d2d9aa5317864e779fa5d4ad7b65159181#egg=mealpy
+```
 
 ### Examples
 
