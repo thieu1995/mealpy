@@ -91,7 +91,7 @@ termination_dict3 = {
     "quantity": 30  # after 30 epochs, if the global best doesn't improve then we stop the program
 }
 termination_dict4 = {
-    "mode": "ES",
+    "mode": "TB",
     "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
 }
 termination_obj1 = Termination(termination_dict1)
