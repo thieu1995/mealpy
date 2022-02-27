@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 20:22, 12/06/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# Created by "Thieu" at 20:22, 12/06/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,15 +11,40 @@ from mealpy.optimizer import Optimizer
 
 class BaseSMA(Optimizer):
     """
-        My modified version of: Slime Mould Algorithm (SMA)
-            (Slime Mould Algorithm: A New Method for Stochastic Optimization)
-        Link:
-             https://doi.org/10.1016/j.future.2020.03.055
-             https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
-        Notes:
-            + Selected 2 unique and random solution to create new solution (not to create variable) --> remove third loop in original version
-            + Check bound and update fitness after each individual move instead of after the whole population move in the original version
-            + My version not only faster but also better
+    My changed version of: Slime Mould Algorithm (SMA)
+
+    Notes
+    ~~~~~
+    + Selected 2 unique and random solution to create new solution (not to create variable) --> remove third loop in original version
+    + Check bound and update fitness after each individual move instead of after the whole population move in the original version
+    + This version not only faster but also better than the original version
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + pr (float): [0.01, 0.1], probability threshold (z in the paper)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.SMA import BaseSMA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> pr = 0.03
+    >>> model = BaseSMA(problem_dict1, epoch, pop_size, pr)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     ID_WEI = 2
@@ -30,6 +52,7 @@ class BaseSMA(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, pr=0.03, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pr (float): probability threshold (z in the paper), default = 0.03
@@ -42,17 +65,16 @@ class BaseSMA(Optimizer):
         self.pop_size = pop_size
         self.pr = pr
 
-    def create_solution(self):
+    def create_solution(self) -> list:
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]], weight]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -61,6 +83,8 @@ class BaseSMA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -72,12 +96,12 @@ class BaseSMA(Optimizer):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                      np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                      np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
 
-        a = np.arctanh(-((epoch + 1) / self.epoch) + 1)         # Eq.(2.4)
+        a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
 
         pop_new = []
@@ -105,10 +129,43 @@ class BaseSMA(Optimizer):
 
 class OriginalSMA(BaseSMA):
     """
-        This version developed by one on my student: Slime Mould Algorithm (SMA)
-            (Slime Mould Algorithm: A New Method for Stochastic Optimization)
-        Link:
-            https://doi.org/10.1016/j.future.2020.03.055
+    The original version of: Slime Mould Algorithm (SMA)
+
+    Links:
+        1. https://doi.org/10.1016/j.future.2020.03.055
+        2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + pr (float): [0.01, 0.1], probability threshold (z in the paper)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.SMA import OriginalSMA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> pr = 0.03
+    >>> model = OriginalSMA(problem_dict1, epoch, pop_size, pr)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Li, S., Chen, H., Wang, M., Heidari, A.A. and Mirjalili, S., 2020. Slime mould algorithm: A new method for
+    stochastic optimization. Future Generation Computer Systems, 111, pp.300-323.
     """
 
     ID_WEI = 2
@@ -116,6 +173,7 @@ class OriginalSMA(BaseSMA):
     def __init__(self, problem, epoch=10000, pop_size=100, pr=0.03, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 1000
             pop_size (int): number of population size, default = 100
             pr (float): probability threshold (z in the paper), default = 0.03
@@ -124,6 +182,8 @@ class OriginalSMA(BaseSMA):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -135,10 +195,10 @@ class OriginalSMA(BaseSMA):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                      np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                      np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
 
         a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
