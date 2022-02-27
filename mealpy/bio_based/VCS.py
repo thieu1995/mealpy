@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 22:07, 11/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# Created by "Thieu" at 22:07, 11/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,25 +11,55 @@ from mealpy.optimizer import Optimizer
 
 class BaseVCS(Optimizer):
     """
-        My version of: Virus Colony Search (VCS)
-            A Novel Nature-inspired Algorithm For Optimization: Virus Colony Search
-        Link:
-            https://doi.org/10.1016/j.advengsoft.2015.11.004
-        Notes:
-            + Remove all third loop, make algrithm 10 times faster than original
-            + In Immune response process, updating whole position instead of updating each variable in position
-            + Drop batch-size idea to 3 main process of this algorithm, make it more robust
+    My changed version of: Virus Colony Search (VCS)
+
+    Links:
+        1. https://doi.org/10.1016/j.advengsoft.2015.11.004
+
+    Notes
+    ~~~~~
+    + Removes all third loop, makes algrithm 10 times faster than original
+    + In Immune response process, updates the whole position instead of updating each variable in position
+    + Drops batch-size idea to 3 main process of this algorithm, makes it more robust
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + lamda (float): [0.2, 0.5], Number of the best will keep
+        + xichma (float): [0.1, 0.5], Weight factor
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.VCS import BaseVCS
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> lamda = 0.5
+    >>> xichma = 0.3
+    >>> model = BaseVCS(problem_dict1, epoch, pop_size, lamda, xichma)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5
             xichma (float): Weight factor, default = 0.3
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 3 * pop_size
@@ -48,6 +75,15 @@ class BaseVCS(Optimizer):
             self.n_best = int(lamda)
 
     def _calculate_xmean(self, pop):
+        """
+        Calculate the mean position of list of solutions (population)
+
+        Args:
+            pop (list): List of solutions (population)
+
+        Returns:
+            list: Mean position
+        """
         ## Calculate the weighted mean of the λ best individuals by
         pop, local_best = self.get_global_best_solution(pop)
         pos_list = [agent[self.ID_POS] for agent in pop[:self.n_best]]
@@ -59,6 +95,8 @@ class BaseVCS(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -96,27 +134,65 @@ class BaseVCS(Optimizer):
 
 class OriginalVCS(BaseVCS):
     """
-        The original version of: Virus Colony Search (VCS)
-            A Novel Nature-inspired Algorithm For Optimization: Virus Colony Search
-            - This is basic version, not the full version of the paper
-        Link:
-            https://doi.org/10.1016/j.advengsoft.2015.11.004
+    The original version of: Virus Colony Search (VCS)
+
+    Links:
+        1. https://doi.org/10.1016/j.advengsoft.2015.11.004
+
+    Notes
+    ~~~~~
+    This is basic version, not the full version of the paper
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + lamda (float): [0.2, 0.5], Number of the best will keep
+        + xichma (float): [0.1, 0.5], Weight factor
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.VCS import OriginalVCS
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> lamda = 0.5
+    >>> xichma = 0.3
+    >>> model = OriginalVCS(problem_dict1, epoch, pop_size, lamda, xichma)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Li, M.D., Zhao, H., Weng, X.W. and Han, T., 2016. A novel nature-inspired algorithm
+    for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5
             xichma (float): Weight factor, default = 0.3
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, lamda, xichma, **kwargs)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
