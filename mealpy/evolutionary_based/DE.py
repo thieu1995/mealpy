@@ -1,40 +1,76 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 09:48, 16/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 09:48, 16/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
 from copy import deepcopy
-"""
-BaseDE: - the very first DE algorithm (Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization)
-    strategy = 0: DE/current-to-rand/1/bin
-             = 1: DE/best/1/bin             
-             = 2: DE/best/2/bin
-             = 3: DE/rand/2/bin
-             = 4: DE/current-to-best/1/bin
-             = 5: DE/current-to-rand/1/bin
-"""
 
 
 class BaseDE(Optimizer):
     """
-        The original version of: Differential Evolution (DE)
+    The original version of: Differential Evolution (DE)
+
+    Links:
+        1. https://doi.org/10.1016/j.swevo.2018.10.006
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + wf (float): [0.5, 0.95], weighting factor, default = 0.8
+        + cr (float): [0.5, 0.95], crossover rate, default = 0.9
+        + strategy (int): [0, 5], there are lots of variant version of DE algorithm,
+            + 0: DE/current-to-rand/1/bin
+            + 1: DE/best/1/bin
+            + 2: DE/best/2/bin
+            + 3: DE/rand/2/bin
+            + 4: DE/current-to-best/1/bin
+            + 5: DE/current-to-rand/1/bin
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import BaseDE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> wf = 0.01
+    >>> cr = 2
+    >>> strategy = 0
+    >>> model = BaseDE(problem_dict1, epoch, pop_size, wf, cr, strategy)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mohamed, A.W., Hadi, A.A. and Jambi, K.M., 2019. Novel mutation strategy for enhancing SHADE and
+    LSHADE algorithms for global numerical optimization. Swarm and Evolutionary Computation, 50, p.100455.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, wf=0.8, cr=0.9, strategy=0, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wf (float): weighting factor, default = 0.8
             cr (float): crossover rate, default = 0.9
-            strategy (int): There are lots of variant version of DE algorithm, default is DE/current-to-rand/1/bin
+            strategy (int): Different variants of DE, default = 0
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -52,6 +88,8 @@ class BaseDE(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -107,18 +145,60 @@ class BaseDE(Optimizer):
 
 class JADE(Optimizer):
     """
-        The original version of: Differential Evolution (JADE)
-        Link:
-            JADE: Adaptive Differential Evolution with Optional External Archive
+    The variant version of: Differential Evolution (JADE)
+
+    Links:
+        1. https://doi.org/10.1109/TEVC.2009.2014613
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + miu_f (float): [0.4, 0.6], initial adaptive f, default = 0.5
+        + miu_cr (float): [0.4, 0.6], initial adaptive cr, default = 0.5
+        + pt (float): [0.05, 0.2], The percent of top best agents (p in the paper), default = 0.1
+        + ap (float): [0.05, 0.2], The Adaptation Parameter control value of f and cr (c in the paper), default=0.1
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import JADE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> miu_f = 0.5
+    >>> miu_cr = 0.5
+    >>> pt = 0.1
+    >>> ap = 0.1
+    >>> model = JADE(problem_dict1, epoch, pop_size, miu_f, miu_cr, pt, ap)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Zhang, J. and Sanderson, A.C., 2009. JADE: adaptive differential evolution with optional
+    external archive. IEEE Transactions on evolutionary computation, 13(5), pp.945-958.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            miu_f (float): cross-over probability, default = 0.5
-            miu_cr (float): mutation probability, default = 0.5
+            miu_f (float): initial adaptive f, default = 0.5
+            miu_cr (float): initial adaptive cr, default = 0.5
             pt (float): The percent of top best agents (p in the paper), default = 0.1
             ap (float): The Adaptation Parameter control value of f and cr (c in the paper), default=0.1
         """
@@ -141,10 +221,12 @@ class JADE(Optimizer):
     ### Survivor Selection
     def lehmer_mean(self, list_objects):
         temp = sum(list_objects)
-        return 0 if temp == 0 else sum(list_objects**2) / temp
+        return 0 if temp == 0 else sum(list_objects ** 2) / temp
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -215,14 +297,44 @@ class JADE(Optimizer):
 
 class SADE(Optimizer):
     """
-        The original version of: Self-Adaptive Differential Evolution(SADE)
-        Link:
-            Self-adaptive differential evolution algorithm for numerical optimization
+    The original version of: Self-Adaptive Differential Evolution (SADE)
+
+    Links:
+        1. https://doi.org/10.1109/CEC.2005.1554904
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import SADE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = SADE(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Qin, A.K. and Suganthan, P.N., 2005, September. Self-adaptive differential evolution algorithm for
+    numerical optimization. In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
@@ -244,6 +356,8 @@ class SADE(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -310,18 +424,56 @@ class SADE(Optimizer):
 
 class SHADE(Optimizer):
     """
-        The original version of: Success-History Adaptation Differential Evolution (SHADE)
-        Link:
-            Success-History Based Parameter Adaptation for Differential Evolution
+    The variant version of: Success-History Adaptation Differential Evolution (SHADE)
+
+    Links:
+        1. https://doi.org/10.1109/CEC.2013.6557555
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
+        + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import SHADE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> miu_f = 0.5
+    >>> miu_cr = 0.5
+    >>> model = SHADE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Tanabe, R. and Fukunaga, A., 2013, June. Success-history based parameter adaptation for
+    differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
     """
 
     def __init__(self, problem, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            miu_f (float): cross-over probability, default = 0.5
-            miu_cr (float): mutation probability, default = 0.5
+            miu_f (float): initial weighting factor, default = 0.5
+            miu_cr (float): initial cross-over probability, default = 0.5
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -331,8 +483,8 @@ class SHADE(Optimizer):
         self.pop_size = pop_size
 
         # Dynamic variable
-        self.dyn_miu_f = miu_f * np.ones(self.pop_size)     # list the initial f,
-        self.dyn_miu_cr = miu_cr * np.ones(self.pop_size)   # list the initial cr,
+        self.dyn_miu_f = miu_f * np.ones(self.pop_size)  # list the initial f,
+        self.dyn_miu_cr = miu_cr * np.ones(self.pop_size)  # list the initial cr,
         self.dyn_pop_archive = list()
         self.k_counter = 0
 
@@ -344,6 +496,8 @@ class SHADE(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -421,7 +575,7 @@ class SHADE(Optimizer):
                     idx_increase += 1
             temp = sum(abs(list_fit_new - list_fit_old))
             if temp == 0:
-                list_weights = 1.0/len(list_fit_new) * np.ones(len(list_fit_new))
+                list_weights = 1.0 / len(list_fit_new) * np.ones(len(list_fit_new))
             else:
                 list_weights = abs(list_fit_new - list_fit_old) / temp
             self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
@@ -433,18 +587,56 @@ class SHADE(Optimizer):
 
 class L_SHADE(Optimizer):
     """
-        The original version of: Linear Population Size Reduction Success-History Adaptation Differential Evolution (LSHADE)
-        Link:
-            Improving the Search Performance of SHADE Using Linear Population Size Reduction
+    The original version of: Linear Population Size Reduction Success-History Adaptation Differential Evolution (LSHADE)
+
+    Links:
+        1. http://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
+        + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import L_SHADE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> miu_f = 0.5
+    >>> miu_cr = 0.5
+    >>> model = L_SHADE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Tanabe, R. and Fukunaga, A.S., 2014, July. Improving the search performance of SHADE using
+    linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
     """
 
     def __init__(self, problem, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            miu_f (float): cross-over probability, default = 0.5
-            miu_cr (float): mutation probability, default = 0.5
+            miu_f (float): initial weighting factor, default = 0.5
+            miu_cr (float): initial cross-over probability, default = 0.5
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -465,10 +657,12 @@ class L_SHADE(Optimizer):
     def weighted_lehmer_mean(self, list_objects, list_weights):
         up = sum(list_weights * list_objects ** 2)
         down = sum(list_weights * list_objects)
-        return up/down if down != 0 else 0.5
+        return up / down if down != 0 else 0.5
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -558,19 +752,61 @@ class L_SHADE(Optimizer):
 
 class SAP_DE(Optimizer):
     """
-        The original version of: Differential Evolution with Self-Adaptive Populations
-        Link:
-            Exploring dynamic self-adaptive populations in differential evolution
+    The original version of: Differential Evolution with Self-Adaptive Populations (SAP_DE)
+
+    Links:
+        1. https://doi.org/10.1007/s00500-005-0537-1
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + wf (float): [0.6, 0.95], weighting factor, default = 0.8
+        + cr (float): [0.6, 0.95], crossover rate, default = 0.9
+        + branch (str): ["ABS" or "REL"], gaussian (absolute) or uniform (relative) method
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.DE import SAP_DE
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> miu_f = 0.5
+    >>> miu_cr = 0.5
+    >>> model = SAP_DE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Teo, J., 2006. Exploring dynamic self-adaptive populations in differential evolution. Soft Computing, 10(8), pp.673-686.
     """
+
     ID_CR = 2
     ID_MR = 3
     ID_PS = 4
 
-    def __init__(self, problem, epoch=750, pop_size=100, wf=0.8, cr=0.9, F=1, branch="ABS", **kwargs):
+    def __init__(self, problem, epoch=750, pop_size=100, wf=0.8, cr=0.9, branch="ABS", **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
+            wf (float): weighting factor, default = 0.8
+            cr (float): crossover rate, default = 0.9
+            branch (str): gaussian (absolute) or uniform (relative) method
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -580,21 +816,19 @@ class SAP_DE(Optimizer):
         self.pop_size = pop_size
         self.weighting_factor = wf
         self.crossover_rate = cr
-        self.F = F
-        self.M = pop_size
-        self.branch = branch            # np.absolute (ABS) or relative (REL)
+        self.fixed_pop_size = pop_size
+        self.branch = branch  # np.absolute (ABS) or relative (REL)
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]], strategy, times_win]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], crossover_rate, mutation_rate, pop_size]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -602,7 +836,7 @@ class SAP_DE(Optimizer):
         mutation_rate = np.random.uniform(0, 1)
         if self.branch == "ABS":
             pop_size = int(10 * self.problem.n_dims + np.random.normal(0, 1))
-        else:    #elif self.branch == "REL":
+        else:  # elif self.branch == "REL":
             pop_size = int(10 * self.problem.n_dims + np.random.uniform(-0.5, 0.5))
         return [position, fitness, crossover_rate, mutation_rate, pop_size]
 
@@ -616,6 +850,8 @@ class SAP_DE(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -658,18 +894,17 @@ class SAP_DE(Optimizer):
         total = sum([pop[i][self.ID_PS] for i in range(0, self.pop_size)])
         if self.branch == "ABS":
             m_new = int(total / self.pop_size)
-        else: # elif self.branch == "REL":
+        else:  # elif self.branch == "REL":
             m_new = int(self.pop_size + total)
         if m_new <= 4:
-            m_new = self.M + int(np.random.uniform(0, 4))
-        elif m_new > 4 * self.M:
-            m_new = self.M - int(np.random.uniform(0, 4))
+            m_new = self.fixed_pop_size + int(np.random.uniform(0, 4))
+        elif m_new > 4 * self.fixed_pop_size:
+            m_new = self.fixed_pop_size - int(np.random.uniform(0, 4))
 
         ## Change population by population size
         if m_new <= self.pop_size:
             self.pop = pop[:m_new]
         else:
             pop_sorted = self.get_sorted_strim_population(pop)
-            self.pop = pop + pop_sorted[:m_new-self.pop_size]
+            self.pop = pop + pop_sorted[:m_new - self.pop_size]
         self.pop_size = len(self.pop)
-
