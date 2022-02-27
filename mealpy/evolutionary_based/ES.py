@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 18:14, 10/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 18:14, 10/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,18 +10,55 @@ from mealpy.optimizer import Optimizer
 
 class BaseES(Optimizer):
     """
-        The original version of: Evolution Strategies (ES)
-            (Clever Algorithms: Nature-Inspired Programming Recipes - Evolution Strategies)
-    Link:
-        http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+    The original version of: Evolution Strategies (ES)
+
+    Links:
+        1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_child (float/int): Number of child evolving in the next generation
+            + if float number --> percentage of child agents, [0.5, 1.0]
+            + int --> number of child agents, [20, pop_size]
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.ES import BaseES
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_child = 0.75
+    >>> model = BaseES(problem_dict1, epoch, pop_size, n_child)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
+
     ID_POS = 0
     ID_FIT = 1
-    ID_STR = 2      # strategy
+    ID_STR = 2  # strategy
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_child=0.75, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
             n_child (float/int): if float number --> percentage of child agents, int --> number of child agents
@@ -32,7 +66,7 @@ class BaseES(Optimizer):
         super().__init__(problem, kwargs)
         self.epoch = epoch
         self.pop_size = pop_size
-        if n_child < 1:             # lamda, 75% of pop_size
+        if n_child < 1:  # lamda, 75% of pop_size
             self.n_child = int(n_child * self.pop_size)
         else:
             self.n_child = int(n_child)
@@ -43,15 +77,14 @@ class BaseES(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]]]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -60,6 +93,8 @@ class BaseES(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -77,15 +112,56 @@ class BaseES(Optimizer):
 
 class LevyES(BaseES):
     """
-        The levy version of: Evolution Strategies (ES)
+    My Levy-flight version of: Evolution Strategies (ES)
+
+            The levy version of: Evolution Strategies (ES)
         Noted:
             + Applied levy-flight
             + Change the flow of algorithm
+
+    Links:
+        1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+
+    Notes:
+    ~~~~~~
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_child (float/int): Number of child evolving in the next generation
+            + if float number --> percentage of child agents, [0.5, 1.0]
+            + int --> number of child agents, [20, pop_size]
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.ES import BaseES
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_child = 0.75
+    >>> model = BaseES(problem_dict1, epoch, pop_size, n_child)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_child=0.75, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
             n_child (float/int): if float number --> percentage of child agents, int --> number of child agents
@@ -94,6 +170,8 @@ class LevyES(BaseES):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
