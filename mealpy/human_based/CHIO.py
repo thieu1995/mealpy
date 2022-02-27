@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 19:24, 09/05/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 19:24, 09/05/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,20 +12,53 @@ from mealpy.optimizer import Optimizer
 class OriginalCHIO(Optimizer):
     """
     The original version of: Coronavirus Herd Immunity Optimization (CHIO)
-        (Coronavirus herd immunity Optimization)
-    Link:
-        https://link.springer.com/article/10.1007/s00521-020-05296-6
+
+    Links:
+        1. https://link.springer.com/article/10.1007/s00521-020-05296-6
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + brr (float): [0.01, 0.2], Basic reproduction rate, default=0.06
+        + max_age (int): [50, 200], Maximum infected cases age, default=150
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.CHIO import OriginalCHIO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> brr = 0.06
+    >>> max_age = 150
+    >>> model = OriginalCHIO(problem_dict1, epoch, pop_size, brr, max_age)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Al-Betar, M.A., Alyasseri, Z.A.A., Awadallah, M.A. et al. Coronavirus herd immunity optimizer (CHIO).
+    Neural Comput & Applic 33, 5011–5042 (2021). https://doi.org/10.1007/s00521-020-05296-6
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, brr=0.06, max_age=150, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             brr (float): Basic reproduction rate, default=0.06
             max_age (int): Maximum infected cases age, default=150
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -49,11 +79,13 @@ class OriginalCHIO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
         pop_new = []
-        is_corona_list = [False, ]*self.pop_size
+        is_corona_list = [False, ] * self.pop_size
         for i in range(0, self.pop_size):
             pos_new = deepcopy(self.pop[i][self.ID_POS])
             for j in range(0, self.problem.n_dims):
@@ -98,7 +130,7 @@ class OriginalCHIO(Optimizer):
             ## Calculate immunity mean of population
             fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
             delta_fx = np.mean(fit_list)
-            if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx]==0) and is_corona_list[idx]:
+            if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx] == 0) and is_corona_list[idx]:
                 self.immunity_type_list[idx] = 1
                 self.age_list[idx] = 1
             if (self.compare_agent([None, [delta_fx, None]], pop_new[idx])) and (self.immunity_type_list[idx] == 1):
@@ -113,26 +145,53 @@ class OriginalCHIO(Optimizer):
 
 class BaseCHIO(OriginalCHIO):
     """
-        My version of: Coronavirus Herd Immunity Optimization (CHIO)
-            (Coronavirus herd immunity Optimization)
-        Noted:
-            changed:
+    My changed version of: Coronavirus Herd Immunity Optimization (CHIO)
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + brr (float): [0.01, 0.2], Basic reproduction rate, default=0.06
+        + max_age (int): [50, 200], Maximum infected cases age, default=150
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.CHIO import BaseCHIO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> brr = 0.06
+    >>> max_age = 150
+    >>> model = BaseCHIO(problem_dict1, epoch, pop_size, brr, max_age)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, brr=0.06, max_age=150, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             brr (float): Basic reproduction rate, default=0.06
             max_age (int): Maximum infected cases age, default=150
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, brr, max_age, **kwargs)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
