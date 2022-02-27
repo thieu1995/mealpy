@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 12:51, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 12:51, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,19 +10,64 @@ from mealpy.optimizer import Optimizer
 
 class BaseWHO(Optimizer):
     """
-    My version of: Wildebeest Herd Optimization (WHO)
-        (Wildebeest herd optimization: A new global optimization algorithm inspired by wildebeest herding behaviour)
-    Link:
-        http://doi.org/10.3233/JIFS-190495
-    Noted:
-        + Before updated old position, i check whether new position is better or not.
+    The original version of: Wildebeest Herd Optimization (WHO)
+
+    Links:
+        1. http://doi.org/10.3233/JIFS-190495
+
+    Notes
+    ~~~~~
+    Before updated old position, I check whether new position is better or not.
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_s (int): [2, 4], number of exploration step
+        + n_e (int): [2, 4], number of exploitation step
+        + eta (float): [0.05, 0.5], learning rate
+        + local_move (list): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
+        + global_move (list): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
+        + p_hi (float): [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
+        + delta (list): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.WHO import BaseWHO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_s = 3
+    >>> n_e = 3
+    >>> eta = 0.15
+    >>> local_move = [0.9, 0.3]
+    >>> global_move = [0.2, 0.8]
+    >>> p_hi = 0.9
+    >>> delta = [2.0, 2.0]
+    >>> model = BaseWHO(problem_dict1, epoch, pop_size, n_s, n_e, eta, local_move, global_move, p_hi, delta,)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Amali, D. and Dinakaran, M., 2019. Wildebeest herd optimization: a new global optimization algorithm inspired
+    by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, 37(6), pp.8063-8076.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3),
-                        global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0), **kwargs):
+                 global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0), **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_s (int): default = 3, number of exploration step
@@ -35,7 +77,6 @@ class BaseWHO(Optimizer):
             global_move (list): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
             p_hi (float): default = 0.9, the probability of wildebeest move to another position based on herd instinct
             delta (list): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -53,6 +94,8 @@ class BaseWHO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -118,4 +161,3 @@ class BaseWHO(Optimizer):
         pop_child = self.update_fitness_population(pop_child)
         pop_child = self.get_sorted_strim_population(pop_child, self.pop_size)
         self.pop = self.greedy_selection_population(pop_new, pop_child)
-
