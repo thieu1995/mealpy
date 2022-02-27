@@ -184,7 +184,7 @@ class BaseBSO(ImprovedBSO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> m_clusters = 0.5
+    >>> m_clusters = 5
     >>> p1 = 0.2
     >>> p2 = 0.8
     >>> p3 = 0.4
@@ -272,3 +272,4 @@ class BaseBSO(ImprovedBSO):
         self.pop = []
         for idx in range(0, self.m_clusters):
             self.pop += self.pop_group[idx]
+
