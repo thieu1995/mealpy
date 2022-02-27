@@ -1,11 +1,8 @@
 #!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 14:52, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# Created by "Thieu" at 14:52, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,32 +11,72 @@ from mealpy.optimizer import Optimizer
 
 class BaseEOA(Optimizer):
     """
-    My modified version of: Earthworm Optimisation Algorithm (EOA)
-        (Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm for global optimisation problems)
-    Link:
-        http://doi.org/10.1504/IJBIC.2015.10004283
-        https://www.mathworks.com/matlabcentral/fileexchange/53479-earthworm-optimization-algorithm-ewa
-    Notes:
-        + The original version from matlab code above will not working well, even with small dimensions.
-        + I changed updating process
-        + Changed cauchy process using x_mean
-        + Used global best solution
-        + Remove third loop for faster
+    My changed version of: Earthworm Optimisation Algorithm (EOA)
+
+    Links:
+        1. http://doi.org/10.1504/IJBIC.2015.10004283
+        2. https://www.mathworks.com/matlabcentral/fileexchange/53479-earthworm-optimization-algorithm-ewa
+
+    Notes
+    ~~~~~
+    The original version from matlab code above will not working well, even with small dimensions.
+    I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + p_c: [0.5, 0.95], crossover probability
+        + p_m: [0.01, 0.2], initial mutation probability
+        + n_best: [2, 5], how many of the best earthworm to keep from one generation to the next
+        + alpha: [0.8, 0.99], similarity factor
+        + beta: [0.8, 1.0], the initial proportional factor
+        + gamma: [0.8, 0.99], a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.EOA import BaseEOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> p_c = 0.9
+    >>> p_m = 0.01
+    >>> n_best = 2
+    >>> alpha = 0.98
+    >>> beta = 1.0
+    >>> gamma = 0.9
+    >>> model = BaseEOA(problem_dict1, epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Wang, G.G., Deb, S. and Coelho, L.D.S., 2018. Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm
+    for global optimisation problems. International journal of bio-inspired computation, 12(1), pp.1-22.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, p_c=0.9, p_m=0.01, n_best=2, alpha=0.98, beta=1, gamma=0.9, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            p_c (): default = 0.9, crossover probability
-            p_m (): default = 0.01 initial mutation probability
-            n_best (): default = 2, how many of the best earthworm to keep from one generation to the next
-            alpha (): default = 0.98, similarity factor
-            beta (): default = 1, the initial proportional factor
-            gamma (): default = 0.9, a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
-            **kwargs ():
+            p_c (float): default = 0.9, crossover probability
+            p_m (float): default = 0.01 initial mutation probability
+            n_best (int): default = 2, how many of the best earthworm to keep from one generation to the next
+            alpha (float): default = 0.98, similarity factor
+            beta (float): default = 1, the initial proportional factor
+            gamma (float): default = 0.9, a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -59,6 +96,8 @@ class BaseEOA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
