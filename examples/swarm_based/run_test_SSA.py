@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.SSA import OriginalSSA, BaseSSA
+from mealpy.swarm_based.SSpiderA import OriginalSSA, BaseSSA
 
 
 # Setting parameters

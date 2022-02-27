@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.SSO import BaseSSO
+from mealpy.swarm_based.SSpiderO import BaseSSO
 
 
 # Setting parameters

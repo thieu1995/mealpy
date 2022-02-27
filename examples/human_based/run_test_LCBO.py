@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec.cec2014.function import *
-from mealpy.human_based.LCBO import BaseLCBO, ModifiedLCO, ImprovedLCO
+from mealpy.human_based.LCO import BaseLCBO, ModifiedLCO, ImprovedLCO
 from numpy import sum
 
 # def F20(solution):
