@@ -13,11 +13,12 @@ class BaseWHO(Optimizer):
     The original version of: Wildebeest Herd Optimization (WHO)
 
     Links:
-        1. http://doi.org/10.3233/JIFS-190495
+        1. https://doi.org/10.3233/JIFS-190495
 
     Notes
     ~~~~~
     Before updated old position, I check whether new position is better or not.
+
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + n_s (int): [2, 4], number of exploration step
         + n_e (int): [2, 4], number of exploitation step
