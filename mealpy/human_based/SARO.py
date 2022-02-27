@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 11:16, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 11:16, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,16 +11,46 @@ from mealpy.optimizer import Optimizer
 
 class BaseSARO(Optimizer):
     """
-    My version of: Search And Rescue Optimization (SAR)
-        (A New Optimization Algorithm Based on Search and Rescue Operations)
-    Link:
-        https://doi.org/10.1155/2019/2482543
-    Notes:
-        + Remove all third loop
+    My changed version of: Search And Rescue Optimization (SARO)
+
+    Notes
+    ~~~~~
+    All third loop is removed
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + se (float): [0.3, 0.8], social effect, default = 0.5
+        + mu (int): [10, 100], maximum unsuccessful search number, default = 50
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.SARO import BaseSARO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> se = 0.5
+    >>> mu = 50
+    >>> model = BaseSARO(problem_dict1, epoch, pop_size, se, mu)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
+
     def __init__(self, problem, epoch=10000, pop_size=100, se=0.5, mu=50, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             se (float): social effect, default = 0.5
@@ -47,6 +74,8 @@ class BaseSARO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -101,15 +130,50 @@ class BaseSARO(Optimizer):
 
 class OriginalSARO(BaseSARO):
     """
-    The original version of: Search And Rescue Optimization (SAR)
-        (A New Optimization Algorithm Based on Search and Rescue Operations)
-    Link:
-        https://doi.org/10.1155/2019/2482543
+    The original version of: Search And Rescue Optimization (SARO)
+
+    Links:
+       1. https://doi.org/10.1155/2019/2482543
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + se (float): [0.3, 0.8], social effect, default = 0.5
+        + mu (int): [10, 100], maximum unsuccessful search number, default = 50
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.SARO import OriginalSARO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> se = 0.5
+    >>> mu = 50
+    >>> model = OriginalSARO(problem_dict1, epoch, pop_size, se, mu)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Shabani, A., Asgarian, B., Gharebaghi, S.A., Salido, M.A. and Giret, A., 2019. A new optimization
+    algorithm based on search and rescue operations. Mathematical Problems in Engineering, 2019.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, se=0.5, mu=50, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             se (float): social effect, default = 0.5
@@ -119,6 +183,8 @@ class OriginalSARO(BaseSARO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
