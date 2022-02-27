@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 07:44, 08/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 07:44, 08/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,25 +12,60 @@ from mealpy.optimizer import Optimizer
 class ImprovedBSO(Optimizer):
     """
     My improved version of: Brain Storm Optimization (BSO)
-        (Brain storm optimization algorithm)
-    Notes:
-        + No need some parameters, and some useless equations
-        + Using levy-flight for more robust
+
+    Notes
+    ~~~~~
+    + Remove some probability parameters, and some useless equations.
+    + Add Levy-flight technique for more robust
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + m_clusters (int): [3, 10], number of clusters (m in the paper)
+        + p1 (float): 25% percent
+        + p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
+        + p3 (float): 75% percent develop the old idea, 25% invented new idea based on levy-flight
+        + p4 (float): [0.4, 0.6], Need more weights on the centers instead of the random position
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.BSO import ImprovedBSO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> m_clusters = 5
+    >>> p1 = 0.25
+    >>> p2 = 0.5
+    >>> p3 = 0.75
+    >>> p4 = 0.6
+    >>> model = ImprovedBSO(problem_dict1, epoch, pop_size, m_clusters, p1, p2, p3, p4)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100,
                  m_clusters=5, p1=0.25, p2=0.5, p3=0.75, p4=0.5, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            m_clusters (): number of clusters (m in the paper)
-            p1 (): 25% percent
-            p2 (): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
-            p3 (): 75% percent develop the old idea, 25% invented new idea based on levy-flight
-            p4 (): Need more weights on the centers instead of the random position
-            **kwargs ():
+            m_clusters (int): number of clusters (m in the paper)
+            p1 (float): 25% percent
+            p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
+            p3 (float): 75% percent develop the old idea, 25% invented new idea based on levy-flight
+            p4 (float): Need more weights on the centers instead of the random position
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -71,6 +103,8 @@ class ImprovedBSO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -117,16 +151,62 @@ class ImprovedBSO(Optimizer):
 class BaseBSO(ImprovedBSO):
     """
     The original version of: Brain Storm Optimization (BSO)
-        (Brain storm optimization algorithm)
-    Link:
-        DOI: https://doi.org/10.1007/978-3-642-21515-5_36
+
+    Links:
+        1. https://doi.org/10.1007/978-3-642-21515-5_36
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + m_clusters (int): [3, 10], number of clusters (m in the paper)
+        + p1 (float): [0.1, 0.5], probability
+        + p2 (float): [0.5, 0.95], probability
+        + p3 (float): [0.2, 0.8], probability
+        + p4 (float): [0.2, 0.8], probability
+        + slope (int): [10, 15, 20, 25], changing logsig() function's slope (k: in the paper)
+        + miu (float): [0], mean of normal distribution (gaussian)
+        + xichma (float): [1], standard deviation of normal distribution (gaussian)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.BSO import BaseBSO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> m_clusters = 0.5
+    >>> p1 = 0.2
+    >>> p2 = 0.8
+    >>> p3 = 0.4
+    >>> p4 = 0.5
+    >>> slope = 20
+    >>> miu = 0
+    >>> xichma = 1
+    >>> model = BaseBSO(problem_dict1, epoch, pop_size, m_clusters, p1, p2, p3, p4, slope, miu, xichma)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Shi, Y., 2011, June. Brain storm optimization algorithm. In International
+    conference in swarm intelligence (pp. 303-309). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100,
                  m_clusters=5, p1=0.2, p2=0.8, p3=0.4, p4=0.5, slope=20, miu=0, xichma=1, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             m_clusters (int): number of clusters (m in the paper)
@@ -135,9 +215,8 @@ class BaseBSO(ImprovedBSO):
             p3 (float): probability
             p4 (float): probability
             slope (int): changing logsig() function's slope (k: in the paper)
-            miu (float):
-            xichma (float):
-            **kwargs ():
+            miu (float): mean of normal distribution (gaussian)
+            xichma (float): standard deviation of normal distribution (gaussian)
         """
         super().__init__(problem, epoch, pop_size, m_clusters, p1, p2, p3, p4, **kwargs)
         self.slope = slope
@@ -146,6 +225,8 @@ class BaseBSO(ImprovedBSO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -191,4 +272,3 @@ class BaseBSO(ImprovedBSO):
         self.pop = []
         for idx in range(0, self.m_clusters):
             self.pop += self.pop_group[idx]
-
