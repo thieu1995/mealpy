@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 08:57, 14/06/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 08:57, 14/06/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,23 +11,42 @@ from mealpy.optimizer import Optimizer
 
 class BaseFBIO(Optimizer):
     """
-    My modified version of: Forensic-Based Investigation Optimization (FBIO)
-        (FBI inspired meta-optimization)
-    Link:
-        https://www.sciencedirect.com/science/article/abs/pii/S1568494620302799
-    Notes:
-        + Implement the fastest way (Remove all third loop)
-        + Change equations
-        + Change the flow of algorithm
+    My changed version of: Forensic-Based Investigation Optimization (FBIO)
+
+    Notes
+    ~~~~~
+    I remove all the third loop, change a few equations and the flow of the algorithm
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.FBIO import BaseFBIO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseFBIO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 4 * pop_size
@@ -46,6 +62,8 @@ class BaseFBIO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -58,7 +76,8 @@ class BaseFBIO(Optimizer):
             # Eq.(2) in FBI Inspired Meta - Optimization
             pos_a = deepcopy(self.pop[idx][self.ID_POS])
             pos_a[n_change] = self.pop[idx][self.ID_POS][n_change] + np.random.normal() * (self.pop[idx][self.ID_POS][n_change] -
-                                            (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
+                                                                                           (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][
+                                                                                               n_change]) / 2)
             pos_a = self.amend_position_random(pos_a)
             pop_new.append([pos_a, None])
         pop_new = self.update_fitness_population(pop_new)
@@ -116,20 +135,45 @@ class BaseFBIO(Optimizer):
 class OriginalFBIO(BaseFBIO):
     """
     The original version of: Forensic-Based Investigation Optimization (FBIO)
-        (FBI inspired meta-optimization)
-    Link:
-        DOI: https://doi.org/10.1016/j.asoc.2020.106339
-        Matlab code: https://ww2.mathworks.cn/matlabcentral/fileexchange/76299-forensic-based-investigation-algorithm-fbi
+
+    Links:
+        1. https://doi.org/10.1016/j.asoc.2020.106339
+        2. https://ww2.mathworks.cn/matlabcentral/fileexchange/76299-forensic-based-investigation-algorithm-fbi
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.FBIO import OriginalFBIO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = OriginalFBIO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, 93, p.106339.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
-
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, **kwargs)
         self.nfe_per_epoch = 4 * pop_size
@@ -140,6 +184,8 @@ class OriginalFBIO(BaseFBIO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -152,7 +198,8 @@ class OriginalFBIO(BaseFBIO):
             # Eq.(2) in FBI Inspired Meta - Optimization
             pos_a = deepcopy(self.pop[i][self.ID_POS])
             pos_a[n_change] = self.pop[i][self.ID_POS][n_change] + (np.random.uniform() - 0.5) * 2 * (self.pop[i][self.ID_POS][n_change] -
-                                            (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
+                                                                                                      (self.pop[nb1][self.ID_POS][n_change] +
+                                                                                                       self.pop[nb2][self.ID_POS][n_change]) / 2)
             ## Not good move here, change only 1 variable but check bound of all variable in solution
             pos_a = self.amend_position_random(pos_a)
             pop_new.append([pos_a, None])
