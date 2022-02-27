@@ -15,8 +15,6 @@ class BaseES(Optimizer):
     Links:
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + n_child (float/int): Number of child evolving in the next generation
             + if float number --> percentage of child agents, [0.5, 1.0]
@@ -114,16 +112,13 @@ class LevyES(BaseES):
     """
     My Levy-flight version of: Evolution Strategies (ES)
 
-            The levy version of: Evolution Strategies (ES)
-        Noted:
-            + Applied levy-flight
-            + Change the flow of algorithm
-
     Links:
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
-    Notes:
-    ~~~~~~
+    Notes
+    ~~~~~
+    I implement Levy-flight and change the flow of original version.
+
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + n_child (float/int): Number of child evolving in the next generation
             + if float number --> percentage of child agents, [0.5, 1.0]
@@ -198,4 +193,3 @@ class LevyES(BaseES):
             child.append([pos_new, None, stdevs])
         child_levy = self.update_fitness_population(child_levy)
         self.pop = self.get_sorted_strim_population(child + child_levy + self.pop, self.pop_size)
-

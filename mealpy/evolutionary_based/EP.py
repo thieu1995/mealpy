@@ -17,8 +17,6 @@ class BaseEP(Optimizer):
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
         2. https://github.com/clever-algorithms/CleverAlgorithms
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + bout_size (float/int): Number of tried with tournament selection (5% of pop_size)
             + if float number --> percentage of child agents, [0.05, 0.2]
