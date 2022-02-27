@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 14:22, 11/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:22, 11/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,18 +11,60 @@ from mealpy.optimizer import Optimizer
 
 class BaseMA(Optimizer):
     """
-        The original version of: Memetic Algorithm (MA)
-            (On evolution, search, optimization, genetic algorithms and martial arts: Towards memetic algorithms)
-        Link:
-            Clever Algorithms: Nature-Inspired Programming Recipes - Memetic Algorithm (MA)
-            http://www.cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
+    The original version of: Memetic Algorithm (MA)
+
+    Links:
+        1. https://www.cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
+        2. https://github.com/clever-algorithms/CleverAlgorithms
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + pc (float): [0.7, 0.95], cross-over probability, default = 0.85
+        + pm (float): [0.05, 0.3], mutation probability, default = 0.15
+        + p_local (float): [0.3, 0.7], Probability of local search for each agent, default=0.5
+        + max_local_gens (int): [5, 25], number of local search agent will be created during local search mechanism, default=20
+        + bits_per_param (int): [8, 16, 32], number of bits to decode a real number to 0-1 bitstring, default=16
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.evolutionary_based.MA import BaseMA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> pc = 0.85
+    >>> pm = 0.15
+    >>> p_local = 0.5
+    >>> max_local_gens = 20
+    >>> bits_per_param = 16
+    >>> model = BaseMA(problem_dict1, epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Moscato, P., 1989. On evolution, search, optimization, genetic algorithms and martial arts:
+    Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, p.1989.
     """
+
     ID_BIT = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
                  p_local=0.5, max_local_gens=20, bits_per_param=16, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pc (float): cross-over probability, default = 0.85
@@ -49,15 +88,14 @@ class BaseMA(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]], bitstring]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], bitstring]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -67,11 +105,12 @@ class BaseMA(Optimizer):
     def _decode(self, bitstring=None):
         """
         Decode the random bitstring into real number
+
         Args:
             bitstring (str): "11000000100101000101010" - bits_per_param = 16, 32 bit for 2 variable. eg. x1 and x2
 
         Returns:
-            list of real number (vector)
+            list: list of real number (vector)
         """
         vector = np.ones(self.problem.n_dims)
         for idx in range(0, self.problem.n_dims):
@@ -123,6 +162,8 @@ class BaseMA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
