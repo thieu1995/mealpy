@@ -16,10 +16,9 @@ class OriginalBBO(Optimizer):
     Links:
         1. https://ieeexplore.ieee.org/abstract/document/4475427
 
-    Notes
-    ~~~~~
-    The `p_m` and `elites` should fine tuned to get faster convergence toward the global optimum.
-    A good approximate range for `p_m` is [0.01, 0.2], for `elites` is [2, 5].
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + p_m: [0.01, 0.2], Mutation probability
+        + elites: [2, 5], Number of elites will be keep for next generation
 
     Examples
     ~~~~~~~~
@@ -61,7 +60,6 @@ class OriginalBBO(Optimizer):
             pop_size (int): Number of population size, default = 100
             p_m (float): Mutation probability, default=0.01
             elites (int): Number of elites will be keep for next generation, default=2
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -116,10 +114,9 @@ class BaseBBO(OriginalBBO):
     Links:
         1. https://ieeexplore.ieee.org/abstract/document/4475427
 
-    Notes
-    ~~~~~
-    The `p_m` and `elites` should fine tuned to get faster convergence toward the global optimum.
-    A good approximate range for `p_m` is [0.01, 0.2], for `elites` is [2, 5].
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + p_m: [0.01, 0.2], Mutation probability
+        + elites: [2, 5], Number of elites will be keep for next generation
 
     Examples
     ~~~~~~~~
@@ -185,3 +182,4 @@ class BaseBBO(OriginalBBO):
         pop = self.update_fitness_population(pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)
+
