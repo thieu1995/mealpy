@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 10:14, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 10:14, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from functools import reduce
@@ -15,22 +12,52 @@ from mealpy.optimizer import Optimizer
 
 class BaseTLO(Optimizer):
     """
-        Teaching-Learning-based Optimization (TLO)
-    An elitist teaching-learning-based optimization algorithm for solving complex constrained optimization problems(TLO)
-        This is my version taken the advantages of numpy np.array to faster handler operations.
-    Notes:
-        + Remove all third loop
-        + Using global best solution
+    The original version of: Teaching Learning-based Optimization (TLO)
+
+    Links:
+       1. https://doi.org/10.5267/j.ijiec.2012.03.007
+
+    Notes
+    ~~~~~
+    + Removed the third loop to make it faster
+    + This version taken the advantages of numpy np.array to faster handler operations
+    + The global best solution is used
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.TLO import BaseTLO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseTLO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Rao, R. and Patel, V., 2012. An elitist teaching-learning-based optimization algorithm for solving
+    complex constrained optimization problems. international journal of industrial engineering computations, 3(4), pp.535-560.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
-
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -41,6 +68,8 @@ class BaseTLO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -75,20 +104,50 @@ class BaseTLO(Optimizer):
 class OriginalTLO(BaseTLO):
     """
     The original version of: Teaching Learning-based Optimization (TLO)
-        Teaching-learning-based optimization: A novel method for constrained mechanical design optimization problems
-    This is slower version which inspired from this version:
-        https://github.com/andaviaco/tblo
-    Notes:
-        + Removed the third loop to make it faster
+
+    Links:
+       1. https://github.com/andaviaco/tblo
+
+    Notes
+    ~~~~~
+    + Removed the third loop to make it faster
+    + This is slower version which inspired from link below
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.TLO import OriginalTLO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = OriginalTLO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Rao, R.V., Savsani, V.J. and Vakharia, D.P., 2011. Teaching–learning-based optimization: a novel method
+    for constrained mechanical design optimization problems. Computer-aided design, 43(3), pp.303-315.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -96,6 +155,8 @@ class OriginalTLO(BaseTLO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -128,21 +189,55 @@ class OriginalTLO(BaseTLO):
 
 class ITLO(BaseTLO):
     """
-    My version of: Improved Teaching-Learning-based Optimization (ITLO)
-    Link:
-        An improved teaching-learning-based optimization algorithm for solving unconstrained optimization problems
-    Notes:
-        + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
+    The original version of: Improved Teaching-Learning-based Optimization (ITLO)
+
+    Links:
+       1. https://doi.org/10.1016/j.scient.2012.12.005
+
+    Notes
+    ~~~~~
+    + Removed the third loop to make it faster
+    + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_teachers (int): [3, 10], number of teachers in class, default=5
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.TLO import ITLO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = ITLO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Rao, R.V. and Patel, V., 2013. An improved teaching-learning-based optimization algorithm
+    for solving unconstrained optimization problems. Scientia Iranica, 20(3), pp.710-720.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_teachers=5, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_teachers (int): number of teachers in class
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -171,6 +266,8 @@ class ITLO(BaseTLO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
