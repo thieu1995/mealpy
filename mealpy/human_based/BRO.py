@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 09:17, 09/11/2020                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 09:17, 09/11/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -15,21 +12,49 @@ from mealpy.optimizer import Optimizer
 
 class BaseBRO(Optimizer):
     """
-        My best version of: Battle Royale Optimization (BRO)
-            (Battle royale optimization algorithm)
-        Link:
-            https://doi.org/10.1007/s00521-020-05004-4
+    My changed version of: Battle Royale Optimization (BRO)
+
+    Notes
+    ~~~~~
+    I change the flow of algorithm
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + threshold (int): [2, 5], dead threshold, default=3
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.BRO import BaseBRO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> threshold = 3
+    >>> model = BaseBRO(problem_dict1, epoch, pop_size, threshold)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
+
     ID_DAM = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, threshold=3, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -45,15 +70,14 @@ class BaseBRO(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]]]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], damage]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -70,6 +94,8 @@ class BaseBRO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -87,8 +113,8 @@ class BaseBRO(Optimizer):
                 ## Update Loser
                 if self.pop[j][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
                     pos_new = np.random.uniform() * (np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS]) -
-                                                       np.minimum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])) + \
-                                          np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
+                                                     np.minimum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])) + \
+                              np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
                     dam_new = self.pop[j][self.ID_DAM] + 1
 
                     self.pop[j][self.ID_FIT] = self.get_fitness_position(self.pop[j][self.ID_POS])
@@ -122,15 +148,47 @@ class BaseBRO(Optimizer):
 
 class OriginalBRO(BaseBRO):
     """
-        The original version of: Battle Royale Optimization (BRO)
-            (Battle royale optimization algorithm)
-        Link:
-            https://doi.org/10.1007/s00521-020-05004-4
-        - Original category: Human-based
+    The original version of: Battle Royale Optimization (BRO)
+
+    Links:
+        1. https://doi.org/10.1007/s00521-020-05004-4
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + threshold (int): [2, 5], dead threshold, default=3
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.human_based.BRO import BaseBRO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> threshold = 3
+    >>> model = BaseBRO(problem_dict1, epoch, pop_size, threshold)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Rahkar Farshi, T., 2021. Battle royale optimization algorithm. Neural Computing and Applications, 33(4), pp.1139-1157.
     """
+
     def __init__(self, problem, epoch=10000, pop_size=100, threshold=3, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
@@ -141,6 +199,8 @@ class OriginalBRO(BaseBRO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -153,8 +213,8 @@ class OriginalBRO(BaseBRO):
             if self.pop[dam][self.ID_DAM] < self.threshold:
                 pos_new = np.random.uniform(0, 1, self.problem.n_dims) * \
                           (np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS]) -
-                            np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
-                            np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
+                           np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
+                          np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
                 self.pop[dam][self.ID_POS] = self.amend_position_faster(pos_new)
                 self.pop[dam][self.ID_FIT] = self.get_fitness_position(self.pop[dam][self.ID_POS])
                 self.pop[dam][self.ID_DAM] += 1
@@ -169,4 +229,3 @@ class OriginalBRO(BaseBRO):
             self.problem.lb = np.clip(lb, self.problem.lb, self.problem.ub)
             self.problem.ub = np.clip(ub, self.problem.lb, self.problem.ub)
             self.dyn_delta += round(self.dyn_delta / 2)
-
