@@ -17,8 +17,6 @@ class BaseDE(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.swevo.2018.10.006
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + wf (float): [0.5, 0.95], weighting factor, default = 0.8
         + cr (float): [0.5, 0.95], crossover rate, default = 0.9
@@ -150,8 +148,6 @@ class JADE(Optimizer):
     Links:
         1. https://doi.org/10.1109/TEVC.2009.2014613
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial adaptive f, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial adaptive cr, default = 0.5
@@ -429,8 +425,6 @@ class SHADE(Optimizer):
     Links:
         1. https://doi.org/10.1109/CEC.2013.6557555
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
@@ -590,10 +584,8 @@ class L_SHADE(Optimizer):
     The original version of: Linear Population Size Reduction Success-History Adaptation Differential Evolution (LSHADE)
 
     Links:
-        1. http://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
+        1. https://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
@@ -757,8 +749,6 @@ class SAP_DE(Optimizer):
     Links:
         1. https://doi.org/10.1007/s00500-005-0537-1
 
-    Notes:
-    ~~~~~~
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + wf (float): [0.6, 0.95], weighting factor, default = 0.8
         + cr (float): [0.6, 0.95], crossover rate, default = 0.9
