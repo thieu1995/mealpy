@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 11:59, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 11:59, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,13 +12,54 @@ from mealpy.optimizer import Optimizer
 
 class BaseSSpiderA(Optimizer):
     """
-        My modified version of: Social Spider Algorithm (BaseSSpiderA)
-            (A social spider algorithm for global optimization)
-        Link:
-            https://doi.org/10.1016/j.asoc.2015.02.014
-        Notes:
-            + Changes the idea of intensity, which one has better intensity, others will move toward to it
+    My modified version of: Social Spider Algorithm (BaseSSpiderA)
+
+    Links:
+        1. https://doi.org/10.1016/j.asoc.2015.02.014
+        2. https://github.com/James-Yu/SocialSpiderAlgorithm  (Modified this version)
+
+    Notes
+    ~~~~~
+    + The version on above github is very slow convergence
+    + Changes the idea of intensity, which one has better intensity, others will move toward to it
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0
+        + p_c (float): controls the probability of the spiders changing their dimension mask in the random walk step, default=0.7
+        + p_m (float): the probability of each value in a dimension mask to be one, default=0.1
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.SSpiderA import BaseSSpiderA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> r_a = 50
+    >>> p_c = 0.5
+    >>> p_m = 1.0
+    >>> model = BaseSSpiderA(problem_dict1, epoch, pop_size, r_a, p_c, p_m)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] James, J.Q. and Li, V.O., 2015. A social spider algorithm for global optimization.
+    Applied soft computing, 30, pp.614-627.
     """
+
     ID_POS = 0
     ID_FIT = 1
     ID_INT = 2
@@ -32,13 +70,12 @@ class BaseSSpiderA(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, r_a=1, p_c=0.7, p_m=0.1, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0
             p_c (float): controls the probability of the spiders changing their dimension mask in the random walk step, default=0.7
             p_m (float): the probability of each value in a dimension mask to be one, default=0.1
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -52,25 +89,23 @@ class BaseSSpiderA(Optimizer):
 
     def create_solution(self):
         """
+        + x: The position of s on the web.
+        + train: The fitness of the current position of s
+        + target_vibration: The target vibration of s in the previous iteration.
+        + intensity_vibration: intensity of vibration
+        + movement_vector: The movement that s performed in the previous iteration
+        + dimension_mask: The dimension mask 1 that s employed to guide movement in the previous iteration
+        + The dimension mask is a 0-1 binary vector of length problem size
+        + n_changed: The number of iterations since s has last changed its target vibration. (No need)
+
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
         Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]]]
-
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
-
-        x: The position of s on the web.
-        train: The fitness of the current position of s.
-        target_vibration: The target vibration of s in the previous iteration.
-        intensity_vibration: intensity of vibration
-        movement_vector: The movement that s performed in the previous iteration.
-        dimension_mask: The dimension mask 1 that s employed to guide movement in the previous iteration.
-        The dimension mask is a 0-1 binary vector of length problem size.
-
-        n_changed: The number of iterations since s has last changed its target vibration. (No need)
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], intensity, target_position, previous_movement_vector, dimension_mask]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
@@ -82,6 +117,8 @@ class BaseSSpiderA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -117,73 +154,3 @@ class BaseSSpiderA(Optimizer):
                 self.pop[idx][self.ID_INT] = np.log(1. / (abs(pop_new[idx][self.ID_FIT][self.ID_TAR]) + self.EPSILON) + 1)
                 self.pop[idx][self.ID_POS] = pop_new[idx][self.ID_POS]
                 self.pop[idx][self.ID_FIT] = pop_new[idx][self.ID_FIT]
-
-
-# class OriginalSSA(Root):
-#     """
-#         The original version of: Social Spider Algorithm (SSA)
-#             (Social Spider Algorithm - A social spider algorithm for global optimization)
-#         Link:
-#             + Taken from Github: https://github.com/James-Yu/SocialSpiderAlgorithm
-#             + Slow convergence
-#     """
-#
-#     def __init__(self, obj_func=None, lb=None, ub=None, verbose=True, epoch=750, pop_size=100,
-#                  r_a=1, p_c=0.7, p_m=0.1, **kwargs):
-#         super().__init__(obj_func, lb, ub, verbose, kwargs)
-#         self.epoch = epoch
-#         self.pop_size = pop_size
-#         self.r_a = r_a     # the rate of vibration attenuation when propagating over the spider web.
-#         self.p_c = p_c     # controls the probability of the spiders changing their dimension mask in the random walk step.
-#         self.p_m = p_m     # the probability of each value in a dimension mask to be one
-#
-#     def train(self):
-#
-#         g_best = [np.zeros(self.problem_size), np.Inf]
-#         self.position = np.random.uniform(self.lb, self.ub, (self.pop_size, self.problem_size))
-#         target_position = deepcopy(self.position)
-#         target_intensity = np.zeros(self.pop_size)
-#         mask = np.zeros((self.pop_size, self.problem_size))
-#         movement = np.zeros((self.pop_size, self.problem_size))
-#         inactive = np.zeros(self.pop_size)
-#
-#         epoch = 0
-#         while (epoch < self.epoch):
-#             epoch += 1
-#             spider_fitness = np.array([self.get_fitness_position(self.position[i]) for i in range(self.pop_size)])
-#             base_distance = np.mean(np.std(self.position, 0))
-#             distance = cdist(self.position, self.position, 'euclidean')
-#
-#             intensity_source = np.log(1. / (spider_fitness + self.EPSILON) + 1)
-#             intensity_attenuation = np.exp(-distance / (base_distance * self.r_a))
-#             intensity_receive = np.tile(intensity_source, self.pop_size).np.reshape(self.pop_size, self.pop_size) * intensity_attenuation
-#
-#             max_index = np.argmax(intensity_receive, axis=1)
-#             keep_target = intensity_receive[np.arange(self.pop_size), max_index] <= target_intensity
-#             keep_target_matrix = np.repeat(keep_target, self.problem_size).np.reshape(self.pop_size, self.problem_size)
-#             inactive = inactive * keep_target + keep_target
-#             target_intensity = target_intensity * keep_target + intensity_receive[np.arange(self.pop_size), max_index] * (1 - keep_target)
-#             target_position = target_position * keep_target_matrix + self.position[max_index] * (1 - keep_target_matrix)
-#
-#             rand_position = self.position[np.floor(rand(self.pop_size * self.problem_size) * self.pop_size).astype(int), \
-#                                           np.tile(np.arange(self.problem_size), self.pop_size)].np.reshape(self.pop_size, self.problem_size)
-#             new_mask = np.ceil(rand(self.pop_size, self.problem_size) + rand() * self.p_m - 1)
-#             keep_mask = rand(self.pop_size) < self.p_c ** inactive
-#             inactive = inactive * keep_mask
-#             keep_mask_matrix = np.repeat(keep_mask, self.problem_size).np.reshape(self.pop_size, self.problem_size)
-#             mask = keep_mask_matrix * mask + (1 - keep_mask_matrix) * new_mask
-#
-#             follow_position = mask * rand_position + (1 - mask) * target_position
-#             movement = np.repeat(rand(self.pop_size), self.problem_size).np.reshape(self.pop_size, self.problem_size) * movement + \
-#                        (follow_position - self.position) * rand(self.pop_size, self.problem_size)
-#             self.position = self.position + movement
-#
-#             if min(spider_fitness) < g_best[self.ID_FIT]:
-#                 g_best = deepcopy([self.position[argmin(spider_fitness)]), min(spider_fitness)]
-#
-#             self.loss_train.append(g_best[self.ID_FIT])
-#             if self.verbose:
-#                 print("> Epoch: {}, Best fit: {}".format(epoch + 1, g_best[self.ID_FIT]))
-#         self.solution = g_best
-#         return g_best[self.ID_POS], g_best[self.ID_FIT], self.loss_train
-
