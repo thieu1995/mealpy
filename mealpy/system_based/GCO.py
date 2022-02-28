@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 16:44, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 16:44, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,18 +11,46 @@ from mealpy.optimizer import Optimizer
 
 class BaseGCO(Optimizer):
     """
-    My modified version of: Germinal Center Optimization (GCO)
-        (Germinal Center Optimization Algorithm)
-    Link:
-        https://www.atlantis-press.com/journals/ijcis/25905179/view
-    Noted:
-        + Using batch-size updating
-        + Instead randomize choosing 3 solution, I use 2 random solution and global best solution
+    My changed version of: Germinal Center Optimization (GCO)
+
+    Notes
+    ~~~~~
+    + The global best solution and 2 random solutions are used instead of randomizing 3 solutions
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
+        + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.system_based.GCO import BaseGCO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> cr = 0.7
+    >>> wf = 1.25
+    >>> model = BaseGCO(problem_dict1, epoch, pop_size, cr, wf)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
@@ -41,11 +66,13 @@ class BaseGCO(Optimizer):
         self.wf = wf
 
         ## Dynamic variables
-        self.dyn_list_cell_counter = np.ones(self.pop_size)         # CEll Counter
-        self.dyn_list_life_signal = 70 * np.ones(self.pop_size)     # 70% to duplicate, and 30% to die  # LIfe-Signal
+        self.dyn_list_cell_counter = np.ones(self.pop_size)  # CEll Counter
+        self.dyn_list_life_signal = 70 * np.ones(self.pop_size)  # 70% to duplicate, and 30% to die  # LIfe-Signal
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -80,15 +107,51 @@ class BaseGCO(Optimizer):
 
 class OriginalGCO(BaseGCO):
     """
-    Original version of: Germinal Center Optimization (GCO)
-        (Germinal Center Optimization Algorithm)
-    Link:
-        DOI: https://doi.org/10.2991/ijcis.2018.25905179
+    The original version of: Germinal Center Optimization (GCO)
+
+    Links:
+        1. https://doi.org/10.2991/ijcis.2018.25905179
+        2. https://www.atlantis-press.com/journals/ijcis/25905179/view
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
+        + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.system_based.GCO import OriginalGCO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> cr = 0.7
+    >>> wf = 1.25
+    >>> model = OriginalGCO(problem_dict1, epoch, pop_size, cr, wf)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Villaseñor, C., Arana-Daniel, N., Alanis, A.Y., López-Franco, C. and Hernandez-Vargas, E.A., 2018.
+    Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), p.13.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
@@ -100,6 +163,8 @@ class OriginalGCO(BaseGCO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
