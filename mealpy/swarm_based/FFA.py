@@ -1,31 +1,68 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 17:13, 01/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 17:13, 01/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseFireflyA(Optimizer):
+class BaseFFA(Optimizer):
     """
-        The original version of: Firefly Algorithm (FireflyA)
-            Firefly Algorithm for Optimization Problem
-        Link:
-            DOI:
-            https://www.researchgate.net/publication/259472546_Firefly_Algorithm_for_Optimization_Problem
+    The original version of: Firefly Algorithm (FFA)
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + gamma (float): Light Absorption Coefficient, default = 0.001
+        + beta_base (float): Attraction Coefficient Base Value, default = 2
+        + alpha (float): Mutation Coefficient, default = 0.2
+        + alpha_damp (float): Mutation Coefficient Damp Rate, default = 0.99
+        + delta (float): Mutation Step Size, default = 0.05
+        + exponent (int): Exponent (m in the paper), default = 2
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.FFA import BaseFFA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> gamma = 0.001
+    >>> beta_base = 2
+    >>> alpha = 0.2
+    >>> alpha_damp = 0.99
+    >>> delta = 0.05
+    >>> exponent = 2
+    >>> model = BaseFFA(problem_dict1, epoch, pop_size, gamma, beta_base, alpha, alpha_damp, delta, exponent)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Gandomi, A.H., Yang, X.S. and Alavi, A.H., 2011. Mixed variable structural optimization
+    using firefly algorithm. Computers & Structures, 89(23-24), pp.2325-2336.
+    [2] Arora, S. and Singh, S., 2013. The firefly optimization algorithm: convergence analysis and
+    parameter selection. International Journal of Computer Applications, 69(3).
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100,
                  gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             gamma (float): Light Absorption Coefficient, default = 0.001
@@ -34,7 +71,6 @@ class BaseFireflyA(Optimizer):
             alpha_damp (float): Mutation Coefficient Damp Rate, default = 0.99
             delta (float): Mutation Step Size, default = 0.05
             exponent (int): Exponent (m in the paper), default = 2
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = int(pop_size * (pop_size + 1) / 2 * 0.5)
@@ -50,10 +86,12 @@ class BaseFireflyA(Optimizer):
         self.exponent = exponent
 
         ## Dynamic variable
-        self.dyn_alpha = alpha   # Initial Value of Mutation Coefficient
+        self.dyn_alpha = alpha  # Initial Value of Mutation Coefficient
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -63,7 +101,7 @@ class BaseFireflyA(Optimizer):
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
             pop_child = []
-            for j in range(idx+1, self.pop_size):
+            for j in range(idx + 1, self.pop_size):
                 # Move Towards Better Solutions
                 if self.compare_agent(self.pop[j], agent):
                     # Calculate Radius and Attraction Level

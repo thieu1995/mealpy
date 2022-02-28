@@ -18,7 +18,7 @@ from mealpy.math_based import AOA, HC, SCA
 from mealpy.human_based import BRO, CA, FBIO, SARO, SSDO, TLO, GSKA, LCO, ICA, BSO, QSA, CHIO
 from mealpy.physics_based import ArchOA, ASO, EFO, HGSO, MVO, WDO, SA, TWO, NRO
 from mealpy.swarm_based import ABC, ACOR, AO, BA, WOA, SSA, SLO, SHO, SSO, NMRA, MSA, MRFO, MFO, JA
-from mealpy.swarm_based import GOA, CSA, BSA, ALO, BeesA, BES, FireflyA, FOA, PFA, COA, FA, SFO, SSpiderA, SSpiderO
+from mealpy.swarm_based import GOA, CSA, BSA, ALO, BeesA, BES, FFA, FOA, PFA, COA, FA, SFO, SSpiderA, SSpiderO
 from mealpy.swarm_based import HHO, GWO, EHO, CSO, DO, SRSR, PSO, BFO, HGS
 
 from mealpy.problem import Problem

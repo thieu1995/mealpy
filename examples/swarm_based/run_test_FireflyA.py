@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------------------------------%
 
 from opfunu.cec_basic.cec2014_nobias import *
-from mealpy.swarm_based.FireflyA import BaseFireflyA
+from mealpy.swarm_based.FFA import BaseFireflyA
 
 
 # Setting parameters
