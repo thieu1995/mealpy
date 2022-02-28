@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 14:51, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:51, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,20 +12,57 @@ from mealpy.optimizer import Optimizer
 class BaseSFO(Optimizer):
     """
     The original version of: SailFish Optimizer (SFO)
-    Link:
-        https://doi.org/10.1016/j.engappai.2019.01.001
+
+    Links:
+        1. https://doi.org/10.1016/j.engappai.2019.01.001
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+        + AP (int): A = 4, 6,... (coefficient for decreasing the value of Attack Power linearly from AP to 0)
+        + epxilon (float): should be 0.0001, 0.001
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.SFO import BaseSFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> pp = 0.1
+    >>> AP = 4
+    >>> epxilon = 0.0001
+    >>> model = BaseSFO(problem_dict1, epoch, pop_size, pp, AP, epxilon)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Shadravan, S., Naji, H.R. and Bardsiri, V.K., 2019. The Sailfish Optimizer: A novel
+    nature-inspired metaheuristic algorithm for solving constrained engineering optimization
+    problems. Engineering Applications of Artificial Intelligence, 80, pp.20-34.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, A=4, epxilon=0.0001, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, AP=4, epxilon=0.0001, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, SailFish pop size
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-            A (int): A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from A to 0)
+            AP (int): A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from AP to 0)
             epxilon (float): should be 0.0001, 0.001
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -37,7 +71,7 @@ class BaseSFO(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
         self.pp = pp
-        self.A = A
+        self.AP = AP
         self.epxilon = epxilon
 
         self.s_size = int(self.pop_size / self.pp)
@@ -45,11 +79,13 @@ class BaseSFO(Optimizer):
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
         self.s_pop = self.create_population(self.s_size)
-        _, self.g_best = self.get_global_best_solution(self.pop)        # pop = sailfish
-        _, self.s_gbest = self.get_global_best_solution(self.s_pop)     # s_pop = sardines
+        _, self.g_best = self.get_global_best_solution(self.pop)  # pop = sailfish
+        _, self.s_gbest = self.get_global_best_solution(self.s_pop)  # s_pop = sardines
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -61,14 +97,14 @@ class BaseSFO(Optimizer):
         for i in range(0, self.pop_size):
             lamda_i = 2 * np.random.uniform() * PD - PD
             pos_new = self.s_gbest[self.ID_POS] - lamda_i * (np.random.uniform() *
-                                (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+                                                             (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
 
         ## Calculate AttackPower using Eq.(10)
-        AP = self.A * (1 - 2 * (epoch + 1) * self.epxilon)
+        AP = self.AP * (1 - 2 * (epoch + 1) * self.epxilon)
         if AP < 0.5:
             alpha = int(self.s_size * np.abs(AP))
             beta = int(self.problem.n_dims * np.abs(AP))
@@ -114,21 +150,54 @@ class BaseSFO(Optimizer):
 
 class ImprovedSFO(Optimizer):
     """
-    My improved version of: Sailfish Optimizer (SFO)
-    Notes:
-        + Reform Energy equation,
-        + No need parameter A and epxilon
-        + Based on idea of Opposition-based Learning
+    My improved version of: Sailfish Optimizer (I-SFO)
+
+    Notes
+    ~~~~~
+    + Reforms Energy equation
+    + Removes parameters AP (A) and epsilon
+    + Applies the idea of Opposition-based Learning technique
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.SFO import ImprovedSFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> pp = 0.1
+    >>> model = ImprovedSFO(problem_dict1, epoch, pop_size, pp)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Socha, K. and Dorigo, M., 2008. Ant colony optimization for continuous domains.
+    European journal of operational research, 185(3), pp.1155-1173.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, SailFish pop size
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -148,6 +217,8 @@ class ImprovedSFO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -159,7 +230,7 @@ class ImprovedSFO(Optimizer):
             PD = 1 - len(self.pop) / (len(self.pop) + len(self.s_pop))
             lamda_i = 2 * np.random.uniform() * PD - PD
             pos_new = self.s_gbest[self.ID_POS] - lamda_i * (np.random.uniform() *
-                        (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+                                                             (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
