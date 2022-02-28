@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 18:08, 19/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 18:08, 19/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,19 +10,55 @@ from mealpy.optimizer import Optimizer
 
 class BaseCEM(Optimizer):
     """
-        The original version of: Cross-Entropy Method (CEM)
-            https://github.com/clever-algorithms/CleverAlgorithms
+    The original version of: Cross-Entropy Method (CEM)
+
+    Links:
+        1. https://github.com/clever-algorithms/CleverAlgorithms
+        2. https://doi.org/10.1007/s10479-005-5724-z
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_best (int): N selected solutions as a samples for next evolution
+        + alpha (float): weight factor for means and stdevs (normal distribution)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.probabilistic_based.CEM import BaseCEM
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_best = 30
+    >>> alpha = 0.7
+    >>> model = BaseCEM(problem_dict1, epoch, pop_size, n_best, alpha)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] De Boer, P.T., Kroese, D.P., Mannor, S. and Rubinstein, R.Y., 2005. A tutorial on the
+    cross-entropy method. Annals of operations research, 134(1), pp.19-67.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_best=30, alpha=0.7, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            n_best ():
-            alpha ():
-            **kwargs ():
+            n_best (int): N selected solutions as a samples for next evolution
+            alpha (float): weight factor for means and stdevs (normal distribution)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -40,6 +73,8 @@ class BaseCEM(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -60,4 +95,3 @@ class BaseCEM(Optimizer):
             pop_new.append([self.amend_position_faster(pos_new), None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
-
