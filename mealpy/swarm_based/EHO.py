@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 18:41, 08/04/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 18:41, 08/04/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
+
 
 import numpy as np
 from copy import deepcopy
@@ -15,21 +13,56 @@ from mealpy.optimizer import Optimizer
 class BaseEHO(Optimizer):
     """
     The original version of: Elephant Herding Optimization (EHO)
-        (Elephant Herding Optimization )
-    Link:
-        https://doi.org/10.1109/ISCBI.2015.8
+
+    Links:
+        1. https://doi.org/10.1109/ISCBI.2015.8
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + alpha (float): [0.3, 0.8], a factor that determines the influence of the best in each clan, default=0.5
+        + beta (float): [0.3, 0.8], a factor that determines the influence of the x_center, default=0.5
+        + n_clans (int): [3, 10], the number of clans, default=5
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.EHO import BaseEHO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> alpha = 0.5
+    >>> beta = 0.5
+    >>> n_clans = 5
+    >>> model = BaseEHO(problem_dict1, epoch, pop_size, alpha, beta, n_clans)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Wang, G.G., Deb, S. and Coelho, L.D.S., 2015, December. Elephant herding optimization.
+    In 2015 3rd international symposium on computational and business intelligence (ISCBI) (pp. 1-5). IEEE.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, alpha=0.5, beta=0.5, n_clans=5, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            alpha (float): a factor that determines the influence of the best in each clan
-            beta (float): a factor that determines the influence of the x_center
-            n_clans (int): the number of clans
-            **kwargs ():
+            alpha (float): a factor that determines the influence of the best in each clan, default=0.5
+            beta (float): a factor that determines the influence of the x_center, default=0.5
+            n_clans (int): the number of clans, default=5
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size + n_clans
@@ -46,7 +79,7 @@ class BaseEHO(Optimizer):
     def _create_pop_group(self, pop):
         pop_group = []
         for i in range(0, self.n_clans):
-            group = pop[i*self.n_individuals: (i+1)*self.n_individuals]
+            group = pop[i * self.n_individuals: (i + 1) * self.n_individuals]
             pop_group.append(deepcopy(group))
         return pop_group
 
@@ -57,6 +90,8 @@ class BaseEHO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
