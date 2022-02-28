@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 21:18, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 21:18, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,10 +12,39 @@ from mealpy.optimizer import Optimizer
 class BaseTWO(Optimizer):
     """
     The original version of: Tug of War Optimization (TWO)
-        A novel meta-heuristic algorithm: tug of war optimization
-    Link:
-        https://www.researchgate.net/publication/332088054_Tug_of_War_Optimization_Algorithm
+
+    Links:
+        1. https://www.researchgate.net/publication/332088054_Tug_of_War_Optimization_Algorithm
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.TWO import BaseTWO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseTWO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Kaveh, A., 2017. Tug of war optimization. In Advances in metaheuristic algorithms for
+    optimal design of structures (pp. 451-487). Springer, Cham.
     """
+
     ID_POS = 0
     ID_FIT = 1
     ID_WEIGHT = 2
@@ -26,10 +52,9 @@ class BaseTWO(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -45,6 +70,16 @@ class BaseTWO(Optimizer):
         self.beta = 0.1
 
     def create_solution(self, minmax=0):
+        """
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
+        """
         solution = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=solution)
         weight = 0.0
@@ -59,7 +94,7 @@ class BaseTWO(Optimizer):
                 teams[i][self.ID_WEIGHT] = np.random.uniform(0.5, 1.5)
         else:
             for i in range(self.pop_size):
-                teams[i][self.ID_WEIGHT] = (teams[i][self.ID_FIT][self.ID_TAR] - worst_fit)/(best_fit - worst_fit + self.EPSILON) + 1
+                teams[i][self.ID_WEIGHT] = (teams[i][self.ID_FIT][self.ID_TAR] - worst_fit) / (best_fit - worst_fit + self.EPSILON) + 1
         return teams
 
     def initialization(self):
@@ -69,6 +104,8 @@ class BaseTWO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -102,21 +139,50 @@ class BaseTWO(Optimizer):
 
 
 class OppoTWO(BaseTWO):
+    """
+    The opossition-based learning version of: Tug of War Optimization (OTWO)
+
+    Notes
+    ~~~~~
+    + Applied the idea of Opposition-based learning technique
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.TWO import OppoTWO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = OppoTWO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
     def initialization(self):
-        pop_temp = self.create_population(int(self.pop_size/2))
+        pop_temp = self.create_population(int(self.pop_size / 2))
         pop_oppo = []
         for i in range(len(pop_temp)):
             item_oppo = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
@@ -128,6 +194,8 @@ class OppoTWO(BaseTWO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -168,14 +236,43 @@ class OppoTWO(BaseTWO):
 
 
 class LevyTWO(BaseTWO):
+    """
+    The Levy-flight version of: Tug of War Optimization (LTWO)
+
+    Notes
+    ~~~~~
+    + Applied the idea of Levy-flight technique
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.TWO import LevyTWO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = LevyTWO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = pop_size
@@ -183,6 +280,8 @@ class LevyTWO(BaseTWO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -228,15 +327,52 @@ class LevyTWO(BaseTWO):
         self.pop = self._update_weight(pop_new)
 
 
-class ImprovedTWO(OppoTWO, LevyTWO):
+class EnhancedTWO(OppoTWO, LevyTWO):
+    """
+    The original version of: Enhenced Tug of War Optimization (ETWO)
+
+    Links:
+        1. https://doi.org/10.1016/j.procs.2020.03.063
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.TWO import EnhancedTWO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> r_rate = 0.3
+    >>> ps_rate = 0.85
+    >>> p_field = 0.1
+    >>> n_field = 0.45
+    >>> model = EnhancedTWO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Nguyen, T., Hoang, B., Nguyen, G. and Nguyen, B.M., 2020. A new workload prediction model using
+    extreme learning machine and enhanced tug of war optimization. Procedia Computer Science, 170, pp.362-369.
+    """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = pop_size
@@ -255,6 +391,8 @@ class ImprovedTWO(OppoTWO, LevyTWO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
