@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 10:21, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 10:21, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,14 +11,60 @@ from mealpy.optimizer import Optimizer
 
 class OriginalBFO(Optimizer):
     """
-        The original version of: Bacterial Foraging Optimization (BFO)
-        Link:
-            + Reference: http://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
-        Note:
-            + In this version I replace Ned and Nre parameter by epoch (generation)
-            + The Nc parameter will also decreased to reduce the computation time.
-            + Cost in this version equal to Fitness value in the paper.
+    The original version of: Bacterial Foraging Optimization (BFO)
+
+    Links:
+        1. http://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
+
+    Notes
+    ~~~~~
+    + Ned and Nre parameters are replaced by epoch (generation)
+    + The Nc parameter will also decreased to reduce the computation time.
+    + Cost in this version equal to Fitness value in the paper.
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + Ci (float): [0.01, 0.3], step size, default=0.01
+        + Ped (float): [0.1, 0.5], probability of elimination, default=0.25
+        + Ned (int): elim_disp_steps (Removed), Ned=5,
+        + Nre (int): reproduction_steps (Removed), Nre=50,
+        + Nc (int): [3, 10], chem_steps (Reduce), Nc = Original Nc/2, default = 5
+        + Ns (int): [2, 10], swim length, default=4
+        + attract_repels (list): coefficient to calculate attract and repel force, default = (0.1, 0.2, 0.1, 10)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.BFO import OriginalBFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> Ci = 0.01
+    >>> Ped = 0.25
+    >>> Nc = 5
+    >>> Ns = 4
+    >>> attract_repels = [0.1, 0.2, 0.1, 10]
+    >>> model = OriginalBFO(problem_dict1, epoch, pop_size, Ci, Ped, Nc, Ns, attract_repels)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Passino, K.M., 2002. Biomimicry of bacterial foraging for distributed optimization and control.
+    IEEE control systems magazine, 22(3), pp.52-67.
     """
+
     ID_POS = 0
     ID_FIT = 1
     ID_COST = 2
@@ -29,20 +72,19 @@ class OriginalBFO(Optimizer):
     ID_SUM_NUTRIENTS = 4
 
     def __init__(self, problem, epoch=10000, pop_size=100,
-                 Ci=0.01, Ped=0.25, Nc=5, Ns=4, attract_repesls=(0.1, 0.2, 0.1, 10), **kwargs):
+                 Ci=0.01, Ped=0.25, Nc=5, Ns=4, attract_repels=(0.1, 0.2, 0.1, 10), **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            Ci (float): p_eliminate, default=0.01
+            Ci (float): step size, default=0.01
             Ped (float): p_eliminate, default=0.25
             Ned (int): elim_disp_steps (Removed)         Ned=5,
             Nre (int): reproduction_steps (Removed)      Nre=50,
             Nc (int): chem_steps (Reduce)                Nc = Original Nc/2, default = 5
             Ns (int): swim_length, default=4
-            attract_repesls (list): coefficient to calculate attract and repel force, default = (0.1, 0.2, 0.1, 10)
-            **kwargs ():
+            attract_repels (list): coefficient to calculate attract and repel force, default = (0.1, 0.2, 0.1, 10)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -54,13 +96,23 @@ class OriginalBFO(Optimizer):
         self.p_eliminate = Ped
         self.chem_steps = Nc
         self.swim_length = Ns
-        self.d_attr = attract_repesls[0]
-        self.w_attr = attract_repesls[1]
-        self.h_rep = attract_repesls[2]
-        self.w_rep = attract_repesls[3]
+        self.d_attr = attract_repels[0]
+        self.w_attr = attract_repels[1]
+        self.h_rep = attract_repels[2]
+        self.w_rep = attract_repels[3]
         self.half_pop_size = int(self.pop_size / 2)
 
     def create_solution(self):
+        """
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], cost, interaction, sum_nutrients]
+        """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         cost = 0.0
@@ -93,6 +145,8 @@ class OriginalBFO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -129,28 +183,67 @@ class OriginalBFO(Optimizer):
 
 class ABFO(Optimizer):
     """
-    The adaptive version of: Adaptive Bacterial Foraging Optimization (ABFO)
-        (An Adaptive Bacterial Foraging Optimization Algorithm with Lifecycle and Social Learning)
-    Notes:
-        + This is the best improvement version of BFO
-        + The population will remain the same length as initialization due to add and remove operators
+    The original version of: Adaptive Bacterial Foraging Optimization (ABFO)
+
+    Notes
+    ~~~~~
+    + This is the best improvement version of BFO
+    + The population will remain the same length as initialization due to add and remove operators
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + Ci (list): C_s (start), C_e (end)  -=> step size # step size in BFO, default=(0.1, 0.001)
+        + Ped (float): Probability eliminate, default=0.01
+        + Ns (int): swim_length, default=4
+        + N_minmax (list): (Dead threshold value, split threshold value), default=(2, 40)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.BFO import ABFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> Ci = [0.1, 0.001]
+    >>> Ped = 0.01
+    >>> Ns = 4
+    >>> N_minmax = [2, 40]
+    >>> model = ABFO(problem_dict1, epoch, pop_size, Ci, Ped, Ns, N_minmax)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Nguyen, T., Nguyen, B.M. and Nguyen, G., 2019, April. Building resource auto-scaler with functional-link
+    neural network and adaptive bacterial foraging optimization. In International Conference on
+    Theory and Applications of Models of Computation (pp. 501-517). Springer, Cham.
     """
+
     ID_NUT = 2
     ID_LOC_POS = 3
     ID_LOC_FIT = 4
 
-    def __init__(self, problem, epoch=10000, pop_size=100,
-                 Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(1, 40), **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, Ci=(0.1, 0.001), Ped=0.01, Ns=4, N_minmax=(1, 40), **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             Ci (list): C_s (start), C_e (end)  -=> step size # step size in BFO, default=(0.1, 0.001)
             Ped (float): Probability eliminate, default=0.01
             Ns (int): swim_length, default=4
             N_minmax (list): (Dead threshold value, split threshold value), default=(2, 40)
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -170,6 +263,16 @@ class ABFO(Optimizer):
         self.C_e = self.step_size[1] * (self.problem.ub - self.problem.lb)
 
     def create_solution(self):
+        """
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], nutrient, local_pos_best, local_fit_best]
+        """
         vector = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(vector)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
@@ -185,13 +288,15 @@ class ABFO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
         nfe_epoch = 0
         for i in range(0, self.pop_size):
             step_size = self._update_step_size(self.pop, i)
-            for m in range(0, self.swim_length):        # Ns
+            for m in range(0, self.swim_length):  # Ns
                 delta_i = (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS]) + \
                           (self.pop[i][self.ID_LOC_POS] - self.pop[i][self.ID_POS])
                 delta = np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
@@ -207,13 +312,13 @@ class ABFO(Optimizer):
                     # Update personal best
                     if self.compare_agent([pos_new, fit_new], [None, self.pop[i][self.ID_LOC_FIT]]):
                         self.pop[i][self.ID_LOC_POS] = deepcopy(pos_new)
-                        self.pop[i][self.ID_LOC_FIT] =  deepcopy(fit_new)
+                        self.pop[i][self.ID_LOC_FIT] = deepcopy(fit_new)
                 else:
                     self.pop[i][self.ID_NUT] -= 1
 
             if self.pop[i][self.ID_NUT] > max(self.N_split, self.N_split + (len(self.pop) - self.pop_size) / self.N_adapt):
                 pos_new = self.pop[i][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub) * \
-                                        (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
+                          (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 pos_new = self.amend_position_faster(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
                 self.pop.append([pos_new, fit_new, 0, deepcopy(pos_new), deepcopy(fit_new)])
