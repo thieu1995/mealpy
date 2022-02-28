@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 12:00, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 12:00, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -15,10 +12,44 @@ from mealpy.optimizer import Optimizer
 class BaseSSpiderO(Optimizer):
     """
     The original version of: Social Spider Optimization (SSpiderO)
-        (Social Spider Optimization Algorithm: Modifications, Applications, and Perspectives)
-    Link:
-        https://www.hindawi.com/journals/mpe/2018/6843923/
+
+    Links:
+        1. https://www.hindawi.com/journals/mpe/2018/6843923/
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + fp (list): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.SSpiderO import BaseSSpiderO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> fb = [0.65, 0.9]
+    >>> model = BaseSSpiderO(problem_dict1, epoch, pop_size, fb)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Luque-Chang, A., Cuevas, E., Fausto, F., Zaldivar, D. and Pérez, M., 2018. Social spider
+    optimization algorithm: modifications, applications, and perspectives. Mathematical
+    Problems in Engineering, 2018.
     """
+
     ID_POS = 0
     ID_FIT = 1
     ID_WEI = 2
@@ -26,11 +57,10 @@ class BaseSSpiderO(Optimizer):
     def __init__(self, problem, epoch=10000, pop_size=100, fp=(0.65, 0.9), **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            fp (list): (fp_min, fp_max): Female Percent
-            **kwargs ():
+            fp (list): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
         """
         super().__init__(problem, kwargs)
         self.epoch = epoch
@@ -39,15 +69,14 @@ class BaseSSpiderO(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]]]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
@@ -71,10 +100,10 @@ class BaseSSpiderO(Optimizer):
         scale_distance = np.sum(self.problem.ub - self.problem.lb)
         pop = self.pop_females + self.pop_males
         # Start looking for any stronger vibration
-        for i in range(0, self.n_f):    # Move the females
+        for i in range(0, self.n_f):  # Move the females
             ## Find the position s
             id_min = None
-            dist_min = 2**16
+            dist_min = 2 ** 16
             for j in range(0, self.pop_size):
                 if self.pop_females[i][self.ID_WEI] < pop[j][self.ID_WEI]:
                     dt = np.linalg.norm(pop[j][self.ID_POS] - self.pop_females[i][self.ID_POS]) / scale_distance
@@ -84,7 +113,7 @@ class BaseSSpiderO(Optimizer):
             x_s = np.zeros(self.problem.n_dims)
             vibs = 0
             if id_min is not None:
-                vibs = 2*(pop[id_min][self.ID_WEI]*np.exp(-(np.random.uniform()*dist_min**2)))  # Vib for the shortest
+                vibs = 2 * (pop[id_min][self.ID_WEI] * np.exp(-(np.random.uniform() * dist_min ** 2)))  # Vib for the shortest
                 x_s = pop[id_min][self.ID_POS]
 
             ## Find the position b
@@ -95,12 +124,12 @@ class BaseSSpiderO(Optimizer):
             beta = np.random.uniform(0, 1, self.problem.n_dims)
             gamma = np.random.uniform(0, 1, self.problem.n_dims)
             random = 2 * self.p_m[epoch] * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
-            if np.random.uniform() >= self.p_m[epoch]:       # Do an attraction
+            if np.random.uniform() >= self.p_m[epoch]:  # Do an attraction
                 pos_new = self.pop_females[i][self.ID_POS] + vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta + \
-                    vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
-            else:                               # Do a repulsion
+                          vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
+            else:  # Do a repulsion
                 pos_new = self.pop_females[i][self.ID_POS] - vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta - \
-                       vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
+                          vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
             pos_new = self.amend_position_random(pos_new)
             self.pop_females[i][self.ID_POS] = pos_new
         self.pop_females = self.update_fitness_population(self.pop_females)
@@ -108,7 +137,7 @@ class BaseSSpiderO(Optimizer):
 
     def _move_males(self, epoch=None):
         scale_distance = np.sum(self.problem.ub - self.problem.lb)
-        my_median =np.median([it[self.ID_WEI] for it in self.pop_males])
+        my_median = np.median([it[self.ID_WEI] for it in self.pop_males])
         pop = self.pop_females + self.pop_males
         all_pos = np.array([it[self.ID_POS] for it in pop])
         all_wei = np.array([it[self.ID_WEI] for it in pop]).reshape((self.pop_size, 1))
@@ -121,7 +150,7 @@ class BaseSSpiderO(Optimizer):
             delta = 2 * np.random.uniform(0, 1, self.problem.n_dims) - 0.5
             random = 2 * self.p_m[epoch] * (np.random.uniform(0, 1, self.problem.n_dims) - 0.5)
 
-            if self.pop_males[i][self.ID_WEI] >= my_median:         # Spider above the median
+            if self.pop_males[i][self.ID_WEI] >= my_median:  # Spider above the median
                 # Start looking for a female with stronger vibration
                 id_min = None
                 dist_min = 99999999
@@ -137,7 +166,7 @@ class BaseSSpiderO(Optimizer):
                     # Vib for the shortest
                     vibs = 2 * (self.pop_females[id_min][self.ID_WEI] * np.exp(-(np.random.uniform() * dist_min ** 2)))
                     x_s = self.pop_females[id_min][self.ID_POS]
-                pos_new = self.pop_males[i][self.ID_POS] + vibs * (x_s - self.pop_males[i][self.ID_POS])*delta + random
+                pos_new = self.pop_males[i][self.ID_POS] + vibs * (x_s - self.pop_males[i][self.ID_POS]) * delta + random
             else:
                 # Spider below median, go to weighted mean
                 pos_new = self.pop_males[i][self.ID_POS] + delta * (mean - self.pop_males[i][self.ID_POS]) + random
@@ -150,8 +179,8 @@ class BaseSSpiderO(Optimizer):
     def _crossover__(self, mom=None, dad=None, id=0):
         child1 = np.zeros(self.problem.n_dims)
         child2 = np.zeros(self.problem.n_dims)
-        if id == 0:         # arithmetic recombination
-            r = np.random.uniform(0.5, 1)             # w1 = w2 when r =0.5
+        if id == 0:  # arithmetic recombination
+            r = np.random.uniform(0.5, 1)  # w1 = w2 when r =0.5
             child1 = np.multiply(r, mom) + np.multiply((1 - r), dad)
             child2 = np.multiply(r, dad) + np.multiply((1 - r), mom)
 
@@ -167,7 +196,7 @@ class BaseSSpiderO(Optimizer):
             child2[id1:id2] = mom[id1:id2]
             child2[id2:] = dad[id2:]
         elif id == 2:
-            temp = int(self.problem.n_dims/2)
+            temp = int(self.problem.n_dims / 2)
             child1[:temp] = mom[:temp]
             child1[temp:] = dad[temp:]
             child2[:temp] = dad[:temp]
@@ -184,7 +213,7 @@ class BaseSSpiderO(Optimizer):
         pop = self.pop_females + self.pop_males
         all_pos = np.array([it[self.ID_POS] for it in pop])
         rad = np.max(all_pos, axis=1) - np.min(all_pos, axis=1)
-        r = np.sum(rad)/(2*self.problem.n_dims)
+        r = np.sum(rad) / (2 * self.problem.n_dims)
 
         # Start looking if there's a good female near
         list_child = []
@@ -226,6 +255,8 @@ class BaseSSpiderO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
