@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 15:34, 01/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 15:34, 01/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -14,25 +11,63 @@ from copy import deepcopy
 
 class BaseBeesA(Optimizer):
     """
-        The original version of: Bees Algorithm (BeesA)
-        Link:
-            https://www.sciencedirect.com/science/article/pii/B978008045157250081X
-            https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
+    The original version of: Bees Algorithm (BeesA)
+
+    Links:
+        1. https://www.sciencedirect.com/science/article/pii/B978008045157250081X
+        2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + site_ratio (list): (selected_site_ratio, elite_site_ratio), default = (0.5, 0.4)
+        + site_bee_ratio (list): (selected_site_bee_ratio, elite_site_bee_ratio), default = (0.1, 2)
+        + dance_radius (float): Bees Dance Radius, default = 0.1
+        + dance_radius_damp (float): Bees Dance Radius Damp Rate, default = 0.99
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.BeesA import BaseBeesA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> site_ratio = [0.5, 0.4]
+    >>> site_bee_ratio = [0.1, 2]
+    >>> dance_radius = 0.1
+    >>> dance_radius_damp = 0.99
+    >>> model = BaseBeesA(problem_dict1, epoch, pop_size, site_ratio, site_bee_ratio, dance_radius, dance_radius_damp)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Pham, D.T., Ghanbarzadeh, A., Koç, E., Otri, S., Rahim, S. and Zaidi, M., 2006.
+    The bees algorithm—a novel tool for complex optimisation problems. In Intelligent
+    production machines and systems (pp. 454-459). Elsevier Science Ltd.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, site_ratio=(0.5, 0.4), site_bee_ratio=(0.1, 2),
-                 recruited_bee_ratio=0.1, dance_radius=0.1, dance_radius_damp=0.99, **kwargs):
+                 dance_radius=0.1, dance_radius_damp=0.99, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             site_ratio (list): (selected_site_ratio, elite_site_ratio)
             site_bee_ratio (list): (selected_site_bee_ratio, elite_site_bee_ratio)
-            recruited_bee_ratio (float):
             dance_radius (float): Bees Dance Radius
             dance_radius_damp (float): Bees Dance Radius Damp Rate
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.epoch = epoch
@@ -42,7 +77,6 @@ class BaseBeesA(Optimizer):
         # Scout Bee Count, Selected Sites Bee Count
         self.site_bee_ratio = site_bee_ratio
 
-        self.recruited_bee_ratio = recruited_bee_ratio
         self.dance_radius_damp = dance_radius_damp
 
         # Initial Value of Dance Radius
@@ -58,11 +92,13 @@ class BaseBeesA(Optimizer):
 
     def perform_dance(self, position, r):
         j = np.random.choice(range(0, self.problem.n_dims))
-        position[j] = position[j] + r*np.random.uniform(-1, 1)
+        position[j] = position[j] + r * np.random.uniform(-1, 1)
         return self.amend_position_faster(position)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -103,25 +139,59 @@ class BaseBeesA(Optimizer):
 
 class ProbBeesA(Optimizer):
     """
-        The original version of: Bees Algorithm (BeesA)
-        Link:
-            https://www.sciencedirect.com/science/article/pii/B978008045157250081X
-            https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
-        Version:
-            Probabilistic version
+    The original version of: Bees Algorithm (BeesA)
+
+    Notes
+    ~~~~~
+    + This is probabilistic version of Bees Algorithm
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
+        + dance_radius (float): Bees Dance Radius, default=0.1
+        + dance_radius_damp (float): Bees Dance Radius Damp Rate, default=0.99
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.BeesA import ProbBeesA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> recruited_bee_ratio = 0.1
+    >>> dance_radius = 0.1
+    >>> dance_radius_damp = 0.99
+    >>> model = ProbBeesA(problem_dict1, epoch, pop_size, recruited_bee_ratio, dance_radius, dance_radius_damp)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Pham, D.T. and Castellani, M., 2015. A comparative study of the Bees Algorithm as a tool for
+    function optimisation. Cogent Engineering, 2(1), p.1091540.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, recruited_bee_ratio=0.1,
                  dance_radius=0.1, dance_radius_damp=0.99, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            recruited_bee_ratio (float):
-            dance_radius (float): Bees Dance Radius
-            dance_radius_damp (float): Bees Dance Radius Damp Rate
-            **kwargs ():
+            recruited_bee_ratio (float): percent of bees recruited, default = 0.1
+            dance_radius (float): Bees Dance Radius, default=0.1
+            dance_radius_damp (float): Bees Dance Radius Damp Rate, default=0.99
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -144,6 +214,8 @@ class ProbBeesA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
