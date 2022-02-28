@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 14:51, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:51, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from math import gamma
@@ -15,20 +12,49 @@ from mealpy.optimizer import Optimizer
 
 class BaseHHO(Optimizer):
     """
-        The original version of: Harris Hawks Optimization (HHO)
-            (Harris Hawks Optimization: Algorithm and Applications)
-        Link:
-            https://doi.org/10.1016/j.future.2019.02.028
+    The original version of: Harris Hawks Optimization (HHO)
+
+    Links:
+        1. https://doi.org/10.1016/j.future.2019.02.028
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.HHO import BaseHHO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseHHO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Heidari, A.A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M. and Chen, H., 2019.
+    Harris hawks optimization: Algorithm and applications. Future generation computer systems, 97, pp.849-872.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 1.5*pop_size
+        self.nfe_per_epoch = 1.5 * pop_size
         self.sort_flag = False
 
         self.epoch = epoch
@@ -36,6 +62,8 @@ class BaseHHO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -48,7 +76,7 @@ class BaseHHO(Optimizer):
             J = 2 * (1 - np.random.uniform())
 
             # -------- Exploration phase Eq. (1) in paper -------------------
-            if (np.abs(E) >= 1):
+            if np.abs(E) >= 1:
                 # Harris' hawks perch randomly based on 2 strategy:
                 if np.random.rand() >= 0.5:  # perch based on other family members
                     X_rand = deepcopy(self.pop[np.random.randint(0, self.pop_size)][self.ID_POS])
