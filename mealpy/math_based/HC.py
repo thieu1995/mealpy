@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 10:08, 02/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 10:08, 02/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -14,17 +11,52 @@ from mealpy.optimizer import Optimizer
 class OriginalHC(Optimizer):
     """
     The original version of: Hill Climbing (HC)
-    Noted:
-        The number of neighbour solutions are equal to user defined
-        The step size to calculate neighbour is randomized
+
+    Notes
+    ~~~~~
+    + The number of neighbour solutions are equal to user defined
+    + The step size to calculate neighbour is randomized
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + neighbour_size (int): [pop_size/2, pop_size], fixed parameter, sensitive exploitation parameter, Default: 50
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.math_based.HC import OriginalHC
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> neighbour_size = 50
+    >>> model = OriginalHC(problem_dict1, epoch, pop_size, neighbour_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mitchell, M., Holland, J. and Forrest, S., 1993. When will a genetic algorithm
+    outperform hill climbing. Advances in neural information processing systems, 6.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, neighbour_size=50, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 5,
+            neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 50
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -36,6 +68,8 @@ class OriginalHC(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -51,13 +85,43 @@ class OriginalHC(Optimizer):
 
 class BaseHC(OriginalHC):
     """
-    The modified version of: Hill Climbing (HC) based on swarm-of people are trying to climb on the mountain ideas
-    Noted:
-        The number of neighbour solutions are equal to population size
-        The step size to calculate neighbour is randomized and based on ranks of solution.
-            + The guys near on top of mountain will move slower than the guys on bottom of mountain.
-            + Imagine it is like: exploration when far from global best, and exploitation when near global best
-        Who on top of mountain first will be the winner. (global optimal)
+    My changed version of: Swarm-based Hill Climbing (S-HC)
+
+    Notes
+    ~~~~~
+    + Based on swarm-of people are trying to climb on the mountain idea
+    + The number of neighbour solutions are equal to population size
+    + The step size to calculate neighbour is randomized and based on rank of solution.
+        + The guys near on top of mountain will move slower than the guys on bottom of mountain.
+        + Imagination: exploration when far from global best, and exploitation when near global best
+    + Who on top of mountain first will be the winner. (global optimal)
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + neighbour_size (int): [pop_size/2, pop_size], fixed parameter, sensitive exploitation parameter, Default: 50
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.math_based.HC import BaseHC
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> neighbour_size = 50
+    >>> model = BaseHC(problem_dict1, epoch, pop_size, neighbour_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, neighbour_size=50, **kwargs):
@@ -65,7 +129,7 @@ class BaseHC(OriginalHC):
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 5,
+            neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 50
         """
         super().__init__(problem, epoch, pop_size, neighbour_size, **kwargs)
         self.nfe_per_epoch = pop_size
