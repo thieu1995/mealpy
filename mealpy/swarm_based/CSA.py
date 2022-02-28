@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 18:37, 28/05/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 18:37, 28/05/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,20 +11,51 @@ from mealpy.optimizer import Optimizer
 
 class BaseCSA(Optimizer):
     """
-        The original version of: Cuckoo Search Algorithm (CSA)
-            (Cuckoo search via Levy flights)
-        Link:
-            https://doi.org/10.1109/NABIC.2009.5393690
+    The original version of: Cuckoo Search Algorithm (CSA)
+
+    Links:
+        1. https://doi.org/10.1109/NABIC.2009.5393690
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + p_a (float): [0.1, 0.7], probability a, default=0.3
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.CSA import BaseCSA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> p_a = 0.3
+    >>> model = BaseCSA(problem_dict1, epoch, pop_size, p_a)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Yang, X.S. and Deb, S., 2009, December. Cuckoo search via Lévy flights. In 2009 World
+    congress on nature & biologically inspired computing (NaBIC) (pp. 210-214). Ieee.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, p_a=0.3, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            p_a (float): probability a
-            **kwargs ():
+            p_a (float): probability a, default=0.3
         """
         super().__init__(problem, kwargs)
         self.epoch = epoch
@@ -39,6 +67,8 @@ class BaseCSA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -63,4 +93,4 @@ class BaseCSA(Optimizer):
             pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
-        self.pop = pop[:(self.pop_size-self.n_cut)] + pop_new
+        self.pop = pop[:(self.pop_size - self.n_cut)] + pop_new
