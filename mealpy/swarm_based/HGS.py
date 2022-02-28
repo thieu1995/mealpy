@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 15:37, 19/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 15:37, 19/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,17 +11,52 @@ from mealpy.optimizer import Optimizer
 
 class OriginalHGS(Optimizer):
     """
-        The original version of: Hunger Games Search (HGS)
-        Link:
-            https://aliasgharheidari.com/HGS.html
-            Hunger Games Search (HGS): Visions, Conception, Implementation, Deep Analysis, Perspectives, and Towards Performance Shifts
+    The original version of: Hunger Games Search (HGS)
+
+    Links:
+        https://aliasgharheidari.com/HGS.html
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + PUP (float): [0.01, 0.2], The probability of updating position (L in the paper), default = 0.08
+        + LH (float): [1000, 20000], Largest hunger / threshold, default = 10000
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.HGS import OriginalHGS
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> PUP = 0.08
+    >>> LH = 10000
+    >>> model = OriginalHGS(problem_dict1, epoch, pop_size, PUP, LH)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Yang, Y., Chen, H., Heidari, A.A. and Gandomi, A.H., 2021. Hunger games search: Visions, conception, implementation,
+    deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, p.114864.
     """
 
-    ID_HUN = 2      # ID for Hunger value
+    ID_HUN = 2  # ID for Hunger value
 
     def __init__(self, problem, epoch=10000, pop_size=100, PUP=0.08, LH=10000, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             PUP (float): The probability of updating position (L in the paper), default = 0.08
@@ -41,15 +73,14 @@ class OriginalHGS(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]], hunger]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], hunger]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -80,6 +111,8 @@ class OriginalHGS(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
