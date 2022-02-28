@@ -14,22 +14,54 @@ from mealpy.optimizer import Optimizer
 
 class BaseCOA(Optimizer):
     """
-        The original version of: Coyote Optimization Algorithm (COA)
-            (Coyote Optimization Algorithm: A new metaheuristic for global optimization problems)
-        Link:
-            https://ieeexplore.ieee.org/document/8477769
-            Old version (Mealpy < 1.2.2) use this Ref code: https://github.com/jkpir/COA/blob/master/COA.py
+    The original version of: Coyote Optimization Algorithm (COA)
+
+    Links:
+        1. https://ieeexplore.ieee.org/document/8477769
+        2. https://github.com/jkpir/COA/blob/master/COA.py  (Old version Mealpy < 1.2.2)
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_coyotes (int): [3, 15], number of coyotes per group, default=5
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.COA import BaseCOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_coyotes = 5
+    >>> model = BaseCOA(problem_dict1, epoch, pop_size, n_coyotes)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Pierezan, J. and Coelho, L.D.S., 2018, July. Coyote optimization algorithm: a new metaheuristic
+    for global optimization problems. In 2018 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
     """
+
     ID_AGE = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_coyotes=5, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            n_coyotes (int): number of coyotes per group
-            **kwargs ():
+            n_coyotes (int): number of coyotes per group, default=5
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size + 1
@@ -38,11 +70,21 @@ class BaseCOA(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
         self.n_coyotes = n_coyotes
-        self.n_packs = int(pop_size/self.n_coyotes)
+        self.n_packs = int(pop_size / self.n_coyotes)
         self.ps = 1 / self.problem.n_dims
-        self.p_leave = 0.005 * (self.n_coyotes**2)  # Probability of leaving a pack
+        self.p_leave = 0.005 * (self.n_coyotes ** 2)  # Probability of leaving a pack
 
     def create_solution(self):
+        """
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], age]
+        """
         pos = np.random.uniform(self.problem.lb, self.problem.ub)
         fit = self.get_fitness_position(pos)
         age = 1
@@ -51,7 +93,7 @@ class BaseCOA(Optimizer):
     def _create_pop_group(self, pop):
         pop_group = []
         for i in range(0, self.n_packs):
-            group = pop[i*self.n_coyotes:(i+1)*self.n_coyotes]
+            group = pop[i * self.n_coyotes:(i + 1) * self.n_coyotes]
             pop_group.append(group)
         return pop_group
 
@@ -62,6 +104,8 @@ class BaseCOA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
