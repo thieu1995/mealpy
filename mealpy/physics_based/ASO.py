@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 07:03, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 07:03, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,25 +11,61 @@ from mealpy.optimizer import Optimizer
 
 class BaseASO(Optimizer):
     """
-        The original version of: Atom Search Optimization (ASO)
-            https://doi.org/10.1016/j.knosys.2018.08.030
-            https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
+    The original version of: Atom Search Optimization (ASO)
+
+    Links:
+        1. https://doi.org/10.1016/j.knosys.2018.08.030
+        2. https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + alpha (int): Depth weight, default = 50
+        + beta (float): Multiplier weight, default = 0.2
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.ASO import BaseASO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> alpha = 50
+    >>> beta = 0.2
+    >>> model = BaseASO(problem_dict1, epoch, pop_size, alpha, beta)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Zhao, W., Wang, L. and Zhang, Z., 2019. Atom search optimization and its application to solve a
+    hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, pp.283-304.
     """
+
     ID_POS = 0
     ID_FIT = 1
-    ID_VEL = 2          # Velocity
-    ID_MAS = 3          # Mass of atom
+    ID_VEL = 2  # Velocity
+    ID_MAS = 3  # Mass of atom
 
     def __init__(self, problem, epoch=10000, pop_size=100, alpha=50, beta=0.2, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            alpha (int): Depth weight, default = 50
-            beta (float): Multiplier weight, default = 0.2
-            **kwargs ():
+            alpha (int): [10, 100], Depth weight, default = 50
+            beta (float): [0.1, 1.0], Multiplier weight, default = 0.2
         """
-
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
@@ -44,15 +77,14 @@ class BaseASO(Optimizer):
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]], velocity, mass]
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, mass]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -63,29 +95,29 @@ class BaseASO(Optimizer):
     def _update_mass__(self, population):
         fit_total, fit_best, fit_worst = self.get_special_fitness(population)
         for agent in population:
-            agent[self.ID_MAS] = np.exp((agent[self.ID_FIT][self.ID_TAR] - fit_best)/(fit_worst - fit_best + self.EPSILON)) / fit_total
+            agent[self.ID_MAS] = np.exp((agent[self.ID_FIT][self.ID_TAR] - fit_best) / (fit_worst - fit_best + self.EPSILON)) / fit_total
         return population
 
     def _find_LJ_potential__(self, iteration, average_dist, radius):
         c = (1 - iteration / self.epoch) ** 3
         # g0 = 1.1, u = 2.4
-        rsmin = 1.1 + 0.1 * np.sin((iteration+1) / self.epoch * np.pi / 2)
+        rsmin = 1.1 + 0.1 * np.sin((iteration + 1) / self.epoch * np.pi / 2)
         rsmax = 1.24
-        if radius/average_dist < rsmin:
+        if radius / average_dist < rsmin:
             rs = rsmin
         else:
-            if radius/average_dist > rsmax:
+            if radius / average_dist > rsmax:
                 rs = rsmax
             else:
                 rs = radius / average_dist
-        potential = c * (12 * (-rs)**(-13) - 6 * (-rs)**(-7))
+        potential = c * (12 * (-rs) ** (-13) - 6 * (-rs) ** (-7))
         return potential
 
     def _acceleration__(self, population, g_best, iteration):
-        eps = 2**(-52)
+        eps = 2 ** (-52)
         pop = self._update_mass__(population)
 
-        G = np.exp(-20.0 * (iteration+1) / self.epoch)
+        G = np.exp(-20.0 * (iteration + 1) / self.epoch)
         k_best = int(self.pop_size - (self.pop_size - 2) * ((iteration + 1) / self.epoch) ** 0.5) + 1
         if self.problem.minmax == "min":
             k_best_pop = deepcopy(sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best])
@@ -100,9 +132,9 @@ class BaseASO(Optimizer):
 
             for atom in k_best_pop:
                 # calculate LJ-potential
-                radius = np.linalg.norm(pop[i][self.ID_POS]-atom[self.ID_POS])
+                radius = np.linalg.norm(pop[i][self.ID_POS] - atom[self.ID_POS])
                 potential = self._find_LJ_potential__(iteration, dist_average, radius)
-                temp += potential * np.random.uniform(0, 1, self.problem.n_dims) * ((atom[self.ID_POS]-pop[i][self.ID_POS])/(radius + eps))
+                temp += potential * np.random.uniform(0, 1, self.problem.n_dims) * ((atom[self.ID_POS] - pop[i][self.ID_POS]) / (radius + eps))
             temp = self.alpha * temp + self.beta * (g_best[self.ID_POS] - pop[i][self.ID_POS])
             # calculate acceleration
             acc = G * temp / pop[i][self.ID_MAS]
@@ -111,6 +143,8 @@ class BaseASO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
