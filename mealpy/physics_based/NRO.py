@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 07:02, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 07:02, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 import math
@@ -16,19 +13,48 @@ from mealpy.optimizer import Optimizer
 class BaseNRO(Optimizer):
     """
     The original version of: Nuclear Reaction Optimization (NRO)
-        An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization
-        Nuclear Reaction Optimization: A novel and powerful physics-based algorithm for global optimization
-    Link:
-        https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8720256
+
+    Links:
+        1. https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8720256
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.NRO import BaseNRO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseNRO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Wei, Z., Huang, C., Wang, X., Han, T. and Li, Y., 2019. Nuclear reaction optimization: A novel and
+    powerful physics-based algorithm for global optimization. IEEE Access, 7, pp.66084-66109.
+    [2] Wei, Z.L., Zhang, Z.R., Huang, C.Q., Han, B., Tang, S.Q. and Wang, L., 2019, June. An Approach
+    Inspired from Nuclear Reaction Processes for Numerical Optimization. In Journal of Physics:
+    Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 3 * pop_size
@@ -39,6 +65,8 @@ class BaseNRO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -147,7 +175,8 @@ class BaseNRO(Optimizer):
                 else:
                     if np.random.uniform() > 0.5:
                         X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) *
-                                    (self.epoch - epoch) / self.epoch + 1) * (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
+                                                                  (self.epoch - epoch) / self.epoch + 1) * (
+                                           pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
                     else:
                         X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) * epoch / self.epoch + 1) * \
                                (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
