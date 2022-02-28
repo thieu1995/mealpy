@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 14:14, 01/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:14, 01/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,25 +10,59 @@ from mealpy.optimizer import Optimizer
 
 class BaseACOR(Optimizer):
     """
-        The original version of: Ant Colony Optimization Continuous (ACOR)
-            Ant Colony Optimization for Continuous Domains (ACOR)
-        Link:
-            https://doi.org/10.1016/j.ejor.2006.06.046
-        My improvements:
-            + Using Gaussian Distribution instead of random number (np.random.normal() function)      (1)
-            + Amend solution when they went out of space    (2)
+    The original version of: Ant Colony Optimization Continuous (ACOR)
+
+    Notes
+    ~~~~~
+    + Use Gaussian Distribution instead of random number (np.random.normal() function)
+    + Amend solution when they went out of space
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + sample_count (int): [pop_size/2, pop_size], Number of Newly Generated Samples, default = 50
+        + inten_factor (float): [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5
+        + zeta (int): [1, 2, 3], Deviation-Distance Ratio, default = 1
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.ACOR import BaseACOR
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> sample_count = 50
+    >>> inten_factor = 0.5
+    >>> zeta = 1.0
+    >>> model = BaseACOR(problem_dict1, epoch, pop_size, sample_count, inten_factor, zeta)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Socha, K. and Dorigo, M., 2008. Ant colony optimization for continuous domains.
+    European journal of operational research, 185(3), pp.1155-1173.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, sample_count=50, q=0.5, zeta=1, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, sample_count=50, inten_factor=0.5, zeta=1.0, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             sample_count (int): Number of Newly Generated Samples, default = 50
-            q (float): Intensification Factor (Selection Pressure), default = 0.5
-            zeta (int): Deviation-Distance Ratio, default = 1
-            **kwargs ():
+            inten_factor (float): Intensification Factor (Selection Pressure) (q in the paper), default = 0.5
+            zeta (float): Deviation-Distance Ratio, default = 1.0
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -40,18 +71,20 @@ class BaseACOR(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
         self.sample_count = sample_count
-        self.q = q
+        self.inten_factor = inten_factor
         self.zeta = zeta
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
         # Calculate Selection Probabilities
         pop = self.pop[:self.pop_size]
         pop_rank = np.array([i for i in range(1, self.pop_size + 1)])
-        qn = self.q * self.pop_size
+        qn = self.inten_factor * self.pop_size
         matrix_w = 1 / (np.sqrt(2 * np.pi) * qn) * np.exp(-0.5 * ((pop_rank - 1) / qn) ** 2)
         matrix_p = matrix_w / np.sum(matrix_w)  # Normalize to find the probability.
 
