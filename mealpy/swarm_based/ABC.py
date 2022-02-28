@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 09:57, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 09:57, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,23 +11,64 @@ from mealpy.optimizer import Optimizer
 
 class BaseABC(Optimizer):
     """
-        My version of: Artificial Bee Colony (ABC)
-            + Taken from book: Clever Algorithms
-            + Improved: _create_neigh_bee__ function
-        Link:
-            https://www.sciencedirect.com/topics/computer-science/artificial-bee-colony
+    The original version of: Artificial Bee Colony (ABC)
+
+    Links:
+        1. https://www.sciencedirect.com/topics/computer-science/artificial-bee-colony
+
+    Notes
+    ~~~~~
+    + This version is based on ABC in the book Clever Algorithms
+    + Improved the function _search_neigh__
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + couple_bees (list): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
+        + patch_variables (list): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
+        + patch_variables = patch_variables * patch_factor (0.985)
+        + sites (list): 3 bees (employed bees, onlookers and scouts), 1 good partition -> (3, 1), fixed parameter
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.ABC import BaseABC
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> couple_bees = [16, 4]
+    >>> patch_variables = [5, 0.98]
+    >>> sites = [3, 1]
+    >>> model = BaseABC(problem_dict1, epoch, pop_size, couple_bees, patch_variables, sites)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Karaboga, D. and Basturk, B., 2008. On the performance of artificial bee colony (ABC)
+    algorithm. Applied soft computing, 8(1), pp.687-697.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1), **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, couple_bees=(16, 4),
+                 patch_variables=(5.0, 0.985), sites=(3, 1), **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             couple_bees (list): number of bees which provided for good location and other location
             patch_variables (list): patch_variables = patch_variables * patch_factor (0.985)
             sites (list): 3 bees (employed bees, onlookers and scouts), 1 good partition
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.epoch = epoch
@@ -63,6 +101,8 @@ class BaseABC(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
