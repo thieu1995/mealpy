@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 21:19, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 21:19, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,23 +11,52 @@ from mealpy.optimizer import Optimizer
 
 class BaseMVO(Optimizer):
     """
-        My version of: Multi-Verse Optimizer (MVO)
-            http://dx.doi.org/10.1007/s00521-015-1870-7
-        Notes:
-            + Using my routtele wheel selection which can handle negative values
-            + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
-            + Change equation 3.3 to match the name of parameter wep_minmax
+    My changed version of: Multi-Verse Optimizer (MVO)
+
+    Notes
+    ~~~~~
+    + Use my routtele wheel selection which can handle negative values
+    + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
+    + Change equation 3.3 to match the name of parameter wep_minmax
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
+        + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.MVO import BaseMVO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> wep_min = 0.2
+    >>> wep_max = 1.0
+    >>> model = BaseMVO(problem_dict1, epoch, pop_size, wep_min, wep_max)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -43,6 +69,8 @@ class BaseMVO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -71,20 +99,55 @@ class BaseMVO(Optimizer):
 
 class OriginalMVO(BaseMVO):
     """
-    Original: Multi-Verse Optimizer (MVO)
-        http://dx.doi.org/10.1007/s00521-015-1870-7
-        https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
+    The original version of: Multi-Verse Optimizer (MVO)
+
+    Links:
+        1. http://dx.doi.org/10.1007/s00521-015-1870-7
+        2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
+        + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.MVO import OriginalMVO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> wep_min = 0.2
+    >>> wep_max = 1.0
+    >>> model = OriginalMVO(problem_dict1, epoch, pop_size, wep_min, wep_max)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mirjalili, S., Mirjalili, S.M. and Hatamlou, A., 2016. Multi-verse optimizer: a nature-inspired
+    algorithm for global optimization. Neural Computing and Applications, 27(2), pp.495-513.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, wep_min, wep_max, **kwargs)
         self.nfe_per_epoch = pop_size
@@ -117,6 +180,8 @@ class OriginalMVO(BaseMVO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
