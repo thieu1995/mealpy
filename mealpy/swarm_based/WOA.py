@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 10:06, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 10:06, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,19 +10,46 @@ from mealpy.optimizer import Optimizer
 
 class BaseWOA(Optimizer):
     """
-        The original version of: Whale Optimization Algorithm (WOA)
-            - In this algorithms: Prey means the best position
-        Link:
-            https://doi.org/10.1016/j.advengsoft.2016.01.008
+    The original version of: Whale Optimization Algorithm (WOA)
+
+    Links:
+        1. https://doi.org/10.1016/j.advengsoft.2016.01.008
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.WOA import BaseWOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseWOA(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mirjalili, S. and Lewis, A., 2016. The whale optimization algorithm.
+    Advances in engineering software, 95, pp.51-67.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -36,6 +60,8 @@ class BaseWOA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -68,19 +94,51 @@ class BaseWOA(Optimizer):
 
 class HI_WOA(Optimizer):
     """
-        The original version of: Hybrid Improved Whale Optimization Algorithm (HI-WOA)
-            A hybrid improved whale optimization algorithm
-        Link:
-            https://ieenp.explore.ieee.org/document/8900003
+    The original version of: Hybrid Improved Whale Optimization Algorithm (HI-WOA)
+
+    Links:
+        1. https://ieenp.explore.ieee.org/document/8900003
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + feedback_max (int): maximum iterations of each feedback, default = 10
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.WOA import HI_WOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> feedback_max = 10
+    >>> model = HI_WOA(problem_dict1, epoch, pop_size, feedback_max)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Tang, C., Sun, W., Wu, W. and Xue, M., 2019, July. A hybrid improved whale optimization algorithm.
+    In 2019 IEEE 15th International Conference on Control and Automation (ICCA) (pp. 362-367). IEEE.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, feedback_max=10, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
+            feedback_max (int): maximum iterations of each feedback, default = 10
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -90,18 +148,20 @@ class HI_WOA(Optimizer):
         self.pop_size = pop_size
         self.feedback_max = feedback_max
         # The maximum of times g_best doesn't change -> need to change half of population
-        self.n_changes = int(pop_size/2)
+        self.n_changes = int(pop_size / 2)
 
         ## Dynamic variable
         self.dyn_feedback_count = 0
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
         nfe_epoch = 0
-        a = 2 + 2 * np.cos(np.pi / 2 * (1 + epoch / self.epoch))    # Eq. 8
+        a = 2 + 2 * np.cos(np.pi / 2 * (1 + epoch / self.epoch))  # Eq. 8
         pop_new = []
         for idx in range(0, self.pop_size):
             r = np.random.rand()
