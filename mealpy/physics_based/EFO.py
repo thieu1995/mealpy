@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 21:19, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 21:19, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,26 +10,56 @@ from mealpy.optimizer import Optimizer
 
 class BaseEFO(Optimizer):
     """
-    My version of : Electromagnetic Field Optimization (EFO)
-        (Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm)
-    Link:
-        https://www.sciencedirect.com/science/article/abs/pii/S2210650215000528
-    Notes:
-        + The flow of algorithm is changed like other metaheuristics.
-        + Change equations using g_best solution
+    My changed version of: Electromagnetic Field Optimization (EFO)
+
+    Notes
+    ~~~~~
+    + Changed the flow of original algorithm and using global best solution in equation.
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
+        + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
+        + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
+        + n_field (float): [0.3, 0.7], default = 0.45, portion of population, negative field
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.EFO import BaseEFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> r_rate = 0.3
+    >>> ps_rate = 0.85
+    >>> p_field = 0.1
+    >>> n_field = 0.45
+    >>> model = BaseEFO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            r_rate (): default = 0.3     Like mutation parameter in GA but for one variable
-            ps_rate (): default = 0.85    Like crossover parameter in GA
-            p_field (): default = 0.1     portion of population, positive field
-            n_field (): default = 0.45    portion of population, negative field
-            **kwargs ():
+            r_rate (float): default = 0.3     Like mutation parameter in GA but for one variable
+            ps_rate (float): default = 0.85    Like crossover parameter in GA
+            p_field (float): default = 0.1     portion of population, positive field
+            n_field (float): default = 0.45    portion of population, negative field
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -48,6 +75,8 @@ class BaseEFO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -84,25 +113,61 @@ class BaseEFO(Optimizer):
 
 class OriginalEFO(BaseEFO):
     """
-    The original version of : Electromagnetic Field Optimization (EFO)
-        (Electromagnetic field optimization: A physics-inspired metaheuristic optimization algorithm)
-    Link:
-        https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
+    The original version of: Electromagnetic Field Optimization (EFO)
 
-        https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+    Links:
+        2. https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
+        + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
+        + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
+        + n_field (float): [0.3, 0.7], default = 0.45, portion of population, negative field
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.EFO import OriginalEFO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> r_rate = 0.3
+    >>> ps_rate = 0.85
+    >>> p_field = 0.1
+    >>> n_field = 0.45
+    >>> model = OriginalEFO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Abedinpourshotorban, H., Shamsuddin, S.M., Beheshti, Z. and Jawawi, D.N., 2016.
+    Electromagnetic field optimization: a physics-inspired metaheuristic optimization algorithm.
+    Swarm and Evolutionary Computation, 26, pp.8-22.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            r_rate (): default = 0.3     Like mutation parameter in GA but for one variable
-            ps_rate (): default = 0.85    Like crossover parameter in GA
-            p_field (): default = 0.1     portion of population, positive field
-            n_field (): default = 0.45    portion of population, negative field
-            **kwargs ():
+            r_rate (float): default = 0.3     Like mutation parameter in GA but for one variable
+            ps_rate (float): default = 0.85    Like crossover parameter in GA
+            p_field (float): default = 0.1     portion of population, positive field
+            n_field (float): default = 0.45    portion of population, negative field
         """
         super().__init__(problem, epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
         self.nfe_per_epoch = pop_size
@@ -133,6 +198,8 @@ class OriginalEFO(BaseEFO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -159,4 +226,3 @@ class OriginalEFO(BaseEFO):
         # Updating the population if the fitness of the generated particle is better than worst fitness in
         #     the population (because the population is sorted by fitness, the last particle is the worst)
         self.pop[-1] = [pos_new, fit_new]
-
