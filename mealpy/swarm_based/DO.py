@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 04:43, 02/03/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 04:43, 02/03/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 import math
@@ -16,17 +13,46 @@ from mealpy.optimizer import Optimizer
 class BaseDO(Optimizer):
     """
     The original version of: Dragonfly Optimization (DO)
-    Link:
-        https://link.springer.com/article/10.1007/s00521-015-1920-1
+
+    Links:
+        1. https://link.springer.com/article/10.1007/s00521-015-1920-1
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.DO import BaseDO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseDO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mirjalili, S., 2016. Dragonfly algorithm: a new meta-heuristic optimization technique for
+    solving single-objective, discrete, and multi-objective problems.
+    Neural computing and applications, 27(4), pp.1053-1073.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
 
         super().__init__(problem, kwargs)
@@ -58,6 +84,8 @@ class BaseDO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -119,7 +147,7 @@ class BaseDO(Optimizer):
                 if neighbours_num > 1:
                     temp = w * self.pop_delta[i][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * A + \
                            np.random.uniform(0, 1, self.problem.n_dims) * C + np.random.uniform(0, 1, self.problem.n_dims) * S
-                    temp = np.clip(temp, -1*self.delta_max, self.delta_max)
+                    temp = np.clip(temp, -1 * self.delta_max, self.delta_max)
                     self.pop_delta[i][self.ID_POS] = temp
                     self.pop[i][self.ID_POS] += temp
                 else:  # Eq. 3.8
@@ -128,7 +156,7 @@ class BaseDO(Optimizer):
             else:
                 # Eq. 3.6
                 temp = (a * A + c * C + s * S + f * F + e * enemy) + w * self.pop_delta[i][self.ID_POS]
-                temp = np.clip(temp, -1*self.delta_max, self.delta_max)
+                temp = np.clip(temp, -1 * self.delta_max, self.delta_max)
                 self.pop_delta[i][self.ID_POS] = temp
                 self.pop[i][self.ID_POS] += temp
 
@@ -138,4 +166,3 @@ class BaseDO(Optimizer):
 
         self.pop = self.update_fitness_population(self.pop)
         self.pop_delta = self.update_fitness_population(self.pop_delta)
-
