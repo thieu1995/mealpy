@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 14:52, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:52, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from math import gamma
@@ -15,26 +12,63 @@ from mealpy.optimizer import Optimizer
 
 class BaseMSA(Optimizer):
     """
-    My modified version of: Moth Search Algorithm (MSA)
-        (Moth search algorithm: a bio-inspired metaheuristic algorithm for global optimization problems.)
-    Link:
-        https://www.mathworks.com/matlabcentral/fileexchange/59010-moth-search-ms-algorithm
-        http://doi.org/10.1007/s12293-016-0212-3
-    Notes:
-        + Simply the matlab version above is not working (or bad at convergence characteristics).
-        + Need to add normal random number (gaussian) in each updating equation. (Better performance)
+    My changed version of: Moth Search Algorithm (MSA)
+
+    Links:
+        1. https://www.mathworks.com/matlabcentral/fileexchange/59010-moth-search-ms-algorithm
+        2. https://doi.org/10.1007/s12293-016-0212-3
+
+    Notes
+    ~~~~~
+    + The matlab version of original paper is not good (especially convergence chart)
+    + I add Normal random number (Gaussian distribution) in each updating equation (Better performance)
+
+    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+        + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5
+        + partition (float): [0.3, 0.8], The proportional of first partition, default=0.5
+        + max_step_size (float): [0.5, 2.0], Max step size used in Levy-flight technique, default=1.0
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.MSA import BaseMSA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> n_best = 5
+    >>> partition = 0.5
+    >>> max_step_size = 1.0
+    >>> model = BaseMSA(problem_dict1, epoch, pop_size, n_best, partition, max_step_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Wang, G.G., 2018. Moth search algorithm: a bio-inspired metaheuristic algorithm for
+    global optimization problems. Memetic Computing, 10(2), pp.151-164.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, n_best=5, partition=0.5, max_step_size=1.0, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            n_best (): how many of the best moths to keep from one generation to the next
-            partition (): The proportional of first partition
-            max_step_size ():
-            **kwargs ():
+            n_best (int): how many of the best moths to keep from one generation to the next, default=5
+            partition (float): The proportional of first partition, default=0.5
+            max_step_size (float): Max step size used in Levy-flight technique, default=1.0
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -53,17 +87,19 @@ class BaseMSA(Optimizer):
         self.golden_ratio = (np.sqrt(5) - 1) / 2.0
 
     def _levy_walk(self, iteration):
-        beta = 1.5      # Eq. 2.23
-        sigma = (gamma(1+beta) * np.sin(np.pi*(beta-1)/2) / (gamma(beta/2) * (beta-1) * 2 ** ((beta-2) / 2))) ** (1/(beta-1))
+        beta = 1.5  # Eq. 2.23
+        sigma = (gamma(1 + beta) * np.sin(np.pi * (beta - 1) / 2) / (gamma(beta / 2) * (beta - 1) * 2 ** ((beta - 2) / 2))) ** (1 / (beta - 1))
         u = np.random.uniform(self.problem.lb, self.problem.ub) * sigma
         v = np.random.uniform(self.problem.lb, self.problem.ub)
-        step = u / np.abs(v) ** (1.0 / (beta - 1))     # Eq. 2.21
-        scale = self.max_step_size / (iteration+1)
+        step = u / np.abs(v) ** (1.0 / (beta - 1))  # Eq. 2.21
+        scale = self.max_step_size / (iteration + 1)
         delta_x = scale * step
         return delta_x
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
