@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 07:03, 18/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-#-------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 07:03, 18/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,16 +10,45 @@ from mealpy.optimizer import Optimizer
 
 class BaseEO(Optimizer):
     """
-        The original version of: Equilibrium Optimizer (EO)
-            (Equilibrium Optimizer: A Novel Optimization Algorithm)
-        Link:
-            https://doi.org/10.1016/j.knosys.2019.105190
-            https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+    The original version of: Equilibrium Optimizer (EO)
+
+    Links:
+        1. https://doi.org/10.1016/j.knosys.2019.105190
+        2. https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.EO import BaseEO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseEO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Faramarzi, A., Heidarinejad, M., Stephens, B. and Mirjalili, S., 2020. Equilibrium optimizer: A novel
+    optimization algorithm. Knowledge-Based Systems, 191, p.105190.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
@@ -47,6 +73,8 @@ class BaseEO(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -74,26 +102,57 @@ class BaseEO(Optimizer):
 
 class ModifiedEO(BaseEO):
     """
-        Original version of: Modified Equilibrium Optimizer (MEO)
-            (An efficient equilibrium optimizer with mutation strategy for numerical optimization)
-    Link:
-        https://doi.org/10.1016/j.asoc.2020.106542
+    The original version of: Modified Equilibrium Optimizer (MEO)
+
+    Links:
+        1. https://doi.org/10.1016/j.asoc.2020.106542
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.EO import ModifiedEO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = ModifiedEO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Gupta, S., Deep, K. and Mirjalili, S., 2020. An efficient equilibrium optimizer with mutation
+    strategy for numerical optimization. Applied Soft Computing, 96, p.106542.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 2*pop_size
+        self.nfe_per_epoch = 2 * pop_size
         self.sort_flag = False
 
         self.pop_len = int(self.pop_size / 3)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -152,15 +211,45 @@ class ModifiedEO(BaseEO):
 
 class AdaptiveEO(BaseEO):
     """
-        Original version of: Adaptive Equilibrium Optimization (AEO)
-            (A novel interdependence based multilevel thresholding technique using adaptive equilibrium optimizer)
-    Link:
-        https://doi.org/10.1016/j.engappai.2020.103836
+    The original version of: Adaptive Equilibrium Optimization (AEO)
+
+    Links:
+        1. https://doi.org/10.1016/j.engappai.2020.103836
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.physics_based.EO import AdaptiveEO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = AdaptiveEO(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Wunnava, A., Naik, M.K., Panda, R., Jena, B. and Abraham, A., 2020. A novel interdependence based
+    multilevel thresholding technique using adaptive equilibrium optimizer. Engineering Applications of
+    Artificial Intelligence, 94, p.103836.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
@@ -172,6 +261,8 @@ class AdaptiveEO(BaseEO):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -205,4 +296,3 @@ class AdaptiveEO(BaseEO):
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
-
