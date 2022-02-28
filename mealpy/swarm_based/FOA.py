@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 14:01, 16/11/2020                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:01, 16/11/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,24 +10,52 @@ from mealpy.optimizer import Optimizer
 
 class OriginalFOA(Optimizer):
     """
-        The original version of: Fruit-fly Optimization Algorithm (FOA)
-            (A new Fruit Fly Optimization Algorithm: Taking the financial distress model as an example)
-        Link:
-            DOI: https://doi.org/10.1016/j.knosys.2011.07.001
-        Notes:
-            + This optimization can't apply to complicated objective function in this library.
-            + So I changed the implementation Original FOA in BaseFOA version
-            + This algorithm is the weakest algorithm in MHAs, that's why so many researchers produce paper based
-            on this algorithm (Easy to improve, and easy to implement).
+    The original version of: Fruit-fly Optimization Algorithm (FOA)
+
+    Links:
+        1. https://doi.org/10.1016/j.knosys.2011.07.001
+
+    Notes
+    ~~~~~
+        + This optimization can't apply to complicated objective function in this library.
+        + So I changed the implementation Original FOA in BaseFOA version
+        + This algorithm is the weakest algorithm in MHAs, that's why so many researchers produce papers based on this algorithm (Easy to improve, and easy to implement)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.FOA import OriginalFOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = OriginalFOA(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Pan, W.T., 2012. A new fruit fly optimization algorithm: taking the financial distress model
+    as an example. Knowledge-Based Systems, 26, pp.69-74.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
@@ -44,6 +69,16 @@ class OriginalFOA(Optimizer):
                         [np.linalg.norm([position[-1], position[0]])])
 
     def create_solution(self):
+        """
+        To get the position, fitness wrapper, target and obj list
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
+            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Returns:
+            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]]]
+        """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         s = self.norm_consecutive_adjacent(position)
         pos = self.amend_position_faster(s)
@@ -52,6 +87,8 @@ class OriginalFOA(Optimizer):
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -66,25 +103,50 @@ class OriginalFOA(Optimizer):
 
 class BaseFOA(OriginalFOA):
     """
-        My version of: Fruit-fly Optimization Algorithm (FOA)
-            (A new Fruit Fly Optimization Algorithm: Taking the financial distress model as an example)
-        Notes:
-            + 1) I changed the fitness function (smell function) by taking the distance each 2 adjacent dimensions
-            + 2) Update the position if only it find the better fitness value.
+    My changed version of: Fruit-fly Optimization Algorithm (FOA)
+
+    Notes
+    ~~~~~
+    + The fitness function (small function) is changed by taking the distance each 2 adjacent dimensions
+    + Update the position if only new generated solution is better
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.FOA import BaseFOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = BaseFOA(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
@@ -103,24 +165,53 @@ class BaseFOA(OriginalFOA):
 
 class WhaleFOA(OriginalFOA):
     """
-        The original version of: Whale Fruit-fly Optimization Algorithm (WFOA)
-            (Boosted Hunting-based Fruit Fly Optimization and Advances in Real-world Problems)
-        Link:
-            https://doi.org/10.1016/j.eswa.2020.113502
+    The original version of: Whale Fruit-fly Optimization Algorithm (WFOA)
+
+    Links:
+        1. https://doi.org/10.1016/j.eswa.2020.113502
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.FOA import WhaleFOA
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict1 = {
+    >>>     "obj_func": fitness_function,
+    >>>     "n_dims": 5,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>>
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> model = WhaleFOA(problem_dict1, epoch, pop_size)
+    >>> best_position, best_fitness = model.solve()
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Fan, Y., Wang, P., Heidari, A.A., Wang, M., Zhao, X., Chen, H. and Li, C., 2020. Boosted hunting-based
+    fruit fly optimization and advances in real-world problems. Expert Systems with Applications, 159, p.113502.
     """
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem ():
+            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
 
     def evolve(self, epoch):
         """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
         Args:
             epoch (int): The current iteration
         """
