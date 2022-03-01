@@ -1,69 +1,76 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 08:58, 16/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 08:58, 16/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from math import gamma
 from copy import deepcopy
 from mealpy.utils.history import History
-from mealpy.problem import Problem
+from mealpy.utils.problem import Problem
 from mealpy.utils.termination import Termination
 import concurrent.futures as parallel
 import time
 
 
 class Optimizer:
-    """ This is base class of all Algorithms """
+    """
+    The base class of all algorithms. All methods in this class will be inherited
 
-    ## Assumption the A solution with format: [position, [target, [obj1, obj2, ...]]]
+    Notes
+    ~~~~~
+    + The solve() is the most important method, trained the model
+    + The parallel (multithreading or multiprocessing) is used in method: create_population(), update_fitness_population()
+    + The general format of solution: [position, target], in which target has format: [fitness, [obj1, obj2,...] ]
+        + Access to position: solution[0]
+        + Access to fitness: solution[1][0]
+        + Access to all objective values: solution[1][1]
+    """
+
     ID_POS = 0  # Index of position/location of solution/agent
-    ID_FIT = 1  # Index of fitness value of solution/agent
+    ID_TAR = 1  # Index of target list, (includes fitness value and objectives list)
 
-    ID_TAR = 0  # Index of target (the final fitness) in fitness
-    ID_OBJ = 1  # Index of objective list in fitness
+    ID_FIT = 0  # Index of target (the final fitness) in fitness
+    ID_OBJ = 1  # Index of objective list in target
 
     EPSILON = 10E-10
 
     def __init__(self, problem, kwargs):
         """
         Args:
-            problem: Design your problem based on the format of the Problem class
+            problem: an instance of Problem class or a dictionary
 
         Examples:
             problem = {
-                "obj_func": your objective function,
+                "fit_func": your objective function,
                 "lb": list of value
                 "ub": list of value
                 "minmax": "min" or "max"
                 "verbose": True or False
                 "n_dims": int (Optional)
-                "batch_idea": True or False (Optional)
-                "batch_size": int (Optional, smaller than population size)
                 "obj_weight": list weights for all your objectives (Optional, default = [1, 1, ...1])
-             }
+            }
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
         self.mode = "sequential"
         self.pop, self.g_best = None, None
         self.history = History()
-        if not isinstance(problem, Problem):
-            problem = Problem(problem)
+        if (not isinstance(problem, Problem)) and type(problem) == dict:
+            problem = Problem(problem=problem)
         self.problem = problem
         self.verbose = problem.verbose
-        self.termination_flag = False       # Check if exist object or not
+        self.termination_flag = False  # Check if exist object or not
         if "termination" in kwargs:
             termination = kwargs["termination"]
-            if not isinstance(termination, Termination):
-                print("Please create and input your Termination object!")
-                exit(0)
-            else:
+            if isinstance(termination, Termination):
                 self.termination = termination
+            elif type(termination) == dict:
+                self.termination = Termination(termination=termination)
+            else:
+                print("Please create and input your Termination dictionary or Termination object.")
+                exit(0)
             self.termination_flag = True
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -76,8 +83,8 @@ class Optimizer:
                 self.count_terminate = 0
             elif self.termination.mode == 'MG':
                 self.count_terminate = self.epoch
-            else:                       # number of function evaluation (NFE)
-                self.count_terminate = self.pop_size        # First out of loop
+            else:  # number of function evaluation (NFE)
+                self.count_terminate = 0 # self.pop_size  # First out of loop
         else:
             pass
 
@@ -97,13 +104,14 @@ class Optimizer:
     def solve(self, mode='sequential'):
         """
         Args:
-            mode (str): 'sequential', 'thread', 'process'
-                + 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                + 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                + 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+            mode (str): 'sequential', 'thread', 'process'.
+
+                * 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
+                * 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
+                * 'process': recommended for hard and big task (> 2 minutes for calculating objective)
 
         Returns:
-            [position, fitness value]
+            list: [position, fitness value]
         """
         self.mode = mode
         self.termination_start()
@@ -143,33 +151,32 @@ class Optimizer:
                         self.termination.logging(self.verbose)
                         break
                 elif self.termination.mode == 'MG':
-                    if epoch >= self.termination.quantity:
+                    if (epoch+1) >= self.termination.quantity:
                         self.termination.logging(self.verbose)
                         break
-                else:                       # Early Stopping
-                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_FIT, self.ID_TAR, self.EPSILON)
+                else:  # Early Stopping
+                    temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
                     if temp >= self.termination.quantity:
                         self.termination.logging(self.verbose)
                         break
 
         ## Additional information for the framework
         self.save_optimization_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_FIT][self.ID_TAR]
+        return self.solution[self.ID_POS], self.solution[self.ID_TAR][self.ID_FIT]
 
     def evolve(self, epoch):
         pass
 
     def create_solution(self):
         """
-        Returns:
-            The position position with 2 element: index of position/location and index of fitness wrapper
-            The general format: [position, [target, [obj1, obj2, ...]]]
+        To get the position, target wrapper [fitness and obj list]
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
-        ## To get the position, fitness wrapper, target and obj list
-        ##      A[self.ID_POS]                  --> Return: position
-        ##      A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-        ##      A[self.ID_FIT][self.ID_TAR]     --> Return: target
-        ##      A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Returns:
+            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
@@ -178,11 +185,10 @@ class Optimizer:
     def create_population(self, pop_size=None):
         """
         Args:
-            mode (str): processing mode, it can be "sequential", "thread" or "process"
             pop_size (int): number of solutions
 
         Returns:
-            population: list of solutions/agents
+            list: population or list of solutions/agents
         """
         if pop_size is None:
             pop_size = self.pop_size
@@ -206,25 +212,24 @@ class Optimizer:
     def update_fitness_population(self, pop=None):
         """
         Args:
-            mode (str): processing mode, it can be "sequential", "thread" or "process"
             pop (list): the population
 
         Returns:
-            population: with updated fitness value
+            list: population with updated fitness value
         """
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor() as executor:
                 list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
                 for idx, fit in enumerate(list_results):
-                    pop[idx][self.ID_FIT] = fit
+                    pop[idx][self.ID_TAR] = fit
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
                 list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
                 for idx, fit in enumerate(list_results):
-                    pop[idx][self.ID_FIT] = fit
+                    pop[idx][self.ID_TAR] = fit
         else:
             for idx, agent in enumerate(pop):
-                pop[idx][self.ID_FIT] = self.get_fitness_solution(agent)
+                pop[idx][self.ID_TAR] = self.get_fitness_solution(agent)
         return pop
 
     def get_fitness_position(self, position=None):
@@ -235,7 +240,7 @@ class Optimizer:
         Returns:
             [target, [obj1, obj2, ...]]
         """
-        objs = self.problem.obj_func(position)
+        objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
             objs = [objs]
         fit = np.dot(objs, self.problem.obj_weight)
@@ -261,7 +266,7 @@ class Optimizer:
         Returns:
             Sorted population and global best solution
         """
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])  # Already returned a new sorted list
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])  # Already returned a new sorted list
         if self.problem.minmax == "min":
             return sorted_pop, deepcopy(sorted_pop[0])
         else:
@@ -277,11 +282,11 @@ class Optimizer:
             The better solution between them
         """
         if self.problem.minmax == "min":
-            if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
+            if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
                 return deepcopy(agent1)
             return deepcopy(agent2)
         else:
-            if agent1[self.ID_FIT][self.ID_TAR] < agent2[self.ID_FIT][self.ID_TAR]:
+            if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
                 return deepcopy(agent2)
             return deepcopy(agent1)
 
@@ -295,11 +300,11 @@ class Optimizer:
             boolean: Return True if solution a better than solution b and otherwise
         """
         if self.problem.minmax == "min":
-            if agent_a[self.ID_FIT][self.ID_TAR] < agent_b[self.ID_FIT][self.ID_TAR]:
+            if agent_a[self.ID_TAR][self.ID_FIT] < agent_b[self.ID_TAR][self.ID_FIT]:
                 return True
             return False
         else:
-            if agent_a[self.ID_FIT][self.ID_TAR] < agent_b[self.ID_FIT][self.ID_TAR]:
+            if agent_a[self.ID_TAR][self.ID_FIT] < agent_b[self.ID_TAR][self.ID_FIT]:
                 return False
             return True
 
@@ -311,12 +316,12 @@ class Optimizer:
             worst (int): Top k2 worst solutions, default k2=3, it can be None
 
         Returns:
-            sorted_population, k1 best solutions and k2 worst solutions
+            list: sorted_population, k1 best solutions and k2 worst solutions
         """
         if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
         else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         if best is None:
             if worst is None:
                 exit(0)
@@ -334,29 +339,30 @@ class Optimizer:
             pop (list): The population
 
         Returns:
-            Total fitness, best fitness, worst fitness
+            list: Total fitness, best fitness, worst fitness
         """
-        total_fitness = np.sum([agent[self.ID_FIT][self.ID_TAR] for agent in pop])
+        total_fitness = np.sum([agent[self.ID_TAR][self.ID_FIT] for agent in pop])
         if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
         else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
-        return total_fitness, pop[0][self.ID_FIT][self.ID_TAR], pop[-1][self.ID_FIT][self.ID_TAR]
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
+        return total_fitness, pop[0][self.ID_TAR][self.ID_FIT], pop[-1][self.ID_TAR][self.ID_FIT]
 
     def update_global_best_solution(self, pop=None, save=True):
         """
         Update the global best solution saved in variable named: self.history_list_g_best
+
         Args:
             pop (list): The population of pop_size individuals
             save (bool): True if you want to add new current global best and False if you just want update the current one.
 
         Returns:
-            Sorted population and the global best solution
+            list: Sorted population and the global best solution
         """
         if self.problem.minmax == "min":
-            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
         else:
-            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=True)
+            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         current_best = sorted_pop[0]
         # self.history_list_c_best.append(current_best)
         # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
@@ -376,13 +382,14 @@ class Optimizer:
     def print_epoch(self, epoch, runtime):
         """
         Print out the detailed information of training process
+
         Args:
             epoch (int): current iteration
             runtime (float): the runtime for current iteration
         """
         if self.verbose:
-            print(f"> Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_FIT][self.ID_TAR]}, "
-                  f"Global best: {self.history.list_global_best[-1][self.ID_FIT][self.ID_TAR]}, Runtime: {runtime:.5f} seconds")
+            print(f"> Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+                  f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def save_optimization_process(self):
         """
@@ -393,8 +400,8 @@ class Optimizer:
             + history_list_explore
             + history_list_exploit
         """
-        # self.history_list_g_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_g_best]
-        # self.history_list_c_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history_list_c_best]
+        # self.history_list_g_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history_list_g_best]
+        # self.history_list_c_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history_list_c_best]
         #
         # # Draw the exploration and exploitation line with this data
         # self.history_list_div = np.ones(self.epoch)
@@ -407,8 +414,8 @@ class Optimizer:
         # self.history_list_exploit = 100 - self.history_list_explore
 
         self.history.epoch = len(self.history.list_global_best)
-        self.history.list_global_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history.list_global_best]
-        self.history.list_current_best_fit = [agent[self.ID_FIT][self.ID_TAR] for agent in self.history.list_current_best]
+        self.history.list_global_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_global_best]
+        self.history.list_current_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_current_best]
 
         # Draw the exploration and exploitation line with this data
         self.history.list_diversity = np.ones(self.history.epoch)
@@ -425,11 +432,12 @@ class Optimizer:
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
         This method can handle min/max problem, and negative or positive fitness value.
+
         Args:
             list_fitness (nd.array): 1-D numpy array
 
         Returns:
-            Index of selected solution
+            int: Index of selected solution
         """
         scaled_fitness = (list_fitness - np.min(list_fitness)) / (np.ptp(list_fitness) + self.EPSILON)
         if self.problem.minmax == "min":
@@ -450,7 +458,7 @@ class Optimizer:
         k_way = round(k_way)
         list_id = np.random.choice(range(len(pop)), k_way, replace=False)
         list_parents = [pop[i] for i in list_id]
-        list_parents = sorted(list_parents, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        list_parents = sorted(list_parents, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
         if self.problem.minmax == "min":
             return list_parents[:output]
         else:
@@ -458,16 +466,23 @@ class Optimizer:
 
     def get_levy_flight_step(self, beta=1.0, multiplier=0.001, case=0):
         """
-        Parameters
-        ----------
-        multiplier (float, optional): 0.01
-        beta: [0-2]
-            + 0-1: small range --> exploit
-            + 1-2: large range --> explore
-        case: 0, 1, -1
-            + 0: return multiplier * s * np.random.uniform()
-            + 1: return multiplier * s * np.random.normal(0, 1)
-            + -1: return multiplier * s
+        Get the Levy-flight step size
+
+        Args:
+            beta (float): Should be in range [0, 2].
+
+                * 0-1: small range --> exploit
+                * 1-2: large range --> explore
+
+            multiplier (float): default = 0.001
+            case (int): Should be one of these value [0, 1, -1].
+
+                * 0: return multiplier * s * np.random.uniform()
+                * 1: return multiplier * s * np.random.normal(0, 1)
+                * -1: return multiplier * s
+
+        Returns:
+            int: The step size of Levy-flight trajectory
         """
         # u and v are two random variables which follow np.random.normal distribution
         # sigma_u : standard deviation of u
@@ -487,14 +502,17 @@ class Optimizer:
 
     def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
         """
-        Parameters
-        ----------
-        epoch (int): current iteration
-        position : 1-D numpy np.array
-        g_best_position : 1-D numpy np.array
-        step (float, optional): 0.001
-        case (int, optional): 0, 1, 2
+        Get the Levy-flight position of current agent
 
+        Args:
+            epoch (int): The current epoch/iteration
+            position: The position of current agent
+            g_best_position: The position of the global best solution
+            step (float): The step size in Levy-flight, default = 0.001
+            case (int): Should be one of these value [0, 1, 2]
+
+        Returns:
+            The Levy-flight position of current agent
         """
         beta = 1
         # muy and v are two random variables which follow np.random.normal distribution
@@ -519,7 +537,7 @@ class Optimizer:
     def amend_position(self, position=None):
         """
         Args:
-            position (): vector position (location) of the solution.
+            position: vector position (location) of the solution.
 
         Returns:
             Amended position (make the position is in bound)
@@ -529,8 +547,9 @@ class Optimizer:
     def amend_position_faster(self, position=None):
         """
         This is method is faster than "amend_position" in most cases.
+
         Args:
-            position (): vector position (location) of the solution.
+            position: vector position (location) of the solution.
 
         Returns:
             Amended position
@@ -540,8 +559,9 @@ class Optimizer:
     def amend_position_random(self, position=None):
         """
         If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
         Args:
-            position (): vector position (location) of the solution.
+            position: vector position (location) of the solution.
 
         Returns:
             Amended position
@@ -552,13 +572,13 @@ class Optimizer:
     def get_global_best_global_worst_solution(self, pop=None):
         """
         Args:
-            pop (): The population
+            pop (list): The population
 
         Returns:
-            The global best and the global worst solution
+            list: The global best and the global worst solution
         """
         # Already returned a new sorted list
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR])
+        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
         if self.problem.minmax == "min":
             return deepcopy(sorted_pop[0]), deepcopy(sorted_pop[-1])
         else:
@@ -568,8 +588,8 @@ class Optimizer:
     def greedy_selection_population(self, pop_old=None, pop_new=None):
         """
         Args:
-            pop_old (): The current population
-            pop_new (): The next population
+            pop_old (list): The current population
+            pop_new (list): The next population
 
         Returns:
             The new population with better solutions
@@ -579,10 +599,10 @@ class Optimizer:
             print("Pop old and Pop new should be the same length!")
             exit(0)
         if self.problem.minmax == "min":
-            return [pop_new[i] if pop_new[i][self.ID_FIT][self.ID_TAR] < pop_old[i][self.ID_FIT][self.ID_TAR]
+            return [pop_new[i] if pop_new[i][self.ID_TAR][self.ID_FIT] < pop_old[i][self.ID_TAR][self.ID_FIT]
                     else pop_old[i] for i in range(len_old)]
         else:
-            return [pop_new[i] if pop_new[i][self.ID_FIT] > pop_old[i][self.ID_FIT]
+            return [pop_new[i] if pop_new[i][self.ID_TAR] > pop_old[i][self.ID_TAR]
                     else pop_old[i] for i in range(len_old)]
 
     def get_sorted_strim_population(self, pop=None, pop_size=None, reverse=False):
@@ -595,16 +615,16 @@ class Optimizer:
             The sorted population with pop_size size
         """
         if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=reverse)
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=reverse)
         else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_FIT][self.ID_TAR], reverse=reverse)
+            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=reverse)
         return pop[:pop_size]
 
     def create_opposition_position(self, agent=None, g_best=None):
         """
         Args:
-            agent (): The current agent
-            g_best (): the global best solution
+            agent: The current solution (agent)
+            g_best: the global best solution
 
         Returns:
             The opposite solution
@@ -616,16 +636,15 @@ class Optimizer:
             k_way = int(k_way * len(pop))
         list_id = np.random.choice(range(len(pop)), k_way, replace=False)
         list_parents = [pop[i] for i in list_id]
-        list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_FIT])
+        list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_TAR])
         return list_parents[:output]
 
     ### Crossover
     def crossover_arthmetic_recombination(self, dad_pos=None, mom_pos=None):
-        r = np.random.uniform()           # w1 = w2 when r =0.5
+        r = np.random.uniform()  # w1 = w2 when r =0.5
         w1 = np.multiply(r, dad_pos) + np.multiply((1 - r), mom_pos)
         w2 = np.multiply(r, mom_pos) + np.multiply((1 - r), dad_pos)
         return w1, w2
-
 
     #### Improved techniques can be used in any algorithms: 1
     ## Based on this paper: An efficient equilibrium optimizer with mutation strategy for numerical optimization (but still different)
@@ -634,10 +653,10 @@ class Optimizer:
     ##  s2: do the mutation for p1, using greedy method to select the better solution
     ##  s3: do the search mechanism for p1 (based on global best solution and the updated p1 above), to make p2 population
     ##  s4: construct the new population for next generation
-    def improved_ms(self, pop=None, g_best=None):    ## m: mutation, s: search
+    def improved_ms(self, pop=None, g_best=None):  ## m: mutation, s: search
         pop_len = int(len(pop) / 2)
         ## Sort the updated population based on fitness
-        pop = sorted(pop, key=lambda item: item[self.ID_FIT])
+        pop = sorted(pop, key=lambda item: item[self.ID_TAR])
         pop_s1, pop_s2 = pop[:pop_len], pop[pop_len:]
 
         ## Mutation scheme
