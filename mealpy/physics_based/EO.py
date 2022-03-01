@@ -25,8 +25,7 @@ class BaseEO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -116,8 +115,7 @@ class ModifiedEO(BaseEO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -225,8 +223,7 @@ class AdaptiveEO(BaseEO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -289,9 +286,9 @@ class AdaptiveEO(BaseEO):
             g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])
             g = g0 * f
 
-            fit_average = np.mean([item[self.ID_FIT][self.ID_TAR] for item in self.pop])  # Eq. 19
+            fit_average = np.mean([item[self.ID_TAR][self.ID_FIT] for item in self.pop])  # Eq. 19
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 9
-            if self.pop[idx][self.ID_FIT][self.ID_TAR] >= fit_average:
+            if self.pop[idx][self.ID_TAR][self.ID_FIT] >= fit_average:
                 pos_new = np.multiply(pos_new, (0.5 + np.random.uniform(0, 1, self.problem.n_dims)))
             pos_new = self.amend_position_faster(pos_new)
             pop_new.append([pos_new, None])

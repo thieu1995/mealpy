@@ -40,8 +40,7 @@ class OriginalBFO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -66,7 +65,7 @@ class OriginalBFO(Optimizer):
     """
 
     ID_POS = 0
-    ID_FIT = 1
+    ID_TAR = 1
     ID_COST = 2
     ID_INTER = 3
     ID_SUM_NUTRIENTS = 4
@@ -106,9 +105,9 @@ class OriginalBFO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], cost, interaction, sum_nutrients]
@@ -134,7 +133,7 @@ class OriginalBFO(Optimizer):
 
     def _evaluate(self, idx, cells):
         cells[idx][self.ID_INTER] = self._attract_repel(idx, cells)
-        cells[idx][self.ID_COST] = cells[idx][self.ID_FIT][self.ID_TAR] + cells[idx][self.ID_INTER]
+        cells[idx][self.ID_COST] = cells[idx][self.ID_TAR][self.ID_FIT] + cells[idx][self.ID_INTER]
         return cells
 
     def _tumble_cell(self, cell, step_size):
@@ -166,7 +165,7 @@ class OriginalBFO(Optimizer):
                     nfe_epoch += 1
                     if self.compare_agent([pos_new, fit_new], self.pop[idx]):
                         self.pop[idx][self.ID_POS] = pos_new
-                        self.pop[idx][self.ID_FIT] = fit_new
+                        self.pop[idx][self.ID_TAR] = fit_new
                         break
                     sum_nutrients += self.pop[idx][self.ID_COST]
                 self.pop[idx][self.ID_SUM_NUTRIENTS] = sum_nutrients
@@ -205,8 +204,7 @@ class ABFO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -266,9 +264,9 @@ class ABFO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], nutrient, local_pos_best, local_fit_best]
@@ -281,8 +279,8 @@ class ABFO(Optimizer):
         return [vector, fitness, nutrient, local_pos_best, local_fit_best]
 
     def _update_step_size(self, pop=None, idx=None):
-        total_fitness = np.sum(temp[self.ID_FIT][self.ID_TAR] for temp in pop)
-        step_size = self.C_s - (self.C_s - self.C_e) * pop[idx][self.ID_FIT][self.ID_TAR] / total_fitness
+        total_fitness = np.sum(temp[self.ID_TAR][self.ID_FIT] for temp in pop)
+        step_size = self.C_s - (self.C_s - self.C_e) * pop[idx][self.ID_TAR][self.ID_FIT] / total_fitness
         step_size = step_size / self.pop[idx][self.ID_NUT] if self.pop[idx][self.ID_NUT] > 0 else step_size
         return step_size
 
@@ -307,7 +305,7 @@ class ABFO(Optimizer):
                 nfe_epoch += 1
                 if self.compare_agent([pos_new, fit_new], self.pop[i]):
                     self.pop[i][self.ID_POS] = pos_new
-                    self.pop[i][self.ID_FIT] = fit_new
+                    self.pop[i][self.ID_TAR] = fit_new
                     self.pop[i][self.ID_NUT] += 1
                     # Update personal best
                     if self.compare_agent([pos_new, fit_new], [None, self.pop[i][self.ID_LOC_FIT]]):

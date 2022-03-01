@@ -33,8 +33,7 @@ class BaseSSA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -116,7 +115,7 @@ class BaseSSA(Optimizer):
             if self.compare_agent(self.pop[idx], g_best):
                 x_new = pop2[idx][self.ID_POS] + \
                         np.random.uniform(-1, 1) * (np.abs(pop2[idx][self.ID_POS] - g_worst[self.ID_POS]) /
-                                                    (pop2[idx][self.ID_FIT][self.ID_TAR] - g_worst[self.ID_FIT][self.ID_TAR] + self.EPSILON))
+                                                    (pop2[idx][self.ID_TAR][self.ID_FIT] - g_worst[self.ID_TAR][self.ID_FIT] + self.EPSILON))
             else:
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
             pos_new = self.amend_position_random(x_new)
@@ -151,8 +150,7 @@ class OriginalSSA(BaseSSA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -226,7 +224,7 @@ class OriginalSSA(BaseSSA):
             if self.compare_agent(self.pop[idx], g_best):
                 x_new = pop2[idx][self.ID_POS] + \
                         np.random.uniform(-1, 1) * (np.abs(pop2[idx][self.ID_POS] - g_worst[self.ID_POS]) /
-                                                    (pop2[idx][self.ID_FIT][self.ID_TAR] - g_worst[self.ID_FIT][self.ID_TAR] + self.EPSILON))
+                                                    (pop2[idx][self.ID_TAR][self.ID_FIT] - g_worst[self.ID_TAR][self.ID_FIT] + self.EPSILON))
             else:
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
             pos_new = self.amend_position_random(x_new)

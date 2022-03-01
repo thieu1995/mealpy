@@ -31,8 +31,7 @@ class BaseSA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -136,7 +135,7 @@ class BaseSA(Optimizer):
                     self.pop[i] = deepcopy(pop_new[i])
                 else:
                     # Compute difference according to problem type
-                    delta = abs(pop_new[i][self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR])
+                    delta = abs(pop_new[i][self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT])
                     p = np.exp(-delta / self.dyn_t)  # Compute Acceptance Probability
                     if np.random.uniform() <= p:  # Accept / Reject
                         self.pop[i] = deepcopy(pop_new[i])

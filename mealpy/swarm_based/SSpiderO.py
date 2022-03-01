@@ -28,8 +28,7 @@ class BaseSSpiderO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -51,7 +50,7 @@ class BaseSSpiderO(Optimizer):
     """
 
     ID_POS = 0
-    ID_FIT = 1
+    ID_TAR = 1
     ID_WEI = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, fp=(0.65, 0.9), **kwargs):
@@ -71,9 +70,9 @@ class BaseSSpiderO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
@@ -250,7 +249,7 @@ class BaseSSpiderO(Optimizer):
             if fit_best == fit_worst:
                 pop[i][self.ID_WEI] = np.random.uniform(0.2, 0.8)
             else:
-                pop[i][self.ID_WEI] = 0.001 + (pop[i][self.ID_FIT][self.ID_TAR] - fit_worst) / (fit_best - fit_worst)
+                pop[i][self.ID_WEI] = 0.001 + (pop[i][self.ID_TAR][self.ID_FIT] - fit_worst) / (fit_best - fit_worst)
         return pop
 
     def evolve(self, epoch):

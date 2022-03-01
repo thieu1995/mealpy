@@ -18,7 +18,7 @@ class UpdatedTPO:
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": obj_function,
+    >>>     "fit_func": obj_function,
     >>>     "n_dims": 5,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
@@ -74,7 +74,7 @@ class UpdatedTPO:
         self.beta = beta
         self.theta = theta
         self.dimension = problem["n_dims"]
-        self.func = problem["obj_func"]
+        self.func = problem["fit_func"]
         self.lb = np.array(problem["lb"]).reshape(-1, 1, 1)
         self.ub = np.array(problem["ub"]).reshape(-1, 1, 1)
         self.shoots = np.random.uniform(0, 5, (self.dimension, num_branches, num_leaves))

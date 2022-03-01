@@ -30,8 +30,7 @@ class BaseGCO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -99,10 +98,10 @@ class BaseGCO(Optimizer):
         ## Light-zone process   (no needs parallelization)
         for i in range(0, self.pop_size):
             self.dyn_list_cell_counter[i] = 10
-            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop_new])
+            fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
             fit_max = max(fit_list)
             fit_min = min(fit_list)
-            self.dyn_list_cell_counter[i] += 10 * (self.pop[i][self.ID_FIT][self.ID_TAR] - fit_max) / (fit_min - fit_max + self.EPSILON)
+            self.dyn_list_cell_counter[i] += 10 * (self.pop[i][self.ID_TAR][self.ID_FIT] - fit_max) / (fit_min - fit_max + self.EPSILON)
 
 
 class OriginalGCO(BaseGCO):
@@ -126,8 +125,7 @@ class OriginalGCO(BaseGCO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

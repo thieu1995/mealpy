@@ -26,8 +26,7 @@ class BaseNRO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -117,7 +116,7 @@ class BaseNRO(Optimizer):
         ## Ionization stage
         ## Calculate the Pa through Eq. (10)
         pop_child = []
-        ranked_pop = np.argsort([pop_new[i][self.ID_FIT][self.ID_TAR] for i in range(self.pop_size)])
+        ranked_pop = np.argsort([pop_new[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
         for i in range(self.pop_size):
             X_ion = deepcopy(pop_new[i][self.ID_POS])
             if (ranked_pop[i] * 1.0 / self.pop_size) < np.random.random():
@@ -155,7 +154,7 @@ class BaseNRO(Optimizer):
 
         ### all ions obtained from ionization are ranked based on (14) - Calculate the Pc through Eq. (14)
         pop_new = []
-        ranked_pop = np.argsort([pop_child[i][self.ID_FIT][self.ID_TAR] for i in range(self.pop_size)])
+        ranked_pop = np.argsort([pop_child[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
         for i in range(self.pop_size):
             i1, i2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
 

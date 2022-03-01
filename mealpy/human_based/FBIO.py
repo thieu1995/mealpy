@@ -26,8 +26,7 @@ class BaseFBIO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -82,7 +81,7 @@ class BaseFBIO(Optimizer):
             pop_new.append([pos_a, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
-        list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop_new])
+        list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
         prob = self.probability(list_fitness)
 
         # Step A2
@@ -149,8 +148,7 @@ class OriginalFBIO(BaseFBIO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -207,7 +205,7 @@ class OriginalFBIO(BaseFBIO):
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         # Step A2
-        list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in pop_new])
+        list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
         prob = self.probability(list_fitness)
         pop_child = []
         for i in range(0, self.pop_size):

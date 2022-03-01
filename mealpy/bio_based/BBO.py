@@ -29,8 +29,7 @@ class OriginalBBO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -127,8 +126,7 @@ class BaseBBO(OriginalBBO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -166,7 +164,7 @@ class BaseBBO(OriginalBBO):
             epoch (int): The current iteration
         """
         _, pop_elites, _ = self.get_special_solutions(self.pop, best=self.elites)
-        list_fitness = [agent[self.ID_FIT][self.ID_TAR] for agent in self.pop]
+        list_fitness = [agent[self.ID_TAR][self.ID_FIT] for agent in self.pop]
         pop = []
         for idx in range(0, self.pop_size):
             # Probabilistic migration to the i-th position

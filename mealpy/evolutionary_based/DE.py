@@ -37,8 +37,7 @@ class BaseDE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -163,8 +162,7 @@ class JADE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -307,8 +305,7 @@ class SADE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -438,8 +435,7 @@ class SHADE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -564,8 +560,8 @@ class SHADE(Optimizer):
             idx_increase = 0
             for i in range(0, self.pop_size):
                 if i in list_cr_index:
-                    list_fit_old[idx_increase] = pop_old[i][self.ID_FIT][self.ID_TAR]
-                    list_fit_new[idx_increase] = self.pop[i][self.ID_FIT][self.ID_TAR]
+                    list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
+                    list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
                     idx_increase += 1
             temp = sum(abs(list_fit_new - list_fit_old))
             if temp == 0:
@@ -599,8 +595,7 @@ class L_SHADE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -727,8 +722,8 @@ class L_SHADE(Optimizer):
             idx_increase = 0
             for i in range(0, self.dyn_pop_size):
                 if i in list_cr_index:
-                    list_fit_old[idx_increase] = pop_old[i][self.ID_FIT][self.ID_TAR]
-                    list_fit_new[idx_increase] = self.pop[i][self.ID_FIT][self.ID_TAR]
+                    list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
+                    list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
                     idx_increase += 1
             total_fit = sum(np.abs(list_fit_new - list_fit_old))
             list_weights = 0 if total_fit == 0 else np.abs(list_fit_new - list_fit_old) / total_fit
@@ -763,8 +758,7 @@ class SAP_DE(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -813,9 +807,9 @@ class SAP_DE(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], crossover_rate, mutation_rate, pop_size]

@@ -33,8 +33,7 @@ class BaseICA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -108,7 +107,7 @@ class BaseICA(Optimizer):
         self.pop_empires = deepcopy(self.pop[:self.empire_count])
         self.pop_colonies = deepcopy(self.pop[self.empire_count:])
 
-        cost_empires_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop_empires])
+        cost_empires_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop_empires])
         cost_empires_list_normalized = cost_empires_list - (np.max(cost_empires_list) + np.min(cost_empires_list))
         prob_empires_list = np.abs(cost_empires_list_normalized / np.sum(cost_empires_list_normalized))
         # Randomly choose colonies to empires
@@ -167,8 +166,8 @@ class BaseICA(Optimizer):
         # Update Total Objective Values of Empires
         cost_empires_list = []
         for idx, colonies in self.empires.items():
-            fit_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in colonies])
-            fit_empire = self.pop_empires[idx][self.ID_FIT][self.ID_TAR] + self.zeta * np.mean(fit_list)
+            fit_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in colonies])
+            fit_empire = self.pop_empires[idx][self.ID_TAR][self.ID_FIT] + self.zeta * np.mean(fit_list)
             cost_empires_list.append(fit_empire)
         cost_empires_list = np.array(cost_empires_list)
 

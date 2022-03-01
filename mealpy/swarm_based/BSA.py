@@ -33,8 +33,7 @@ class BaseBSA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -60,7 +59,7 @@ class BaseBSA(Optimizer):
     """
 
     ID_POS = 0
-    ID_FIT = 1
+    ID_TAR = 1
     ID_LBP = 2  # local best position
     ID_LBF = 3  # local best fitness
 
@@ -90,9 +89,9 @@ class BaseBSA(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], local_position, local_fitness]
@@ -111,7 +110,7 @@ class BaseBSA(Optimizer):
             epoch (int): The current iteration
         """
         pos_list = np.array([item[self.ID_POS] for item in self.pop])
-        fit_list = np.array([item[self.ID_LBF][self.ID_TAR] for item in self.pop])
+        fit_list = np.array([item[self.ID_LBF][self.ID_FIT] for item in self.pop])
         pos_mean = np.mean(pos_list, axis=0)
         fit_sum = np.sum(fit_list)
 
@@ -125,7 +124,7 @@ class BaseBSA(Optimizer):
                             np.random.uniform() * (self.pop[i][self.ID_LBP] - self.pop[i][self.ID_POS]) + \
                             self.c_minmax[1] * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 else:  # Birds keep vigilance. Eq. 2
-                    A1 = self.a_minmax[0] * np.exp(-self.pop_size * self.pop[i][self.ID_LBF][self.ID_TAR] / (self.EPSILON + fit_sum))
+                    A1 = self.a_minmax[0] * np.exp(-self.pop_size * self.pop[i][self.ID_LBF][self.ID_FIT] / (self.EPSILON + fit_sum))
                     k = np.random.choice(list(set(range(0, self.pop_size)) - {i}))
                     t1 = (fit_list[i] - fit_list[k]) / (abs(fit_list[i] - fit_list[k]) + self.EPSILON)
                     A2 = self.a_minmax[1] * np.exp(t1 * self.pop_size * fit_list[k] / (fit_sum + self.EPSILON))

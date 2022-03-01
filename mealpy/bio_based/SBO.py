@@ -35,8 +35,7 @@ class BaseSBO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -83,7 +82,7 @@ class BaseSBO(Optimizer):
             epoch (int): The current iteration
         """
         ## Calculate the probability of bowers using my equation
-        fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+        fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
         pop_new = []
         for i in range(0, self.pop_size):
             ### Select a bower using roulette wheel
@@ -122,8 +121,7 @@ class OriginalSBO(BaseSBO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -180,7 +178,7 @@ class OriginalSBO(BaseSBO):
             epoch (int): The current iteration
         """
         ## Calculate the probability of bowers using Eqs. (1) and (2)
-        fx_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in self.pop])
+        fx_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         fit_list = deepcopy(fx_list)
         for i in range(0, self.pop_size):
             if fx_list[i] < 0:

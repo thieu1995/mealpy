@@ -34,8 +34,7 @@ class OriginalIWO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -89,11 +88,11 @@ class OriginalIWO(Optimizer):
         pop, best, worst = self.get_special_solutions(self.pop)
         pop_new = []
         for idx in range(0, self.pop_size):
-            temp = best[0][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR]
+            temp = best[0][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]
             if temp == 0:
                 ratio = 0.5
             else:
-                ratio = (pop[idx][self.ID_FIT][self.ID_TAR] - worst[0][self.ID_FIT][self.ID_TAR]) / temp
+                ratio = (pop[idx][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]) / temp
             s = int(np.ceil(self.seeds[0] + (self.seeds[1] - self.seeds[0]) * ratio))
             if s > int(np.sqrt(self.pop_size)):
                 s = int(np.sqrt(self.pop_size))

@@ -29,8 +29,7 @@ class OriginalHGS(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -75,9 +74,9 @@ class OriginalHGS(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], hunger]
@@ -93,19 +92,19 @@ class OriginalHGS(Optimizer):
         return 2 / (np.exp(x) + np.exp(-x))
 
     def update_hunger_value(self, pop=None, g_best=None, g_worst=None):
-        # min_index = pop.index(min(pop, key=lambda x: x[self.ID_FIT][self.ID_TAR]))
+        # min_index = pop.index(min(pop, key=lambda x: x[self.ID_TAR][self.ID_FIT]))
         # Eq (2.8) and (2.9)
         for i in range(0, self.pop_size):
             r = np.random.rand()
             # space: since we pass lower bound and upper bound as list. Better take the np.mean of them.
             space = np.mean(self.problem.ub - self.problem.lb)
-            H = (pop[i][self.ID_FIT][self.ID_TAR] - g_best[self.ID_FIT][self.ID_TAR]) / \
-                (g_worst[self.ID_FIT][self.ID_TAR] - g_best[self.ID_FIT][self.ID_TAR] + self.EPSILON) * r * 2 * space
+            H = (pop[i][self.ID_TAR][self.ID_FIT] - g_best[self.ID_TAR][self.ID_FIT]) / \
+                (g_worst[self.ID_TAR][self.ID_FIT] - g_best[self.ID_TAR][self.ID_FIT] + self.EPSILON) * r * 2 * space
             if H < self.LH:
                 H = self.LH * (1 + r)
             pop[i][self.ID_HUN] += H
 
-            if g_best[self.ID_FIT][self.ID_TAR] == pop[i][self.ID_FIT][self.ID_TAR]:
+            if g_best[self.ID_TAR][self.ID_FIT] == pop[i][self.ID_TAR][self.ID_FIT]:
                 pop[i][self.ID_HUN] = 0
         return pop
 
@@ -129,7 +128,7 @@ class OriginalHGS(Optimizer):
         for idx in range(0, self.pop_size):
             current_agent = deepcopy(self.pop[idx])
             #### Variation control
-            E = self.sech(current_agent[self.ID_FIT][self.ID_TAR] - g_best[self.ID_FIT][self.ID_TAR])
+            E = self.sech(current_agent[self.ID_TAR][self.ID_FIT] - g_best[self.ID_TAR][self.ID_FIT])
 
             # R is a ranging controller added to limit the range of activity, in which the range of R is gradually reduced to 0
             R = 2 * shrink * np.random.rand() - shrink  # Eq. (2.3)

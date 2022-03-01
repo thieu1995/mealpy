@@ -34,8 +34,7 @@ class BaseCRO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -133,7 +132,7 @@ class BaseCRO(Optimizer):
 
     def _sort_occupied_reef(self):
         def reef_fitness(idx):
-            return self.pop[idx][self.ID_FIT][self.ID_TAR]
+            return self.pop[idx][self.ID_TAR][self.ID_FIT]
 
         idx_list_sorted = sorted(self.occupied_idx_list, key=reef_fitness)
         return idx_list_sorted
@@ -216,8 +215,7 @@ class OCRO(BaseCRO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

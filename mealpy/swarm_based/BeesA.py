@@ -32,8 +32,7 @@ class BaseBeesA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -159,8 +158,7 @@ class ProbBeesA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -220,7 +218,7 @@ class ProbBeesA(Optimizer):
             epoch (int): The current iteration
         """
         # Calculate Scores
-        fit_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop])
+        fit_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop])
         fit_list = 1.0 / fit_list
         d_fit = fit_list / np.mean(fit_list)
 

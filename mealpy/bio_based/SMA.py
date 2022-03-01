@@ -31,8 +31,7 @@ class BaseSMA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -69,9 +68,9 @@ class BaseSMA(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
@@ -89,17 +88,17 @@ class BaseSMA(Optimizer):
             epoch (int): The current iteration
         """
         # plus eps to avoid denominator zero
-        s = self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[-1][self.ID_FIT][self.ID_TAR] + self.EPSILON
+        s = self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[-1][self.ID_TAR][self.ID_FIT] + self.EPSILON
 
         # calculate the fitness weight of each slime mold
         for i in range(0, self.pop_size):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
         a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
@@ -110,7 +109,7 @@ class BaseSMA(Optimizer):
             if np.random.uniform() < self.pr:  # Eq.(2.7)
                 pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             else:
-                p = np.tanh(np.abs(self.pop[idx][self.ID_FIT][self.ID_TAR] - self.g_best[self.ID_FIT][self.ID_TAR]))  # Eq.(2.2)
+                p = np.tanh(np.abs(self.pop[idx][self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
                 vb = np.random.uniform(-a, a, self.problem.n_dims)  # Eq.(2.3)
                 vc = np.random.uniform(-b, b, self.problem.n_dims)
 
@@ -147,8 +146,7 @@ class OriginalSMA(BaseSMA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -188,17 +186,17 @@ class OriginalSMA(BaseSMA):
             epoch (int): The current iteration
         """
 
-        s = self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[-1][self.ID_FIT][self.ID_TAR] + self.EPSILON  # plus eps to avoid denominator zero
+        s = self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[-1][self.ID_TAR][self.ID_FIT] + self.EPSILON  # plus eps to avoid denominator zero
 
         # calculate the fitness weight of each slime mold
         for i in range(0, self.pop_size):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_FIT][self.ID_TAR] - self.pop[i][self.ID_FIT][self.ID_TAR]) / s + 1)
+                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
         a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
@@ -210,7 +208,7 @@ class OriginalSMA(BaseSMA):
             if np.random.uniform() < self.pr:  # Eq.(2.7)
                 current_agent[self.ID_POS] = np.random.uniform(self.problem.lb, self.problem.ub)
             else:
-                p = np.tanh(np.abs(current_agent[self.ID_FIT][self.ID_TAR] - self.g_best[self.ID_FIT][self.ID_TAR]))  # Eq.(2.2)
+                p = np.tanh(np.abs(current_agent[self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
                 vb = np.random.uniform(-a, a, self.problem.n_dims)  # Eq.(2.3)
                 vc = np.random.uniform(-b, b, self.problem.n_dims)
                 for j in range(0, self.problem.n_dims):

@@ -30,8 +30,7 @@ class BaseBRO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -72,9 +71,9 @@ class BaseBRO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], damage]
@@ -117,7 +116,7 @@ class BaseBRO(Optimizer):
                               np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
                     dam_new = self.pop[j][self.ID_DAM] + 1
 
-                    self.pop[j][self.ID_FIT] = self.get_fitness_position(self.pop[j][self.ID_POS])
+                    self.pop[j][self.ID_TAR] = self.get_fitness_position(self.pop[j][self.ID_POS])
                 else:  ## Loser dead and respawn again
                     pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
                     dam_new = 0
@@ -165,8 +164,7 @@ class OriginalBRO(BaseBRO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -216,7 +214,7 @@ class OriginalBRO(BaseBRO):
                            np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
                           np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
                 self.pop[dam][self.ID_POS] = self.amend_position_faster(pos_new)
-                self.pop[dam][self.ID_FIT] = self.get_fitness_position(self.pop[dam][self.ID_POS])
+                self.pop[dam][self.ID_TAR] = self.get_fitness_position(self.pop[dam][self.ID_POS])
                 self.pop[dam][self.ID_DAM] += 1
                 self.pop[vic][self.ID_DAM] = 0
             else:

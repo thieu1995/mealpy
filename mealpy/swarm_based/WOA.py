@@ -24,8 +24,7 @@ class BaseWOA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -111,8 +110,7 @@ class HI_WOA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -189,7 +187,7 @@ class HI_WOA(Optimizer):
 
         ## Feedback Mechanism
         _, current_best = self.get_global_best_solution(pop_new)
-        if current_best[self.ID_FIT][self.ID_TAR] == self.g_best[self.ID_FIT][self.ID_TAR]:
+        if current_best[self.ID_TAR][self.ID_FIT] == self.g_best[self.ID_TAR][self.ID_FIT]:
             self.dyn_feedback_count += 1
         else:
             self.dyn_feedback_count = 0

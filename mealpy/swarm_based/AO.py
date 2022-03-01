@@ -25,8 +25,7 @@ class OriginalAO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -92,7 +91,7 @@ class OriginalAO(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            x_mean = np.mean(np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop]), axis=0)
+            x_mean = np.mean(np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop]), axis=0)
             if (epoch + 1) <= (2 / 3) * self.epoch:  # Eq. 3, 4
                 if np.random.rand() < 0.5:
                     pos_new = self.g_best[self.ID_POS] * (1 - (epoch + 1) / self.epoch) + \

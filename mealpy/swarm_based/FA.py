@@ -32,8 +32,7 @@ class BaseFA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -90,14 +89,14 @@ class BaseFA(Optimizer):
             epoch (int): The current iteration
         """
         nfe_epoch = 0
-        fit_list = np.array([agent[self.ID_FIT][self.ID_TAR] for agent in self.pop])
+        fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         fit_list = sorted(fit_list)
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            si = self.max_sparks * (fit_list[-1] - self.pop[idx][self.ID_FIT][self.ID_TAR] + self.EPSILON) / \
+            si = self.max_sparks * (fit_list[-1] - self.pop[idx][self.ID_TAR][self.ID_FIT] + self.EPSILON) / \
                  (self.pop_size * fit_list[-1] - np.sum(fit_list) + self.EPSILON)
-            Ai = self.max_ea * (self.pop[idx][self.ID_FIT][self.ID_TAR] - fit_list[0] + self.EPSILON) / \
+            Ai = self.max_ea * (self.pop[idx][self.ID_TAR][self.ID_FIT] - fit_list[0] + self.EPSILON) / \
                  (np.sum(fit_list) - fit_list[0] + self.EPSILON)
             if si < self.p_a * self.max_sparks:
                 si_ = int(round(self.p_a * self.max_sparks) + 1)

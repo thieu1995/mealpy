@@ -32,8 +32,7 @@ class BaseTLO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -122,8 +121,7 @@ class OriginalTLO(BaseTLO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -211,8 +209,7 @@ class ITLO(BaseTLO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -277,10 +274,10 @@ class ITLO(BaseTLO):
             mean_team = np.mean(list_pos, axis=0)
             pop_new = []
             for id_stud, student in enumerate(team):
-                if teacher[self.ID_FIT][self.ID_TAR] == 0:
+                if teacher[self.ID_TAR][self.ID_FIT] == 0:
                     TF = 1
                 else:
-                    TF = student[self.ID_FIT][self.ID_TAR] / teacher[self.ID_FIT][self.ID_TAR]
+                    TF = student[self.ID_TAR][self.ID_FIT] / teacher[self.ID_TAR][self.ID_FIT]
                 diff_mean = np.random.rand() * (teacher[self.ID_POS] - TF * mean_team)  # Step 8
 
                 id2 = np.random.choice(list(set(range(0, self.n_teachers)) - {id_teach}))

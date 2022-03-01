@@ -26,8 +26,7 @@ class OriginalALO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -105,7 +104,7 @@ class OriginalALO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+        list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
         # This for loop simulate random walks
 
         pop_new = []
@@ -152,8 +151,7 @@ class BaseALO(OriginalALO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

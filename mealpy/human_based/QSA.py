@@ -26,8 +26,7 @@ class BaseQSA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -74,7 +73,7 @@ class BaseQSA(Optimizer):
 
     def _update_business_1(self, pop=None, current_epoch=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
+        t1, t2, t3 = pop[0][self.ID_TAR][self.ID_FIT], pop[1][self.ID_TAR][self.ID_FIT], pop[2][self.ID_TAR][self.ID_FIT]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         case = None
         for i in range(self.pop_size):
@@ -116,7 +115,7 @@ class BaseQSA(Optimizer):
 
     def _update_business_2(self, pop=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
+        t1, t2, t3 = pop[0][self.ID_TAR][self.ID_FIT], pop[1][self.ID_TAR][self.ID_FIT], pop[2][self.ID_TAR][self.ID_FIT]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
         if t1 > 1.0e-005:
@@ -189,8 +188,7 @@ class OppoQSA(BaseQSA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -255,8 +253,7 @@ class LevyQSA(BaseQSA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -283,7 +280,7 @@ class LevyQSA(BaseQSA):
 
     def _update_business_2(self, pop=None, current_epoch=None):
         A1, A2, A3 = pop[0][self.ID_POS], pop[1][self.ID_POS], pop[2][self.ID_POS]
-        t1, t2, t3 = pop[0][self.ID_FIT][self.ID_TAR], pop[1][self.ID_FIT][self.ID_TAR], pop[2][self.ID_FIT][self.ID_TAR]
+        t1, t2, t3 = pop[0][self.ID_TAR][self.ID_FIT], pop[1][self.ID_TAR][self.ID_FIT], pop[2][self.ID_TAR][self.ID_FIT]
         q1, q2, q3 = self._calculate_queue_length__(t1, t2, t3)
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
         if t1 > 1.0e-6:
@@ -342,8 +339,7 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -402,8 +398,7 @@ class OriginalQSA(BaseQSA):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

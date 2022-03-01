@@ -32,8 +32,7 @@ class BaseMVO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -83,7 +82,7 @@ class BaseMVO(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             if np.random.uniform() < wep:
-                list_fitness = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+                list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
                 white_hole_id = self.get_index_roulette_wheel_selection(list_fitness)
                 black_hole_pos_1 = self.pop[idx][self.ID_POS] + tdr * np.random.normal(0, 1) * \
                                    (self.pop[white_hole_id][self.ID_POS] - self.pop[idx][self.ID_POS])
@@ -118,8 +117,7 @@ class OriginalMVO(BaseMVO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -191,7 +189,7 @@ class OriginalMVO(BaseMVO):
         # Travelling Distance Rate (Formula): Eq. (3.4) in the paper
         tdr = 1 - (epoch + 1) ** (1.0 / 6) / self.epoch ** (1.0 / 6)
 
-        list_fitness_raw = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+        list_fitness_raw = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
         maxx = max(list_fitness_raw)
         if maxx > (2 ** 64 - 1):
             list_fitness_normalized = np.random.uniform(0, 0.1, self.pop_size)

@@ -25,8 +25,7 @@ class BaseTWO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -46,7 +45,7 @@ class BaseTWO(Optimizer):
     """
 
     ID_POS = 0
-    ID_FIT = 1
+    ID_TAR = 1
     ID_WEIGHT = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
@@ -73,9 +72,9 @@ class BaseTWO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
@@ -87,14 +86,14 @@ class BaseTWO(Optimizer):
 
     def _update_weight(self, teams):
         _, best, worst = self.get_special_solutions(teams, best=1, worst=1)
-        best_fit = best[0][self.ID_FIT][self.ID_TAR]
-        worst_fit = worst[0][self.ID_FIT][self.ID_TAR]
+        best_fit = best[0][self.ID_TAR][self.ID_FIT]
+        worst_fit = worst[0][self.ID_TAR][self.ID_FIT]
         if best_fit == worst_fit:
             for i in range(self.pop_size):
                 teams[i][self.ID_WEIGHT] = np.random.uniform(0.5, 1.5)
         else:
             for i in range(self.pop_size):
-                teams[i][self.ID_WEIGHT] = (teams[i][self.ID_FIT][self.ID_TAR] - worst_fit) / (best_fit - worst_fit + self.EPSILON) + 1
+                teams[i][self.ID_WEIGHT] = (teams[i][self.ID_TAR][self.ID_FIT] - worst_fit) / (best_fit - worst_fit + self.EPSILON) + 1
         return teams
 
     def initialization(self):
@@ -155,8 +154,7 @@ class OppoTWO(BaseTWO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -252,8 +250,7 @@ class LevyTWO(BaseTWO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -343,8 +340,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

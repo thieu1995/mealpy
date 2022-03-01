@@ -30,8 +30,7 @@ class BaseSARO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -92,7 +91,7 @@ class BaseSARO(Optimizer):
             pos_new_1 = self.pop[k][self.ID_POS] + np.random.uniform() * sd
             pos_new_2 = pop_x[idx][self.ID_POS] + np.random.uniform() * sd
             pos_new = np.where(np.logical_and(np.random.uniform(0, 1, self.problem.n_dims) < self.se,
-                                              self.pop[k][self.ID_FIT] < pop_x[idx][self.ID_FIT]), pos_new_1, pos_new_2)
+                                              self.pop[k][self.ID_TAR] < pop_x[idx][self.ID_TAR]), pos_new_1, pos_new_2)
             pos_new = self.amend_position_random(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
@@ -148,8 +147,7 @@ class OriginalSARO(BaseSARO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",

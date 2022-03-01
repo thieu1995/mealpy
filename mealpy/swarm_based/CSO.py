@@ -39,8 +39,7 @@ class BaseCSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -68,7 +67,7 @@ class BaseCSO(Optimizer):
     """
 
     ID_POS = 0  # position of the cat
-    ID_FIT = 1  # fitness
+    ID_TAR = 1  # fitness
     ID_VEL = 2  # velocity
     ID_FLAG = 3  # status
 
@@ -110,9 +109,9 @@ class BaseCSO(Optimizer):
 
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, flag]
@@ -149,7 +148,7 @@ class BaseCSO(Optimizer):
             cats_k_way = [candidate_cats[_] for _ in idx]
             _, cat = self.get_global_best_solution(cats_k_way)
         elif self.selected_strategy == 2:  ### Roul-wheel selection
-            list_fitness = [candidate_cats[u][self.ID_FIT][self.ID_TAR] for u in range(0, len(candidate_cats))]
+            list_fitness = [candidate_cats[u][self.ID_TAR][self.ID_FIT] for u in range(0, len(candidate_cats))]
             idx = self.get_index_roulette_wheel_selection(list_fitness)
             cat = candidate_cats[idx]
         else:

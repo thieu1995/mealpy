@@ -29,8 +29,7 @@ class OriginalCHIO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -107,7 +106,7 @@ class OriginalCHIO(Optimizer):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
                 elif (2.0 / 3) * self.brr <= rand < self.brr:
                     idx_candidates = np.where(self.immunity_type_list == 2)  # Immunity list
-                    fit_list = np.array([self.pop[item][self.ID_FIT][self.ID_TAR] for item in idx_candidates[0]])
+                    fit_list = np.array([self.pop[item][self.ID_TAR][self.ID_FIT] for item in idx_candidates[0]])
                     idx_selected = idx_candidates[0][np.argmin(fit_list)]  # Found the index of best fitness
                     pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
@@ -128,7 +127,7 @@ class OriginalCHIO(Optimizer):
                 self.age_list[idx] += 1
 
             ## Calculate immunity mean of population
-            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+            fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
             delta_fx = np.mean(fit_list)
             if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx] == 0) and is_corona_list[idx]:
                 self.immunity_type_list[idx] = 1
@@ -160,8 +159,7 @@ class BaseCHIO(OriginalCHIO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -222,7 +220,7 @@ class BaseCHIO(OriginalCHIO):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
                 elif (2.0 / 3) * self.brr <= rand < self.brr:
                     idx_candidates = np.where(self.immunity_type_list == 2)  # Immunity list
-                    fit_list = np.array([self.pop[item][self.ID_FIT][self.ID_TAR] for item in idx_candidates[0]])
+                    fit_list = np.array([self.pop[item][self.ID_TAR][self.ID_FIT] for item in idx_candidates[0]])
                     idx_selected = idx_candidates[0][np.argmin(fit_list)]  # Found the index of best fitness
                     pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
@@ -240,7 +238,7 @@ class BaseCHIO(OriginalCHIO):
                 self.age_list[idx] += 1
 
             ## Calculate immunity mean of population
-            fit_list = np.array([item[self.ID_FIT][self.ID_TAR] for item in self.pop])
+            fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
             delta_fx = np.mean(fit_list)
             if (self.compare_agent(pop_new[idx], [None, [delta_fx, None]])) and (self.immunity_type_list[idx] == 0) and is_corona_list[idx]:
                 self.immunity_type_list[idx] = 1

@@ -28,8 +28,7 @@ class BasePSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -85,9 +84,9 @@ class BasePSO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, local_pos, local_fit]
@@ -127,7 +126,7 @@ class BasePSO(Optimizer):
                 self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
                     self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
 class PPSO(Optimizer):
@@ -147,8 +146,7 @@ class PPSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -194,9 +192,9 @@ class PPSO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, local_pos, local_fit]
@@ -243,7 +241,7 @@ class PPSO(Optimizer):
                 self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
                     self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
 class HPSO_TVAC(PPSO):
@@ -267,8 +265,7 @@ class HPSO_TVAC(PPSO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -350,7 +347,7 @@ class HPSO_TVAC(PPSO):
                 self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
                     self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
 class C_PSO(BasePSO):
@@ -372,8 +369,7 @@ class C_PSO(BasePSO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -442,13 +438,13 @@ class C_PSO(BasePSO):
             epoch (int): The current iteration
         """
         nfe_epoch = 0
-        list_fits = [item[self.ID_FIT][self.ID_TAR] for item in self.pop]
+        list_fits = [item[self.ID_TAR][self.ID_FIT] for item in self.pop]
         fit_avg = np.mean(list_fits)
         fit_min = np.min(list_fits)
         pop_new = []
         for i in range(self.pop_size):
             agent = deepcopy(self.pop[i])
-            w = self.__get_weights__(self.pop[i][self.ID_FIT][self.ID_TAR], fit_avg, fit_min)
+            w = self.__get_weights__(self.pop[i][self.ID_TAR][self.ID_FIT], fit_avg, fit_min)
             v_new = w * self.pop[i][self.ID_VEC] + self.c1 * np.random.rand() * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + \
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
             v_new = np.clip(v_new, self.v_min, self.v_max)
@@ -467,7 +463,7 @@ class C_PSO(BasePSO):
                 self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
                     self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
         ## Implement chaostic local search for the best solution
         g_best = self.g_best
@@ -510,8 +506,7 @@ class CL_PSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -570,9 +565,9 @@ class CL_PSO(Optimizer):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_FIT]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_FIT][self.ID_TAR]     --> Return: target
-            + A[self.ID_FIT][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, local_pos, local_fit]
@@ -629,7 +624,7 @@ class CL_PSO(Optimizer):
                 self.pop[idx] = deepcopy(pop_new[idx])
                 if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
                     self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_FIT])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
                     self.flags[idx] = 0
                 else:
                     self.flags[idx] += 1

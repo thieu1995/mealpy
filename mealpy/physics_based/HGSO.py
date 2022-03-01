@@ -28,8 +28,7 @@ class BaseHGSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -124,8 +123,8 @@ class BaseHGSO(Optimizer):
                 ##### Based on Eq. 8, 9, 10
                 self.H_j = self.H_j * np.exp(-self.C_j * (1.0 / np.exp(-epoch / self.epoch) - 1.0 / self.T0))
                 S_ij = self.K * self.H_j * self.P_ij
-                gama = self.beta * np.exp(- ((self.p_best[i][self.ID_FIT][self.ID_TAR] + self.epxilon) /
-                                             (self.pop_group[i][j][self.ID_FIT][self.ID_TAR] + self.epxilon)))
+                gama = self.beta * np.exp(- ((self.p_best[i][self.ID_TAR][self.ID_FIT] + self.epxilon) /
+                                             (self.pop_group[i][j][self.ID_TAR][self.ID_FIT] + self.epxilon)))
                 X_ij = self.pop_group[i][j][self.ID_POS] + F * np.random.uniform() * gama * \
                        (self.p_best[i][self.ID_POS] - self.pop_group[i][j][self.ID_POS]) + \
                        F * np.random.uniform() * self.alpha * (S_ij * self.g_best[self.ID_POS] - self.pop_group[i][j][self.ID_POS])
@@ -142,7 +141,7 @@ class BaseHGSO(Optimizer):
         ## Rank and select the number of worst agents using Eq. 11
         N_w = int(self.pop_size * (np.random.uniform(0, 0.1) + 0.1))
         ## Update the position of the worst agents using Eq. 12
-        sorted_id_pos = np.argsort([x[self.ID_FIT][self.ID_TAR] for x in self.pop])
+        sorted_id_pos = np.argsort([x[self.ID_TAR][self.ID_FIT] for x in self.pop])
 
         pop_new = []
         pop_idx = []

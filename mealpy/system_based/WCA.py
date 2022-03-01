@@ -37,8 +37,7 @@ class BaseWCA(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "obj_func": fitness_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
@@ -92,7 +91,7 @@ class BaseWCA(Optimizer):
         self.pop_stream = deepcopy(pop[self.nsr:])  # Forming Stream
 
         # Designate streams to rivers and sea
-        cost_river_list = np.array([solution[self.ID_FIT][self.ID_TAR] for solution in self.pop_best])
+        cost_river_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop_best])
         num_child_in_river_list = np.round(np.abs(cost_river_list / np.sum(cost_river_list)) * n_stream).astype(int)
         if np.sum(num_child_in_river_list) < n_stream:
             num_child_in_river_list[-1] += n_stream - np.sum(num_child_in_river_list)
