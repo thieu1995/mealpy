@@ -1,8 +1,12 @@
+ga_exam.py
 examples/bio_based/run_test_SMA2.py
+
+docs/build/
+
 # Pycharm
 .idea/
 drafts/
-docs/
+../whatisthis/sphinx-mealpy/real/docs/
 commands.md
 testcase/
 
@@ -77,7 +81,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+../whatisthis/sphinx-mealpy/real/docs/_build/
 
 # PyBuilder
 target/
