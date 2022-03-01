@@ -3,12 +3,29 @@ mealpy.bio\_based package
 
 
 mealpy.bio\_based.BBO
-----------------------------
+---------------------
 
 .. automodule:: mealpy.bio_based.BBO
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+mealpy.bio\_based.BBO.OriginalBBO
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: mealpy.bio_based.BBO.OriginalBBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+mealpy.bio\_based.BBO.BaseBBO
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: mealpy.bio_based.BBO.BaseBBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 mealpy.bio\_based.EOA
 ----------------------------
