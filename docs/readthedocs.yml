@@ -9,10 +9,16 @@ formats:
   - pdf
   - epub
 
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "3.9"
+
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py
+  fail_on_warning: true
 
-# don't use submodules for documentation (readthedocs fails when using submodules)
-submodules:
-  exclude: all
+python:
+  install:
+    - requirements: docs/requirements.txt
