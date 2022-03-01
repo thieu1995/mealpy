@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 14:51, 13/10/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 14:51, 13/10/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -14,25 +11,74 @@ from mealpy.utils.visualize import export_convergence_chart, export_explore_expl
 
 
 class History:
-    """A History class is responsible for saving each iteration's output.
+    """
+    A History class is responsible for saving each iteration's output.
 
-    Note that you can use dump() and parse() for whatever your needs. Our default
-    is only for agents, best agent and best agent's index.
+    Notes
+    ~~~~~
+    + Access to variables in this class:
+        + list_global_best: List of global best SOLUTION found so far in all previous generations
+        + list_current_best: List of current best SOLUTION in each previous generations
+        + list_epoch_time: List of runtime for each generation
+        + list_global_best_fit: List of global best FITNESS found so far in all previous generations
+        + list_current_best_fit: List of current best FITNESS in each previous generations
+        + list_diversity: List of DIVERSITY of swarm in all generations
+        + list_exploitation: List of EXPLOITATION percentages for all generations
+        + list_exploration: List of EXPLORATION percentages for all generations
+        + list_population: List of POPULATION in each generations
+        + **Warning**, the last variable 'list_population' can cause the error related to 'memory' when using pickle to save model.\
+            Better to delete that variable or assign to empty list [] to reduce the 'memory'.
 
+    + There are 8 methods to draw available in this class:
+        + save_global_best_fitness_chart()
+        + save_local_best_fitness_chart()
+        + save_global_objectives_chart()
+        + save_local_objectives_chart()
+        + save_exploration_exploitation_chart()
+        + save_diversity_chart()
+        + save_runtime_chart()
+        + save_trajectory_chart()
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.swarm_based.PSO import BasePSO
+    >>>
+    >>> def fitness_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "fit_func": fitness_function,
+    >>>     "lb": [-10, -15, -4, -2, -8],
+    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>> }
+    >>> model = BasePSO(problem_dict, epoch=1000, pop_size=50)
+    >>>
+    >>> model.history.save_global_objectives_chart(filename="hello/goc")
+    >>> model.history.save_local_objectives_chart(filename="hello/loc")
+    >>> model.history.save_global_best_fitness_chart(filename="hello/gbfc")
+    >>> model.history.save_local_best_fitness_chart(filename="hello/lbfc")
+    >>> model.history.save_runtime_chart(filename="hello/rtc")
+    >>> model.history.save_exploration_exploitation_chart(filename="hello/eec")
+    >>> model.history.save_diversity_chart(filename="hello/dc")
+    >>> model.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[3], filename="hello/tc")
+    >>>
+    >>> ## Get list of population after all generations
+    >>> print(model.history.list_population)
     """
 
     def __init__(self):
-        # Stores only the best agent
-        self.list_global_best = []          # List of global best solution found so far in all previous generations
-        self.list_current_best = []         # List of current best solution in each previous generations
-        self.list_epoch_time = []           # List of runtime for each generation
-        self.list_global_best_fit = []      # List of global best fitness found so far in all previous generations
-        self.list_current_best_fit = []     # List of current best fitness in each previous generations
-        self.list_population = []           # List of population in each generations
-        self.list_diversity = None          # List of diversity of swarm in all generations
-        self.list_exploitation = None       # List of exploitation percentages for all generations
-        self.list_exploration = None        # List of exploration percentages for all generations
-        self.epoch = None
+        self.list_global_best = []  # List of global best solution found so far in all previous generations
+        self.list_current_best = []  # List of current best solution in each previous generations
+        self.list_epoch_time = []  # List of runtime for each generation
+        self.list_global_best_fit = []  # List of global best fitness found so far in all previous generations
+        self.list_current_best_fit = []  # List of current best fitness in each previous generations
+        self.list_population = []  # List of population in each generations
+        self.list_diversity = None  # List of diversity of swarm in all generations
+        self.list_exploitation = None  # List of exploitation percentages for all generations
+        self.list_exploration = None  # List of exploration percentages for all generations
 
     def save_initial_best(self, best_agent):
         self.list_global_best = [best_agent]
@@ -80,7 +126,6 @@ class History:
         # to compare the diversity spreading
         export_diversity_chart(data=[self.list_diversity], title=title, list_legends=[algorithm_name],
                                filename=filename, verbose=verbose)
-
 
     ## Because convergence chart is formulated from objective values and weights,
     ## thus we also want to draw objective charts to understand the convergence
@@ -135,7 +180,7 @@ class History:
         if n_dim == 1:
             y_label = f"x{list_dimensions[0]}"
             for idx, id_agent in enumerate(list_agent_idx):
-                x = [pop[id_agent-1][0][list_dimensions[0]-1] for pop in self.list_population]
+                x = [pop[id_agent - 1][0][list_dimensions[0] - 1] for pop in self.list_population]
                 pos_list.append(x)
                 list_legends.append(f"Agent {id_agent}.")
             export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends,
