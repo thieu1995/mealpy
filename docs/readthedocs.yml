@@ -1,0 +1,18 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Build all formats
+formats:
+  - pdf
+  - epub
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/source/conf.py
+
+# don't use submodules for documentation (readthedocs fails when using submodules)
+submodules:
+  exclude: all
