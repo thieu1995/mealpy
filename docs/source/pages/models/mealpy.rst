@@ -23,12 +23,3 @@ mealpy.optimizer module
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: mealpy
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -6,13 +6,13 @@ In this phase, the main task is to find out the global optimal - in this project
 the state-of-the-art population-based meta-heuristics models: `Evolutionary-based`_, `Swarm-based`_, `Physics-based`_, `Human-based`_, `Biology-based`_,
 `Mathematical-based`_, `Musical-based`_
 
-.. _Evolutionary-based: ./models/evolutionary_based.rst
-.. _Swarm-based: ./models/swarm_based.rst
-.. _Physics-based: ./models/physics_based.rst
-.. _Human-based: ./models/human_based.rst
-.. _Biology-based: ./models/bio_based.rst
-.. _Mathematical-based: ./models/math_based.rst
-.. _Musical-based: ./models/music_based.rst
+.. _Evolutionary-based: ../models/mealpy.evolutionary_based.html
+.. _Swarm-based: ../models/mealpy.swarm_based.html
+.. _Physics-based: ../models/mealpy.physics_based.html
+.. _Human-based: ../models/mealpy.human_based.html
+.. _Biology-based: ../models/mealpy.bio_based.html
+.. _Mathematical-based: ../models/mealpy.math_based.html
+.. _Musical-based: ../models/mealpy.music_based.html
 
 All of this methods are used in the same way. So, in this guide, we'll demo with a specific method such as **Genetic Algorithm** in *Evolutionary-based*.
 
