@@ -4,4 +4,5 @@ sphinx_rtd_theme==1.0.0
 readthedocs-sphinx-search==0.1.1
 numpy==1.21.4
 matplotlib==3.5.0
+scipy==1.7.3
 opfunu==0.8.0

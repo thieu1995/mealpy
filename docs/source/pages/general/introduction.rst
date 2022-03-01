@@ -87,7 +87,7 @@ of the optimisationproblem at hand. For large-scale nonlinear global optimisatio
 In fact, we arenot even sure whether an efficient algorithm exists, which is especially true for NP-hard problems, and most real-world problem often are
 NP-hard indeed and most applications, we can in general write an optimisation problem as the following generic form:
 
-.. image:: /_static/images/general_format.PNG
+.. image:: /_static/images/general_format.png
 
 Here the components xi of x are called design or decision variables, and they can be realcontinuous, discrete or the mixed of these two. The functions fi(x)
 wherei= 1,2, ..., Mare called the objective functions or simply cost functions, and in the case of M= 1, thereis only a single objective. The space spanned by
@@ -120,7 +120,7 @@ there is no agreed definition of heuristics and meta-heuristics in the literatur
 However, the recent trend tends to name all stochastic algorithms with randomisation and global exploration as meta-heuristic. In this review, we will also
 follow this convention.
 
-.. image:: /_static/images/bio_inspired.PNG
+.. image:: /_static/images/bio_inspired.png
 
 Randomisation provides a good way to move away from local search to the search onthe global scale. Therefore, almost all meta-heuristic algorithms intend to
 be suitable for global optimisation. Meta-heuristics can be an efficient way to produce acceptable solutions by trial and errorto a complex problem in a
@@ -141,7 +141,7 @@ are population-based as they use a set of strings, so is the particle swarm opti
 1995). On the other hand, simulated annealing uses a single agent or solution which moves through the design space or search space in a piecewise style
 (Kirkpatrick et al. 1983).
 
-.. image:: /_static/images/history_metaheuristics.PNG
+.. image:: /_static/images/history_metaheuristics.png
 
 
 .. toctree::

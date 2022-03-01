@@ -11,22 +11,6 @@ mealpy.bio\_based.BBO
    :show-inheritance:
 
 
-mealpy.bio\_based.BBO.OriginalBBO
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: mealpy.bio_based.BBO.OriginalBBO
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-mealpy.bio\_based.BBO.BaseBBO
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: mealpy.bio_based.BBO.BaseBBO
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 mealpy.bio\_based.EOA
 ----------------------------
 
