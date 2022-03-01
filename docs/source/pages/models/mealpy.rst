@@ -19,8 +19,16 @@ Subpackages
 mealpy.optimizer module
 -----------------------
 
-.. autoclass:: mealpy.optimizer
+.. automodule:: mealpy.optimizer
    :members:
    :undoc-members:
    :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: mealpy
+   :members:
+   :undoc-members:
+   :show-inheritance:
