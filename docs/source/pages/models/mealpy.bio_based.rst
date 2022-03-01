@@ -20,7 +20,7 @@ mealpy.bio\_based.BBO.OriginalBBO
 
 
 mealpy.bio\_based.BBO.BaseBBO
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: mealpy.bio_based.BBO.BaseBBO
    :members:
    :undoc-members:
