@@ -333,12 +333,12 @@ class Optimizer:
             if worst is None:
                 exit(0)
             else:
-                return pop, None, deepcopy(pop[:-worst])
+                return pop, None, deepcopy(pop[-worst:])
         else:
             if worst is None:
                 return pop, deepcopy(pop[:best]), None
             else:
-                return pop, deepcopy(pop[:best]), deepcopy(pop[:-worst])
+                return pop, deepcopy(pop[:best]), deepcopy(pop[-worst:])
 
     def get_special_fitness(self, pop=None):
         """
