@@ -83,13 +83,18 @@ class BaseBRO(Optimizer):
         damage = 0
         return [position, fitness, damage]
 
+    def __get_min_idx(self, data):
+        k_zero = np.count_nonzero(data == 0)
+        if k_zero == len(data):
+            return np.random.choice(range(0, k_zero))
+        return np.argpartition(data, k_zero)[k_zero]
+
     def find_argmin_distance(self, target_pos=None, pop=None):
         list_pos = np.array([pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
         target_pos = np.reshape(target_pos, (1, -1))
         dist_list = cdist(list_pos, target_pos, 'euclidean')
         dist_list = np.reshape(dist_list, (-1))
-        idx = np.argmin(dist_list[np.nonzero(dist_list)])
-        return idx
+        return self.__get_min_idx(dist_list)
 
     def evolve(self, epoch):
         """
