@@ -1,13 +1,11 @@
-ga_exam.py
-examples/bio_based/run_test_SMA2.py
 
-docs/build/
 
 # Pycharm
 .idea/
 drafts/
-../whatisthis/sphinx-mealpy/real/docs/
-commands.md
+assets/commands.md
+assets/ga_exam.py
+docs/build/
 testcase/
 
 # Byte-compiled / optimized / DLL files
