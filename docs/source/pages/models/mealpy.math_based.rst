@@ -10,6 +10,24 @@ mealpy.math\_based.AOA
    :undoc-members:
    :show-inheritance:
 
+
+mealpy.math\_based.CGO
+-----------------------------
+
+.. automodule:: mealpy.math_based.CGO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.math\_based.GBO
+-----------------------------
+
+.. automodule:: mealpy.math_based.GBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 mealpy.math\_based.HC
 ----------------------------
 
@@ -25,4 +43,3 @@ mealpy.math\_based.SCA
    :members:
    :undoc-members:
    :show-inheritance:
-
