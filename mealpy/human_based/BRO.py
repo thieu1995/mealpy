@@ -87,9 +87,12 @@ class BaseBRO(Optimizer):
         k_zero = np.count_nonzero(data == 0)
         if k_zero == len(data):
             return np.random.choice(range(0, k_zero))
-        return np.argpartition(data, k_zero)[k_zero]
+        ## 1st: Partition sorting, not good solution here.
+        # return np.argpartition(data, k_zero)[k_zero]
+        ## 2nd: Faster
+        return np.where(data == np.min(data[data != 0]))[0][0]
 
-    def find_argmin_distance(self, target_pos=None, pop=None):
+    def find_idx_min_distance(self, target_pos=None, pop=None):
         list_pos = np.array([pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
         target_pos = np.reshape(target_pos, (1, -1))
         dist_list = cdist(list_pos, target_pos, 'euclidean')
@@ -106,7 +109,7 @@ class BaseBRO(Optimizer):
         nfe_epoch = 0
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_argmin_distance(self.pop[i][self.ID_POS], self.pop)
+            j = self.find_idx_min_distance(self.pop[i][self.ID_POS], self.pop)
             if self.compare_agent(self.pop[i], self.pop[j]):
                 ## Update Winner based on global best solution
                 pos_new = self.pop[i][self.ID_POS] + np.random.uniform() * \
@@ -209,7 +212,7 @@ class OriginalBRO(BaseBRO):
         """
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_argmin_distance(self.pop[i][self.ID_POS], self.pop)
+            j = self.find_idx_min_distance(self.pop[i][self.ID_POS], self.pop)
             dam, vic = i, j  ## This error in the algorithm's flow in the paper, But in the matlab code, he changed.
             if self.compare_agent(self.pop[i], self.pop[j]):
                 dam, vic = j, i  ## The mistake also here in the paper.
