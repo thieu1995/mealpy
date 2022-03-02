@@ -16,8 +16,6 @@ if not path.exists(check_dir):
 
 ## Setting parameters
 model_name = "DE"
-TRIALS = 5
-
 lb1 = [-100, ] * 30
 ub1 = [100, ] * 30
 epoch = 10
@@ -41,7 +39,7 @@ for id_paras, func_name in enumerate(func_names):
         "minmax": "min",
         "verbose": True,
     }
-    model = BaseDE(problem, epoch, pop_size, wf, cr)
+    model = BaseDE(problem, epoch, pop_size, wf, cr, fit_name=func_name)
     _, best_fitness = model.solve()
 
     error_full[func_names[id_paras]] = model.history.list_global_best_fit

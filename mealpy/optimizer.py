@@ -54,8 +54,9 @@ class Optimizer:
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
-        self.mode = "sequential"
+        self.mode, self._print_model = "sequential", ""
         self.pop, self.g_best = None, None
+        self.__set_keyword_arguments(kwargs)
         self.history = History()
         if (not isinstance(problem, Problem)) and type(problem) == dict:
             problem = Problem(problem=problem)
@@ -72,8 +73,14 @@ class Optimizer:
                 print("Please create and input your Termination dictionary or Termination object.")
                 exit(0)
             self.termination_flag = True
+        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
+        if "fit_name" in kwargs: self._print_model += f"Func: {kwargs['fit_name']}, "
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+
+    def __set_keyword_arguments(self, kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def termination_start(self):
         if self.termination_flag:
@@ -388,7 +395,7 @@ class Optimizer:
             runtime (float): the runtime for current iteration
         """
         if self.verbose:
-            print(f"> Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+            print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
                   f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def save_optimization_process(self):
