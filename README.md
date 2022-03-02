@@ -1,8 +1,9 @@
 # Meta-Heuristic Algorithms using Python (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-2.1.2-yellow.svg)]()
+[![GitHub release](https://img.shields.io/badge/release-2.2.0-yellow.svg)]()
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
+[![Documentation Status](https://readthedocs.org/projects/mealpy/badge/?version=latest)](https://mealpy.readthedocs.io/en/latest/?badge=latest)
 [![License](https://img.shields.io/packagist/l/doctrine/orm.svg)]()
 
 [comment]: <> (---)
@@ -13,88 +14,18 @@
 
 [comment]: <> (---)
 
-## Tutorial Videos
-* Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM), Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
-* Please read the description in the video for timestamp notes
-
-* Or watch the full video with timestamp notes below: [Link](https://www.youtube.com/watch?v=HWc-yNcyPLw)
-
-[![MEALPY-TUTORIAL-FULL](https://img.youtube.com/vi/HWc-yNcyPLw/0.jpg)](https://www.youtube.com/watch?v=HWc-yNcyPLw)
-
-```python 
-0:00 - Intro
-0:19 - Download and install Miniconda on Windows 11
-1:22 - Create a new environment using Miniconda
-2:32 - Install Mealpy
-5:08 - Pycharm and set environment on it
-9:22 - Introducing the structure of Mealpy library
-10:16 - The Optimizer class
-10:50 - The Problem class
-11:44 - The Termination class
-15:10 - The History class (How to draw figures)
-16:37 - How to import the mealpy library (Optimizer class)
-18:32 - Define a problem dictionary (problem instance of Problem class)
-19:32 - Define objective-function 
-21:18 - Problem definition (Find minimum of Fx function)
-23:10 - How to call an optimizer to solve optimization problem 
-25:38 - The Problem class
-26:23 - Sequential, Thread and Process training mode setting
-28:23 - Explaining the current best and global best (training output)
-29:18 - How to get final fitness and final position (solution)
-30:38 - The structure of the "solution" attribute in Optimizer class
-33:48 - Other ways to pass Lowerbound and Upperbound in problem dictionary
-36:05 - How to import and define the Termination object
-43:08 - Time-bound termination object
-45:16 - Early Stopping termination object
-47:18 - How to use Sequential/MultiThreading/MultiProcessing training mode
-51:58 - Fix error with MultiProcessing training mode 
-55:54 - How to deal with Multi-objective Optimization Problem
-1:05:09 - How to deal with Constrained Optimization Problem
-1:11:46 - How to draw some important figures using History object
-1:23:15 - How to use Mealpy to optimize hyper-parameters of a model
-1:26:15 - Using Mealpy to optimization hyper-parameters of a traditional SVM classification
-1:30:18 - Brute force method for tunning hyper-parameters
-1:36:18 - GridSearchCV method for tunning hyper-parameters
-1:39:28 - Metaheuristic Algorithm method for tunning hyper-parameters
-```
-
-## Mealpy Application
-
-### Mealpy + Neural Network (Replace the Gradient Descent Optimizer)
-[comment]: <> (  * Video: [Link]&#40;https://youtu.be/auq7Na1Meus&#41;)
-  * Time-series Problem:
-    * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/traditional-mlp-time-series.py)
-    * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/mha-hybrid-mlp-time-series.py)
-  * Classification Problem:
-    * Traditional MLP code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/traditional-mlp-classification.py)
-    * Hybrid code (Mealpy + MLP): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hybrid-mlp-classification.py)
-    
-[![Metaheuristic Algorithm Train Neural Network](https://img.youtube.com/vi/auq7Na1Meus/0.jpg)](https://www.youtube.com/watch?v=auq7Na1Meus)
-    
-### Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)
-[comment]: <> (  * Video: [Link]&#40;https://youtu.be/Fl3h9t087Pk&#41;)
-  * Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
-
-[![Metaheuristic Algorithm Optimize Neural Network Hyper-Parameter](https://img.youtube.com/vi/Fl3h9t087Pk/0.jpg)](https://www.youtube.com/watch?v=Fl3h9t087Pk)
-
-### Other Applications
-* Solving Knapsack Problem (Discrete problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
-  
-* Optimize SVM (SVC) model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/sklearn/svm_classification.py)
-
-* Optimize Linear Regression Model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/pytorch/linear_regression.py)
-
 
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under MIT license.
 
-* Current version: 2.1.2, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
+* Current version: 2.2.0, Total algorithms: 176 (original + variants), 89 original algorithms (8 dummy algorithms)
 * Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
-  * mealpy >= 2.0.0
+  * 2.0.0 <= mealpy <= 2.1.2
+  * mealpy >= 2.2.0
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
@@ -109,9 +40,16 @@
     * Test the scalability of algorithms.
     * Analyse the stability of algorithms.
     * Analyse the robustness of algorithms.
-    
-* And please giving me some credit if you are using this library. Lots of people just use it without reference,
-and if you want to cite my paper, take a look at some of my first-author paper here: [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa)
+
+* If you guys want me to implement new algorithm, please open
+  an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the original paper so I
+  can read and implement it.
+
+* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to
+  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then I
+  recommend to checkout the [PYMOO library](https://pymoo.org/).
+
+* And please give me some credit if you use this library, [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa) to my first-author papers.
 
 ```code 
 @software{thieu_nguyen_2020_3711949,
@@ -125,53 +63,35 @@ and if you want to cite my paper, take a look at some of my first-author paper h
 }
 ```
 
-* If you guys are familiar with writing documentation and would like to join this project. Please send me an email to
-  nguyenthieu2102@gmail.com. Your contribution to this project is greatly appreciated.
-
-* If you guys want me to implement new algorithm, please open
-  an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the original paper so I
-  can read and implement it.
-
-* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to 
-  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then 
-  I recommend to checkout the [PYMOO library](https://pymoo.org/). If I have time, I will also try to start a new 
-  library called "momapy" (A collection of the state-of-the-art Multiple/Many Objective Metaheuristic Algorithms in
-  PYthon). It will be hosted [here](https://github.com/thieu1995/momapy) in the future.
-
 ## Installation
 
 ### Dependencies
 * Python (>= 3.6)
 * Numpy (>= 1.15.1)
+* Matplotlib (>= 3.5.0)
 * Scipy (>= 1.4.1)
 
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
-    pip install mealpy==2.1.2
+    pip install mealpy==2.2.0
     pip install --upgrade mealpy 
-```
-
-I accidentally deleted version 2.1.1 on Pypi since it's not synced with version 2.1.1 on Github Release. But I've
-already put the new version 2.1.2 on PyPI. If you still want to use version 2.1.1. Please use this command:
-```bash
-    pip install -e git+https://github.com/thieu1995/mealpy@ead414d2d9aa5317864e779fa5d4ad7b65159181#egg=mealpy
 ```
 
 ### Examples
 
-* Normal Objective Function
+* Simple Benchmark Function
 
 ```python 
 
 from mealpy.bio_based import SMA
 import numpy as np
 
-def obj_function(solution):
+def fitness_function(solution):
     return np.sum(solution**2)
 
 problem_dict1 = {
-    "obj_func": obj_function,
+    "fit_func": fitness_function,
     "lb": [-100, ] * 30,
     "ub": [100, ] * 30,
     "minmax": "min",
@@ -180,107 +100,16 @@ problem_dict1 = {
 
 ## Run the algorithm
 model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
-model1.solve()
+best_position, best_fitness = model1.solve()
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 ```
 
+* [The Constrained Benchmark Function](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_constraint_functions.py)
 
-* The Constrained Benchmark Function (G01)
+* [Multi-objective benchmark functions](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_multi_objective_functions.py)
 
-```python
-## Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
-
-from mealpy.bio_based import SMA
-import numpy as np
-
-
-def obj_function(solution):
-  def g1(x):
-    return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
-  def g2(x):
-    return 2 * x[0] + 2 * x[2] + x[9] + x[10] - 10
-  def g3(x):
-    return 2 * x[1] + 2 * x[2] + x[10] + x[11] - 10
-  def g4(x):
-    return -8 * x[0] + x[9]
-  def g5(x):
-    return -8 * x[1] + x[10]
-  def g6(x):
-    return -8 * x[2] + x[11]
-  def g7(x):
-    return -2 * x[3] - x[4] + x[9]
-  def g8(x):
-    return -2 * x[5] - x[6] + x[10]
-  def g9(x):
-    return -2 * x[7] - x[8] + x[11]
-
-  def violate(value):
-    return 0 if value <= 0 else value
-
-  fx = 5 * np.sum(solution[:4]) - 5 * np.sum(solution[:4] ** 2) - np.sum(solution[4:13])
-
-  ## Increase the punishment for g1 and g4 to boost the algorithm (You can choice any constraint instead of g1 and g4)
-  fx += violate(g1(solution)) ** 2 + violate(g2(solution)) + violate(g3(solution)) + \
-  2 * violate(g4(solution)) + violate(g5(solution)) + violate(g6(solution)) + \
-  violate(g7(solution)) + violate(g8(solution)) + violate(g9(solution))
-  
-  return fx
-
-problem_dict1 = {
-  "obj_func": obj_function,
-  "lb": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  "ub": [1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1],
-  "minmax": "min",
-  "verbose": True,
-}
-
-## Run the algorithm
-model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
-model1.solve()
-```
-
-* Multi-objective benchmark functions
-
-```python 
-
-## Link: https://en.wikipedia.org/wiki/Test_functions_for_optimization
-
-from mealpy.bio_based import SMA
-import numpy as np
-
-
-def obj_function(solution):
-    def booth(x, y):
-        return (x + 2*y - 7)**2 + (2*x + y - 5)**2
-    def bukin(x, y):
-        return 100 * np.sqrt(np.abs(y - 0.01 * x**2)) + 0.01 * np.abs(x + 10)
-    def matyas(x, y):
-        return 0.26 * (x**2 + y**2) - 0.48 * x * y
-    return [booth(solution[0], solution[1]), bukin(solution[0], solution[1]), matyas(solution[0], solution[1])]
-
-problem_dict1 = {
-    "obj_func": obj_function,
-    "lb": [-10, -10],
-    "ub": [10, 10],
-    "minmax": "min",
-    "verbose": True,
-    "obj_weight": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
-}
-
-## Run the algorithm
-model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
-model1.solve()
-
-## You can access all available fitures via object "history" like this:
-model1.history.save_global_objectives_chart(filename="hello/goc")
-model1.history.save_local_objectives_chart(filename="hello/loc")
-model1.history.save_global_best_fitness_chart(filename="hello/gbfc")
-model1.history.save_local_best_fitness_chart(filename="hello/lbfc")
-model1.history.save_runtime_chart(filename="hello/rtc")
-model1.history.save_exploration_exploitation_chart(filename="hello/eec")
-model1.history.save_diversity_chart(filename="hello/dc")
-model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2], filename="hello/tc")
-```
+* [Get all visualize figures](https://github.com/thieu1995/mealpy/tree/master/examples/utils/visualize/all_charts.py)
 
 * Global best fitness value and Local best fitness value after generations
 
@@ -314,29 +143,60 @@ model1.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[2],
   <img alt="Dark" src="assets/tc.png" width="45%">
 </p>
 
+### Tutorial Videos
+
+All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
+
+All code examples: [Link](https://github.com/thieu1995/mealpy/tree/master/examples)
+
+All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages/visualization.html)
+
+
+## Mealpy Application
+
+### Mealpy + Neural Network (Replace the Gradient Descent Optimizer)
+
+* Time-series Problem:
+  * Traditional MLP
+    code: [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/traditional-mlp-time-series.py)
+  * Hybrid code (Mealpy +
+    MLP): [Link](https://github.com/thieu1995/mealpy/tree/master/examples/applications/keras/mha-hybrid-mlp-time-series.py)
+* Classification Problem:
+  * Traditional MLP
+    code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/traditional-mlp-classification.py)
+  * Hybrid code (Mealpy +
+    MLP): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hybrid-mlp-classification.py)
+
+### Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)
+
+Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
+
+### Other Applications
+
+* Solving Knapsack Problem (Discrete
+  problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
+
+* Optimize SVM (SVC)
+  model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/sklearn/svm_classification.py)
+
+* Optimize Linear Regression
+  Model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/pytorch/linear_regression.py)
 
 
 ### Important links
 
 * Official source code repo: https://github.com/thieu1995/mealpy
+* Official document: https://mealpy.readthedocs.io/
 * Download releases: https://pypi.org/project/mealpy/
 * Issue tracker: https://github.com/thieu1995/mealpy/issues
 * Notable changes log: https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md
 * Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
-* Explain the DUMMY optimizer group: https://github.com/thieu1995/mealpy/blob/master/DUMMY.md
+* Explain the DUMMY optimizer group: https://github.com/thieu1995/mealpy/blob/master/assets/DUMMY.md
 
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/metaheuristics
     * https://github.com/chasebk
-    
-
-## Contributions
-
-* In the new version 2.0.0. A few aspect has been removed such as Version, Batch size idea, Type, Large-scale
-* In the new version 2.1.0. 
-  * Remove Levy category
-  * Remove Parallel: Most of algorithms can be parallelization
 
 ### Documents
 * Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))

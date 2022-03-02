@@ -8,6 +8,7 @@ from mealpy.bio_based import SMA
 import numpy as np
 
 
+## Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
 def fitness_function(solution):
     def g1(x):
         return 2*x[0] + 2*x[1] + x[9] + x[10] - 10

@@ -8,6 +8,7 @@ from mealpy.bio_based import SMA
 import numpy as np
 
 
+## Link: https://en.wikipedia.org/wiki/Test_functions_for_optimization
 def fitness_function(solution):
 
     def booth(x, y):
