@@ -1,4 +1,11 @@
+#!/usr/bin/env python
+# Created by "Thieu" at 13:24, 27/02/2022 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
+
 from setuptools import setup, find_packages
+
 
 def readme():
     with open('README.md', encoding='utf-8') as f:
@@ -42,6 +49,8 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=["numpy", "matplotlib", "scipy", "opfunu"],
+
+    install_requires=["numpy>=1.21.4", "matplotlib==3.5.0", "scipy==1.7.3", "opfunu>=0.8.0"],
     python_requires='>=3.6',
 )
+
