@@ -31,7 +31,7 @@ best_fit_columns = []
 
 error_full = {}
 error_columns = []
-for id_paras, func_name in enumerate(func_names):
+for func_name in func_names:
     problem = {
         "fit_func": getattr(cec2014_nobias, func_name),
         "lb": lb1,
@@ -42,11 +42,11 @@ for id_paras, func_name in enumerate(func_names):
     model = BaseDE(problem, epoch, pop_size, wf, cr, fit_name=func_name)
     _, best_fitness = model.solve()
 
-    error_full[func_names[id_paras]] = model.history.list_global_best_fit
-    error_columns.append(func_names[id_paras])
+    error_full[func_name] = model.history.list_global_best_fit
+    error_columns.append(func_name)
 
-    best_fit_full[func_names[id_paras]] = [best_fitness]
-    best_fit_columns.append(func_names[id_paras])
+    best_fit_full[func_name] = [best_fitness]
+    best_fit_columns.append(func_name)
 
 df_err = DataFrame(error_full, columns=error_columns)
 df_err.to_csv(f"{PATH_RESULTS}{len(lb1)}D_{model_name}_error.csv", header=True, index=False)

@@ -18,7 +18,7 @@ if not path.exists(check_dir):
 
 model_name = "DE"
 n_dims = 30
-func_names = ["F1", "F2", "F3"]
+func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19"]
 
 
 def find_minimum(function_name, n_dims):
@@ -30,7 +30,7 @@ def find_minimum(function_name, n_dims):
         "minmax": "min",
         "verbose": True,
     }
-    model = BaseDE(problem, epoch=10, pop_size=50, wf=0.8, cr=0.9, name="DE", fit_name=function_name)
+    model = BaseDE(problem, epoch=10, pop_size=50, wf=0.8, cr=0.9, name=model_name, fit_name=function_name)
     _, best_fitness = model.solve()
     print(f"Finish function: {function_name}")
 
