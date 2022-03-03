@@ -25,14 +25,6 @@ MEALPY
 .. image:: https://img.shields.io/packagist/l/doctrine/orm.svg
    :target: https://github.com/thieu1995/mealpy/blob/master/LICENSE
 
-::
-
-   "Knowledge is power, sharing it is the premise of progress in life.
-   It seems like a burden to someone, but it is the only way to achieve immortality.
-                                                   `**Nguyen Van Thieu**`_
-
-.. _**Nguyen Van Thieu**: https://www.researchgate.net/profile/Nguyen_Thieu2
-
 
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
   algorithms and is distributed under MIT license.
