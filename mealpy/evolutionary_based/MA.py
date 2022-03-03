@@ -168,7 +168,10 @@ class BaseMA(Optimizer):
         """
         nfe_epoch = self.pop_size
         ## Binary tournament
-        children = [self.get_solution_kway_tournament_selection(self.pop, k_way=2, output=1)[0] for _ in range(self.pop_size)]
+        children = []
+        for idx in range(0, self.pop_size):
+            idx_offspring = self.get_index_kway_tournament_selection(self.pop, k_way=2, output=1)[0]
+            children.append(deepcopy(self.pop[idx_offspring]))
         pop = []
         for idx in range(0, self.pop_size):
             ancient = children[idx + 1] if idx % 2 == 0 else children[idx - 1]
