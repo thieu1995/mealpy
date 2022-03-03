@@ -1,3 +1,34 @@
+# Version 2.2.0
+
+### Update models
+
+* You can pass the Problem dictionary or Problem object to the model.
+* You can pass the Termination dictionary or Termination object to the model.
+* The objective function is renamed as fitness function (obj_func -> fit_func)
+* The general format of a solution is: **\[position, target\]**
+    * position: numpy vector (1-D array)
+    * target: **\[fitness, list_objectives\]**
+    * list_objectives: **\[objective 1, objective 2, ...\]**
+    * After the training process, everything can be accessed via the objective "history" (model.history)
+
+* You can name your model and name your fitness function when creating a model 
+  * model(problem, epoch, pop_size, ...., name='your model name', fit_name='your fitness function name')
+* Add new algorithms: 
+  * Gradient-Based Optimizer (GBO) in math_based group
+  * Chaos Game Optimization (CGO) in math_based group
+* Remove all dummy algorithms (Not supported anymore)
+* Fix bugs:
+  * Find idx of min-distance in BRO algorithm
+  * Update more strategy for GA algorithm
+  * Update child selection process in MA algorithm
+
+### Update others
+
++ examples: Update several scenarios for mealpy with other frameworks
++ document: Add document website (https://mealpy.readthedocs.io/)
+
+---------------------------------------------------------------------
+
 # Version 2.1.2
 
 ### Update

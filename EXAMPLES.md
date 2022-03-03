@@ -1,4 +1,4 @@
-### Tutorial Videos
+### Tutorial Videos (Mealpy version 2.1.2)
 
 * Part 1: [Link](https://www.youtube.com/watch?v=wh-C-57D_EM)
 * Part 2: [Link](https://www.youtube.com/watch?v=TAUlSykOjeI)
@@ -44,8 +44,6 @@
 ```
 
 
-
-
 ### Example
 
 * Please don't misunderstand between parameters (hyper-parameters) and variables.
@@ -69,7 +67,43 @@ def Fx(solution):
   return fx 
 ```
 
-## Version Mealpy >= 2.0.0
+## Version  Mealpy >= 2.2.0
+
+* Almost same as version 2.1.2 but
+  * You can pass the Problem dictionary or Problem object to the model.
+  * You can pass the Termination dictionary or Termination object to the model. 
+  * The objective function is renamed as fitness function (obj_func -> fit_func) 
+  * The general format of a solution is: **\[position, target\]**
+    * position: numpy vector (1-D array)
+    * target: **\[fitness, list_objectives\]**
+    * list_objectives: **\[objective 1, objective 2, ...\]**
+  * After the training process, everything can be accessed via the objective "history" (model.history)
+
+
+```python 
+from mealpy.bio_based import SMA
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+problem_dict1 = {
+    "fit_func": fitness_function,
+    "lb": [-100, ] * 30,
+    "ub": [100, ] * 30,
+    "minmax": "min",
+    "verbose": True,
+}
+
+## Run the algorithm
+model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+best_position, best_fitness = model1.solve()
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+  
+
+
+## Version 2.0.0 <= Mealpy <= 2.1.2
 
 * The batch-size idea is removed due to the new feature which is parallel training. 
 
