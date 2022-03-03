@@ -11,7 +11,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseSCA(Optimizer):
     """
-    The original version of: Sine Cosine Algorithm (SCA)
+    My changed version of: Sine Cosine Algorithm (SCA)
 
     Notes
     ~~~~~

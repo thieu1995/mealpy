@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseNMR(Optimizer):
+class BaseNMRA(Optimizer):
     """
     The original version of: Naked Mole-Rat Algorithm (NMRA)
 
@@ -22,7 +22,7 @@ class BaseNMR(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.NMRA import BaseNMR
+    >>> from mealpy.swarm_based.NMRA import BaseNMRA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -38,7 +38,7 @@ class BaseNMR(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> pb = 0.75
-    >>> model = BaseNMR(problem_dict1, epoch, pop_size, pb)
+    >>> model = BaseNMRA(problem_dict1, epoch, pop_size, pb)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -88,7 +88,7 @@ class BaseNMR(Optimizer):
         self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
-class ImprovedNMR(Optimizer):
+class ImprovedNMRA(Optimizer):
     """
     The original version of: Naked Mole-Rat Algorithm (I-NMRA)
 
@@ -104,7 +104,7 @@ class ImprovedNMR(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.NMRA import ImprovedNMR
+    >>> from mealpy.swarm_based.NMRA import ImprovedNMRA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -121,7 +121,7 @@ class ImprovedNMR(Optimizer):
     >>> pop_size = 50
     >>> pb = 0.75
     >>> pm = 0.01
-    >>> model = ImprovedNMR(problem_dict1, epoch, pop_size, pb, pm)
+    >>> model = ImprovedNMRA(problem_dict1, epoch, pop_size, pb, pm)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
