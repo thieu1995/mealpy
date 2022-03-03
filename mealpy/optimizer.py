@@ -435,7 +435,7 @@ class Optimizer:
         self.history.list_exploitation = 100 - self.history.list_exploration
         self.solution = self.history.list_global_best[-1]
 
-    ## Crossover techniques
+    ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
         This method can handle min/max problem, and negative or positive fitness value.
@@ -459,17 +459,28 @@ class Optimizer:
                 return idx
         return np.random.choice(range(0, len(list_fitness)))
 
-    def get_solution_kway_tournament_selection(self, pop: list, k_way=0.2, output=2):
+    def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
+        """
+        Args:
+            pop: The population
+            k_way (float/int): The percent or number of solutions are randomized pick
+            output (int): The number of outputs
+            reverse (bool): set True when finding the worst fitness
+
+        Returns:
+            list: List of the selected indexes
+        """
         if 0 < k_way < 1:
             k_way = int(k_way * len(pop))
-        k_way = round(k_way)
         list_id = np.random.choice(range(len(pop)), k_way, replace=False)
-        list_parents = [pop[i] for i in list_id]
-        list_parents = sorted(list_parents, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
+        list_parents = [[idx, pop[idx][self.ID_TAR][self.ID_FIT]] for idx in list_id]
         if self.problem.minmax == "min":
-            return list_parents[:output]
+            list_parents = sorted(list_parents, key=lambda agent: agent[1])
         else:
-            return list_parents[-output:]
+            list_parents = sorted(list_parents, key=lambda agent: agent[1], reverse=True)
+        if reverse:
+            return [parent[0] for parent in list_parents[-output:]]
+        return [parent[0] for parent in list_parents[:output]]
 
     def get_levy_flight_step(self, beta=1.0, multiplier=0.001, case=0):
         """
@@ -637,14 +648,6 @@ class Optimizer:
             The opposite solution
         """
         return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
-
-    def get_parent_kway_tournament_selection(self, pop=None, k_way=0.2, output=2):
-        if 0 < k_way < 1:
-            k_way = int(k_way * len(pop))
-        list_id = np.random.choice(range(len(pop)), k_way, replace=False)
-        list_parents = [pop[i] for i in list_id]
-        list_parents = sorted(list_parents, key=lambda temp: temp[self.ID_TAR])
-        return list_parents[:output]
 
     ### Crossover
     def crossover_arthmetic_recombination(self, dad_pos=None, mom_pos=None):
