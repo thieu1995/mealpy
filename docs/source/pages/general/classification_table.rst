@@ -34,7 +34,6 @@
 **For newbie, I recommend to read the paper of algorithms which difficulty is "easy" or "medium" difficulty level.**
 
 
-
  =============== ====== ============================================ =========== ======= ================= ============== ======== =============
   Group           STT    Name                                         Short       Year    DBSP              Performance    Paras    Difficulty
  =============== ====== ============================================ =========== ======= ================= ============== ======== =============
@@ -54,7 +53,7 @@
   Swarm           6      Artificial Bee Colony                        ABC         2007    no                good           8        easy
   Swarm           7      Ant Colony Optimization                      ACO-R       2008    in-significant    good           5        medium
   Swarm           8      Cuckoo Search Algorithm                      CSA         2009    in-significant    good           3        easy
-  Swarm           9      Firefly Algorithm                            FireflyA    2009    significant       good           8        medium
+  Swarm           9      Firefly Algorithm                            FFA         2009    significant       good           8        medium
   Swarm           10     Fireworks Algorithm                          FA          2010    significant       good           7        medium
   Swarm           11     Bat Algorithm                                BA          2010    no                not good       5        easy
   Swarm           12     Fruit-fly Optimization Algorithm             FOA         2012    no                not good       2        easy
@@ -75,7 +74,7 @@
   Swarm           27     Coyote Optimization Algorithm                COA         2018    no                good           3        medium
   Swarm           28     Moth Search Algorithm                        MSA         2018    no                good           5        easy
   Swarm           29     Sea Lion Optimization                        SLO         2019    no                good           2        medium
-  Swarm           30     Nake Mole-rat Algorithm                      NMRA        2019    in-significant    good           3        easy
+  Swarm           30     Nake Mole-Rat Algorithm                      NMRA        2019    in-significant    good           3        easy
   Swarm           31     Bald Eagle Search                            BES         2019    in-significant    good           7        medium
   Swarm           32     Pathfinder Algorithm                         PFA         2019    significant       good           2        easy
   Swarm           33     Sailfish Optimizer                           SFO         2019    no                good           5        medium
@@ -123,8 +122,10 @@
   0               4
   Math            1      Hill Climbing                                HC          1993    no                not good       3        easy
   Math            2      Sine Cosine Algorithm                        SCA         2016    no                good           2        easy
-  Math            3      Arithmetic Optimization Algorithm            AOA         2021    no                good           6        easy
-  0               4
+  Math            3      Gradient-Based Optimizer                     GBO         2020    no                good           3        medium
+  Math            4      Arithmetic Optimization Algorithm            AOA         2021    no                good           6        easy
+  Math            5      Chaos Game Optimization                      CGO         2021    no                good           2        easy
+  0               6
   Music           1      Harmony Search                               HS          2001    no                good           5        easy
   0               2
   Probabilistic   1      Cross-Entropy Method                         CEM         1997    in-significant    good           4        easy
@@ -138,7 +139,6 @@
   Dummy           7      Sandpiper Optimization Algorithm             SOA         2020    not good          2              easy
   Dummy           8      Black Widow Optimization                     BWO         2020    good              5              medium
  =============== ====== ============================================ =========== ======= ================= ============== ======== =============
-
 
 
 
