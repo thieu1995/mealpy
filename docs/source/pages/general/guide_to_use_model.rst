@@ -37,8 +37,8 @@ To use the library, your computer must installed all of these packages first:
 
 ::
 
-   $ pip install mealpy==2.1.2
-   $ pip install --upgrade mealpy
+   $ pip uninstall mealpy
+   $ pip install mealpy==2.2.2
 
 - Or install the development version from GitHub:
 
@@ -47,8 +47,8 @@ To use the library, your computer must installed all of these packages first:
    $ pip install git+https://github.com/thieu1995/mealpy
 
 
-I accidentally deleted version 2.1.1 on Pypi since it's not synced with version 2.1.1 on Github Release. But I've
-already put the new version 2.1.2 on PyPI. If you still want to use version 2.1.1. Please use this command:
+I accidentally deleted version 2.1.1 on Pypi since it's not synced with version 2.1.1 on Github Release.
+If you still want to use version 2.1.1. Please use this command:
 
 ::
 

@@ -50,7 +50,7 @@ Model References
 License
 =======
 
-The project is licensed under the MIT license.
+The project is licensed under GNU General Public License (GPL) V3 license.
 
 
 .. toctree::

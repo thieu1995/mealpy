@@ -15,8 +15,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "minmax": "min",
       "verbose": True,
    }
-   problem_obj1 = Problem(problem_dict1)
-
 
 **2. When you have same lower bound and upper bound for each variable, then you can use:**
 
@@ -31,7 +29,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "verbose": True,
       "n_dims": 30,  # Remember the keyword "n_dims"
    }
-   problem_obj2 = Problem(problem_dict2)
 
    ## 2.2 array: Then there are 2 ways
    problem_dict3 = {
@@ -42,7 +39,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "verbose": True,
       "n_dims": 30,  # Remember the keyword "n_dims"
    }
-   problem_obj3 = Problem(problem_dict3)
 
    ## or
    n_dims = 100
@@ -53,8 +49,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "minmax": "min",
       "verbose": True,
    }
-   problem_obj4 = Problem(problem_dict4)
-
 
 
 .. toctree::

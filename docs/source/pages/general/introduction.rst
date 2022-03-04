@@ -22,12 +22,15 @@ MEALPY
 .. image:: https://readthedocs.org/projects/mealpy/badge/?version=latest
    :target: https://mealpy.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/packagist/l/doctrine/orm.svg
-   :target: https://github.com/thieu1995/mealpy/blob/master/LICENSE
+.. image:: https://pepy.tech/badge/mealpy
+   :target: https://pepy.tech/project/mealpy
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+   :target: https://www.gnu.org/licenses/gpl-3.0
 
 
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
-  algorithms and is distributed under MIT license.
+  algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
 * Current version: 2.2.0, Total algorithms: 178 (original + variants), 91 original algorithms (8 dummy algorithms)
 
@@ -55,8 +58,20 @@ MEALPY
     * Analyse the stability of algorithms.
     * Analyse the robustness of algorithms.
 
-* And please giving me some credit if you are using this library. Lots of people just use it without reference, and if you want to cite my paper, check some
-  of my `first-author paper`_.
+
+* If you guys want a new algorithm, please open an `Issues ticket`_, and better send me an PDF of the original paper so I can read and
+  implement it.
+
+.. _Issues ticket: https://github.com/thieu1995/mealpy/issues
+
+
+* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to
+  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then
+  I recommend to checkout the `PYMOO library`_.
+
+.. _PYMOO library: https://pymoo.org/
+
+* And please give me some credits if you use this library, check some of my `first-author paper`_.
 
 .. _first-author paper: https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa
 
@@ -64,7 +79,7 @@ MEALPY
 
 	@software{thieu_nguyen_2020_3711949,
 	  author       = {Nguyen Van Thieu},
-	  title        = {A collection of the state-of-the-art MEta-heuristics ALgorithms in PYthon: Mealpy},
+	  title        = {A collection of the state-of-the-art Meta-heuristic Algorithms in Python: Mealpy},
 	  month        = march,
 	  year         = 2020,
 	  publisher    = {Zenodo},
@@ -72,23 +87,6 @@ MEALPY
 	  url          = {https://doi.org/10.5281/zenodo.3711948}
 	}
 
-
-* If you guys are familiar with writing documentation and would like to join this project. Please send me an email to
-  nguyenthieu2102@gmail.com. Your contribution to this project is greatly appreciated.
-
-* If you guys want me to implement new algorithm, please open an `Issues ticket`_, and better send me an PDF of the original paper so I can read and
-  implement it.
-
-.. _Issues ticket: https://github.com/thieu1995/mealpy/issues
-
-* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to
-  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then
-  I recommend to checkout the `PYMOO library`_. If I have time, I will also try to start a new
-  library called `momapy`_ (A collection of the state-of-the-art Multiple/Many Objective Metaheuristic Algorithms in
-  PYthon).
-
-.. _PYMOO library: https://pymoo.org/
-.. _momapy: https://github.com/thieu1995/momapy
 
 ------------
 Optimization

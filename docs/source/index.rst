@@ -16,8 +16,11 @@ Welcome to MEALPY's documentation!
 .. image:: https://readthedocs.org/projects/mealpy/badge/?version=latest
    :target: https://mealpy.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/packagist/l/doctrine/orm.svg
-   :target: https://github.com/thieu1995/mealpy/blob/master/LICENSE
+.. image:: https://pepy.tech/badge/mealpy
+   :target: https://pepy.tech/project/mealpy
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+   :target: https://www.gnu.org/licenses/gpl-3.0
 
 ::
 
@@ -25,12 +28,13 @@ Welcome to MEALPY's documentation!
    It seems like a burden to someone, but it is the only way to achieve immortality.
                                                    `Nguyen Van Thieu`_
 
+
 .. _Nguyen Van Thieu: https://www.researchgate.net/profile/Nguyen_Thieu2
 
 MEALPY is a Python library for the most of cutting-edge population *meta-heuristic algorithms* - a field which provides an fast
 and efficient way to find the global optimal point of mathematical optimization problems.
 
-Population meta-heurisitc algorithms (PMA) are the most popular algorithm in the field of optimization. There are several type of PMA such as:
+Population meta-heuristic algorithms (PMA) are the most popular algorithm in the field of optimization. There are several type of PMA such as:
 
 - Evolutionary inspired computing
 - Swarm inspired computing

@@ -105,6 +105,13 @@ C.
 **COA - Coyote Optimization Algorithm**
   - **BaseCOA**: Pierezan, J., & Coelho, L. D. S. (2018, July). Coyote optimization algorithm: a new metaheuristic for global optimization problems. In 2018 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
 
+**CHIO - Coronavirus Herd Immunity Optimization**
+  - **OriginalCHIO**: Al-Betar, M. A., Alyasseri, Z. A. A., Awadallah, M. A., & Abu Doush, I. (2021). Coronavirus herd immunity optimizer (CHIO). Neural Computing and Applications, 33(10), 5011-5042.
+  - **BaseCHIO**: My changed version
+
+**CGO - Chaos Game Optimization**
+  - **OriginalCGO**: Talatahari, S., & Azizi, M. (2021). Chaos Game Optimization: a novel metaheuristic algorithm. Artificial Intelligence Review, 54(2), 917-1004.
+
 
 --
 D.
@@ -196,6 +203,10 @@ G.
 **GSKA - Gaining Sharing Knowledge-based Algorithm** .
   - **OriginalGSKA**: Mohamed, A. W., Hadi, A. A., & Mohamed, A. K. (2019). Gaining-sharing knowledge based algorithm for solving optimization problems: a novel nature-inspired algorithm. International Journal of Machine Learning and Cybernetics, 1-29.
   - **BaseGSKA**: My modified version
+
+**GBO - Gradient-Based Optimizer**
+  - **OriginalGBO**: Ahmadianfar, I., Bozorg-Haddad, O., & Chu, X. (2020). Gradient-based optimizer: A new metaheuristic optimization algorithm. Information Sciences, 540, 131-159.
+
 
 --
 H.
