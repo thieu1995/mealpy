@@ -4,7 +4,8 @@
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
 [![Documentation Status](https://readthedocs.org/projects/mealpy/badge/?version=latest)](https://mealpy.readthedocs.io/en/latest/?badge=latest)
-[![License](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://github.com/thieu1995/mealpy/blob/master/LICENSE)
+[![Downloads](https://pepy.tech/badge/mealpy)](https://pepy.tech/project/mealpy)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 [comment]: <> (---)
 
@@ -17,7 +18,7 @@
 
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
-  algorithms and is distributed under MIT license.
+  algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
 * Current version: 2.2.0, Total algorithms: 178 (original + variants), 91 original algorithms (8 dummy algorithms)
 * Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
@@ -49,7 +50,7 @@
   transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then I
   recommend to checkout the [PYMOO library](https://pymoo.org/).
 
-* And please give me some credit if you use this library, [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa) to my first-author papers.
+* And please give me some credits if you use this library, [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa) to my first-author papers.
 
 ```code 
 @software{thieu_nguyen_2020_3711949,
