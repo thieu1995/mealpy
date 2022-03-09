@@ -236,5 +236,5 @@ class OriginalVCS(BaseVCS):
 
         ## Greedy selection
         for idx in range(0, self.pop_size):
-            if self.compare_agent(self.pop[idx], pop[idx]):
+            if self.compare_agent(pop[idx], self.pop[idx]):
                 self.pop[idx] = deepcopy(pop[idx])
