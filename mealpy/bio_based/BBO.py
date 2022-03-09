@@ -98,7 +98,7 @@ class OriginalBBO(Optimizer):
 
             noise = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, noise, pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
 
         pop = self.update_fitness_population(pop)
@@ -175,7 +175,7 @@ class BaseBBO(OriginalBBO):
             # Mutation
             temp = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations

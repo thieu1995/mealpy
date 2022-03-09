@@ -560,18 +560,7 @@ class Optimizer:
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
-
-    def amend_position_faster(self, position=None):
-        """
-        This is method is faster than "amend_position" in most cases.
-
-        Args:
-            position: vector position (location) of the solution.
-
-        Returns:
-            Amended position
-        """
+        # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
         return np.clip(position, self.problem.lb, self.problem.ub)
 
     def amend_position_random(self, position=None):
@@ -674,7 +663,7 @@ class Optimizer:
         for i in range(0, pop_len):
             agent = deepcopy(pop_s1[i])
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
-            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         pop_s1 = self.greedy_selection_population(pop_s1, pop_new)  ## Greedy method --> improved exploitation
@@ -687,7 +676,7 @@ class Optimizer:
             agent = deepcopy(pop_s2[i])
             pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
-            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         ## Keep the diversity of populatoin and still improved the exploration
         pop_s2 = self.update_fitness_population(pop_new)
