@@ -230,7 +230,7 @@ class OppoTWO(BaseTWO):
 
         ## Opposition-based here
         for i in range(self.pop_size):
-            if self.compare_agent(self.pop[i], pop_new[i]):
+            if self.compare_agent(pop_new[i], self.pop[i]):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
@@ -324,7 +324,7 @@ class LevyTWO(BaseTWO):
 
         ### Apply levy-flight here
         for i in range(self.pop_size):
-            if self.compare_agent(self.pop[i], pop_new[i]):
+            if self.compare_agent(pop_new[i], self.pop[i]):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
                 levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
@@ -436,7 +436,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         self.pop = self._update_weight(pop_new)
 
         for i in range(self.pop_size):
-            if self.compare_agent(self.pop[i], pop_new[i]):
+            if self.compare_agent(pop_new[i], self.pop[i]):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
