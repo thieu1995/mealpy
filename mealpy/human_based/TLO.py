@@ -89,7 +89,6 @@ class BaseTLO(Optimizer):
             ## Learning Phrase
             temp = deepcopy(pop_new[idx][self.ID_POS]).astype(float)
             id_partner = np.random.choice(np.setxor1d(np.array(range(self.pop_size)), np.array([idx])))
-            # arr_random = np.random.rand(self.problem.n_dims)
             if self.compare_agent(pop_new[idx], pop_new[id_partner]):
                 temp += np.random.rand(self.problem.n_dims) * (pop_new[idx][self.ID_POS] - pop_new[id_partner][self.ID_POS])
             else:
