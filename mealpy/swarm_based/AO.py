@@ -107,7 +107,7 @@ class OriginalAO(Optimizer):
                 else:
                     pos_new = QF * self.g_best[self.ID_POS] - (g2 * self.pop[idx][self.ID_POS] *
                                                                np.random.rand()) - g2 * self.get_simple_levy_step() + np.random.rand() * g1  # Eq. 14
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

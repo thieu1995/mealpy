@@ -80,7 +80,7 @@ class OriginalFOA(Optimizer):
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         s = self.norm_consecutive_adjacent(position)
-        pos = self.amend_position_faster(s)
+        pos = self.amend_position(s)
         fit = self.get_fitness_position(pos)
         return [position, fit]
 
@@ -95,7 +95,7 @@ class OriginalFOA(Optimizer):
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub)
             pos_new = self.norm_consecutive_adjacent(pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -155,7 +155,7 @@ class BaseFOA(OriginalFOA):
             else:
                 pos_new = self.g_best[self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.norm_consecutive_adjacent(pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -235,6 +235,6 @@ class WhaleFOA(OriginalFOA):
                 D1 = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                 pos_new = D1 * np.exp(b * l) * np.cos(2 * np.pi * l) + self.g_best[self.ID_POS]
             smell = self.norm_consecutive_adjacent(pos_new)
-            pos_new = self.amend_position_faster(smell)
+            pos_new = self.amend_position(smell)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

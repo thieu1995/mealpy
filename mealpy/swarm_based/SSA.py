@@ -78,6 +78,19 @@ class BaseSSA(Optimizer):
         self.nfe_per_epoch = 2 * self.pop_size - self.n2
         self.sort_flag = True
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -91,7 +104,8 @@ class BaseSSA(Optimizer):
             # Using equation (3) update the sparrow’s location;
             if idx < self.n1:
                 if r2 < self.ST:
-                    x_new = self.pop[idx][self.ID_POS] * np.exp((idx + 1) / ((np.random.uniform() + self.EPSILON) * self.epoch))
+                    des = np.random.uniform() * self.epoch + self.EPSILON
+                    x_new = self.pop[idx][self.ID_POS] * np.exp((idx + 1) / des)
                 else:
                     x_new = self.pop[idx][self.ID_POS] + np.random.normal() * np.ones(self.problem.n_dims)
             else:
@@ -102,7 +116,7 @@ class BaseSSA(Optimizer):
                     x_new = np.random.normal() * np.exp((g_worst[self.ID_POS] - self.pop[idx][self.ID_POS]) / (idx + 1) ** 2)
                 else:
                     x_new = g_best[self.ID_POS] + np.abs(self.pop[idx][self.ID_POS] - g_best[self.ID_POS]) * np.random.normal()
-            pos_new = self.amend_position_random(x_new)
+            pos_new = self.amend_position(x_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -118,7 +132,7 @@ class BaseSSA(Optimizer):
                                                     (pop2[idx][self.ID_TAR][self.ID_FIT] - g_worst[self.ID_TAR][self.ID_FIT] + self.EPSILON))
             else:
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
-            pos_new = self.amend_position_random(x_new)
+            pos_new = self.amend_position(x_new)
             child.append([pos_new, None])
         child = self.update_fitness_population(child)
         child = self.greedy_selection_population(pop2, child)
@@ -211,7 +225,7 @@ class OriginalSSA(BaseSSA):
                     A = np.sign(np.random.uniform(-1, 1, (1, self.problem.n_dims)))
                     A1 = A.T * np.linalg.inv(np.matmul(A, A.T)) * L
                     x_new = g_best[self.ID_POS] + np.matmul(np.abs(self.pop[idx][self.ID_POS] - g_best[self.ID_POS]), A1)
-            pos_new = self.amend_position_random(x_new)
+            pos_new = self.amend_position(x_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -227,7 +241,7 @@ class OriginalSSA(BaseSSA):
                                                     (pop2[idx][self.ID_TAR][self.ID_FIT] - g_worst[self.ID_TAR][self.ID_FIT] + self.EPSILON))
             else:
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
-            pos_new = self.amend_position_random(x_new)
+            pos_new = self.amend_position(x_new)
             child.append([pos_new, None])
         child = self.update_fitness_population(child)
         child = self.greedy_selection_population(pop2, child)

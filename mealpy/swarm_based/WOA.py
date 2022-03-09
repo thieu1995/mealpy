@@ -85,7 +85,7 @@ class BaseWOA(Optimizer):
             else:
                 D1 = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                 pos_new = self.g_best[self.ID_POS] + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -180,7 +180,7 @@ class HI_WOA(Optimizer):
             else:
                 D1 = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                 pos_new = self.g_best[self.ID_POS] + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size

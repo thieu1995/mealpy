@@ -76,7 +76,7 @@ class BaseGWO(Optimizer):
             X2 = list_best[1][self.ID_POS] - A2 * np.abs(C2 * list_best[1][self.ID_POS] - self.pop[idx][self.ID_POS])
             X3 = list_best[2][self.ID_POS] - A3 * np.abs(C3 * list_best[2][self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -149,7 +149,7 @@ class RW_GWO(Optimizer):
         leaders_new = []
         for i in range(0, len(leaders)):
             pos_new = leaders[i][self.ID_POS] + a * np.random.standard_cauchy(self.problem.n_dims)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             leaders_new.append([pos_new, None])
         leaders_new = self.update_fitness_population(leaders_new)
         leaders = self.greedy_selection_population(leaders, leaders_new)
@@ -165,7 +165,7 @@ class RW_GWO(Optimizer):
             X2 = leaders[1][self.ID_POS] - miu2 * np.abs(c2 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             X3 = leaders[2][self.ID_POS] - miu3 * np.abs(c3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)

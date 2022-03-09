@@ -104,7 +104,7 @@ class BaseMRFO(Optimizer):
                 else:
                     x_t1 = self.pop[idx][self.ID_POS] + r * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
                            alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position_faster(x_t1)
+            pos_new = self.amend_position(x_t1)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -114,7 +114,7 @@ class BaseMRFO(Optimizer):
             # Somersault foraging   (Eq. 8)
             x_t1 = pop_new[idx][self.ID_POS] + self.somersault_range * \
                    (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop_new[idx][self.ID_POS])
-            pos_new = self.amend_position_faster(x_t1)
+            pos_new = self.amend_position(x_t1)
             pop_child.append([pos_new, None])
         pop_child = self.update_fitness_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)

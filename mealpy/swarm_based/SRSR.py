@@ -78,6 +78,7 @@ class BaseSRSR(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], mu, sigma, x_new, fit_new, fit_move]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         mu = 0
         sigma = 0
@@ -133,9 +134,8 @@ class BaseSRSR(Optimizer):
                                          np.random.uniform() ** 2 * ((self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) < 0.05)
 
             # ----- Generating New Positions Using New Obtained Mu And Sigma Values --------------
-            temp = np.random.normal(self.pop[i][self.ID_MU], self.pop[i][self.ID_SIGMA], self.problem.n_dims)
-            pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
-            agent[self.ID_POS] = pos_new
+            pos_new = np.random.normal(self.pop[i][self.ID_MU], self.pop[i][self.ID_SIGMA], self.problem.n_dims)
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
@@ -171,10 +171,9 @@ class BaseSRSR(Optimizer):
             gb = np.random.uniform(-1, 1, self.problem.n_dims)
             gb[gb >= 0] = 1
             gb[gb < 0] = -1
-            temp = self.pop[i][self.ID_POS] * np.random.uniform() + gb * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
+            pos_new = self.pop[i][self.ID_POS] * np.random.uniform() + gb * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
                    self.movement_factor * np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = np.clip(temp, self.problem.lb, self.problem.ub)
-            agent[self.ID_POS] = pos_new
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
@@ -247,8 +246,8 @@ class BaseSRSR(Optimizer):
             workers = np.concatenate((worker_robot1.T, worker_robot2.T, worker_robot3.T, worker_robot4.T, worker_robot5.T), axis=0)
             pop_workers = []
             for i in range(0, 5):
-                workers[i] = np.clip(workers[i], self.problem.lb, self.problem.ub)
-                pop_workers.append([workers[i], None])
+                pos_new = self.amend_position(workers[i])
+                pop_workers.append([pos_new, None])
             pop_workers = self.update_fitness_population(pop_workers)
             nfe_epoch += 5
 

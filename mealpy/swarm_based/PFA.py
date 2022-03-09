@@ -69,14 +69,14 @@ class BasePFA(Optimizer):
         A = np.random.uniform(self.problem.lb, self.problem.ub) * np.exp(-2 * (epoch + 1) / self.epoch)
 
         ## Update the position of pathfinder and check the bound
-        temp = self.pop[0][self.ID_POS] + 2 * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[0][self.ID_POS]) + A
-        temp = self.amend_position_faster(temp)
-        fit = self.get_fitness_position(temp)
-        pop_new = [[temp, fit], ]
+        pos_new = self.pop[0][self.ID_POS] + 2 * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[0][self.ID_POS]) + A
+        pos_new = self.amend_position(pos_new)
+        fit = self.get_fitness_position(pos_new)
+        pop_new = [[pos_new, fit], ]
 
         ## Update positions of members, check the bound and calculate new fitness
         for idx in range(1, self.pop_size):
-            pos_new = deepcopy(self.pop[idx][self.ID_POS])
+            pos_new = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
             for k in range(1, self.pop_size):
                 dist = np.sqrt(np.sum((self.pop[k][self.ID_POS] - self.pop[idx][self.ID_POS]) ** 2)) / self.problem.n_dims
                 t2 = alpha * np.random.uniform() * (self.pop[k][self.ID_POS] - self.pop[idx][self.ID_POS])
@@ -86,7 +86,7 @@ class BasePFA(Optimizer):
             ## Second stabilize the population size
             t1 = beta * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = (pos_new + t1) / self.pop_size
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

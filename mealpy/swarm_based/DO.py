@@ -142,26 +142,28 @@ class BaseDO(Optimizer):
             else:
                 enemy = np.zeros(self.problem.n_dims)
 
+            pos_new = deepcopy(self.pop[i][self.ID_POS]).astype(float)
+            pos_delta_new = deepcopy(self.pop_delta[i][self.ID_POS]).astype(float)
             if np.any(dist_to_food > r):
                 if neighbours_num > 1:
                     temp = w * self.pop_delta[i][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * A + \
                            np.random.uniform(0, 1, self.problem.n_dims) * C + np.random.uniform(0, 1, self.problem.n_dims) * S
                     temp = np.clip(temp, -1 * self.delta_max, self.delta_max)
-                    self.pop_delta[i][self.ID_POS] = temp
-                    self.pop[i][self.ID_POS] += temp
+                    pos_delta_new = deepcopy(temp)
+                    pos_new += temp
                 else:  # Eq. 3.8
-                    self.pop[i][self.ID_POS] += self.dragonfly_levy() * self.pop[i][self.ID_POS]
-                    self.pop_delta[i][self.ID_POS] = np.zeros(self.problem.n_dims)
+                    pos_new += self.dragonfly_levy() * self.pop[i][self.ID_POS]
+                    pos_delta_new = np.zeros(self.problem.n_dims)
             else:
                 # Eq. 3.6
                 temp = (a * A + c * C + s * S + f * F + e * enemy) + w * self.pop_delta[i][self.ID_POS]
                 temp = np.clip(temp, -1 * self.delta_max, self.delta_max)
-                self.pop_delta[i][self.ID_POS] = temp
-                self.pop[i][self.ID_POS] += temp
+                pos_delta_new = temp
+                pos_new += temp
 
             # Amend solution
-            self.pop[i][self.ID_POS] = self.amend_position_faster(self.pop[i][self.ID_POS])
-            self.pop_delta[i][self.ID_POS] = self.amend_position_faster(self.pop_delta[i][self.ID_POS])
+            self.pop[i][self.ID_POS] = self.amend_position(pos_new)
+            self.pop_delta[i][self.ID_POS] = self.amend_position(pos_delta_new)
 
         self.pop = self.update_fitness_population(self.pop)
         self.pop_delta = self.update_fitness_population(self.pop_delta)

@@ -113,7 +113,7 @@ class BaseBES(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = self.g_best[self.ID_POS] + self.alpha * np.random.uniform() * (pos_mean - self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -127,7 +127,7 @@ class BaseBES(Optimizer):
             idx_rand = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
             pos_new = pop_new[idx][self.ID_POS] + y_list[idx] * (pop_new[idx][self.ID_POS] - pop_new[idx_rand][self.ID_POS]) + \
                       x_list[idx] * (pop_new[idx][self.ID_POS] - pos_mean)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_child.append([pos_new, None])
         pop_child = self.update_fitness_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
@@ -140,7 +140,7 @@ class BaseBES(Optimizer):
         for idx in range(0, self.pop_size):
             pos_new = np.random.uniform() * self.g_best[self.ID_POS] + x1_list[idx] * (pop_child[idx][self.ID_POS] - self.c1 * pos_mean) \
                       + y1_list[idx] * (pop_child[idx][self.ID_POS] - self.c2 * self.g_best[self.ID_POS])
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(pop_child, pop_new)

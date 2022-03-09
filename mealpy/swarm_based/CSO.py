@@ -117,6 +117,7 @@ class BaseCSO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, flag]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         flag = True if np.random.uniform() < self.mixture_ratio else False
@@ -136,7 +137,7 @@ class BaseCSO(Optimizer):
 
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
             pos_new[idx] = clone[self.ID_POS][idx]
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             candidate_cats.append([pos_new, None, clone[self.ID_VEL], clone[self.ID_FLAG]])
         candidate_cats = self.update_fitness_population(candidate_cats)
 
@@ -171,7 +172,7 @@ class BaseCSO(Optimizer):
             if self.pop[idx][self.ID_FLAG]:
                 pos_new = self.pop[idx][self.ID_POS] + w * self.pop[idx][self.ID_VEL] + \
                           np.random.uniform() * self.c1 * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
             else:
                 pos_new = self._seeking_mode__(self.pop[idx])
             agent[self.ID_POS] = pos_new

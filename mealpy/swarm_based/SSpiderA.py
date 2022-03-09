@@ -107,6 +107,7 @@ class BaseSSpiderA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], intensity, target_position, previous_movement_vector, dimension_mask]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position)
         intensity = np.log(1. / (abs(fitness[self.ID_FIT]) + self.EPSILON) + 1)
         target_position = deepcopy(position)
@@ -143,7 +144,7 @@ class BaseSSpiderA(Optimizer):
             pos_new = self.pop[idx][self.ID_POS] + np.random.normal() * \
                       (self.pop[idx][self.ID_POS] - self.pop[idx][self.ID_PREV_MOVE_VEC]) + \
                       (pos_new - self.pop[idx][self.ID_POS]) * np.random.normal()
-            agent[self.ID_POS] = self.amend_position_faster(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
 

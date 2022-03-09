@@ -111,7 +111,7 @@ class BaseFFA(Optimizer):
                     temp = np.matmul((self.pop[j][self.ID_POS] - agent[self.ID_POS]),
                                      np.random.uniform(0, 1, (self.problem.n_dims, self.problem.n_dims)))
                     pos_new = agent[self.ID_POS] + self.dyn_alpha * mutation_vector + beta * temp
-                    pos_new = self.amend_position_faster(pos_new)
+                    pos_new = self.amend_position(pos_new)
                     pop_child.append([pos_new, None])
             if len(pop_child) < 2:
                 continue

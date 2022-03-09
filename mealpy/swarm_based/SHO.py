@@ -91,13 +91,13 @@ class BaseSHO(Optimizer):
                 D_h = np.abs(np.dot(B, self.g_best[self.ID_POS]) - self.pop[idx][self.ID_POS])
                 pos_new = self.g_best[self.ID_POS] - np.dot(E, D_h)
             else:
-                N = 0
+                N = 1
                 for i in range(0, self.N_tried):
-                    pos_new = self.g_best[self.ID_POS] + np.random.uniform(self.rand_v[0], self.rand_v[1]) * \
+                    pos_temp = self.g_best[self.ID_POS] + np.random.uniform(self.rand_v[0], self.rand_v[1]) * \
                               np.random.uniform(self.problem.lb, self.problem.ub)
-                    pos_new = self.amend_position_faster(pos_new)
-                    fit_new = self.get_fitness_position(pos_new)
-                    if self.compare_agent(self.g_best, [pos_new, fit_new]):
+                    pos_temp = self.amend_position(pos_temp)
+                    fit_new = self.get_fitness_position(pos_temp)
+                    if self.compare_agent([pos_temp, fit_new], self.g_best):
                         N += 1
                         nfe_epoch += 1
                         break
@@ -108,8 +108,8 @@ class BaseSHO(Optimizer):
                     D_h = np.abs(np.dot(B, self.g_best[self.ID_POS]) - self.pop[idx_list[j]][self.ID_POS])
                     p_k = self.g_best[self.ID_POS] - np.dot(E, D_h)
                     circle_list.append(p_k)
-                pos_new = np.mean(np.array(circle_list))
-            pos_new = self.amend_position_faster(pos_new)
+                pos_new = np.mean(np.array(circle_list), axis=0)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

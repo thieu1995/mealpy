@@ -92,7 +92,7 @@ class BaseBeesA(Optimizer):
     def perform_dance(self, position, r):
         j = np.random.choice(range(0, self.problem.n_dims))
         position[j] = position[j] + r * np.random.uniform(-1, 1)
-        return self.amend_position_faster(position)
+        return self.amend_position(position)
 
     def evolve(self, epoch):
         """
@@ -208,7 +208,7 @@ class ProbBeesA(Optimizer):
     def perform_dance(self, position, r):
         j = np.random.choice(list(range(0, self.problem.n_dims)))
         position[j] = position[j] + r * np.random.uniform(-1, 1)
-        return self.amend_position_faster(position)
+        return self.amend_position(position)
 
     def evolve(self, epoch):
         """

@@ -105,7 +105,7 @@ class BaseACOR(Optimizer):
             for j in range(0, self.problem.n_dims):
                 idx = self.get_index_roulette_wheel_selection(matrix_p)
                 child[j] = pop[idx][self.ID_POS][j] + np.random.normal() * matrix_sigma[idx, j]  # (1)
-            pos_new = self.amend_position_faster(child)  # (2)
+            pos_new = self.amend_position(child)  # (2)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = pop + pop_new

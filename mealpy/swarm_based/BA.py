@@ -92,6 +92,7 @@ class OriginalBA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, pulse_frequency]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
@@ -112,7 +113,7 @@ class OriginalBA(Optimizer):
             ## Local Search around g_best position
             if np.random.uniform() > self.pulse_rate:
                 x = self.g_best[self.ID_POS] + 0.0001 * np.random.normal(self.problem.n_dims)  # gauss
-            pos_new = self.amend_position_faster(x)
+            pos_new = self.amend_position(x)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
@@ -206,6 +207,7 @@ class BaseBA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, loudness, pulse_rate, pulse_frequency]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         loudness = np.random.uniform(self.loudness[0], self.loudness[1])
@@ -230,7 +232,7 @@ class BaseBA(Optimizer):
             if np.random.uniform() > agent[self.ID_PRAT]:
                 # print(f"{epoch}, {mean_a}, {self.dyn_r}")
                 x = self.g_best[self.ID_POS] + mean_a * np.random.normal(-1, 1)
-            pos_new = self.amend_position_faster(x)
+            pos_new = self.amend_position(x)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
@@ -320,7 +322,7 @@ class ModifiedBA(Optimizer):
             self.dyn_list_velocity[idx] = np.random.uniform() * self.dyn_list_velocity[idx] + \
                                           (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) * pf  # Eq. 3
             x = self.pop[idx][self.ID_POS] + self.dyn_list_velocity[idx]  # Eq. 4
-            pos_new = self.amend_position_faster(x)
+            pos_new = self.amend_position(x)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
@@ -332,7 +334,7 @@ class ModifiedBA(Optimizer):
             else:
                 if np.random.random() > self.pulse_rate:
                     x = self.g_best[self.ID_POS] + 0.01 * np.random.uniform(self.problem.lb, self.problem.ub)
-                    pos_new = self.amend_position_faster(x)
+                    pos_new = self.amend_position(x)
                     pop_child_idx.append(idx)
                     pop_child.append([pos_new, None])
                     nfe_epoch += 1

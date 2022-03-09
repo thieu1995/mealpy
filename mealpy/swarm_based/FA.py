@@ -114,7 +114,7 @@ class BaseFA(Optimizer):
                 pos_new[list_idx] = pos_new[list_idx] + displacement
                 pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub),
                                    self.problem.lb + np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 pop_new.append([pos_new, None])
                 nfe_epoch += 1
             pop_new = self.update_fitness_population(pop_new)
@@ -126,7 +126,7 @@ class BaseFA(Optimizer):
             pos_new[list_idx] = pos_new[list_idx] + np.random.normal(0, 1)  # Gaussian
             pos_new = np.where(np.logical_or(pos_new < self.problem.lb, pos_new > self.problem.ub), self.problem.lb + \
                                np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
             nfe_epoch += 1
         pop_new = self.update_fitness_population(pop_new)

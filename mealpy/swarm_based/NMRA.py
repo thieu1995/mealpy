@@ -82,7 +82,7 @@ class BaseNMRA(Optimizer):
             else:  # working operators
                 t1, t2 = np.random.choice(range(self.size_b, self.pop_size), 2, replace=False)
                 pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[t1][self.ID_POS] - self.pop[t2][self.ID_POS])
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -192,7 +192,7 @@ class ImprovedNMRA(Optimizer):
             # Mutation
             temp = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, temp, pos_new)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
