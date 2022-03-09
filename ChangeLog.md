@@ -1,3 +1,15 @@
+# Version 2.3.0
+
+### Update
+
++ All algorithms have been updated with the amend_position function for solving the discrete problem.
++ Required packages are version reduction to fit python 3.6
++ Add examples of how to design and custom a new algorithm based on this framework
++ Add examples mealpy solve discrete problems (combinatorial, permutation)
+
+
+---------------------------------------------------------------------
+
 # Version 2.2.0
 
 ### Update models

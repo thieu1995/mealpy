@@ -1,5 +1,5 @@
 # Meta-Heuristic Algorithms using Python (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-2.2.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.3.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -20,13 +20,14 @@
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.2.0, Total algorithms: 178 (original + variants), 91 original algorithms (8 dummy algorithms)
-* Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
+* Current version: 2.3.0, Total algorithms: 154 (original + variants), 87 original algorithms (8 dummy algorithms)
+* Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
   * 2.0.0 <= mealpy <= 2.1.2
-  * mealpy >= 2.2.0
+  * mealpy == 2.2.0 
+  * mealpy >= 2.3.0 (From this version, algorithms can solve discrete problem)
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
@@ -69,14 +70,14 @@
 ### Dependencies
 * Python (>= 3.6)
 * Numpy (>= 1.15.1)
-* Matplotlib (>= 3.5.0)
-* Scipy (>= 1.4.1)
+* Matplotlib (>= 3.1.3)
+* Scipy (>= 1.5.2)
 
 ### User installation
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
-    pip install mealpy==2.2.0
-    pip install --upgrade mealpy 
+    pip uninstall mealpy 
+    pip install mealpy==2.3.0 
 ```
 
 ### Examples
@@ -100,8 +101,8 @@ problem_dict1 = {
 }
 
 ## Run the algorithm
-model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
-best_position, best_fitness = model1.solve()
+model = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+best_position, best_fitness = model.solve()
 print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 ```

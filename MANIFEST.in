@@ -1,6 +1,4 @@
-include README.md ChangeLog.md LICENSE models_history.csv
+include README.md ChangeLog.md LICENSE
 
-graft tests
-graft examples
 global-exclude *.py[cod]
 
