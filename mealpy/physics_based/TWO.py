@@ -79,10 +79,11 @@ class BaseTWO(Optimizer):
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
-        solution = np.random.uniform(self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=solution)
+        position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
+        fitness = self.get_fitness_position(position=position)
         weight = 0.0
-        return [solution, fitness, weight]
+        return [position, fitness, weight]
 
     def _update_weight(self, teams):
         _, best, worst = self.get_special_solutions(teams, best=1, worst=1)
@@ -110,6 +111,7 @@ class BaseTWO(Optimizer):
         """
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
+            pos_new = pop_new[i][self.ID_POS].astype(float)
             for j in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[j][self.ID_WEIGHT] * self.muy_s)
@@ -118,20 +120,23 @@ class BaseTWO(Optimizer):
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
                               (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
-                    pop_new[i][self.ID_POS] += delta_x
+                    pos_new += delta_x
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         for i in range(self.pop_size):
+            pos_new = pop_new[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
-                if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
+                if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:
-                        pop_new[i][self.ID_POS][j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
-                                                     (self.g_best[self.ID_POS][j] - pop_new[i][self.ID_POS][j])
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.pop[i][self.ID_POS][j]
+                        pos_new[j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
+                                                     (self.g_best[self.ID_POS][j] - pos_new[j])
+                        if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.pop[i][self.ID_POS][j]
                     else:
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.lb[j]
-                        if pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.ub[j]
+                        if pos_new[j] < self.problem.lb[j]:
+                            pos_new[j] = self.problem.lb[j]
+                        if pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.problem.ub[j]
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
@@ -183,8 +188,9 @@ class OppoTWO(BaseTWO):
         pop_temp = self.create_population(int(self.pop_size / 2))
         pop_oppo = []
         for i in range(len(pop_temp)):
-            item_oppo = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
-            pop_oppo.append([item_oppo, None, 0.0])
+            pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
+            pos_opposite = self.amend_position(pos_opposite)
+            pop_oppo.append([pos_opposite, None, 0.0])
         pop_oppo = self.update_fitness_population(pop_oppo)
         self.pop = pop_temp + pop_oppo
         self.pop = self._update_weight(self.pop)
@@ -200,6 +206,7 @@ class OppoTWO(BaseTWO):
         ## Apply force of others solution on each individual solution
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
+            pos_new = pop_new[i][self.ID_POS].astype(float)
             for j in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[j][self.ID_WEIGHT] * self.muy_s)
@@ -208,7 +215,8 @@ class OppoTWO(BaseTWO):
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
                               (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
-                    self.pop[i][self.ID_POS] += delta_x
+                    pos_new += delta_x
+            self.pop[i][self.ID_POS] = self.amend_position(pos_new)
 
         ## Amend solution and update fitness value
         for i in range(self.pop_size):
@@ -217,8 +225,7 @@ class OppoTWO(BaseTWO):
             conditions = np.logical_or(pop_new[i][self.ID_POS] < self.problem.lb, pop_new[i][self.ID_POS] > self.problem.ub)
             conditions = np.logical_and(conditions, np.random.uniform(0, 1, self.problem.n_dims) < 0.5)
             pos_new = np.where(conditions, pos_new, self.pop[i][self.ID_POS])
-            pos_new = self.amend_position_faster(pos_new)
-            pop_new[i][self.ID_POS] = pos_new
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         pop_new = self.update_fitness_population(pop_new)
 
         ## Opposition-based here
@@ -227,8 +234,9 @@ class OppoTWO(BaseTWO):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
+                C_op = self.amend_position(C_op)
                 fit_op = self.get_fitness_position(C_op)
-                if self.compare_agent(self.pop[i], [C_op, fit_op]):
+                if self.compare_agent([C_op, fit_op], self.pop[i]):
                     self.pop[i] = [C_op, fit_op, 0.0]
         self.pop = self._update_weight(self.pop)
 
@@ -284,6 +292,7 @@ class LevyTWO(BaseTWO):
         """
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].astype(float)
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[k][self.ID_WEIGHT] * self.muy_s)
@@ -292,21 +301,23 @@ class LevyTWO(BaseTWO):
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
                               (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
-                    pop_new[i][self.ID_POS] += delta_x
+                    pos_new +=delta_x
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         for i in range(self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
-                if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
+                if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:
-                        pop_new[i][self.ID_POS][j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
-                                                     (self.g_best[self.ID_POS][j] - pop_new[i][self.ID_POS][j])
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.pop[i][self.ID_POS][j]
+                        pos_new[j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
+                                                     (self.g_best[self.ID_POS][j] - pos_new[j])
+                        if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.pop[i][self.ID_POS][j]
                     else:
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.lb[j]
-                        if pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.ub[j]
-
+                        if pos_new[j] < self.problem.lb[j]:
+                            pos_new[j] = self.problem.lb[j]
+                        if pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.problem.ub[j]
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
@@ -318,7 +329,7 @@ class LevyTWO(BaseTWO):
             else:
                 levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
                 pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 fit_new = self.get_fitness_position(pos_new)
                 self.pop[i] = [pos_new, fit_new, 0.0]
         self.pop = self._update_weight(pop_new)
@@ -378,8 +389,8 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         pop_temp = self.create_population(self.pop_size)
         pop_oppo = deepcopy(pop_temp)
         for i in range(self.pop_size):
-            item_oppo = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
-            pop_oppo[i][self.ID_POS] = item_oppo
+            pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
+            pop_oppo[i][self.ID_POS] = self.amend_position(pos_opposite)
         pop_oppo = self.update_fitness_population(pop_oppo)
         self.pop = self.get_sorted_strim_population(pop_temp + pop_oppo, self.pop_size)
         self.pop = self._update_weight(self.pop)
@@ -394,6 +405,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         """
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].astype(float)
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[k][self.ID_WEIGHT] * self.muy_s)
@@ -402,20 +414,23 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
                               (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
-                    pop_new[i][self.ID_POS] += delta_x
+                    pos_new += delta_x
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         for i in range(self.pop_size):
+            pos_new = self.pop[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
-                if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
+                if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:
-                        pop_new[i][self.ID_POS][j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
-                                                     (self.g_best[self.ID_POS][j] - pop_new[i][self.ID_POS][j])
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j] or pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.pop[i][self.ID_POS][j]
+                        pos_new[j] = self.g_best[self.ID_POS][j] + np.random.randn() / (epoch + 1) * \
+                                                     (self.g_best[self.ID_POS][j] - pos_new[j])
+                        if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.pop[i][self.ID_POS][j]
                     else:
-                        if pop_new[i][self.ID_POS][j] < self.problem.lb[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.lb[j]
-                        if pop_new[i][self.ID_POS][j] > self.problem.ub[j]:
-                            pop_new[i][self.ID_POS][j] = self.problem.ub[j]
+                        if pos_new[j] < self.problem.lb[j]:
+                            pos_new[j] = self.problem.lb[j]
+                        if pos_new[j] > self.problem.ub[j]:
+                            pos_new[j] = self.problem.ub[j]
+            pop_new[i][self.ID_POS] = self.amend_position(pos_new)
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
@@ -425,13 +440,14 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
+                C_op = self.amend_position(C_op)
                 fit_op = self.get_fitness_position(C_op)
                 if self.compare_agent([C_op, fit_op], self.pop[i]):
                     self.pop[i] = [C_op, fit_op, 0.0]
                 else:
                     levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
                     pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
-                    pos_new = self.amend_position_faster(pos_new)
+                    pos_new = self.amend_position(pos_new)
                     fit_new = self.get_fitness_position(pos_new)
                     self.pop[i] = [pos_new, fit_new, 0.0]
         self.pop = self._update_weight(pop_new)

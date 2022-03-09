@@ -62,6 +62,19 @@ class BaseNRO(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -106,7 +119,7 @@ class BaseNRO(Optimizer):
                 Xi = np.array([np.random.normal(self.pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem.n_dims)])
 
             ## Check the boundary and evaluate the fitness function
-            Xi = self.amend_position_random(Xi)
+            Xi = self.amend_position(Xi)
             pop_new.append([Xi, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -145,7 +158,7 @@ class BaseNRO(Optimizer):
                                    (X_worst[self.ID_POS][j] - self.g_best[self.ID_POS][j])
 
             ## Check the boundary and evaluate the fitness function for X_ion
-            X_ion = self.amend_position_random(X_ion)
+            X_ion = self.amend_position(X_ion)
             pop_child.append([X_ion, None])
         pop_child = self.update_fitness_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
@@ -179,7 +192,7 @@ class BaseNRO(Optimizer):
                     else:
                         X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) * epoch / self.epoch + 1) * \
                                (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
-            X_fu = self.amend_position_random(X_fu)
+            X_fu = self.amend_position(X_fu)
             pop_new.append([X_fu, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(pop_child, pop_new)

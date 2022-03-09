@@ -107,6 +107,6 @@ class BaseWDO(Optimizer):
             # Update air parcel positions, check the bound and calculate pressure (fitness)
             self.dyn_list_velocity[idx] = vel
             pos = self.pop[idx][self.ID_POS] + vel
-            pos_new = self.amend_position_faster(pos)
+            pos_new = self.amend_position(pos)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

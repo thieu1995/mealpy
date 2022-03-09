@@ -95,7 +95,7 @@ class BaseSA(Optimizer):
 
         if np.all(pos_new == position):  # Select at least one variable to _mutate
             pos_new[np.random.randint(0, self.problem.n_dims)] = np.random.uniform()
-        return self.amend_position_faster(pos_new)
+        return self.amend_position(pos_new)
 
     def initialization(self):
         # Initial Temperature
@@ -121,7 +121,7 @@ class BaseSA(Optimizer):
                 for j in range(0, self.move_count):
                     # Perform Mutation (Move)
                     pos_new = self._mutate(self.pop[i][self.ID_POS], self.dyn_sigma)
-                    pos_new = self.amend_position_faster(pos_new)
+                    pos_new = self.amend_position(pos_new)
                     pop_new.append([pos_new, None])
             pop_new = self.update_fitness_population(pop_new)
 

@@ -128,7 +128,7 @@ class BaseHGSO(Optimizer):
                 X_ij = self.pop_group[i][j][self.ID_POS] + F * np.random.uniform() * gama * \
                        (self.p_best[i][self.ID_POS] - self.pop_group[i][j][self.ID_POS]) + \
                        F * np.random.uniform() * self.alpha * (S_ij * self.g_best[self.ID_POS] - self.pop_group[i][j][self.ID_POS])
-                pos_new = self.amend_position_faster(X_ij)
+                pos_new = self.amend_position(X_ij)
                 pop_new.append([pos_new, None])
                 nfe_epoch += 1
             self.pop_group[i] = self.update_fitness_population(pop_new)
@@ -148,7 +148,7 @@ class BaseHGSO(Optimizer):
         for item in range(N_w):
             id = sorted_id_pos[item]
             X_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position_faster(X_new)
+            pos_new = self.amend_position(X_new)
             pop_new.append([pos_new, None])
             pop_idx.append(id)
             nfe_epoch += 1

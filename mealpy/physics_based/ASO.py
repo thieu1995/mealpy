@@ -86,10 +86,24 @@ class BaseASO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, mass]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         mass = 0.0
         return [position, fitness, velocity, mass]
+
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
 
     def _update_mass__(self, population):
         fit_total, fit_best, fit_worst = self.get_special_fitness(population)
@@ -158,7 +172,7 @@ class BaseASO(Optimizer):
             velocity = velocity_rand * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
             pos_new = self.pop[idx][self.ID_POS] + velocity
             # Relocate atom out of range
-            agent[self.ID_POS] = self.amend_position_random(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)

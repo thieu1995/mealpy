@@ -90,7 +90,7 @@ class BaseMVO(Optimizer):
                 black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
             else:
                 black_hole_pos = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position_faster(black_hole_pos)
+            pos_new = self.amend_position(black_hole_pos)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -217,6 +217,6 @@ class OriginalMVO(BaseMVO):
                         black_hole_pos[j] = self.g_best[self.ID_POS][j] + tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
                     else:
                         black_hole_pos[j] = self.g_best[self.ID_POS][j] - tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
-            pos_new = self.amend_position_faster(black_hole_pos)
+            pos_new = self.amend_position(black_hole_pos)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
