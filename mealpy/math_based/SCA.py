@@ -75,7 +75,7 @@ class BaseSCA(Optimizer):
             pos_new2 = self.pop[idx][self.ID_POS] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
             # Check the bound
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -127,6 +127,19 @@ class OriginalSCA(BaseSCA):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -151,6 +164,6 @@ class OriginalSCA(BaseSCA):
                 else:
                     pos_new[j] = pos_new[j] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
             # Check the bound
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

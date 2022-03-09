@@ -102,7 +102,7 @@ class OriginalAOA(Optimizer):
                         pos_new[j] = self.g_best[self.ID_POS][j] - mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
                     else:
                         pos_new[j] = self.g_best[self.ID_POS][j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
