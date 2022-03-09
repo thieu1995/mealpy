@@ -94,7 +94,7 @@ class BaseSBO(Optimizer):
             temp = self.pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * self.sigma
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
             ### In-bound position
-            pos_new = np.clip(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -201,7 +201,6 @@ class OriginalSBO(BaseSBO):
                 ### Mutation
                 if np.random.uniform() < self.p_m:
                     pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
-            pos_new = np.clip(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
-

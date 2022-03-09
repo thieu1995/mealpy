@@ -76,7 +76,8 @@ class BaseSMA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.amend_position(position)
+        fitness = self.get_fitness_position(position)
         weight = np.zeros(self.problem.n_dims)
         return [position, fitness, weight]
 
@@ -95,10 +96,10 @@ class BaseSMA(Optimizer):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
+                    np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
+                    np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
         a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
@@ -121,7 +122,7 @@ class BaseSMA(Optimizer):
                 pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < p, pos_1, pos_2)
 
             # Check bound and re-calculate fitness after each individual move
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -186,17 +187,18 @@ class OriginalSMA(BaseSMA):
             epoch (int): The current iteration
         """
 
-        s = self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[-1][self.ID_TAR][self.ID_FIT] + self.EPSILON  # plus eps to avoid denominator zero
+        # plus eps to avoid denominator zero
+        s = self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[-1][self.ID_TAR][self.ID_FIT] + self.EPSILON
 
         # calculate the fitness weight of each slime mold
         for i in range(0, self.pop_size):
             # Eq.(2.5)
             if i <= int(self.pop_size / 2):
                 self.pop[i][self.ID_WEI] = 1 + np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
+                    np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
             else:
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
-                                           np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
+                    np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
         a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
         b = 1 - (epoch + 1) / self.epoch
@@ -215,10 +217,10 @@ class OriginalSMA(BaseSMA):
                     # two positions randomly selected from population
                     id_a, id_b = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
                     if np.random.uniform() < p:  # Eq.(2.1)
-                        current_agent[self.ID_POS][j] = self.g_best[self.ID_POS][j] + vb[j] * (
-                                current_agent[self.ID_WEI][j] * self.pop[id_a][self.ID_POS][j] - self.pop[id_b][self.ID_POS][j])
+                        current_agent[self.ID_POS][j] = self.g_best[self.ID_POS][j] + \
+                            vb[j] * (current_agent[self.ID_WEI][j] * self.pop[id_a][self.ID_POS][j] - self.pop[id_b][self.ID_POS][j])
                     else:
                         current_agent[self.ID_POS][j] = vc[j] * current_agent[self.ID_POS][j]
-            pos_new = self.amend_position_faster(current_agent[self.ID_POS])
+            pos_new = self.amend_position(current_agent[self.ID_POS])
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
         self.pop = self.update_fitness_population(pop_new)
