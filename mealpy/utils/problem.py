@@ -21,6 +21,7 @@ class Problem:
     + n_dims (int): number of dimensions / problem size (Optional)
     + obj_weight: list weights for all your objectives (Optional, default = [1, 1, ...1])
     + problem (dict): dictionary of the problem (contains at least the parameter 1, 2, 3) (Optional)
+    + amend_position(callable): Depend on your problem, may need to design an amend_position function (Optional for continuous domain, Required for discrete domain)
 
     Examples
     ~~~~~~~~
@@ -40,14 +41,11 @@ class Problem:
     >>> }
     >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50)
     >>>
-    >>> ## 2nd and 3rd ways:
+    >>> ## 2nd way:
     >>> from mealpy.utils.problem import Problem
     >>>
-    >>> problem_obj2 = Problem(problem = problem_dict)
-    >>> model2 = BasePSO(problem_obj2, epoch=1000, pop_size=50)
-    >>>
-    >>> problem_obj3 = Problem(fit_func=fitness_function, lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20], minmax="min", verbose=True)
-    >>> model3 = BasePSO(problem_obj3, epoch=1000, pop_size=50)
+    >>> problem_obj2 = Problem(fit_func=fitness_function, lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20], minmax="min", verbose=True)
+    >>> model3 = BasePSO(problem_obj2, epoch=1000, pop_size=50)
     """
 
     ID_MIN_PROB = 0  # min problem
@@ -156,6 +154,8 @@ class Problem:
             exit(0)
 
         tested_solution = np.random.uniform(self.lb, self.ub)
+        if "amend_position" in kwargs:
+            tested_solution = self.amend_position(tested_solution)
         result = None
         try:
             result = self.fit_func(tested_solution)
@@ -197,3 +197,17 @@ class Problem:
             else:
                 print("Please check your fitness function. It needs to return single value or a list of values!")
                 exit(0)
+
+    def amend_position(self, position=None):
+        """
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position (make the position is in bound)
+        """
+        # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
+        return np.clip(position, self.lb, self.ub)

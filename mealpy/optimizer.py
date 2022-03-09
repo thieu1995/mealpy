@@ -22,10 +22,15 @@ class Optimizer:
     ~~~~~
     + The solve() is the most important method, trained the model
     + The parallel (multithreading or multiprocessing) is used in method: create_population(), update_fitness_population()
-    + The general format of solution: [position, target], in which target has format: [fitness, [obj1, obj2,...] ]
-        + Access to position: solution[0]
-        + Access to fitness: solution[1][0]
-        + Access to all objective values: solution[1][1]
+    + The general format of:
+        + population = [agent_1, agent_2, ..., agent_N]
+        + agent = global_best = solution = [position, target]
+        + target = [fitness value, objective_list]
+        + objective_list = [obj_1, obj_2, ..., obj_M]
+    + Access to the:
+        + position of solution/agent: solution[0] or solution[self.ID_POS] or model.solution[model.ID_POS]
+        + fitness: solution[1][0] or solution[self.ID_TAR][self.ID_FIT] or model.solution[model.ID_TAR][model.ID_FIT]
+        + objective values: solution[1][1] or solution[self.ID_TAR][self.ID_OBJ] or model.solution[model.ID_TAR][model.ID_OBJ]
     """
 
     ID_POS = 0  # Index of position/location of solution/agent
@@ -59,9 +64,9 @@ class Optimizer:
         self.__set_keyword_arguments(kwargs)
         self.history = History()
         if (not isinstance(problem, Problem)) and type(problem) == dict:
-            problem = Problem(problem=problem)
+            problem = Problem(**problem)
         self.problem = problem
-        self.verbose = problem.verbose
+        self.amend_position = self.problem.amend_position
         self.termination_flag = False  # Check if exist object or not
         if "termination" in kwargs:
             termination = kwargs["termination"]
@@ -150,21 +155,21 @@ class Optimizer:
             if self.termination_flag:
                 if self.termination.mode == 'TB':
                     if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
+                        self.termination.logging(self.problem.verbose)
                         break
                 elif self.termination.mode == 'FE':
                     self.count_terminate += self.nfe_per_epoch
                     if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
+                        self.termination.logging(self.problem.verbose)
                         break
                 elif self.termination.mode == 'MG':
                     if (epoch+1) >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
+                        self.termination.logging(self.problem.verbose)
                         break
                 else:  # Early Stopping
                     temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
                     if temp >= self.termination.quantity:
-                        self.termination.logging(self.verbose)
+                        self.termination.logging(self.problem.verbose)
                         break
 
         ## Additional information for the framework
@@ -186,6 +191,7 @@ class Optimizer:
             list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 
@@ -371,9 +377,6 @@ class Optimizer:
         else:
             sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         current_best = sorted_pop[0]
-        # self.history_list_c_best.append(current_best)
-        # better = self.get_better_solution(current_best, self.history_list_g_best[-1])
-        # self.history_list_g_best.append(better)
         if save:
             self.history.list_current_best.append(current_best)
             better = self.get_better_solution(current_best, self.history.list_global_best[-1])
@@ -394,32 +397,19 @@ class Optimizer:
             epoch (int): current iteration
             runtime (float): the runtime for current iteration
         """
-        if self.verbose:
+        if self.problem.verbose:
             print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
                   f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def save_optimization_process(self):
         """
-        Detail: Save important data for later use such as:
-            + history_list_g_best_fit
-            + history_list_c_best_fit
-            + history_list_div
-            + history_list_explore
-            + history_list_exploit
+        Save important data for later use such as:
+            + list_global_best_fit
+            + list_current_best_fit
+            + list_diversity
+            + list_exploitation
+            + list_exploration
         """
-        # self.history_list_g_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history_list_g_best]
-        # self.history_list_c_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history_list_c_best]
-        #
-        # # Draw the exploration and exploitation line with this data
-        # self.history_list_div = np.ones(self.epoch)
-        # for idx, pop in enumerate(self.history_list_pop):
-        #     pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
-        #     div = np.mean(abs((np.median(pos_matrix, axis=0) - pos_matrix)), axis=0)
-        #     self.history_list_div[idx] = np.mean(div, axis=0)
-        # div_max = np.max(self.history_list_div)
-        # self.history_list_explore = 100 * (self.history_list_div / div_max)
-        # self.history_list_exploit = 100 - self.history_list_explore
-
         self.history.epoch = len(self.history.list_global_best)
         self.history.list_global_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_global_best]
         self.history.list_current_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_current_best]
@@ -551,30 +541,6 @@ class Optimizer:
             return position + np.random.normal(0, 1, len(self.problem.lb)) * levy
         elif case == 3:
             return position + 0.01 * levy
-
-    def amend_position(self, position=None):
-        """
-        Args:
-            position: vector position (location) of the solution.
-
-        Returns:
-            Amended position (make the position is in bound)
-        """
-        # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
-        return np.clip(position, self.problem.lb, self.problem.ub)
-
-    def amend_position_random(self, position=None):
-        """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
-
-        Args:
-            position: vector position (location) of the solution.
-
-        Returns:
-            Amended position
-        """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
 
     def get_global_best_global_worst_solution(self, pop=None):
         """
