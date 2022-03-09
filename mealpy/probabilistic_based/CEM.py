@@ -91,6 +91,6 @@ class BaseCEM(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = np.random.normal(self.means, self.stdevs)
-            pop_new.append([self.amend_position_faster(pos_new), None])
+            pop_new.append([self.amend_position(pos_new), None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
