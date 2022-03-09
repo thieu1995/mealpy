@@ -89,7 +89,7 @@ class BaseHS(Optimizer):
             # Pitch Adjustment
             x_new = pos_new + delta
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
-            pos_new = self.amend_position_faster(pos_new)  # Check the bound
+            pos_new = self.amend_position(pos_new)  # Check the bound
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
@@ -173,7 +173,7 @@ class OriginalHS(BaseHS):
                 if np.random.uniform() <= self.pa_r:
                     delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)  # Gaussian(Normal)
                     pos_new[j] = pos_new[j] + delta[j]
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
