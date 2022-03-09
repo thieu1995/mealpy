@@ -28,7 +28,7 @@ To use the library, your computer must installed all of these packages first:
 - Python (>= 3.6)
 - Numpy (>= 1.15.1)
 - Matplotlib (>=3.1.3)
-- Opfunu (>= 0.8.0)
+- Scipy (>= 1.5.2)
 
 
 **User Installation**
@@ -38,7 +38,7 @@ To use the library, your computer must installed all of these packages first:
 ::
 
    $ pip uninstall mealpy
-   $ pip install mealpy==2.2.2
+   $ pip install mealpy==2.3.0
 
 - Or install the development version from GitHub:
 
@@ -250,7 +250,7 @@ Advances
 
 .. include:: advances/lower_upper_bound.rst
 .. include:: advances/termination.rst
-
+.. include:: advances/import_all_models.rst
 
 .. toctree::
    :maxdepth: 4

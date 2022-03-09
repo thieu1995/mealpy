@@ -28,7 +28,7 @@ But there are different stopping condition you can try by creating an Terminatio
 
    term_dict3 = {
       "mode": "ES",
-	  "quantity": 30  # after 30 epochs, if the global best doesn't improve then we stop the program
+      "quantity": 30  # after 30 epochs, if the global best doesn't improve then we stop the program
    }
 
 **4. TB (Time Bound): You just want your algorithm run in K seconds. Especially when comparing different algorithms**

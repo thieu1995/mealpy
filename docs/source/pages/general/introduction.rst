@@ -7,7 +7,7 @@ Introduction
 MEALPY
 ------
 
-.. image:: https://img.shields.io/badge/release-2.2.0-yellow.svg
+.. image:: https://img.shields.io/badge/release-2.3.0-yellow.svg
    :target: https://github.com/thieu1995/mealpy/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
@@ -32,14 +32,15 @@ MEALPY
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.2.0, Total algorithms: 178 (original + variants), 91 original algorithms (8 dummy algorithms)
+* Current version: 2.3.0, Total algorithms: 154 (original + variants), 87 original algorithms (8 dummy algorithms)
 
-* Three different version of mealpy in term of passing hyper-parameters. So please careful check your version before
+* Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library (Check `All releases`_)
    * mealpy < 1.0.5
    * 1.1.0 < mealpy < 1.2.2
    * 2.0.0 <= mealpy <= 2.1.2
-   * mealpy >= 2.2.0
+   * mealpy == 2.2.0
+   * mealpy >= 2.3.0 (From this version, algorithms can solve discrete problem)
 
 
 .. _All releases: https://pypi.org/project/mealpy/#history
