@@ -180,4 +180,3 @@ class BaseBBO(OriginalBBO):
         pop = self.update_fitness_population(pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)
-
