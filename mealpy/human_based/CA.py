@@ -73,6 +73,7 @@ class OriginalCA(Optimizer):
 
     def create_faithful(self, lb, ub):
         position = np.random.uniform(lb, ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 

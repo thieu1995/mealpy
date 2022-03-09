@@ -71,6 +71,19 @@ class BaseSARO(Optimizer):
         pop = self.create_population(pop_size=(2 * self.pop_size))
         self.pop, self.g_best = self.get_global_best_solution(pop)
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -92,7 +105,7 @@ class BaseSARO(Optimizer):
             pos_new_2 = pop_x[idx][self.ID_POS] + np.random.uniform() * sd
             pos_new = np.where(np.logical_and(np.random.uniform(0, 1, self.problem.n_dims) < self.se,
                                               self.pop[k][self.ID_TAR] < pop_x[idx][self.ID_TAR]), pos_new_1, pos_new_2)
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         for idx in range(self.pop_size):
@@ -110,7 +123,7 @@ class BaseSARO(Optimizer):
             k1, k2 = np.random.choice(list(set(range(0, 2 * self.pop_size)) - {idx}), 2, replace=False)
             #### Remove third loop here, and flight back strategy now be a random
             pos_new = self.g_best[self.ID_POS] + np.random.uniform() * (pop[k1][self.ID_POS] - pop[k2][self.ID_POS])
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         for idx in range(0, self.pop_size):
@@ -209,7 +222,7 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.lb[j]) / 2
                 if pos_new[j] > self.problem.ub[j]:
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         for idx in range(0, self.pop_size):
@@ -231,7 +244,7 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.lb[j]) / 2
                 if pos_new[j] > self.problem.ub[j]:
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         for idx in range(0, self.pop_size):

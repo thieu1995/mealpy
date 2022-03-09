@@ -134,7 +134,7 @@ class ImprovedBSO(Optimizer):
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
                               epxilon * np.random.uniform()
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_group[cluster_id][location_id] = [pos_new, None]
         pop_group = [self.update_fitness_population(group) for group in pop_group]
         for idx in range(0, self.m_clusters):
@@ -221,6 +221,19 @@ class BaseBSO(ImprovedBSO):
         self.miu = miu
         self.xichma = xichma
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -259,7 +272,7 @@ class BaseBSO(ImprovedBSO):
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
                               epxilon * np.random.normal(self.miu, self.xichma)
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_group[cluster_id][location_id] = [pos_new, None]
         pop_group = [self.update_fitness_population(group) for group in pop_group]
         for idx in range(0, self.m_clusters):

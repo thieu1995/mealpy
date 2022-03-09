@@ -90,7 +90,7 @@ class OriginalLCO(Optimizer):
                 temp = self.pop[i][self.ID_POS] + np.random.random() * better_diff + np.random.random() * best_diff
             else:
                 temp = self.problem.ub - (self.pop[i][self.ID_POS] - self.problem.lb) * np.random.random()
-            pos_new = self.amend_position_faster(temp)
+            pos_new = self.amend_position(temp)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -167,7 +167,7 @@ class BaseLCO(OriginalLCO):
                 temp = self.pop[i][self.ID_POS] + np.random.uniform() * better_diff + np.random.uniform() * best_diff
             else:
                 temp = self.problem.ub - (self.pop[i][self.ID_POS] - self.problem.lb) * np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position_faster(temp)
+            pos_new = self.amend_position(temp)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -246,7 +246,7 @@ class ImprovedLCO(Optimizer):
                 pos_new = self.pop[i][self.ID_POS] + better_diff + best_diff
             else:
                 pos_new = self.problem.ub - (self.pop[i][self.ID_POS] - self.problem.lb) * np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
@@ -257,7 +257,7 @@ class ImprovedLCO(Optimizer):
         ## Mutation scheme
         for i in range(0, self.pop_len):
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
-            pop_s1[i][self.ID_POS] = self.amend_position_faster(pos_new)
+            pop_s1[i][self.ID_POS] = self.amend_position(pos_new)
         pop_s1 = self.update_fitness_population(pop_s1)
 
         ## Search Mechanism
@@ -266,7 +266,7 @@ class ImprovedLCO(Optimizer):
         for i in range(0, self.pop_len):
             pos_new = (local_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
-            pop_s2[i][self.ID_POS] = pos_new
+            pop_s2[i][self.ID_POS] = self.amend_position(pos_new)
         pop_s2 = self.update_fitness_population(pop_s2)
 
         ## Construct a new population

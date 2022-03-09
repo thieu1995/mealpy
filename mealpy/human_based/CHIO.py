@@ -93,7 +93,7 @@ class OriginalCHIO(Optimizer):
                     idx_candidates = np.where(self.immunity_type_list == 1)  # Infected list
                     if idx_candidates[0].size == 0:
                         self.finished = True
-                        print("Epoch: {}, i: {}, immunity_list: {}".format(epoch, i, self.immunity_type_list))
+                        # print("Epoch: {}, i: {}, immunity_list: {}".format(epoch, i, self.immunity_type_list))
                         break
                     idx_selected = np.random.choice(idx_candidates[0])
                     pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.uniform() * \
@@ -112,7 +112,7 @@ class OriginalCHIO(Optimizer):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
             if self.finished:
                 break
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         if len(pop_new) != self.pop_size:
             pop_child = self.create_population(self.pop_size - len(pop_new))
@@ -226,7 +226,7 @@ class BaseCHIO(OriginalCHIO):
                                  (self.pop[i][self.ID_POS][j] - self.pop[idx_selected][self.ID_POS][j])
             if self.finished:
                 break
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
