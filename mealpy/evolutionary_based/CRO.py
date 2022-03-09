@@ -106,7 +106,7 @@ class BaseCRO(Optimizer):
     def _gaussian_mutation(self, position):
         temp = position + self.G1 * (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
         pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.GCR, temp, position)
-        return self.amend_position_faster(pos_new)
+        return self.amend_position(pos_new)
 
     ### Crossover
     def _multi_point_cross(self, pos1, pos2):
@@ -272,12 +272,13 @@ class OCRO(BaseCRO):
         for idx in range(0, len(pop)):
             temp = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, self.g_best[self.ID_POS], temp)
+            pos_new = self.amend_position(pos_new)
             pop_new.append([pos_new, None])
         return self.update_fitness_population(pop_new)
 
     def _opposition_based_position(self, reef, g_best):
         pos_new = self.problem.ub + self.problem.lb - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - reef[self.ID_POS])
-        pos_new = self.amend_position_faster(pos_new)
+        pos_new = self.amend_position(pos_new)
         fit_new = self.get_fitness_position(pos_new)
         return [pos_new, fit_new]
 

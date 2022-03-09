@@ -84,7 +84,8 @@ class BaseES(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.amend_position(position)
+        fitness = self.get_fitness_position(position)
         strategy = np.random.uniform(0, self.distance)
         return [position, fitness, strategy]
 
@@ -98,7 +99,7 @@ class BaseES(Optimizer):
         child = []
         for idx in range(0, self.n_child):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             tau = np.sqrt(2.0 * self.problem.n_dims) ** -1.0
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             strategy = np.exp(tau_p * np.random.normal(0, 1.0, self.problem.n_dims) + tau * np.random.normal(0, 1.0, self.problem.n_dims))
@@ -172,7 +173,7 @@ class LevyES(BaseES):
         child = []
         for idx in range(0, self.n_child):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             tau = np.sqrt(2.0 * self.problem.n_dims) ** -1.0
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             strategy = np.exp(tau_p * np.random.normal(0, 1.0, self.problem.n_dims) + tau * np.random.normal(0, 1.0, self.problem.n_dims))
@@ -184,10 +185,10 @@ class LevyES(BaseES):
             levy = self.get_levy_flight_step(multiplier=0.01, case=-1)
             pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * \
                       levy * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             tau = np.sqrt(2.0 * self.problem.n_dims) ** -1.0
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             stdevs = np.array([np.exp(tau_p * np.random.normal(0, 1.0) + tau * np.random.normal(0, 1.0)) for _ in range(self.problem.n_dims)])
-            child.append([pos_new, None, stdevs])
+            child_levy.append([pos_new, None, stdevs])
         child_levy = self.update_fitness_population(child_levy)
         self.pop = self.get_sorted_strim_population(child + child_levy + self.pop, self.pop_size)

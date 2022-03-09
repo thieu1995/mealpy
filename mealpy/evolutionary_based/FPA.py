@@ -63,6 +63,19 @@ class BaseFPA(Optimizer):
         self.pop_size = pop_size
         self.p_s = p_s
 
+    def amend_position(self, position=None):
+        """
+        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+
+        Args:
+            position: vector position (location) of the solution.
+
+        Returns:
+            Amended position
+        """
+        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
+                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -79,6 +92,6 @@ class BaseFPA(Optimizer):
             else:
                 id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
                 pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[id1][self.ID_POS] - self.pop[id2][self.ID_POS])
-            pos_new = self.amend_position_random(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
         self.pop = self.update_fitness_population(pop)

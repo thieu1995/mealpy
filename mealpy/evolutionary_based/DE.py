@@ -81,7 +81,7 @@ class BaseDE(Optimizer):
 
     def _mutation__(self, current_pos, new_pos):
         pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.crossover_rate, current_pos, new_pos)
-        return self.amend_position_faster(pos_new)
+        return self.amend_position(pos_new)
 
     def evolve(self, epoch):
         """
@@ -256,7 +256,7 @@ class JADE(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
 
@@ -376,7 +376,7 @@ class SADE(Optimizer):
                 pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
                 j_rand = np.random.randint(0, self.problem.n_dims)
                 pos_new[j_rand] = x_new[j_rand]
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 pop.append([pos_new, None])
                 list_probability.append(True)
             else:
@@ -385,7 +385,7 @@ class SADE(Optimizer):
                 pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
                 j_rand = np.random.randint(0, self.problem.n_dims)
                 pos_new[j_rand] = x_new[j_rand]
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 pop.append([pos_new, None])
                 list_probability.append(False)
         pop = self.update_fitness_population(pop)
@@ -529,7 +529,7 @@ class SHADE(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
 
@@ -691,7 +691,7 @@ class L_SHADE(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
-            pos_new = self.amend_position_faster(pos_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
 
@@ -815,6 +815,7 @@ class SAP_DE(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], crossover_rate, mutation_rate, pop_size]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         crossover_rate = np.random.uniform(0, 1)
         mutation_rate = np.random.uniform(0, 1)
@@ -855,7 +856,7 @@ class SAP_DE(Optimizer):
                     ps_new = self.pop[idxs[0]][self.ID_PS] + int(self.F * (self.pop[idxs[1]][self.ID_PS] - self.pop[idxs[2]][self.ID_PS]))
                 else:  # elif self.branch == "REL":
                     ps_new = self.pop[idxs[0]][self.ID_PS] + self.F * (self.pop[idxs[1]][self.ID_PS] - self.pop[idxs[2]][self.ID_PS])
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 cr_new = self.edit_to_range(cr_new, 0, 1, np.random.random)
                 mr_new = self.edit_to_range(mr_new, 0, 1, np.random.random)
                 pop.append([pos_new, None, cr_new, mr_new, ps_new])
@@ -870,7 +871,7 @@ class SAP_DE(Optimizer):
                     ps_new = self.pop[idx][self.ID_PS] + int(np.random.normal(0.5, 1))
                 else:  # elif self.branch == "REL":
                     ps_new = self.pop[idx][self.ID_PS] + np.random.normal(0, self.pop[idxs[0]][self.ID_MR])
-                pos_new = self.amend_position_faster(pos_new)
+                pos_new = self.amend_position(pos_new)
                 pop.append([pos_new, None, cr_new, mr_new, ps_new])
         pop = self.update_fitness_population(pop)
 

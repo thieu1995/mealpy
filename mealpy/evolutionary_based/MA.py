@@ -97,6 +97,7 @@ class BaseMA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], bitstring]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.amend_position(position)
         fitness = self.get_fitness_position(position=position)
         bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
         return [position, fitness, bitstring]
@@ -145,6 +146,7 @@ class BaseMA(Optimizer):
             child = deepcopy(current)
             bitstring_new = self._point_mutation(child[self.ID_BIT])
             pos_new = self._decode(bitstring_new)
+            pos_new = self.amend_position(pos_new)
             fit_new = self.get_fitness_position(pos_new)
             current = self.get_better_solution(child, [pos_new, fit_new, bitstring_new])
         return current
@@ -156,6 +158,7 @@ class BaseMA(Optimizer):
         bitstring_new = self._crossover(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
         bitstring_new = self._point_mutation(bitstring_new)
         pos_new = self._decode(bitstring_new)
+        pos_new = self.amend_position(pos_new)
         fit_new = self.get_fitness_position(pos_new)
         return [pos_new, fit_new, bitstring_new]
 
@@ -180,6 +183,7 @@ class BaseMA(Optimizer):
             bitstring_new = self._crossover(children[idx][self.ID_BIT], ancient[self.ID_BIT])
             bitstring_new = self._point_mutation(bitstring_new)
             pos_new = self._decode(bitstring_new)
+            pos_new = self.amend_position(pos_new)
             pop.append([pos_new, None, bitstring_new])
         self.pop = self.update_fitness_population(pop)
 
