@@ -73,7 +73,7 @@ class Optimizer:
             if isinstance(termination, Termination):
                 self.termination = termination
             elif type(termination) == dict:
-                self.termination = Termination(termination=termination)
+                self.termination = Termination(**termination)
             else:
                 print("Please create and input your Termination dictionary or Termination object.")
                 exit(0)

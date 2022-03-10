@@ -50,7 +50,7 @@ class Termination:
     >>> term_obj2 = Termination(termination = term_dict)
     >>> model2 = BasePSO(problem_dict, epoch=1000, pop_size=50, termination=term_obj2)
     >>>
-    >>> term_obj3 = Termination(termination = term_dict)
+    >>> term_obj3 = Termination(mode="FE", quantity=1000)
     >>> model3 = BasePSO(problem_dict, epoch=1000, pop_size=50, termination=term_obj3)
     """
 
