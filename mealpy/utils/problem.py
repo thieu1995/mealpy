@@ -44,8 +44,32 @@ class Problem:
     >>> ## 2nd way:
     >>> from mealpy.utils.problem import Problem
     >>>
-    >>> problem_obj2 = Problem(fit_func=fitness_function, lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20], minmax="min", verbose=True)
-    >>> model3 = BasePSO(problem_obj2, epoch=1000, pop_size=50)
+    >>> problem_obj = Problem(fit_func=fitness_function, lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20], minmax="min", verbose=True)
+    >>> model2 = BasePSO(problem_obj, epoch=1000, pop_size=50)
+    >>>
+    >>> ## For discrete problem, you need to design an amend_position function that can (1) bring your solution back to the valid range,
+    >>> ##    (2) can convert float number into integer number (combinatorial or permutation).
+    >>>
+    >>> def amend_position(solution, lb, ub):
+    >>>     ## Bring them back to valid range
+    >>>     solution = np.clip(solution, lb, ub)
+    >>>     ## Convert float to integer number
+    >>>     solution_int = solution.astype(int)
+    >>>     ## If the designed solution is permutation, then need an extra step here
+    >>>     ## .... Do it here and then return the valid solution
+    >>>     return solution_int
+    >>>
+    >>> problem_dict3 = {
+    >>>     "fit_func": fitness_function,
+    >>>     "lb": [-100, ] * 30,
+    >>>     "ub": [100, ] * 30,
+    >>>     "minmax": "min",
+    >>>     "verbose": True,
+    >>>     "amend_position": amend_position
+    >>> }
+    >>> model3 = BasePSO(problem_dict3, epoch=1000, pop_size=50)
+    >>> best_position, best_fitness = model3.solve()
+    >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
     """
 
     ID_MIN_PROB = 0  # min problem
@@ -155,7 +179,7 @@ class Problem:
 
         tested_solution = np.random.uniform(self.lb, self.ub)
         if "amend_position" in kwargs:
-            tested_solution = self.amend_position(tested_solution)
+            tested_solution = self.amend_position(tested_solution, self.lb, self.ub)
         result = None
         try:
             result = self.fit_func(tested_solution)
@@ -198,16 +222,18 @@ class Problem:
                 print("Please check your fitness function. It needs to return single value or a list of values!")
                 exit(0)
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
         Depend on what kind of problem are we trying to solve, there will be an different amend_position
         function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
             Amended position (make the position is in bound)
         """
         # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
-        return np.clip(position, self.lb, self.ub)
+        return np.clip(position, lb, ub)
