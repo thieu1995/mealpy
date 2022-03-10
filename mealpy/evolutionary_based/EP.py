@@ -88,7 +88,7 @@ class BaseEP(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy, times_win]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         strategy = np.random.uniform(0, self.distance, self.problem.n_dims)
         times_win = 0
@@ -104,7 +104,7 @@ class BaseEP(Optimizer):
         child = []
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
         child = self.update_fitness_population(child)
@@ -184,7 +184,7 @@ class LevyEP(BaseEP):
         child = []
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
         child = self.update_fitness_population(child)
