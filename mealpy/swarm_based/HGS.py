@@ -82,7 +82,7 @@ class OriginalHGS(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], hunger]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         hunger = 1.0
         return [position, fitness, hunger]
@@ -151,6 +151,6 @@ class OriginalHGS(Optimizer):
                     pos_new = W1 * g_best[self.ID_POS] + R * W2 * abs(g_best[self.ID_POS] - current_agent[self.ID_POS])
                 else:
                     pos_new = W1 * g_best[self.ID_POS] - R * W2 * abs(g_best[self.ID_POS] - current_agent[self.ID_POS])
-            current_agent[self.ID_POS] = self.amend_position(pos_new)
+            current_agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(current_agent)
         self.pop = self.update_fitness_population(pop_new)

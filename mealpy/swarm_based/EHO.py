@@ -106,7 +106,7 @@ class BaseEHO(Optimizer):
             else:
                 pos_new = self.pop_group[clan_idx][pos_clan_idx][self.ID_POS] + self.alpha * np.random.uniform() * \
                           (self.pop_group[clan_idx][0][self.ID_POS] - self.pop_group[clan_idx][pos_clan_idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         # Update fitness value
         self.pop = self.update_fitness_population(pop_new)

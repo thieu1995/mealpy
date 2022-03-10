@@ -78,23 +78,25 @@ class BaseSSpiderO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         weight = 0.0
         return [position, fitness, weight]
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            Amended position
+            Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def initialization(self):
         self.fp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
@@ -143,7 +145,7 @@ class BaseSSpiderO(Optimizer):
             else:  # Do a repulsion
                 pos_new = self.pop_females[i][self.ID_POS] - vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta - \
                           vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
-            self.pop_females[i][self.ID_POS] = self.amend_position(pos_new)
+            self.pop_females[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         self.pop_females = self.update_fitness_population(self.pop_females)
         self.nfe_epoch += self.n_f
 
@@ -182,7 +184,7 @@ class BaseSSpiderO(Optimizer):
             else:
                 # Spider below median, go to weighted mean
                 pos_new = self.pop_males[i][self.ID_POS] + delta * (mean - self.pop_males[i][self.ID_POS]) + random
-            self.pop_males[i][self.ID_POS] = self.amend_position(pos_new)
+            self.pop_males[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         self.pop_males = self.update_fitness_population(self.pop_males)
         self.nfe_epoch += self.n_m
 
@@ -238,8 +240,8 @@ class BaseSSpiderO(Optimizer):
             n_child = len(couples)
             for k in range(n_child):
                 child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
-                pos1 = self.amend_position(child1)
-                pos2 = self.amend_position(child2)
+                pos1 = self.amend_position(child1, self.problem.lb, self.problem.ub)
+                pos2 = self.amend_position(child2, self.problem.lb, self.problem.ub)
                 fit1 = self.get_fitness_position(pos1)
                 fit2 = self.get_fitness_position(pos2)
                 list_child.append([pos1, fit1, 0.0])

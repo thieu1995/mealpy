@@ -72,7 +72,7 @@ class BaseJA(Optimizer):
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) + \
                       np.random.normal() * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -135,7 +135,7 @@ class OriginalJA(BaseJA):
             pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
                       (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - \
                       np.random.uniform(0, 1, self.problem.n_dims) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -206,6 +206,6 @@ class LevyJA(BaseJA):
             L2 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
             pos_new = self.pop[idx][self.ID_POS] + np.abs(L1) * (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - \
                       np.abs(L2) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

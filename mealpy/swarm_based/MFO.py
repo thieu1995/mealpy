@@ -93,7 +93,7 @@ class BaseMFO(Optimizer):
             pos_new = np.where(list_idx < num_flame, temp_1, temp_2)
 
             ## This is the way I make this algorithm working. I tried to run matlab code with large dimension and it doesn't convergence.
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -175,6 +175,6 @@ class OriginalMFO(BaseMFO):
                     # Eq.(3.12).
                     ## Here is a changed, I used the best position of flames not the position num_flame th (as original code)
                     pos_new[j] = distance_to_flame * np.exp(b * t) * np.cos(t * 2 * np.pi) + pop_flames[num_flame][self.ID_POS][j]
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

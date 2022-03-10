@@ -113,7 +113,7 @@ class OriginalBFO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], cost, interaction, sum_nutrients]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         cost = 0.0
         interaction = 0.0
@@ -161,7 +161,7 @@ class OriginalBFO(Optimizer):
                     delta_i = np.random.uniform(self.problem.lb, self.problem.ub)
                     unit_vector = delta_i / np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
                     pos_new = self.pop[idx][self.ID_POS] + self.step_size * unit_vector
-                    pos_new = self.amend_position(pos_new)
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     fit_new = self.get_fitness_position(pos_new)
                     nfe_epoch += 1
                     if self.compare_agent([pos_new, fit_new], self.pop[idx]):
@@ -273,7 +273,7 @@ class ABFO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], nutrient, local_pos_best, local_fit_best]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
         local_pos_best = deepcopy(position)
@@ -302,7 +302,7 @@ class ABFO(Optimizer):
                 delta = np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
                 unit_vector = np.random.uniform(self.problem.lb, self.problem.ub) if delta == 0 else (delta_i / delta)
                 pos_new = self.pop[i][self.ID_POS] + step_size * unit_vector
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 nfe_epoch += 1
                 if self.compare_agent([pos_new, fit_new], self.pop[i]):
@@ -319,7 +319,7 @@ class ABFO(Optimizer):
             if self.pop[i][self.ID_NUT] > max(self.N_split, self.N_split + (len(self.pop) - self.pop_size) / self.N_adapt):
                 pos_new = self.pop[i][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub) * \
                           (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 self.pop.append([pos_new, fit_new, 0, deepcopy(pos_new), deepcopy(fit_new)])
                 nfe_epoch += 1

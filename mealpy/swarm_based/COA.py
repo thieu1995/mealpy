@@ -85,7 +85,7 @@ class BaseCOA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], age]
         """
         pos = np.random.uniform(self.problem.lb, self.problem.ub)
-        pos = self.amend_position(pos)
+        pos = self.amend_position(pos, self.problem.lb, self.problem.ub)
         fit = self.get_fitness_position(pos)
         age = 1
         return [pos, fit, age]
@@ -129,7 +129,7 @@ class BaseCOA(Optimizer):
                           (self.pop_group[p][0][self.ID_POS] - self.pop_group[p][rc1][self.ID_POS]) + \
                           np.random.rand() * (tendency - self.pop_group[p][rc2][self.ID_POS])
                 # Keep the coyotes in the search space (optimization problem constraint)
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None, self.pop_group[p][i][self.ID_AGE]])
             # Evaluate the new social condition (Eq. 13)
             pop_new = self.update_fitness_population(pop_new)
@@ -144,7 +144,7 @@ class BaseCOA(Optimizer):
                            self.pop_group[p][id_dad][self.ID_POS], self.pop_group[p][id_mom][self.ID_POS])
             # Eventual noise
             pos_new = np.random.normal(0, 1) * pup
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             fit_new = self.get_fitness_position(pos_new)
 
             # Verify if the pup will survive

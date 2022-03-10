@@ -121,7 +121,7 @@ class OriginalALO(Optimizer):
             temp = (RA[:, epoch] + RE[:, epoch]) / 2  # Equation(2.13) in the paper
 
             # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
-            pos_new = self.amend_position(temp)
+            pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 

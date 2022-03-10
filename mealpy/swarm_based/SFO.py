@@ -95,9 +95,9 @@ class BaseSFO(Optimizer):
         PD = 1 - self.pop_size / (self.pop_size + self.s_size)
         for i in range(0, self.pop_size):
             lamda_i = 2 * np.random.uniform() * PD - PD
-            pos_new = self.s_gbest[self.ID_POS] - lamda_i * (np.random.uniform() *
-                                                             (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.s_gbest[self.ID_POS] - lamda_i * \
+                (np.random.uniform() * (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
@@ -116,13 +116,13 @@ class BaseSFO(Optimizer):
                     list2 = np.random.choice(range(0, self.problem.n_dims), beta, replace=False)
                     pos_new[list2] = (np.random.uniform(0, 1, self.problem.n_dims) *
                                       (self.pop[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP))[list2]
-                    pos_new = self.amend_position(pos_new)
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     self.s_pop[i] = [pos_new, None]
         else:
             ### Update the position of all sardine using Eq.(9)
             for i in range(0, self.s_size):
                 pos_new = np.random.uniform() * (self.g_best[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP)
-                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new)
+                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_fitness_population(self.s_pop)
         nfe_epoch += self.s_size
@@ -227,9 +227,9 @@ class ImprovedSFO(Optimizer):
         for i in range(0, self.pop_size):
             PD = 1 - len(self.pop) / (len(self.pop) + len(self.s_pop))
             lamda_i = 2 * np.random.uniform() * PD - PD
-            pos_new = self.s_gbest[self.ID_POS] - lamda_i * (np.random.uniform() *
-                                                             (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.s_gbest[self.ID_POS] - \
+                lamda_i * (np.random.uniform() * (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
         nfe_epoch += self.pop_size
@@ -241,12 +241,12 @@ class ImprovedSFO(Optimizer):
             for i in range(0, len(self.s_pop)):
                 temp = (self.g_best[self.ID_POS] + AP) / 2
                 pos_new = self.problem.lb + self.problem.ub - temp + np.random.uniform() * (temp - self.s_pop[i][self.ID_POS])
-                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new)
+                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         else:
             ### Update the position of all sardine using Eq.(9)
             for i in range(0, len(self.s_pop)):
                 pos_new = np.random.uniform() * (self.g_best[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP)
-                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new)
+                self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_fitness_population(self.s_pop)
         nfe_epoch += len(self.s_pop)

@@ -97,7 +97,7 @@ class BaseGOA(Optimizer):
                 s_ij = ran * self._s_function__(xj_xi) * r_ij_vector
                 S_i_total += s_ij
             x_new = c * np.random.normal() * S_i_total + self.g_best[self.ID_POS]  # Eq. (2.7) in the paper
-            pos_new = self.amend_position(x_new)
+            pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

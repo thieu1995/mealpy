@@ -77,7 +77,7 @@ class BaseCSA(Optimizer):
             levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
             pos_new = self.pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
                       levy_step * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         list_idx_rand = np.random.choice(list(range(0, self.pop_size)), self.pop_size, replace=True)
@@ -90,7 +90,7 @@ class BaseCSA(Optimizer):
         pop_new = []
         for i in range(0, self.n_cut):
             pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = pop[:(self.pop_size - self.n_cut)] + pop_new

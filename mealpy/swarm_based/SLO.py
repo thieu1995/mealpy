@@ -64,18 +64,20 @@ class BaseSLO(Optimizer):
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            Amended position
+            Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def evolve(self, epoch):
         """
@@ -104,7 +106,7 @@ class BaseSLO(Optimizer):
                 pos_new = np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) * \
                           np.cos(2 * np.pi * np.random.uniform(-1, 1)) + self.g_best[self.ID_POS]
             # In the paper doesn't check also doesn't update old solution at this point
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -172,10 +174,10 @@ class ModifiedSLO(Optimizer):
         """
         ## Increase exploration at the first initial population using opposition-based learning.
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         local_pos = self.problem.lb + self.problem.ub - position
-        local_pos = self.amend_position(local_pos)
+        local_pos = self.amend_position(local_pos, self.problem.lb, self.problem.ub)
         local_fit = self.get_fitness_position(local_pos)
         if fitness < local_fit:
             return [local_pos, local_fit, position, fitness]
@@ -223,7 +225,7 @@ class ModifiedSLO(Optimizer):
                     rand_SL = self.pop[np.random.randint(0, self.pop_size)][self.ID_LOC_POS]
                     rand_SL = 2 * self.g_best[self.ID_POS] - rand_SL
                     pos_new = rand_SL - c * np.abs(np.random.uniform() * rand_SL - self.pop[idx][self.ID_POS])
-            agent[self.ID_POS] = self.amend_position(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
 
@@ -315,16 +317,16 @@ class ISLO(ModifiedSLO):
                     # Compare both of them and keep the good one (Searching at both direction)
                     pos_new = self.g_best[self.ID_POS] + c * np.random.normal(0, 1, self.problem.n_dims) * \
                               (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                    fit_new = self.get_fitness_position(self.amend_position(pos_new))
+                    fit_new = self.get_fitness_position(self.amend_position(pos_new, self.problem.lb, self.problem.ub))
                     pos_new_oppo = self.problem.lb + self.problem.ub - self.g_best[self.ID_POS] + \
                                    np.random.rand() * (self.g_best[self.ID_POS] - pos_new)
-                    fit_new_oppo = self.get_fitness_position(self.amend_position(pos_new_oppo))
+                    fit_new_oppo = self.get_fitness_position(self.amend_position(pos_new_oppo, self.problem.lb, self.problem.ub))
                     if self.compare_agent([pos_new_oppo, fit_new_oppo], [pos_new, fit_new]):
                         pos_new = pos_new_oppo
             else:  # Exploitation
                 pos_new = self.g_best[self.ID_POS] + np.cos(2 * np.pi * np.random.uniform(-1, 1)) * \
                           np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            agent[self.ID_POS] = self.amend_position(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
 

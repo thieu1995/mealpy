@@ -85,7 +85,7 @@ class BaseHHO(Optimizer):
                     X_m = np.mean([x[self.ID_POS] for x in self.pop])
                     pos_new = (self.g_best[self.ID_POS] - X_m) - np.random.uniform() * \
                               (self.problem.lb + np.random.uniform() * (self.problem.ub - self.problem.lb))
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
             # -------- Exploitation phase -------------------
             else:
@@ -98,7 +98,7 @@ class BaseHHO(Optimizer):
                         pos_new = delta_X - E * np.abs(J * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                     else:  # Soft besiege Eq. (4) in paper
                         pos_new = self.g_best[self.ID_POS] - E * np.abs(delta_X)
-                    pos_new = self.amend_position(pos_new)
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_new.append([pos_new, None])
                 else:
                     xichma = np.power((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2.0)) /
@@ -109,10 +109,10 @@ class BaseHHO(Optimizer):
                     else:  # Hard besiege Eq. (11) in paper
                         X_m = np.mean([x[self.ID_POS] for x in self.pop])
                         Y = self.g_best[self.ID_POS] - E * np.abs(J * self.g_best[self.ID_POS] - X_m)
-                    pos_Y = self.amend_position(Y)
+                    pos_Y = self.amend_position(Y, self.problem.lb, self.problem.ub)
                     fit_Y = self.get_fitness_position(pos_Y)
                     Z = Y + np.random.uniform(self.problem.lb, self.problem.ub) * LF_D
-                    pos_Z = self.amend_position(Z)
+                    pos_Z = self.amend_position(Z, self.problem.lb, self.problem.ub)
                     fit_Z = self.get_fitness_position(pos_Z)
 
                     if self.compare_agent([pos_Y, fit_Y], self.pop[idx]):

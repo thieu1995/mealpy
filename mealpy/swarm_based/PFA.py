@@ -70,7 +70,7 @@ class BasePFA(Optimizer):
 
         ## Update the position of pathfinder and check the bound
         pos_new = self.pop[0][self.ID_POS] + 2 * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[0][self.ID_POS]) + A
-        pos_new = self.amend_position(pos_new)
+        pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         fit = self.get_fitness_position(pos_new)
         pop_new = [[pos_new, fit], ]
 
@@ -86,7 +86,7 @@ class BasePFA(Optimizer):
             ## Second stabilize the population size
             t1 = beta * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = (pos_new + t1) / self.pop_size
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
