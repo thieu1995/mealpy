@@ -79,7 +79,7 @@ class BaseTLO(Optimizer):
             list_pos = np.array([item[self.ID_POS] for item in self.pop])
             DIFF_MEAN = np.random.rand(self.problem.n_dims) * (self.g_best[self.ID_POS] - TF * np.mean(list_pos, axis=0))
             temp = self.pop[idx][self.ID_POS] + DIFF_MEAN
-            pos_new = self.amend_position(temp)
+            pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -93,7 +93,7 @@ class BaseTLO(Optimizer):
                 temp += np.random.rand(self.problem.n_dims) * (pop_new[idx][self.ID_POS] - pop_new[id_partner][self.ID_POS])
             else:
                 temp += np.random.rand(self.problem.n_dims) * (pop_new[id_partner][self.ID_POS] - pop_new[idx][self.ID_POS])
-            pos_new = self.amend_position(temp)
+            pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
         pop_child = self.update_fitness_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)
@@ -164,7 +164,7 @@ class OriginalTLO(BaseTLO):
             list_pos = np.array([item[self.ID_POS] for item in self.pop])
             pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * \
                       (self.g_best[self.ID_POS] - TF * np.mean(list_pos, axis=0))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             fit_new = self.get_fitness_position(pos_new)
             if self.compare_agent([pos_new, fit_new], self.pop[idx]):
                 self.pop[idx] = [pos_new, fit_new]
@@ -178,7 +178,7 @@ class OriginalTLO(BaseTLO):
             else:
                 diff = self.pop[id_partner][self.ID_POS] - self.pop[idx][self.ID_POS]
             pos_new = self.pop[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * diff
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             fit_new = self.get_fitness_position(pos_new)
             if self.compare_agent([pos_new, fit_new], self.pop[idx]):
                 self.pop[idx] = [pos_new, fit_new]
@@ -284,7 +284,7 @@ class ITLO(BaseTLO):
                     pos_new = (student[self.ID_POS] + diff_mean) + np.random.rand() * (team[id2][self.ID_POS] - student[self.ID_POS])
                 else:
                     pos_new = (student[self.ID_POS] + diff_mean) + np.random.rand() * (student[self.ID_POS] - team[id2][self.ID_POS])
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
             pop_new = self.update_fitness_population(pop_new)
             self.teams[id_teach] = self.greedy_selection_population(team, pop_new)
@@ -301,7 +301,7 @@ class ITLO(BaseTLO):
                 else:
                     pos_new = student[self.ID_POS] + np.random.rand() * (team[id2][self.ID_POS] - student[self.ID_POS]) + \
                               np.random.rand() * (teacher[self.ID_POS] - ef * student[self.ID_POS])
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
             pop_new = self.update_fitness_population(pop_new)
             self.teams[id_teach] = self.greedy_selection_population(team, pop_new)

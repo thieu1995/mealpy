@@ -137,7 +137,7 @@ class BaseICA(Optimizer):
             for idx_colony, colony in enumerate(colonies):
                 pos_new = colony[self.ID_POS] + self.assimilation_coeff * \
                           np.random.uniform(0, 1, self.problem.n_dims) * (self.pop_empires[idx][self.ID_POS] - colony[self.ID_POS])
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 self.empires[idx][idx_colony][self.ID_POS] = pos_new
             self.empires[idx] = self.update_fitness_population(self.empires[idx])
             # empires[idx], g_best = self.update_global_best_solution(empires[idx], self.ID_MIN_PROB, g_best)
@@ -146,13 +146,13 @@ class BaseICA(Optimizer):
         for idx, colonies in self.empires.items():
             # Apply revolution to Imperialist
             pos_new = self.revolution_country(self.pop_empires[idx][self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
-            self.pop_empires[idx][self.ID_POS] = self.amend_position(pos_new)
+            self.pop_empires[idx][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
 
             # Apply revolution to Colonies
             for idx_colony, colony in enumerate(colonies):
                 if np.random.rand() < self.revolution_prob:
                     pos_new = self.revolution_country(colony[self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
-                    self.empires[idx][idx_colony][self.ID_POS] = self.amend_position(pos_new)
+                    self.empires[idx][idx_colony][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             self.empires[idx] = self.update_fitness_population(self.empires[idx])
         self.pop_empires = self.update_fitness_population(self.pop_empires)
         _, g_best = self.update_global_best_solution(self.pop_empires)

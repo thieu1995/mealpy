@@ -74,7 +74,7 @@ class BaseSSDO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, best_local_position]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         pos_local = deepcopy(position)
@@ -107,7 +107,7 @@ class BaseSSDO(Optimizer):
         ## Reproduction
         for idx in range(0, self.pop_size):
             pos_new = pop_new[idx][self.ID_POS] + pop_new[idx][self.ID_VEL]
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new[idx][self.ID_POS] = pos_new
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

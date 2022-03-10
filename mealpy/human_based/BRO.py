@@ -79,7 +79,7 @@ class BaseBRO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], damage]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         damage = 0
         return [position, fitness, damage]
@@ -115,7 +115,7 @@ class BaseBRO(Optimizer):
                 ## Update Winner based on global best solution
                 pos_new = self.pop[i][self.ID_POS] + np.random.uniform() * \
                           np.mean(np.array([self.pop[i][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 dam_new = self.pop[i][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
                 self.pop[i] = [pos_new, fit_new, dam_new]
@@ -130,7 +130,7 @@ class BaseBRO(Optimizer):
                 else:  ## Loser dead and respawn again
                     pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
                     dam_new = 0
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 self.pop[j] = [pos_new, fit_new, dam_new]
                 nfe_epoch += 2
@@ -139,7 +139,7 @@ class BaseBRO(Optimizer):
                 self.pop[i] = deepcopy(self.pop[j])
                 ## Update Winner by following position of General to protect the King and General
                 pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 dam_new = 0
                 self.pop[j] = [pos_new, fit_new, dam_new]
@@ -223,7 +223,7 @@ class OriginalBRO(BaseBRO):
                           (np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS]) -
                            np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
                           np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
-                self.pop[dam][self.ID_POS] = self.amend_position(pos_new)
+                self.pop[dam][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 self.pop[dam][self.ID_TAR] = self.get_fitness_position(self.pop[dam][self.ID_POS])
                 self.pop[dam][self.ID_DAM] += 1
                 self.pop[vic][self.ID_DAM] = 0

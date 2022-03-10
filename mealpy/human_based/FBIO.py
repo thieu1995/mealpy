@@ -76,7 +76,7 @@ class BaseFBIO(Optimizer):
             pos_a = deepcopy(self.pop[idx][self.ID_POS])
             pos_a[n_change] = self.pop[idx][self.ID_POS][n_change] + np.random.normal() * \
                 (self.pop[idx][self.ID_POS][n_change] - (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
-            pos_a = self.amend_position(pos_a)
+            pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -94,7 +94,7 @@ class BaseFBIO(Optimizer):
                 pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, temp, pos_a)
             else:
                 pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
         pop_child = self.update_fitness_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
@@ -107,7 +107,7 @@ class BaseFBIO(Optimizer):
             ### Eq.(6) in FBI Inspired Meta-Optimization
             pos_b = np.random.uniform(0, 1, self.problem.n_dims) * pop_child[idx][self.ID_POS] + \
                     np.random.uniform(0, 1, self.problem.n_dims) * (self.g_best[self.ID_POS] - pop_child[idx][self.ID_POS])
-            pos_b = self.amend_position(pos_b)
+            pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(pop_child, pop_new)
@@ -124,7 +124,7 @@ class BaseFBIO(Optimizer):
                 ## Eq.(8) in FBI Inspired Meta-Optimization
                 pos_b = pop_new[idx][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * (pop_new[idx][self.ID_POS] - pop_new[rr][self.ID_POS]) + \
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[idx][self.ID_POS])
-            pos_b = self.amend_position(pos_b)
+            pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
         pop_child = self.update_fitness_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)
@@ -179,18 +179,20 @@ class OriginalFBIO(BaseFBIO):
         self.epoch = epoch
         self.pop_size = pop_size
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            Amended position
+            Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def evolve(self, epoch):
         """
@@ -210,7 +212,7 @@ class OriginalFBIO(BaseFBIO):
             pos_a[n_change] = self.pop[i][self.ID_POS][n_change] + (np.random.uniform() - 0.5) * 2 * \
                 (self.pop[i][self.ID_POS][n_change] - (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
             ## Not good move here, change only 1 variable but check bound of all variable in solution
-            pos_a = self.amend_position(pos_a)
+            pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -231,10 +233,10 @@ class OriginalFBIO(BaseFBIO):
                                    np.random.uniform() * (pop_new[r2][self.ID_POS][j] - pop_new[r3][self.ID_POS][j])
                     ## In the original matlab code they do the else condition here, not good again because no need else here
                 ## Same here, they do check the bound of all variable in solution
-                ## pos_a = self.amend_position(pos_a)
+                ## pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             else:
                 pos_a = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_a = self.amend_position(pos_a)
+            pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_child.append([pos_a, None])
         pop_child = self.update_fitness_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
@@ -248,7 +250,7 @@ class OriginalFBIO(BaseFBIO):
                 ### Eq.(6) in FBI Inspired Meta-Optimization
                 pos_b[j] = np.random.uniform() * pop_child[i][self.ID_POS][j] + \
                            np.random.uniform() * (self.g_best[self.ID_POS][j] - pop_child[i][self.ID_POS][j])
-            pos_b = self.amend_position(pos_b)
+            pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(pop_child, pop_new)
@@ -268,7 +270,7 @@ class OriginalFBIO(BaseFBIO):
                 ## Eq.(8) in FBI Inspired Meta-Optimization
                 pos_b = pop_new[i][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * (pop_new[i][self.ID_POS] - pop_new[rr][self.ID_POS]) + \
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[i][self.ID_POS])
-            pos_b = self.amend_position(pos_b)
+            pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
         pop_child = self.update_fitness_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)

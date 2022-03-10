@@ -97,7 +97,7 @@ class BaseQSA(Optimizer):
             F2 = beta * alpha * (E * np.abs(A - pop[i][self.ID_POS]))
             if case == 1:
                 pos_new = A + F1
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 if self.compare_agent([pos_new, fit_new], pop[i]):
                     pop[i] = [pos_new, fit_new]
@@ -105,7 +105,7 @@ class BaseQSA(Optimizer):
                     case = 2
             else:
                 pos_new = pop[i][self.ID_POS] + F2
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 if self.compare_agent([pos_new, fit_new], pop[i]):
                     pop[i] = [pos_new, fit_new]
@@ -139,7 +139,7 @@ class BaseQSA(Optimizer):
                     X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[i1][self.ID_POS])
             else:
                 X_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position(X_new)
+            pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop = self.greedy_selection_population(pop, pop_new)
@@ -154,7 +154,7 @@ class BaseQSA(Optimizer):
             id1 = np.random.choice(self.pop_size)
             temp = g_best[self.ID_POS] + np.random.exponential(0.5, self.problem.n_dims) * (pop[id1][self.ID_POS] - pop[i][self.ID_POS])
             X_new = np.where(np.random.random(self.problem.n_dims) > pr[i], temp, X_new)
-            pos_new = self.amend_position(X_new)
+            pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(pop, pop_new)
@@ -219,7 +219,7 @@ class OppoQSA(BaseQSA):
         pop_new = []
         for i in range(0, self.pop_size):
             X_new = self.create_opposition_position(pop[i], g_best)
-            pos_new = self.amend_position(X_new)
+            pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         return self.greedy_selection_population(pop, pop_new)
@@ -303,10 +303,10 @@ class LevyQSA(BaseQSA):
                     X_new = pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * levy_step
                 else:
                     X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[id1][self.ID_POS])
-                pos_new = self.amend_position(X_new)
+                pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             else:
                 pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(pop, pop_new)
@@ -442,7 +442,7 @@ class OriginalQSA(BaseQSA):
                     X1 = pop[i1][self.ID_POS]
                     X2 = pop[i2][self.ID_POS]
                     pos_new[j] = X1[j] + e * (X2[j] - pop[i][self.ID_POS][j])
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         return self.greedy_selection_population(pop, pop_new)
