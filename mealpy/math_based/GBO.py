@@ -136,7 +136,7 @@ class OriginalGBO(Optimizer):
                                 u3 * (x2 - x1) + u2 * (self.pop[r1][self.ID_POS] - self.pop[r2][self.ID_POS])) / 2
 
             # Check if solutions go outside the search space and bring them back
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
         self.nfe_per_epoch = self.pop_size

@@ -75,7 +75,7 @@ class BaseSCA(Optimizer):
             pos_new2 = self.pop[idx][self.ID_POS] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
             # Check the bound
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
@@ -127,18 +127,20 @@ class OriginalSCA(BaseSCA):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            Amended position
+            Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def evolve(self, epoch):
         """
@@ -164,6 +166,6 @@ class OriginalSCA(BaseSCA):
                 else:
                     pos_new[j] = pos_new[j] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
             # Check the bound
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

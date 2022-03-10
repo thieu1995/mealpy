@@ -100,10 +100,10 @@ class OriginalCGO(Optimizer):
             seed4[k_idx] += np.random.uniform(0, 1, k)
 
             # Check if solutions go outside the search space and bring them back
-            seed1 = self.amend_position(seed1)
-            seed2 = self.amend_position(seed2)
-            seed3 = self.amend_position(seed3)
-            seed4 = self.amend_position(seed4)
+            seed1 = self.amend_position(seed1, self.problem.lb, self.problem.ub)
+            seed2 = self.amend_position(seed2, self.problem.lb, self.problem.ub)
+            seed3 = self.amend_position(seed3, self.problem.lb, self.problem.ub)
+            seed4 = self.amend_position(seed4, self.problem.lb, self.problem.ub)
 
             sol1 = [seed1, self.get_fitness_position(seed1)]
             sol2 = [seed2, self.get_fitness_position(seed2)]
