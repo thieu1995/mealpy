@@ -191,7 +191,7 @@ class Optimizer:
             list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         return [position, fitness]
 
@@ -629,7 +629,7 @@ class Optimizer:
         for i in range(0, pop_len):
             agent = deepcopy(pop_s1[i])
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
-            agent[self.ID_POS] = self.amend_position(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         pop_s1 = self.greedy_selection_population(pop_s1, pop_new)  ## Greedy method --> improved exploitation
@@ -642,7 +642,7 @@ class Optimizer:
             agent = deepcopy(pop_s2[i])
             pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
-            agent[self.ID_POS] = self.amend_position(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         ## Keep the diversity of populatoin and still improved the exploration
         pop_s2 = self.update_fitness_population(pop_new)
