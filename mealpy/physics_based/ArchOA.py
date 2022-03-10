@@ -102,7 +102,7 @@ class OriginalArchOA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], density, volume, acceleration]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         den = np.random.uniform(self.problem.lb, self.problem.ub)
         vol = np.random.uniform(self.problem.lb, self.problem.ub)
@@ -157,7 +157,7 @@ class OriginalArchOA(Optimizer):
                 t = self.c3 * tf
                 pos_new = self.g_best[self.ID_POS] + f * self.c2 * np.random.rand() * self.pop[idx][self.ID_ACC] * \
                           ddf * (t * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            solution[self.ID_POS] = self.amend_position(pos_new)
+            solution[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(solution)
         pop_new = self.update_fitness_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

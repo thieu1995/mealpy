@@ -66,7 +66,7 @@ class BaseEO(Optimizer):
     def make_equilibrium_pool(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
         pos_mean = np.mean(pos_list, axis=0)
-        pos_mean = self.amend_position(pos_mean)
+        pos_mean = self.amend_position(pos_mean, self.problem.lb, self.problem.ub)
         fit = self.get_fitness_position(pos_mean)
         list_equilibrium.append([pos_mean, fit])
         return list_equilibrium
@@ -95,7 +95,7 @@ class BaseEO(Optimizer):
             g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])  # Eq. 14
             g = g0 * f  # Eq. 13
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -174,7 +174,7 @@ class ModifiedEO(BaseEO):
             g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])  # Eq. 14
             g = g0 * f  # Eq. 13
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
 
@@ -185,7 +185,7 @@ class ModifiedEO(BaseEO):
         pop_s2_new = []
         for i in range(0, self.pop_len):
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_s2_new.append([pos_new, None])
         pop_s2 = self.update_fitness_population(pop_s2_new)
 
@@ -196,7 +196,7 @@ class ModifiedEO(BaseEO):
         for i in range(0, self.pop_len):
             pos_new = (c_pool[0][self.ID_POS] - pos_s1_mean) - np.random.random() * \
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_s3.append([pos_new, None])
         pop_s3 = self.update_fitness_population(pop_s3)
 
@@ -291,6 +291,6 @@ class AdaptiveEO(BaseEO):
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 9
             if self.pop[idx][self.ID_TAR][self.ID_FIT] >= fit_average:
                 pos_new = np.multiply(pos_new, (0.5 + np.random.uniform(0, 1, self.problem.n_dims)))
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         self.pop = self.update_fitness_population(pop_new)

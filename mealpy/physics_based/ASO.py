@@ -86,24 +86,26 @@ class BaseASO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, mass]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position=position)
         velocity = np.random.uniform(self.problem.lb, self.problem.ub)
         mass = 0.0
         return [position, fitness, velocity, mass]
 
-    def amend_position(self, position=None):
+    def amend_position(self, position=None, lb=None, ub=None):
         """
-        If solution out of bound at dimension x, then it will re-arrange to random location in the range of domain
+        Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            Amended position
+            Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(self.problem.lb <= position, position <= self.problem.ub),
-                        position, np.random.uniform(self.problem.lb, self.problem.ub))
+        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def _update_mass__(self, population):
         fit_total, fit_best, fit_worst = self.get_special_fitness(population)
@@ -172,7 +174,7 @@ class BaseASO(Optimizer):
             velocity = velocity_rand * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
             pos_new = self.pop[idx][self.ID_POS] + velocity
             # Relocate atom out of range
-            agent[self.ID_POS] = self.amend_position(pos_new)
+            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
