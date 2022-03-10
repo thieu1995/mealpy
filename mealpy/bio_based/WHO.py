@@ -107,12 +107,12 @@ class BaseWHO(Optimizer):
             local_list = []
             for j in range(0, self.n_s):
                 temp = self.pop[i][self.ID_POS] + self.eta * np.random.uniform() * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp)
+                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 local_list.append([pos_new, None])
             local_list = self.update_fitness_population(local_list)
             _, best_local = self.get_global_best_solution(local_list)
             temp = self.local_move[0] * best_local[self.ID_POS] + self.local_move[1] * (self.pop[i][self.ID_POS] - best_local[self.ID_POS])
-            pos_new = self.amend_position(temp)
+            pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
@@ -123,7 +123,7 @@ class BaseWHO(Optimizer):
             idr = np.random.choice(range(0, self.pop_size))
             if self.compare_agent(pop_new[idr], pop_new[i]) and np.random.rand() < self.p_hi:
                 temp = self.global_move[0] * pop_new[i][self.ID_POS] + self.global_move[1] * pop_new[idr][self.ID_POS]
-                pos_new = self.amend_position(temp)
+                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 nfe_epoch += 1
                 if self.compare_agent([pos_new, fit_new], pop_new[i]):
@@ -141,19 +141,19 @@ class BaseWHO(Optimizer):
             if dist_to_worst < self.delta[0]:
                 temp = pop_new[i][self.ID_POS] + np.random.uniform() * (self.problem.ub - self.problem.lb) * \
                        np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp)
+                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 pop_child.append([pos_new, None])
 
             ### 4. Population pressure
             if 1.0 < dist_to_best and dist_to_best < self.delta[1]:
                 temp = g_best[self.ID_POS] + self.eta * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp)
+                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 pop_child.append([pos_new, None])
 
             ### 5. Herd social memory
             for j in range(0, self.n_e):
                 temp = g_best[self.ID_POS] + 0.1 * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp)
+                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 pop_child.append([pos_new, None])
 
         nfe_epoch += len(pop_child)

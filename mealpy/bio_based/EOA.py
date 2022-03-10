@@ -121,7 +121,7 @@ class BaseEOA(Optimizer):
                 r1 = np.random.randint(0, self.pop_size)
                 x_child = self.pop[r1][self.ID_POS]
             x_t1 = self.dyn_beta * x_t1 + (1.0 - self.dyn_beta) * x_child
-            pos_new = self.amend_position(x_t1)
+            pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
         pop = self.greedy_selection_population(self.pop, pop)
@@ -135,7 +135,7 @@ class BaseEOA(Optimizer):
         for i in range(self.n_best, self.pop_size):  # Don't allow the elites to be mutated
             cauchy_w = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, x_mean, cauchy_w)
             x_t1 = (cauchy_w + self.g_best[self.ID_POS]) / 2
-            pos_new = self.amend_position(x_t1)
+            pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop[i][self.ID_POS] = pos_new
             nfe_epoch += 1
         pop = self.update_fitness_population(pop)

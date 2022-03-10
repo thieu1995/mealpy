@@ -100,7 +100,7 @@ class OriginalIWO(Optimizer):
             for j in range(s):
                 # Initialize Offspring and Generate Random Location
                 pos_new = pop[idx][self.ID_POS] + sigma * np.random.normal(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(pos_new)
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_local.append([pos_new, None])
             pop_local = self.update_fitness_population(pop_local)
             pop_new += pop_local

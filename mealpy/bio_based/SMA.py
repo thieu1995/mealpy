@@ -76,7 +76,7 @@ class BaseSMA(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position)
+        position = self.amend_position(position, self.problem.lb, self.problem.ub)
         fitness = self.get_fitness_position(position)
         weight = np.zeros(self.problem.n_dims)
         return [position, fitness, weight]
@@ -122,7 +122,7 @@ class BaseSMA(Optimizer):
                 pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < p, pos_1, pos_2)
 
             # Check bound and re-calculate fitness after each individual move
-            pos_new = self.amend_position(pos_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
         self.pop = self.update_fitness_population(pop_new)
 
@@ -221,6 +221,6 @@ class OriginalSMA(BaseSMA):
                             vb[j] * (current_agent[self.ID_WEI][j] * self.pop[id_a][self.ID_POS][j] - self.pop[id_b][self.ID_POS][j])
                     else:
                         current_agent[self.ID_POS][j] = vc[j] * current_agent[self.ID_POS][j]
-            pos_new = self.amend_position(current_agent[self.ID_POS])
+            pos_new = self.amend_position(current_agent[self.ID_POS], self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
         self.pop = self.update_fitness_population(pop_new)
