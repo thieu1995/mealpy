@@ -3,3 +3,11 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
+
+from . import CRO
+from . import DE
+from . import EP
+from . import ES
+from . import FPA
+from . import GA
+from . import MA

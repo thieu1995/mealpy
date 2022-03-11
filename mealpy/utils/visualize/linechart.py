@@ -7,11 +7,11 @@
 #       Github:     https://github.com/thieu1995                                                        %
 # ------------------------------------------------------------------------------------------------------%
 
-import platform
-from matplotlib import pyplot as plt
-from numpy import arange
 from pathlib import Path
+import numpy as np
 import re
+from matplotlib import pyplot as plt
+import platform
 
 
 LIST_LINESTYLES = [
@@ -54,7 +54,7 @@ def __check_filepath__(filename):
 
 def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Iteration", y_label="Function Value",
                      filename=None, exts=(".png", ".pdf"), verbose=True):
-    x = arange(0, len(data))
+    x = np.arange(0, len(data))
     y = data
     plt.title(title)
     plt.xlabel(x_label)
@@ -72,7 +72,7 @@ def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Itera
 
 def _draw_multi_line_(data=None, title=None, list_legends=None, list_styles=None, list_colors=None,
                       x_label="#Iteration", y_label="Function Value", filename=None, exts=(".png", ".pdf"), verbose=True):
-    x = arange(0, len(data[0]))
+    x = np.arange(0, len(data[0]))
     for idx, y in enumerate(data):
         plt.plot(x, y, label=list_legends[idx], markerfacecolor=list_colors[idx], linestyle=list_styles[idx])
 
@@ -93,7 +93,7 @@ def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, l
                                      x_label="#Iteration", y_label="Objective", filename=None, exts=(".png", ".pdf"), verbose=True):
     n_lines = len(data)
     len_lines = len(data[0])
-    x = arange(0, len_lines)
+    x = np.arange(0, len_lines)
 
     if n_lines == 1:
         fig, ax = plt.subplots()
@@ -167,7 +167,7 @@ def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some
         list_colors = LIST_COLORS[:len(data)]
 
     if n_dimensions == 1:
-        x = arange(0, len(data[0]))
+        x = np.arange(0, len(data[0]))
         for idx, y in enumerate(data):
             plt.plot(x, y, label=list_legends[idx], markerfacecolor=list_colors[idx], linestyle=list_styles[idx])
     elif n_dimensions == 2:

@@ -3,3 +3,8 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
+
+from . import history
+from . import problem
+from . import termination
+from . import visualize
