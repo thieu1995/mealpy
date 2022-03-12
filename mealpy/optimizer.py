@@ -542,21 +542,6 @@ class Optimizer:
         elif case == 3:
             return position + 0.01 * levy
 
-    def get_global_best_global_worst_solution(self, pop=None):
-        """
-        Args:
-            pop (list): The population
-
-        Returns:
-            list: The global best and the global worst solution
-        """
-        # Already returned a new sorted list
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
-        if self.problem.minmax == "min":
-            return deepcopy(sorted_pop[0]), deepcopy(sorted_pop[-1])
-        else:
-            return deepcopy(sorted_pop[-1]), deepcopy(sorted_pop[0])
-
     ### Survivor Selection
     def greedy_selection_population(self, pop_old=None, pop_new=None):
         """
