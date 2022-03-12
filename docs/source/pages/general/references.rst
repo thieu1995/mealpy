@@ -319,6 +319,8 @@ P.
 **PFA - Pathfinder Algorithm**
   - **BasePFA**: Yapici, H., & Cetinkaya, N. (2019). A new meta-heuristic optimizer: Pathfinder algorithm. Applied Soft Computing, 78, 545-568.
 
+**PSS - Pareto-like Sequential Sampling**
+  - **OriginalPSS**: Shaqfa, M., & Beyer, K. (2021). Pareto-like sequential sampling heuristic for global optimisation. Soft Computing, 25(14), 9077-9096.
 
 --
 Q.

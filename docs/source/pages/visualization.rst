@@ -59,7 +59,7 @@ Drawing all available figures. There are 8 different figures for each algorithm.
 
 	model.history.save_diversity_chart(filename="hello/dc")
 
-	model.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[3], filename="hello/tc")
+	model.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[3], filename="hello/tc")
 
 
 
