@@ -147,11 +147,8 @@ class Optimizer:
                 self.pop, self.g_best = self.update_global_best_solution(self.pop)  # We sort the population
             else:
                 _, self.g_best = self.update_global_best_solution(self.pop)  # We don't sort the population
-            ## Additional information for the framework
             time_epoch = time.time() - time_epoch
-            self.history.list_epoch_time.append(time_epoch)
-            self.history.list_population.append(deepcopy(self.pop))
-            self.print_epoch(epoch + 1, time_epoch)
+            self.track_optimize_step(self.pop, epoch+1, time_epoch)
             if self.termination_flag:
                 if self.termination.mode == 'TB':
                     if time.time() - self.count_terminate >= self.termination.quantity:
@@ -172,12 +169,49 @@ class Optimizer:
                         self.termination.logging(self.problem.verbose)
                         break
 
-        ## Additional information for the framework
-        self.save_optimization_process()
+        self.track_optimize_process()
         return self.solution[self.ID_POS], self.solution[self.ID_TAR][self.ID_FIT]
 
     def evolve(self, epoch):
         pass
+
+    def track_optimize_step(self, population=None, epoch=None, runtime=None):
+        """
+        Save some history data and print out the detailed information of training process
+
+        Args:
+            population (list): the current population
+            epoch (int): current iteration
+            runtime (float): the runtime for current iteration
+        """
+        ## Save history data
+        pop = deepcopy(population)
+        if self.problem.save_population:
+            self.history.list_population.append(pop)
+        self.history.list_epoch_time.append(runtime)
+        self.history.list_global_best_fit.append(self.history.list_global_best[self.ID_TAR][self.ID_FIT])
+        self.history.list_current_best_fit.append(self.history.list_current_best[self.ID_TAR][self.ID_FIT])
+        # Save the exploration and exploitation data for later usage
+        pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
+        div = np.mean(np.abs(np.median(pos_matrix, axis=0) - pos_matrix), axis=0)
+        self.history.list_diversity.append(np.mean(div, axis=0))
+
+        ## Print epoch
+        if self.problem.verbose:
+            print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+                  f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
+
+    def track_optimize_process(self):
+        """
+        Save history data after training process finished
+        """
+        self.history.epoch = len(self.history.list_diversity)
+        div_max = np.max(self.history.list_diversity)
+        self.history.list_exploration = 100 * (np.array(self.history.list_diversity) / div_max)
+        self.history.list_exploitation = 100 - self.history.list_exploration
+        self.history.list_global_best = self.history.list_global_best[1:]
+        self.history.list_current_best = self.history.list_current_best[1:]
+        self.solution = self.history.list_global_best[-1]
 
     def create_solution(self):
         """
@@ -400,30 +434,6 @@ class Optimizer:
         if self.problem.verbose:
             print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
                   f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
-
-    def save_optimization_process(self):
-        """
-        Save important data for later use such as:
-            + list_global_best_fit
-            + list_current_best_fit
-            + list_diversity
-            + list_exploitation
-            + list_exploration
-        """
-        self.history.epoch = len(self.history.list_global_best)
-        self.history.list_global_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_global_best]
-        self.history.list_current_best_fit = [agent[self.ID_TAR][self.ID_FIT] for agent in self.history.list_current_best]
-
-        # Draw the exploration and exploitation line with this data
-        self.history.list_diversity = np.ones(self.history.epoch)
-        for idx, pop in enumerate(self.history.list_population):
-            pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
-            div = np.mean(abs((np.median(pos_matrix, axis=0) - pos_matrix)), axis=0)
-            self.history.list_diversity[idx] = np.mean(div, axis=0)
-        div_max = np.max(self.history.list_diversity)
-        self.history.list_exploration = 100 * (self.history.list_diversity / div_max)
-        self.history.list_exploitation = 100 - self.history.list_exploration
-        self.solution = self.history.list_global_best[-1]
 
     ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
