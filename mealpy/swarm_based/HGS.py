@@ -119,7 +119,8 @@ class OriginalHGS(Optimizer):
         ## Eq. (2.2)
         ### Find the current best and current worst
         _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
-        pop = self.update_hunger_value(self.pop, best[0], worst[0])
+        g_best, g_worst = best[0], worst[0]
+        pop = self.update_hunger_value(self.pop, g_best, g_worst)
 
         ## Eq. (2.4)
         shrink = 2 * (1 - (epoch + 1) / self.epoch)
