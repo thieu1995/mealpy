@@ -105,6 +105,7 @@ class OriginalPSS(Optimizer):
             pos_new = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
             for k in range(self.problem.n_dims):
                 # Update the ranges
+                deviation = np.random.uniform(0, self.g_best[self.ID_POS][k])
                 if self.new_solution:
                     # The deviation is positive dynamic real number
                     deviation = abs(0.5 * (1. - self.acceptance_rate) * (self.problem.ub[k] - self.problem.lb[k])) * (1 - ((epoch+1) / self.epoch))
