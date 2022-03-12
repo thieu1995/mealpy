@@ -21,6 +21,9 @@ class Problem:
     + n_dims (int): number of dimensions / problem size (Optional)
     + obj_weight: list weights for all your objectives (Optional, default = [1, 1, ...1])
     + problem (dict): dictionary of the problem (contains at least the parameter 1, 2, 3) (Optional)
+    + save_population (bool): save history of population or not, default = True (Optional). **Warning**:
+        + this parameter can save you from error related to 'memory' when your model is too big (i.e, training neural network, ...)
+        + when set to False, you can't use the function draw trajectory chart in history object (model.history.save_trajectory_chart)
     + amend_position(callable): Depend on your problem, may need to design an amend_position function (Optional for continuous domain, Required for discrete domain)
 
     Examples
@@ -86,6 +89,7 @@ class Problem:
         self.multi_objs = False
         self.obj_is_list = False
         self.n_dims, self.lb, self.ub = None, None, None
+        self.save_population = True
 
         self.__set_keyword_arguments(kwargs)
         self.__check_problem(kwargs)
