@@ -10,6 +10,7 @@ from copy import deepcopy
 from mealpy.utils.history import History
 from mealpy.utils.problem import Problem
 from mealpy.utils.termination import Termination
+from mealpy.utils.logger import Logger
 import concurrent.futures as parallel
 import time
 
@@ -54,7 +55,7 @@ class Optimizer:
                 "minmax": "min" or "max"
                 "verbose": True or False
                 "n_dims": int (Optional)
-                "obj_weight": list weights for all your objectives (Optional, default = [1, 1, ...1])
+                "obj_weights": list weights corresponding to all objectives (Optional, default = [1, 1, ...1])
             }
         """
         super(Optimizer, self).__init__()
@@ -62,24 +63,20 @@ class Optimizer:
         self.mode, self._print_model = "sequential", ""
         self.pop, self.g_best = None, None
         self.__set_keyword_arguments(kwargs)
+        self.logger = Logger().create_console_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.history = History()
-        if (not isinstance(problem, Problem)) and type(problem) == dict:
-            problem = Problem(**problem)
-        self.problem = problem
+        self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
-        self.termination_flag = False  # Check if exist object or not
+        if self.problem.verbose:
+            self.logger.info(self.problem.msg)
+        if "name" in kwargs:
+            self._print_model += f"Model: {kwargs['name']}, "
+        if "fit_name" in kwargs:
+            self._print_model += f"Func: {kwargs['fit_name']}, "
+        self.termination_flag = False
         if "termination" in kwargs:
-            termination = kwargs["termination"]
-            if isinstance(termination, Termination):
-                self.termination = termination
-            elif type(termination) == dict:
-                self.termination = Termination(**termination)
-            else:
-                print("Please create and input your Termination dictionary or Termination object.")
-                exit(0)
+            self.termination = Termination(termination=kwargs["termination"])
             self.termination_flag = True
-        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
-        if "fit_name" in kwargs: self._print_model += f"Func: {kwargs['fit_name']}, "
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -90,22 +87,25 @@ class Optimizer:
     def termination_start(self):
         if self.termination_flag:
             if self.termination.mode == 'TB':
-                self.count_terminate = time.time()
+                self.count_terminate = time.perf_counter()
             elif self.termination.mode == 'ES':
                 self.count_terminate = 0
             elif self.termination.mode == 'MG':
                 self.count_terminate = self.epoch
             else:  # number of function evaluation (NFE)
                 self.count_terminate = 0 # self.pop_size  # First out of loop
+            self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
         else:
             pass
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
         if self.sort_flag:
-            self.pop, self.g_best = self.get_global_best_solution(self.pop)  # We sort the population
+            # We sort the population
+            self.pop, self.g_best = self.get_global_best_solution(self.pop)
         else:
-            _, self.g_best = self.get_global_best_solution(self.pop)  # We don't sort the population
+            # We don't sort the population
+            _, self.g_best = self.get_global_best_solution(self.pop)
 
     def before_evolve(self, epoch):
         pass
@@ -131,7 +131,7 @@ class Optimizer:
         self.history.save_initial_best(self.g_best)
 
         for epoch in range(0, self.epoch):
-            time_epoch = time.time()
+            time_epoch = time.perf_counter()
 
             ## Call before evolve function
             self.before_evolve(epoch)
@@ -147,26 +147,26 @@ class Optimizer:
                 self.pop, self.g_best = self.update_global_best_solution(self.pop)  # We sort the population
             else:
                 _, self.g_best = self.update_global_best_solution(self.pop)  # We don't sort the population
-            time_epoch = time.time() - time_epoch
+            time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch+1, time_epoch)
             if self.termination_flag:
                 if self.termination.mode == 'TB':
-                    if time.time() - self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.problem.verbose)
+                    if time.perf_counter() - self.count_terminate >= self.termination.quantity:
+                        self.track_termination()
                         break
                 elif self.termination.mode == 'FE':
                     self.count_terminate += self.nfe_per_epoch
                     if self.count_terminate >= self.termination.quantity:
-                        self.termination.logging(self.problem.verbose)
+                        self.track_termination()
                         break
                 elif self.termination.mode == 'MG':
                     if (epoch+1) >= self.termination.quantity:
-                        self.termination.logging(self.problem.verbose)
+                        self.track_termination()
                         break
                 else:  # Early Stopping
                     temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
                     if temp >= self.termination.quantity:
-                        self.termination.logging(self.problem.verbose)
+                        self.track_termination()
                         break
 
         self.track_optimize_process()
@@ -177,7 +177,7 @@ class Optimizer:
 
     def track_optimize_step(self, population=None, epoch=None, runtime=None):
         """
-        Save some history data and print out the detailed information of training process
+        Save some historical data and print out the detailed information of training process
 
         Args:
             population (list): the current population
@@ -198,12 +198,12 @@ class Optimizer:
 
         ## Print epoch
         if self.problem.verbose:
-            print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+            self.logger.info(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
                   f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def track_optimize_process(self):
         """
-        Save history data after training process finished
+        Save some historical data after training process finished
         """
         self.history.epoch = len(self.history.list_diversity)
         div_max = np.max(self.history.list_diversity)
@@ -212,6 +212,10 @@ class Optimizer:
         self.history.list_global_best = self.history.list_global_best[1:]
         self.history.list_current_best = self.history.list_current_best[1:]
         self.solution = self.history.list_global_best[-1]
+
+    def track_termination(self):
+        if self.problem.verbose:
+            self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
 
     def create_solution(self):
         """
@@ -290,7 +294,7 @@ class Optimizer:
         objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
             objs = [objs]
-        fit = np.dot(objs, self.problem.obj_weight)
+        fit = np.dot(objs, self.problem.obj_weights)
         return [fit, objs]
 
     def get_fitness_solution(self, solution=None):
@@ -423,18 +427,6 @@ class Optimizer:
             self.history.list_global_best[-1] = global_better
             return deepcopy(sorted_pop), deepcopy(global_better)
 
-    def print_epoch(self, epoch, runtime):
-        """
-        Print out the detailed information of training process
-
-        Args:
-            epoch (int): current iteration
-            runtime (float): the runtime for current iteration
-        """
-        if self.problem.verbose:
-            print(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
-                  f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
-
     ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
@@ -564,7 +556,7 @@ class Optimizer:
         """
         len_old, len_new = len(pop_old), len(pop_new)
         if len_old != len_new:
-            print("Pop old and Pop new should be the same length!")
+            self.logger.error("Greedy selection of two population with different length.")
             exit(0)
         if self.problem.minmax == "min":
             return [pop_new[i] if pop_new[i][self.ID_TAR][self.ID_FIT] < pop_old[i][self.ID_TAR][self.ID_FIT]
