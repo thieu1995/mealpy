@@ -140,7 +140,6 @@ class BaseICA(Optimizer):
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 self.empires[idx][idx_colony][self.ID_POS] = pos_new
             self.empires[idx] = self.update_fitness_population(self.empires[idx])
-            # empires[idx], g_best = self.update_global_best_solution(empires[idx], self.ID_MIN_PROB, g_best)
 
         # Revolution
         for idx, colonies in self.empires.items():
