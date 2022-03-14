@@ -29,7 +29,6 @@ class BaseTWO(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -163,7 +162,6 @@ class OppoTWO(BaseTWO):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -262,7 +260,6 @@ class LevyTWO(BaseTWO):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -355,7 +352,6 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
