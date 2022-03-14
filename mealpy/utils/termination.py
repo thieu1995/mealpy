@@ -56,10 +56,10 @@ class Termination:
         self.name = "Maximum Generation"
         self.mode = "MG"
         self.quantity = self.DEFAULT_MAX_MG
-        self.exit_flag, self.message = False, ""
-        self.logger = Logger().create_console_logger(name=f"{__name__}.{__class__.__name__}",
-                                                     format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.exit_flag, self.message, self.log_to, self.log_file = False, "", None, None
         self.__set_keyword_arguments(kwargs)
+        self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
+            format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
         self.__check_termination(kwargs)
 
     def __set_keyword_arguments(self, kwargs):

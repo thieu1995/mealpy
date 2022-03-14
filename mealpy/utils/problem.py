@@ -72,7 +72,7 @@ class Problem:
 
     def __init__(self, **kwargs):
         self.minmax = "min"
-        self.verbose = True
+        self.log_to, self.log_file = "console", None
         self.n_objs = 1
         self.obj_weights = None
         self.multi_objs = False
@@ -80,8 +80,8 @@ class Problem:
         self.n_dims, self.lb, self.ub = None, None, None
         self.save_population = True
         self.__set_keyword_arguments(kwargs)
-        self.logger = Logger().create_console_logger(name=f"{__name__}.{__class__.__name__}",
-                                                     format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
+            format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
         self.__check_problem(kwargs)
 
     def __set_keyword_arguments(self, kwargs):

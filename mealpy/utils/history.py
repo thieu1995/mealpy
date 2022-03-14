@@ -71,7 +71,7 @@ class History:
     >>> print(model.history.list_global_best)
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.list_global_best = []  # List of global best solution found so far in all previous generations
         self.list_current_best = []  # List of current best solution in each previous generations
         self.list_epoch_time = []  # List of runtime for each generation
@@ -81,9 +81,14 @@ class History:
         self.list_diversity = []  # List of diversity of swarm in all generations
         self.list_exploitation = []  # List of exploitation percentages for all generations
         self.list_exploration = []  # List of exploration percentages for all generations
-        self.epoch = None
-        self.logger = Logger().create_console_logger(name=f"{__name__}.{__class__.__name__}",
-                                                     format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.epoch, self.log_to, self.log_file = None, None, None
+        self.__set_keyword_arguments(kwargs)
+        self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
+            format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+
+    def __set_keyword_arguments(self, kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def save_initial_best(self, best_agent):
         self.list_global_best = [deepcopy(best_agent)]

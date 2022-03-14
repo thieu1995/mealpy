@@ -63,19 +63,18 @@ class Optimizer:
         self.mode, self._print_model = "sequential", ""
         self.pop, self.g_best = None, None
         self.__set_keyword_arguments(kwargs)
-        self.logger = Logger().create_console_logger(name=f"{self.__module__}.{self.__class__.__name__}")
-        self.history = History()
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
-        if self.problem.verbose:
-            self.logger.info(self.problem.msg)
+        self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
+        self.logger.info(self.problem.msg)
+        self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
         if "name" in kwargs:
             self._print_model += f"Model: {kwargs['name']}, "
         if "fit_name" in kwargs:
             self._print_model += f"Func: {kwargs['fit_name']}, "
         self.termination_flag = False
         if "termination" in kwargs:
-            self.termination = Termination(termination=kwargs["termination"])
+            self.termination = Termination(termination=kwargs["termination"], log_to=self.problem.log_to, log_file=self.problem.log_file)
             self.termination_flag = True
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -152,21 +151,21 @@ class Optimizer:
             if self.termination_flag:
                 if self.termination.mode == 'TB':
                     if time.perf_counter() - self.count_terminate >= self.termination.quantity:
-                        self.track_termination()
+                        self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
                         break
                 elif self.termination.mode == 'FE':
                     self.count_terminate += self.nfe_per_epoch
                     if self.count_terminate >= self.termination.quantity:
-                        self.track_termination()
+                        self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
                         break
                 elif self.termination.mode == 'MG':
                     if (epoch+1) >= self.termination.quantity:
-                        self.track_termination()
+                        self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
                         break
                 else:  # Early Stopping
                     temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
                     if temp >= self.termination.quantity:
-                        self.track_termination()
+                        self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
                         break
 
         self.track_optimize_process()
@@ -195,11 +194,9 @@ class Optimizer:
         pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
         div = np.mean(np.abs(np.median(pos_matrix, axis=0) - pos_matrix), axis=0)
         self.history.list_diversity.append(np.mean(div, axis=0))
-
         ## Print epoch
-        if self.problem.verbose:
-            self.logger.info(f"> {self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
-                  f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
+        self.logger.info(f">{self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+              f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def track_optimize_process(self):
         """
@@ -212,10 +209,6 @@ class Optimizer:
         self.history.list_global_best = self.history.list_global_best[1:]
         self.history.list_current_best = self.history.list_current_best[1:]
         self.solution = self.history.list_global_best[-1]
-
-    def track_termination(self):
-        if self.problem.verbose:
-            self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
 
     def create_solution(self):
         """
