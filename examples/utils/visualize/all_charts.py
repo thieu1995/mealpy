@@ -25,8 +25,7 @@ problem = {
     "lb": [-10, -5, -15, -20],
     "ub": [10, 5, 15, 20],
     "minmax": "min",
-    "verbose": True,
-    "obj_weight": [0.2, 0.5, 0.3]
+    "obj_weights": [0.2, 0.5, 0.3]
 }
 
 ## Run the algorithm

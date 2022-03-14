@@ -67,7 +67,71 @@ def Fx(solution):
   return fx 
 ```
 
-## Version  Mealpy >= 2.2.0
+## Version Mealpy == 2.4.0
+
+* Change the default amend_position in Problem with more flexible parameters.
+* Replace "verbose" (bool) by "log_to" (str) parameter (Used logging built-in package)
+
+```python 
+from mealpy.bio_based import SMA
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+def amend_position(solution, lowerbound, upperbound):
+    pos = np.clip(solution, lowerbound, upperbound)
+    return pos.astype(int)
+
+problem_dict1 = {
+    "fit_func": fitness_function,
+    "lb": [-100, ] * 30,
+    "ub": [100, ] * 30,
+    "minmax": "min",
+    "amend_position": amend_position,
+    "log_to": "file",
+    "log_file": "mealpy.log"
+}
+
+## Run the algorithm
+model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+best_position, best_fitness = model1.solve()
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+
+## Version Mealpy == 2.3.0
+
+* Almost same as version 2.2.0 but
+  * The default amend_position function is moved from Optimizer to Problem class 
+  * amend_position can be used to rebound the position of agent, therefore can be used to solve discrete problem
+
+```python 
+from mealpy.bio_based import SMA
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+def amend_position(solution):
+    return solution.astype(int)
+
+problem_dict1 = {
+    "fit_func": fitness_function,
+    "lb": [-100, ] * 30,
+    "ub": [100, ] * 30,
+    "minmax": "min",
+    "verbose": True,
+    "amend_position": amend_position,
+}
+
+## Run the algorithm
+model1 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+best_position, best_fitness = model1.solve()
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+## Version  Mealpy == 2.2.0
 
 * Almost same as version 2.1.2 but
   * You can pass the Problem dictionary or Problem object to the model.
@@ -251,7 +315,7 @@ model8.history.save_local_best_fitness_chart(filename="hello/lbfc")
 model8.history.save_runtime_chart(filename="hello/rtc")
 model8.history.save_exploration_exploitation_chart(filename="hello/eec")
 model8.history.save_diversity_chart(filename="hello/dc")
-model8.history.save_trajectory_chart(list_agent_idx=[3, 5], list_dimensions=[3], filename="hello/tc")
+model8.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[3], filename="hello/tc")
 
 
 # E - Handling Multi-Objective function and Constraint Method
@@ -281,7 +345,7 @@ problem_dict9 = {
     "ub": [5, 10, 100, 30, ],
     "minmax": "min",
     "verbose": True,
-    "obj_weight": [0.5, 0.2, 0.3]  # Remember the keyword "obj_weight"
+    "obj_weights": [0.5, 0.2, 0.3]  # Remember the keyword "obj_weights"
 }
 problem_obj9 = Problem(problem_dict9)
 model9 = SMA.BaseSMA(problem_obj9, epoch=100, pop_size=50, pr=0.03)
