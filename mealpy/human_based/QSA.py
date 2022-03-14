@@ -30,7 +30,6 @@ class BaseQSA(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -193,7 +192,6 @@ class OppoQSA(BaseQSA):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -258,7 +256,6 @@ class LevyQSA(BaseQSA):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -345,7 +342,6 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -404,7 +400,6 @@ class OriginalQSA(BaseQSA):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
