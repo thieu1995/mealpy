@@ -41,7 +41,6 @@ class BaseDE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -166,7 +165,6 @@ class JADE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -309,7 +307,6 @@ class SADE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -439,7 +436,6 @@ class SHADE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -599,7 +595,6 @@ class L_SHADE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
@@ -762,7 +757,6 @@ class SAP_DE(Optimizer):
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
     >>> }
     >>>
     >>> epoch = 1000
