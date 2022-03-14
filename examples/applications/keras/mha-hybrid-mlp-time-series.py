@@ -65,8 +65,7 @@ class HybridMlp:
             "lb": [-1, ] * self.n_dims,
             "ub": [1, ] * self.n_dims,
             "minmax": "min",
-            "verbose": True,
-            "obj_weight": [0.3, 0.2, 0.5]  # [mae, mse, rmse]
+            "obj_weights": [0.3, 0.2, 0.5]  # [mae, mse, rmse]
         }
 
     def prediction(self, solution, data):

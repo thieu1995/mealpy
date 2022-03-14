@@ -61,7 +61,6 @@ problem_dict1 = {
     "lb": LB,
     "ub": UB,
     "minmax": "max",
-    "verbose": True,
 }
 
 ## Run the algorithm

@@ -28,8 +28,7 @@ problem_dict1 = {
     "lb": [-10, -10],
     "ub": [10, 10],
     "minmax": "min",
-    "verbose": True,
-    "obj_weight": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
+    "obj_weights": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
 }
 
 ## Run the algorithm

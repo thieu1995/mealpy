@@ -54,7 +54,6 @@ problem = {
     "lb": [0, 0.1],
     "ub": [3.99, 1000],
     "minmax": "max",
-    "verbose": True,
 }
 
 model = SMA.BaseSMA(problem, epoch=50, pop_size=50)

@@ -187,7 +187,6 @@ problem = {
     "lb": LB,
     "ub": UB,
     "minmax": "min",
-    "verbose": True,
 }
 
 from mealpy.evolutionary_based import FPA

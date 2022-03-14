@@ -46,7 +46,6 @@ problem_dict1 = {
     "lb": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     "ub": [1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1],
     "minmax": "min",
-    "verbose": True,
 }
 
 ## Run the algorithm
