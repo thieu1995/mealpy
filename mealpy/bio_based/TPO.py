@@ -23,7 +23,6 @@ class UpdatedTPO:
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": False,
     >>> }
     >>>
     >>> alpha = 0.4
