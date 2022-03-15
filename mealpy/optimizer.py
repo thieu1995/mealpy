@@ -11,6 +11,7 @@ from mealpy.utils.history import History
 from mealpy.utils.problem import Problem
 from mealpy.utils.termination import Termination
 from mealpy.utils.logger import Logger
+from mealpy.utils.validator import Validator
 import concurrent.futures as parallel
 import time
 
@@ -68,6 +69,7 @@ class Optimizer:
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
+        self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
         if "name" in kwargs:
             self._print_model += f"Model: {kwargs['name']}, "
         if "fit_name" in kwargs:
