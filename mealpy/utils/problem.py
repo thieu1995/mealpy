@@ -149,7 +149,7 @@ class Problem:
             exit(0)
 
     def __set_fitness_function(self, fit_func, kwargs):
-        tested_solution = np.random.uniform(self.lb, self.ub)
+        tested_solution = self.generate_position(self.lb, self.ub)
         if callable(fit_func):
             self.fit_func = fit_func
         else:
@@ -196,25 +196,18 @@ class Problem:
             self.logger.error("Fitness function needs to return a single value or a list of values.")
             exit(0)
 
-    def create_solution(self, lb=None, ub=None):
+    def generate_position(self, lb=None, ub=None):
         """
-        To get the position, target wrapper [fitness and obj list]
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Generate the position depends on the problem. For discrete problem such as permutation, this method can be override.
 
         Args:
             lb: list of lower bound values
             ub: list of upper bound values
 
         Returns:
-            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
+            np.array: the position (the solution for the problem)
         """
-        position = np.random.uniform(lb, ub)
-        position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position=position)
-        return [position, fitness]
+        return np.random.uniform(lb, ub)
 
     def amend_position(self, position=None, lb=None, ub=None):
         """

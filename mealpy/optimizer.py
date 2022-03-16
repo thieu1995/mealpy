@@ -67,7 +67,7 @@ class Optimizer:
         self.__set_keyword_arguments(kwargs)
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
-        self.create_solution = self.problem.create_solution
+        self.generate_position = self.problem.generate_position
         self.get_fitness_position = self.problem.get_fitness_position
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
@@ -106,6 +106,26 @@ class Optimizer:
         else:
             # We don't sort the population
             _, self.g_best = self.get_global_best_solution(self.pop)
+
+    def create_solution(self, lb=None, ub=None):
+        """
+        To get the position, target wrapper [fitness and obj list]
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Args:
+            lb: list of lower bound values
+            ub: list of upper bound values
+
+        Returns:
+            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
+        """
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position=position)
+        return [position, fitness]
 
     def before_evolve(self, epoch):
         pass
