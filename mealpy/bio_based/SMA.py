@@ -20,7 +20,7 @@ class BaseSMA(Optimizer):
     + This version not only faster but also better than the original version
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + pr (float): [0.01, 0.1], probability threshold (z in the paper)
+        + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
 
     Examples
     ~~~~~~~~
@@ -39,45 +39,43 @@ class BaseSMA(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> pr = 0.03
-    >>> model = BaseSMA(problem_dict1, epoch, pop_size, pr)
+    >>> p_t = 0.03
+    >>> model = BaseSMA(problem_dict1, epoch, pop_size, p_t)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     ID_WEI = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pr=0.03, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            pr (float): probability threshold (z in the paper), default = 0.03
+            p_t (float): probability threshold (z in the paper), default = 0.03
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pr = pr
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.p_t = self.validator.check_float("p_t", p_t, (0, 1.0))
 
-    def create_solution(self) -> list:
+    def create_solution(self, lb=None, ub=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Args:
+            lb: list of lower bound values
+            ub: list of upper bound values
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
+            list: [position, [fitness, list_objs], weight]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
         fitness = self.get_fitness_position(position)
-        weight = np.zeros(self.problem.n_dims)
+        weight = np.zeros(len(lb))
         return [position, fitness, weight]
 
     def evolve(self, epoch):
@@ -100,14 +98,14 @@ class BaseSMA(Optimizer):
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
                     np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
-        a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
-        b = 1 - (epoch + 1) / self.epoch
+        a = np.arctanh(-((epoch + 1) / (self.epoch+1)) + 1)  # Eq.(2.4)
+        b = 1 - (epoch + 1) / (self.epoch+1)
 
         pop_new = []
         for idx in range(0, self.pop_size):
             # Update the Position of search agent
-            if np.random.uniform() < self.pr:  # Eq.(2.7)
-                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+            if np.random.uniform() < self.p_t:  # Eq.(2.7)
+                pos_new = self.generate_position(self.problem.lb, self.problem.ub)
             else:
                 p = np.tanh(np.abs(self.pop[idx][self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
                 vb = np.random.uniform(-a, a, self.problem.n_dims)  # Eq.(2.3)
@@ -135,7 +133,7 @@ class OriginalSMA(BaseSMA):
         2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + pr (float): [0.01, 0.1], probability threshold (z in the paper)
+        + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
 
     Examples
     ~~~~~~~~
@@ -154,8 +152,8 @@ class OriginalSMA(BaseSMA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> pr = 0.03
-    >>> model = OriginalSMA(problem_dict1, epoch, pop_size, pr)
+    >>> p_t = 0.03
+    >>> model = OriginalSMA(problem_dict1, epoch, pop_size, p_t)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -167,15 +165,15 @@ class OriginalSMA(BaseSMA):
 
     ID_WEI = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pr=0.03, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 1000
             pop_size (int): number of population size, default = 100
-            pr (float): probability threshold (z in the paper), default = 0.03
+            p_t (float): probability threshold (z in the paper), default = 0.03
         """
-        super().__init__(problem, epoch, pop_size, pr, **kwargs)
+        super().__init__(problem, epoch, pop_size, p_t, **kwargs)
 
     def evolve(self, epoch):
         """
@@ -198,14 +196,14 @@ class OriginalSMA(BaseSMA):
                 self.pop[i][self.ID_WEI] = 1 - np.random.uniform(0, 1, self.problem.n_dims) * \
                     np.log10((self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT]) / s + 1)
 
-        a = np.arctanh(-((epoch + 1) / self.epoch) + 1)  # Eq.(2.4)
-        b = 1 - (epoch + 1) / self.epoch
+        a = np.arctanh(-((epoch + 1) / (self.epoch+1)) + 1)  # Eq.(2.4)
+        b = 1 - (epoch + 1) / (self.epoch+1)
 
         pop_new = []
         for idx in range(0, self.pop_size):
             # Update the Position of search agent
             current_agent = deepcopy(self.pop[idx])
-            if np.random.uniform() < self.pr:  # Eq.(2.7)
+            if np.random.uniform() < self.p_t:  # Eq.(2.7)
                 current_agent[self.ID_POS] = np.random.uniform(self.problem.lb, self.problem.ub)
             else:
                 p = np.tanh(np.abs(current_agent[self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
