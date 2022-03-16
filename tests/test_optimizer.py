@@ -49,7 +49,7 @@ def test_get_fitness_solution(model):
 
 
 def test_create_solution(model):
-    position, target = model.create_solution()
+    position, target = model.create_solution(model.problem.lb, model.problem.ub)
     fitness, objs = target
     assert len(position) == model.problem.n_dims
     assert len(objs) == model.problem.n_objs
