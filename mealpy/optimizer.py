@@ -67,6 +67,8 @@ class Optimizer:
         self.__set_keyword_arguments(kwargs)
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
+        self.create_solution = self.problem.create_solution
+        self.get_fitness_position = self.problem.get_fitness_position
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
@@ -209,22 +211,6 @@ class Optimizer:
         self.history.list_current_best = self.history.list_current_best[1:]
         self.solution = self.history.list_global_best[-1]
 
-    def create_solution(self):
-        """
-        To get the position, target wrapper [fitness and obj list]
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
-
-        Returns:
-            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
-        """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        return [position, fitness]
-
     def create_population(self, pop_size=None):
         """
         Args:
@@ -274,20 +260,6 @@ class Optimizer:
             for idx, agent in enumerate(pop):
                 pop[idx][self.ID_TAR] = self.get_fitness_solution(agent)
         return pop
-
-    def get_fitness_position(self, position=None):
-        """
-        Args:
-            position (nd.array): 1-D numpy array
-
-        Returns:
-            [fitness, [obj1, obj2, ...]]
-        """
-        objs = self.problem.fit_func(position)
-        if not self.problem.obj_is_list:
-            objs = [objs]
-        fit = np.dot(objs, self.problem.obj_weights)
-        return [fit, objs]
 
     def get_fitness_solution(self, solution=None):
         """

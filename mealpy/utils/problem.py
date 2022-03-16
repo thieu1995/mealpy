@@ -196,6 +196,26 @@ class Problem:
             self.logger.error("Fitness function needs to return a single value or a list of values.")
             exit(0)
 
+    def create_solution(self, lb=None, ub=None):
+        """
+        To get the position, target wrapper [fitness and obj list]
+            + A[self.ID_POS]                  --> Return: position
+            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
+            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
+            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+
+        Args:
+            lb: list of lower bound values
+            ub: list of upper bound values
+
+        Returns:
+            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
+        """
+        position = np.random.uniform(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position=position)
+        return [position, fitness]
+
     def amend_position(self, position=None, lb=None, ub=None):
         """
         + This is default function in most algorithms. Otherwise, there will be an overridden function
@@ -214,4 +234,16 @@ class Problem:
         # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
         return np.clip(position, lb, ub)
 
+    def get_fitness_position(self, position=None):
+        """
+        Args:
+            position (nd.array): 1-D numpy array
 
+        Returns:
+            [fitness, [obj1, obj2, ...]]
+        """
+        objs = self.fit_func(position)
+        if not self.obj_is_list:
+            objs = [objs]
+        fit = np.dot(objs, self.obj_weights)
+        return [fit, objs]
