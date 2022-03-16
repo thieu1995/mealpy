@@ -21,9 +21,9 @@ class OriginalIWO(Optimizer):
     both parent population and child population
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + seeds (list): (min_value, max_value) -> ([1, 3], [5, 10]), Number of Seeds
+        + seeds (list): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
         + exponent (int): [2, 4], Variance Reduction Exponent
-        + sigma (list): (initial_value, final_value), ([0.5, 0.9], [0.001, 0.1]), Value of Standard Deviation
+        + sigmas (list): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation
 
     Examples
     ~~~~~~~~
@@ -42,10 +42,10 @@ class OriginalIWO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> seeds = [3, 9]
+    >>> seeds = (3, 9)
     >>> exponent = 3
-    >>> sigma = [0.6, 0.01]
-    >>> model = OriginalIWO(problem_dict1, epoch, pop_size, seeds, exponent, sigma)
+    >>> sigmas = (0.6, 0.01)
+    >>> model = OriginalIWO(problem_dict1, epoch, pop_size, seeds, exponent, sigmas)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -55,25 +55,25 @@ class OriginalIWO(Optimizer):
     Ecological informatics, 1(4), pp.355-366.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, seeds=(2, 10), exponent=2, sigma=(0.5, 0.001), **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, seeds=(2, 10), exponent=2, sigmas=(0.5, 0.001), **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            seeds (list): (Min, Max) Number of Seeds
+            seeds (tuple): (Min, Max) Number of Seeds
             exponent (int): Variance Reduction Exponent
-            sigma (list): (Initial, Final) Value of Standard Deviation
+            sigmas (tuple): (Initial, Final) Value of Standard Deviation
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.seeds = seeds
-        self.exponent = exponent
-        self.sigma = sigma
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(pop_size/2)]))
+        self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
+        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ((0.3, 1), (0, 0.2)))
 
     def evolve(self, epoch=None):
         """
@@ -83,7 +83,7 @@ class OriginalIWO(Optimizer):
             epoch (int): The current iteration
         """
         # Update Standard Deviation
-        sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigma[0] - self.sigma[1]) + self.sigma[1]
+        sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigmas[0] - self.sigmas[1]) + self.sigmas[1]
         pop, best, worst = self.get_special_solutions(self.pop)
         pop_new = []
         for idx in range(0, self.pop_size):
