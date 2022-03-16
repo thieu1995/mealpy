@@ -224,18 +224,18 @@ class Optimizer:
         pop = []
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor() as executor:
-                list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
+                list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
                 # This method yield the result everytime a thread finished their job (not by order)
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
-                list_executors = [executor.submit(self.create_solution) for _ in range(pop_size)]
+                list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
                 # This method yield the result everytime a cpu finished their job (not by order).
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         else:
-            pop = [self.create_solution() for _ in range(0, pop_size)]
+            pop = [self.create_solution(self.problem.lb, self.problem.ub) for _ in range(0, pop_size)]
         return pop
 
     def update_fitness_population(self, pop=None):
