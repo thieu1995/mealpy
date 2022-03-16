@@ -41,7 +41,7 @@ def test_BaseBBO_results(problem):
     pop_size = 50
     p_m = 0.01
     elites = 2
-    model = BBO.OriginalBBO(problem, epoch, pop_size, p_m, elites)
+    model = BBO.BaseBBO(problem, epoch, pop_size, p_m, elites)
     best_position, best_fitness = model.solve()
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
