@@ -23,10 +23,10 @@ class BaseWHO(Optimizer):
         + n_s (int): [2, 4], number of exploration step
         + n_e (int): [2, 4], number of exploitation step
         + eta (float): [0.05, 0.5], learning rate
-        + local_move (list): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
-        + global_move (list): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
         + p_hi (float): [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
-        + delta (list): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
+        + local_move (tuple): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
+        + global_move (tuple): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
+        + delta (tuple): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
 
     Examples
     ~~~~~~~~
@@ -48,11 +48,11 @@ class BaseWHO(Optimizer):
     >>> n_s = 3
     >>> n_e = 3
     >>> eta = 0.15
-    >>> local_move = [0.9, 0.3]
-    >>> global_move = [0.2, 0.8]
     >>> p_hi = 0.9
-    >>> delta = [2.0, 2.0]
-    >>> model = BaseWHO(problem_dict1, epoch, pop_size, n_s, n_e, eta, local_move, global_move, p_hi, delta,)
+    >>> local_move = (0.9, 0.3)
+    >>> global_move = (0.2, 0.8)
+    >>> delta = (2.0, 2.0)
+    >>> model = BaseWHO(problem_dict1, epoch, pop_size, n_s, n_e, eta, p_hi, local_move, global_move, delta,)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -62,8 +62,8 @@ class BaseWHO(Optimizer):
     by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, 37(6), pp.8063-8076.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_s=3, n_e=3, eta=0.15, local_move=(0.9, 0.3),
-                 global_move=(0.2, 0.8), p_hi=0.9, delta=(2.0, 2.0), **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, n_s=3, n_e=3, eta=0.15, p_hi=0.9, local_move=(0.9, 0.3),
+                 global_move=(0.2, 0.8), delta=(2.0, 2.0), **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
@@ -72,24 +72,24 @@ class BaseWHO(Optimizer):
             n_s (int): default = 3, number of exploration step
             n_e (int): default = 3, number of exploitation step
             eta (float): default = 0.15, learning rate
-            local_move (list): default = (0.9, 0.3), (alpha 1, beta 1) - control local movement
-            global_move (list): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
             p_hi (float): default = 0.9, the probability of wildebeest move to another position based on herd instinct
-            delta (list): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
+            local_move (tuple): default = (0.9, 0.3), (alpha 1, beta 1) - control local movement
+            global_move (tuple): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
+            delta (tuple): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.n_s = n_s
-        self.n_e = n_e
-        self.eta = eta
-        self.local_move = local_move
-        self.global_move = global_move
-        self.p_hi = p_hi
-        self.delta = delta
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.n_s = self.validator.check_int("n_s", n_s, [2, 10])
+        self.n_e = self.validator.check_int("n_e", n_e, [2, 10])
+        self.eta = self.validator.check_float("eta", eta, (0, 1.0))
+        self.p_hi = self.validator.check_float("p_hi", p_hi, (0, 1.0))
+        self.local_move = self.validator.check_tuple_float("local_move (alpha 1, beta 1)", local_move, ((0, 2.0), (0, 2.0)))
+        self.global_move = self.validator.check_tuple_float("global_move (alpha 2, beta 2)", global_move, ((0, 2.0), (0, 2.0)))
+        self.delta = self.validator.check_tuple_float("delta (delta_w, delta_c)", delta, ((0.5, 5.0), (0.5, 5.0)))
 
     def evolve(self, epoch):
         """
@@ -128,7 +128,7 @@ class BaseWHO(Optimizer):
                 if self.compare_agent([pos_new, fit_new], pop_new[i]):
                     pop_new[i] = [pos_new, fit_new]
 
-        _, best, worst = self.get_special_solutions(pop_new, worst=1)
+        _, best, worst = self.get_special_solutions(pop_new, best=1, worst=1)
         g_best, g_worst = best[0], worst[0]
 
         pop_child = []
