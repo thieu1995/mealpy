@@ -24,13 +24,9 @@ def is_in_bound(value, bound):
     return False
 
 
-def is_in_list(value, my_list):
-    return True if value in my_list else False
-
-
 def is_str_in_list(value: str, my_list: list):
     if type(value) == str and my_list is not None:
-        return is_in_list(value, my_list)
+        return True if value in my_list else False
     return False
 
 

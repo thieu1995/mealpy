@@ -34,18 +34,3 @@ def test_check_float(value, bound, output):
         value_new = validator.check_float("value", value, bound)
     assert e.type == SystemExit
     assert e.value.code == output
-
-
-@pytest.mark.parametrize("value, my_list, output",
-                         [
-                             (-3.3, [-10, 10], False),
-                             (1000, (2, float("inf")), False),
-                             (0.5, [0.3, 2], False),
-                             ("hello", ["hello", "world", "now"], True),
-                             ("a", ("b", "e", "A", "f"), False),
-                             ("a", ("abc", "aa", "dc"), False)
-                         ])
-def test_check_str_in_list(value, my_list, output):
-    validator = Validator()
-    value_new = validator.check_str_in_list(value, my_list)
-    assert value_new == output
