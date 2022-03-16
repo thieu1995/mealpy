@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.utils.logger import Logger
+from mealpy.utils.validator import Validator
 
 
 class Termination:
@@ -47,19 +48,20 @@ class Termination:
     >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50, termination=term_dict)
     """
 
-    DEFAULT_MAX_MG = 1000  # Maximum number of epochs / generations (Default: 1000 epochs)
-    DEFAULT_MAX_FE = 100000  # Maximum number of function evaluation (Default: 100000 FE)
-    DEFAULT_MAX_TB = 20  # Maximum number of time bound (Default: 20 seconds)
-    DEFAULT_MAX_ES = 20  # Maximum number of early stopping iterations (Default: 20 loops / generations)
+    SUPPORTED_TERMINATIONS = {
+        "FE": ["Function Evaluation", [10, 1000000000]],
+        "ES": ["Early Stopping", [1, 1000000]],
+        "TB": ["Time Bound", [10, 1000000]],
+        "MG": ["Maximum Generation", [1, 1000000]],
+    }
 
     def __init__(self, **kwargs):
-        self.name = "Maximum Generation"
-        self.mode = "MG"
-        self.quantity = self.DEFAULT_MAX_MG
         self.exit_flag, self.message, self.log_to, self.log_file = False, "", None, None
         self.__set_keyword_arguments(kwargs)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.logger.propagate = False
+        self.validator = Validator(log_to=self.log_to, log_file=self.log_file)
         self.__check_termination(kwargs)
 
     def __set_keyword_arguments(self, kwargs):
@@ -81,26 +83,10 @@ class Termination:
             exit(0)
 
     def __check_mode(self, mode, quantity):
-        if type(mode) == str:
+        if self.validator.check_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
             self.mode = mode
-            if mode == "FE":
-                self.name = "Function Evaluation"
-                self.__check_quantity(quantity, self.DEFAULT_MAX_FE)
-            elif self.mode == "TB":
-                self.name = "Time Bound"
-                self.__check_quantity(quantity, self.DEFAULT_MAX_TB)
-            elif self.mode == "ES":
-                self.name = "Early Stopping"
-                self.__check_quantity(quantity, self.DEFAULT_MAX_ES)
-            elif self.mode == "MG":
-                self.name = "Maximum Generation"
-                self.__check_quantity(quantity, self.DEFAULT_MAX_MG)
-            else:
-                self.logger.error("Your selected mode of stopping condition is not support, please choice another one.")
-                exit(0)
+            self.name = self.SUPPORTED_TERMINATIONS[mode][0]
+            self.quantity = self.validator.check_int("quantity", quantity, self.SUPPORTED_TERMINATIONS[mode][1])
         else:
-            self.logger.error("Please set up your termination 'mode' as 'string' and 'quantity' as integer.")
+            self.logger.error("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
             exit(0)
-
-    def __check_quantity(self, quantity, default_value):
-        self.quantity = quantity if (type(quantity) is int and quantity > 0) else default_value

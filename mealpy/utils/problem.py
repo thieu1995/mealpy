@@ -40,7 +40,7 @@ class Problem:
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
-    >>>     "verbose": True,
+    >>>     "log_to": None,
     >>>     "save_population": False,
     >>> }
     >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50)
@@ -62,7 +62,8 @@ class Problem:
     >>>     "lb": [-100, ] * 30,
     >>>     "ub": [100, ] * 30,
     >>>     "minmax": "min",
-    >>>     "verbose": True,
+    >>>     "log_to": "file",
+    >>>     "log_file": "records.log",
     >>>     "amend_position": amend_position
     >>> }
     >>> model2 = BasePSO(problem_dict2, epoch=1000, pop_size=50)
@@ -212,3 +213,5 @@ class Problem:
         """
         # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
         return np.clip(position, lb, ub)
+
+
