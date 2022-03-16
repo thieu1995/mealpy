@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.utils.logger import Logger
-from mealpy.utils.validator import Validator
+from mealpy.utils.boundary import is_in_bound, is_str_in_list
 
 
 class Termination:
@@ -61,7 +61,6 @@ class Termination:
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
         self.logger.propagate = False
-        self.validator = Validator(log_to=self.log_to, log_file=self.log_file)
         self.__check_termination(kwargs)
 
     def __set_keyword_arguments(self, kwargs):
@@ -83,10 +82,20 @@ class Termination:
             exit(0)
 
     def __check_mode(self, mode, quantity):
-        if self.validator.check_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
+        if is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
             self.mode = mode
             self.name = self.SUPPORTED_TERMINATIONS[mode][0]
-            self.quantity = self.validator.check_int("quantity", quantity, self.SUPPORTED_TERMINATIONS[mode][1])
+
+            if type(quantity) in [int, float]:
+                qt = int(quantity)
+                if is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
+                    self.quantity = qt
+                else:
+                    self.logger.error(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
+                    exit(0)
+            else:
+                self.logger.error(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
+                exit(0)
         else:
             self.logger.error("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
             exit(0)
