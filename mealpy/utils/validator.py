@@ -57,6 +57,34 @@ class Validator:
         self.logger.error(f"'{name}' should be a float{bound}.")
         exit(0)
 
+    def check_tuple_int(self, name: str, values: tuple, bounds=None):
+        if type(values) in [tuple, list] and len(values) > 1:
+            value_flag = [type(item) == int for item in values]
+            if np.all(value_flag):
+                if bounds is not None and len(bounds) == len(values):
+                    value_flag = [self.__is_in_bound(item, bound) for item, bound in zip(values, bounds)]
+                    if np.all(value_flag):
+                        return values
+                else:
+                    return values
+        bounds = "" if bounds is None else f", and should be in range: {bounds}"
+        self.logger.error(f"'{name}' are int values{bounds}.")
+        exit(0)
+
+    def check_tuple_float(self, name: str, values: tuple, bounds=None):
+        if type(values) in [tuple, list] and len(values) > 1:
+            value_flag = [type(item) in [int, float] for item in values]
+            if np.all(value_flag):
+                if bounds is not None and len(bounds) == len(values):
+                    value_flag = [self.__is_in_bound(item, bound) for item, bound in zip(values, bounds)]
+                    if np.all(value_flag):
+                        return values
+                else:
+                    return values
+        bounds = "" if bounds is None else f", and should be in range: {bounds}"
+        self.logger.error(f"'{name}' are float values{bounds}.")
+        exit(0)
+
     def __is_in_list(self, value, my_list):
         return True if value in my_list else False
 
