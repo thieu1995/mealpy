@@ -63,10 +63,10 @@ class OriginalBBO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.p_m = p_m
-        self.elites = elites
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
+        self.elites = self.validator.check_int("elites", elites, [2, int(pop_size/2)])
 
         self.mu = (self.pop_size + 1 - np.array(range(1, self.pop_size + 1))) / (self.pop_size + 1)
         self.mr = 1 - self.mu
@@ -109,9 +109,6 @@ class BaseBBO(OriginalBBO):
     """
     My changed version of: Biogeography-Based Optimization (BBO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/abstract/document/4475427
-
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability
         + elites: [2, 5], Number of elites will be keep for next generation
@@ -150,7 +147,6 @@ class BaseBBO(OriginalBBO):
             pop_size (int): Number of population size, default = 100
             p_m (float): Mutation probability, default=0.01
             elites (int): Number of elites will be keep for next generation, default=2
-            **kwargs ():
         """
         super().__init__(problem, epoch, pop_size, p_m, elites, **kwargs)
 
