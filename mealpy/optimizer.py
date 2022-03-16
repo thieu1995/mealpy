@@ -43,7 +43,7 @@ class Optimizer:
 
     EPSILON = 10E-10
 
-    def __init__(self, problem, kwargs):
+    def __init__(self, problem, kwargs=None):
         """
         Args:
             problem: an instance of Problem class or a dictionary
@@ -63,6 +63,7 @@ class Optimizer:
         self.epoch, self.pop_size, self.solution = None, None, None
         self.mode, self._print_model = "sequential", ""
         self.pop, self.g_best = None, None
+        if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
@@ -70,10 +71,8 @@ class Optimizer:
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
         self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
-        if "name" in kwargs:
-            self._print_model += f"Model: {kwargs['name']}, "
-        if "fit_name" in kwargs:
-            self._print_model += f"Func: {kwargs['fit_name']}, "
+        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
+        if "fit_name" in kwargs: self._print_model += f"Func: {kwargs['fit_name']}, "
         self.termination_flag = False
         if "termination" in kwargs:
             self.termination = Termination(termination=kwargs["termination"], log_to=self.problem.log_to, log_file=self.problem.log_file)
@@ -96,8 +95,6 @@ class Optimizer:
             else:  # number of function evaluation (NFE)
                 self.count_terminate = 0 # self.pop_size  # First out of loop
             self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
-        else:
-            pass
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
@@ -284,7 +281,7 @@ class Optimizer:
             position (nd.array): 1-D numpy array
 
         Returns:
-            [target, [obj1, obj2, ...]]
+            [fitness, [obj1, obj2, ...]]
         """
         objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
@@ -295,10 +292,10 @@ class Optimizer:
     def get_fitness_solution(self, solution=None):
         """
         Args:
-            solution (list): A solution with format [position, [target, [obj1, obj2, ...]]]
+            solution (list): A solution with format [position, [fitness, [obj1, obj2, ...]]]
 
         Returns:
-            [target, [obj1, obj2, ...]]
+            [fitness, [obj1, obj2, ...]]
         """
         return self.get_fitness_position(solution[self.ID_POS])
 
@@ -358,8 +355,8 @@ class Optimizer:
         """
         Args:
             pop (list): The population
-            best (int): Top k1 best solutions, default k1=3, it can be None
-            worst (int): Top k2 worst solutions, default k2=3, it can be None
+            best (int): Top k1 best solutions, default k1=3, good level reduction
+            worst (int): Top k2 worst solutions, default k2=3, worst level reduction
 
         Returns:
             list: sorted_population, k1 best solutions and k2 worst solutions
@@ -372,12 +369,12 @@ class Optimizer:
             if worst is None:
                 exit(0)
             else:
-                return pop, None, deepcopy(pop[-worst:])
+                return pop, None, deepcopy(pop[::-1][:worst])
         else:
             if worst is None:
                 return pop, deepcopy(pop[:best]), None
             else:
-                return pop, deepcopy(pop[:best]), deepcopy(pop[-worst:])
+                return pop, deepcopy(pop[:best]), deepcopy(pop[::-1][:worst])
 
     def get_special_fitness(self, pop=None):
         """
@@ -400,7 +397,7 @@ class Optimizer:
 
         Args:
             pop (list): The population of pop_size individuals
-            save (bool): True if you want to add new current global best and False if you just want update the current one.
+            save (bool): True if you want to add new current/global best to history, False if you just want to update current/global best
 
         Returns:
             list: Sorted population and the global best solution
@@ -579,15 +576,23 @@ class Optimizer:
         """
         Args:
             agent: The current solution (agent)
-            g_best: the global best solution
+            g_best: the global best solution (agent)
 
         Returns:
-            The opposite solution
+            The opposite position
         """
         return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
 
     ### Crossover
-    def crossover_arthmetic_recombination(self, dad_pos=None, mom_pos=None):
+    def crossover_arithmetic(self, dad_pos=None, mom_pos=None):
+        """
+        Args:
+            dad_pos: position of dad
+            mom_pos: position of mom
+
+        Returns:
+            list: position of 1st and 2nd child
+        """
         r = np.random.uniform()  # w1 = w2 when r =0.5
         w1 = np.multiply(r, dad_pos) + np.multiply((1 - r), mom_pos)
         w2 = np.multiply(r, mom_pos) + np.multiply((1 - r), dad_pos)

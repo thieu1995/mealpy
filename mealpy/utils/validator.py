@@ -15,6 +15,7 @@ class Validator:
         self.__set_keyword_arguments(kwargs)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.logger.propagate = False
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -55,6 +56,15 @@ class Validator:
         bound = "" if bound is None else f", and valid range is: {bound}"
         self.logger.error(f"'{name}' should be a float{bound}.")
         exit(0)
+
+    def __is_in_list(self, value, my_list):
+        return True if value in my_list else False
+
+    def check_str_in_list(self, value: str, my_list: list):
+        if type(value) == str and my_list is not None:
+            return self.__is_in_list(value, my_list)
+        return False
+
 
 
 
