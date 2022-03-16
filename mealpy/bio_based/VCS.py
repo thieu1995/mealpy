@@ -18,12 +18,11 @@ class BaseVCS(Optimizer):
 
     Notes
     ~~~~~
-    + Removes all third loop, makes algrithm 10 times faster than original
     + In Immune response process, updates the whole position instead of updating each variable in position
     + Drops batch-size idea to 3 main process of this algorithm, makes it more robust
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + lamda (float): [0.2, 0.5], Number of the best will keep
+        + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 0.5], Weight factor
 
     Examples
@@ -56,21 +55,18 @@ class BaseVCS(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            lamda (float): Number of the best will keep, default = 0.5
+            lamda (float): Percentage of the number of the best will keep, default = 0.5
             xichma (float): Weight factor, default = 0.3
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = 3 * pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.xichma = xichma
-        self.lamda = lamda
-        if lamda < 1:
-            self.n_best = int(lamda * self.pop_size)
-        else:
-            self.n_best = int(lamda)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.xichma = self.validator.check_float("xichma", xichma, (0, 1.0))
+        self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
+        self.n_best = int(self.lamda * self.pop_size)
 
     def _calculate_xmean(self, pop):
         """
@@ -140,7 +136,7 @@ class OriginalVCS(BaseVCS):
     This is basic version, not the full version of the paper
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + lamda (float): [0.2, 0.5], Number of the best will keep
+        + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 0.5], Weight factor
 
     Examples
@@ -185,9 +181,6 @@ class OriginalVCS(BaseVCS):
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        Depend on what kind of problem are we trying to solve, there will be an different amend_position
-        function to rebound the position of agent into the valid range.
-
         Args:
             position: vector position (location) of the solution.
             lb: list of lower bound values
