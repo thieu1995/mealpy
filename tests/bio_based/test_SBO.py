@@ -102,7 +102,7 @@ def test_pop_size_SBO(problem, pop_size, system_code):
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
-def test_p_m_SBO(problem, alpha, system_code):
+def test_alpha_SBO(problem, alpha, system_code):
     epoch = 10
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]

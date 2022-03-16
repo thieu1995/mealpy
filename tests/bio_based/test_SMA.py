@@ -98,7 +98,7 @@ def test_pop_size_SMA(problem, pop_size, system_code):
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
-def test_p_m_SMA(problem, alpha, system_code):
+def test_alpha_SMA(problem, alpha, system_code):
     epoch = 10
     pop_size = 50
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
@@ -121,7 +121,7 @@ def test_p_m_SMA(problem, alpha, system_code):
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
-def test_p_m_SMA(problem, p_t, system_code):
+def test_p_t_SMA(problem, p_t, system_code):
     epoch = 10
     pop_size = 50
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
