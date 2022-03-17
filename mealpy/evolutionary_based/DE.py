@@ -45,8 +45,8 @@ class BaseDE(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> wf = 0.01
-    >>> cr = 2
+    >>> wf = 0.7
+    >>> cr = 0.9
     >>> strategy = 0
     >>> model = BaseDE(problem_dict1, epoch, pop_size, wf, cr, strategy)
     >>> best_position, best_fitness = model.solve()
@@ -72,14 +72,14 @@ class BaseDE(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.weighting_factor = wf
-        self.crossover_rate = cr
-        self.strategy = strategy
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.wf = self.validator.check_float("wf", wf, (0, 1.0))
+        self.cr = self.validator.check_float("cr", cr, (0, 1.0))
+        self.strategy = self.validator.check_int("strategy", strategy, [0, 5])
 
     def _mutation__(self, current_pos, new_pos):
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.crossover_rate, current_pos, new_pos)
+        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, current_pos, new_pos)
         return self.amend_position(pos_new, self.problem.lb, self.problem.ub)
 
     def evolve(self, epoch):
@@ -94,43 +94,43 @@ class BaseDE(Optimizer):
             # Choose 3 random element and different to i
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
-                pos_new = self.pop[idx_list[0]][self.ID_POS] + self.weighting_factor * \
+                pos_new = self.pop[idx_list[0]][self.ID_POS] + self.wf * \
                           (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         elif self.strategy == 1:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-                pos_new = self.g_best[self.ID_POS] + self.weighting_factor * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
+                pos_new = self.g_best[self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         elif self.strategy == 2:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 4, replace=False)
-                pos_new = self.g_best[self.ID_POS] + self.weighting_factor * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS]) + \
-                          self.weighting_factor * (self.pop[idx_list[2]][self.ID_POS] - self.pop[idx_list[3]][self.ID_POS])
+                pos_new = self.g_best[self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS]) + \
+                          self.wf * (self.pop[idx_list[2]][self.ID_POS] - self.pop[idx_list[3]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         elif self.strategy == 3:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 5, replace=False)
-                pos_new = self.pop[idx_list[0]][self.ID_POS] + self.weighting_factor * \
+                pos_new = self.pop[idx_list[0]][self.ID_POS] + self.wf * \
                           (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS]) + \
-                          self.weighting_factor * (self.pop[idx_list[3]][self.ID_POS] - self.pop[idx_list[4]][self.ID_POS])
+                          self.wf * (self.pop[idx_list[3]][self.ID_POS] - self.pop[idx_list[4]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         elif self.strategy == 4:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-                pos_new = self.pop[idx][self.ID_POS] + self.weighting_factor * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                          self.weighting_factor * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
+                pos_new = self.pop[idx][self.ID_POS] + self.wf * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                          self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         else:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
-                pos_new = self.pop[idx][self.ID_POS] + self.weighting_factor * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                          self.weighting_factor * (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
+                pos_new = self.pop[idx][self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
+                          self.wf * (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
         pop = self.update_fitness_population(pop)
@@ -198,12 +198,16 @@ class JADE(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.miu_f = miu_f  # the initial f, location is changed then that f is good
-        self.miu_cr = miu_cr  # the initial cr,
-        self.pt = pt  # np.random.uniform(0.05, 0.2) # the x_best is select from the top 100p % solutions
-        self.ap = ap  # np.random.uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        # the initial f, location is changed then that f is good
+        self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
+        # the initial cr,
+        self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
+        # np.random.uniform(0.05, 0.2) # the x_best is select from the top 100p % solutions
+        self.pt = self.validator.check_float("pt", pt, (0, 1.0))
+        # np.random.uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
+        self.ap = self.validator.check_float("ap", ap, (0, 1.0))
 
         ## Dynamic variable, changing in run time
         self.dyn_miu_cr = self.miu_cr
@@ -332,8 +336,8 @@ class SADE(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
         self.loop_probability = 50
         self.loop_cr = 5
@@ -465,8 +469,12 @@ class SHADE(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        # the initial f, location is changed then that f is good
+        self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
+        # the initial cr,
+        self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
 
         # Dynamic variable
         self.dyn_miu_f = miu_f * np.ones(self.pop_size)  # list the initial f,
@@ -624,12 +632,16 @@ class L_SHADE(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        # the initial f, location is changed then that f is good
+        self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
+        # the initial cr,
+        self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
 
         # Dynamic variable
-        self.dyn_miu_f = miu_f * np.ones(self.pop_size)  # list the initial f,
-        self.dyn_miu_cr = miu_cr * np.ones(self.pop_size)  # list the initial cr,
+        self.dyn_miu_f = self.miu_f * np.ones(self.pop_size)  # list the initial f,
+        self.dyn_miu_cr = self.miu_cr * np.ones(self.pop_size)  # list the initial cr,
         self.dyn_pop_archive = list()
         self.dyn_pop_size = self.pop_size
         self.k_counter = 0
@@ -740,8 +752,6 @@ class SAP_DE(Optimizer):
         1. https://doi.org/10.1007/s00500-005-0537-1
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + wf (float): [0.6, 0.95], weighting factor, default = 0.8
-        + cr (float): [0.6, 0.95], crossover rate, default = 0.9
         + branch (str): ["ABS" or "REL"], gaussian (absolute) or uniform (relative) method
 
     Examples
@@ -761,9 +771,8 @@ class SAP_DE(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> miu_f = 0.5
-    >>> miu_cr = 0.5
-    >>> model = SAP_DE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
+    >>> branch = "ABS"
+    >>> model = SAP_DE(problem_dict1, epoch, pop_size, branch)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -776,28 +785,24 @@ class SAP_DE(Optimizer):
     ID_MR = 3
     ID_PS = 4
 
-    def __init__(self, problem, epoch=750, pop_size=100, wf=0.8, cr=0.9, branch="ABS", **kwargs):
+    def __init__(self, problem, epoch=750, pop_size=100, branch="ABS", **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            wf (float): weighting factor, default = 0.8
-            cr (float): crossover rate, default = 0.9
             branch (str): gaussian (absolute) or uniform (relative) method
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.weighting_factor = wf
-        self.crossover_rate = cr
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.branch = self.validator.check_str("branch", branch, ["ABS", "REL"])
         self.fixed_pop_size = pop_size
-        self.branch = branch  # np.absolute (ABS) or relative (REL)
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position

@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy.utils.boundary import is_in_bound
+from mealpy.utils.boundary import is_in_bound, is_str_in_list
 from mealpy.utils.logger import Logger
 
 
@@ -39,6 +39,14 @@ class Validator:
                 return float(value)
         bound = "" if bound is None else f"and value should be in range: {bound}"
         self.logger.error(f"'{name}' is a float {bound}.")
+        exit(0)
+
+    def check_str(self, name: str, value: str, bound=None):
+        if type(value) is str:
+            if bound is None or is_str_in_list(value, bound):
+                return value
+        bound = "" if bound is None else f"and value should be one of this: {bound}"
+        self.logger.error(f"'{name}' is a string {bound}.")
         exit(0)
 
     def check_tuple_int(self, name: str, values: tuple, bounds=None):
