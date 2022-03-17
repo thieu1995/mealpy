@@ -22,7 +22,7 @@ class BaseMA(Optimizer):
         + pm (float): [0.05, 0.3], mutation probability, default = 0.15
         + p_local (float): [0.3, 0.7], Probability of local search for each agent, default=0.5
         + max_local_gens (int): [5, 25], number of local search agent will be created during local search mechanism, default=20
-        + bits_per_param (int): [8, 16, 32], number of bits to decode a real number to 0-1 bitstring, default=16
+        + bits_per_param (int): [2, 4, 8, 16], number of bits to decode a real number to 0-1 bitstring, default=4
 
     Examples
     ~~~~~~~~
@@ -45,7 +45,7 @@ class BaseMA(Optimizer):
     >>> pm = 0.15
     >>> p_local = 0.5
     >>> max_local_gens = 20
-    >>> bits_per_param = 16
+    >>> bits_per_param = 4
     >>> model = BaseMA(problem_dict1, epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
@@ -59,7 +59,7 @@ class BaseMA(Optimizer):
     ID_BIT = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
-                 p_local=0.5, max_local_gens=20, bits_per_param=16, **kwargs):
+                 p_local=0.5, max_local_gens=20, bits_per_param=4, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
@@ -69,22 +69,22 @@ class BaseMA(Optimizer):
             pm (float): mutation probability, default = 0.15
             p_local (float): Probability of local search for each agent, default=0.5
             max_local_gens (int): Number of local search agent will be created during local search mechanism, default=20
-            bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=16
+            bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=4
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pc = pc
-        self.pm = pm
-        self.p_local = p_local
-        self.max_local_gens = max_local_gens
-        self.bits_per_param = bits_per_param
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pc = self.validator.check_float("p_c", pc, (0, 1.0))
+        self.pm = self.validator.check_float("p_m", pm, (0, 1.0))
+        self.p_local = self.validator.check_float("p_local", p_local, (0, 1.0))
+        self.max_local_gens = self.validator.check_int("max_local_gens", max_local_gens, [2, int(pop_size/2)])
+        self.bits_per_param = self.validator.check_int("bits_per_param", bits_per_param, [2, 32])
         self.bits_total = self.problem.n_dims * self.bits_per_param
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -95,9 +95,9 @@ class BaseMA(Optimizer):
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], bitstring]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
         return [position, fitness, bitstring]
 
