@@ -16,9 +16,7 @@ class BaseES(Optimizer):
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + n_child (float/int): Number of child evolving in the next generation
-            + if float number --> percentage of child agents, [0.5, 1.0]
-            + int --> number of child agents, [20, pop_size]
+        + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
 
     Examples
     ~~~~~~~~
@@ -37,8 +35,8 @@ class BaseES(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> n_child = 0.75
-    >>> model = BaseES(problem_dict1, epoch, pop_size, n_child)
+    >>> lamda = 0.75
+    >>> model = BaseES(problem_dict1, epoch, pop_size, lamda)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -51,27 +49,25 @@ class BaseES(Optimizer):
     ID_TAR = 1
     ID_STR = 2  # strategy
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_child=0.75, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
-            n_child (float/int): if float number --> percentage of child agents, int --> number of child agents
+            lamda (float): Percentage of child agents evolving in the next generation, default=0.75
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        if n_child < 1:  # lamda, 75% of pop_size
-            self.n_child = int(n_child * self.pop_size)
-        else:
-            self.n_child = int(n_child)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
+        self.n_child = int(self.lamda * self.pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
         self.nfe_per_epoch = self.n_child
         self.sort_flag = True
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -82,8 +78,8 @@ class BaseES(Optimizer):
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
         fitness = self.get_fitness_position(position)
         strategy = np.random.uniform(0, self.distance)
         return [position, fitness, strategy]
@@ -119,9 +115,7 @@ class LevyES(BaseES):
     I implement Levy-flight and change the flow of original version.
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + n_child (float/int): Number of child evolving in the next generation
-            + if float number --> percentage of child agents, [0.5, 1.0]
-            + int --> number of child agents, [20, pop_size]
+        + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
 
     Examples
     ~~~~~~~~
@@ -140,8 +134,8 @@ class LevyES(BaseES):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> n_child = 0.75
-    >>> model = BaseES(problem_dict1, epoch, pop_size, n_child)
+    >>> lamda = 0.75
+    >>> model = BaseES(problem_dict1, epoch, pop_size, lamda)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -150,15 +144,15 @@ class LevyES(BaseES):
     [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_child=0.75, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
-            n_child (float/int): if float number --> percentage of child agents, int --> number of child agents
+            lamda (float): Percentage of child agents evolving in the next generation, default=0.75
         """
-        super().__init__(problem, epoch, pop_size, n_child, **kwargs)
+        super().__init__(problem, epoch, pop_size, lamda, **kwargs)
 
     def evolve(self, epoch):
         """
