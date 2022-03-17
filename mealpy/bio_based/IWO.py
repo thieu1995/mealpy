@@ -21,9 +21,9 @@ class OriginalIWO(Optimizer):
     both parent population and child population
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + seeds (list): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
+        + seeds (list, tuple): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
         + exponent (int): [2, 4], Variance Reduction Exponent
-        + sigmas (list): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation
+        + sigmas (list, tuple): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation
 
     Examples
     ~~~~~~~~
@@ -61,9 +61,9 @@ class OriginalIWO(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            seeds (tuple): (Min, Max) Number of Seeds
+            seeds (tuple, list): (Min, Max) Number of Seeds
             exponent (int): Variance Reduction Exponent
-            sigmas (tuple): (Initial, Final) Value of Standard Deviation
+            sigmas (tuple, list): (Initial, Final) Value of Standard Deviation
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size

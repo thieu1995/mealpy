@@ -24,9 +24,9 @@ class BaseWHO(Optimizer):
         + n_e (int): [2, 4], number of exploitation step
         + eta (float): [0.05, 0.5], learning rate
         + p_hi (float): [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
-        + local_move (tuple): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
-        + global_move (tuple): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
-        + delta (tuple): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
+        + local_move (tuple, list): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
+        + global_move (tuple, list): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
+        + delta (tuple, list): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
 
     Examples
     ~~~~~~~~
@@ -73,9 +73,9 @@ class BaseWHO(Optimizer):
             n_e (int): default = 3, number of exploitation step
             eta (float): default = 0.15, learning rate
             p_hi (float): default = 0.9, the probability of wildebeest move to another position based on herd instinct
-            local_move (tuple): default = (0.9, 0.3), (alpha 1, beta 1) - control local movement
-            global_move (tuple): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
-            delta (tuple): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
+            local_move (tuple, list): default = (0.9, 0.3), (alpha 1, beta 1) - control local movement
+            global_move (tuple, list): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
+            delta (tuple, list): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
