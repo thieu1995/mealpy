@@ -23,7 +23,7 @@ class BaseGA(Optimizer):
         + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
         + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
         + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation_multipoints (bool): Optional, True or False, effect on mutation process
+        + mutation_multipoints (bool): Optional, True or False, effect on mutation process, default = True
         + mutation (str): Optional, can be ["flip", "swap"] for multipoints and can be ["flip", "swap", "scramble", "inversion"] for one-point
 
     Examples
@@ -84,16 +84,31 @@ class BaseGA(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pc = pc
-        self.pm = pm
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pc = self.validator.check_float("p_c", pc, (0, 1.0))
+        self.pm = self.validator.check_float("p_m", pm, (0, 1.0))
 
-        self.selection = "tournament"     # "random", "roulette"
+        self.selection = "tournament"
         self.k_way = 0.2
-        self.crossover = "uniform"    # "one_point", "multi_points", "uniform", "arithmetic"
-        self.mutation = "flip"          # "swap", "scramble", "inversion"
-        self.mutation_multipoints = False
+        self.crossover = "uniform"
+        self.mutation = "flip"
+        self.mutation_multipoints = True
+
+        if "selection" in kwargs:
+            self.selection = self.validator.check_str("selection", kwargs["selection"], ["tournament", "random", "roulette"])
+        if "k_way" in kwargs:
+            self.k_way = self.validator.check_float("k_way", kwargs["k_way"], (0, 1.0))
+        if "crossover" in kwargs:
+            self.crossover = self.validator.check_str("crossover", kwargs["crossover"], ["one_point", "multi_points", "uniform", "arithmetic"])
+        if "mutation_multipoints" in kwargs:
+            self.mutation_multipoints = self.validator.check_bool("mutation_multipoints", kwargs["mutation_multipoints"])
+        if self.mutation_multipoints:
+            if "mutation" in kwargs:
+                self.mutation = self.validator.check_str("mutation", kwargs["mutation"], ["flip", "swap"])
+        else:
+            if "mutation" in kwargs:
+                self.mutation = self.validator.check_str("mutation", kwargs["mutation"], ["flip", "swap", "scramble", "inversion"])
 
     def selection_process(self, list_fitness):
         """
@@ -157,8 +172,8 @@ class BaseGA(Optimizer):
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
         + There are 2 strategies that effects by the mutation probability: Mutated on single point or the whole vector.
             + Multiple points (whole vector) has 2 strategies selected via parameter: mutation
-                + flip --> should set the pm small such as: [0.01 -> 0.2]
-                + swap --> (default in this case) should set the pm small such as: [0.01 -> 0.2]
+                + flip --> (default in this case) should set the pm small such as: [0.01 -> 0.2]
+                + swap --> should set the pm small such as: [0.01 -> 0.2]
             + Single point has 4 strategies:
                 + flip --> should set the pm large such as: [0.5 -> 0.9]
                 + swap --> same as flip: pm in range [0.5 -> 0.9]
@@ -173,15 +188,15 @@ class BaseGA(Optimizer):
         """
 
         if self.mutation_multipoints:
-            if self.mutation == "flip":
-                mutation_child = np.random.uniform(self.problem.lb, self.problem.ub)
-                flag_child = np.random.uniform(0, 1, self.problem.n_dims) < self.pm
-                return np.where(flag_child, mutation_child, child)
-            else:       # "swap"
+            if self.mutation == "swap":
                 for idx in range(self.problem.n_dims):
                     idx_swap = np.random.choice(list(set(range(0, self.problem.n_dims)) - {idx}))
                     child[idx], child[idx_swap] = child[idx_swap], child[idx]
                     return child
+            else:       # "flip"
+                mutation_child = self.generate_position(self.problem.lb, self.problem.ub)
+                flag_child = np.random.uniform(0, 1, self.problem.n_dims) < self.pm
+                return np.where(flag_child, mutation_child, child)
         else:
             if self.mutation == "swap":
                 idx1, idx2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
