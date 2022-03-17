@@ -49,6 +49,14 @@ class Validator:
         self.logger.error(f"'{name}' is a string {bound}.")
         exit(0)
 
+    def check_bool(self, name: str, value: bool, bound=(True, False)):
+        if type(value) is bool:
+            if value in bound:
+                return value
+        bound = "" if bound is None else f"and value should be one of this: {bound}"
+        self.logger.error(f"'{name}' is a boolean {bound}.")
+        exit(0)
+
     def check_tuple_int(self, name: str, values: tuple, bounds=None):
         if type(values) in [tuple, list] and len(values) > 1:
             value_flag = [type(item) == int for item in values]
