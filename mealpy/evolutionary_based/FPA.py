@@ -17,6 +17,7 @@ class BaseFPA(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + p_s (float): [0.5, 0.95], switch probability, default = 0.8
+        + levy_multiplier: [0.2, 0.5], mutiplier factor of Levy-flight trajectory
 
     Examples
     ~~~~~~~~
@@ -36,7 +37,8 @@ class BaseFPA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> p_s = 0.8
-    >>> model = BaseFPA(problem_dict1, epoch, pop_size, p_s)
+    >>> levy_multiplier = 0.2
+    >>> model = BaseFPA(problem_dict1, epoch, pop_size, p_s, levy_multiplier)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -46,27 +48,26 @@ class BaseFPA(Optimizer):
     conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_s=0.8, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, p_s=0.8, levy_multiplier=0.2, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             p_s (float): switch probability, default = 0.8
+            levy_multiplier (float): mutiplier factor of Levy-flight trajectory, default = 0.2
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.p_s = p_s
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
+        self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (0, 1.0))
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        Depend on what kind of problem are we trying to solve, there will be an different amend_position
-        function to rebound the position of agent into the valid range.
-
         Args:
             position: vector position (location) of the solution.
             lb: list of lower bound values
@@ -87,7 +88,7 @@ class BaseFPA(Optimizer):
         pop = []
         for idx in range(0, self.pop_size):
             if np.random.uniform() < self.p_s:
-                levy = self.get_levy_flight_step(multiplier=0.001, case=-1)
+                levy = self.get_levy_flight_step(multiplier=self.levy_multiplier, case=-1)
                 pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
                           levy * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
             else:
