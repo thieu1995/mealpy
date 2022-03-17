@@ -18,9 +18,7 @@ class BaseEP(Optimizer):
         2. https://github.com/clever-algorithms/CleverAlgorithms
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + bout_size (float/int): Number of tried with tournament selection (5% of pop_size)
-            + if float number --> percentage of child agents, [0.05, 0.2]
-            + int --> number of child agents, [3, 20]
+        + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
 
     Examples
     ~~~~~~~~
@@ -61,21 +59,19 @@ class BaseEP(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
-            n_child (float/int): if float number --> percentage of child agents, int --> number of child agents
+            n_child (float): percentage of child agents implement tournament selection
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        if bout_size < 1:  # Number of tried with tournament selection (5% of pop_size)
-            self.bout_size = int(bout_size * self.pop_size)
-        else:
-            self.bout_size = int(bout_size)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.bout_size = self.validator.check_float("bout_size", bout_size, (0, 1.0))
+        self.n_bout_size = int(self.bout_size * pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -86,10 +82,10 @@ class BaseEP(Optimizer):
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy, times_win]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        strategy = np.random.uniform(0, self.distance, self.problem.n_dims)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        strategy = np.random.uniform(0, self.distance, len(lb))
         times_win = 0
         return [position, fitness, strategy, times_win]
 
@@ -113,7 +109,7 @@ class BaseEP(Optimizer):
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
-            for idx in range(0, self.bout_size):
+            for idx in range(0, self.n_bout_size):
                 rand_idx = np.random.randint(0, len(pop))
                 if self.compare_agent(pop[i], pop[rand_idx]):
                     pop[i][self.ID_WIN] += 1
@@ -129,12 +125,10 @@ class LevyEP(BaseEP):
 
     Notes
     ~~~~~
-    I try to apply Levy-flight to EP and change flow and add some equations.
+    I try to apply Levy-flight to EP, change flow and add some equations.
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + bout_size (float/int): Number of tried with tournament selection (5% of pop_size)
-            + if float number --> percentage of child agents, [0.05, 0.2]
-            + int --> number of child agents, [3, 20]
+        + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
 
     Examples
     ~~~~~~~~
@@ -159,13 +153,18 @@ class LevyEP(BaseEP):
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
+    ID_POS = 0
+    ID_TAR = 1
+    ID_STR = 2  # strategy
+    ID_WIN = 3
+
     def __init__(self, problem, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
-            bout_size (float/int): if float number --> percentage of child agents, int --> number of child agents
+            bout_size (float): percentage of child agents implement tournament selection
         """
         super().__init__(problem, epoch, pop_size, bout_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
@@ -192,7 +191,7 @@ class LevyEP(BaseEP):
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
-            for idx in range(0, self.bout_size):
+            for idx in range(0, self.n_bout_size):
                 rand_idx = np.random.randint(0, len(pop))
                 if self.compare_agent(pop[i], pop[rand_idx]):
                     pop[i][self.ID_WIN] += 1

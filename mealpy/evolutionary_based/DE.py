@@ -813,9 +813,9 @@ class SAP_DE(Optimizer):
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], crossover_rate, mutation_rate, pop_size]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         crossover_rate = np.random.uniform(0, 1)
         mutation_rate = np.random.uniform(0, 1)
         if self.branch == "ABS":

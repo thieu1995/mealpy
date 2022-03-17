@@ -134,7 +134,7 @@ class BaseGA(Optimizer):
             list: The position of child 1 and child 2
         """
         if self.crossover == "arithmetic":
-            w1, w2 = self.crossover_arthmetic_recombination(dad, mom)
+            w1, w2 = self.crossover_arithmetic(dad, mom)
         elif self.crossover == "one_point":
             cut = np.random.randint(1, self.problem.n_dims-1)
             w1 = np.concatenate([ dad[:cut], mom[cut:] ])
