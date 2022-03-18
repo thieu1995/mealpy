@@ -58,15 +58,17 @@ class BaseBRO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.threshold = threshold
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.threshold = self.validator.check_float("threshold", threshold, [1, 10])
 
         ## Dynamic variable
         shrink = np.ceil(np.log10(self.epoch))
         self.dyn_delta = round(self.epoch / shrink)
+        self.problem.lb_updated = deepcopy(self.problem.lb)
+        self.problem.ub_updated = deepcopy(self.problem.ub)
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -75,11 +77,11 @@ class BaseBRO(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], damage]
+            list: wrapper of solution with format [position, target, damage]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         damage = 0
         return [position, fitness, damage]
 
@@ -127,7 +129,7 @@ class BaseBRO(Optimizer):
 
                     self.pop[j][self.ID_TAR] = self.get_fitness_position(self.pop[j][self.ID_POS])
                 else:  ## Loser dead and respawn again
-                    pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+                    pos_new = self.generate_position(self.problem.lb_updated, self.problem.ub_updated)
                     dam_new = 0
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
@@ -149,8 +151,8 @@ class BaseBRO(Optimizer):
             pos_std = np.std(pos_list, axis=0)
             lb = self.g_best[self.ID_POS] - pos_std
             ub = self.g_best[self.ID_POS] + pos_std
-            self.problem.lb = np.clip(lb, self.problem.lb, self.problem.ub)
-            self.problem.ub = np.clip(ub, self.problem.lb, self.problem.ub)
+            self.problem.lb_updated = np.clip(lb, self.problem.lb_updated, self.problem.ub_updated)
+            self.problem.ub_updated = np.clip(ub, self.problem.lb_updated, self.problem.ub_updated)
             self.dyn_delta += np.round(self.dyn_delta / 2)
 
 
@@ -226,12 +228,12 @@ class OriginalBRO(BaseBRO):
                 self.pop[dam][self.ID_DAM] += 1
                 self.pop[vic][self.ID_DAM] = 0
             else:
-                self.pop[dam] = self.create_solution()
+                self.pop[dam] = self.create_solution(self.problem.lb_updated, self.problem.ub_updated)
         if epoch >= self.dyn_delta:
             pos_list = np.array([self.pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
             pos_std = np.std(pos_list, axis=0)
             lb = self.g_best[self.ID_POS] - pos_std
             ub = self.g_best[self.ID_POS] + pos_std
-            self.problem.lb = np.clip(lb, self.problem.lb, self.problem.ub)
-            self.problem.ub = np.clip(ub, self.problem.lb, self.problem.ub)
+            self.problem.lb_updated = np.clip(lb, self.problem.lb_updated, self.problem.ub_updated)
+            self.problem.ub_updated = np.clip(ub, self.problem.lb_updated, self.problem.ub_updated)
             self.dyn_delta += round(self.dyn_delta / 2)
