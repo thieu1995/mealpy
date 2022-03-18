@@ -58,10 +58,10 @@ class BaseSARO(Optimizer):
         self.nfe_per_epoch = 2 * pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.se = se
-        self.mu = mu
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.se = self.validator.check_float("se", se, (0, 1.0))
+        self.mu = self.validator.check_int("mu", mu, [2, 2+int(pop_size/2)])
 
         ## Dynamic variable
         self.dyn_USN = np.zeros(self.pop_size)
@@ -136,7 +136,7 @@ class BaseSARO(Optimizer):
                 self.dyn_USN[idx] += 1
 
             if self.dyn_USN[idx] > self.mu:
-                pop_x[idx] = self.create_solution()
+                pop_x[idx] = self.create_solution(self.problem.lb, self.problem.ub)
                 self.dyn_USN[idx] = 0
         self.pop = pop_x + pop_m
 
@@ -256,6 +256,6 @@ class OriginalSARO(BaseSARO):
                 self.dyn_USN[idx] += 1
 
             if self.dyn_USN[idx] > self.mu:
-                pop_x[idx] = self.create_solution()
+                pop_x[idx] = self.create_solution(self.problem.lb, self.problem.ub)
                 self.dyn_USN[idx] = 0
         self.pop = pop_x + pop_m
