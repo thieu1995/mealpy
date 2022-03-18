@@ -50,8 +50,8 @@ class BaseQSA(Optimizer):
         self.nfe_per_epoch = 3 * pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
     def _calculate_queue_length__(self, t1, t2, t3):
         """
@@ -137,7 +137,7 @@ class BaseQSA(Optimizer):
                 else:
                     X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[i1][self.ID_POS])
             else:
-                X_new = np.random.uniform(self.problem.lb, self.problem.ub)
+                X_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
@@ -302,7 +302,7 @@ class LevyQSA(BaseQSA):
                     X_new = pop[i][self.ID_POS] + np.random.exponential(0.5) * (A - pop[id1][self.ID_POS])
                 pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             else:
-                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
