@@ -25,7 +25,7 @@ def problem():
     return problem
 
 
-def test_CA_results(problem):
+def test_CHIO_results(problem):
     models = [
         CHIO.OriginalCHIO(problem, epoch=10, pop_size=50, brr=0.15, max_age=2),
         CHIO.BaseCHIO(problem, epoch=10, pop_size=50, brr=0.15, max_age=1)
