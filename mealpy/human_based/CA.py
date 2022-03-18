@@ -58,9 +58,9 @@ class OriginalCA(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.accepted_rate = accepted_rate
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.accepted_rate = self.validator.check_float("accepted_rate", accepted_rate, (0, 1.0))
 
         ## Dynamic variables
         self.dyn_belief_space = {
@@ -71,9 +71,9 @@ class OriginalCA(Optimizer):
         # update situational knowledge (g_best here is a element inside belief space)
 
     def create_faithful(self, lb, ub):
-        position = np.random.uniform(lb, ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         return [position, fitness]
 
     def update_belief_space(self, belief_space, pop_accepted):
