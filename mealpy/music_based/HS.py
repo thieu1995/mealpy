@@ -61,13 +61,13 @@ class BaseHS(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.c_r = c_r
-        self.pa_r = pa_r
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.c_r = self.validator.check_float("c_r", c_r, (0, 1.0))
+        self.pa_r = self.validator.check_float("pa_r", pa_r, (0, 1.0))
+
         self.fw = 0.0001 * (self.problem.ub - self.problem.lb)  # Fret Width (Bandwidth)
         self.fw_damp = 0.9995  # Fret Width Damp Ratio
-
         self.dyn_fw = self.fw
 
     def evolve(self, epoch):
