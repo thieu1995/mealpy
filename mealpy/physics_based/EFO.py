@@ -63,12 +63,12 @@ class BaseEFO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.r_rate = r_rate
-        self.ps_rate = ps_rate
-        self.p_field = p_field
-        self.n_field = n_field
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.r_rate = self.validator.check_float("r_rate", r_rate, (0, 1.0))
+        self.ps_rate = self.validator.check_float("ps_rate", ps_rate, (0, 1.0))
+        self.p_field = self.validator.check_float("p_field", p_field, (0, 1.0))
+        self.n_field = self.validator.check_float("n_field", n_field, (0, 1.0))
         self.phi = (1 + np.sqrt(5)) / 2  # golden ratio
 
     def evolve(self, epoch):
@@ -92,9 +92,7 @@ class BaseEFO(Optimizer):
                 pos_new = self.pop[r_idx1][self.ID_POS] + self.phi * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[r_idx3][self.ID_POS]) \
                           + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[r_idx2][self.ID_POS])
             else:
-                # new = top
-                # pos_new = self.levy_flight(epoch + 1, self.pop[idx][self.ID_POS], self.g_best[self.ID_POS])
-                pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.generate_position(self.problem.lb, self.problem.ub)
 
             # replacement of one electromagnet of generated particle with a random number
             # (only for some generated particles) to bring diversity to the population
