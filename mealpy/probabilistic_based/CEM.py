@@ -62,10 +62,10 @@ class BaseCEM(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.alpha = alpha
-        self.n_best = n_best
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size/2)])
+        self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
         self.means = np.random.uniform(self.problem.lb, self.problem.ub)
         self.stdevs = np.abs(self.problem.ub - self.problem.lb)
 
