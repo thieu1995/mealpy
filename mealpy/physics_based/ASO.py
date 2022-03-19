@@ -68,12 +68,12 @@ class BaseASO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.alpha = alpha
-        self.beta = beta
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.alpha = self.validator.check_int("alpha", alpha, [1, 100])
+        self.beta = self.validator.check_float("beta", beta, (0, 1.0))
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -82,12 +82,12 @@ class BaseASO(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, mass]
+            list: wrapper of solution with format [position, target, velocity, mass]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        velocity = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = np.random.uniform(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        velocity = np.random.uniform(lb, ub)
         mass = 0.0
         return [position, fitness, velocity, mass]
 
