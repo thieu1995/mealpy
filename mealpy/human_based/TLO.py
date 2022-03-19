@@ -19,8 +19,7 @@ class BaseTLO(Optimizer):
 
     Notes
     ~~~~~
-    + Removed the third loop to make it faster
-    + This version taken the advantages of numpy np.array to faster handler operations
+    + Use numpy np.array to make operations faster
     + The global best solution is used
 
     Examples
@@ -61,8 +60,8 @@ class BaseTLO(Optimizer):
         self.nfe_per_epoch = 2 * pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
     def evolve(self, epoch):
         """
@@ -234,8 +233,13 @@ class ITLO(BaseTLO):
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * pop_size
-        self.n_teachers = n_teachers  # Number of teams / group
-        self.n_students = pop_size - n_teachers
+        self.sort_flag = False
+
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        # Number of teams / group
+        self.n_teachers = self.validator.check_int("n_teachers", n_teachers, [2, int(np.sqrt(self.pop_size)-1)])
+        self.n_students = self.pop_size - self.n_teachers
         self.n_students_in_team = int(self.n_students / self.n_teachers)
         self.teachers, self.teams = None, None
 
