@@ -68,12 +68,12 @@ class OriginalAOA(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.alpha = alpha
-        self.miu = miu
-        self.moa_min = moa_min
-        self.moa_max = moa_max
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.alpha = self.validator.check_int("alpha", alpha, [2, 10])
+        self.miu = self.validator.check_float("miu", miu, [0.1, 2.0])
+        self.moa_min = self.validator.check_float("moa_min", moa_min, (0, 0.41))
+        self.moa_max = self.validator.check_float("moa_max", moa_max, (0.41, 1.0))
 
     def evolve(self, epoch):
         """
@@ -82,8 +82,8 @@ class OriginalAOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        moa = self.moa_min + epoch * ((self.moa_max - self.moa_min) / self.epoch)  # Eq. 2
-        mop = 1 - (epoch ** (1.0 / self.alpha)) / (self.epoch ** (1.0 / self.alpha))  # Eq. 4
+        moa = self.moa_min + (epoch+1) * ((self.moa_max - self.moa_min) / self.epoch)  # Eq. 2
+        mop = 1 - ((epoch+1) ** (1.0 / self.alpha)) / (self.epoch ** (1.0 / self.alpha))  # Eq. 4
 
         pop_new = []
         for idx in range(0, self.pop_size):
