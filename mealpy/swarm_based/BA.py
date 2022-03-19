@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu Nguyen" at 12:00, 17/03/2020                                                        %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Thieu_Nguyen6                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# -------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 12:00, 17/03/2020 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -23,7 +20,7 @@ class OriginalBA(Optimizer):
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + loudness (float): (1.0, 2.0), loudness, default = 0.8
         + pulse_rate (float): (0.15, 0.85), pulse rate / emission rate, default = 0.95
-        + pulse_frequency (list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
+        + pulse_frequency (list, tuple): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
 
     Examples
     ~~~~~~~~
@@ -66,20 +63,20 @@ class OriginalBA(Optimizer):
             pop_size (int): number of population size, default = 100
             loudness (float): (A_min, A_max): loudness, default = 0.8
             pulse_rate (float): (r_min, r_max): pulse rate / emission rate, default = 0.95
-            pulse_frequency (list): (pf_min, pf_max): pulse frequency, default = (0, 10)
+            pulse_frequency (list, tuple): (pf_min, pf_max): pulse frequency, default = (0, 10)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.loudness = loudness
-        self.pulse_rate = pulse_rate
-        self.pulse_frequency = pulse_frequency
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.loudness = self.validator.check_float("loudness", loudness, (0, 1.0))
+        self.pulse_rate = self.validator.check_float("pulse_rate", pulse_rate, (0, 1.0))
+        self.pulse_frequency = self.validator.check_tuple_float("pulse_frequency (pf_min, pf_max)", pulse_frequency, ([0, 2], [2, 10]))
         self.alpha = self.gamma = 0.9
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -88,12 +85,12 @@ class OriginalBA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, pulse_frequency]
+            list: wrapper of solution with format [position, target, velocity, pulse_frequency]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        velocity = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        velocity = np.random.uniform(lb, ub)
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
         return [position, fitness, velocity, pulse_frequency]
 
@@ -132,9 +129,9 @@ class BaseBA(Optimizer):
     + The value of A and r are changing after each iteration
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + loudness (float): (A_min, A_max) -> ([0.5, 1.5], [1.0, 3.0]): loudness, default = (1.0, 2.0)
-        + pulse_rate (float): (r_min, r_max) -> ([0.1, 0.5], [0.5, 0.95]), pulse rate / emission rate, default = (0.15, 0.85)
-        + pulse_frequency (list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
+        + loudness (tuple, list): (A_min, A_max) -> ([0.5, 1.5], [1.0, 3.0]): loudness, default = (1.0, 2.0)
+        + pulse_rate (tuple, list): (r_min, r_max) -> ([0.1, 0.5], [0.5, 0.95]), pulse rate / emission rate, default = (0.15, 0.85)
+        + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
 
     Examples
     ~~~~~~~~
@@ -178,22 +175,22 @@ class BaseBA(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            loudness (): (A_min, A_max): loudness, default = (1.0, 2.0)
-            pulse_rate (): (r_min, r_max): pulse rate / emission rate, default = (0.15, 0.85)
-            pulse_frequency (): (pf_min, pf_max): pulse frequency, default = (0, 10)
+            loudness (tuple, list): (A_min, A_max): loudness, default = (1.0, 2.0)
+            pulse_rate (tuple, list): (r_min, r_max): pulse rate / emission rate, default = (0.15, 0.85)
+            pulse_frequency (tuple, list): (pf_min, pf_max): pulse frequency, default = (0, 10)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.loudness = loudness
-        self.pulse_rate = pulse_rate
-        self.pulse_frequency = pulse_frequency
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.loudness = self.validator.check_tuple_float("loudness (A_min, A_max)", loudness, ([0.5, 1.0], [1.0, 3.0]))
+        self.pulse_rate = self.validator.check_tuple_float("pulse_rate (r_min, r_max)", pulse_rate, ((0, 1.0), (0, 1.0)))
+        self.pulse_frequency = self.validator.check_tuple_float("pulse_frequency (pf_min, pf_max)", pulse_frequency, ([0, 2], [2, 10]))
         self.alpha = self.gamma = 0.9
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -202,12 +199,12 @@ class BaseBA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, loudness, pulse_rate, pulse_frequency]
+            list: wrapper of solution with format [position, target, velocity, loudness, pulse_rate, pulse_frequency]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        velocity = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        velocity = np.random.uniform(lb, ub)
         loudness = np.random.uniform(self.loudness[0], self.loudness[1])
         pulse_rate = np.random.uniform(self.pulse_rate[0], self.pulse_rate[1])
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
@@ -258,7 +255,7 @@ class ModifiedBA(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + pulse_rate (float): [0.7, 1.0], pulse rate / emission rate, default = 0.95
-        + pulse_frequency (list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
+        + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
 
     Examples
     ~~~~~~~~
@@ -291,16 +288,16 @@ class ModifiedBA(Optimizer):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pulse_rate (float): pulse rate / emission rate, default = 0.95
-            pulse_frequency (list): (pf_min, pf_max): pulse frequency, default = (0, 10)
+            pulse_frequency (tuple, list): (pf_min, pf_max): pulse frequency, default = (0, 10)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pulse_rate = pulse_rate
-        self.pulse_frequency = pulse_frequency
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pulse_rate = self.validator.check_float("pulse_rate", pulse_rate, (0, 1.0))
+        self.pulse_frequency = self.validator.check_tuple_float("pulse_frequency (pf_min, pf_max)", pulse_frequency, ([0, 2], [2, 10]))
         self.alpha = self.gamma = 0.9
 
         self.dyn_list_velocity = np.zeros((self.pop_size, self.problem.n_dims))
