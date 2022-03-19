@@ -80,16 +80,16 @@ class OriginalArchOA(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.c1 = c1
-        self.c2 = c2
-        self.c3 = c3
-        self.c4 = c4
-        self.acc_max = acc_max
-        self.acc_min = acc_min
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.c1 = self.validator.check_int("c1", c1, [1, 3])
+        self.c2 = self.validator.check_int("c2", c2, [2, 6])
+        self.c3 = self.validator.check_int("c3", c3, [1, 3])
+        self.c4 = self.validator.check_float("c4", c4, (0, 1.0))
+        self.acc_max = self.validator.check_float("acc_max", acc_max, (0.3, 1.0))
+        self.acc_min = self.validator.check_float("acc_min", acc_min, (0, 0.3))
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -98,14 +98,14 @@ class OriginalArchOA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], density, volume, acceleration]
+            list: wrapper of solution with format [position, target, density, volume, acceleration]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        den = np.random.uniform(self.problem.lb, self.problem.ub)
-        vol = np.random.uniform(self.problem.lb, self.problem.ub)
-        acc = self.problem.lb + np.random.uniform(self.problem.lb, self.problem.ub) * (self.problem.ub - self.problem.lb)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        den = np.random.uniform(lb, ub)
+        vol = np.random.uniform(lb, ub)
+        acc = self.problem.lb + np.random.uniform(lb, ub) * (ub - lb)
         return [position, fitness, den, vol, acc]
 
     def evolve(self, epoch):
