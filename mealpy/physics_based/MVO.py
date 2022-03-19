@@ -60,10 +60,10 @@ class BaseMVO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.wep_min = wep_min
-        self.wep_max = wep_max
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.wep_min = self.validator.check_float("wep_min", wep_min, [0.01, 0.3])
+        self.wep_max = self.validator.check_float("wep_max", wep_max, [0.31, 1.0])
 
     def evolve(self, epoch):
         """
@@ -88,7 +88,7 @@ class BaseMVO(Optimizer):
                 black_hole_pos_2 = self.g_best[self.ID_POS] + tdr * np.random.normal(0, 1) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                 black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
             else:
-                black_hole_pos = np.random.uniform(self.problem.lb, self.problem.ub)
+                black_hole_pos = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(black_hole_pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
