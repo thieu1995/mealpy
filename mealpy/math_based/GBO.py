@@ -19,7 +19,7 @@ class OriginalGBO(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + pr (float): [0.2, 0.8], Probability Parameter, default = 0.5
-        + beta_minmax (list): Fixed parameter (no name in the paper), default = (0.2, 1.2)
+        + beta_minmax (list, tuple): Fixed parameter (no name in the paper), default = (0.2, 1.2)
 
     Examples
     ~~~~~~~~
@@ -57,15 +57,15 @@ class OriginalGBO(Optimizer):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pr (float): Probability Parameter, default = 0.5
-            beta_minmax (list): Fixed parameter (no name in the paper), default = (0.2, 1.2)
+            beta_minmax (list, tuple): Fixed parameter (no name in the paper), default = (0.2, 1.2)
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pr = pr
-        self.beta_minmax = beta_minmax
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pr = self.validator.check_int("pr", pr, (0, 1.0))
+        self.beta_minmax = self.validator.check_tuple_float("beta_minmax", beta_minmax, ((0, 0.5), [0.5, 2.0]))
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
@@ -123,7 +123,7 @@ class OriginalGBO(Optimizer):
                 u3 = L1 * np.random.rand() + (1 - L1)
 
                 L2 = np.round(1 - np.random.rand())
-                x_rand = np.random.uniform(self.problem.lb, self.problem.ub)
+                x_rand = self.generate_position(self.problem.lb, self.problem.ub)
                 x_p = self.pop[np.random.choice(range(0, self.pop_size))][self.ID_POS]
                 x_m = L2 * x_p + (1 - L2) * x_rand
 
