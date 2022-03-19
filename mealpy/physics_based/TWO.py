@@ -58,8 +58,8 @@ class BaseTWO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
         self.muy_s = 1
         self.muy_k = 1
@@ -67,7 +67,7 @@ class BaseTWO(Optimizer):
         self.alpha = 0.99
         self.beta = 0.1
 
-    def create_solution(self, minmax=0):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -76,11 +76,11 @@ class BaseTWO(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
+            list: wrapper of solution with format [position, target, weight]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         weight = 0.0
         return [position, fitness, weight]
 
@@ -324,8 +324,8 @@ class LevyTWO(BaseTWO):
             if self.compare_agent(pop_new[i], self.pop[i]):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
-                levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
-                pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
+                levy_step = self.get_levy_flight_step(beta=1.0, multiplier=10, case=-1)
+                pos_new = pop_new[i][self.ID_POS] + np.sign(np.random.random() - 0.5) * levy_step
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 fit_new = self.get_fitness_position(pos_new)
                 self.pop[i] = [pos_new, fit_new, 0.0]
