@@ -75,15 +75,15 @@ class BaseSA(Optimizer):
         self.nfe_per_epoch = pop_size * max_sub_iter * move_count
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.max_sub_iter = max_sub_iter
-        self.t0 = t0
-        self.t1 = t1
-        self.move_count = move_count
-        self.mutation_rate = mutation_rate
-        self.mutation_step_size = mutation_step_size
-        self.mutation_step_size_damp = mutation_step_size_damp
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.max_sub_iter = self.validator.check_int("max_sub_iter", max_sub_iter, [1, 100000])
+        self.t0 = self.validator.check_int("t0", t0, [500, 2000])
+        self.t1 = self.validator.check_int("t1", t1, [1, 100])
+        self.move_count = self.validator.check_int("move_count", move_count, [2, int(self.pop_size/2)])
+        self.mutation_rate = self.validator.check_float("mutation_rate", mutation_rate, (0, 1.0))
+        self.mutation_step_size = self.validator.check_float("mutation_step_size", mutation_step_size, (0, 1.0))
+        self.mutation_step_size_damp = self.validator.check_float("mutation_step_size_damp", mutation_step_size_damp, (0, 1.0))
 
         self.dyn_t, self.t_damp, self.dyn_sigma = None, None, None
 
