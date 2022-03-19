@@ -19,8 +19,8 @@ class BaseACOR(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + sample_count (int): [pop_size/2, pop_size], Number of Newly Generated Samples, default = 50
-        + inten_factor (float): [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5
-        + zeta (int): [1, 2, 3], Deviation-Distance Ratio, default = 1
+        + intent_factor (float): [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5
+        + zeta (float): [1, 2, 3], Deviation-Distance Ratio, default = 1
 
     Examples
     ~~~~~~~~
@@ -40,9 +40,9 @@ class BaseACOR(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> sample_count = 50
-    >>> inten_factor = 0.5
+    >>> intent_factor = 0.5
     >>> zeta = 1.0
-    >>> model = BaseACOR(problem_dict1, epoch, pop_size, sample_count, inten_factor, zeta)
+    >>> model = BaseACOR(problem_dict1, epoch, pop_size, sample_count, intent_factor, zeta)
     >>> best_position, best_fitness = model.solve()
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -52,25 +52,25 @@ class BaseACOR(Optimizer):
     European journal of operational research, 185(3), pp.1155-1173.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, sample_count=50, inten_factor=0.5, zeta=1.0, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, sample_count=50, intent_factor=0.5, zeta=1.0, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             sample_count (int): Number of Newly Generated Samples, default = 50
-            inten_factor (float): Intensification Factor (Selection Pressure) (q in the paper), default = 0.5
+            intent_factor (float): Intensification Factor (Selection Pressure) (q in the paper), default = 0.5
             zeta (float): Deviation-Distance Ratio, default = 1.0
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
         self.sort_flag = True
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.sample_count = sample_count
-        self.inten_factor = inten_factor
-        self.zeta = zeta
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.sample_count = self.validator.check_int("sample_count", sample_count, [2, int(self.pop_size/2)])
+        self.intent_factor = self.validator.check_float("intent_factor", intent_factor, (0, 1.0))
+        self.zeta = self.validator.check_float("zeta", zeta, (0, 5))
 
     def evolve(self, epoch):
         """
@@ -82,7 +82,7 @@ class BaseACOR(Optimizer):
         # Calculate Selection Probabilities
         pop = self.pop[:self.pop_size]
         pop_rank = np.array([i for i in range(1, self.pop_size + 1)])
-        qn = self.inten_factor * self.pop_size
+        qn = self.intent_factor * self.pop_size
         matrix_w = 1 / (np.sqrt(2 * np.pi) * qn) * np.exp(-0.5 * ((pop_rank - 1) / qn) ** 2)
         matrix_p = matrix_w / np.sum(matrix_w)  # Normalize to find the probability.
 
