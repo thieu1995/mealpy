@@ -104,8 +104,8 @@ class OriginalAO(Optimizer):
                     pos_new = self.alpha * (self.g_best[self.ID_POS] - x_mean) - np.random.rand() * \
                               (np.random.rand() * (self.problem.ub - self.problem.lb) + self.problem.lb) * self.delta  # Eq. 13
                 else:
-                    pos_new = QF * self.g_best[self.ID_POS] - (g2 * self.pop[idx][self.ID_POS] *
-                                                               np.random.rand()) - g2 * self.get_simple_levy_step() + np.random.rand() * g1  # Eq. 14
+                    pos_new = QF * self.g_best[self.ID_POS] - (g2 * self.pop[idx][self.ID_POS] * np.random.rand()) - \
+                              g2 * self.get_simple_levy_step() + np.random.rand() * g1  # Eq. 14
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         pop_new = self.update_fitness_population(pop_new)
