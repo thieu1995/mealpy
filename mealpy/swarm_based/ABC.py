@@ -22,10 +22,10 @@ class BaseABC(Optimizer):
     + Improved the function _search_neigh__
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + couple_bees (list): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
-        + patch_variables (list): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
+        + couple_bees (list, tuple): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
+        + patch_variables (list, tuple): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
         + patch_variables = patch_variables * patch_factor (0.985)
-        + sites (list): 3 bees (employed bees, onlookers and scouts), 1 good partition -> (3, 1), fixed parameter
+        + sites (list, tuple): 3 bees (employed bees, onlookers and scouts), 1 good partition -> (3, 1), fixed parameter
 
     Examples
     ~~~~~~~~
@@ -64,19 +64,24 @@ class BaseABC(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            couple_bees (list): number of bees which provided for good location and other location
-            patch_variables (list): patch_variables = patch_variables * patch_factor (0.985)
-            sites (list): 3 bees (employed bees, onlookers and scouts), 1 good partition
+            couple_bees (list, tuple): number of bees which provided for good location and other location
+            patch_variables (list, tuple): patch_variables = patch_variables * patch_factor (0.985)
+            sites (list, tuple): 3 bees (employed bees, onlookers and scouts), 1 good partition
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.e_bees = couple_bees[0]
-        self.o_bees = couple_bees[1]
-        self.patch_size = patch_variables[0]
-        self.patch_factor = patch_variables[1]
-        self.num_sites = sites[0]
-        self.elite_sites = sites[1]
+
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.couple_bees = self.validator.check_tuple_int("couple_bees (good location, other location)", couple_bees, ([4, 20], [2, 4]))
+        self.patch_variables = self.validator.check_tuple_float("(patch_variables, reduction_factor)", patch_variables, ([2, 10], (0, 1.0)))
+        self.sites = self.validator.check_tuple_int("sites (employed bees, onlookers and scouts; 1 good partition)", sites, ([2, 5], [1, 3]))
+
+        self.e_bees = self.couple_bees[0]
+        self.o_bees = self.couple_bees[1]
+        self.patch_size = self.patch_variables[0]
+        self.patch_factor = self.patch_variables[1]
+        self.num_sites = self.sites[0]
+        self.elite_sites = self.sites[1]
 
         self.nfe_per_epoch = self.e_bees * self.elite_sites + self.o_bees * self.num_sites + (self.pop_size - self.num_sites)
         self.sort_flag = True
@@ -113,6 +118,6 @@ class BaseABC(Optimizer):
                     neigh_size = self.o_bees
                 agent = self._search_neigh__(self.pop[idx], neigh_size)
             else:
-                agent = self.create_solution()
+                agent = self.create_solution(self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
