@@ -63,10 +63,10 @@ class OriginalPSS(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.acceptance_rate = acceptance_rate
-        self.sampling_method = sampling_method
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.acceptance_rate = self.validator.check_float("acceptance_rate", acceptance_rate, (0, 1.0))
+        self.sampling_method = self.validator.check_str("sampling_method", sampling_method, ["MC", "LHS"])
 
         self.step = 10e-10
         self.steps = np.ones(self.problem.n_dims) * self.step
