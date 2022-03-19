@@ -58,10 +58,10 @@ class BaseGCO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.cr = cr
-        self.wf = wf
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.cr = self.validator.check_float("cr", cr, (0, 1.0))
+        self.wf = self.validator.check_float("wf", wf, (0, 3.0))
 
         ## Dynamic variables
         self.dyn_list_cell_counter = np.ones(self.pop_size)  # CEll Counter
