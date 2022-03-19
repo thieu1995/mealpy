@@ -59,9 +59,9 @@ class BaseHGSO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.n_clusters = n_clusters
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.n_clusters = self.validator.check_int("n_clusters", n_clusters, [2, int(self.pop_size/5)])
         self.n_elements = int(self.pop_size / self.n_clusters)
 
         self.T0 = 298.15
