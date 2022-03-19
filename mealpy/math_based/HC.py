@@ -60,9 +60,9 @@ class OriginalHC(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.neighbour_size = neighbour_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.neighbour_size = self.validator.check_int("neighbour_size", neighbour_size, [2, self.pop_size])
 
     def evolve(self, epoch):
         """

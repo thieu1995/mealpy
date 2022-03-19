@@ -59,7 +59,7 @@ class OriginalGBO(Optimizer):
 
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.pr = self.validator.check_int("pr", pr, (0, 1.0))
+        self.pr = self.validator.check_float("pr", pr, (0, 1.0))
         self.beta_minmax = self.validator.check_tuple_float("beta_minmax", beta_minmax, ((0, 0.5), [0.5, 2.0]))
 
     def initialization(self):
