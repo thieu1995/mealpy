@@ -25,7 +25,7 @@ class BaseWCA(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + nsr (int): [4, 10], Number of rivers + sea (sea = 1), default = 4
-        + wc (int): [1.0, 3.0], Weighting coefficient (C in the paper), default = 2
+        + wc (float): [1.0, 3.0], Weighting coefficient (C in the paper), default = 2
         + dmax (float): [1e-6], fixed parameter, Evaporation condition constant, default=1e-6
 
     Examples
@@ -46,7 +46,7 @@ class BaseWCA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> nsr = 4
-    >>> wc = 2
+    >>> wc = 2.0
     >>> dmax = 1e-6
     >>> model = BaseWCA(problem_dict1, epoch, pop_size, nsr, wc, dmax)
     >>> best_position, best_fitness = model.solve()
@@ -58,25 +58,24 @@ class BaseWCA(Optimizer):
     optimization method for solving constrained engineering optimization problems. Computers & Structures, 110, pp.151-166.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, nsr=4, wc=2, dmax=1e-6, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, nsr=4, wc=2.0, dmax=1e-6, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             nsr (int): Number of rivers + sea (sea = 1), default = 4
-            wc (int): Weighting coefficient (C in the paper), default = 2
+            wc (float): Weighting coefficient (C in the paper), default = 2.0
             dmax (float): Evaporation condition constant, default=1e-6
         """
         super().__init__(problem, kwargs)
         self.nfe_per_epoch = pop_size
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.nsr = nsr
-        self.wc = wc
-        self.dmax = dmax
-
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nsr = self.validator.check_int("nsr", nsr, [2, int(self.pop_size/2)])
+        self.wc = self.validator.check_float("wc", wc, (1.0, 3.0))
+        self.dmax = self.validator.check_float("dmax", dmax, (0, 1.0))
         self.streams, self.pop_bset, self.pop_stream = None, None, None
 
     def initialization(self):
@@ -140,7 +139,7 @@ class BaseWCA(Optimizer):
         for i in range(1, self.nsr):
             distance = np.sqrt(np.sum((self.g_best[self.ID_POS] - self.pop_best[i][self.ID_POS]) ** 2))
             if distance < self.ecc or np.random.rand() < 0.1:
-                child = self.create_solution()
+                child = self.create_solution(self.problem.lb, self.problem.ub)
                 pop_current_best, _ = self.get_global_best_solution(self.streams[i] + [child])
                 self.pop_best[i] = pop_current_best.pop(0)
                 self.streams[i] = pop_current_best
