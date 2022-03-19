@@ -58,10 +58,10 @@ class BaseSSDO(Optimizer):
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -70,12 +70,12 @@ class BaseSSDO(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], velocity, best_local_position]
+            list: wrapper of solution with format [position, target, velocity, best_local_position]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        velocity = np.random.uniform(self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        velocity = np.random.uniform(lb, ub)
         pos_local = deepcopy(position)
         return [position, fitness, velocity, pos_local]
 
@@ -105,7 +105,7 @@ class BaseSSDO(Optimizer):
 
         ## Reproduction
         for idx in range(0, self.pop_size):
-            pos_new = pop_new[idx][self.ID_POS] + pop_new[idx][self.ID_VEL]
+            pos_new = np.random.uniform() * pop_new[idx][self.ID_POS] + pop_new[idx][self.ID_VEL]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new[idx][self.ID_POS] = pos_new
         pop_new = self.update_fitness_population(pop_new)
