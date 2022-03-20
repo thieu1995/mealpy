@@ -67,13 +67,13 @@ class BaseBES(Optimizer):
             c2 (float): c1 and c2 increase the movement intensity of bald eagles towards the best and centre points
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.a_factor = a_factor
-        self.R_factor = R_factor
-        self.alpha = alpha
-        self.c1 = c1
-        self.c2 = c2
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.a_factor = self.validator.check_int("a_factor", a_factor, [2, 20])
+        self.R_factor = self.validator.check_float("R_factor", R_factor, [0.1, 3.0])
+        self.alpha = self.validator.check_float("alpha", alpha, [0.5, 3.0])
+        self.c1 = self.validator.check_float("c1", c1, (0, 4.0))
+        self.c2 = self.validator.check_float("c2", c2, (0, 4.0))
         self.nfe_per_epoch = 3 * pop_size
         self.sort_flag = False
 
