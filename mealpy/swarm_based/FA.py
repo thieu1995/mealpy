@@ -69,16 +69,16 @@ class BaseFA(Optimizer):
             m_sparks (int): number of sparks generated in each explosion generation, default=5
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.max_sparks = self.validator.check_int("max_sparks", max_sparks, [2, int(self.pop_size/2)])
+        self.p_a = self.validator.check_float("p_a", p_a, (0, 1.0))
+        self.p_b = self.validator.check_float("p_b", p_b, (0, 1.0))
+        self.max_ea = self.validator.check_int("max_ea", max_ea, [2, 100])
+        self.m_sparks = self.validator.check_int("m_sparks", m_sparks, [2, int(self.pop_size/2)])
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.max_sparks = max_sparks
-        self.p_a = p_a
-        self.p_b = p_b
-        self.max_ea = max_ea
-        self.m_sparks = m_sparks
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """
