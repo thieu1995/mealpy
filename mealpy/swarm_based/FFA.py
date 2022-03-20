@@ -71,20 +71,19 @@ class BaseFFA(Optimizer):
             exponent (int): Exponent (m in the paper), default = 2
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = int(pop_size * (pop_size + 1) / 2 * 0.5)
-        self.sort_flag = False
-
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.gamma = gamma
-        self.beta_base = beta_base
-        self.alpha = alpha
-        self.alpha_damp = alpha_damp
-        self.delta = delta
-        self.exponent = exponent
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
+        self.beta_base = self.validator.check_float("beta_base", beta_base, (0, 3.0))
+        self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
+        self.alpha_damp = self.validator.check_float("alpha_damp", alpha_damp, (0, 1.0))
+        self.delta = self.validator.check_float("delta", delta, (0, 1.0))
+        self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
 
         ## Dynamic variable
-        self.dyn_alpha = alpha  # Initial Value of Mutation Coefficient
+        self.nfe_per_epoch = int(self.pop_size * (self.pop_size + 1) / 2 * 0.5)
+        self.sort_flag = False
+        self.dyn_alpha = self.alpha  # Initial Value of Mutation Coefficient
 
     def evolve(self, epoch):
         """
