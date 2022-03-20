@@ -56,9 +56,9 @@ class BaseCSA(Optimizer):
             p_a (float): probability a, default=0.3
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.p_a = p_a
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.p_a = self.validator.check_float("p_a", p_a, (0, 1.0))
         self.n_cut = int(self.p_a * self.pop_size)
         self.nfe_per_epoch = self.pop_size + self.n_cut
         self.sort_flag = False
@@ -70,19 +70,16 @@ class BaseCSA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = []
+        pop_new = deepcopy(self.pop)
         for i in range(0, self.pop_size):
             ## Generate levy-flight solution
             levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)
             pos_new = self.pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
                       levy_step * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
-        list_idx_rand = np.random.choice(list(range(0, self.pop_size)), self.pop_size, replace=True)
-        for idx in range(self.pop_size):
-            if self.compare_agent(self.pop[list_idx_rand[idx]], pop_new[idx]):
-                pop_new[idx] = deepcopy(self.pop[list_idx_rand[idx]])
+            fit_new = self.get_fitness_position(pos_new)
+            if self.compare_agent([pos_new, fit_new], self.pop[i]):
+                pop_new[i] = [pos_new, fit_new]
 
         ## Abandoned some worst nests
         pop = self.get_sorted_strim_population(pop_new, self.pop_size)
