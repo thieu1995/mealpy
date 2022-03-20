@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# ------------------------------------------------------------------------------------------------------%
-# Created by "Thieu" at 13:59, 24/06/2021                                                               %
-#                                                                                                       %
-#       Email:      nguyenthieu2102@gmail.com                                                           %
-#       Homepage:   https://www.researchgate.net/profile/Nguyen_Thieu2                                  %
-#       Github:     https://github.com/thieu1995                                                        %
-# ------------------------------------------------------------------------------------------------------%
+# !/usr/bin/env python
+# Created by "Thieu" at 13:59, 24/06/2021 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
 
 import numpy as np
 from copy import deepcopy
@@ -65,14 +62,14 @@ class BaseCOA(Optimizer):
         self.nfe_per_epoch = pop_size + 1
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.n_coyotes = n_coyotes
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.n_coyotes = self.validator.check_int("n_coyotes", n_coyotes, [2, int(self.pop_size / 2)])
         self.n_packs = int(pop_size / self.n_coyotes)
         self.ps = 1 / self.problem.n_dims
         self.p_leave = 0.005 * (self.n_coyotes ** 2)  # Probability of leaving a pack
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -81,10 +78,10 @@ class BaseCOA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], age]
+            list: wrapper of solution with format [position, target, age]
         """
-        pos = np.random.uniform(self.problem.lb, self.problem.ub)
-        pos = self.amend_position(pos, self.problem.lb, self.problem.ub)
+        pos = np.random.uniform(lb, ub)
+        pos = self.amend_position(pos, lb, ub)
         fit = self.get_fitness_position(pos)
         age = 1
         return [pos, fit, age]
