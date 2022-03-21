@@ -17,7 +17,7 @@ class BaseSHO(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
-        + rand_v (list): (uniform min, uniform max), random vector, default = [0.5, 1]
+        + rand_v (list, tuple): (uniform min, uniform max), random vector, default = [0.5, 1]
         + N_tried (int): default = 10,
 
     Examples
@@ -57,18 +57,18 @@ class BaseSHO(Optimizer):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
-            rand_v (list): (uniform min, uniform max), random vector, default = [0.5, 1]
+            rand_v (list, tuple): (uniform min, uniform max), random vector, default = [0.5, 1]
             N_tried (int): default = 10,
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.h_factor = self.validator.check_float("h_factor", h_factor, (0.5, 10.0))
+        self.rand_v = self.validator.check_tuple_float("rand_v", rand_v, ([-10, 0], [0, 10]))
+        self.N_tried = self.validator.check_int("N_tried", N_tried, (1, float("inf")))
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.h_factor = h_factor
-        self.rand_v = rand_v
-        self.N_tried = N_tried
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """
