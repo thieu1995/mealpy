@@ -69,14 +69,14 @@ class BaseMSA(Optimizer):
             max_step_size (float): Max step size used in Levy-flight technique, default=1.0
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size/2)])
+        self.partition = self.validator.check_float("partition", partition, (0, 1.0))
+        self.max_step_size = self.validator.check_float("max_step_size", max_step_size, (0, 5.0))
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.n_best = n_best
-        self.partition = partition
-        self.max_step_size = max_step_size
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
         # np1 in paper
         self.n_moth1 = int(np.ceil(self.partition * self.pop_size))
         # np2 in paper, we actually don't need this variable
