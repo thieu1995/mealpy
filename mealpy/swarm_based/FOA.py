@@ -56,17 +56,17 @@ class OriginalFOA(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
-        self.epoch = epoch
-        self.pop_size = pop_size
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def norm_consecutive_adjacent(self, position=None):
         return np.array([np.linalg.norm([position[x], position[x + 1]]) for x in range(0, self.problem.n_dims - 1)] + \
                         [np.linalg.norm([position[-1], position[0]])])
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -75,7 +75,7 @@ class OriginalFOA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]]]
+            list: wrapper of solution with format [position, target]
         """
         position = np.random.uniform(self.problem.lb, self.problem.ub)
         s = self.norm_consecutive_adjacent(position)
