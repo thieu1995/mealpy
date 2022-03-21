@@ -103,10 +103,10 @@ class BaseSSA(Optimizer):
             # Using equation (3) update the sparrow’s location;
             if idx < self.n1:
                 if r2 < self.ST:
-                    temp = np.exp((idx + 1) / (np.random.uniform() * self.epoch + self.EPSILON))
-                    if temp > 5:
-                        temp = np.random.normal()
-                    x_new = self.pop[idx][self.ID_POS] * temp
+                    des = (epoch + 1) / (np.random.uniform() * self.epoch + self.EPSILON)
+                    if des > 5:
+                        des = np.random.normal()
+                    x_new = self.pop[idx][self.ID_POS] * np.exp(des)
                 else:
                     x_new = self.pop[idx][self.ID_POS] + np.random.normal() * np.ones(self.problem.n_dims)
             else:
@@ -211,10 +211,10 @@ class OriginalSSA(BaseSSA):
             # Using equation (3) update the sparrow’s location;
             if idx < self.n1:
                 if r2 < self.ST:
-                    temp = np.exp((idx + 1) / (np.random.uniform() * self.epoch + self.EPSILON))
-                    if temp > 5:
-                        temp = np.random.uniform()
-                    x_new = self.pop[idx][self.ID_POS] * np.exp((epoch + 1) / temp)
+                    des = (idx + 1) / (np.random.uniform() * self.epoch + self.EPSILON)
+                    if des > 5:
+                        des = np.random.uniform()
+                    x_new = self.pop[idx][self.ID_POS] * np.exp(des)
                 else:
                     x_new = self.pop[idx][self.ID_POS] + np.random.normal() * np.ones(self.problem.n_dims)
             else:
