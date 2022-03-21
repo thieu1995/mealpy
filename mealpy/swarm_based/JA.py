@@ -52,11 +52,11 @@ class BaseJA(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+
         self.nfe_per_epoch = pop_size
         self.sort_flag = False
-
-        self.epoch = epoch
-        self.pop_size = pop_size
 
     def evolve(self, epoch):
         """
