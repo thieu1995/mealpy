@@ -13,7 +13,7 @@ class BaseGOA(Optimizer):
     The original version of: Grasshopper Optimization Algorithm (GOA)
 
     Links:
-        1. http://dx.doi.org/10.1016/j.advengsoft.2017.01.004
+        1. https://dx.doi.org/10.1016/j.advengsoft.2017.01.004
         2. https://www.mathworks.com/matlabcentral/fileexchange/61421-grasshopper-optimisation-algorithm-goa
 
     Notes:
@@ -22,7 +22,7 @@ class BaseGOA(Optimizer):
         + I changed the way to calculate distance between two location
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + c_minmax (list): (c_min, c_max) -> ([0.00001, 0.01], [0.5, 2.0]), coefficient c, default = (0.00004, 1)
+        + c_minmax (list, tuple): (c_min, c_max) -> ([0.00001, 0.01], [0.5, 2.0]), coefficient c, default = (0.00004, 1)
 
     Examples
     ~~~~~~~~
@@ -58,15 +58,15 @@ class BaseGOA(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            c_minmax (list): coefficient c, default = (0.00004, 1)
+            c_minmax (list, tuple): coefficient c, default = (0.00004, 1)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.c_minmax = self.validator.check_tuple_float("c (min, max)", c_minmax, ([0.00001, 0.2], [0.2, 2.0]))
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.c_minmax = c_minmax
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def _s_function__(self, r_vector=None):
         f = 0.5
