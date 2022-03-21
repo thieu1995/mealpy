@@ -76,16 +76,15 @@ class BaseSSpiderA(Optimizer):
             p_m (float): the probability of each value in a dimension mask to be one, default=0.1
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.r_a = self.validator.check_float("r_a", r_a, (0, 5.0))
+        self.p_c = self.validator.check_float("p_c", p_c, (0, 1.0))
+        self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.r_a = r_a
-        self.p_c = p_c
-        self.p_m = p_m
-
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         + x: The position of s on the web.
         + train: The fitness of the current position of s
@@ -103,10 +102,10 @@ class BaseSSpiderA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], intensity, target_position, previous_movement_vector, dimension_mask]
+            list: wrapper of solution with format [position, target, intensity, target_position, previous_movement_vector, dimension_mask]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
         fitness = self.get_fitness_position(position)
         intensity = np.log(1. / (abs(fitness[self.ID_FIT]) + self.EPSILON) + 1)
         target_position = deepcopy(position)
