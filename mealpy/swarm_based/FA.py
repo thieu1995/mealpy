@@ -76,7 +76,6 @@ class BaseFA(Optimizer):
         self.p_b = self.validator.check_float("p_b", p_b, (0, 1.0))
         self.max_ea = self.validator.check_int("max_ea", max_ea, [2, 100])
         self.m_sparks = self.validator.check_int("m_sparks", m_sparks, [2, int(self.pop_size/2)])
-
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 

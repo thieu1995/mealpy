@@ -55,13 +55,12 @@ class BaseBRO(Optimizer):
             threshold (int): dead threshold, default=3
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.threshold = self.validator.check_float("threshold", threshold, [1, 10])
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         ## Dynamic variable
         shrink = np.ceil(np.log10(self.epoch))
         self.dyn_delta = round(self.epoch / shrink)
@@ -202,7 +201,7 @@ class OriginalBRO(BaseBRO):
             threshold (int): dead threshold, default=3
         """
         super().__init__(problem, epoch, pop_size, threshold, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

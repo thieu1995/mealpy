@@ -72,9 +72,6 @@ class BaseMA(Optimizer):
             bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=4
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pc = self.validator.check_float("p_c", pc, (0, 1.0))
@@ -83,6 +80,8 @@ class BaseMA(Optimizer):
         self.max_local_gens = self.validator.check_int("max_local_gens", max_local_gens, [2, int(pop_size/2)])
         self.bits_per_param = self.validator.check_int("bits_per_param", bits_per_param, [2, 32])
         self.bits_total = self.problem.n_dims * self.bits_per_param
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None):
         """

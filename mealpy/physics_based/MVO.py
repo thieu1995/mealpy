@@ -57,13 +57,12 @@ class BaseMVO(Optimizer):
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.wep_min = self.validator.check_float("wep_min", wep_min, [0.01, 0.3])
         self.wep_max = self.validator.check_float("wep_max", wep_max, [0.31, 1.0])
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """
@@ -146,7 +145,7 @@ class OriginalMVO(BaseMVO):
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
         """
         super().__init__(problem, epoch, pop_size, wep_min, wep_max, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     # sorted_inflation_rates

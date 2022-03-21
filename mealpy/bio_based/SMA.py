@@ -56,12 +56,12 @@ class BaseSMA(Optimizer):
             p_t (float): probability threshold (z in the paper), default = 0.03
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_t = self.validator.check_float("p_t", p_t, (0, 1.0))
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None):
         """

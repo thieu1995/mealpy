@@ -63,14 +63,13 @@ class BaseACOR(Optimizer):
             zeta (float): Deviation-Distance Ratio, default = 1.0
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.sample_count = self.validator.check_int("sample_count", sample_count, [2, int(self.pop_size/2)])
         self.intent_factor = self.validator.check_float("intent_factor", intent_factor, (0, 1.0))
         self.zeta = self.validator.check_float("zeta", zeta, (0, 5))
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """

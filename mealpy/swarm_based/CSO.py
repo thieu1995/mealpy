@@ -99,6 +99,7 @@ class BaseCSO(Optimizer):
         self.w_minmax = self.validator.check_tuple_float("w (min, max)", w_minmax, ([0.1, 0.49], [0.5, 2.0]))
         self.w_min, self.w_max = self.w_minmax
         self.selected_strategy = self.validator.check_int("selected_strategy", selected_strategy, [0, 4])
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """
@@ -178,3 +179,4 @@ class BaseCSO(Optimizer):
             agent[self.ID_FLAG] = True if np.random.uniform() < self.mixture_ratio else False
             pop_new.append(agent)
         self.pop = self.update_fitness_population(pop_new)
+        self.nfe_per_epoch = self.pop_size

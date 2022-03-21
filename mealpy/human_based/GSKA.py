@@ -58,13 +58,12 @@ class BaseGSKA(Optimizer):
             kr (float): knowledge ratio, default = 0.7
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """
@@ -176,15 +175,14 @@ class OriginalGSKA(Optimizer):
             kg (int): Number of generations effect to D-dimension, default = 5
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.kf = self.validator.check_float("kf", kf, (0, 1.0))
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
         self.kg = self.validator.check_int("kg", kg, [1, 1 + int(epoch / 2)])
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """

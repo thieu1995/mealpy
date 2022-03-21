@@ -60,14 +60,13 @@ class OriginalPSS(Optimizer):
             sampling_method (str): 'LHS': Latin-Hypercube or 'MC': 'MonteCarlo', default = "LHS"
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.acceptance_rate = self.validator.check_float("acceptance_rate", acceptance_rate, (0, 1.0))
         self.sampling_method = self.validator.check_str("sampling_method", sampling_method, ["MC", "LHS"])
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.step = 10e-10
         self.steps = np.ones(self.problem.n_dims) * self.step
         self.new_solution = True

@@ -83,6 +83,8 @@ class BaseBSA(Optimizer):
         self.c_couples = self.validator.check_tuple_float("c_couples (cognitive, social)", c_couples, ((0, 3.0), (0, 3.0)))
         self.a_couples = self.validator.check_tuple_float("a_couples (indirect, direct)", a_couples, ((0, 3.0), (0, 3.0)))
         self.fl = self.validator.check_float("fl", fl, (0, 1.0))
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """
@@ -113,6 +115,7 @@ class BaseBSA(Optimizer):
         fit_list = np.array([item[self.ID_LBF][self.ID_FIT] for item in self.pop])
         pos_mean = np.mean(pos_list, axis=0)
         fit_sum = np.sum(fit_list)
+        nfe_epoch = 0
 
         if epoch % self.ff != 0:
             pop_new = []
@@ -134,6 +137,7 @@ class BaseBSA(Optimizer):
                 pop_new.append(agent)
             pop_new = self.update_fitness_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
+            nfe_epoch += self.pop_size
         else:
             pop_new = deepcopy(self.pop)
             # Divide the bird swarm into two parts: producers and scroungers.
@@ -188,3 +192,5 @@ class BaseBSA(Optimizer):
                         pop_new[i] = agent
             pop_new = self.update_fitness_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
+            nfe_epoch += self.pop_size
+        self.nfe_per_epoch = nfe_epoch

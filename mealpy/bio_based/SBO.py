@@ -62,16 +62,16 @@ class BaseSBO(Optimizer):
             psw (float): proportion of space width (z in the paper), default=0.02
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_float("alpha", alpha, [0.5, 3.0])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.psw = self.validator.check_float("psw", psw, (0, 1.0))
+
         # (percent of the difference between the upper and lower limit (Eq. 7))
         self.sigma = self.psw * (self.problem.ub - self.problem.lb)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """

@@ -184,9 +184,6 @@ class ProbBeesA(Optimizer):
             dance_factor (tuple, list): Bees Dance Radius, Bees Dance Radius Reduction Rate, default=(0.1, 0.99)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.recruited_bee_ratio = self.validator.check_float("recruited_bee_ratio", recruited_bee_ratio, (0, 1.0))
@@ -194,6 +191,8 @@ class ProbBeesA(Optimizer):
         self.dance_radius = self.dance_factor[0]
         self.dance_radius_damp = self.dance_factor[1]
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
         # Initial Value of Dance Radius
         self.dyn_radius = self.dance_radius
         self.recruited_bee_count = int(round(self.recruited_bee_ratio * self.pop_size))

@@ -19,7 +19,6 @@ class BaseVCS(Optimizer):
     Notes
     ~~~~~
     + In Immune response process, updates the whole position instead of updating each variable in position
-    + Drops batch-size idea to 3 main process of this algorithm, makes it more robust
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
@@ -59,14 +58,14 @@ class BaseVCS(Optimizer):
             xichma (float): Weight factor, default = 0.3
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 3 * pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.xichma = self.validator.check_float("xichma", xichma, (0, 1.0))
         self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
         self.n_best = int(self.lamda * self.pop_size)
+
+        self.nfe_per_epoch = 3 * self.pop_size
+        self.sort_flag = True
 
     def _calculate_xmean(self, pop):
         """

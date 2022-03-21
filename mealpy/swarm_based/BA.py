@@ -66,15 +66,14 @@ class OriginalBA(Optimizer):
             pulse_frequency (list, tuple): (pf_min, pf_max): pulse frequency, default = (0, 10)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.loudness = self.validator.check_float("loudness", loudness, (0, 1.0))
         self.pulse_rate = self.validator.check_float("pulse_rate", pulse_rate, (0, 1.0))
         self.pulse_frequency = self.validator.check_tuple_float("pulse_frequency (pf_min, pf_max)", pulse_frequency, ([0, 2], [2, 10]))
         self.alpha = self.gamma = 0.9
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """

@@ -59,13 +59,12 @@ class OriginalCHIO(Optimizer):
             max_age (int): Maximum infected cases age, default=10
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.brr = self.validator.check_float("brr", brr, (0, 1.0))
         self.max_age = self.validator.check_int("max_age", max_age, [1, 1+int(epoch/5)])
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)

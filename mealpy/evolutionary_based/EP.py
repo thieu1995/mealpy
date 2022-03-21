@@ -62,14 +62,14 @@ class BaseEP(Optimizer):
             n_child (float): percentage of child agents implement tournament selection
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.bout_size = self.validator.check_float("bout_size", bout_size, (0, 1.0))
         self.n_bout_size = int(self.bout_size * pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None):
         """
@@ -167,7 +167,7 @@ class LevyEP(BaseEP):
             bout_size (float): percentage of child agents implement tournament selection
         """
         super().__init__(problem, epoch, pop_size, bout_size, **kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

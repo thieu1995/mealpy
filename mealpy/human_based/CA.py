@@ -55,13 +55,12 @@ class OriginalCA(Optimizer):
             accepted_rate (float): probability of accepted rate, default: 0.15
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
 
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.accepted_rate = self.validator.check_float("accepted_rate", accepted_rate, (0, 1.0))
-
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
         ## Dynamic variables
         self.dyn_belief_space = {
             "lb": self.problem.lb,

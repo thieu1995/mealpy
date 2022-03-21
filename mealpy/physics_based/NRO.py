@@ -55,11 +55,10 @@ class BaseNRO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 3 * pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = 3 * self.pop_size
+        self.sort_flag = False
 
     def amend_position(self, position=None, lb=None, ub=None):
         """

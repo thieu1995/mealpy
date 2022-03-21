@@ -69,14 +69,15 @@ class BaseDE(Optimizer):
             strategy (int): Different variants of DE, default = 0
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.wf = self.validator.check_float("wf", wf, (0, 1.0))
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.strategy = self.validator.check_int("strategy", strategy, [0, 5])
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
+
 
     def _mutation__(self, current_pos, new_pos):
         pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, current_pos, new_pos)
@@ -195,9 +196,6 @@ class JADE(Optimizer):
             ap (float): The Adaptation Parameter control value of f and cr (c in the paper), default=0.1
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # the initial f, location is changed then that f is good
@@ -209,6 +207,8 @@ class JADE(Optimizer):
         # np.random.uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
         self.ap = self.validator.check_float("ap", ap, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         ## Dynamic variable, changing in run time
         self.dyn_miu_cr = self.miu_cr
         self.dyn_miu_f = self.miu_f
@@ -333,12 +333,11 @@ class SADE(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.loop_probability = 50
         self.loop_cr = 5
         self.ns1 = self.ns2 = self.nf1 = self.nf2 = 0
@@ -466,9 +465,6 @@ class SHADE(Optimizer):
             miu_cr (float): initial cross-over probability, default = 0.5
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # the initial f, location is changed then that f is good
@@ -476,6 +472,8 @@ class SHADE(Optimizer):
         # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         # Dynamic variable
         self.dyn_miu_f = miu_f * np.ones(self.pop_size)  # list the initial f,
         self.dyn_miu_cr = miu_cr * np.ones(self.pop_size)  # list the initial cr,
@@ -629,9 +627,6 @@ class L_SHADE(Optimizer):
             miu_cr (float): initial cross-over probability, default = 0.5
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # the initial f, location is changed then that f is good
@@ -639,6 +634,8 @@ class L_SHADE(Optimizer):
         # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         # Dynamic variable
         self.dyn_miu_f = self.miu_f * np.ones(self.pop_size)  # list the initial f,
         self.dyn_miu_cr = self.miu_cr * np.ones(self.pop_size)  # list the initial cr,
@@ -794,13 +791,12 @@ class SAP_DE(Optimizer):
             branch (str): gaussian (absolute) or uniform (relative) method
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.branch = self.validator.check_str("branch", branch, ["ABS", "REL"])
-        self.fixed_pop_size = pop_size
+        self.fixed_pop_size = self.pop_size
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """

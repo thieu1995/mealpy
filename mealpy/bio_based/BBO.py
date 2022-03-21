@@ -60,14 +60,13 @@ class OriginalBBO(Optimizer):
             elites (int): Number of elites will be keep for next generation, default=2
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
-        self.elites = self.validator.check_int("elites", elites, [2, int(pop_size/2)])
+        self.elites = self.validator.check_int("elites", elites, [2, int(self.pop_size / 2)])
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.mu = (self.pop_size + 1 - np.array(range(1, self.pop_size + 1))) / (self.pop_size + 1)
         self.mr = 1 - self.mu
 

@@ -72,18 +72,17 @@ class BaseICA(Optimizer):
             zeta (float): Colonies Coefficient in Total Objective Value of Empires
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.empire_count = self.validator.check_int("empire_count", empire_count, [2, 2 + int(pop_size / 5)])
+        self.empire_count = self.validator.check_int("empire_count", empire_count, [2, 2 + int(self.pop_size / 5)])
         self.assimilation_coeff = self.validator.check_float("assimilation_coeff", assimilation_coeff, [1.0, 3.0])
         self.revolution_prob = self.validator.check_float("revolution_prob", revolution_prob, (0, 1.0))
         self.revolution_rate = self.validator.check_float("revolution_rate", revolution_rate, (0, 1.0))
         self.revolution_step_size = self.validator.check_float("revolution_step_size", revolution_step_size, (0, 1.0))
         self.zeta = self.validator.check_float("zeta", zeta, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
         self.pop_empires, self.pop_colonies, self.empires = None, None, None
         self.n_revoluted_variables, self.idx_list_variables = None, None
 

@@ -85,9 +85,6 @@ class OriginalBFO(Optimizer):
             attract_repels (list, tuple): coefficient to calculate attract and repel force, default = (0.1, 0.2, 0.1, 10)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.step_size = self.Ci = self.validator.check_int("Ci", Ci, (0, 5.0))
@@ -98,6 +95,8 @@ class OriginalBFO(Optimizer):
                     attract_repels, ((0, 1.0), (0, 1.0), (0, 1.0), (2, 20)))
         self.d_attr, self.w_attr, self.h_rep, self.w_rep = self.attract_repels
         self.half_pop_size = int(self.pop_size / 2)
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """
@@ -242,9 +241,6 @@ class ABFO(Optimizer):
             N_minmax (list, tuple): (Dead threshold value, split threshold value), default=(2, 40)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.step_size = self.Ci = self.validator.check_tuple_float("Ci (start, end)", Ci, ((0, 2.0), (0, 1.0)))
@@ -252,6 +248,8 @@ class ABFO(Optimizer):
         self.swim_length = self.Ns = self.validator.check_int("Ns", Ns, [2, 100])
         self.N_minmax = self.validator.check_tuple_int("Threshold value (dead, split)", N_minmax, ([0, 4], [5, 50]))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         # (Dead threshold value, split threshold value) -> N_adapt, N_split
         self.N_adapt = self.N_minmax[0]  # Dead threshold value
         self.N_split = self.N_minmax[1]  # split threshold value

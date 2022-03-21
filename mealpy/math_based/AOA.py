@@ -65,15 +65,14 @@ class OriginalAOA(Optimizer):
             moa_max (float): range max of Math Optimizer Accelerated, Default: 0.9,
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_int("alpha", alpha, [2, 10])
         self.miu = self.validator.check_float("miu", miu, [0.1, 2.0])
         self.moa_min = self.validator.check_float("moa_min", moa_min, (0, 0.41))
         self.moa_max = self.validator.check_float("moa_max", moa_max, (0.41, 1.0))
+        self.nfe_per_epoch = pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """

@@ -59,15 +59,14 @@ class BaseCOA(Optimizer):
             n_coyotes (int): number of coyotes per group, default=5
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size + 1
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_coyotes = self.validator.check_int("n_coyotes", n_coyotes, [2, int(self.pop_size / 2)])
         self.n_packs = int(pop_size / self.n_coyotes)
         self.ps = 1 / self.problem.n_dims
         self.p_leave = 0.005 * (self.n_coyotes ** 2)  # Probability of leaving a pack
+        self.nfe_per_epoch = self.pop_size + 1
+        self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None):
         """
@@ -105,6 +104,7 @@ class BaseCOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
+        nfe_epoch = 0
         # Execute the operations inside each pack
         for p in range(self.n_packs):
             # Get the coyotes that belong to each pack
@@ -129,6 +129,7 @@ class BaseCOA(Optimizer):
                 pop_new.append([pos_new, None, self.pop_group[p][i][self.ID_AGE]])
             # Evaluate the new social condition (Eq. 13)
             pop_new = self.update_fitness_population(pop_new)
+            nfe_epoch += self.n_coyotes
             # Adaptation (Eq. 14)
             self.pop_group[p] = self.greedy_selection_population(self.pop_group[p], pop_new)
 
@@ -142,15 +143,18 @@ class BaseCOA(Optimizer):
             pos_new = np.random.normal(0, 1) * pup
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             fit_new = self.get_fitness_position(pos_new)
+            nfe_epoch += 1
 
             # Verify if the pup will survive
             packs, local_best = self.get_global_best_solution(self.pop_group[p])
             # Find index of element has fitness larger than new child
             # If existed a element like that, new child is good
             if self.compare_agent([pos_new, fit_new], packs[-1]):
-                packs = sorted(packs, key=lambda agent: agent[self.ID_AGE])
-                # Replace worst element by new child
-                # New born child with age = 0
+                if self.problem.minmax == "min":
+                    packs = sorted(packs, key=lambda agent: agent[self.ID_AGE])
+                else:
+                    packs = sorted(packs, key=lambda agent: agent[self.ID_AGE], reverse=True)
+                # Replace worst element by new child, New born child with age = 0
                 packs[-1] = [pos_new, fit_new, 0]
                 self.pop_group[p] = deepcopy(packs)
 

@@ -72,9 +72,6 @@ class BaseSA(Optimizer):
             mutation_step_size_damp (float): Mutation Step Size Damp, default=0.99
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size * max_sub_iter * move_count
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.max_sub_iter = self.validator.check_int("max_sub_iter", max_sub_iter, [1, 100000])
@@ -85,6 +82,8 @@ class BaseSA(Optimizer):
         self.mutation_step_size = self.validator.check_float("mutation_step_size", mutation_step_size, (0, 1.0))
         self.mutation_step_size_damp = self.validator.check_float("mutation_step_size_damp", mutation_step_size_damp, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size * self.max_sub_iter * self.move_count
+        self.sort_flag = True
         self.dyn_t, self.t_damp, self.dyn_sigma = None, None, None
 
     def _mutate(self, position, sigma):

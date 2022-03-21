@@ -58,13 +58,12 @@ class BaseFPA(Optimizer):
             levy_multiplier (float): mutiplier factor of Levy-flight trajectory, default = 0.2
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
         self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (0, 1.0))
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def amend_position(self, position=None, lb=None, ub=None):
         """

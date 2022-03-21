@@ -55,14 +55,13 @@ class BaseGCO(Optimizer):
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.wf = self.validator.check_float("wf", wf, (0, 3.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         ## Dynamic variables
         self.dyn_list_cell_counter = np.ones(self.pop_size)  # CEll Counter
         self.dyn_list_life_signal = 70 * np.ones(self.pop_size)  # 70% to duplicate, and 30% to die  # LIfe-Signal
@@ -154,7 +153,7 @@ class OriginalGCO(BaseGCO):
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
         super().__init__(problem, epoch, pop_size, cr, wf, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

@@ -78,9 +78,6 @@ class BaseWHO(Optimizer):
             delta (tuple, list): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_s = self.validator.check_int("n_s", n_s, [2, 10])
@@ -90,6 +87,9 @@ class BaseWHO(Optimizer):
         self.local_move = self.validator.check_tuple_float("local_move (alpha 1, beta 1)", local_move, ((0, 2.0), (0, 2.0)))
         self.global_move = self.validator.check_tuple_float("global_move (alpha 2, beta 2)", global_move, ((0, 2.0), (0, 2.0)))
         self.delta = self.validator.check_tuple_float("delta (delta_w, delta_c)", delta, ((0.5, 5.0), (0.5, 5.0)))
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """

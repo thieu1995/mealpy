@@ -81,14 +81,14 @@ class BaseGA(Optimizer):
             mutation (str): Optional, can be ["flip", "swap"] for multipoints and can be ["flip", "swap", "scramble", "inversion"] for one-point, default="flip"
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
 
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pc = self.validator.check_float("p_c", pc, (0, 1.0))
         self.pm = self.validator.check_float("p_m", pm, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.selection = "tournament"
         self.k_way = 0.2
         self.crossover = "uniform"

@@ -55,12 +55,11 @@ class BaseTWO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.muy_s = 1
         self.muy_k = 1
         self.delta_t = 1
@@ -179,7 +178,7 @@ class OppoTWO(BaseTWO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialization(self):
@@ -277,7 +276,7 @@ class LevyTWO(BaseTWO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -378,7 +377,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialization(self):

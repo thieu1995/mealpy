@@ -60,9 +60,6 @@ class BaseEFO(Optimizer):
             n_field (float): default = 0.45    portion of population, negative field
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.r_rate = self.validator.check_float("r_rate", r_rate, (0, 1.0))
@@ -70,6 +67,8 @@ class BaseEFO(Optimizer):
         self.p_field = self.validator.check_float("p_field", p_field, (0, 1.0))
         self.n_field = self.validator.check_float("n_field", n_field, (0, 1.0))
         self.phi = (1 + np.sqrt(5)) / 2  # golden ratio
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """
@@ -164,7 +163,7 @@ class OriginalEFO(BaseEFO):
             n_field (float): default = 0.45    portion of population, negative field
         """
         super().__init__(problem, epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def amend_position(self, position=None, lb=None, ub=None):

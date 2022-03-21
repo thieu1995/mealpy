@@ -55,14 +55,13 @@ class BaseSARO(Optimizer):
             mu (int): maximum unsuccessful search number, default = 50
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.se = self.validator.check_float("se", se, (0, 1.0))
-        self.mu = self.validator.check_int("mu", mu, [2, 2+int(pop_size/2)])
+        self.mu = self.validator.check_int("mu", mu, [2, 2+int(self.pop_size/2)])
 
+        self.nfe_per_epoch = 2 * self.pop_size
+        self.sort_flag = True
         ## Dynamic variable
         self.dyn_USN = np.zeros(self.pop_size)
 

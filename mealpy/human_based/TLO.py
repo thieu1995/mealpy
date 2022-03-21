@@ -57,11 +57,10 @@ class BaseTLO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = 2 * self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """
@@ -144,7 +143,7 @@ class OriginalTLO(BaseTLO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -232,9 +231,6 @@ class ITLO(BaseTLO):
             n_teachers (int): number of teachers in class
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 2 * pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # Number of teams / group
@@ -242,6 +238,8 @@ class ITLO(BaseTLO):
         self.n_students = self.pop_size - self.n_teachers
         self.n_students_in_team = int(self.n_students / self.n_teachers)
         self.teachers, self.teams = None, None
+        self.nfe_per_epoch = 2 * self.pop_size
+        self.sort_flag = False
 
     def classify(self, pop):
         sorted_pop, best = self.get_global_best_solution(pop)

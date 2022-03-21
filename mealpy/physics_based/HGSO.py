@@ -56,14 +56,12 @@ class BaseHGSO(Optimizer):
             n_clusters (int): number of clusters, default = 2
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_clusters = self.validator.check_int("n_clusters", n_clusters, [2, int(self.pop_size/5)])
         self.n_elements = int(self.pop_size / self.n_clusters)
-
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.T0 = 298.15
         self.K = 1.0
         self.beta = 1.0
@@ -76,7 +74,6 @@ class BaseHGSO(Optimizer):
         self.H_j = self.l1 * np.random.uniform()
         self.P_ij = self.l2 * np.random.uniform()
         self.C_j = self.l3 * np.random.uniform()
-
         self.pop_group, self.p_best = None, None
 
     def _create_group(self, pop):

@@ -47,11 +47,10 @@ class BaseFBIO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 4 * pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = 4 * self.pop_size
+        self.sort_flag = False
 
     def probability(self, list_fitness=None):  # Eq.(3) in FBI Inspired Meta-Optimization
         max1 = np.max(list_fitness)
@@ -170,12 +169,9 @@ class OriginalFBIO(BaseFBIO):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, **kwargs)
-        self.nfe_per_epoch = 4 * pop_size
+        super().__init__(problem, epoch, pop_size, **kwargs)
+        self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = False
-
-        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 
     def amend_position(self, position=None, lb=None, ub=None):
         """

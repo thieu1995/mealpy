@@ -77,18 +77,17 @@ class BaseEOA(Optimizer):
             gamma (float): default = 0.9, a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_c = self.validator.check_float("p_c", p_c, (0, 1.0))
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
-        self.n_best = self.validator.check_int("n_best", n_best, [2, int(pop_size / 2)])
+        self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size / 2)])
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         ## Dynamic variable
         self.dyn_beta = beta
 

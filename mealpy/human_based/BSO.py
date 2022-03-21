@@ -66,17 +66,16 @@ class ImprovedBSO(Optimizer):
             p4 (float): Need more weights on the centers instead of the random position
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.m_clusters = self.validator.check_int("m_clusters", m_clusters, [2, int(pop_size/5)])
+        self.m_clusters = self.validator.check_int("m_clusters", m_clusters, [2, int(self.pop_size/5)])
         self.p1 = self.validator.check_float("p1", p1, (0, 1.0))
         self.p2 = self.validator.check_float("p2", p2, (0, 1.0))
         self.p3 = self.validator.check_float("p3", p3, (0, 1.0))
         self.p4 = self.validator.check_float("p4", p4, (0, 1.0))
 
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.m_solution = int(self.pop_size / self.m_clusters)
         self.pop_group, self.centers = None, None
 

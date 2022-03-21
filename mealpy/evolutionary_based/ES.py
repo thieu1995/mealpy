@@ -63,7 +63,6 @@ class BaseES(Optimizer):
         self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
         self.n_child = int(self.lamda * self.pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
-
         self.nfe_per_epoch = self.n_child
         self.sort_flag = True
 

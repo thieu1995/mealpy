@@ -66,14 +66,14 @@ class OriginalIWO(Optimizer):
             sigmas (tuple, list): (Initial, Final) Value of Standard Deviation
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(pop_size/2)]))
+        self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(self.pop_size / 2)]))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
         self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ((0.3, 1), (0, 0.2)))
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch=None):
         """

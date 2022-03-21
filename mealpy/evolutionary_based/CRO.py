@@ -77,9 +77,6 @@ class BaseCRO(Optimizer):
             n_trials (int): number of attempts for a larva to set in the reef.
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])  # ~ number of space
         self.po = self.validator.check_float("po", po, (0, 1.0))
@@ -90,13 +87,15 @@ class BaseCRO(Optimizer):
         self.GCR = self.validator.check_float("GCR", GCR, (0, 1.0))
         self.G = self.validator.check_tuple_float("G (gamma_min, gamma_max)", G, ((0, 0.15), (0.15, 1.0)))
         self.G1 = G[1]
-        self.n_trials = self.validator.check_int("n_trials", n_trials, [2, int(pop_size / 2)])
+        self.n_trials = self.validator.check_int("n_trials", n_trials, [2, int(self.pop_size / 2)])
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         self.reef = np.array([])
         self.occupied_position = []  # after a gen, you should update the occupied_position
         self.alpha = 10 * self.Pd / self.epoch
         self.gama = 10 * (self.G[1] - self.G[0]) / self.epoch
         self.num_occupied = int(self.pop_size / (1 + self.po))
-
         self.dyn_Pd = 0
         self.occupied_list = np.zeros(self.pop_size)
         self.occupied_idx_list = np.random.choice(list(range(self.pop_size)), self.num_occupied, replace=False)
@@ -260,7 +259,7 @@ class OCRO(BaseCRO):
             restart_count (int): reset the whole population after global best solution is not improved after restart_count times
         """
         super().__init__(problem, epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.restart_count = self.validator.check_int("restart_count", restart_count, [2, int(epoch / 2)])
         self.reset_count = 0

@@ -57,12 +57,11 @@ class OriginalHC(Optimizer):
             neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 50
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.neighbour_size = self.validator.check_int("neighbour_size", neighbour_size, [2, self.pop_size])
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """
@@ -128,7 +127,7 @@ class BaseHC(OriginalHC):
             neighbour_size (int): fixed parameter, sensitive exploitation parameter, Default: 50
         """
         super().__init__(problem, epoch, pop_size, neighbour_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

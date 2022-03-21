@@ -55,13 +55,12 @@ class OriginalLCO(Optimizer):
             r1 (float): coefficient factor
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.r1 = self.validator.check_float("r1", r1, [1.0, 3.0])
         self.n_agents = int(np.ceil(np.sqrt(self.pop_size)))
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """
@@ -137,7 +136,7 @@ class BaseLCO(OriginalLCO):
             r1 (float): coefficient factor
         """
         super().__init__(problem, epoch, pop_size, r1, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -210,12 +209,11 @@ class ImprovedLCO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
-        self.sort_flag = True
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pop_len = int(self.pop_size / 2)
+        self.nfe_per_epoch = 2 * self.pop_size
+        self.sort_flag = True
 
     def evolve(self, epoch):
         """

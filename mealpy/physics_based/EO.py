@@ -51,11 +51,11 @@ class BaseEO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = False
-
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
         ## Fixed parameter proposed by authors
         self.V = 1
         self.a1 = 2
@@ -141,9 +141,8 @@ class ModifiedEO(BaseEO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
-
         self.pop_len = int(self.pop_size / 3)
 
     def evolve(self, epoch):
@@ -249,9 +248,8 @@ class AdaptiveEO(BaseEO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-
         self.pop_len = int(self.pop_size / 3)
 
     def evolve(self, epoch):
