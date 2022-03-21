@@ -50,11 +50,10 @@ class BaseWOA(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-
-        self.epoch = epoch
-        self.pop_size = pop_size
 
     def evolve(self, epoch):
         """
@@ -78,7 +77,7 @@ class BaseWOA(Optimizer):
                     pos_new = self.g_best[self.ID_POS] - A * D
                 else:
                     # x_rand = pop[np.random.np.random.randint(self.pop_size)]         # select random 1 position in pop
-                    x_rand = self.create_solution()
+                    x_rand = self.create_solution(self.problem.lb, self.problem.ub)
                     D = np.abs(C * x_rand[self.ID_POS] - self.pop[idx][self.ID_POS])
                     pos_new = x_rand[self.ID_POS] - A * D
             else:
@@ -137,15 +136,13 @@ class HI_WOA(Optimizer):
             feedback_max (int): maximum iterations of each feedback, default = 10
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
-        self.sort_flag = True
-
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.feedback_max = feedback_max
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.feedback_max = self.validator.check_int("feedback_max", feedback_max, [2, 2+int(self.epoch/2)])
         # The maximum of times g_best doesn't change -> need to change half of population
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
         self.n_changes = int(pop_size / 2)
-
         ## Dynamic variable
         self.dyn_feedback_count = 0
 
@@ -172,7 +169,7 @@ class HI_WOA(Optimizer):
                     pos_new = self.g_best[self.ID_POS] - A * D
                 else:
                     # x_rand = pop[np.random.np.random.randint(self.pop_size)]         # select random 1 position in pop
-                    x_rand = self.create_solution()
+                    x_rand = self.create_solution(self.problem.lb, self.problem.ub)
                     D = np.abs(C * x_rand[self.ID_POS] - self.pop[idx][self.ID_POS])
                     pos_new = x_rand[self.ID_POS] - A * D
             else:
