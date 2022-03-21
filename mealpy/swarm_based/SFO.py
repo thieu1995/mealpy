@@ -18,7 +18,7 @@ class BaseSFO(Optimizer):
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-        + AP (int): A = 4, 6,... (coefficient for decreasing the value of Attack Power linearly from AP to 0)
+        + AP (float): coefficient for decreasing the value of Attack Power linearly from AP to 0
         + epxilon (float): should be 0.0001, 0.001
 
     Examples
@@ -59,19 +59,18 @@ class BaseSFO(Optimizer):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, SailFish pop size
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-            AP (int): A = 4, 6,... (coefficient for decreasing the value of Power Attack linearly from AP to 0)
+            AP (float): coefficient for decreasing the value of Power Attack linearly from AP to 0
             epxilon (float): should be 0.0001, 0.001
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pp = self.validator.check_float("pp", pp, (0, 1.0))
+        self.AP = self.validator.check_float("AP", AP, (0, 100))
+        self.epxilon = self.validator.check_float("epxilon", epxilon, (0, 0.1))
+
+        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
-
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pp = pp
-        self.AP = AP
-        self.epxilon = epxilon
-
         self.s_size = int(self.pop_size / self.pp)
 
     def initialization(self):
@@ -139,7 +138,7 @@ class BaseSFO(Optimizer):
                 #### Especially when sardine pop size >> sailfish pop size
         temp = self.s_size - len(self.s_pop)
         if temp == 1:
-            self.s_pop = self.s_pop + [self.create_solution()]
+            self.s_pop = self.s_pop + [self.create_solution(self.problem.lb, self.problem.ub)]
         else:
             self.s_pop = self.s_pop + self.create_population(self.s_size - len(self.s_pop))
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
@@ -196,13 +195,12 @@ class ImprovedSFO(Optimizer):
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = 2 * pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pp = self.validator.check_float("pp", pp, (0, 1.0))
+
+        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
-
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.pp = pp
-
         self.s_size = int(self.pop_size / self.pp)
 
     def initialization(self):
