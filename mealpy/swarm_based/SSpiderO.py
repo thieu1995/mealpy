@@ -17,7 +17,7 @@ class BaseSSpiderO(Optimizer):
         1. https://www.hindawi.com/journals/mpe/2018/6843923/
 
     Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
-        + fp (list): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
+        + fp (list, tuple): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
 
     Examples
     ~~~~~~~~
@@ -58,14 +58,15 @@ class BaseSSpiderO(Optimizer):
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            fp (list): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
+            fp (list, tuple): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.fp = fp
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        fp = self.validator.check_tuple_float("fp (min, max)", fp, ((0, 1.0), (0, 1.0)))
+        self.fp = (min(fp), max(fp))
 
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -74,10 +75,10 @@ class BaseSSpiderO(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], weight]
+            list: wrapper of solution with format [position, target, weight]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
+        position = np.random.uniform(lb, ub)
+        position = self.amend_position(position, lb, ub)
         fitness = self.get_fitness_position(position)
         weight = 0.0
         return [position, fitness, weight]
@@ -98,8 +99,8 @@ class BaseSSpiderO(Optimizer):
         return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def initialization(self):
-        self.fp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
-        self.n_f = int(self.pop_size * self.fp)  # number of female
+        fp_temp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
+        self.n_f = int(self.pop_size * fp_temp)  # number of female
         self.n_m = self.pop_size - self.n_f  # number of male
         # Probabilities of attraction or repulsion Proper tuning for better results
         self.p_m = (self.epoch + 1 - np.array(range(1, self.epoch + 1))) / (self.epoch + 1)
