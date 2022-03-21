@@ -57,11 +57,10 @@ class BaseSLO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-
-        self.epoch = epoch
-        self.pop_size = pop_size
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
@@ -153,13 +152,12 @@ class ModifiedSLO(Optimizer):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -171,11 +169,11 @@ class ModifiedSLO(Optimizer):
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], local_pos, local_fit]
         """
         ## Increase exploration at the first initial population using opposition-based learning.
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
-        local_pos = self.problem.lb + self.problem.ub - position
-        local_pos = self.amend_position(local_pos, self.problem.lb, self.problem.ub)
+        position = self.generate_position(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
+        local_pos = lb + ub - position
+        local_pos = self.amend_position(local_pos, lb, ub)
         local_fit = self.get_fitness_position(local_pos)
         if fitness < local_fit:
             return [local_pos, local_fit, position, fitness]
@@ -277,13 +275,12 @@ class ISLO(ModifiedSLO):
             c2 (float): Global coefficient same as PSO, default = 1.2
         """
         super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
+        self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.c1 = c1
-        self.c2 = c2
 
     def evolve(self, epoch):
         """
