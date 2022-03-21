@@ -61,15 +61,15 @@ class OriginalHGS(Optimizer):
             LH (float): Largest hunger / threshold, default = 10000
         """
         super().__init__(problem, kwargs)
-        self.nfe_per_epoch = pop_size
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.PUP = self.validator.check_float("PUP", PUP, (0, 1.0))
+        self.LH = self.validator.check_float("LH", LH, [1000, 20000])
+
+        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.PUP = PUP
-        self.LH = LH
-
-    def create_solution(self):
+    def create_solution(self, lb=None, ub=None):
         """
         To get the position, fitness wrapper, target and obj list
             + A[self.ID_POS]                  --> Return: position
@@ -78,11 +78,11 @@ class OriginalHGS(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], hunger]
+            list: wrapper of solution with format [position, target, hunger]
         """
-        position = np.random.uniform(self.problem.lb, self.problem.ub)
-        position = self.amend_position(position, self.problem.lb, self.problem.ub)
-        fitness = self.get_fitness_position(position=position)
+        position = np.random.uniform(lb, ub)
+        position = self.amend_position(position, lb, ub)
+        fitness = self.get_fitness_position(position)
         hunger = 1.0
         return [position, fitness, hunger]
 
