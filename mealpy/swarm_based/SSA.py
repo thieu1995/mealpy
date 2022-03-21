@@ -65,15 +65,13 @@ class BaseSSA(Optimizer):
             SD (float): number of sparrows who perceive the danger, default = 0.1
         """
         super().__init__(problem, kwargs)
-        self.epoch = epoch
-        self.pop_size = pop_size
-        self.ST = ST
-        self.PD = PD
-        self.SD = SD
-
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.ST = self.validator.check_float("ST", ST, (0, 1.0))
+        self.PD = self.validator.check_float("PD", PD, (0, 1.0))
+        self.SD = self.validator.check_float("SD", SD, (0, 1.0))
         self.n1 = int(self.PD * self.pop_size)
         self.n2 = int(self.SD * self.pop_size)
-
         self.nfe_per_epoch = 2 * self.pop_size - self.n2
         self.sort_flag = True
 
@@ -211,7 +209,7 @@ class OriginalSSA(BaseSSA):
             # Using equation (3) update the sparrow’s location;
             if idx < self.n1:
                 if r2 < self.ST:
-                    x_new = self.pop[idx][self.ID_POS] * np.exp((idx + 1) / ((np.random.uniform() + self.EPSILON) * self.epoch))
+                    x_new = self.pop[idx][self.ID_POS] * np.exp((idx + 1) / ((np.random.uniform() * self.epoch) + self.EPSILON))
                 else:
                     x_new = self.pop[idx][self.ID_POS] + np.random.normal() * np.ones(self.problem.n_dims)
             else:
