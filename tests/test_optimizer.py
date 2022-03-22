@@ -34,17 +34,10 @@ def test_amend_position(model):
     assert comparison.all()
 
 
-def test_get_fitness_position(model):
+def test_get_target_wrapper(model):
     pos = np.array([1, 2, 0, 2, 1])
-    target = model.get_fitness_position(pos)
+    target = model.get_target_wrapper(pos)
     fit = np.sum(pos ** 2)
-    assert target[model.ID_FIT] == fit
-
-
-def test_get_fitness_solution(model):
-    agent = [np.array([1, 2, 0, 2, 1]), None]
-    target = model.get_fitness_solution(agent)
-    fit = np.sum(agent[0] ** 2)
     assert target[model.ID_FIT] == fit
 
 
@@ -71,42 +64,42 @@ def test_create_population(model):
     assert len(agent[model.ID_TAR][model.ID_OBJ]) == model.problem.n_objs
 
 
-def test_update_fitness_population(model):
+def test_update_target_wrapper_population(model):
     pop = [
         [np.array([1, 0, 2, 0, 1]), None],
         [np.array([0, 0, 3, 4, 5]), None],
         [np.array([-1, -2, 3, 4, 0]), None],
         [np.array([5, -4, 0, 1, -1]), None]
     ]
-    list_fits = [model.get_fitness_solution(agent) for agent in pop]
-    pop = model.update_fitness_population(pop)
+    list_targets = [model.get_target_wrapper(agent[model.ID_POS]) for agent in pop]
+    pop = model.update_target_wrapper_population(pop)
     for idx, agent in enumerate(pop):
         assert agent[model.ID_TAR] is not None
-        assert agent[model.ID_TAR][model.ID_FIT] == list_fits[idx][model.ID_FIT]
+        assert agent[model.ID_TAR][model.ID_FIT] == list_targets[idx][model.ID_FIT]
 
 
 def test_get_better_solution(model):
     pos_a = np.array([1, -1, 0, 3, 2])
     pos_b = np.array([0, 0, 0, 0, 1])
-    fit_a = model.get_fitness_position(pos_a)
-    fit_b = model.get_fitness_position(pos_b)
-    agent_a = [pos_a, fit_a]
-    agent_b = [pos_b, fit_b]
+    tar_a = model.get_target_wrapper(pos_a)
+    tar_b = model.get_target_wrapper(pos_b)
+    agent_a = [pos_a, tar_a]
+    agent_b = [pos_b, tar_b]
     minmax = model.problem.minmax
     better = model.get_better_solution(agent_a, agent_b)
     if minmax == "min":
-        assert fit_b[model.ID_FIT] == better[model.ID_TAR][model.ID_FIT]
+        assert tar_b[model.ID_FIT] == better[model.ID_TAR][model.ID_FIT]
     else:
-        assert fit_a[model.ID_FIT] == better[model.ID_TAR][model.ID_FIT]
+        assert tar_a[model.ID_FIT] == better[model.ID_TAR][model.ID_FIT]
 
 
 def test_compare_agent(model):
     pos_a = np.array([1, -1, 0, 3, 2])
     pos_b = np.array([0, 0, 0, 0, 1])
-    fit_a = model.get_fitness_position(pos_a)
-    fit_b = model.get_fitness_position(pos_b)
-    agent_a = [pos_a, fit_a]
-    agent_b = [pos_b, fit_b]
+    tar_a = model.get_target_wrapper(pos_a)
+    tar_b = model.get_target_wrapper(pos_b)
+    agent_a = [pos_a, tar_a]
+    agent_b = [pos_b, tar_b]
     minmax = model.problem.minmax
     if minmax == "min":
         flag = model.compare_agent(agent_a, agent_b)
