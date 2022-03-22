@@ -108,4 +108,4 @@ class BaseWDO(Optimizer):
             pos = self.pop[idx][self.ID_POS] + vel
             pos_new = self.amend_position(pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)

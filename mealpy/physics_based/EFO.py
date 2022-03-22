@@ -102,7 +102,7 @@ class BaseEFO(Optimizer):
             # checking whether the generated number is inside boundary or not
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
@@ -230,7 +230,7 @@ class OriginalEFO(BaseEFO):
 
         # checking whether the generated number is inside boundary or not
         pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
-        fit_new = self.get_fitness_position(pos_new)
+        target = self.get_target_wrapper(pos_new)
         # Updating the population if the fitness of the generated particle is better than worst fitness in
         #     the population (because the population is sorted by fitness, the last particle is the worst)
-        self.pop[-1] = [pos_new, fit_new]
+        self.pop[-1] = [pos_new, target]

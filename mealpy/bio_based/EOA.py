@@ -121,7 +121,7 @@ class BaseEOA(Optimizer):
             x_t1 = self.dyn_beta * x_t1 + (1.0 - self.dyn_beta) * x_child
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
         pop = self.greedy_selection_population(self.pop, pop)
         nfe_epoch += self.pop_size
         self.dyn_beta = self.gamma * self.beta
@@ -136,7 +136,7 @@ class BaseEOA(Optimizer):
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop[i][self.ID_POS] = pos_new
             nfe_epoch += 1
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
         pop, local_best = self.get_global_best_solution(pop)

@@ -103,10 +103,10 @@ class OriginalCGO(Optimizer):
             seed3 = self.amend_position(seed3, self.problem.lb, self.problem.ub)
             seed4 = self.amend_position(seed4, self.problem.lb, self.problem.ub)
 
-            sol1 = [seed1, self.get_fitness_position(seed1)]
-            sol2 = [seed2, self.get_fitness_position(seed2)]
-            sol3 = [seed3, self.get_fitness_position(seed3)]
-            sol4 = [seed4, self.get_fitness_position(seed4)]
+            sol1 = [seed1, self.get_target_wrapper(seed1)]
+            sol2 = [seed2, self.get_target_wrapper(seed2)]
+            sol3 = [seed3, self.get_target_wrapper(seed3)]
+            sol4 = [seed4, self.get_target_wrapper(seed4)]
 
             ## Lots of grammar errors in this section, so confused to understand which strategy they are using
             _, best_seed = self.get_global_best_solution([sol1, sol2, sol3, sol4])

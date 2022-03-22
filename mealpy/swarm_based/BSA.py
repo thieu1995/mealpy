@@ -95,14 +95,14 @@ class BaseBSA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, target, local_position, local_fitness]
+            list: a solution with format [position, target, local_position, local_fitness]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         local_position = deepcopy(position)
-        local_fitness = deepcopy(fitness)
-        return [position, fitness, local_position, local_fitness]
+        local_fitness = deepcopy(target)
+        return [position, target, local_position, local_fitness]
 
     def evolve(self, epoch):
         """
@@ -135,7 +135,7 @@ class BaseBSA(Optimizer):
                             A2 * np.random.uniform(-1, 1) * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                 pop_new.append(agent)
-            pop_new = self.update_fitness_population(pop_new)
+            pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
             nfe_epoch += self.pop_size
         else:
@@ -190,7 +190,7 @@ class BaseBSA(Optimizer):
                         x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL
                         agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                         pop_new[i] = agent
-            pop_new = self.update_fitness_population(pop_new)
+            pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
             nfe_epoch += self.pop_size
         self.nfe_per_epoch = nfe_epoch

@@ -121,7 +121,7 @@ class BaseNRO(Optimizer):
             ## Check the boundary and evaluate the fitness function
             Xi = self.amend_position(Xi, self.problem.lb, self.problem.ub)
             pop_new.append([Xi, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         # NFu phase
@@ -160,7 +160,7 @@ class BaseNRO(Optimizer):
             ## Check the boundary and evaluate the fitness function for X_ion
             X_ion = self.amend_position(X_ion, self.problem.lb, self.problem.ub)
             pop_child.append([X_ion, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
 
         ## Fusion Stage
@@ -194,5 +194,5 @@ class BaseNRO(Optimizer):
                                (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
             X_fu = self.amend_position(X_fu, self.problem.lb, self.problem.ub)
             pop_new.append([X_fu, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(pop_child, pop_new)

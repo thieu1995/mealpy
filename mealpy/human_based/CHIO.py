@@ -115,7 +115,7 @@ class OriginalCHIO(Optimizer):
         if len(pop_new) != self.pop_size:
             pop_child = self.create_population(self.pop_size - len(pop_new))
             pop_new = pop_new + pop_child
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             # Step 4: Update herd immunity population
@@ -225,7 +225,7 @@ class BaseCHIO(OriginalCHIO):
                 break
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             # Step 4: Update herd immunity population

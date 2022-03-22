@@ -95,4 +95,4 @@ class BaseFPA(Optimizer):
                 pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[id1][self.ID_POS] - self.pop[id2][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop)
+        self.pop = self.update_target_wrapper_population(pop)

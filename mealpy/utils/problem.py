@@ -226,17 +226,3 @@ class Problem:
         """
         # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
         return np.clip(position, lb, ub)
-
-    def get_fitness_position(self, position=None):
-        """
-        Args:
-            position (nd.array): 1-D numpy array
-
-        Returns:
-            [fitness, [obj1, obj2, ...]]
-        """
-        objs = self.fit_func(position)
-        if not self.obj_is_list:
-            objs = [objs]
-        fit = np.dot(objs, self.obj_weights)
-        return [fit, objs]

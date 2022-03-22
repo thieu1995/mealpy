@@ -96,17 +96,17 @@ class BaseQSA(Optimizer):
             if case == 1:
                 pos_new = A + F1
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                if self.compare_agent([pos_new, fit_new], pop[i]):
-                    pop[i] = [pos_new, fit_new]
+                target = self.get_target_wrapper(pos_new)
+                if self.compare_agent([pos_new, target], pop[i]):
+                    pop[i] = [pos_new, target]
                 else:
                     case = 2
             else:
                 pos_new = pop[i][self.ID_POS] + F2
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                if self.compare_agent([pos_new, fit_new], pop[i]):
-                    pop[i] = [pos_new, fit_new]
+                target = self.get_target_wrapper(pos_new)
+                if self.compare_agent([pos_new, target], pop[i]):
+                    pop[i] = [pos_new, target]
                 else:
                     case = 1
         pop, _ = self.get_global_best_solution(pop)
@@ -139,7 +139,7 @@ class BaseQSA(Optimizer):
                 X_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop = self.greedy_selection_population(pop, pop_new)
         pop, _ = self.get_global_best_solution(pop)
         return pop
@@ -154,7 +154,7 @@ class BaseQSA(Optimizer):
             X_new = np.where(np.random.random(self.problem.n_dims) > pr[i], temp, X_new)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(pop, pop_new)
         return pop_new
 
@@ -218,7 +218,7 @@ class OppoQSA(BaseQSA):
             X_new = self.create_opposition_position(pop[i], g_best)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         return self.greedy_selection_population(pop, pop_new)
 
     def evolve(self, epoch):
@@ -304,7 +304,7 @@ class LevyQSA(BaseQSA):
                 pos_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(pop, pop_new)
         pop_new, _ = self.get_global_best_solution(pop_new)
         return pop_new
@@ -438,7 +438,7 @@ class OriginalQSA(BaseQSA):
                     pos_new[j] = X1[j] + e * (X2[j] - pop[i][self.ID_POS][j])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         return self.greedy_selection_population(pop, pop_new)
 
     def evolve(self, epoch):

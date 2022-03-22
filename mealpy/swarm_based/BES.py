@@ -114,7 +114,7 @@ class BaseBES(Optimizer):
             pos_new = self.g_best[self.ID_POS] + self.alpha * np.random.uniform() * (pos_mean - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## 2. Search in space
@@ -128,7 +128,7 @@ class BaseBES(Optimizer):
                       x_list[idx] * (pop_new[idx][self.ID_POS] - pos_mean)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
 
         ## 3. Swoop
@@ -141,5 +141,5 @@ class BaseBES(Optimizer):
                       + y1_list[idx] * (pop_child[idx][self.ID_POS] - self.c2 * self.g_best[self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(pop_child, pop_new)

@@ -103,7 +103,7 @@ class BaseMRFO(Optimizer):
                            alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
         _, g_best = self.update_global_best_solution(pop_new, save=False)
         pop_child = []
@@ -113,5 +113,5 @@ class BaseMRFO(Optimizer):
                    (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop_new[idx][self.ID_POS])
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)

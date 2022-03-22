@@ -122,7 +122,7 @@ class BaseWCA(Optimizer):
                 pos_new = stream[self.ID_POS] + np.random.uniform() * self.wc * (self.pop_best[idx][self.ID_POS] - stream[self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 stream_new.append([pos_new, None])
-            stream_new = self.update_fitness_population(stream_new)
+            stream_new = self.update_target_wrapper_population(stream_new)
             stream_new, stream_best = self.get_global_best_solution(stream_new)
             self.streams[idx] = stream_new
             if self.compare_agent(stream_best, self.pop_best[idx]):
@@ -131,9 +131,9 @@ class BaseWCA(Optimizer):
             # Update river
             pos_new = self.pop_best[idx][self.ID_POS] + np.random.uniform() * self.wc * (self.g_best[self.ID_POS] - self.pop_best[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], self.pop_best[idx]):
-                self.pop_best[idx] = [pos_new, fit_new]
+            target = self.get_target_wrapper(pos_new)
+            if self.compare_agent([pos_new, target], self.pop_best[idx]):
+                self.pop_best[idx] = [pos_new, target]
 
         # Evaporation
         for i in range(1, self.nsr):

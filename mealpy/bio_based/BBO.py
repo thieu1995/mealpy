@@ -99,7 +99,7 @@ class OriginalBBO(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
 
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)
 
@@ -170,6 +170,6 @@ class BaseBBO(OriginalBBO):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)

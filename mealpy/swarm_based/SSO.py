@@ -80,5 +80,5 @@ class BaseSSO(Optimizer):
             # Check if salps go out of the search space and bring it back then re-calculate its fitness value
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

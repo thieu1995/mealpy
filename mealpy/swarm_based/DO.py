@@ -163,5 +163,5 @@ class BaseDO(Optimizer):
             self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             self.pop_delta[i][self.ID_POS] = self.amend_position(pos_delta_new, self.problem.lb, self.problem.ub)
 
-        self.pop = self.update_fitness_population(self.pop)
-        self.pop_delta = self.update_fitness_population(self.pop_delta)
+        self.pop = self.update_target_wrapper_population(self.pop)
+        self.pop_delta = self.update_target_wrapper_population(self.pop_delta)

@@ -118,10 +118,10 @@ class BaseCSO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         flag = True if np.random.uniform() < self.mixture_ratio else False
-        return [position, fitness, velocity, flag]
+        return [position, target, velocity, flag]
 
     def _seeking_mode__(self, cat):
         candidate_cats = []
@@ -139,7 +139,7 @@ class BaseCSO(Optimizer):
             pos_new[idx] = clone[self.ID_POS][idx]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             candidate_cats.append([pos_new, None, clone[self.ID_VEL], clone[self.ID_FLAG]])
-        candidate_cats = self.update_fitness_population(candidate_cats)
+        candidate_cats = self.update_target_wrapper_population(candidate_cats)
 
         if self.selected_strategy == 0:  # Best fitness-self
             _, cat = self.get_global_best_solution(candidate_cats)
@@ -178,5 +178,5 @@ class BaseCSO(Optimizer):
             agent[self.ID_POS] = pos_new
             agent[self.ID_FLAG] = True if np.random.uniform() < self.mixture_ratio else False
             pop_new.append(agent)
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         self.nfe_per_epoch = self.pop_size

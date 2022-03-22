@@ -113,7 +113,7 @@ class BaseFFA(Optimizer):
                     pop_child.append([pos_new, None])
             if len(pop_child) < 2:
                 continue
-            pop_child = self.update_fitness_population(pop_child)
+            pop_child = self.update_target_wrapper_population(pop_child)
             _, local_best = self.get_global_best_solution(pop_child)
             # Compare to Previous Solution
             if self.compare_agent(local_best, agent):

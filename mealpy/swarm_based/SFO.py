@@ -97,7 +97,7 @@ class BaseSFO(Optimizer):
                 (np.random.uniform() * (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         ## Calculate AttackPower using Eq.(10)
@@ -122,7 +122,7 @@ class BaseSFO(Optimizer):
                 pos_new = np.random.uniform() * (self.g_best[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP)
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
-        self.s_pop = self.update_fitness_population(self.s_pop)
+        self.s_pop = self.update_target_wrapper_population(self.s_pop)
         nfe_epoch += self.s_size
 
         ## Sort the population of sailfish and sardine (for reducing computational cost)
@@ -227,7 +227,7 @@ class ImprovedSFO(Optimizer):
                 lamda_i * (np.random.uniform() * (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         ## ## Calculate AttackPower using my Eq.thieu
@@ -244,7 +244,7 @@ class ImprovedSFO(Optimizer):
                 pos_new = np.random.uniform() * (self.g_best[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP)
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
-        self.s_pop = self.update_fitness_population(self.s_pop)
+        self.s_pop = self.update_target_wrapper_population(self.s_pop)
         nfe_epoch += len(self.s_pop)
 
         ## Sort the population of sailfish and sardine (for reducing computational cost)

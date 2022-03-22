@@ -85,10 +85,10 @@ class BaseASO(Optimizer):
         """
         position = np.random.uniform(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         mass = 0.0
-        return [position, fitness, velocity, mass]
+        return [position, target, velocity, mass]
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
@@ -174,7 +174,7 @@ class BaseASO(Optimizer):
             # Relocate atom out of range
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         _, current_best = self.get_global_best_solution(pop_new)

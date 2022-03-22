@@ -79,9 +79,9 @@ class BaseTWO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         weight = 0.0
-        return [position, fitness, weight]
+        return [position, target, weight]
 
     def _update_weight(self, teams):
         _, best, worst = self.get_special_solutions(teams, best=1, worst=1)
@@ -135,7 +135,7 @@ class BaseTWO(Optimizer):
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
             pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
 
@@ -188,7 +188,7 @@ class OppoTWO(BaseTWO):
             pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
             pos_opposite = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
             pop_oppo.append([pos_opposite, None, 0.0])
-        pop_oppo = self.update_fitness_population(pop_oppo)
+        pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = pop_temp + pop_oppo
         self.pop = self._update_weight(self.pop)
         _, self.g_best = self.get_global_best_solution(self.pop)
@@ -223,7 +223,7 @@ class OppoTWO(BaseTWO):
             conditions = np.logical_and(conditions, np.random.uniform(0, 1, self.problem.n_dims) < 0.5)
             pos_new = np.where(conditions, pos_new, self.pop[i][self.ID_POS])
             pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         ## Opposition-based here
         for i in range(self.pop_size):
@@ -232,9 +232,9 @@ class OppoTWO(BaseTWO):
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
                 C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
-                fit_op = self.get_fitness_position(C_op)
-                if self.compare_agent([C_op, fit_op], self.pop[i]):
-                    self.pop[i] = [C_op, fit_op, 0.0]
+                target_op = self.get_target_wrapper(C_op)
+                if self.compare_agent([C_op, target_op], self.pop[i]):
+                    self.pop[i] = [C_op, target_op, 0.0]
         self.pop = self._update_weight(self.pop)
 
 
@@ -314,7 +314,7 @@ class LevyTWO(BaseTWO):
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
             pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
 
@@ -326,8 +326,8 @@ class LevyTWO(BaseTWO):
                 levy_step = self.get_levy_flight_step(beta=1.0, multiplier=10, case=-1)
                 pos_new = pop_new[i][self.ID_POS] + np.sign(np.random.random() - 0.5) * levy_step
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                self.pop[i] = [pos_new, fit_new, 0.0]
+                target = self.get_target_wrapper(pos_new)
+                self.pop[i] = [pos_new, target, 0.0]
         self.pop = self._update_weight(pop_new)
 
 
@@ -386,7 +386,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         for i in range(self.pop_size):
             pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
             pop_oppo[i][self.ID_POS] = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
-        pop_oppo = self.update_fitness_population(pop_oppo)
+        pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = self.get_sorted_strim_population(pop_temp + pop_oppo, self.pop_size)
         self.pop = self._update_weight(self.pop)
         self.g_best = deepcopy(self.pop[0])
@@ -426,7 +426,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
             pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self._update_weight(pop_new)
 
@@ -436,13 +436,13 @@ class EnhancedTWO(OppoTWO, LevyTWO):
             else:
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
                 C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
-                fit_op = self.get_fitness_position(C_op)
-                if self.compare_agent([C_op, fit_op], self.pop[i]):
-                    self.pop[i] = [C_op, fit_op, 0.0]
+                target_op = self.get_target_wrapper(C_op)
+                if self.compare_agent([C_op, target_op], self.pop[i]):
+                    self.pop[i] = [C_op, target_op, 0.0]
                 else:
                     levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
                     pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    fit_new = self.get_fitness_position(pos_new)
-                    self.pop[i] = [pos_new, fit_new, 0.0]
+                    target = self.get_target_wrapper(pos_new)
+                    self.pop[i] = [pos_new, target, 0.0]
         self.pop = self._update_weight(pop_new)

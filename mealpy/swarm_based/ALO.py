@@ -122,7 +122,7 @@ class OriginalALO(Optimizer):
             # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update antlion positions and fitnesses based of the ants (if an ant becomes fitter than an antlion we
         #   assume it was caught by the antlion and the antlion update goes to its position to build the trap)

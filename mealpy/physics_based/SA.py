@@ -121,7 +121,7 @@ class BaseSA(Optimizer):
                     pos_new = self._mutate(self.pop[i][self.ID_POS], self.dyn_sigma)
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_new.append([pos_new, None])
-            pop_new = self.update_fitness_population(pop_new)
+            pop_new = self.update_target_wrapper_population(pop_new)
 
             # Columnize and Sort Newly Created Population
             pop_new = self.get_sorted_strim_population(pop_new, self.pop_size)

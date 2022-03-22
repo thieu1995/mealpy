@@ -75,13 +75,13 @@ class BaseES(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy]
+            list: solution with format [position, target, strategy]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         strategy = np.random.uniform(0, self.distance)
-        return [position, fitness, strategy]
+        return [position, target, strategy]
 
     def evolve(self, epoch):
         """
@@ -98,7 +98,7 @@ class BaseES(Optimizer):
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             strategy = np.exp(tau_p * np.random.normal(0, 1.0, self.problem.n_dims) + tau * np.random.normal(0, 1.0, self.problem.n_dims))
             child.append([pos_new, None, strategy])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
         self.pop = self.get_sorted_strim_population(child + self.pop, self.pop_size)
 
 
@@ -169,7 +169,7 @@ class LevyES(BaseES):
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             strategy = np.exp(tau_p * np.random.normal(0, 1.0, self.problem.n_dims) + tau * np.random.normal(0, 1.0, self.problem.n_dims))
             child.append([pos_new, None, strategy])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
 
         child_levy = []
         for idx in range(0, self.n_child):
@@ -181,5 +181,5 @@ class LevyES(BaseES):
             tau_p = np.sqrt(2.0 * np.sqrt(self.problem.n_dims)) ** -1.0
             stdevs = np.array([np.exp(tau_p * np.random.normal(0, 1.0) + tau * np.random.normal(0, 1.0)) for _ in range(self.problem.n_dims)])
             child_levy.append([pos_new, None, stdevs])
-        child_levy = self.update_fitness_population(child_levy)
+        child_levy = self.update_target_wrapper_population(child_levy)
         self.pop = self.get_sorted_strim_population(child + child_levy + self.pop, self.pop_size)

@@ -76,7 +76,7 @@ class BaseFBIO(Optimizer):
                 (self.pop[idx][self.ID_POS][n_change] - (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
         list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
         prob = self.probability(list_fitness)
@@ -94,7 +94,7 @@ class BaseFBIO(Optimizer):
                 pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
 
         ## Persuing team - team B
@@ -107,7 +107,7 @@ class BaseFBIO(Optimizer):
                     np.random.uniform(0, 1, self.problem.n_dims) * (self.g_best[self.ID_POS] - pop_child[idx][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(pop_child, pop_new)
 
         ## Step B2
@@ -124,7 +124,7 @@ class BaseFBIO(Optimizer):
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[idx][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)
 
 
@@ -208,7 +208,7 @@ class OriginalFBIO(BaseFBIO):
             ## Not good move here, change only 1 variable but check bound of all variable in solution
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         # Step A2
@@ -232,7 +232,7 @@ class OriginalFBIO(BaseFBIO):
                 pos_a = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_child.append([pos_a, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         pop_child = self.greedy_selection_population(pop_new, pop_child)
 
         ## Persuing team - team B
@@ -246,7 +246,7 @@ class OriginalFBIO(BaseFBIO):
                            np.random.uniform() * (self.g_best[self.ID_POS][j] - pop_child[i][self.ID_POS][j])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(pop_child, pop_new)
 
         ## Step B2
@@ -266,5 +266,5 @@ class OriginalFBIO(BaseFBIO):
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[i][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         self.pop = self.greedy_selection_population(pop_new, pop_child)

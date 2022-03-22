@@ -23,7 +23,7 @@ class Optimizer:
     Notes
     ~~~~~
     + The solve() is the most important method, trained the model
-    + The parallel (multithreading or multiprocessing) is used in method: create_population(), update_fitness_population()
+    + The parallel (multithreading or multiprocessing) is used in method: create_population(), update_target_wrapper_population()
     + The general format of:
         + population = [agent_1, agent_2, ..., agent_N]
         + agent = global_best = solution = [position, target]
@@ -68,7 +68,6 @@ class Optimizer:
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
         self.generate_position = self.problem.generate_position
-        self.get_fitness_position = self.problem.get_fitness_position
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
@@ -107,6 +106,20 @@ class Optimizer:
             # We don't sort the population
             _, self.g_best = self.get_global_best_solution(self.pop)
 
+    def get_target_wrapper(self, position):
+        """
+        Args:
+            position (nd.array): position (nd.array): 1-D numpy array
+
+        Returns:
+            [fitness, [obj1, obj2,...]]
+        """
+        objs = self.problem.fit_func(position)
+        if not self.problem.obj_is_list:
+            objs = [objs]
+        fit = np.dot(objs, self.problem.obj_weights)
+        return [fit, objs]
+
     def create_solution(self, lb=None, ub=None):
         """
         To get the position, target wrapper [fitness and obj list]
@@ -124,8 +137,8 @@ class Optimizer:
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position=position)
-        return [position, fitness]
+        target = self.get_target_wrapper(position)
+        return [position, target]
 
     def before_evolve(self, epoch):
         pass
@@ -258,38 +271,31 @@ class Optimizer:
             pop = [self.create_solution(self.problem.lb, self.problem.ub) for _ in range(0, pop_size)]
         return pop
 
-    def update_fitness_population(self, pop=None):
+    def update_target_wrapper_population(self, pop=None):
         """
+        Update target wrapper for input population
+
         Args:
             pop (list): the population
 
         Returns:
             list: population with updated fitness value
         """
+        pos_list = [agent[self.ID_POS] for agent in pop]
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor() as executor:
-                list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
-                for idx, fit in enumerate(list_results):
-                    pop[idx][self.ID_TAR] = fit
+                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
+                for idx, target in enumerate(list_results):
+                    pop[idx][self.ID_TAR] = target
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor() as executor:
-                list_results = executor.map(self.get_fitness_solution, pop)  # Return result not the future object
-                for idx, fit in enumerate(list_results):
-                    pop[idx][self.ID_TAR] = fit
+                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
+                for idx, target in enumerate(list_results):
+                    pop[idx][self.ID_TAR] = target
         else:
-            for idx, agent in enumerate(pop):
-                pop[idx][self.ID_TAR] = self.get_fitness_solution(agent)
+            for idx, pos in enumerate(pos_list):
+                pop[idx][self.ID_TAR] = self.get_target_wrapper(pos)
         return pop
-
-    def get_fitness_solution(self, solution=None):
-        """
-        Args:
-            solution (list): A solution with format [position, [fitness, [obj1, obj2, ...]]]
-
-        Returns:
-            [fitness, [obj1, obj2, ...]]
-        """
-        return self.get_fitness_position(solution[self.ID_POS])
 
     def get_global_best_solution(self, pop: list):
         """
@@ -600,7 +606,7 @@ class Optimizer:
     def improved_ms(self, pop=None, g_best=None):  ## m: mutation, s: search
         pop_len = int(len(pop) / 2)
         ## Sort the updated population based on fitness
-        pop = sorted(pop, key=lambda item: item[self.ID_TAR])
+        pop = sorted(pop, key=lambda item: item[self.ID_TAR][self.ID_FIT])
         pop_s1, pop_s2 = pop[:pop_len], pop[pop_len:]
 
         ## Mutation scheme
@@ -610,7 +616,7 @@ class Optimizer:
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_s1 = self.greedy_selection_population(pop_s1, pop_new)  ## Greedy method --> improved exploitation
 
         ## Search Mechanism
@@ -624,7 +630,7 @@ class Optimizer:
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
         ## Keep the diversity of populatoin and still improved the exploration
-        pop_s2 = self.update_fitness_population(pop_new)
+        pop_s2 = self.update_target_wrapper_population(pop_new)
         pop_s2 = self.greedy_selection_population(pop_s2, pop_new)
 
         ## Construct a new population

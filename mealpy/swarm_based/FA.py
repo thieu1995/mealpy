@@ -115,7 +115,7 @@ class BaseFA(Optimizer):
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
                 nfe_epoch += 1
-            pop_new = self.update_fitness_population(pop_new)
+            pop_new = self.update_target_wrapper_population(pop_new)
 
         for _ in range(0, self.m_sparks):
             idx = np.random.randint(0, self.pop_size)
@@ -127,7 +127,7 @@ class BaseFA(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             nfe_epoch += 1
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         ## Update the global best
         self.pop = self.get_sorted_strim_population(pop_new + self.pop, self.pop_size)

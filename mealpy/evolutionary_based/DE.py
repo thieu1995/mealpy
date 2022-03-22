@@ -134,7 +134,7 @@ class BaseDE(Optimizer):
                           self.wf * (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
                 pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         # create new pop by comparing fitness of corresponding each member in pop and children
         self.pop = self.greedy_selection_population(self.pop, pop)
@@ -260,7 +260,7 @@ class JADE(Optimizer):
             pos_new[j_rand] = x_new[j_rand]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop[idx], self.pop[idx]):
@@ -388,7 +388,7 @@ class SADE(Optimizer):
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop.append([pos_new, None])
                 list_probability.append(False)
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         for idx in range(0, self.pop_size):
             if list_probability[idx]:
@@ -533,7 +533,7 @@ class SHADE(Optimizer):
             pos_new[j_rand] = x_new[j_rand]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         for i in range(0, self.pop_size):
             if self.compare_agent(pop[i], self.pop[i]):
@@ -697,7 +697,7 @@ class L_SHADE(Optimizer):
             pos_new[j_rand] = x_new[j_rand]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         for i in range(0, self.pop_size):
             if self.compare_agent(pop[i], self.pop[i]):
@@ -807,18 +807,18 @@ class SAP_DE(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], crossover_rate, mutation_rate, pop_size]
+            list: solution with format [position, target, crossover_rate, mutation_rate, pop_size]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         crossover_rate = np.random.uniform(0, 1)
         mutation_rate = np.random.uniform(0, 1)
         if self.branch == "ABS":
             pop_size = int(10 * self.problem.n_dims + np.random.normal(0, 1))
         else:  # elif self.branch == "REL":
             pop_size = int(10 * self.problem.n_dims + np.random.uniform(-0.5, 0.5))
-        return [position, fitness, crossover_rate, mutation_rate, pop_size]
+        return [position, target, crossover_rate, mutation_rate, pop_size]
 
     def edit_to_range(self, var=None, lower=0, upper=1, func_value=None):
         while var <= lower or var >= upper:
@@ -868,7 +868,7 @@ class SAP_DE(Optimizer):
                     ps_new = self.pop[idx][self.ID_PS] + np.random.normal(0, self.pop[idxs[0]][self.ID_MR])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop.append([pos_new, None, cr_new, mr_new, ps_new])
-        pop = self.update_fitness_population(pop)
+        pop = self.update_target_wrapper_population(pop)
 
         # Calculate new population size
         total = sum([pop[i][self.ID_PS] for i in range(0, self.pop_size)])

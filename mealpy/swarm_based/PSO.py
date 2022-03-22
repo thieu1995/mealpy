@@ -92,11 +92,11 @@ class BasePSO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
-        local_fit = deepcopy(fitness)
-        return [position, fitness, velocity, local_pos, local_fit]
+        local_fit = deepcopy(target)
+        return [position, target, velocity, local_pos, local_fit]
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
@@ -133,7 +133,7 @@ class BasePSO(Optimizer):
             agent[self.ID_POS] = pos_new
             agent[self.ID_VEC] = v_new
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
@@ -214,11 +214,11 @@ class PPSO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
-        local_fit = deepcopy(fitness)
-        return [position, fitness, velocity, local_pos, local_fit]
+        local_fit = deepcopy(target)
+        return [position, target, velocity, local_pos, local_fit]
 
     def evolve(self, epoch):
         """
@@ -246,7 +246,7 @@ class PPSO(Optimizer):
             self.v_max = (np.abs(np.cos(self.dyn_delta_list[i])) ** 2) * (self.problem.ub - self.problem.lb)
             pop_new.append(agent)
         # Update fitness for all solutions
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
@@ -350,7 +350,7 @@ class HPSO_TVAC(PPSO):
             pop_new.append(agent)
 
             # Update fitness for all solutions
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
@@ -459,11 +459,11 @@ class C_PSO(BasePSO):
             v_new = np.clip(v_new, self.v_min, self.v_max)
             x_new = self.pop[i][self.ID_POS].astype(float) + v_new
             agent[self.ID_VEC] = v_new
-            agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = self.amend_position(x_new, self.dyn_lb, self.dyn_ub)
             pop_new.append(agent)
 
         # Update fitness for all solutions
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
@@ -480,9 +480,9 @@ class C_PSO(BasePSO):
         cx_best_1 = 4 * cx_best_0 * (1 - cx_best_0)  # Eq. 6
         x_best = self.problem.lb + cx_best_1 * (self.problem.ub - self.problem.lb)  # Eq. 8
         x_best = self.amend_position(x_best, self.problem.lb, self.problem.ub)
-        fit_best = self.get_fitness_position(x_best)
-        if self.compare_agent([x_best, fit_best], self.g_best):
-            g_best = [x_best, fit_best]
+        target_best = self.get_target_wrapper(x_best)
+        if self.compare_agent([x_best, target_best], self.g_best):
+            g_best = [x_best, target_best]
 
         r = np.random.rand()
         bound_min = np.stack([self.dyn_lb, g_best[self.ID_POS] - r * (self.dyn_ub - self.dyn_lb)])
@@ -581,11 +581,11 @@ class CL_PSO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
-        local_fit = deepcopy(fitness)
-        return [position, fitness, velocity, local_pos, local_fit]
+        local_fit = deepcopy(target)
+        return [position, target, velocity, local_pos, local_fit]
 
     def evolve(self, epoch):
         """
@@ -624,7 +624,7 @@ class CL_PSO(Optimizer):
             agent[self.ID_VEC] = vec_new
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):

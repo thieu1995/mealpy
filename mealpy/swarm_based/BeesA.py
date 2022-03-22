@@ -108,7 +108,7 @@ class BaseBeesA(Optimizer):
                 for j in range(0, self.n_elite_bees_local):
                     pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
-                pop_child = self.update_fitness_population(pop_child)
+                pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
                     pop_new[idx] = local_best
@@ -119,7 +119,7 @@ class BaseBeesA(Optimizer):
                 for j in range(0, self.n_selected_bees_local):
                     pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
-                pop_child = self.update_fitness_population(pop_child)
+                pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
                     pop_new[idx] = local_best
@@ -238,7 +238,7 @@ class ProbBeesA(Optimizer):
                 for j in range(0, bee_count):
                     pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
-                pop_child = self.update_fitness_population(pop_child)
+                pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
                     self.pop[idx] = local_best

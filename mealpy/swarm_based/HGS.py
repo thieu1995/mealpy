@@ -82,9 +82,9 @@ class OriginalHGS(Optimizer):
         """
         position = np.random.uniform(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         hunger = 1.0
-        return [position, fitness, hunger]
+        return [position, target, hunger]
 
     def sech(self, x):
         if np.abs(x) > 50:
@@ -153,4 +153,4 @@ class OriginalHGS(Optimizer):
                     pos_new = W1 * g_best[self.ID_POS] - R * W2 * abs(g_best[self.ID_POS] - current_agent[self.ID_POS])
             current_agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(current_agent)
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)

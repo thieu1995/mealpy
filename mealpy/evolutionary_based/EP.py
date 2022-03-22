@@ -80,14 +80,14 @@ class BaseEP(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], strategy, times_win]
+            list: wrapper of solution with format [position, target, strategy, times_win]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         strategy = np.random.uniform(0, self.distance, len(lb))
         times_win = 0
-        return [position, fitness, strategy, times_win]
+        return [position, target, strategy, times_win]
 
     def evolve(self, epoch):
         """
@@ -102,7 +102,7 @@ class BaseEP(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
 
         # Update the global best
         children, self.g_best = self.update_global_best_solution(child, save=False)
@@ -184,7 +184,7 @@ class LevyEP(BaseEP):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
 
         # Update the global best
         children, self.g_best = self.update_global_best_solution(child, save=False)
@@ -211,6 +211,6 @@ class LevyEP(BaseEP):
             pos_new = pop_left[idx][self.ID_POS] + 0.01 * levy
             strategy = self.distance = 0.05 * (self.problem.ub - self.problem.lb)
             pop_comeback.append([pos_new, None, strategy, 0])
-        pop_comeback = self.update_fitness_population(pop_comeback)
+        pop_comeback = self.update_target_wrapper_population(pop_comeback)
         self.nfe_per_epoch = self.pop_size + int(0.5 * len(pop_left))
         self.pop = self.get_sorted_strim_population(pop + pop_comeback, self.pop_size)

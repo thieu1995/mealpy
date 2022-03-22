@@ -77,9 +77,9 @@ class BaseCSA(Optimizer):
             pos_new = self.pop[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
                       levy_step * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            fit_new = self.get_fitness_position(pos_new)
-            if self.compare_agent([pos_new, fit_new], self.pop[i]):
-                pop_new[i] = [pos_new, fit_new]
+            target = self.get_target_wrapper(pos_new)
+            if self.compare_agent([pos_new, target], self.pop[i]):
+                pop_new[i] = [pos_new, target]
 
         ## Abandoned some worst nests
         pop = self.get_sorted_strim_population(pop_new, self.pop_size)
@@ -88,5 +88,5 @@ class BaseCSA(Optimizer):
             pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = pop[:(self.pop_size - self.n_cut)] + pop_new

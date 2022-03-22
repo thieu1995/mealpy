@@ -265,5 +265,5 @@ class BaseGA(Optimizer):
             pop_new.append([child2, None])
 
         ### Survivor Selection
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.survivor_process(self.pop, pop_new)

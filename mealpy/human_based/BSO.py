@@ -134,7 +134,7 @@ class ImprovedBSO(Optimizer):
                               epxilon * np.random.uniform()
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
-        pop_group = [self.update_fitness_population(group) for group in pop_group]
+        pop_group = [self.update_target_wrapper_population(group) for group in pop_group]
         for idx in range(0, self.m_clusters):
             self.pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 
@@ -262,7 +262,7 @@ class BaseBSO(ImprovedBSO):
                               epxilon * np.random.normal(0, 1)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
-        pop_group = [self.update_fitness_population(group) for group in pop_group]
+        pop_group = [self.update_target_wrapper_population(group) for group in pop_group]
         for idx in range(0, self.m_clusters):
             self.pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 

@@ -106,12 +106,12 @@ class BaseSSpiderA(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
-        intensity = np.log(1. / (abs(fitness[self.ID_FIT]) + self.EPSILON) + 1)
+        target = self.get_target_wrapper(position)
+        intensity = np.log(1. / (abs(target[self.ID_FIT]) + self.EPSILON) + 1)
         target_position = deepcopy(position)
         previous_movement_vector = np.zeros(self.problem.n_dims)
         dimension_mask = np.zeros(self.problem.n_dims)
-        return [position, fitness, intensity, target_position, previous_movement_vector, dimension_mask]
+        return [position, target, intensity, target_position, previous_movement_vector, dimension_mask]
 
     def evolve(self, epoch):
         """
@@ -144,7 +144,7 @@ class BaseSSpiderA(Optimizer):
                       (pos_new - self.pop[idx][self.ID_POS]) * np.random.normal()
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):

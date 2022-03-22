@@ -149,7 +149,7 @@ class BaseCRO(Optimizer):
             pos_new = self._multi_point_cross(self.pop[selected_corals[id1]][self.ID_POS], self.pop[selected_corals[id2]][self.ID_POS])
             larvae.append([pos_new, None])
             selected_corals = np.delete(selected_corals, [id1, id2])
-        return self.update_fitness_population(larvae)
+        return self.update_target_wrapper_population(larvae)
 
     def evolve(self, epoch):
         """
@@ -271,13 +271,13 @@ class OCRO(BaseCRO):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, self.g_best[self.ID_POS], temp)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        return self.update_fitness_population(pop_new)
+        return self.update_target_wrapper_population(pop_new)
 
     def _opposition_based_position(self, reef, g_best):
         pos_new = self.problem.ub + self.problem.lb - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - reef[self.ID_POS])
         pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new]
+        target = self.get_target_wrapper(pos_new)
+        return [pos_new, target]
 
     def evolve(self, epoch):
         """

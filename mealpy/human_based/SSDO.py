@@ -73,10 +73,10 @@ class BaseSSDO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         pos_local = deepcopy(position)
-        return [position, fitness, velocity, pos_local]
+        return [position, target, velocity, pos_local]
 
     def evolve(self, epoch):
         """
@@ -107,5 +107,5 @@ class BaseSSDO(Optimizer):
             pos_new = np.random.uniform() * pop_new[idx][self.ID_POS] + pop_new[idx][self.ID_VEL]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new[idx][self.ID_POS] = pos_new
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

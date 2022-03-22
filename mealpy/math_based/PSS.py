@@ -87,7 +87,7 @@ class OriginalPSS(Optimizer):
         random_pop = self.create_population(self.pop_size)
         pop = np.round((lb_pop + random_pop * (ub_pop - lb_pop)) / steps_mat) * steps_mat
         pop = [[self.amend_position(position, self.problem.lb, self.problem.ub), None] for position in pop]
-        self.pop = self.update_fitness_population(pop)
+        self.pop = self.update_target_wrapper_population(pop)
         _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
@@ -127,7 +127,7 @@ class OriginalPSS(Optimizer):
             # Check the bound
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         _, current_best = self.get_global_best_solution(pop_new)
         if self.compare_agent(current_best, self.g_best):
             self.new_solution = True

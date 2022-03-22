@@ -119,7 +119,7 @@ class BaseSSA(Optimizer):
                     x_new = g_best[self.ID_POS] + np.abs(self.pop[idx][self.ID_POS] - g_best[self.ID_POS]) * np.random.normal()
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
         pop_new, best, worst = self.get_special_solutions(pop_new, best=1, worst=1)
         g_best, g_worst = best[0], worst[0]
@@ -135,7 +135,7 @@ class BaseSSA(Optimizer):
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             child.append([pos_new, None])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
         child = self.greedy_selection_population(pop2, child)
         self.pop = pop_new[:self.n2] + child
 
@@ -230,7 +230,7 @@ class OriginalSSA(BaseSSA):
                     x_new = g_best[self.ID_POS] + np.matmul(np.abs(self.pop[idx][self.ID_POS] - g_best[self.ID_POS]), A1)
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
         pop_new, best, worst = self.get_special_solutions(pop_new, best=1, worst=1)
         g_best, g_worst = best[0], worst[0]
@@ -246,6 +246,6 @@ class OriginalSSA(BaseSSA):
                 x_new = g_best[self.ID_POS] + np.random.normal() * np.abs(pop2[idx][self.ID_POS] - g_best[self.ID_POS])
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             child.append([pos_new, None])
-        child = self.update_fitness_population(child)
+        child = self.update_target_wrapper_population(child)
         child = self.greedy_selection_population(pop2, child)
         self.pop = pop_new[:self.n2] + child

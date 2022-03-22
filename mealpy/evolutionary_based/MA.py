@@ -92,13 +92,13 @@ class BaseMA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], bitstring]
+            list: wrapper of solution with format [position, target, bitstring]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
-        return [position, fitness, bitstring]
+        return [position, target, bitstring]
 
     def _decode(self, bitstring=None):
         """
@@ -145,8 +145,8 @@ class BaseMA(Optimizer):
             bitstring_new = self._point_mutation(child[self.ID_BIT])
             pos_new = self._decode(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            fit_new = self.get_fitness_position(pos_new)
-            current = self.get_better_solution(child, [pos_new, fit_new, bitstring_new])
+            target = self.get_target_wrapper(pos_new)
+            current = self.get_better_solution(child, [pos_new, target, bitstring_new])
         return current
 
     def create_child(self, idx, pop_copy):
@@ -157,8 +157,8 @@ class BaseMA(Optimizer):
         bitstring_new = self._point_mutation(bitstring_new)
         pos_new = self._decode(bitstring_new)
         pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        fit_new = self.get_fitness_position(pos_new)
-        return [pos_new, fit_new, bitstring_new]
+        target = self.get_target_wrapper(pos_new)
+        return [pos_new, target, bitstring_new]
 
     def evolve(self, epoch):
         """
@@ -183,7 +183,7 @@ class BaseMA(Optimizer):
             pos_new = self._decode(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None, bitstring_new])
-        self.pop = self.update_fitness_population(pop)
+        self.pop = self.update_target_wrapper_population(pop)
 
         # Searching in local
         for i in range(0, self.pop_size):

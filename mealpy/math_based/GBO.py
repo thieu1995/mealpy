@@ -132,7 +132,7 @@ class OriginalGBO(Optimizer):
             # Check if solutions go outside the search space and bring them back
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         self.nfe_per_epoch = self.pop_size
         _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         self.g_best, self.g_worst = best[0], worst[0]

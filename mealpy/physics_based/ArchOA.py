@@ -101,11 +101,11 @@ class OriginalArchOA(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         den = np.random.uniform(lb, ub)
         vol = np.random.uniform(lb, ub)
-        acc = self.problem.lb + np.random.uniform(lb, ub) * (ub - lb)
-        return [position, fitness, den, vol, acc]
+        acc = lb + np.random.uniform(lb, ub) * (ub - lb)
+        return [position, target, den, vol, acc]
 
     def evolve(self, epoch):
         """
@@ -157,5 +157,5 @@ class OriginalArchOA(Optimizer):
                           ddf * (t * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             solution[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(solution)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)

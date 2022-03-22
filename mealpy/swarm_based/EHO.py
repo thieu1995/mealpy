@@ -105,7 +105,7 @@ class BaseEHO(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
         # Update fitness value
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
         self.pop_group = self._create_pop_group(self.pop)
 
         # Separating operator

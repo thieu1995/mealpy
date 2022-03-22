@@ -107,7 +107,7 @@ class BaseSARO(Optimizer):
                                               self.pop[k][self.ID_TAR] < pop_x[idx][self.ID_TAR]), pos_new_1, pos_new_2)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(self.pop_size):
             if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = deepcopy(pop_x[idx])
@@ -125,7 +125,7 @@ class BaseSARO(Optimizer):
             pos_new = self.g_best[self.ID_POS] + np.random.uniform() * (pop[k1][self.ID_POS] - pop[k2][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = deepcopy(pop_x[idx])
@@ -223,7 +223,7 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = deepcopy(pop_x[idx])
@@ -245,7 +245,7 @@ class OriginalSARO(BaseSARO):
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.ub[j]) / 2
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], pop_x[idx]):
                 pop_m[np.random.randint(0, self.pop_size)] = pop_x[idx]

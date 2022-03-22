@@ -105,5 +105,5 @@ class BaseACOR(Optimizer):
                 child[j] = pop[idx][self.ID_POS][j] + np.random.normal() * matrix_sigma[idx, j]  # (1)
             pos_new = self.amend_position(child, self.problem.lb, self.problem.ub)  # (2)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = pop + pop_new

@@ -73,17 +73,17 @@ class BaseSRSR(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, target, mu, sigma, x_new, fit_new, fit_move]
+            list: wrapper of solution with format [position, target, mu, sigma, x_new, target_new, target_move]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         mu = 0
         sigma = 0
         x_new = deepcopy(position)
-        fit_new = deepcopy(fitness)
-        fit_move = 0
-        return [position, fitness, mu, sigma, x_new, fit_new, fit_move]
+        target_new = deepcopy(target)
+        target_move = 0
+        return [position, target, mu, sigma, x_new, target_new, target_move]
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
@@ -135,7 +135,7 @@ class BaseSRSR(Optimizer):
             pos_new = np.random.normal(self.pop[i][self.ID_MU], self.pop[i][self.ID_SIGMA], self.problem.n_dims)
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
@@ -173,7 +173,7 @@ class BaseSRSR(Optimizer):
                    self.movement_factor * np.random.uniform(self.problem.lb, self.problem.ub)
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
@@ -246,7 +246,7 @@ class BaseSRSR(Optimizer):
             for i in range(0, 5):
                 pos_new = self.amend_position(workers[i], self.problem.lb, self.problem.ub)
                 pop_workers.append([pos_new, None])
-            pop_workers = self.update_fitness_population(pop_workers)
+            pop_workers = self.update_target_wrapper_population(pop_workers)
             nfe_epoch += 5
 
             for i in range(0, 5):

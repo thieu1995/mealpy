@@ -137,7 +137,7 @@ class BaseICA(Optimizer):
                           np.random.uniform(0, 1, self.problem.n_dims) * (self.pop_empires[idx][self.ID_POS] - colony[self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 self.empires[idx][idx_colony][self.ID_POS] = pos_new
-            self.empires[idx] = self.update_fitness_population(self.empires[idx])
+            self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
 
         # Revolution
         for idx, colonies in self.empires.items():
@@ -150,8 +150,8 @@ class BaseICA(Optimizer):
                 if np.random.rand() < self.revolution_prob:
                     pos_new = self.revolution_country(colony[self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
                     self.empires[idx][idx_colony][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            self.empires[idx] = self.update_fitness_population(self.empires[idx])
-        self.pop_empires = self.update_fitness_population(self.pop_empires)
+            self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
+        self.pop_empires = self.update_target_wrapper_population(self.pop_empires)
         _, g_best = self.update_global_best_solution(self.pop_empires, save=False)
 
         # Intra-Empire Competition

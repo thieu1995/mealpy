@@ -127,7 +127,7 @@ class BaseHGSO(Optimizer):
                 pos_new = self.amend_position(X_ij, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
                 nfe_epoch += 1
-            self.pop_group[i] = self.update_fitness_population(pop_new)
+            self.pop_group[i] = self.update_target_wrapper_population(pop_new)
         self.pop = self._flatten_group(self.pop_group)
 
         ## Update Henry's coefficient using Eq.8
@@ -148,7 +148,7 @@ class BaseHGSO(Optimizer):
             pop_new.append([pos_new, None])
             pop_idx.append(id)
             nfe_epoch += 1
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = deepcopy(pop_new[idx])
         self.pop_group = self._create_group(self.pop)

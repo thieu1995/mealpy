@@ -84,14 +84,14 @@ class OriginalBA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, target, velocity, pulse_frequency]
+            list: a solution with format [position, target, velocity, pulse_frequency]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
-        return [position, fitness, velocity, pulse_frequency]
+        return [position, target, velocity, pulse_frequency]
 
     def evolve(self, epoch):
         """
@@ -111,7 +111,7 @@ class OriginalBA(Optimizer):
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
             ##  and then update loudness and emission rate
@@ -198,16 +198,16 @@ class BaseBA(Optimizer):
             + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
 
         Returns:
-            list: wrapper of solution with format [position, target, velocity, loudness, pulse_rate, pulse_frequency]
+            list: a solution with format [position, target, velocity, loudness, pulse_rate, pulse_frequency]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         loudness = np.random.uniform(self.loudness[0], self.loudness[1])
         pulse_rate = np.random.uniform(self.pulse_rate[0], self.pulse_rate[1])
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
-        return [position, fitness, velocity, loudness, pulse_rate, pulse_frequency]
+        return [position, target, velocity, loudness, pulse_rate, pulse_frequency]
 
     def evolve(self, epoch):
         """
@@ -229,7 +229,7 @@ class BaseBA(Optimizer):
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
@@ -317,7 +317,7 @@ class ModifiedBA(Optimizer):
             x = self.pop[idx][self.ID_POS] + self.dyn_list_velocity[idx]  # Eq. 4
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
         pop_child_idx = []
         pop_child = []
@@ -331,7 +331,7 @@ class ModifiedBA(Optimizer):
                     pop_child_idx.append(idx)
                     pop_child.append([pos_new, None])
                     nfe_epoch += 1
-        pop_child = self.update_fitness_population(pop_child)
+        pop_child = self.update_target_wrapper_population(pop_child)
         for idx, idx_selected in enumerate(pop_child_idx):
             if self.compare_agent(pop_child[idx], pop_new[idx_selected]):
                 pop_new[idx_selected] = deepcopy(pop_child[idx])

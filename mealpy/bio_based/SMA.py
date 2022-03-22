@@ -70,13 +70,13 @@ class BaseSMA(Optimizer):
             ub: list of upper bound values
 
         Returns:
-            list: [position, [fitness, list_objs], weight]
+            list: [position, target, weight]
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         weight = np.zeros(len(lb))
-        return [position, fitness, weight]
+        return [position, target, weight]
 
     def evolve(self, epoch):
         """
@@ -121,7 +121,7 @@ class BaseSMA(Optimizer):
             # Check bound and re-calculate fitness after each individual move
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
 
 
 class OriginalSMA(BaseSMA):
@@ -219,4 +219,4 @@ class OriginalSMA(BaseSMA):
                         current_agent[self.ID_POS][j] = vc[j] * current_agent[self.ID_POS][j]
             pos_new = self.amend_position(current_agent[self.ID_POS], self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)

@@ -79,9 +79,9 @@ class BaseSSpiderO(Optimizer):
         """
         position = np.random.uniform(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         weight = 0.0
-        return [position, fitness, weight]
+        return [position, target, weight]
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
@@ -146,7 +146,7 @@ class BaseSSpiderO(Optimizer):
                 pos_new = self.pop_females[i][self.ID_POS] - vibs * (x_s - self.pop_females[i][self.ID_POS]) * beta - \
                           vibb * (self.g_best[self.ID_POS] - self.pop_females[i][self.ID_POS]) * gamma + random
             self.pop_females[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        self.pop_females = self.update_fitness_population(self.pop_females)
+        self.pop_females = self.update_target_wrapper_population(self.pop_females)
         self.nfe_epoch += self.n_f
 
     def _move_males(self, epoch=None):
@@ -185,7 +185,7 @@ class BaseSSpiderO(Optimizer):
                 # Spider below median, go to weighted mean
                 pos_new = self.pop_males[i][self.ID_POS] + delta * (mean - self.pop_males[i][self.ID_POS]) + random
             self.pop_males[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        self.pop_males = self.update_fitness_population(self.pop_males)
+        self.pop_males = self.update_target_wrapper_population(self.pop_males)
         self.nfe_epoch += self.n_m
 
     ### Crossover
@@ -242,10 +242,10 @@ class BaseSSpiderO(Optimizer):
                 child1, child2 = self._crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
                 pos1 = self.amend_position(child1, self.problem.lb, self.problem.ub)
                 pos2 = self.amend_position(child2, self.problem.lb, self.problem.ub)
-                fit1 = self.get_fitness_position(pos1)
-                fit2 = self.get_fitness_position(pos2)
-                list_child.append([pos1, fit1, 0.0])
-                list_child.append([pos2, fit2, 0.0])
+                target1 = self.get_target_wrapper(pos1)
+                target2 = self.get_target_wrapper(pos2)
+                list_child.append([pos1, target1, 0.0])
+                list_child.append([pos2, target2, 0.0])
 
         else:
             list_child = self.create_population(self.pop_size)

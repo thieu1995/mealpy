@@ -66,8 +66,8 @@ class BaseEO(Optimizer):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
         pos_mean = np.mean(pos_list, axis=0)
         pos_mean = self.amend_position(pos_mean, self.problem.lb, self.problem.ub)
-        fit = self.get_fitness_position(pos_mean)
-        list_equilibrium.append([pos_mean, fit])
+        target = self.get_target_wrapper(pos_mean)
+        list_equilibrium.append([pos_mean, target])
         return list_equilibrium
 
     def evolve(self, epoch):
@@ -96,7 +96,7 @@ class BaseEO(Optimizer):
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
 
 
 class ModifiedEO(BaseEO):
@@ -173,7 +173,7 @@ class ModifiedEO(BaseEO):
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 16
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         ## Sort the updated population based on fitness
         _, pop_s1, _ = self.get_special_solutions(pop_new, best=self.pop_len)
@@ -184,7 +184,7 @@ class ModifiedEO(BaseEO):
             pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_s2_new.append([pos_new, None])
-        pop_s2 = self.update_fitness_population(pop_s2_new)
+        pop_s2 = self.update_target_wrapper_population(pop_s2_new)
 
         ## Search Mechanism
         pos_s1_list = [item[self.ID_POS] for item in pop_s1]
@@ -195,7 +195,7 @@ class ModifiedEO(BaseEO):
                       (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_s3.append([pos_new, None])
-        pop_s3 = self.update_fitness_population(pop_s3)
+        pop_s3 = self.update_target_wrapper_population(pop_s3)
 
         ## Construct a new population
         self.pop = pop_s1 + pop_s2 + pop_s3
@@ -288,4 +288,4 @@ class AdaptiveEO(BaseEO):
                 pos_new = np.multiply(pos_new, (0.5 + np.random.uniform(0, 1, self.problem.n_dims)))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)

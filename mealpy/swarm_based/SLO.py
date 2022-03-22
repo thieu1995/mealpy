@@ -106,7 +106,7 @@ class BaseSLO(Optimizer):
             # In the paper doesn't check also doesn't update old solution at this point
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
@@ -171,14 +171,14 @@ class ModifiedSLO(Optimizer):
         ## Increase exploration at the first initial population using opposition-based learning.
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         local_pos = lb + ub - position
         local_pos = self.amend_position(local_pos, lb, ub)
-        local_fit = self.get_fitness_position(local_pos)
-        if fitness < local_fit:
-            return [local_pos, local_fit, position, fitness]
+        local_target = self.get_target_wrapper(local_pos)
+        if self.compare_agent([None, target], [None, local_target]):
+            return [local_pos, local_target, position, target]
         else:
-            return [position, fitness, local_pos, local_fit]
+            return [position, target, local_pos, local_target]
 
     def _shrink_encircling_levy__(self, current_pos, epoch, dist, c, beta=1):
         up = gamma(1 + beta) * np.sin(np.pi * beta / 2)
@@ -223,7 +223,7 @@ class ModifiedSLO(Optimizer):
                     pos_new = rand_SL - c * np.abs(np.random.uniform() * rand_SL - self.pop[idx][self.ID_POS])
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
@@ -311,18 +311,18 @@ class ISLO(ModifiedSLO):
                     # Compare both of them and keep the good one (Searching at both direction)
                     pos_new = self.g_best[self.ID_POS] + c * np.random.normal(0, 1, self.problem.n_dims) * \
                               (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                    fit_new = self.get_fitness_position(self.amend_position(pos_new, self.problem.lb, self.problem.ub))
+                    target_new = self.get_target_wrapper(self.amend_position(pos_new, self.problem.lb, self.problem.ub))
                     pos_new_oppo = self.problem.lb + self.problem.ub - self.g_best[self.ID_POS] + \
                                    np.random.rand() * (self.g_best[self.ID_POS] - pos_new)
-                    fit_new_oppo = self.get_fitness_position(self.amend_position(pos_new_oppo, self.problem.lb, self.problem.ub))
-                    if self.compare_agent([pos_new_oppo, fit_new_oppo], [pos_new, fit_new]):
+                    target_new_oppo = self.get_target_wrapper(self.amend_position(pos_new_oppo, self.problem.lb, self.problem.ub))
+                    if self.compare_agent([pos_new_oppo, target_new_oppo], [pos_new, target_new]):
                         pos_new = pos_new_oppo
             else:  # Exploitation
                 pos_new = self.g_best[self.ID_POS] + np.cos(2 * np.pi * np.random.uniform(-1, 1)) * \
                           np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):

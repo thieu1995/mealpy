@@ -111,11 +111,11 @@ class OriginalBFO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         cost = 0.0
         interaction = 0.0
         sum_nutrients = 0.0
-        return [position, fitness, cost, interaction, sum_nutrients]
+        return [position, target, cost, interaction, sum_nutrients]
 
     def _compute_cell_interaction(self, cell, cells, d, w):
         sum_inter = 0.0
@@ -159,11 +159,11 @@ class OriginalBFO(Optimizer):
                     unit_vector = delta_i / np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
                     pos_new = self.pop[idx][self.ID_POS] + self.step_size * unit_vector
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    fit_new = self.get_fitness_position(pos_new)
+                    target = self.get_target_wrapper(pos_new)
                     nfe_epoch += 1
-                    if self.compare_agent([pos_new, fit_new], self.pop[idx]):
+                    if self.compare_agent([pos_new, target], self.pop[idx]):
                         self.pop[idx][self.ID_POS] = pos_new
-                        self.pop[idx][self.ID_TAR] = fit_new
+                        self.pop[idx][self.ID_TAR] = target
                         break
                     sum_nutrients += self.pop[idx][self.ID_COST]
                 self.pop[idx][self.ID_SUM_NUTRIENTS] = sum_nutrients
@@ -270,11 +270,11 @@ class ABFO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
         local_pos_best = deepcopy(position)
-        local_fit_best = deepcopy(fitness)
-        return [position, fitness, nutrient, local_pos_best, local_fit_best]
+        local_fit_best = deepcopy(target)
+        return [position, target, nutrient, local_pos_best, local_fit_best]
 
     def _update_step_size(self, pop=None, idx=None):
         total_fitness = np.sum([temp[self.ID_TAR][self.ID_FIT] for temp in pop])
@@ -299,16 +299,16 @@ class ABFO(Optimizer):
                 unit_vector = np.random.uniform(self.problem.lb, self.problem.ub) if delta == 0 else (delta_i / delta)
                 pos_new = self.pop[i][self.ID_POS] + step_size * unit_vector
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
+                target = self.get_target_wrapper(pos_new)
                 nfe_epoch += 1
-                if self.compare_agent([pos_new, fit_new], self.pop[i]):
+                if self.compare_agent([pos_new, target], self.pop[i]):
                     self.pop[i][self.ID_POS] = pos_new
-                    self.pop[i][self.ID_TAR] = fit_new
+                    self.pop[i][self.ID_TAR] = target
                     self.pop[i][self.ID_NUT] += 1
                     # Update personal best
-                    if self.compare_agent([pos_new, fit_new], [None, self.pop[i][self.ID_LOC_FIT]]):
+                    if self.compare_agent([pos_new, target], [None, self.pop[i][self.ID_LOC_FIT]]):
                         self.pop[i][self.ID_LOC_POS] = deepcopy(pos_new)
-                        self.pop[i][self.ID_LOC_FIT] = deepcopy(fit_new)
+                        self.pop[i][self.ID_LOC_FIT] = deepcopy(target)
                 else:
                     self.pop[i][self.ID_NUT] -= 1
 
@@ -316,8 +316,8 @@ class ABFO(Optimizer):
                 pos_new = self.pop[i][self.ID_POS] + np.random.normal(self.problem.lb, self.problem.ub) * \
                           (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                self.pop.append([pos_new, fit_new, 0, deepcopy(pos_new), deepcopy(fit_new)])
+                target = self.get_target_wrapper(pos_new)
+                self.pop.append([pos_new, target, 0, deepcopy(pos_new), deepcopy(target)])
                 nfe_epoch += 1
 
             nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)

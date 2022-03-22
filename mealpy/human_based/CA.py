@@ -72,8 +72,8 @@ class OriginalCA(Optimizer):
     def create_faithful(self, lb, ub):
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
-        return [position, fitness]
+        target = self.get_target_wrapper(position)
+        return [position, target]
 
     def update_belief_space(self, belief_space, pop_accepted):
         pos_list = np.array([solution[self.ID_POS] for solution in pop_accepted])

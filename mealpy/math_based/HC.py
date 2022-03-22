@@ -77,7 +77,7 @@ class OriginalHC(Optimizer):
             pos_new = self.g_best[self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * step_size
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_neighbours.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_neighbours)
+        self.pop = self.update_target_wrapper_population(pop_neighbours)
 
 
 class BaseHC(OriginalHC):
@@ -146,7 +146,7 @@ class BaseHC(OriginalHC):
                 pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * ss
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_neighbours.append([pos_new, None])
-            pop_neighbours = self.update_fitness_population(pop_neighbours)
+            pop_neighbours = self.update_target_wrapper_population(pop_neighbours)
             _, agent = self.get_global_best_solution(pop_neighbours)
             self.pop[idx] = agent
 

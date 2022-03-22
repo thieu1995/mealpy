@@ -80,9 +80,9 @@ class BaseBRO(Optimizer):
         """
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
-        fitness = self.get_fitness_position(position)
+        target = self.get_target_wrapper(position)
         damage = 0
-        return [position, fitness, damage]
+        return [position, target, damage]
 
     def __get_min_idx(self, data):
         k_zero = np.count_nonzero(data == 0)
@@ -116,9 +116,9 @@ class BaseBRO(Optimizer):
                 pos_new = self.pop[i][self.ID_POS] + np.random.uniform() * \
                           np.mean(np.array([self.pop[i][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
+                target = self.get_target_wrapper(pos_new)
                 dam_new = self.pop[i][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
-                self.pop[i] = [pos_new, fit_new, dam_new]
+                self.pop[i] = [pos_new, target, dam_new]
                 ## Update Loser
                 if self.pop[j][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
                     pos_new = np.random.uniform() * (np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS]) -
@@ -126,13 +126,13 @@ class BaseBRO(Optimizer):
                               np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
                     dam_new = self.pop[j][self.ID_DAM] + 1
 
-                    self.pop[j][self.ID_TAR] = self.get_fitness_position(self.pop[j][self.ID_POS])
+                    self.pop[j][self.ID_TAR] = self.get_target_wrapper(self.pop[j][self.ID_POS])
                 else:  ## Loser dead and respawn again
                     pos_new = self.generate_position(self.problem.lb_updated, self.problem.ub_updated)
                     dam_new = 0
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
-                self.pop[j] = [pos_new, fit_new, dam_new]
+                target = self.get_target_wrapper(pos_new)
+                self.pop[j] = [pos_new, target, dam_new]
                 nfe_epoch += 2
             else:
                 ## Update Loser by following position of Winner
@@ -140,9 +140,9 @@ class BaseBRO(Optimizer):
                 ## Update Winner by following position of General to protect the King and General
                 pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                fit_new = self.get_fitness_position(pos_new)
+                target = self.get_target_wrapper(pos_new)
                 dam_new = 0
-                self.pop[j] = [pos_new, fit_new, dam_new]
+                self.pop[j] = [pos_new, target, dam_new]
                 nfe_epoch += 1
         self.nfe_per_epoch = nfe_epoch
         if epoch >= self.dyn_delta:  # max_epoch = 1000 -> delta = 300, 450, >500,....
@@ -223,7 +223,7 @@ class OriginalBRO(BaseBRO):
                            np.minimum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])) + \
                           np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS])
                 self.pop[dam][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                self.pop[dam][self.ID_TAR] = self.get_fitness_position(self.pop[dam][self.ID_POS])
+                self.pop[dam][self.ID_TAR] = self.get_target_wrapper(self.pop[dam][self.ID_POS])
                 self.pop[dam][self.ID_DAM] += 1
                 self.pop[vic][self.ID_DAM] = 0
             else:

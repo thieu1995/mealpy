@@ -109,16 +109,15 @@ class BaseHHO(Optimizer):
                         X_m = np.mean([x[self.ID_POS] for x in self.pop])
                         Y = self.g_best[self.ID_POS] - E * np.abs(J * self.g_best[self.ID_POS] - X_m)
                     pos_Y = self.amend_position(Y, self.problem.lb, self.problem.ub)
-                    fit_Y = self.get_fitness_position(pos_Y)
+                    target_Y = self.get_target_wrapper(pos_Y)
                     Z = Y + np.random.uniform(self.problem.lb, self.problem.ub) * LF_D
                     pos_Z = self.amend_position(Z, self.problem.lb, self.problem.ub)
-                    fit_Z = self.get_fitness_position(pos_Z)
-
-                    if self.compare_agent([pos_Y, fit_Y], self.pop[idx]):
-                        pop_new.append([pos_Y, fit_Y])
+                    target_Z = self.get_target_wrapper(pos_Z)
+                    if self.compare_agent([pos_Y, target_Y], self.pop[idx]):
+                        pop_new.append([pos_Y, target_Y])
                         continue
-                    if self.compare_agent([pos_Z, fit_Z], self.pop[idx]):
-                        pop_new.append([pos_Z, fit_Z])
+                    if self.compare_agent([pos_Z, target_Z], self.pop[idx]):
+                        pop_new.append([pos_Z, target_Z])
                         continue
                     pop_new.append(deepcopy(self.pop[idx]))
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)

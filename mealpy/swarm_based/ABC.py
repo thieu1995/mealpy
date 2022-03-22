@@ -98,7 +98,7 @@ class BaseABC(Optimizer):
                 else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
             new_bee = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
             pop_neigh.append([new_bee, None])
-        pop_neigh = self.update_fitness_population(pop_neigh)
+        pop_neigh = self.update_target_wrapper_population(pop_neigh)
         _, current_best = self.get_global_best_solution(pop_neigh)
         return current_best
 

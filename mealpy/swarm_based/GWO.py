@@ -77,7 +77,7 @@ class BaseGWO(Optimizer):
             pos_new = (X1 + X2 + X3) / 3.0
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
@@ -149,7 +149,7 @@ class RW_GWO(Optimizer):
             pos_new = leaders[i][self.ID_POS] + a * np.random.standard_cauchy(self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             leaders_new.append([pos_new, None])
-        leaders_new = self.update_fitness_population(leaders_new)
+        leaders_new = self.update_target_wrapper_population(leaders_new)
         leaders = self.greedy_selection_population(leaders, leaders_new)
 
         ## Update other wolfs
@@ -165,6 +165,6 @@ class RW_GWO(Optimizer):
             pos_new = (X1 + X2 + X3) / 3.0
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         pop_new = self.greedy_selection_population(self.pop, pop_new)
         self.pop = self.get_sorted_strim_population(pop_new + leaders, self.pop_size)

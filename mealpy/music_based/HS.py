@@ -89,7 +89,7 @@ class BaseHS(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update Damp Fret Width
         self.dyn_fw = self.dyn_fw * self.fw_damp
@@ -173,7 +173,7 @@ class OriginalHS(BaseHS):
                     pos_new[j] = pos_new[j] + delta[j]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_fitness_population(pop_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update Damp Fret Width
         self.dyn_fw = self.dyn_fw * self.fw_damp

@@ -70,7 +70,7 @@ class OriginalIWO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(self.pop_size / 2)]))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
-        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ((0.3, 1), (0, 0.2)))
+        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ((0.5, 3.0), (0, 0.5)))
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -101,6 +101,6 @@ class OriginalIWO(Optimizer):
                 pos_new = pop[idx][self.ID_POS] + sigma * np.random.normal(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_local.append([pos_new, None])
-            pop_local = self.update_fitness_population(pop_local)
+            pop_local = self.update_target_wrapper_population(pop_local)
             pop_new += pop_local
         self.pop = self.get_sorted_strim_population(pop_new, self.pop_size)

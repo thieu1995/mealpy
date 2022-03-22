@@ -115,7 +115,7 @@ class BaseGSKA(Optimizer):
                     pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
 
 
 class OriginalGSKA(Optimizer):
@@ -236,4 +236,4 @@ class OriginalGSKA(Optimizer):
                                           self.pop[idx][self.ID_POS][j] - self.pop[rand_mid][self.ID_POS][j])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_fitness_population(pop_new)
+        self.pop = self.update_target_wrapper_population(pop_new)
