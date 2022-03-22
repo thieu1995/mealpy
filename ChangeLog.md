@@ -1,3 +1,34 @@
+# Version 2.4.0
+
+### Update
+
++ Add mealpy's support functions in terminal: help(mealpy), dir(mealpy)
++ Add logger module (Logger class)
++ Add validator module (Validator class)
++ Change in Optimizer class:
+  + remove function get_global_best_global_worst_solution()
+  + replace save_optimization_process() by track_optimize_step() and track_optimize_process()
+  + update input of Problem and Termination object in Optimizer.
+  + add logger
+  + add validator and update all algorithms
+  + update function: get_special_solutions()
+  + rename function: crossover_arthmetic_recombination() to crossover_arithmetic()
+  + rename function: get_fitness_position() to get_target_wrapper()
+  + rename function: update_fitness_population() to update_target_wrapper_population()
+
++ A default method: generate_position() in Problem class.
++ Due to nature's characteristics of different problems, 2 methods can be designed for Optimizer to fit the problem 
+  are generate_position() and amend_position(). Both methods are moved from Optimizer 
+  class to Problem class, the create_solution() in Optimizer class will call these methods to create a new solution.
++ Update History and Problem class
+  + design default amend_position function in Problem class 
+  + parameter: obj_weight changed to obj_weights
+  + add parameter: save_population to control 
++ Add Pareto-like Sequential Sampling (PSS) to math_based group
+
+
+---------------------------------------------------------------------
+
 # Version 2.3.0
 
 ### Update

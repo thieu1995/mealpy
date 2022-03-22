@@ -1,5 +1,5 @@
 # Meta-Heuristic Algorithms using Python (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-2.3.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.4.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -20,14 +20,15 @@
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.3.0, Total algorithms: 154 (original + variants), 87 original algorithms (8 dummy algorithms)
+* Current version: 2.4.0, Total algorithms: 155 (original + variants), 88 original algorithms (8 dummy algorithms)
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
   * 2.0.0 <= mealpy <= 2.1.2
   * mealpy == 2.2.0 
-  * mealpy >= 2.3.0 (From this version, algorithms can solve discrete problem)
+  * mealpy == 2.3.0 
+  * mealpy == 2.4.0 (From this version, algorithms can solve discrete problem)
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
@@ -77,7 +78,7 @@
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
     pip uninstall mealpy 
-    pip install mealpy==2.3.0 
+    pip install mealpy==2.4.0 
 ```
 
 ### Examples
@@ -97,7 +98,8 @@ problem_dict1 = {
     "lb": [-100, ] * 30,
     "ub": [100, ] * 30,
     "minmax": "min",
-    "verbose": True,
+    "log_to": None,
+    "save_population": False,
 }
 
 ## Run the algorithm
@@ -617,6 +619,10 @@ Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applicatio
 
 * **PFA - Pathfinder Algorithm** 
   * **BasePFA**: Yapici, H., & Cetinkaya, N. (2019). A new meta-heuristic optimizer: Pathfinder algorithm. Applied Soft Computing, 78, 545-568.
+
+* **PSS - Pareto-like Sequential Sampling**
+  * **OriginalPSS**: Shaqfa, M., & Beyer, K. (2021). Pareto-like sequential sampling heuristic for global optimisation. Soft Computing, 25(14), 9077-9096.
+
 
 ### Q
 
