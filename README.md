@@ -16,6 +16,12 @@
 [comment]: <> (---)
 
 
+## Quick Notification
+
+* Check out repo https://github.com/thieu1995/MHA-TSP to see how to use MEALPY to solve Travelling Salesman Problem.
+
+
+
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
