@@ -36,7 +36,7 @@ But there are different stopping condition you can try by creating an Terminatio
 .. code-block:: python
 
    term_dict4 = {
-      "mode": "ES",
+      "mode": "TB",
       "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
    }
 

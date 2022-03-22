@@ -13,7 +13,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "lb": [-3, -5, 1, -10, ],
       "ub": [5, 10, 100, 30, ],
       "minmax": "min",
-      "verbose": True,
    }
 
 **2. When you have same lower bound and upper bound for each variable, then you can use:**
@@ -26,7 +25,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "lb": -10,
       "ub": 30,
       "minmax": "min",
-      "verbose": True,
       "n_dims": 30,  # Remember the keyword "n_dims"
    }
 
@@ -36,7 +34,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "lb": [-5],
       "ub": [10],
       "minmax": "min",
-      "verbose": True,
       "n_dims": 30,  # Remember the keyword "n_dims"
    }
 
@@ -47,7 +44,6 @@ There are a few ways to set up the lower bound (LB) and upper bound (UB). It is 
       "lb": [-5] * n_dims,
       "ub": [10] * n_dims,
       "minmax": "min",
-      "verbose": True,
    }
 
 

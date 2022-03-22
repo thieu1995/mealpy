@@ -38,7 +38,7 @@ To use the library, your computer must installed all of these packages first:
 ::
 
    $ pip uninstall mealpy
-   $ pip install mealpy==2.3.0
+   $ pip install mealpy==2.4.0
 
 - Or install the development version from GitHub:
 
@@ -78,7 +78,8 @@ Getting started in 30s
 	    "lb": [-100, ] * 30,
 	    "ub": [100, ] * 30,
 	    "minmax": "min",
-	    "verbose": True,
+	    "log_to": "file",
+	    "log_file": "result.log"
 	}
 
 	ga_model = GA.BaseGA(problem_dict, epoch=100, pop_size=50, pc=0.85, pm=0.1)
@@ -169,15 +170,14 @@ numpy vector (the solution) and output is the single objective value or list of 
 Problem Preparation
 -------------------
 
-You will need to define a problem dictionary with must has keywords ("fit_func", "lb", "ub", "minmax", "verbose"). For special case, when you are trying to
-solve **multiple objective functions**, you need another keyword **"obj_weight"**:
+You will need to define a problem dictionary with must has keywords ("fit_func", "lb", "ub", "minmax"). For special case, when you are trying to
+solve **multiple objective functions**, you need another keyword **"obj_weights"**:
 
 	* fit_func: Your fitness function
 	* lb: Lower bound of variables, it should be list of values
 	* ub: Upper bound of variables, it should be list of values
 	* minmax: The problem you are trying to solve is minimum or maximum, value can be "min" or "max"
-	* verbose: Print the training process, value can be True or False
-	* obj_weight: list weights for all your objectives (Optional, default = [1, 1, ...1])
+	* obj_weights: list weights for all your objectives (Optional, default = [1, 1, ...1])
 
 
 .. code-block:: python
@@ -188,7 +188,6 @@ solve **multiple objective functions**, you need another keyword **"obj_weight"*
 	    "lb": [-100, ] * 30,
 	    "ub": [100, ] * 30,
 	    "minmax": "min",
-	    "verbose": True,
 	}
 
 	## Design a problem dictionary for multiple objective functions above
@@ -197,8 +196,7 @@ solve **multiple objective functions**, you need another keyword **"obj_weight"*
 	    "lb": [-10, -10],
 	    "ub": [10, 10],
 	    "minmax": "min",
-	    "verbose": True,
-	    "obj_weight": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
+	    "obj_weights": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
 	}
 
 	## Design a problem dictionary for constrained objective function above
@@ -207,7 +205,6 @@ solve **multiple objective functions**, you need another keyword **"obj_weight"*
 	  "lb": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 	  "ub": [1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1],
 	  "minmax": "min",
-	  "verbose": True,
 	}
 
 
@@ -250,6 +247,8 @@ Advances
 
 .. include:: advances/lower_upper_bound.rst
 .. include:: advances/termination.rst
+.. include:: advances/problem_preparation.rst
+.. include:: advances/model_definition.rst
 .. include:: advances/import_all_models.rst
 
 .. toctree::
