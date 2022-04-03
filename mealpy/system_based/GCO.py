@@ -163,21 +163,34 @@ class OriginalGCO(BaseGCO):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = []
+        ## Dark-zone process    (can be parallelization)
         for idx in range(0, self.pop_size):
             if np.random.uniform(0, 100) < self.dyn_list_life_signal[idx]:
                 self.dyn_list_cell_counter[idx] += 1
-            else:
-                self.dyn_list_cell_counter[idx] = 1
+            elif self.dyn_list_cell_counter[idx] > 1:
+                self.dyn_list_cell_counter[idx] -= 1
 
             # Mutate process
-            r1, r2, r3 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
+            p = self.dyn_list_cell_counter / np.sum(self.dyn_list_cell_counter)
+            r1, r2, r3 = np.random.choice(list(set(range(0, self.pop_size))), 3, replace=False, p=p)
             pos_new = self.pop[r1][self.ID_POS] + self.wf * (self.pop[r2][self.ID_POS] - self.pop[r3][self.ID_POS])
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new, self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        for idx in range(0, self.pop_size):
-            if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.dyn_list_cell_counter[idx] += 10
-                self.pop[idx] = deepcopy(pop_new[idx])
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.cr, pos_new,
+                               self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position(pos_new)
+            # for each pos_new, generate the fitness_population
+            pop_new = self.update_fitness_population([[pos_new, None]])
+            if self.compare_agent(pop_new[0], self.pop[idx]):
+                self.pop[idx] = deepcopy(pop_new[0])
+                self.dyn_list_life_signal[idx] += 10
+                if self.compare_agent(pop_new[0], self.g_best):
+                    self.g_best = deepcopy(pop_new[0])
+
+        ## Light-zone process   (no needs parallelization)
+        self.dyn_list_life_signal -= 10
+        fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
+        fit_max = max(fit_list)
+        fit_min = min(fit_list)
+        fit = (fit_list - fit_max) / (fit_min - fit_max)
+        if self.problem.minmax != 'min':
+            fit = 1 - fit
+        self.dyn_list_life_signal += 10 * fit
