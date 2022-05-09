@@ -18,7 +18,7 @@ class BaseBRO(Optimizer):
     ~~~~~
     I change the flow of algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + threshold (int): [2, 5], dead threshold, default=3
 
     Examples
@@ -162,7 +162,7 @@ class OriginalBRO(BaseBRO):
     Links:
         1. https://doi.org/10.1007/s00521-020-05004-4
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + threshold (int): [2, 5], dead threshold, default=3
 
     Examples

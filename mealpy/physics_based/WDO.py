@@ -21,7 +21,7 @@ class BaseWDO(Optimizer):
     + air parcel: is the set of gas atoms. Each atom represents a dimension in position and has its own velocity
     + pressure represented by fitness value
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + RT (int): [2, 3, 4], RT coefficient, default = 3
         + g_c (float): [0.1, 0.5], gravitational constant, default = 0.2
         + alp (float): [0.3, 0.8], constants in the update equation, default=0.4

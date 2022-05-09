@@ -18,7 +18,7 @@ class OriginalPSS(Optimizer):
         1. https://doi.org/10.1007/s00500-021-05853-8
         2. https://github.com/eesd-epfl/pareto-optimizer
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + acceptance_rate (float): [0.7-0.96], the probability of accepting a solution in the normal range, default=0.9
         + sampling_method (str): 'LHS': Latin-Hypercube or 'MC': 'MonteCarlo', default="LHS"
 

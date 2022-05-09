@@ -17,7 +17,7 @@ class BaseMA(Optimizer):
         1. https://www.cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
         2. https://github.com/clever-algorithms/CleverAlgorithms
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pc (float): [0.7, 0.95], cross-over probability, default = 0.85
         + pm (float): [0.05, 0.3], mutation probability, default = 0.15
         + p_local (float): [0.3, 0.7], Probability of local search for each agent, default=0.5

@@ -16,7 +16,7 @@ class BaseNMRA(Optimizer):
     Links:
         1. https://www.doi.org10.1007/s00521-019-04464-7
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
 
     Examples
@@ -96,7 +96,7 @@ class ImprovedNMRA(Optimizer):
     + Use crossover operator
     + Use Levy-flight technique
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
         + pm (float): [0.01, 0.1], probability of mutation, default = 0.01
 

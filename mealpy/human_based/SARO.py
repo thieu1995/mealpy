@@ -17,7 +17,7 @@ class BaseSARO(Optimizer):
     ~~~~~
     All third loop is removed
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + se (float): [0.3, 0.8], social effect, default = 0.5
         + mu (int): [10, 100], maximum unsuccessful search number, default = 50
 
@@ -147,7 +147,7 @@ class OriginalSARO(BaseSARO):
     Links:
        1. https://doi.org/10.1155/2019/2482543
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + se (float): [0.3, 0.8], social effect, default = 0.5
         + mu (int): [10, 100], maximum unsuccessful search number, default = 50
 

@@ -20,7 +20,7 @@ class BaseVCS(Optimizer):
     ~~~~~
     + In Immune response process, updates the whole position instead of updating each variable in position
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 2.0], Weight factor
 
@@ -134,7 +134,7 @@ class OriginalVCS(BaseVCS):
     ~~~~~
     This is basic version, not the full version of the paper
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 0.5], Weight factor
 

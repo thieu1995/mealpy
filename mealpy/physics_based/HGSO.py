@@ -16,7 +16,7 @@ class BaseHGSO(Optimizer):
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0167739X19306557
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_clusters (int): [2, 10], number of clusters, default = 2
 
     Examples

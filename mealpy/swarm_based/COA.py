@@ -17,7 +17,7 @@ class BaseCOA(Optimizer):
         1. https://ieeexplore.ieee.org/document/8477769
         2. https://github.com/jkpir/COA/blob/master/COA.py  (Old version Mealpy < 1.2.2)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_coyotes (int): [3, 15], number of coyotes per group, default=5
 
     Examples

@@ -20,7 +20,7 @@ class BaseCSO(Optimizer):
         1. https://link.springer.com/chapter/10.1007/978-3-540-36668-3_94
         2. https://www.hindawi.com/journals/cin/2020/4854895/
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + mixture_ratio (float): joining seeking mode with tracing mode, default=0.15
         + smp (int): seeking memory pool, default=5 clones (larger is better but time-consuming)
         + spc (bool): self-position considering, default=False

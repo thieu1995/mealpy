@@ -15,7 +15,7 @@ class BaseCRO(Optimizer):
     Links:
         1. http://downloads.hindawi.com/journals/tswj/2014/739768.pdf
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + po (float): [0.2, 0.5], the rate between free/occupied at the beginning
         + Fb (float): [0.6, 0.9], BroadcastSpawner/ExistingCorals rate
         + Fa (float): [0.05, 0.3], fraction of corals duplicates its self and tries to settle in a different part of the reef
@@ -193,7 +193,7 @@ class OCRO(BaseCRO):
     Links:
         1. https://dx.doi.org/10.2991/ijcis.d.190930.003
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + po (float): [0.2, 0.5], the rate between free/occupied at the beginning
         + Fb (float): [0.6, 0.9], BroadcastSpawner/ExistingCorals rate
         + Fa (float): [0.05, 0.3], fraction of corals duplicates its self and tries to settle in a different part of the reef

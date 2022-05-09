@@ -18,7 +18,7 @@ class ImprovedBSO(Optimizer):
     + Remove some probability parameters, and some useless equations.
     + Add Levy-flight technique for more robust
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + m_clusters (int): [3, 10], number of clusters (m in the paper)
         + p1 (float): 25% percent
         + p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
@@ -152,7 +152,7 @@ class BaseBSO(ImprovedBSO):
     Links:
         1. https://doi.org/10.1007/978-3-642-21515-5_36
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + m_clusters (int): [3, 10], number of clusters (m in the paper)
         + p1 (float): [0.1, 0.5], probability
         + p2 (float): [0.5, 0.95], probability

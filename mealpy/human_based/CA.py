@@ -15,7 +15,7 @@ class OriginalCA(Optimizer):
     Links:
         1. https://github.com/clever-algorithms/CleverAlgorithms
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + accepted_rate (float): [0.1, 0.5], probability of accepted rate, default: 0.15
 
     Examples

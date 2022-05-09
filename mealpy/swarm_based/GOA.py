@@ -21,7 +21,7 @@ class BaseGOA(Optimizer):
         + I added np.random.normal() component to Eq, 2.7
         + I changed the way to calculate distance between two location
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c_minmax (list, tuple): (c_min, c_max) -> ([0.00001, 0.01], [0.5, 2.0]), coefficient c, default = (0.00004, 1)
 
     Examples

@@ -16,7 +16,7 @@ class BaseCSA(Optimizer):
     Links:
         1. https://doi.org/10.1109/NABIC.2009.5393690
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_a (float): [0.1, 0.7], probability a, default=0.3
 
     Examples

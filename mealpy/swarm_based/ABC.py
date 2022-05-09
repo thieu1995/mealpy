@@ -21,7 +21,7 @@ class BaseABC(Optimizer):
     + This version is based on ABC in the book Clever Algorithms
     + Improved the function _search_neigh__
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + couple_bees (list, tuple): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
         + patch_variables (list, tuple): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
         + patch_variables = patch_variables * patch_factor (0.985)

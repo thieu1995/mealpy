@@ -15,7 +15,7 @@ class BaseSHO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.advengsoft.2017.05.014
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
         + rand_v (list, tuple): (uniform min, uniform max), random vector, default = [0.5, 1]
         + N_tried (int): default = 10,

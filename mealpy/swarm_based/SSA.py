@@ -19,7 +19,7 @@ class BaseSSA(Optimizer):
     + In Eq. 4, Instead of using A+ and L, I used np.random.normal()
     + Some components (g_best_position, fitness updated) are missing in Algorithm 1 (paper)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
         + PD (float): number of producers (percentage), default = 0.2
         + SD (float): number of sparrows who perceive the danger, default = 0.1
@@ -151,7 +151,7 @@ class OriginalSSA(BaseSSA):
     ~~~~~
     + The paper contains some unclear equations and symbol
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
         + PD (float): number of producers (percentage), default = 0.2
         + SD (float): number of sparrows who perceive the danger, default = 0.1

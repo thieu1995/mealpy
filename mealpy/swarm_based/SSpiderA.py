@@ -23,7 +23,7 @@ class BaseSSpiderA(Optimizer):
     + The version on above github is very slow convergence
     + Changes the idea of intensity, which one has better intensity, others will move toward to it
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0
         + p_c (float): controls the probability of the spiders changing their dimension mask in the random walk step, default=0.7
         + p_m (float): the probability of each value in a dimension mask to be one, default=0.1

@@ -23,7 +23,7 @@ class BaseWCA(Optimizer):
         + a few river which are second, third, ...
         + other left are stream (will flow directed to sea or river)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + nsr (int): [4, 10], Number of rivers + sea (sea = 1), default = 4
         + wc (float): [1.0, 3.0], Weighting coefficient (C in the paper), default = 2
         + dmax (float): [1e-6], fixed parameter, Evaporation condition constant, default=1e-6

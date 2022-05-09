@@ -19,7 +19,7 @@ class BaseWHO(Optimizer):
     ~~~~~
     Before updated old position, I check whether new position is better or not.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_s (int): [2, 4], number of exploration step
         + n_e (int): [2, 4], number of exploitation step
         + eta (float): [0.05, 0.5], learning rate

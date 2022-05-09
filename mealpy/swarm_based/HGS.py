@@ -16,7 +16,7 @@ class OriginalHGS(Optimizer):
     Links:
         https://aliasgharheidari.com/HGS.html
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + PUP (float): [0.01, 0.2], The probability of updating position (L in the paper), default = 0.08
         + LH (float): [1000, 20000], Largest hunger / threshold, default = 10000
 

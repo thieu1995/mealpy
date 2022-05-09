@@ -16,7 +16,7 @@ class OriginalCHIO(Optimizer):
     Links:
         1. https://link.springer.com/article/10.1007/s00521-020-05296-6
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
         + max_age (int): [5, 20], Maximum infected cases age, default=10
 
@@ -144,7 +144,7 @@ class BaseCHIO(OriginalCHIO):
     """
     My changed version of: Coronavirus Herd Immunity Optimization (CHIO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
         + max_age (int): [5, 20], Maximum infected cases age, default=10
 

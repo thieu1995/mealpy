@@ -15,7 +15,7 @@ class BaseFPA(Optimizer):
     Links:
         1. https://doi.org/10.1007/978-3-642-32894-7_27
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_s (float): [0.5, 0.95], switch probability, default = 0.8
         + levy_multiplier: [0.2, 0.5], mutiplier factor of Levy-flight trajectory
 

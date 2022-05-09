@@ -20,7 +20,7 @@ class OriginalIWO(Optimizer):
     Better to use normal distribution instead of uniform distribution, updating population by sorting
     both parent population and child population
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + seeds (list, tuple): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
         + exponent (int): [2, 4], Variance Reduction Exponent
         + sigmas (list, tuple): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation

@@ -192,7 +192,7 @@ class ITLO(BaseTLO):
     + Removed the third loop to make it faster
     + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_teachers (int): [3, 10], number of teachers in class, default=5
 
     Examples

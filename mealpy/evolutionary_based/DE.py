@@ -17,7 +17,7 @@ class BaseDE(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.swevo.2018.10.006
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + wf (float): [0.5, 0.95], weighting factor, default = 0.8
         + cr (float): [0.5, 0.95], crossover rate, default = 0.9
         + strategy (int): [0, 5], there are lots of variant version of DE algorithm,
@@ -147,7 +147,7 @@ class JADE(Optimizer):
     Links:
         1. https://doi.org/10.1109/TEVC.2009.2014613
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial adaptive f, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial adaptive cr, default = 0.5
         + pt (float): [0.05, 0.2], The percent of top best agents (p in the paper), default = 0.1
@@ -422,7 +422,7 @@ class SHADE(Optimizer):
     Links:
         1. https://doi.org/10.1109/CEC.2013.6557555
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
 
@@ -584,7 +584,7 @@ class L_SHADE(Optimizer):
     Links:
         1. https://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
 
@@ -748,7 +748,7 @@ class SAP_DE(Optimizer):
     Links:
         1. https://doi.org/10.1007/s00500-005-0537-1
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + branch (str): ["ABS" or "REL"], gaussian (absolute) or uniform (relative) method
 
     Examples

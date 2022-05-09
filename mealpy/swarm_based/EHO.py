@@ -16,7 +16,7 @@ class BaseEHO(Optimizer):
     Links:
         1. https://doi.org/10.1109/ISCBI.2015.8
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.3, 0.8], a factor that determines the influence of the best in each clan, default=0.5
         + beta (float): [0.3, 0.8], a factor that determines the influence of the x_center, default=0.5
         + n_clans (int): [3, 10], the number of clans, default=5

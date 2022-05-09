@@ -20,7 +20,7 @@ class BaseHS(Optimizer):
     - Used the global best in the harmony memories
     - Removed third for loop
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
         + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
 
@@ -105,7 +105,7 @@ class OriginalHS(BaseHS):
     Links:
         1. https://doi.org/10.1177/003754970107600201
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
         + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
 

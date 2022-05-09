@@ -17,7 +17,7 @@ class BaseACOR(Optimizer):
     + Use Gaussian Distribution instead of random number (np.random.normal() function)
     + Amend solution when they went out of space
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + sample_count (int): [pop_size/2, pop_size], Number of Newly Generated Samples, default = 50
         + intent_factor (float): [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5
         + zeta (float): [1, 2, 3], Deviation-Distance Ratio, default = 1

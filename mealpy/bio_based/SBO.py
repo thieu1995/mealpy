@@ -21,7 +21,7 @@ class BaseSBO(Optimizer):
     The original version is not good enough, I remove all third loop for faster training, remove equation (1, 2) in the paper,
     calculate probability by roulette-wheel. My version can also handle negative value
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.5, 2.0], the greatest step size
         + p_m (float): [0.01, 0.2], mutation probability
         + psw (float): [0.01, 0.1], proportion of space width (z in the paper)
@@ -106,7 +106,7 @@ class OriginalSBO(BaseSBO):
         1. https://doi.org/10.1016/j.engappai.2017.01.006
         2. https://www.mathworks.com/matlabcentral/fileexchange/62009-satin-bowerbird-optimizer-sbo-2017
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.5, 0.99], the greatest step size
         + p_m (float): [0.01, 0.2], mutation probability
         + psw (float): [0.01, 0.1], proportion of space width (z in the paper)
