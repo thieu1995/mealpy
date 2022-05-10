@@ -16,7 +16,7 @@ class BaseSFO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.engappai.2019.01.001
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
         + AP (float): coefficient for decreasing the value of Attack Power linearly from AP to 0
         + epxilon (float): should be 0.0001, 0.001
@@ -155,7 +155,7 @@ class ImprovedSFO(Optimizer):
     + Removes parameters AP (A) and epsilon
     + Applies the idea of Opposition-based Learning technique
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
 
     Examples

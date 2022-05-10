@@ -96,7 +96,7 @@ class HI_WOA(Optimizer):
     Links:
         1. https://ieenp.explore.ieee.org/document/8900003
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + feedback_max (int): maximum iterations of each feedback, default = 10
 
     Examples

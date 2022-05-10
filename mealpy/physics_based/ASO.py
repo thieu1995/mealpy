@@ -17,7 +17,7 @@ class BaseASO(Optimizer):
         1. https://doi.org/10.1016/j.knosys.2018.08.030
         2. https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + alpha (int): Depth weight, default = 50
         + beta (float): Multiplier weight, default = 0.2
 

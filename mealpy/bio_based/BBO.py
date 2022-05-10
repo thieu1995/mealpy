@@ -16,7 +16,7 @@ class OriginalBBO(Optimizer):
     Links:
         1. https://ieeexplore.ieee.org/abstract/document/4475427
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability
         + elites: [2, 5], Number of elites will be keep for next generation
 
@@ -108,7 +108,7 @@ class BaseBBO(OriginalBBO):
     """
     My changed version of: Biogeography-Based Optimization (BBO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability
         + elites: [2, 5], Number of elites will be keep for next generation
 

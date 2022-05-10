@@ -15,7 +15,7 @@ class BaseMRFO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.engappai.2019.103300
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + somersault_range (float): [1.5, 3], somersault factor that decides the somersault range of manta rays, default=2
 
     Examples

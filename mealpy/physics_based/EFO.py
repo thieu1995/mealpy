@@ -16,7 +16,7 @@ class BaseEFO(Optimizer):
     ~~~~~
     + Changed the flow of original algorithm and using global best solution in equation.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
         + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
         + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
@@ -113,7 +113,7 @@ class OriginalEFO(BaseEFO):
     Links:
         2. https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
         + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
         + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field

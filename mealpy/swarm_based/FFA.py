@@ -13,7 +13,7 @@ class BaseFFA(Optimizer):
     """
     The original version of: Firefly Algorithm (FFA)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + gamma (float): Light Absorption Coefficient, default = 0.001
         + beta_base (float): Attraction Coefficient Base Value, default = 2
         + alpha (float): Mutation Coefficient, default = 0.2

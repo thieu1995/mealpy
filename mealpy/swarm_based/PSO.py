@@ -13,7 +13,7 @@ class BasePSO(Optimizer):
     """
     The original version of: Particle Swarm Optimization (PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c1 (float): [1, 3], local coefficient, default = 2.05
         + c2 (float): [1, 3], global coefficient, default = 2.05
         + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
@@ -265,7 +265,7 @@ class HPSO_TVAC(PPSO):
     ~~~~~
     + This code is converted from matlab code (sent from author: Ebrahim Akbari)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + ci (float): [0.3, 1.0], c initial, default = 0.5
         + cf (float): [0.0, 0.3], c final, default = 0.0
 
@@ -365,7 +365,7 @@ class C_PSO(BasePSO):
     """
     The original version of: Chaos Particle Swarm Optimization (C-PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c1 (float): [1.0, 3.0] local coefficient, default = 2.05
         + c2 (float): [1.0, 3.0] global coefficient, default = 2.05
         + w_min (float): [0.1, 0.4], Weight min of bird, default = 0.4
@@ -500,7 +500,7 @@ class CL_PSO(Optimizer):
     """
     The original version of: Comprehensive Learning Particle Swarm Optimization (CL-PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c_local (float): [1.0, 3.0], local coefficient, default = 1.2
         + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
         + w_max (float): [0.7, 2.0], Weight max of bird, default = 0.9

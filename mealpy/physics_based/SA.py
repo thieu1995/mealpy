@@ -13,7 +13,7 @@ class BaseSA(Optimizer):
     """
     The original version of: Simulated Annealing (SA)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + max_sub_iter (int): [5, 10, 15], Maximum Number of Sub-Iteration (within fixed temperature), default=5
         + t0 (int): Fixed parameter, Initial Temperature, default=1000
         + t1 (int): Fixed parameter, Final Temperature, default=1

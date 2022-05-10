@@ -12,7 +12,7 @@ class OriginalGBO(Optimizer):
     """
     The original version of: Gradient-Based Optimizer (GBO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pr (float): [0.2, 0.8], Probability Parameter, default = 0.5
         + beta_minmax (list, tuple): Fixed parameter (no name in the paper), default = (0.2, 1.2)
 

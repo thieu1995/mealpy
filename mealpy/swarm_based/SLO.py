@@ -237,7 +237,7 @@ class ISLO(ModifiedSLO):
     """
     My improved version of: Improved Sea Lion Optimization (ISLO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c1 (float): Local coefficient same as PSO, default = 1.2
         + c2 (float): Global coefficient same as PSO, default = 1.2
 

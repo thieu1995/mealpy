@@ -22,7 +22,7 @@ class BaseEOA(Optimizer):
     The original version from matlab code above will not working well, even with small dimensions.
     I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_c: [0.5, 0.95], crossover probability
         + p_m: [0.01, 0.2], initial mutation probability
         + n_best: [2, 5], how many of the best earthworm to keep from one generation to the next

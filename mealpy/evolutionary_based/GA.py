@@ -17,7 +17,7 @@ class BaseGA(Optimizer):
         2. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
         3. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
         + pm (float): [0.01, 0.2], mutation probability, default = 0.025
         + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"

@@ -19,7 +19,7 @@ class BaseMVO(Optimizer):
     + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
     + Change equation 3.3 to match the name of parameter wep_minmax
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
         + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
 
@@ -102,7 +102,7 @@ class OriginalMVO(BaseMVO):
         1. http://dx.doi.org/10.1007/s00521-015-1870-7
         2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
         + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
 

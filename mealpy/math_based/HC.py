@@ -17,7 +17,7 @@ class OriginalHC(Optimizer):
     + The number of neighbour solutions are equal to user defined
     + The step size to calculate neighbour is randomized
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + neighbour_size (int): [pop_size/2, pop_size], fixed parameter, sensitive exploitation parameter, Default: 50
 
     Examples
@@ -93,7 +93,7 @@ class BaseHC(OriginalHC):
         + Imagination: exploration when far from global best, and exploitation when near global best
     + Who on top of mountain first will be the winner. (global optimal)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + neighbour_size (int): [pop_size/2, pop_size], fixed parameter, sensitive exploitation parameter, Default: 50
 
     Examples

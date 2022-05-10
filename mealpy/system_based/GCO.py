@@ -17,7 +17,7 @@ class BaseGCO(Optimizer):
     ~~~~~
     + The global best solution and 2 random solutions are used instead of randomizing 3 solutions
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
         + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
 
@@ -110,7 +110,7 @@ class OriginalGCO(BaseGCO):
         1. https://doi.org/10.2991/ijcis.2018.25905179
         2. https://www.atlantis-press.com/journals/ijcis/25905179/view
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
         + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
 

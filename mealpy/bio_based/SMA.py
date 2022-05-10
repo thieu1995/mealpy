@@ -19,7 +19,7 @@ class BaseSMA(Optimizer):
     + Check bound and update fitness after each individual move instead of after the whole population move in the original version
     + This version not only faster but also better than the original version
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
 
     Examples
@@ -132,7 +132,7 @@ class OriginalSMA(BaseSMA):
         1. https://doi.org/10.1016/j.future.2020.03.055
         2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
 
     Examples

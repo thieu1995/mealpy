@@ -16,7 +16,7 @@ class BaseSSpiderO(Optimizer):
     Links:
         1. https://www.hindawi.com/journals/mpe/2018/6843923/
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + fp (list, tuple): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
 
     Examples

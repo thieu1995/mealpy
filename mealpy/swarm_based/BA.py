@@ -17,7 +17,7 @@ class OriginalBA(Optimizer):
     ~~~~~
     + The value of A and r parameters are constant
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + loudness (float): (1.0, 2.0), loudness, default = 0.8
         + pulse_rate (float): (0.15, 0.85), pulse rate / emission rate, default = 0.95
         + pulse_frequency (list, tuple): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
@@ -127,7 +127,7 @@ class BaseBA(Optimizer):
     ~~~~~
     + The value of A and r are changing after each iteration
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + loudness (tuple, list): (A_min, A_max) -> ([0.5, 1.5], [1.0, 3.0]): loudness, default = (1.0, 2.0)
         + pulse_rate (tuple, list): (r_min, r_max) -> ([0.1, 0.5], [0.5, 0.95]), pulse rate / emission rate, default = (0.15, 0.85)
         + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
@@ -252,7 +252,7 @@ class ModifiedBA(Optimizer):
         + 2nd: If new position has better fitness we replace the old position
         + 3rd: Otherwise, we proceed exploitation phase (using finding around the best position so far)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pulse_rate (float): [0.7, 1.0], pulse rate / emission rate, default = 0.95
         + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
 

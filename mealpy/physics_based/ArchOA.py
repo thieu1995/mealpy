@@ -16,7 +16,7 @@ class OriginalArchOA(Optimizer):
     Links:
         1. https://doi.org/10.1007/s10489-020-01893-z
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + c1 (int): factor, default belongs to [1, 2]
         + c2 (int): factor, Default belongs to [2, 4, 6]
         + c3 (int): factor, Default belongs to [1, 2]

@@ -16,7 +16,7 @@ class OriginalAOA(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.cma.2020.113609
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + alpha (int): [3, 8], fixed parameter, sensitive exploitation parameter, Default: 5,
         + miu (float): [0.3, 1.0], fixed parameter , control parameter to adjust the search process, Default: 0.5,
         + moa_min (float): [0.1, 0.4], range min of Math Optimizer Accelerated, Default: 0.2,

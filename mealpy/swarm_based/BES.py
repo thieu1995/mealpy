@@ -15,7 +15,7 @@ class BaseBES(Optimizer):
     Links:
         1. https://doi.org/10.1007/s10462-019-09732-5
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + a_factor (int): default: 10, determining the corner between point search in the central point, in [5, 10]
         + R_factor (float): default: 1.5, determining the number of search cycles, in [0.5, 2]
         + alpha (float): default: 2, parameter for controlling the changes in position, in [1.5, 2]

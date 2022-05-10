@@ -15,7 +15,7 @@ class BaseES(Optimizer):
     Links:
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
 
     Examples
@@ -113,7 +113,7 @@ class LevyES(BaseES):
     ~~~~~
     I implement Levy-flight and change the flow of original version.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
 
     Examples

@@ -16,7 +16,7 @@ class BaseICA(Optimizer):
     Links:
         1. https://ieeexplore.ieee.org/document/4425083
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + empire_count (int): [3, 10], Number of Empires (also Imperialists)
         + assimilation_coeff (float): [1.0, 3.0], Assimilation Coefficient (beta in the paper)
         + revolution_prob (float): [0.01, 0.1], Revolution Probability

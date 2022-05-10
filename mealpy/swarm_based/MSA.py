@@ -23,7 +23,7 @@ class BaseMSA(Optimizer):
     + The matlab version of original paper is not good (especially convergence chart)
     + I add Normal random number (Gaussian distribution) in each updating equation (Better performance)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5
         + partition (float): [0.3, 0.8], The proportional of first partition, default=0.5
         + max_step_size (float): [0.5, 2.0], Max step size used in Levy-flight technique, default=1.0

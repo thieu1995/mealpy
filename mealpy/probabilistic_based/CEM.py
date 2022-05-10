@@ -16,7 +16,7 @@ class BaseCEM(Optimizer):
         1. https://github.com/clever-algorithms/CleverAlgorithms
         2. https://doi.org/10.1007/s10479-005-5724-z
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + n_best (int): N selected solutions as a samples for next evolution
         + alpha (float): weight factor for means and stdevs (normal distribution)
 

@@ -22,7 +22,7 @@ class OriginalBFO(Optimizer):
     + The Nc parameter will also decreased to reduce the computation time.
     + Cost in this version equal to Fitness value in the paper.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + Ci (float): [0.01, 0.3], step size, default=0.01
         + Ped (float): [0.1, 0.5], probability of elimination, default=0.25
         + Ned (int): elim_disp_steps (Removed), Ned=5,
@@ -187,7 +187,7 @@ class ABFO(Optimizer):
     + This is the best improvement version of BFO
     + The population will remain the same length as initialization due to add and remove operators
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + Ci (list): C_s (start), C_e (end)  -=> step size # step size in BFO, default=(0.1, 0.001)
         + Ped (float): Probability eliminate, default=0.01
         + Ns (int): swim_length, default=4

@@ -17,7 +17,7 @@ class BaseBSA(Optimizer):
         1. http://doi.org/10.1080/0952813X.2015.1042530
         2. https://www.mathworks.com/matlabcentral/fileexchange/51256-bird-swarm-algorithm-bsa
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + ff (int): (5, 20), flight frequency - default = 10
         + pff (float): the probability of foraging for food - default = 0.8
         + c_couples (list, tuple): [c1, c2] -> (2.0, 2.0), Cognitive accelerated coefficient, Social accelerated coefficient same as PSO

@@ -17,7 +17,7 @@ class BaseBeesA(Optimizer):
         1. https://www.sciencedirect.com/science/article/pii/B978008045157250081X
         2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + site_ratio (list, tuple): (selected_site_ratio, elite_site_ratio), default = (0.5, 0.4)
         + site_bee_ratio (list, tuple): (selected_site_bee_ratio, elite_site_bee_ratio), default = (0.1, 2)
         + dance_factor (list, tuple): (radius, reduction), default = (0.1, 0.99)
@@ -141,7 +141,7 @@ class ProbBeesA(Optimizer):
     ~~~~~
     + This is probabilistic version of Bees Algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
         + dance_factor (tuple, list): (radius, reduction) - Bees Dance Radius, default=(0.1, 0.99)
 

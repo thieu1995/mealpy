@@ -16,7 +16,7 @@ class OriginalLCO(Optimizer):
     Links:
         1. https://doi.org/10.1007/s00500-019-04443-z
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + r1 (float): [1.5, 4], coefficient factor, default = 2.35
 
     Examples
@@ -101,7 +101,7 @@ class BaseLCO(OriginalLCO):
     ~~~~~
     I only change the flow with simpler if else statement than the original
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergen toward the global optimum:
+    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + r1 (float): [1.5, 4], coefficient factor, default = 2.35
 
     Examples
