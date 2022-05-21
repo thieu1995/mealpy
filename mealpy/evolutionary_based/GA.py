@@ -261,8 +261,8 @@ class BaseGA(Optimizer):
             child1 = self.mutation_process(child1)
             child2 = self.mutation_process(child2)
 
-            pop_new.append([child1, None])
-            pop_new.append([child2, None])
+            pop_new.append([self.amend_position(child1), None])
+            pop_new.append([self.amend_position(child2), None])
 
         ### Survivor Selection
         pop_new = self.update_target_wrapper_population(pop_new)
