@@ -79,7 +79,7 @@ class Optimizer:
             self.termination = Termination(termination=kwargs["termination"], log_to=self.problem.log_to, log_file=self.problem.log_file)
             self.termination_flag = True
         self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
+        self.sort_flag, self.count_terminate = False, None
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -222,8 +222,8 @@ class Optimizer:
         if self.problem.save_population:
             self.history.list_population.append(pop)
         self.history.list_epoch_time.append(runtime)
-        self.history.list_global_best_fit.append(self.history.list_global_best[self.ID_TAR][self.ID_FIT])
-        self.history.list_current_best_fit.append(self.history.list_current_best[self.ID_TAR][self.ID_FIT])
+        self.history.list_global_best_fit.append(self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT])
+        self.history.list_current_best_fit.append(self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT])
         # Save the exploration and exploitation data for later usage
         pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
         div = np.mean(np.abs(np.median(pos_matrix, axis=0) - pos_matrix), axis=0)
