@@ -22,7 +22,7 @@ class BaseEOA(Optimizer):
     The original version from matlab code above will not working well, even with small dimensions.
     I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_c: [0.5, 0.95], crossover probability
         + p_m: [0.01, 0.2], initial mutation probability
         + n_best: [2, 5], how many of the best earthworm to keep from one generation to the next
@@ -121,22 +121,34 @@ class BaseEOA(Optimizer):
             x_t1 = self.dyn_beta * x_t1 + (1.0 - self.dyn_beta) * x_child
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-        pop = self.update_target_wrapper_population(pop)
-        pop = self.greedy_selection_population(self.pop, pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop = self.update_target_wrapper_population(pop)
+            pop = self.greedy_selection_population(self.pop, pop)
         nfe_epoch += self.pop_size
         self.dyn_beta = self.gamma * self.beta
+        pop = self.get_sorted_strim_population(pop, self.pop_size)
 
         pos_list = np.array([item[self.ID_POS] for item in pop])
         x_mean = np.mean(pos_list, axis=0)
         ## Cauchy mutation (CM)
         cauchy_w = deepcopy(self.g_best[self.ID_POS])
+        pop_new = []
         for i in range(self.n_best, self.pop_size):  # Don't allow the elites to be mutated
-            cauchy_w = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, x_mean, cauchy_w)
+            condition = np.random.uniform(0, 1, self.problem.n_dims) < self.p_m
+            cauchy_w = np.where(condition, x_mean, cauchy_w)
             x_t1 = (cauchy_w + self.g_best[self.ID_POS]) / 2
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
-            pop[i][self.ID_POS] = pos_new
-            nfe_epoch += 1
-        pop = self.update_target_wrapper_population(pop)
+            pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop = self.greedy_selection_population(pop_new, pop[self.n_best:])
+        nfe_epoch += self.pop_size - self.n_best
 
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
         pop, local_best = self.get_global_best_solution(pop)
@@ -145,11 +157,11 @@ class BaseEOA(Optimizer):
 
         ## Make sure the population does not have duplicates.
         new_set = set()
-        for idx, obj in enumerate(pop):
-            if tuple(obj[self.ID_POS].tolist()) in new_set:
+        for idx, agent in enumerate(pop):
+            if tuple(agent[self.ID_POS].tolist()) in new_set:
                 pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
                 nfe_epoch += 1
             else:
-                new_set.add(tuple(obj[self.ID_POS].tolist()))
+                new_set.add(tuple(agent[self.ID_POS].tolist()))
         self.nfe_per_epoch = nfe_epoch
         self.pop = pop
