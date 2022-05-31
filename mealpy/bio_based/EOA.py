@@ -147,7 +147,8 @@ class BaseEOA(Optimizer):
                 pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop = self.greedy_selection_population(pop_new, pop[self.n_best:])
+            pop_new = self.greedy_selection_population(pop_new, pop[self.n_best:])
+        pop = pop[:self.n_best] + pop_new
         nfe_epoch += self.pop_size - self.n_best
 
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
