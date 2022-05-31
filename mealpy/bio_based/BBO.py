@@ -16,7 +16,7 @@ class OriginalBBO(Optimizer):
     Links:
         1. https://ieeexplore.ieee.org/abstract/document/4475427
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability
         + elites: [2, 5], Number of elites will be keep for next generation
 
@@ -98,7 +98,9 @@ class OriginalBBO(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, noise, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
-
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
         pop = self.update_target_wrapper_population(pop)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)
@@ -108,7 +110,7 @@ class BaseBBO(OriginalBBO):
     """
     My changed version of: Biogeography-Based Optimization (BBO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability
         + elites: [2, 5], Number of elites will be keep for next generation
 
@@ -164,12 +166,16 @@ class BaseBBO(OriginalBBO):
             # Pick a position from which to emigrate (roulette wheel selection)
             idx_selected = self.get_index_roulette_wheel_selection(list_fitness)
             # this is the migration step
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.mr[idx], self.pop[idx_selected][self.ID_POS], self.pop[idx][self.ID_POS])
+            condition = np.random.uniform(0, 1, self.problem.n_dims) < self.mr[idx]
+            pos_new = np.where(condition, self.pop[idx_selected][self.ID_POS], self.pop[idx][self.ID_POS])
             # Mutation
-            temp = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
+            mutated = np.random.uniform(self.problem.lb, self.problem.ub)
+            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, mutated, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
         pop = self.update_target_wrapper_population(pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations
         self.pop = self.get_sorted_strim_population(pop + pop_elites, self.pop_size)
