@@ -80,6 +80,7 @@ class Optimizer:
             self.termination_flag = True
         self.nfe_per_epoch = self.pop_size
         self.sort_flag, self.count_terminate = False, None
+        self.AVAILABLE_MODES = ["process", "thread", "swarm"]
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -292,7 +293,7 @@ class Optimizer:
                 list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
-        else:
+        elif self.mode == "swarm":
             for idx, pos in enumerate(pos_list):
                 pop[idx][self.ID_TAR] = self.get_target_wrapper(pos)
         return pop
