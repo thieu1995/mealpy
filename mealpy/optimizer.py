@@ -561,6 +561,7 @@ class Optimizer:
         Args:
             pop (list): The population
             pop_size (int): The number of population
+            reverse (bool): False (ascending fitness order), and True (descending fitness order)
 
         Returns:
             The sorted population with pop_size size
