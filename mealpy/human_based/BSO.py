@@ -18,7 +18,7 @@ class ImprovedBSO(Optimizer):
     + Remove some probability parameters, and some useless equations.
     + Add Levy-flight technique for more robust
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + m_clusters (int): [3, 10], number of clusters (m in the paper)
         + p1 (float): 25% percent
         + p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
@@ -119,30 +119,35 @@ class ImprovedBSO(Optimizer):
 
             if np.random.uniform() < self.p2:  # p_6b
                 if np.random.uniform() < self.p3:
-                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.uniform()
+                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:  # 2. Using levy flight here
-                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
-                    pos_new = self.pop_group[cluster_id][location_id][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * levy_step
+                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, size=self.problem.n_dims, case=-1)
+                    pos_new = self.pop_group[cluster_id][location_id][self.ID_POS] + levy_step
             else:
                 id1, id2 = np.random.choice(range(0, self.m_clusters), 2, replace=False)
                 if np.random.uniform() < self.p4:
-                    pos_new = 0.5 * (self.centers[id1][self.ID_POS] + self.centers[id2][self.ID_POS]) + epxilon * np.random.uniform()
+                    pos_new = 0.5 * (self.centers[id1][self.ID_POS] + self.centers[id2][self.ID_POS]) + \
+                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_id1 = np.random.randint(0, self.m_solution)
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
-                              epxilon * np.random.uniform()
+                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
-        pop_group = [self.update_target_wrapper_population(group) for group in pop_group]
-        for idx in range(0, self.m_clusters):
-            self.pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_group[cluster_id][location_id] = self.get_better_solution([pos_new, target], self.pop_group[cluster_id][location_id])
+        if self.mode in self.AVAILABLE_MODES:
+            for idx in range(0, self.m_clusters):
+                pop_group[idx] = self.update_target_wrapper_population(pop_group[idx])
+                pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 
         # Needed to update the centers and population
-        self.centers = self._find_cluster(self.pop_group)
+        self.centers = self._find_cluster(pop_group)
         self.pop = []
         for idx in range(0, self.m_clusters):
-            self.pop += self.pop_group[idx]
+            self.pop += pop_group[idx]
 
 
 class BaseBSO(ImprovedBSO):
@@ -152,7 +157,7 @@ class BaseBSO(ImprovedBSO):
     Links:
         1. https://doi.org/10.1007/978-3-642-21515-5_36
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + m_clusters (int): [3, 10], number of clusters (m in the paper)
         + p1 (float): [0.1, 0.5], probability
         + p2 (float): [0.5, 0.95], probability
@@ -220,7 +225,9 @@ class BaseBSO(ImprovedBSO):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        rand_pos = np.random.uniform(lb, ub)
+        condition = np.logical_and(lb <= position, position <= ub)
+        return np.where(condition, position, rand_pos)
 
     def evolve(self, epoch):
         """
@@ -246,28 +253,32 @@ class BaseBSO(ImprovedBSO):
                 if np.random.uniform() < self.p3:  # p_6i
                     cluster_id = np.random.randint(0, self.m_clusters)
                 if np.random.uniform() < self.p3:
-                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.normal(0, 1)
+                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_idx = np.random.randint(0, self.m_solution)
-                    pos_new = self.pop_group[cluster_id][rand_idx][self.ID_POS] + np.random.uniform()
+                    pos_new = self.pop_group[cluster_id][rand_idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims)
             else:
                 id1, id2 = np.random.choice(range(0, self.m_clusters), 2, replace=False)
                 if np.random.uniform() < self.p4:
                     pos_new = 0.5 * (self.centers[id1][self.ID_POS] + self.centers[id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1)
+                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_id1 = np.random.randint(0, self.m_solution)
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1)
+                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
-        pop_group = [self.update_target_wrapper_population(group) for group in pop_group]
-        for idx in range(0, self.m_clusters):
-            self.pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_group[cluster_id][location_id] = self.get_better_solution([pos_new, target], self.pop_group[cluster_id][location_id])
+        if self.mode in self.AVAILABLE_MODES:
+            for idx in range(0, self.m_clusters):
+                pop_group[idx] = self.update_target_wrapper_population(pop_group[idx])
+                pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 
         # Needed to update the centers and population
-        self.centers = self._find_cluster(self.pop_group)
+        self.centers = self._find_cluster(pop_group)
         self.pop = []
         for idx in range(0, self.m_clusters):
-            self.pop += self.pop_group[idx]
+            self.pop += pop_group[idx]
