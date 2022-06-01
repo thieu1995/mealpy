@@ -18,7 +18,7 @@ class BaseBRO(Optimizer):
     ~~~~~
     I change the flow of algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + threshold (int): [2, 5], dead threshold, default=3
 
     Examples
@@ -113,7 +113,7 @@ class BaseBRO(Optimizer):
             j = self.find_idx_min_distance(self.pop[i][self.ID_POS], self.pop)
             if self.compare_agent(self.pop[i], self.pop[j]):
                 ## Update Winner based on global best solution
-                pos_new = self.pop[i][self.ID_POS] + np.random.uniform() * \
+                pos_new = self.pop[i][self.ID_POS] + np.random.normal(0, 1) * \
                           np.mean(np.array([self.pop[i][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
@@ -162,7 +162,7 @@ class OriginalBRO(BaseBRO):
     Links:
         1. https://doi.org/10.1007/s00521-020-05004-4
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + threshold (int): [2, 5], dead threshold, default=3
 
     Examples
@@ -233,6 +233,7 @@ class OriginalBRO(BaseBRO):
             pos_std = np.std(pos_list, axis=0)
             lb = self.g_best[self.ID_POS] - pos_std
             ub = self.g_best[self.ID_POS] + pos_std
+
             self.problem.lb_updated = np.clip(lb, self.problem.lb_updated, self.problem.ub_updated)
             self.problem.ub_updated = np.clip(ub, self.problem.lb_updated, self.problem.ub_updated)
             self.dyn_delta += round(self.dyn_delta / 2)
