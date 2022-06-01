@@ -19,6 +19,7 @@ class BaseGSKA(Optimizer):
     + Solution represent junior or senior instead of dimension of solution
     + Change some equations for large-scale optimization
     + Apply the ideas of levy-flight and global best
+    + Keep the better one after updating process
 
     Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.1, 0.5], percent of the best (p in the paper), default = 0.1
@@ -115,7 +116,13 @@ class BaseGSKA(Optimizer):
                     pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop_new, self.pop)
+        self.pop = pop_new
 
 
 class OriginalGSKA(Optimizer):
@@ -236,4 +243,7 @@ class OriginalGSKA(Optimizer):
                                           self.pop[idx][self.ID_POS][j] - self.pop[rand_mid][self.ID_POS][j])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
+        self.pop = pop_new
