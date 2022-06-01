@@ -20,7 +20,7 @@ class BaseVCS(Optimizer):
     ~~~~~
     + In Immune response process, updates the whole position instead of updating each variable in position
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 2.0], Weight factor
 
@@ -48,14 +48,14 @@ class BaseVCS(Optimizer):
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=1.5, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Percentage of the number of the best will keep, default = 0.5
-            xichma (float): Weight factor, default = 0.3
+            xichma (float): Weight factor, default = 1.5
         """
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
@@ -99,7 +99,10 @@ class BaseVCS(Optimizer):
             gauss = np.random.normal(np.random.normal(self.g_best[self.ID_POS], np.abs(xichma)))
             pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * self.pop[i][self.ID_POS]
             self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        self.pop = self.update_target_wrapper_population(self.pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[i][self.ID_TAR] = self.get_target_wrapper(self.pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_wrapper_population(self.pop)
 
         ## Host cells infection
         x_mean = self._calculate_xmean(self.pop)
@@ -108,7 +111,10 @@ class BaseVCS(Optimizer):
             ## Basic / simple version, not the original version in the paper
             pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
             self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        self.pop = self.update_target_wrapper_population(self.pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[i][self.ID_TAR] = self.get_target_wrapper(self.pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_wrapper_population(self.pop)
 
         ## Calculate the weighted mean of the λ best individuals by
         self.pop, g_best = self.get_global_best_solution(self.pop)
@@ -118,9 +124,13 @@ class BaseVCS(Optimizer):
             pr = (self.problem.n_dims - i + 1) / self.problem.n_dims
             id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
             temp = self.pop[id1][self.ID_POS] - (self.pop[id2][self.ID_POS] - self.pop[i][self.ID_POS]) * np.random.uniform()
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < pr, self.pop[i][self.ID_POS], temp)
+            condition = np.random.uniform(0, 1, self.problem.n_dims) < pr
+            pos_new = np.where(condition, self.pop[i][self.ID_POS], temp)
             self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        self.pop = self.update_target_wrapper_population(self.pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[i][self.ID_TAR] = self.get_target_wrapper(self.pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_wrapper_population(self.pop)
 
 
 class OriginalVCS(BaseVCS):
@@ -134,7 +144,7 @@ class OriginalVCS(BaseVCS):
     ~~~~~
     This is basic version, not the full version of the paper
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
         + xichma (float): [0.1, 0.5], Weight factor
 
@@ -167,14 +177,14 @@ class OriginalVCS(BaseVCS):
     for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=0.3, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=1.5, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5
-            xichma (float): Weight factor, default = 0.3
+            xichma (float): Weight factor, default = 1.5
         """
         super().__init__(problem, epoch, pop_size, lamda, xichma, **kwargs)
 
@@ -188,7 +198,9 @@ class OriginalVCS(BaseVCS):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        condition = np.logical_and(lb <= position, position <= ub)
+        random_pos = np.random.uniform(lb, ub)
+        return np.where(condition, position, random_pos)
 
     def evolve(self, epoch):
         """
@@ -204,7 +216,10 @@ class OriginalVCS(BaseVCS):
             gauss = np.array([np.random.normal(self.g_best[self.ID_POS][idx], np.abs(xichma[idx])) for idx in range(0, self.problem.n_dims)])
             pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * pop[i][self.ID_POS]
             pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop = self.update_target_wrapper_population(pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop[i][self.ID_TAR] = self.get_target_wrapper(pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            pop = self.update_target_wrapper_population(pop)
 
         ## Host cells infection
         x_mean = self._calculate_xmean(pop)
@@ -213,7 +228,10 @@ class OriginalVCS(BaseVCS):
             ## Basic / simple version, not the original version in the paper
             pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
             pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop = self.update_target_wrapper_population(pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop[i][self.ID_TAR] = self.get_target_wrapper(pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            pop = self.update_target_wrapper_population(pop)
 
         ## Immune response
         for i in range(0, self.pop_size):
@@ -224,9 +242,11 @@ class OriginalVCS(BaseVCS):
                     id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                     pos_new[j] = pop[id1][self.ID_POS][j] - (pop[id2][self.ID_POS][j] - pop[i][self.ID_POS][j]) * np.random.uniform()
             pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop = self.update_target_wrapper_population(pop)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop[i][self.ID_TAR] = self.get_target_wrapper(pop[i][self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            pop = self.update_target_wrapper_population(pop)
 
         ## Greedy selection
         for idx in range(0, self.pop_size):
-            if self.compare_agent(pop[idx], self.pop[idx]):
-                self.pop[idx] = deepcopy(pop[idx])
+            self.pop[idx] = self.get_better_solution(pop[idx], self.pop[idx])
