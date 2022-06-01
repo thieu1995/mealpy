@@ -140,14 +140,19 @@ class BaseMA(Optimizer):
 
     def _bits_climber(self, child=None):
         current = deepcopy(child)
+        list_local = []
         for idx in range(0, self.max_local_gens):
             child = deepcopy(current)
             bitstring_new = self._point_mutation(child[self.ID_BIT])
             pos_new = self._decode(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            target = self.get_target_wrapper(pos_new)
-            current = self.get_better_solution(child, [pos_new, target, bitstring_new])
-        return current
+            list_local.append([pos_new, None, bitstring_new])
+            if self.mode not in self.AVAILABLE_MODES:
+                list_local[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        list_local = self.update_target_wrapper_population(list_local)
+        list_local.append(child)
+        _, best = self.get_global_best_solution(list_local)
+        return best
 
     def create_child(self, idx, pop_copy):
         ancient = pop_copy[idx + 1] if idx % 2 == 0 else pop_copy[idx - 1]
@@ -183,6 +188,8 @@ class BaseMA(Optimizer):
             pos_new = self._decode(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None, bitstring_new])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         self.pop = self.update_target_wrapper_population(pop)
 
         # Searching in local
