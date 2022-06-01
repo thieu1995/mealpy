@@ -21,7 +21,7 @@ class BaseGSKA(Optimizer):
     + Apply the ideas of levy-flight and global best
     + Keep the better one after updating process
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.1, 0.5], percent of the best (p in the paper), default = 0.1
         + kr (float): [0.5, 0.9], knowledge ratio, default = 0.7
 
@@ -132,7 +132,7 @@ class OriginalGSKA(Optimizer):
     Links:
         1. https://doi.org/10.1007/s13042-019-01053-x
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.1, 0.5], percent of the best (p in the paper), default = 0.1
         + kf (float): [0.3, 0.8], knowledge factor that controls the total amount of gained and shared knowledge added from others to the current individual during generations, default = 0.5
         + kr (float): [0.5, 0.95], knowledge ratio, default = 0.9
