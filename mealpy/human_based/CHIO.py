@@ -16,7 +16,7 @@ class OriginalCHIO(Optimizer):
     Links:
         1. https://link.springer.com/article/10.1007/s00521-020-05296-6
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
         + max_age (int): [5, 20], Maximum infected cases age, default=10
 
@@ -112,10 +112,12 @@ class OriginalCHIO(Optimizer):
                 break
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
         if len(pop_new) != self.pop_size:
             pop_child = self.create_population(self.pop_size - len(pop_new))
             pop_new = pop_new + pop_child
-        pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
             # Step 4: Update herd immunity population
@@ -144,7 +146,7 @@ class BaseCHIO(OriginalCHIO):
     """
     My changed version of: Coronavirus Herd Immunity Optimization (CHIO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
         + max_age (int): [5, 20], Maximum infected cases age, default=10
 
@@ -225,6 +227,8 @@ class BaseCHIO(OriginalCHIO):
                 break
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
