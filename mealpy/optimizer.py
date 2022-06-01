@@ -465,7 +465,7 @@ class Optimizer:
             return [parent[0] for parent in list_parents[-output:]]
         return [parent[0] for parent in list_parents[:output]]
 
-    def get_levy_flight_step(self, beta=1.0, multiplier=0.001, case=0):
+    def get_levy_flight_step(self, beta=1.0, multiplier=0.001, size=None, case=0):
         """
         Get the Levy-flight step size
 
@@ -476,6 +476,7 @@ class Optimizer:
                 * 1-2: large range --> explore
 
             multiplier (float): default = 0.001
+            size (tuple, list): size of levy-flight steps, for example: (3, 2), 5, (4, )
             case (int): Should be one of these value [0, 1, -1].
 
                 * 0: return multiplier * s * np.random.uniform()
@@ -490,16 +491,17 @@ class Optimizer:
         sigma_u = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
         # sigma_v : standard deviation of v
         sigma_v = 1
-        u = np.random.normal(0, sigma_u ** 2)
-        v = np.random.normal(0, sigma_v ** 2)
-        s = u / np.power(abs(v), 1 / beta)
+        size = 1 if size is None else size
+        u = np.random.normal(0, sigma_u ** 2, size)
+        v = np.random.normal(0, sigma_v ** 2, size)
+        s = u / np.power(np.abs(v), 1 / beta)
         if case == 0:
             step = multiplier * s * np.random.uniform()
         elif case == 1:
             step = multiplier * s * np.random.normal(0, 1)
         else:
             step = multiplier * s
-        return step
+        return step[0] if size == 1 else step
 
     def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
         """
