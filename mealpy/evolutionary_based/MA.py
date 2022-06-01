@@ -21,7 +21,7 @@ class BaseMA(Optimizer):
         + pc (float): [0.7, 0.95], cross-over probability, default = 0.85
         + pm (float): [0.05, 0.3], mutation probability, default = 0.15
         + p_local (float): [0.3, 0.7], Probability of local search for each agent, default=0.5
-        + max_local_gens (int): [5, 25], number of local search agent will be created during local search mechanism, default=20
+        + max_local_gens (int): [5, 25], number of local search agent will be created during local search mechanism, default=10
         + bits_per_param (int): [2, 4, 8, 16], number of bits to decode a real number to 0-1 bitstring, default=4
 
     Examples
@@ -44,7 +44,7 @@ class BaseMA(Optimizer):
     >>> pc = 0.85
     >>> pm = 0.15
     >>> p_local = 0.5
-    >>> max_local_gens = 20
+    >>> max_local_gens = 10
     >>> bits_per_param = 4
     >>> model = BaseMA(problem_dict1, epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
     >>> best_position, best_fitness = model.solve()
@@ -59,7 +59,7 @@ class BaseMA(Optimizer):
     ID_BIT = 2
 
     def __init__(self, problem, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
-                 p_local=0.5, max_local_gens=20, bits_per_param=4, **kwargs):
+                 p_local=0.5, max_local_gens=10, bits_per_param=4, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
@@ -68,7 +68,7 @@ class BaseMA(Optimizer):
             pc (float): cross-over probability, default = 0.85
             pm (float): mutation probability, default = 0.15
             p_local (float): Probability of local search for each agent, default=0.5
-            max_local_gens (int): Number of local search agent will be created during local search mechanism, default=20
+            max_local_gens (int): Number of local search agent will be created during local search mechanism, default=10
             bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=4
         """
         super().__init__(problem, kwargs)
