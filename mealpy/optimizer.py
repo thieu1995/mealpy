@@ -61,7 +61,7 @@ class Optimizer:
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
-        self.mode, self._print_model = "sequential", ""
+        self.mode, self._print_model = None, ""
         self.pop, self.g_best = None, None
         if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
