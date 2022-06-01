@@ -76,8 +76,12 @@ class BaseFBIO(Optimizer):
                 (self.pop[idx][self.ID_POS][n_change] - (self.pop[nb1][self.ID_POS][n_change] + self.pop[nb2][self.ID_POS][n_change]) / 2)
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_a)
+                pop_new[-1] = self.get_better_solution([pos_a, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
         list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
         prob = self.probability(list_fitness)
 
@@ -94,8 +98,12 @@ class BaseFBIO(Optimizer):
                 pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        pop_child = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_new)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
 
         ## Persuing team - team B
         ## Step B1
@@ -107,8 +115,12 @@ class BaseFBIO(Optimizer):
                     np.random.uniform(0, 1, self.problem.n_dims) * (self.g_best[self.ID_POS] - pop_child[idx][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(pop_child, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_b)
+                pop_new[-1] = self.get_better_solution([pos_b, target], pop_child[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop_child, pop_new)
 
         ## Step B2
         pop_child = []
@@ -124,8 +136,13 @@ class BaseFBIO(Optimizer):
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[idx][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_b)
+                pop_child[-1] = self.get_better_solution([pos_b, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class OriginalFBIO(BaseFBIO):
@@ -186,7 +203,9 @@ class OriginalFBIO(BaseFBIO):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        rand_pos = np.random.uniform(lb, ub)
+        condition = np.logical_and(lb <= position, position <= ub)
+        return np.where(condition, position, rand_pos)
 
     def evolve(self, epoch):
         """
@@ -208,8 +227,12 @@ class OriginalFBIO(BaseFBIO):
             ## Not good move here, change only 1 variable but check bound of all variable in solution
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_new.append([pos_a, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_a)
+                pop_new[-1] = self.get_better_solution([pos_a, target], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         # Step A2
         list_fitness = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
@@ -232,8 +255,12 @@ class OriginalFBIO(BaseFBIO):
                 pos_a = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_a = self.amend_position(pos_a, self.problem.lb, self.problem.ub)
             pop_child.append([pos_a, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        pop_child = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_a)
+                pop_child[-1] = self.get_better_solution([pos_a, target], pop_new[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_new)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
 
         ## Persuing team - team B
         ## Step B1
@@ -246,8 +273,12 @@ class OriginalFBIO(BaseFBIO):
                            np.random.uniform() * (self.g_best[self.ID_POS][j] - pop_child[i][self.ID_POS][j])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_new.append([pos_b, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(pop_child, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_b)
+                pop_new[-1] = self.get_better_solution([pos_b, target], pop_child[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop_child, pop_new)
 
         ## Step B2
         pop_child = []
@@ -266,5 +297,10 @@ class OriginalFBIO(BaseFBIO):
                         np.random.uniform() * (self.g_best[self.ID_POS] - pop_new[i][self.ID_POS])
             pos_b = self.amend_position(pos_b, self.problem.lb, self.problem.ub)
             pop_child.append([pos_b, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_b)
+                pop_child[-1] = self.get_better_solution([pos_b, target], pop_new[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
