@@ -17,7 +17,7 @@ class BaseEP(Optimizer):
         1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
         2. https://github.com/clever-algorithms/CleverAlgorithms
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
 
     Examples
@@ -102,6 +102,8 @@ class BaseEP(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
+            if self.mode not in self.AVAILABLE_MODES:
+                child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         child = self.update_target_wrapper_population(child)
 
         # Update the global best
@@ -127,7 +129,7 @@ class LevyEP(BaseEP):
     ~~~~~
     I try to apply Levy-flight to EP, change flow and add some equations.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
 
     Examples
@@ -184,6 +186,8 @@ class LevyEP(BaseEP):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
             child.append([pos_new, None, s_old, 0])
+            if self.mode not in self.AVAILABLE_MODES:
+                child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         child = self.update_target_wrapper_population(child)
 
         # Update the global best
@@ -200,17 +204,19 @@ class LevyEP(BaseEP):
 
         ## Keep the top population, but 50% of left population will make a comeback an take the good position
         pop = sorted(pop, key=lambda agent: agent[self.ID_WIN], reverse=True)
-        pop = deepcopy(pop[:self.pop_size])
+        pop_new = deepcopy(pop[:self.pop_size])
         pop_left = deepcopy(pop[self.pop_size:])
 
         ## Choice random 50% of population left
         pop_comeback = []
         idx_list = np.random.choice(range(0, len(pop_left)), int(0.5 * len(pop_left)), replace=False)
         for idx in idx_list:
-            levy = self.get_levy_flight_step(multiplier=0.001, case=-1)
-            pos_new = pop_left[idx][self.ID_POS] + 0.01 * levy
+            pos_new = pop_left[idx][self.ID_POS] + self.get_levy_flight_step(multiplier=0.01, size=self.problem.n_dims, case=-1)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             strategy = self.distance = 0.05 * (self.problem.ub - self.problem.lb)
             pop_comeback.append([pos_new, None, strategy, 0])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_comeback[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_comeback = self.update_target_wrapper_population(pop_comeback)
         self.nfe_per_epoch = self.pop_size + int(0.5 * len(pop_left))
-        self.pop = self.get_sorted_strim_population(pop + pop_comeback, self.pop_size)
+        self.pop = self.get_sorted_strim_population(pop_new + pop_comeback, self.pop_size)
