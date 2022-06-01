@@ -20,7 +20,7 @@ class OriginalIWO(Optimizer):
     Better to use normal distribution instead of uniform distribution, updating population by sorting
     both parent population and child population
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + seeds (list, tuple): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
         + exponent (int): [2, 4], Variance Reduction Exponent
         + sigmas (list, tuple): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation
@@ -55,7 +55,7 @@ class OriginalIWO(Optimizer):
     Ecological informatics, 1(4), pp.355-366.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, seeds=(2, 10), exponent=2, sigmas=(0.5, 0.001), **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, seeds=(2, 10), exponent=2, sigmas=(1.0, 0.01), **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
@@ -70,7 +70,7 @@ class OriginalIWO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(self.pop_size / 2)]))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
-        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ((0.5, 3.0), (0, 0.5)))
+        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ([0.5, 3.0], (0, 0.5)))
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -86,10 +86,11 @@ class OriginalIWO(Optimizer):
         sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigmas[0] - self.sigmas[1]) + self.sigmas[1]
         pop, best, worst = self.get_special_solutions(self.pop)
         pop_new = []
+        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             temp = best[0][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]
             if temp == 0:
-                ratio = 0.5
+                ratio = np.random.rand()
             else:
                 ratio = (pop[idx][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]) / temp
             s = int(np.ceil(self.seeds[0] + (self.seeds[1] - self.seeds[0]) * ratio))
@@ -98,9 +99,14 @@ class OriginalIWO(Optimizer):
             pop_local = []
             for j in range(s):
                 # Initialize Offspring and Generate Random Location
-                pos_new = pop[idx][self.ID_POS] + sigma * np.random.normal(self.problem.lb, self.problem.ub)
+                pos_new = pop[idx][self.ID_POS] + sigma * np.random.normal(0, 1, self.problem.n_dims)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_local.append([pos_new, None])
-            pop_local = self.update_target_wrapper_population(pop_local)
+                if self.mode not in self.AVAILABLE_MODES:
+                    pop_local[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+            if self.mode in self.AVAILABLE_MODES:
+                pop_local = self.update_target_wrapper_population(pop_local)
             pop_new += pop_local
+            nfe_epoch += s
         self.pop = self.get_sorted_strim_population(pop_new, self.pop_size)
+        self.nfe_per_epoch = nfe_epoch
