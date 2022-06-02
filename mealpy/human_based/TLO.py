@@ -78,8 +78,12 @@ class BaseTLO(Optimizer):
             temp = self.pop[idx][self.ID_POS] + DIFF_MEAN
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         pop_child = []
         for idx in range(0, self.pop_size):
@@ -92,8 +96,13 @@ class BaseTLO(Optimizer):
                 temp += np.random.rand(self.problem.n_dims) * (pop_new[id_partner][self.ID_POS] - pop_new[idx][self.ID_POS])
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_new)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class OriginalTLO(BaseTLO):
@@ -192,7 +201,7 @@ class ITLO(BaseTLO):
     + Removed the third loop to make it faster
     + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_teachers (int): [3, 10], number of teachers in class, default=5
 
     Examples
@@ -285,8 +294,13 @@ class ITLO(BaseTLO):
                     pos_new = (student[self.ID_POS] + diff_mean) + np.random.rand() * (student[self.ID_POS] - team[id2][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.teams[id_teach] = self.greedy_selection_population(team, pop_new)
+                if self.mode not in self.AVAILABLE_MODES:
+                    target = self.get_target_wrapper(pos_new)
+                    pop_new[-1] = self.get_better_solution([pos_new, target], student)
+            if self.mode in self.AVAILABLE_MODES:
+                pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new = self.greedy_selection_population(team, pop_new)
+            self.teams[id_teach] = pop_new
 
         for id_teach, teacher in enumerate(self.teachers):
             ef = round(1 + np.random.rand())
@@ -302,8 +316,13 @@ class ITLO(BaseTLO):
                               np.random.rand() * (teacher[self.ID_POS] - ef * student[self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.teams[id_teach] = self.greedy_selection_population(team, pop_new)
+                if self.mode not in self.AVAILABLE_MODES:
+                    target = self.get_target_wrapper(pos_new)
+                    pop_new[-1] = self.get_better_solution([pos_new, target], student)
+            if self.mode in self.AVAILABLE_MODES:
+                pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new = self.greedy_selection_population(team, pop_new)
+            self.teams[id_teach] = pop_new
 
         for id_teach, teacher in enumerate(self.teachers):
             team = self.teams[id_teach] + [teacher]
