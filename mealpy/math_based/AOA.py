@@ -16,7 +16,7 @@ class OriginalAOA(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.cma.2020.113609
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + alpha (int): [3, 8], fixed parameter, sensitive exploitation parameter, Default: 5,
         + miu (float): [0.3, 1.0], fixed parameter , control parameter to adjust the search process, Default: 0.5,
         + moa_min (float): [0.1, 0.4], range min of Math Optimizer Accelerated, Default: 0.2,
@@ -102,5 +102,10 @@ class OriginalAOA(Optimizer):
                         pos_new[j] = self.g_best[self.ID_POS][j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
