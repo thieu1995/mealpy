@@ -139,10 +139,13 @@ class BaseQSA(Optimizer):
                 X_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop = self.greedy_selection_population(pop, pop_new)
-        pop, _ = self.get_global_best_solution(pop)
-        return pop
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop, pop_new)
+        return self.get_sorted_strim_population(pop_new, self.pop_size)
 
     def _update_business_3(self, pop, g_best):
         pr = np.array([i / self.pop_size for i in range(1, self.pop_size + 1)])
@@ -154,8 +157,12 @@ class BaseQSA(Optimizer):
             X_new = np.where(np.random.random(self.problem.n_dims) > pr[i], temp, X_new)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop, pop_new)
         return pop_new
 
     def evolve(self, epoch):
@@ -218,8 +225,13 @@ class OppoQSA(BaseQSA):
             X_new = self.create_opposition_position(pop[i], g_best)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        return self.greedy_selection_population(pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop, pop_new)
+        return pop_new
 
     def evolve(self, epoch):
         """
@@ -304,10 +316,13 @@ class LevyQSA(BaseQSA):
                 pos_new = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(pop, pop_new)
-        pop_new, _ = self.get_global_best_solution(pop_new)
-        return pop_new
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop, pop_new)
+        return self.get_sorted_strim_population(pop_new, self.pop_size)
 
     def evolve(self, epoch):
         """
@@ -438,8 +453,13 @@ class OriginalQSA(BaseQSA):
                     pos_new[j] = X1[j] + e * (X2[j] - pop[i][self.ID_POS][j])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        return self.greedy_selection_population(pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop, pop_new)
+        return pop_new
 
     def evolve(self, epoch):
         """
