@@ -20,7 +20,7 @@ class BaseHS(Optimizer):
     - Used the global best in the harmony memories
     - Removed third for loop
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
         + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
 
@@ -89,6 +89,8 @@ class BaseHS(Optimizer):
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update Damp Fret Width
@@ -105,7 +107,7 @@ class OriginalHS(BaseHS):
     Links:
         1. https://doi.org/10.1177/003754970107600201
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
         + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
 
@@ -173,6 +175,8 @@ class OriginalHS(BaseHS):
                     pos_new[j] = pos_new[j] + delta[j]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update Damp Fret Width
