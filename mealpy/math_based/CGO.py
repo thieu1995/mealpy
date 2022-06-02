@@ -111,4 +111,8 @@ class OriginalCGO(Optimizer):
             ## Lots of grammar errors in this section, so confused to understand which strategy they are using
             _, best_seed = self.get_global_best_solution([sol1, sol2, sol3, sol4])
             pop_new.append(best_seed)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1] = self.get_better_solution(best_seed, self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
