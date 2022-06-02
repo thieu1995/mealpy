@@ -104,8 +104,15 @@ class BaseSSDO(Optimizer):
 
         ## Reproduction
         for idx in range(0, self.pop_size):
-            pos_new = np.random.uniform() * pop_new[idx][self.ID_POS] + pop_new[idx][self.ID_VEL]
+            pos_new = np.random.normal(0, 1, self.problem.n_dims) * pop_new[idx][self.ID_POS] + np.random.rand() * pop_new[idx][self.ID_VEL]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[idx][self.ID_LOC] = self.pop[idx][self.ID_POS]
             pop_new[idx][self.ID_POS] = pos_new
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                old = deepcopy(pop_new[idx])
+                old[self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[idx] = self.get_better_solution(pop_new[idx], old)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
