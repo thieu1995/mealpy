@@ -19,7 +19,7 @@ class BaseMVO(Optimizer):
     + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
     + Change equation 3.3 to match the name of parameter wep_minmax
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
         + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
 
@@ -90,8 +90,13 @@ class BaseMVO(Optimizer):
                 black_hole_pos = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(black_hole_pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
 
 
 class OriginalMVO(BaseMVO):
@@ -102,7 +107,7 @@ class OriginalMVO(BaseMVO):
         1. http://dx.doi.org/10.1007/s00521-015-1870-7
         2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
         + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
 
@@ -216,4 +221,7 @@ class OriginalMVO(BaseMVO):
                         black_hole_pos[j] = self.g_best[self.ID_POS][j] - tdr * np.random.uniform(self.problem.lb[j], self.problem.ub[j])
             pos_new = self.amend_position(black_hole_pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        pop_new = self.update_target_wrapper_population(pop_new)
+        self.pop = pop_new
