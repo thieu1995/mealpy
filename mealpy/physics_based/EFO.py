@@ -16,7 +16,7 @@ class BaseEFO(Optimizer):
     ~~~~~
     + Changed the flow of original algorithm and using global best solution in equation.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
         + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
         + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
@@ -82,28 +82,33 @@ class BaseEFO(Optimizer):
             r_idx1 = np.random.randint(0, int(self.pop_size * self.p_field))  # top
             r_idx2 = np.random.randint(int(self.pop_size * (1 - self.n_field)), self.pop_size)  # bottom
             r_idx3 = np.random.randint(int((self.pop_size * self.p_field) + 1), int(self.pop_size * (1 - self.n_field)))  # middle
-            if np.random.uniform() < self.ps_rate:
+            if np.random.rand() < self.ps_rate:
                 # new = g_best + phi* r1 * (top - middle) + r2 (top - bottom)
                 # pos_new = g_best[self.ID_POS] + \
                 #            phi * np.random.uniform() * (pop[r_idx1][self.ID_POS] - pop[r_idx3][self.ID_POS]) + \
                 #            np.random.uniform() * (pop[r_idx1][self.ID_POS] - pop[r_idx2][self.ID_POS])
                 # new = top + phi * r1 * (g_best - bottom) + r2 * (g_best - middle)
-                pos_new = self.pop[r_idx1][self.ID_POS] + self.phi * np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[r_idx3][self.ID_POS]) \
-                          + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[r_idx2][self.ID_POS])
+                pos_new = self.pop[r_idx1][self.ID_POS] + self.phi * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[r_idx3][self.ID_POS]) \
+                          + np.random.rand() * (self.g_best[self.ID_POS] - self.pop[r_idx2][self.ID_POS])
             else:
                 pos_new = self.generate_position(self.problem.lb, self.problem.ub)
 
             # replacement of one electromagnet of generated particle with a random number
             # (only for some generated particles) to bring diversity to the population
-            if np.random.uniform() < self.r_rate:
+            if np.random.rand() < self.r_rate:
                 RI = np.random.randint(0, self.problem.n_dims)
                 pos_new[np.random.randint(0, self.problem.n_dims)] = np.random.uniform(self.problem.lb[RI], self.problem.ub[RI])
 
             # checking whether the generated number is inside boundary or not
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
 
 
 class OriginalEFO(BaseEFO):
@@ -113,7 +118,7 @@ class OriginalEFO(BaseEFO):
     Links:
         2. https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
         + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
         + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
