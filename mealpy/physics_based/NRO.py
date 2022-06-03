@@ -73,7 +73,9 @@ class BaseNRO(Optimizer):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        rand_pos = np.random.uniform(lb, ub)
+        condition = np.logical_and(lb <= position, position <= ub)
+        return np.where(condition, position, rand_pos)
 
     def evolve(self, epoch):
         """
@@ -119,10 +121,14 @@ class BaseNRO(Optimizer):
                 Xi = np.array([np.random.normal(self.pop[i][self.ID_POS][j], xichma2[j]) for j in range(self.problem.n_dims)])
 
             ## Check the boundary and evaluate the fitness function
-            Xi = self.amend_position(Xi, self.problem.lb, self.problem.ub)
-            pop_new.append([Xi, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
+            pos_new = self.amend_position(Xi, self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         # NFu phase
 
@@ -158,10 +164,14 @@ class BaseNRO(Optimizer):
                                    (X_worst[self.ID_POS][j] - self.g_best[self.ID_POS][j])
 
             ## Check the boundary and evaluate the fitness function for X_ion
-            X_ion = self.amend_position(X_ion, self.problem.lb, self.problem.ub)
-            pop_child.append([X_ion, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        pop_child = self.greedy_selection_population(pop_new, pop_child)
+            pos_new = self.amend_position(X_ion, self.problem.lb, self.problem.ub)
+            pop_child.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
 
         ## Fusion Stage
 
@@ -192,7 +202,12 @@ class BaseNRO(Optimizer):
                     else:
                         X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) * epoch / self.epoch + 1) * \
                                (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
-            X_fu = self.amend_position(X_fu, self.problem.lb, self.problem.ub)
-            pop_new.append([X_fu, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(pop_child, pop_new)
+            pos_new = self.amend_position(X_fu, self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], pop_child[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_new
