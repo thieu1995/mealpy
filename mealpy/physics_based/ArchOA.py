@@ -16,7 +16,7 @@ class OriginalArchOA(Optimizer):
     Links:
         1. https://doi.org/10.1007/s10489-020-01893-z
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c1 (int): factor, default belongs to [1, 2]
         + c2 (int): factor, Default belongs to [2, 4, 6]
         + c3 (int): factor, Default belongs to [1, 2]
@@ -155,7 +155,13 @@ class OriginalArchOA(Optimizer):
                 t = self.c3 * tf
                 pos_new = self.g_best[self.ID_POS] + f * self.c2 * np.random.rand() * self.pop[idx][self.ID_ACC] * \
                           ddf * (t * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            solution[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            solution[self.ID_POS] = pos_new
             pop_new.append(solution)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                solution[self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution(solution, self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
