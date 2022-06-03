@@ -83,22 +83,21 @@ class BaseTWO(Optimizer):
         weight = 0.0
         return [position, target, weight]
 
-    def _update_weight(self, teams):
-        _, best, worst = self.get_special_solutions(teams, best=1, worst=1)
-        best_fit = best[0][self.ID_TAR][self.ID_FIT]
-        worst_fit = worst[0][self.ID_TAR][self.ID_FIT]
-        if best_fit == worst_fit:
-            for i in range(self.pop_size):
-                teams[i][self.ID_WEIGHT] = np.random.uniform(0.5, 1.5)
-        else:
-            for i in range(self.pop_size):
-                teams[i][self.ID_WEIGHT] = (teams[i][self.ID_TAR][self.ID_FIT] - worst_fit) / (best_fit - worst_fit + self.EPSILON) + 1
+    def update_weight__(self, teams):
+        list_fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in teams])
+        maxx, minn = np.max(list_fits), np.min(list_fits)
+        if maxx == minn:
+            list_fits = np.random.uniform(0.0, 1.0, self.pop_size)
+        list_weights = np.exp(-(list_fits - maxx) / (maxx - minn))
+        list_weights = list_weights/np.sum(list_weights) + 0.1
+        for idx in range(self.pop_size):
+            teams[idx][self.ID_WEIGHT] = list_weights[idx]
         return teams
 
     def initialization(self):
         self.pop = self.create_population(self.pop_size)
         _, self.g_best = self.get_global_best_solution(self.pop)
-        self.pop = self._update_weight(self.pop)
+        self.pop = self.update_weight__(self.pop)
 
     def evolve(self, epoch):
         """
@@ -116,10 +115,10 @@ class BaseTWO(Optimizer):
                     resultant_force = force - self.pop[i][self.ID_WEIGHT] * self.muy_k
                     g = self.pop[j][self.ID_POS] - self.pop[i][self.ID_POS]
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
-                    delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
-                              (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
+                    delta_x = 0.5 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
+                              (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
                     pos_new += delta_x
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
         for i in range(self.pop_size):
             pos_new = pop_new[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
@@ -134,10 +133,15 @@ class BaseTWO(Optimizer):
                             pos_new[j] = self.problem.lb[j]
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = self._update_weight(pop_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[i] = self.get_better_solution(pop_new[i], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = self.update_weight__(pop_new)
 
 
 class OppoTWO(BaseTWO):
@@ -188,9 +192,11 @@ class OppoTWO(BaseTWO):
             pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
             pos_opposite = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
             pop_oppo.append([pos_opposite, None, 0.0])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_oppo[-1][self.ID_TAR] = self.get_target_wrapper(pos_opposite)
         pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = pop_temp + pop_oppo
-        self.pop = self._update_weight(self.pop)
+        self.pop = self.update_weight__(self.pop)
         _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
@@ -201,6 +207,7 @@ class OppoTWO(BaseTWO):
             epoch (int): The current iteration
         """
         ## Apply force of others solution on each individual solution
+        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             pos_new = pop_new[i][self.ID_POS].astype(float)
@@ -209,11 +216,12 @@ class OppoTWO(BaseTWO):
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[j][self.ID_WEIGHT] * self.muy_s)
                     resultant_force = force - self.pop[i][self.ID_WEIGHT] * self.muy_k
                     g = self.pop[j][self.ID_POS] - self.pop[i][self.ID_POS]
-                    acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
+                    temp = (self.pop[i][self.ID_WEIGHT] * self.muy_k)
+                    acceleration = resultant_force * g / temp
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
-                              (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
+                              (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
                     pos_new += delta_x
-            self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            self.pop[i][self.ID_POS] = pos_new
 
         ## Amend solution and update fitness value
         for i in range(self.pop_size):
@@ -222,20 +230,29 @@ class OppoTWO(BaseTWO):
             conditions = np.logical_or(pop_new[i][self.ID_POS] < self.problem.lb, pop_new[i][self.ID_POS] > self.problem.ub)
             conditions = np.logical_and(conditions, np.random.uniform(0, 1, self.problem.n_dims) < 0.5)
             pos_new = np.where(conditions, pos_new, self.pop[i][self.ID_POS])
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_target_wrapper_population(pop_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[i] = self.get_better_solution(pop_new[i], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        nfe_epoch += self.pop_size
 
         ## Opposition-based here
         for i in range(self.pop_size):
             if self.compare_agent(pop_new[i], self.pop[i]):
                 self.pop[i] = deepcopy(pop_new[i])
             else:
+                nfe_epoch += 1
                 C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
                 C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
                 target_op = self.get_target_wrapper(C_op)
                 if self.compare_agent([C_op, target_op], self.pop[i]):
                     self.pop[i] = [C_op, target_op, 0.0]
-        self.pop = self._update_weight(self.pop)
+        self.pop = self.update_weight__(self.pop)
+        self.nfe_per_epoch = nfe_epoch
 
 
 class LevyTWO(BaseTWO):
@@ -286,6 +303,7 @@ class LevyTWO(BaseTWO):
         Args:
             epoch (int): The current iteration
         """
+        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             pos_new = self.pop[i][self.ID_POS].astype(float)
@@ -296,9 +314,9 @@ class LevyTWO(BaseTWO):
                     g = self.pop[k][self.ID_POS] - self.pop[i][self.ID_POS]
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
-                              (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
+                              (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
                     pos_new +=delta_x
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
         for i in range(self.pop_size):
             pos_new = self.pop[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
@@ -313,22 +331,30 @@ class LevyTWO(BaseTWO):
                             pos_new[j] = self.problem.lb[j]
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = self._update_weight(pop_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[i] = self.get_better_solution(pop_new[i], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        nfe_epoch += self.pop_size
+        # self.pop = self.update_weight__(pop_new)
 
         ### Apply levy-flight here
         for i in range(self.pop_size):
-            if self.compare_agent(pop_new[i], self.pop[i]):
-                self.pop[i] = deepcopy(pop_new[i])
-            else:
-                levy_step = self.get_levy_flight_step(beta=1.0, multiplier=10, case=-1)
-                pos_new = pop_new[i][self.ID_POS] + np.sign(np.random.random() - 0.5) * levy_step
+            ## Chance for each agent to update using levy is 50%
+            if np.random.rand() < 0.5:
+                nfe_epoch += 1
+                levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.1, size=self.problem.n_dims, case=-1)
+                pos_new = pop_new[i][self.ID_POS] + levy_step
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                self.pop[i] = [pos_new, target, 0.0]
-        self.pop = self._update_weight(pop_new)
+                if self.compare_agent([pos_new, target, 0.0], pop_new[i]):
+                    pop_new[i] = [pos_new, target, 0.0]
+        self.pop = self.update_weight__(pop_new)
+        self.nfe_per_epoch = nfe_epoch
 
 
 class EnhancedTWO(OppoTWO, LevyTWO):
@@ -385,10 +411,13 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         pop_oppo = deepcopy(pop_temp)
         for i in range(self.pop_size):
             pos_opposite = self.problem.ub + self.problem.lb - pop_temp[i][self.ID_POS]
-            pop_oppo[i][self.ID_POS] = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
+            pop_oppo[i][self.ID_POS] = pos_new
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_oppo[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = self.get_sorted_strim_population(pop_temp + pop_oppo, self.pop_size)
-        self.pop = self._update_weight(self.pop)
+        self.pop = self.update_weight__(self.pop)
         self.g_best = deepcopy(self.pop[0])
 
     def evolve(self, epoch):
@@ -408,9 +437,9 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                     g = self.pop[k][self.ID_POS] - self.pop[i][self.ID_POS]
                     acceleration = resultant_force * g / (self.pop[i][self.ID_WEIGHT] * self.muy_k)
                     delta_x = 1 / 2 * acceleration + np.power(self.alpha, epoch + 1) * self.beta * \
-                              (self.problem.ub - self.problem.lb) * np.random.randn(self.problem.n_dims)
+                              (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
                     pos_new += delta_x
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
         for i in range(self.pop_size):
             pos_new = self.pop[i][self.ID_POS].astype(float)
             for j in range(self.problem.n_dims):
@@ -425,24 +454,26 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                             pos_new[j] = self.problem.lb[j]
                         if pos_new[j] > self.problem.ub[j]:
                             pos_new[j] = self.problem.ub[j]
-            pop_new[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = self._update_weight(pop_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new[i][self.ID_POS] = pos_new
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[i] = self.get_better_solution(pop_new[i], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         for i in range(self.pop_size):
-            if self.compare_agent(pop_new[i], self.pop[i]):
-                self.pop[i] = deepcopy(pop_new[i])
+            C_op = self.create_opposition_position(pop_new[i][self.ID_POS], self.g_best[self.ID_POS])
+            C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
+            target_op = self.get_target_wrapper(C_op)
+            if self.compare_agent([C_op, target_op], pop_new[i]):
+                pop_new[i] = [C_op, target_op, 0.0]
             else:
-                C_op = self.create_opposition_position(self.pop[i][self.ID_POS], self.g_best[self.ID_POS])
-                C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
-                target_op = self.get_target_wrapper(C_op)
-                if self.compare_agent([C_op, target_op], self.pop[i]):
-                    self.pop[i] = [C_op, target_op, 0.0]
-                else:
-                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, case=-1)
-                    pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * levy_step
-                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    target = self.get_target_wrapper(pos_new)
-                    self.pop[i] = [pos_new, target, 0.0]
-        self.pop = self._update_weight(pop_new)
+                levy_step = self.get_levy_flight_step(beta=1.0, multiplier=1.0, size=self.problem.n_dims, case=-1)
+                pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * levy_step
+                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                target = self.get_target_wrapper(pos_new)
+                if self.compare_agent([pos_new, target], pop_new[i]):
+                    pop_new[i] = [pos_new, target, 0.0]
+        self.pop = self.update_weight__(pop_new)
