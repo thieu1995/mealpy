@@ -13,7 +13,7 @@ class BaseSA(Optimizer):
     """
     The original version of: Simulated Annealing (SA)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + max_sub_iter (int): [5, 10, 15], Maximum Number of Sub-Iteration (within fixed temperature), default=5
         + t0 (int): Fixed parameter, Initial Temperature, default=1000
         + t1 (int): Fixed parameter, Final Temperature, default=1
@@ -121,6 +121,8 @@ class BaseSA(Optimizer):
                     pos_new = self._mutate(self.pop[i][self.ID_POS], self.dyn_sigma)
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_new.append([pos_new, None])
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_new = self.update_target_wrapper_population(pop_new)
 
             # Columnize and Sort Newly Created Population
