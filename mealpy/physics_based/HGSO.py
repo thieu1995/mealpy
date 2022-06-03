@@ -16,7 +16,7 @@ class BaseHGSO(Optimizer):
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0167739X19306557
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_clusters (int): [2, 10], number of clusters, default = 2
 
     Examples
@@ -126,8 +126,11 @@ class BaseHGSO(Optimizer):
                        F * np.random.uniform() * self.alpha * (S_ij * self.g_best[self.ID_POS] - self.pop_group[i][j][self.ID_POS])
                 pos_new = self.amend_position(X_ij, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
-                nfe_epoch += 1
-            self.pop_group[i] = self.update_target_wrapper_population(pop_new)
+                if self.mode not in self.AVAILABLE_MODES:
+                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop_group[i] = pop_new
+            nfe_epoch += self.n_elements
         self.pop = self._flatten_group(self.pop_group)
 
         ## Update Henry's coefficient using Eq.8
@@ -145,10 +148,12 @@ class BaseHGSO(Optimizer):
             id = sorted_id_pos[item]
             X_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
             pop_idx.append(id)
-            nfe_epoch += 1
+            pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
+        nfe_epoch += N_w
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = deepcopy(pop_new[idx])
         self.pop_group = self._create_group(self.pop)
