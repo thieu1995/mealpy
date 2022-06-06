@@ -100,9 +100,13 @@ class OriginalAEO(Optimizer):
                                                          + (1 - r2) * (self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]))
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop[:-1], pop_new)
         pop_new.append(deepcopy(self.pop[-1]))
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
         _, best = self.get_global_best_solution(pop_new)
@@ -118,8 +122,13 @@ class OriginalAEO(Optimizer):
             x_t1 = best[self.ID_POS] + d * (e * best[self.ID_POS] - h * pop_new[idx][self.ID_POS])
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class IAEO(OriginalAEO):
@@ -208,9 +217,13 @@ class IAEO(OriginalAEO):
                                                          + (1 - r2) * (self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]))
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop[:-1], pop_new)
         pop_new.append(deepcopy(self.pop[-1]))
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
         _, best = self.get_global_best_solution(pop_new)
@@ -236,8 +249,13 @@ class IAEO(OriginalAEO):
                 best[self.ID_POS] = best[self.ID_POS] + np.random.normal() * best[self.ID_POS]
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class EnhancedAEO(Optimizer):
@@ -341,9 +359,13 @@ class EnhancedAEO(Optimizer):
                                                                           (1 - r5) * (self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]))
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop[:-1], pop_new)
         pop_new.append(deepcopy(self.pop[-1]))
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
         _, best = self.get_global_best_solution(pop_new)
@@ -371,8 +393,13 @@ class EnhancedAEO(Optimizer):
                 # x_new = best[self.ID_POS] + np.random.normal() * best[self.ID_POS]
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class ModifiedAEO(Optimizer):
@@ -464,9 +491,13 @@ class ModifiedAEO(Optimizer):
                                                                 (1 - r5) * (self.pop[idx][self.ID_POS] - self.pop[j][self.ID_POS]))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop[:-1], pop_new)
         pop_new.append(deepcopy(self.pop[-1]))
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
         _, best = self.get_global_best_solution(pop_new)
@@ -494,8 +525,13 @@ class ModifiedAEO(Optimizer):
                 # x_new = best[self.ID_POS] + np.random.normal() * best[self.ID_POS]
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
 
 
 class AdaptiveAEO(Optimizer):
@@ -593,9 +629,13 @@ class AdaptiveAEO(Optimizer):
                           (1.0 / np.sqrt(epoch + 1)) * np.sign(np.random.random() - 0.5) * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop[:-1], pop_new)
         pop_new.append(deepcopy(self.pop[-1]))
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
 
         ## find current best used in decomposition
         _, best = self.get_global_best_solution(pop_new)
@@ -611,5 +651,10 @@ class AdaptiveAEO(Optimizer):
                           1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * (best[self.ID_POS] - pop_new[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            pop_child = self.greedy_selection_population(pop_child, pop_new)
+        self.pop = pop_child
