@@ -16,7 +16,7 @@ class BaseCEM(Optimizer):
         1. https://github.com/clever-algorithms/CleverAlgorithms
         2. https://doi.org/10.1007/s10479-005-5724-z
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_best (int): N selected solutions as a samples for next evolution
         + alpha (float): weight factor for means and stdevs (normal distribution)
 
@@ -49,7 +49,7 @@ class BaseCEM(Optimizer):
     cross-entropy method. Annals of operations research, 134(1), pp.19-67.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_best=30, alpha=0.7, **kwargs):
+    def __init__(self, problem, epoch=10000, pop_size=100, n_best=25, alpha=0.7, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
@@ -89,6 +89,12 @@ class BaseCEM(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = np.random.normal(self.means, self.stdevs)
-            pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = pop_new
