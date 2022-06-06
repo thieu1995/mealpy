@@ -103,7 +103,8 @@ class OriginalBBO(Optimizer):
                 target = self.get_target_wrapper(pos_new)
                 self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.update_target_wrapper_population(pop)
+            pop = self.update_target_wrapper_population(pop)
+            self.pop = self.greedy_selection_population(self.pop, pop)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_strim_population(self.pop + pop_elites, self.pop_size)
 
@@ -179,6 +180,7 @@ class BaseBBO(OriginalBBO):
                 target = self.get_target_wrapper(pos_new)
                 self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.update_target_wrapper_population(pop)
+            pop = self.update_target_wrapper_population(pop)
+            self.pop = self.greedy_selection_population(self.pop, pop)
         # Replace the solutions with their new migrated and mutated versions then merge populations
         self.pop = self.get_sorted_strim_population(self.pop + pop_elites, self.pop_size)
