@@ -71,19 +71,16 @@ class BaseEP(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, strategy, times_win]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         strategy = np.random.uniform(0, self.distance, len(lb))
         times_win = 0
@@ -179,7 +176,6 @@ class LevyEP(BaseEP):
         Args:
             epoch (int): The current iteration
         """
-
         child = []
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
