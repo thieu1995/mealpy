@@ -110,7 +110,7 @@ class BaseGA(Optimizer):
             if "mutation" in kwargs:
                 self.mutation = self.validator.check_str("mutation", kwargs["mutation"], ["flip", "swap", "scramble", "inversion"])
 
-    def selection_process(self, list_fitness):
+    def selection_process__(self, list_fitness):
         """
         Notes
         ~~~~~
@@ -133,7 +133,7 @@ class BaseGA(Optimizer):
             id_c1, id_c2 = self.get_index_kway_tournament_selection(self.pop, k_way=self.k_way, output=2)
         return self.pop[id_c1][self.ID_POS], self.pop[id_c2][self.ID_POS]
 
-    def crossover_process(self, dad, mom):
+    def crossover_process__(self, dad, mom):
         """
         Notes
         ~~~~~
@@ -165,7 +165,7 @@ class BaseGA(Optimizer):
             w2 = mom * flip + dad * (1 - flip)
         return w1, w2
 
-    def mutation_process(self, child):
+    def mutation_process__(self, child):
         """
         Notes
         ~~~~~
@@ -219,7 +219,7 @@ class BaseGA(Optimizer):
                 child[idx] = np.random.uniform(self.problem.lb[idx], self.problem.ub[idx])
                 return child
 
-    def survivor_process(self, pop, pop_child):
+    def survivor_process__(self, pop, pop_child):
         """
         The current survivor process is select the worst solution out of k-way solutions (tournament selection) and
         compare with child solutions. The better solution will be kept for the next generation.
@@ -248,15 +248,15 @@ class BaseGA(Optimizer):
         pop_new = []
         for i in range(0, int(self.pop_size/2)):
             ### Selection
-            child1, child2 = self.selection_process(list_fitness)
+            child1, child2 = self.selection_process__(list_fitness)
 
             ### Crossover
             if np.random.uniform() < self.pc:
-                child1, child2 = self.crossover_process(child1, child2)
+                child1, child2 = self.crossover_process__(child1, child2)
 
             ### Mutation
-            child1 = self.mutation_process(child1)
-            child2 = self.mutation_process(child2)
+            child1 = self.mutation_process__(child1)
+            child2 = self.mutation_process__(child2)
 
             pop_new.append([self.amend_position(child1, self.problem.lb, self.problem.ub), None])
             pop_new.append([self.amend_position(child2, self.problem.lb, self.problem.ub), None])
@@ -266,4 +266,4 @@ class BaseGA(Optimizer):
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(child2)
         ### Survivor Selection
         pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.survivor_process(self.pop, pop_new)
+        self.pop = self.survivor_process__(self.pop, pop_new)
