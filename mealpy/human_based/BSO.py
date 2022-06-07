@@ -79,23 +79,22 @@ class ImprovedBSO(Optimizer):
         self.m_solution = int(self.pop_size / self.m_clusters)
         self.pop_group, self.centers = None, None
 
-    def _find_cluster(self, pop_group):
+    def find_cluster__(self, pop_group):
         centers = []
         for i in range(0, self.m_clusters):
             _, local_best = self.get_global_best_solution(pop_group[i])
             centers.append(deepcopy(local_best))
         return centers
 
-    def _make_group(self, pop):
+    def make_group__(self, pop):
         pop_group = []
         for idx in range(0, self.m_clusters):
             pop_group.append(deepcopy(pop[idx * self.m_solution:(idx + 1) * self.m_solution]))
         return pop_group
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
-        self.pop_group = self._make_group(self.pop)
-        self.centers = self._find_cluster(self.pop_group)
+    def after_initialization(self):
+        self.pop_group = self.make_group__(self.pop)
+        self.centers = self.find_cluster__(self.pop_group)
         _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
@@ -144,7 +143,7 @@ class ImprovedBSO(Optimizer):
                 pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 
         # Needed to update the centers and population
-        self.centers = self._find_cluster(pop_group)
+        self.centers = self.find_cluster__(pop_group)
         self.pop = []
         for idx in range(0, self.m_clusters):
             self.pop += pop_group[idx]
@@ -278,7 +277,7 @@ class BaseBSO(ImprovedBSO):
                 pop_group[idx] = self.greedy_selection_population(self.pop_group[idx], pop_group[idx])
 
         # Needed to update the centers and population
-        self.centers = self._find_cluster(pop_group)
+        self.centers = self.find_cluster__(pop_group)
         self.pop = []
         for idx in range(0, self.m_clusters):
             self.pop += pop_group[idx]
