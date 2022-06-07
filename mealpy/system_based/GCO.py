@@ -99,7 +99,7 @@ class BaseGCO(Optimizer):
         ## Light-zone process   (no needs parallelization)
         for i in range(0, self.pop_size):
             self.dyn_list_cell_counter[i] = 10
-            fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in pop_new])
+            fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
             fit_max = max(fit_list)
             fit_min = min(fit_list)
             self.dyn_list_cell_counter[i] += 10 * (self.pop[i][self.ID_TAR][self.ID_FIT] - fit_max) / (fit_min - fit_max + self.EPSILON)
@@ -185,8 +185,6 @@ class OriginalGCO(BaseGCO):
             if self.compare_agent([pos_new, target], self.pop[idx]):
                 self.pop[idx] = [pos_new, target]
                 self.dyn_list_life_signal[idx] += 10
-                if self.compare_agent([pos_new, target], self.g_best):
-                    self.g_best = [pos_new, target]
 
         ## Light-zone process   (no needs parallelization)
         self.dyn_list_life_signal -= 10
