@@ -67,24 +67,21 @@ class BaseBRO(Optimizer):
         self.problem.lb_updated = deepcopy(self.problem.lb)
         self.problem.ub_updated = deepcopy(self.problem.ub)
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, damage]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         damage = 0
         return [position, target, damage]
 
-    def __get_min_idx(self, data):
+    def get_idx_min__(self, data):
         k_zero = np.count_nonzero(data == 0)
         if k_zero == len(data):
             return np.random.choice(range(0, k_zero))
@@ -93,12 +90,12 @@ class BaseBRO(Optimizer):
         ## 2nd: Faster
         return np.where(data == np.min(data[data != 0]))[0][0]
 
-    def find_idx_min_distance(self, target_pos=None, pop=None):
+    def find_idx_min_distance__(self, target_pos=None, pop=None):
         list_pos = np.array([pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
         target_pos = np.reshape(target_pos, (1, -1))
         dist_list = cdist(list_pos, target_pos, 'euclidean')
         dist_list = np.reshape(dist_list, (-1))
-        return self.__get_min_idx(dist_list)
+        return self.get_idx_min__(dist_list)
 
     def evolve(self, epoch):
         """
@@ -110,7 +107,7 @@ class BaseBRO(Optimizer):
         nfe_epoch = 0
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_idx_min_distance(self.pop[i][self.ID_POS], self.pop)
+            j = self.find_idx_min_distance__(self.pop[i][self.ID_POS], self.pop)
             if self.compare_agent(self.pop[i], self.pop[j]):
                 ## Update Winner based on global best solution
                 pos_new = self.pop[i][self.ID_POS] + np.random.normal(0, 1) * \
@@ -213,7 +210,7 @@ class OriginalBRO(BaseBRO):
         """
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_idx_min_distance(self.pop[i][self.ID_POS], self.pop)
+            j = self.find_idx_min_distance__(self.pop[i][self.ID_POS], self.pop)
             dam, vic = i, j  ## This error in the algorithm's flow in the paper, But in the matlab code, he changed.
             if self.compare_agent(self.pop[i], self.pop[j]):
                 dam, vic = j, i  ## The mistake also here in the paper.
