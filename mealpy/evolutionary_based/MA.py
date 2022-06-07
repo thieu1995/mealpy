@@ -83,24 +83,21 @@ class BaseMA(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, bitstring]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
         return [position, target, bitstring]
 
-    def _decode(self, bitstring=None):
+    def decode_(self, bitstring=None):
         """
         Decode the random bitstring into real number
 
@@ -116,7 +113,7 @@ class BaseMA(Optimizer):
             vector[idx] = self.problem.lb[idx] + ((self.problem.ub[idx] - self.problem.lb[idx]) / ((2.0 ** self.bits_per_param) - 1)) * int(param, 2)
         return vector
 
-    def _crossover(self, dad=None, mom=None):
+    def crossover__(self, dad=None, mom=None):
         if np.random.uniform() >= self.pc:
             temp = deepcopy([dad])
             return temp[0]
@@ -129,7 +126,7 @@ class BaseMA(Optimizer):
                     child += mom[idx]
             return child
 
-    def _point_mutation(self, bitstring=None):
+    def point_mutation__(self, bitstring=None):
         child = ""
         for bit in bitstring:
             if np.random.uniform() < self.pc:
@@ -138,13 +135,13 @@ class BaseMA(Optimizer):
                 child += bit
         return child
 
-    def _bits_climber(self, child=None):
+    def bits_climber__(self, child=None):
         current = deepcopy(child)
         list_local = []
         for idx in range(0, self.max_local_gens):
             child = deepcopy(current)
-            bitstring_new = self._point_mutation(child[self.ID_BIT])
-            pos_new = self._decode(bitstring_new)
+            bitstring_new = self.point_mutation__(child[self.ID_BIT])
+            pos_new = self.decode_(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             list_local.append([pos_new, None, bitstring_new])
             if self.mode not in self.AVAILABLE_MODES:
@@ -154,13 +151,13 @@ class BaseMA(Optimizer):
         _, best = self.get_global_best_solution(list_local)
         return best
 
-    def create_child(self, idx, pop_copy):
+    def create_child__(self, idx, pop_copy):
         ancient = pop_copy[idx + 1] if idx % 2 == 0 else pop_copy[idx - 1]
         if idx == self.pop_size - 1:
             ancient = pop_copy[0]
-        bitstring_new = self._crossover(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
-        bitstring_new = self._point_mutation(bitstring_new)
-        pos_new = self._decode(bitstring_new)
+        bitstring_new = self.crossover__(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
+        bitstring_new = self.point_mutation__(bitstring_new)
+        pos_new = self.decode_(bitstring_new)
         pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         target = self.get_target_wrapper(pos_new)
         return [pos_new, target, bitstring_new]
@@ -183,9 +180,9 @@ class BaseMA(Optimizer):
             ancient = children[idx + 1] if idx % 2 == 0 else children[idx - 1]
             if idx == self.pop_size - 1:
                 ancient = children[0]
-            bitstring_new = self._crossover(children[idx][self.ID_BIT], ancient[self.ID_BIT])
-            bitstring_new = self._point_mutation(bitstring_new)
-            pos_new = self._decode(bitstring_new)
+            bitstring_new = self.crossover__(children[idx][self.ID_BIT], ancient[self.ID_BIT])
+            bitstring_new = self.point_mutation__(bitstring_new)
+            pos_new = self.decode_(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None, bitstring_new])
             if self.mode not in self.AVAILABLE_MODES:
@@ -195,6 +192,6 @@ class BaseMA(Optimizer):
         # Searching in local
         for i in range(0, self.pop_size):
             if np.random.rand() < self.p_local:
-                self.pop[i] = self._bits_climber(pop[i])
+                self.pop[i] = self.bits_climber__(pop[i])
                 nfe_epoch += self.max_local_gens
         self.nfe_per_epoch = nfe_epoch
