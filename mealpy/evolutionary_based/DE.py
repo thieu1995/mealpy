@@ -78,8 +78,8 @@ class BaseDE(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def _mutation__(self, current_pos, new_pos):
-        condition = np.random.uniform(0, 1, self.problem.n_dims) < self.cr
+    def mutation__(self, current_pos, new_pos):
+        condition = np.random.random(self.problem.n_dims) < self.cr
         pos_new = np.where(condition, new_pos, current_pos)
         return self.amend_position(pos_new, self.problem.lb, self.problem.ub)
 
@@ -97,65 +97,64 @@ class BaseDE(Optimizer):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
                 pos_new = self.pop[idx_list[0]][self.ID_POS] + self.wf * \
                           (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         elif self.strategy == 1:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
                 pos_new = self.g_best[self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         elif self.strategy == 2:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 4, replace=False)
                 pos_new = self.g_best[self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS]) + \
                           self.wf * (self.pop[idx_list[2]][self.ID_POS] - self.pop[idx_list[3]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         elif self.strategy == 3:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 5, replace=False)
                 pos_new = self.pop[idx_list[0]][self.ID_POS] + self.wf * \
                           (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS]) + \
                           self.wf * (self.pop[idx_list[3]][self.ID_POS] - self.pop[idx_list[4]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         elif self.strategy == 4:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
                 pos_new = self.pop[idx][self.ID_POS] + self.wf * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
                           self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx_list[1]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         else:
             for idx in range(0, self.pop_size):
                 idx_list = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
                 pos_new = self.pop[idx][self.ID_POS] + self.wf * (self.pop[idx_list[0]][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
                           self.wf * (self.pop[idx_list[1]][self.ID_POS] - self.pop[idx_list[2]][self.ID_POS])
-                pos_new = self._mutation__(self.pop[idx][self.ID_POS], pos_new)
+                pos_new = self.mutation__(self.pop[idx][self.ID_POS], pos_new)
                 pop.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:
                     target = self.get_target_wrapper(pos_new)
-                    pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop = self.update_target_wrapper_population(pop)
-            pop = self.greedy_selection_population(self.pop, pop)
-        self.pop = pop
+            self.pop = self.greedy_selection_population(self.pop, pop)
 
 
 class JADE(Optimizer):
@@ -273,7 +272,7 @@ class JADE(Optimizer):
                 if np.any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and np.any(x_r2[self.ID_POS] - self.pop[idx][self.ID_POS]):
                     break
             x_new = self.pop[idx][self.ID_POS] + f * (x_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
+            pos_new = np.where(np.random.random(self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -391,7 +390,7 @@ class SADE(Optimizer):
             id1, id2, id3 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
             if np.random.rand() < self.p1:
                 x_new = self.pop[id1][self.ID_POS] + f * (self.pop[id2][self.ID_POS] - self.pop[id3][self.ID_POS])
-                pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
+                pos_new = np.where(np.random.random(self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
                 j_rand = np.random.randint(0, self.problem.n_dims)
                 pos_new[j_rand] = x_new[j_rand]
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -399,7 +398,7 @@ class SADE(Optimizer):
             else:
                 x_new = self.pop[idx][self.ID_POS] + f * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
                         f * (self.pop[id1][self.ID_POS] - self.pop[id2][self.ID_POS])
-                pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
+                pos_new = np.where(np.random.random(self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
                 j_rand = np.random.randint(0, self.problem.n_dims)
                 pos_new[j_rand] = x_new[j_rand]
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -436,7 +435,7 @@ class SADE(Optimizer):
 
 class SHADE(Optimizer):
     """
-    The variant version of: Success-History Adaptation Differential Evolution (SHADE)
+    The original version of: Success-History Adaptation Differential Evolution (SHADE)
 
     Links:
         1. https://doi.org/10.1109/CEC.2013.6557555
@@ -500,7 +499,7 @@ class SHADE(Optimizer):
         self.k_counter = 0
 
     ### Survivor Selection
-    def weighted_lehmer_mean(self, list_objects, list_weights):
+    def weighted_lehmer_mean__(self, list_objects, list_weights):
         up = list_weights * list_objects ** 2
         down = list_weights * list_objects
         return sum(up) / sum(down)
@@ -547,7 +546,7 @@ class SHADE(Optimizer):
                 if np.any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and np.any(x_r2[self.ID_POS] - self.pop[idx][self.ID_POS]):
                     break
             x_new = self.pop[idx][self.ID_POS] + f * (x_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
-            condition = np.random.uniform(0, 1, self.problem.n_dims) < cr
+            condition = np.random.random(self.problem.n_dims) < cr
             pos_new = np.where(condition, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
@@ -593,7 +592,7 @@ class SHADE(Optimizer):
             else:
                 list_weights = abs(list_fit_new - list_fit_old) / temp
             self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
-            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean(np.array(list_f), list_weights)
+            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.pop_size:
                 self.k_counter = 0
@@ -667,7 +666,7 @@ class L_SHADE(Optimizer):
         self.n_min = int(self.pop_size / 5)
 
     ### Survivor Selection
-    def weighted_lehmer_mean(self, list_objects, list_weights):
+    def weighted_lehmer_mean__(self, list_objects, list_weights):
         up = sum(list_weights * list_objects ** 2)
         down = sum(list_weights * list_objects)
         return up / down if down != 0 else 0.5
@@ -714,7 +713,7 @@ class L_SHADE(Optimizer):
                 if np.any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and np.any(x_r2[self.ID_POS] - self.pop[idx][self.ID_POS]):
                     break
             x_new = self.pop[idx][self.ID_POS] + f * (x_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
+            pos_new = np.where(np.random.random(self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
             j_rand = np.random.randint(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -756,7 +755,7 @@ class L_SHADE(Optimizer):
             total_fit = sum(np.abs(list_fit_new - list_fit_old))
             list_weights = 0 if total_fit == 0 else np.abs(list_fit_new - list_fit_old) / total_fit
             self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
-            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean(np.array(list_f), list_weights)
+            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.dyn_pop_size:
                 self.k_counter = 0
@@ -822,19 +821,16 @@ class SAP_DE(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: solution with format [position, target, crossover_rate, mutation_rate, pop_size]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         crossover_rate = np.random.uniform(0, 1)
         mutation_rate = np.random.uniform(0, 1)
