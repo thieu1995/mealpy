@@ -13,7 +13,7 @@ class BaseES(Optimizer):
     The original version of: Evolution Strategies (ES)
 
     Links:
-        1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+        1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
@@ -66,13 +66,9 @@ class BaseES(Optimizer):
         self.nfe_per_epoch = self.n_child
         self.sort_flag = True
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: solution with format [position, target, strategy]
@@ -109,7 +105,7 @@ class LevyES(BaseES):
     My Levy-flight version of: Evolution Strategies (ES)
 
     Links:
-        1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+        1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
     Notes
     ~~~~~
