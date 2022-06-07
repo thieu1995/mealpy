@@ -86,16 +86,14 @@ class BaseICA(Optimizer):
         self.pop_empires, self.pop_colonies, self.empires = None, None, None
         self.n_revoluted_variables, self.idx_list_variables = None, None
 
-    def revolution_country(self, position, idx_list_variables, n_revoluted):
+    def revolution_country__(self, position, idx_list_variables, n_revoluted):
         pos_new = position + self.revolution_step_size * np.random.normal(0, 1, self.problem.n_dims)
         idx_list = np.random.choice(idx_list_variables, n_revoluted, replace=False)
         position[idx_list] = pos_new[idx_list]  # Change only those selected index
         return position
 
-    def initialization(self):
-        pop = self.create_population(self.pop_size)
-        self.pop, self.g_best = self.get_global_best_solution(pop)
-
+    def after_initialization(self):
+        self.pop, self.g_best = self.get_global_best_solution(self.pop)
         # Initialization
         self.n_revoluted_variables = int(round(self.revolution_rate * self.problem.n_dims))
         self.idx_list_variables = list(range(0, self.problem.n_dims))
@@ -146,7 +144,7 @@ class BaseICA(Optimizer):
         # Revolution
         for idx, colonies in self.empires.items():
             # Apply revolution to Imperialist
-            pos_new_em = self.revolution_country(self.pop_empires[idx][self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
+            pos_new_em = self.revolution_country__(self.pop_empires[idx][self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
             pos_new_em = self.amend_position(pos_new_em, self.problem.lb, self.problem.ub)
             self.pop_empires[idx][self.ID_POS] = pos_new_em
             if self.mode not in self.AVAILABLE_MODES:
@@ -155,7 +153,7 @@ class BaseICA(Optimizer):
             # Apply revolution to Colonies
             for idx_colony, colony in enumerate(colonies):
                 if np.random.rand() < self.revolution_prob:
-                    pos_new = self.revolution_country(colony[self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
+                    pos_new = self.revolution_country__(colony[self.ID_POS], self.idx_list_variables, self.n_revoluted_variables)
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     self.empires[idx][idx_colony][self.ID_POS] = pos_new
                     if self.mode not in self.AVAILABLE_MODES:
