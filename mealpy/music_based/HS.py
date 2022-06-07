@@ -83,10 +83,10 @@ class BaseHS(Optimizer):
             delta = self.dyn_fw * np.random.normal(self.problem.lb, self.problem.ub)
 
             # Use Harmony Memory
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.c_r, self.g_best[self.ID_POS], pos_new)
+            pos_new = np.where(np.random.random(self.problem.n_dims) < self.c_r, self.g_best[self.ID_POS], pos_new)
             # Pitch Adjustment
             x_new = pos_new + delta
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pa_r, x_new, pos_new)
+            pos_new = np.where(np.random.random(self.problem.n_dims) < self.pa_r, x_new, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
