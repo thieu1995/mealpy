@@ -17,7 +17,7 @@ class BaseFPA(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_s (float): [0.5, 0.95], switch probability, default = 0.8
-        + levy_multiplier: [0.1, 0.5], mutiplier factor of Levy-flight trajectory
+        + levy_multiplier: [0.0001, 1000], mutiplier factor of Levy-flight trajectory, depends on the problem
 
     Examples
     ~~~~~~~~
@@ -61,7 +61,7 @@ class BaseFPA(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
-        self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (0, 1.0))
+        self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (0, 1000))
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -90,7 +90,7 @@ class BaseFPA(Optimizer):
         for idx in range(0, self.pop_size):
             if np.random.uniform() < self.p_s:
                 levy = self.get_levy_flight_step(multiplier=self.levy_multiplier, size=self.problem.n_dims, case=-1)
-                pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random() - 0.5) * \
+                pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * \
                           levy * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
             else:
                 id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
@@ -99,8 +99,7 @@ class BaseFPA(Optimizer):
             pop.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop = self.update_target_wrapper_population(pop)
-            pop = self.greedy_selection_population(self.pop, pop)
-        self.pop = pop
+            self.pop = self.greedy_selection_population(self.pop, pop)
