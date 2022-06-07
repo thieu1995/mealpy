@@ -69,13 +69,13 @@ class OriginalCA(Optimizer):
         self.dyn_accepted_num = int(self.accepted_rate * self.pop_size)
         # update situational knowledge (g_best here is a element inside belief space)
 
-    def create_faithful(self, lb, ub):
+    def create_faithful__(self, lb, ub):
         position = self.generate_position(lb, ub)
         position = self.amend_position(position, lb, ub)
         target = self.get_target_wrapper(position)
         return [position, target]
 
-    def update_belief_space(self, belief_space, pop_accepted):
+    def update_belief_space__(self, belief_space, pop_accepted):
         pos_list = np.array([solution[self.ID_POS] for solution in pop_accepted])
         belief_space["lb"] = np.min(pos_list, axis=0)
         belief_space["ub"] = np.max(pos_list, axis=0)
@@ -89,7 +89,7 @@ class OriginalCA(Optimizer):
             epoch (int): The current iteration
         """
         # create next generation
-        pop_child = [self.create_faithful(self.dyn_belief_space["lb"], self.dyn_belief_space["ub"]) for _ in range(0, self.pop_size)]
+        pop_child = [self.create_faithful__(self.dyn_belief_space["lb"], self.dyn_belief_space["ub"]) for _ in range(0, self.pop_size)]
 
         # select next generation
         pop_new = []
@@ -104,4 +104,4 @@ class OriginalCA(Optimizer):
         accepted = self.pop[:self.dyn_accepted_num]
 
         # Update belief_space
-        self.dyn_belief_space = self.update_belief_space(self.dyn_belief_space, accepted)
+        self.dyn_belief_space = self.update_belief_space__(self.dyn_belief_space, accepted)
