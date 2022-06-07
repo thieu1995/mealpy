@@ -66,10 +66,8 @@ class OriginalCHIO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         _, self.g_best = self.get_global_best_solution(self.pop)
-
         self.immunity_type_list = np.random.randint(0, 3, self.pop_size)  # Randint [0, 1, 2]
         self.age_list = np.zeros(self.pop_size)  # Control the age of each position
         self.finished = False
