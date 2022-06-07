@@ -92,17 +92,16 @@ class BaseSBO(Optimizer):
             pos_new = self.pop[i][self.ID_POS] + lamda * ((self.pop[idx][self.ID_POS] + self.g_best[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
             ### Mutation
             temp = self.pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * self.sigma
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.p_m, temp, pos_new)
+            pos_new = np.where(np.random.random(self.problem.n_dims) < self.p_m, temp, pos_new)
             ### In-bound position
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class OriginalSBO(BaseSBO):
@@ -209,7 +208,6 @@ class OriginalSBO(BaseSBO):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                self.pop[i] = [pos_new, self.get_target_wrapper(pos_new)]
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
+            self.pop = self.update_target_wrapper_population(pop_new)
