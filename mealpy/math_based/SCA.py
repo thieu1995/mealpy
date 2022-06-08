@@ -69,19 +69,18 @@ class BaseSCA(Optimizer):
             r2 = 2 * np.pi * np.random.uniform(0, 1, self.problem.n_dims)
             r3 = 2 * np.random.uniform(0, 1, self.problem.n_dims)
             # Eq. 3.3, 3.1 and 3.2
-            pos_new1 = self.pop[idx][self.ID_POS] + r1 * np.sin(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new2 = self.pop[idx][self.ID_POS] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, pos_new1, pos_new2)
+            pos_new1 = self.pop[idx][self.ID_POS] + r1 * np.sin(r2) * np.abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new2 = self.pop[idx][self.ID_POS] + r1 * np.cos(r2) * np.abs(r3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new = np.where(np.random.random(self.problem.n_dims) < 0.5, pos_new1, pos_new2)
             # Check the bound
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class OriginalSCA(BaseSCA):
@@ -164,13 +163,15 @@ class OriginalSCA(BaseSCA):
                 r4 = np.random.uniform()
                 # Eq. 3.3, 3.1 and 3.2
                 if r4 < 0.5:
-                    pos_new[j] = pos_new[j] + r1 * np.sin(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
+                    pos_new[j] = pos_new[j] + r1 * np.sin(r2) * np.abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
                 else:
-                    pos_new[j] = pos_new[j] + r1 * np.cos(r2) * abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
+                    pos_new[j] = pos_new[j] + r1 * np.cos(r2) * np.abs(r3 * self.g_best[self.ID_POS][j] - pos_new[j])
             # Check the bound
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
