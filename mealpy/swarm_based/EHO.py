@@ -16,7 +16,7 @@ class BaseEHO(Optimizer):
     Links:
         1. https://doi.org/10.1109/ISCBI.2015.8
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.3, 0.8], a factor that determines the influence of the best in each clan, default=0.5
         + beta (float): [0.3, 0.8], a factor that determines the influence of the x_center, default=0.5
         + n_clans (int): [3, 10], the number of clans, default=5
@@ -71,17 +71,16 @@ class BaseEHO(Optimizer):
         self.nfe_per_epoch = self.pop_size + self.n_clans
         self.sort_flag = False
 
-    def _create_pop_group(self, pop):
+    def after_initialization(self):
+        self.pop_group = self.create_pop_group__(self.pop)
+        _, self.g_best = self.get_global_best_solution(self.pop)
+
+    def create_pop_group__(self, pop):
         pop_group = []
         for i in range(0, self.n_clans):
             group = pop[i * self.n_individuals: (i + 1) * self.n_individuals]
             pop_group.append(deepcopy(group))
         return pop_group
-
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
-        self.pop_group = self._create_pop_group(self.pop)
-        _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
         """
@@ -104,10 +103,13 @@ class BaseEHO(Optimizer):
                           (self.pop_group[clan_idx][0][self.ID_POS] - self.pop_group[clan_idx][pos_clan_idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        # Update fitness value
-        self.pop = self.update_target_wrapper_population(pop_new)
-        self.pop_group = self._create_pop_group(self.pop)
-
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
+        self.pop_group = self.create_pop_group__(self.pop)
         # Separating operator
         for i in range(0, self.n_clans):
             self.pop_group[i], _ = self.get_global_best_solution(self.pop_group[i])
