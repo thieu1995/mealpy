@@ -80,29 +80,28 @@ class BaseTLO(Optimizer):
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
         pop_child = []
         for idx in range(0, self.pop_size):
             ## Learning Phrase
-            temp = deepcopy(pop_new[idx][self.ID_POS]).astype(float)
+            temp = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
             id_partner = np.random.choice(np.setxor1d(np.array(range(self.pop_size)), np.array([idx])))
-            if self.compare_agent(pop_new[idx], pop_new[id_partner]):
-                temp += np.random.rand(self.problem.n_dims) * (pop_new[idx][self.ID_POS] - pop_new[id_partner][self.ID_POS])
+            if self.compare_agent(self.pop[idx], self.pop[id_partner]):
+                temp += np.random.rand(self.problem.n_dims) * (self.pop[idx][self.ID_POS] - self.pop[id_partner][self.ID_POS])
             else:
-                temp += np.random.rand(self.problem.n_dims) * (pop_new[id_partner][self.ID_POS] - pop_new[idx][self.ID_POS])
+                temp += np.random.rand(self.problem.n_dims) * (self.pop[id_partner][self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
-            pop_child = self.update_target_wrapper_population(pop_new)
-            pop_child = self.greedy_selection_population(pop_child, pop_new)
-        self.pop = pop_child
+            pop_child = self.update_target_wrapper_population(pop_child)
+            self.pop = self.greedy_selection_population(pop_child, self.pop)
 
 
 class OriginalTLO(BaseTLO):
@@ -250,7 +249,7 @@ class ITLO(BaseTLO):
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
-    def classify(self, pop):
+    def classify__(self, pop):
         sorted_pop, best = self.get_global_best_solution(pop)
         teachers = sorted_pop[:self.n_teachers]
         sorted_pop = sorted_pop[self.n_teachers:]
@@ -264,9 +263,8 @@ class ITLO(BaseTLO):
             teams.append(group)
         return teachers, teams, best
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
-        self.teachers, self.teams, self.g_best = self.classify(self.pop)
+    def after_initialization(self):
+        self.teachers, self.teams, self.g_best = self.classify__(self.pop)
 
     def evolve(self, epoch):
         """
