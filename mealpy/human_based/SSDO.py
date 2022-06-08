@@ -60,19 +60,16 @@ class BaseSSDO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, velocity, best_local_position]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         pos_local = deepcopy(position)
@@ -111,8 +108,7 @@ class BaseSSDO(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 old = deepcopy(pop_new[idx])
                 old[self.ID_TAR] = self.get_target_wrapper(pos_new)
-                pop_new[idx] = self.get_better_solution(pop_new[idx], old)
+                self.pop[idx] = self.get_better_solution(pop_new[idx], old)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
