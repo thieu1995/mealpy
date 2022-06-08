@@ -57,7 +57,7 @@ class OriginalALO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
-    def _random_walk_antlion(self, solution, current_epoch):
+    def random_walk_antlion__(self, solution, current_epoch):
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
         if current_epoch > self.epoch / 10:
             I = 1 + 100 * (current_epoch / self.epoch)
@@ -112,20 +112,22 @@ class OriginalALO(Optimizer):
             rolette_index = self.get_index_roulette_wheel_selection(list_fitness)
 
             # RA is the random walk around the selected antlion by rolette wheel
-            RA = self._random_walk_antlion(self.pop[rolette_index][self.ID_POS], epoch)
+            RA = self.random_walk_antlion__(self.pop[rolette_index][self.ID_POS], epoch)
 
-            # RE is the random walk around the elite (best antlion so far)
-            RE = self._random_walk_antlion(self.g_best[self.ID_POS], epoch)
+            # RE is the random walk around the elite (the best antlion so far)
+            RE = self.random_walk_antlion__(self.g_best[self.ID_POS], epoch)
 
             temp = (RA[:, epoch] + RE[:, epoch]) / 2  # Equation(2.13) in the paper
 
             # Bound checking (bring back the antlions of ants inside search space if they go beyonds the boundaries
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
 
-        # Update antlion positions and fitnesses based of the ants (if an ant becomes fitter than an antlion we
-        #   assume it was caught by the antlion and the antlion update goes to its position to build the trap)
+        # Update antlion positions and fitnesses based on the ants (if an ant becomes fitter than an antlion
+        # we assume it was caught by the antlion and the antlion update goes to its position to build the trap)
         self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
 
         # Keep the elite in the population
@@ -139,7 +141,7 @@ class BaseALO(OriginalALO):
     Notes
     ~~~~~
     + Use matrix for better performance.
-    + Change the flow of updating new position makes it better then original one
+    + Change the flow of updating a new position makes it better than the original one
 
     Examples
     ~~~~~~~~
@@ -174,7 +176,7 @@ class BaseALO(OriginalALO):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
-    def _random_walk_antlion(self, solution, current_epoch):
+    def random_walk_antlion__(self, solution, current_epoch):
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
         if current_epoch > self.epoch / 10:
             I = 1 + 100 * (current_epoch / self.epoch)
@@ -187,7 +189,7 @@ class BaseALO(OriginalALO):
         if current_epoch > self.epoch * 0.95:
             I = 1 + 1000000 * (current_epoch / self.epoch)
 
-        # Dicrease boundaries to converge towards antlion
+        # Decrease boundaries to converge towards antlion
         lb = self.problem.lb / I  # Equation (2.10) in the paper
         ub = self.problem.ub / I  # Equation (2.10) in the paper
 
