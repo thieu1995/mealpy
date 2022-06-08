@@ -17,7 +17,7 @@ class BaseBeesA(Optimizer):
         1. https://www.sciencedirect.com/science/article/pii/B978008045157250081X
         2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + site_ratio (list, tuple): (selected_site_ratio, elite_site_ratio), default = (0.5, 0.4)
         + site_bee_ratio (list, tuple): (selected_site_bee_ratio, elite_site_bee_ratio), default = (0.1, 2)
         + dance_factor (list, tuple): (radius, reduction), default = (0.1, 0.99)
@@ -86,7 +86,7 @@ class BaseBeesA(Optimizer):
                              (self.n_selected_bees - self.n_elite_bees) * self.n_selected_bees_local
         self.sort_flag = True
 
-    def perform_dance(self, position, r):
+    def perform_dance__(self, position, r):
         j = np.random.choice(range(0, self.problem.n_dims))
         position[j] = position[j] + r * np.random.uniform(-1, 1)
         return self.amend_position(position, self.problem.lb, self.problem.ub)
@@ -106,8 +106,10 @@ class BaseBeesA(Optimizer):
                 nfe_epoch += self.n_elite_bees_local
                 pop_child = []
                 for j in range(0, self.n_elite_bees_local):
-                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
                 pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
@@ -117,8 +119,10 @@ class BaseBeesA(Optimizer):
                 nfe_epoch += self.n_selected_bees_local
                 pop_child = []
                 for j in range(0, self.n_selected_bees_local):
-                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
                 pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
@@ -141,7 +145,7 @@ class ProbBeesA(Optimizer):
     ~~~~~
     + This is probabilistic version of Bees Algorithm
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
         + dance_factor (tuple, list): (radius, reduction) - Bees Dance Radius, default=(0.1, 0.99)
 
@@ -197,7 +201,7 @@ class ProbBeesA(Optimizer):
         self.dyn_radius = self.dance_radius
         self.recruited_bee_count = int(round(self.recruited_bee_ratio * self.pop_size))
 
-    def perform_dance(self, position, r):
+    def perform_dance__(self, position, r):
         j = np.random.choice(list(range(0, self.problem.n_dims)))
         position[j] = position[j] + r * np.random.uniform(-1, 1)
         return self.amend_position(position, self.problem.lb, self.problem.ub)
@@ -236,8 +240,10 @@ class ProbBeesA(Optimizer):
                 pop_child = []
                 nfe_epoch += bee_count
                 for j in range(0, bee_count):
-                    pos_new = self.perform_dance(self.pop[idx][self.ID_POS], self.dyn_radius)
+                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
                 pop_child = self.update_target_wrapper_population(pop_child)
                 _, local_best = self.get_global_best_solution(pop_child)
                 if self.compare_agent(local_best, self.pop[idx]):
