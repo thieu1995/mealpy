@@ -13,7 +13,7 @@ class BaseFFA(Optimizer):
     """
     The original version of: Firefly Algorithm (FFA)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + gamma (float): Light Absorption Coefficient, default = 0.001
         + beta_base (float): Attraction Coefficient Base Value, default = 2
         + alpha (float): Mutation Coefficient, default = 0.2
@@ -94,7 +94,7 @@ class BaseFFA(Optimizer):
         """
         # Maximum Distance
         dmax = np.sqrt(self.problem.n_dims)
-
+        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
             pop_child = []
@@ -111,12 +111,16 @@ class BaseFFA(Optimizer):
                     pos_new = agent[self.ID_POS] + self.dyn_alpha * mutation_vector + beta * temp
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_child.append([pos_new, None])
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             if len(pop_child) < 2:
                 continue
             pop_child = self.update_target_wrapper_population(pop_child)
+            nfe_epoch += len(pop_child)
             _, local_best = self.get_global_best_solution(pop_child)
             # Compare to Previous Solution
             if self.compare_agent(local_best, agent):
                 self.pop[idx] = local_best
         self.pop.append(self.g_best)
         self.dyn_alpha = self.alpha_damp * self.alpha
+        self.nfe_per_epoch = nfe_epoch
