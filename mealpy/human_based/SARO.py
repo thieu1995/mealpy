@@ -65,8 +65,8 @@ class BaseSARO(Optimizer):
         ## Dynamic variable
         self.dyn_USN = np.zeros(self.pop_size)
 
-    def initialization(self):
-        pop = self.create_population(pop_size=(2 * self.pop_size))
+    def after_initialization(self):
+        pop = self.pop + self.create_population(self.pop_size)
         self.pop, self.g_best = self.get_global_best_solution(pop)
 
     def amend_position(self, position=None, lb=None, ub=None):
@@ -222,7 +222,6 @@ class OriginalSARO(BaseSARO):
                         pos_new[j] = self.pop[k][self.ID_POS][j] + r1 * sd[j]
                     else:
                         pos_new[j] = pop_x[idx][self.ID_POS][j] + r1 * sd[j]
-
                 if pos_new[j] < self.problem.lb[j]:
                     pos_new[j] = (pop_x[idx][self.ID_POS][j] + self.problem.lb[j]) / 2
                 if pos_new[j] > self.problem.ub[j]:
