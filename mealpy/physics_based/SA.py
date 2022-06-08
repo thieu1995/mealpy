@@ -86,22 +86,20 @@ class BaseSA(Optimizer):
         self.sort_flag = True
         self.dyn_t, self.t_damp, self.dyn_sigma = None, None, None
 
-    def _mutate(self, position, sigma):
+    def mutate__(self, position, sigma):
         # Select Mutating Variables
         pos_new = position + sigma * np.random.uniform(self.problem.lb, self.problem.ub)
-        pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.mutation_rate, position, pos_new)
-
-        if np.all(pos_new == position):  # Select at least one variable to _mutate
+        pos_new = np.where(np.random.random(self.problem.n_dims) < self.mutation_rate, position, pos_new)
+        if np.all(pos_new == position):  # Select at least one variable to mutate
             pos_new[np.random.randint(0, self.problem.n_dims)] = np.random.uniform()
         return self.amend_position(pos_new, self.problem.lb, self.problem.ub)
 
-    def initialization(self):
+    def after_initialization(self):
+        self.pop, self.g_best = self.get_global_best_solution(self.pop)
         # Initial Temperature
         self.dyn_t = self.t0  # Initial Temperature
         self.t_damp = (self.t1 / self.t0) ** (1.0 / self.epoch)  # Calculate Temperature Damp Rate
         self.dyn_sigma = self.mutation_step_size  # Initial Value of Step Size
-        self.pop = self.create_population(self.pop_size)
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
         """
@@ -115,10 +113,10 @@ class BaseSA(Optimizer):
 
             # Create new population
             pop_new = []
-            for i in range(0, self.pop_size):
+            for idx in range(0, self.pop_size):
                 for j in range(0, self.move_count):
                     # Perform Mutation (Move)
-                    pos_new = self._mutate(self.pop[i][self.ID_POS], self.dyn_sigma)
+                    pos_new = self.mutate__(self.pop[idx][self.ID_POS], self.dyn_sigma)
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_new.append([pos_new, None])
                     if self.mode not in self.AVAILABLE_MODES:
@@ -129,16 +127,16 @@ class BaseSA(Optimizer):
             pop_new = self.get_sorted_strim_population(pop_new, self.pop_size)
 
             # Randomized Selection
-            for i in range(0, self.pop_size):
+            for idx in range(0, self.pop_size):
                 # Check if new solution is better than current
-                if self.compare_agent(pop_new[i], self.pop[i]):
-                    self.pop[i] = deepcopy(pop_new[i])
+                if self.compare_agent(pop_new[idx], self.pop[idx]):
+                    self.pop[idx] = deepcopy(pop_new[idx])
                 else:
                     # Compute difference according to problem type
-                    delta = abs(pop_new[i][self.ID_TAR][self.ID_FIT] - self.pop[i][self.ID_TAR][self.ID_FIT])
+                    delta = np.abs(pop_new[idx][self.ID_TAR][self.ID_FIT] - self.pop[idx][self.ID_TAR][self.ID_FIT])
                     p = np.exp(-delta / self.dyn_t)  # Compute Acceptance Probability
                     if np.random.uniform() <= p:  # Accept / Reject
-                        self.pop[i] = deepcopy(pop_new[i])
+                        self.pop[idx] = deepcopy(pop_new[idx])
         # Update Temperature
         self.dyn_t = self.t_damp * self.dyn_t
         self.dyn_sigma = self.mutation_step_size_damp * self.dyn_sigma
