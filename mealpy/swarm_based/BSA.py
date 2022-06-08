@@ -17,7 +17,7 @@ class BaseBSA(Optimizer):
         1. http://doi.org/10.1080/0952813X.2015.1042530
         2. https://www.mathworks.com/matlabcentral/fileexchange/51256-bird-swarm-algorithm-bsa
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + ff (int): (5, 20), flight frequency - default = 10
         + pff (float): the probability of foraging for food - default = 0.8
         + c_couples (list, tuple): [c1, c2] -> (2.0, 2.0), Cognitive accelerated coefficient, Social accelerated coefficient same as PSO
@@ -86,19 +86,16 @@ class BaseBSA(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: a solution with format [position, target, local_position, local_fitness]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         local_position = deepcopy(position)
         local_fitness = deepcopy(target)
@@ -133,10 +130,15 @@ class BaseBSA(Optimizer):
                     A2 = self.a_couples[1] * np.exp(t1 * self.pop_size * fit_list[k] / (fit_sum + self.EPSILON))
                     x_new = self.pop[i][self.ID_POS] + A1 * np.random.uniform(0, 1) * (pos_mean - self.pop[i][self.ID_POS]) + \
                             A2 * np.random.uniform(-1, 1) * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
-                agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
+                pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
+                agent[self.ID_POS] = pos_new
                 pop_new.append(agent)
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+                if self.mode not in self.AVAILABLE_MODES:
+                    agent[self.ID_TAR] = self.get_target_wrapper(pos_new)
+                    self.pop[i] = self.get_better_solution(agent, self.pop[i])
+            if self.mode in self.AVAILABLE_MODES:
+                pop_new = self.update_target_wrapper_population(pop_new)
+                self.pop = self.greedy_selection_population(self.pop, pop_new)
             nfe_epoch += self.pop_size
         else:
             pop_new = deepcopy(self.pop)
@@ -190,7 +192,11 @@ class BaseBSA(Optimizer):
                         x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL
                         agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                         pop_new[i] = agent
-            pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode in self.AVAILABLE_MODES:
+                pop_new = self.update_target_wrapper_population(pop_new)
+            else:
+                for idx in range(0, self.pop_size):
+                    pop_new[idx][self.ID_TAR] = self.get_target_wrapper(pop_new[idx][self.ID_POS])
             self.pop = self.greedy_selection_population(self.pop, pop_new)
             nfe_epoch += self.pop_size
         self.nfe_per_epoch = nfe_epoch
