@@ -16,7 +16,7 @@ class BaseCSA(Optimizer):
     Links:
         1. https://doi.org/10.1109/NABIC.2009.5393690
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_a (float): [0.1, 0.7], probability a, default=0.3
 
     Examples
@@ -88,5 +88,7 @@ class BaseCSA(Optimizer):
             pos_new = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = pop[:(self.pop_size - self.n_cut)] + pop_new
