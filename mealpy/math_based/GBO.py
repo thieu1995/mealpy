@@ -62,8 +62,7 @@ class OriginalGBO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         self.g_best, self.g_worst = best[0], worst[0]
 
@@ -134,11 +133,10 @@ class OriginalGBO(Optimizer):
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(pop_new, self.pop)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
         self.nfe_per_epoch = self.pop_size
         _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         self.g_best, self.g_worst = best[0], worst[0]
