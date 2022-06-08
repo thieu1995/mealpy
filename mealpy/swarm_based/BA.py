@@ -17,7 +17,7 @@ class OriginalBA(Optimizer):
     ~~~~~
     + The value of A and r parameters are constant
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + loudness (float): (1.0, 2.0), loudness, default = 0.8
         + pulse_rate (float): (0.15, 0.85), pulse rate / emission rate, default = 0.95
         + pulse_frequency (list, tuple): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
@@ -75,19 +75,16 @@ class OriginalBA(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: a solution with format [position, target, velocity, pulse_frequency]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         pulse_frequency = self.pulse_frequency[0] + (self.pulse_frequency[1] - self.pulse_frequency[0]) * np.random.uniform()
@@ -111,6 +108,8 @@ class OriginalBA(Optimizer):
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         for idx in range(self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
@@ -127,7 +126,7 @@ class BaseBA(Optimizer):
     ~~~~~
     + The value of A and r are changing after each iteration
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + loudness (tuple, list): (A_min, A_max) -> ([0.5, 1.5], [1.0, 3.0]): loudness, default = (1.0, 2.0)
         + pulse_rate (tuple, list): (r_min, r_max) -> ([0.1, 0.5], [0.5, 0.95]), pulse rate / emission rate, default = (0.15, 0.85)
         + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
@@ -189,19 +188,16 @@ class BaseBA(Optimizer):
         self.pulse_frequency = self.validator.check_tuple_float("pulse_frequency (pf_min, pf_max)", pulse_frequency, ([0, 2], [2, 10]))
         self.alpha = self.gamma = 0.9
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: a solution with format [position, target, velocity, loudness, pulse_rate, pulse_frequency]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(lb, ub)
         loudness = np.random.uniform(self.loudness[0], self.loudness[1])
@@ -229,8 +225,9 @@ class BaseBA(Optimizer):
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
-
         for idx in range(0, self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
             ##  and then update loudness and emission rate
@@ -252,7 +249,7 @@ class ModifiedBA(Optimizer):
         + 2nd: If new position has better fitness we replace the old position
         + 3rd: Otherwise, we proceed exploitation phase (using finding around the best position so far)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pulse_rate (float): [0.7, 1.0], pulse rate / emission rate, default = 0.95
         + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
 
@@ -317,6 +314,8 @@ class ModifiedBA(Optimizer):
             x = self.pop[idx][self.ID_POS] + self.dyn_list_velocity[idx]  # Eq. 4
             pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
         pop_child_idx = []
@@ -331,6 +330,8 @@ class ModifiedBA(Optimizer):
                     pop_child_idx.append(idx)
                     pop_child.append([pos_new, None])
                     nfe_epoch += 1
+                    if self.mode not in self.AVAILABLE_MODES:
+                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_child = self.update_target_wrapper_population(pop_child)
         for idx, idx_selected in enumerate(pop_child_idx):
             if self.compare_agent(pop_child[idx], pop_new[idx_selected]):
