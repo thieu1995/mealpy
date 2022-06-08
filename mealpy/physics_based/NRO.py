@@ -125,42 +125,42 @@ class BaseNRO(Optimizer):
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
         # NFu phase
 
         ## Ionization stage
         ## Calculate the Pa through Eq. (10)
         pop_child = []
-        ranked_pop = np.argsort([pop_new[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
+        ranked_pop = np.argsort([self.pop[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
         for i in range(self.pop_size):
-            X_ion = deepcopy(pop_new[i][self.ID_POS])
+            X_ion = deepcopy(self.pop[i][self.ID_POS])
             if (ranked_pop[i] * 1.0 / self.pop_size) < np.random.random():
                 i1, i2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                 for j in range(self.problem.n_dims):
                     #### Levy flight strategy is described as Eq. 18
-                    if pop_new[i2][self.ID_POS][j] == pop_new[i][self.ID_POS][j]:
-                        X_ion[j] = pop_new[i][self.ID_POS][j] + alpha * levy_b * (pop_new[i][self.ID_POS][j] - self.g_best[self.ID_POS][j])
+                    if self.pop[i2][self.ID_POS][j] == self.pop[i][self.ID_POS][j]:
+                        X_ion[j] = self.pop[i][self.ID_POS][j] + alpha * levy_b * (self.pop[i][self.ID_POS][j] - self.g_best[self.ID_POS][j])
                     #### If not, based on Eq. 11, 12
                     else:
                         if np.random.uniform() <= 0.5:
-                            X_ion[j] = pop_new[i1][self.ID_POS][j] + np.random.uniform() * (pop_new[i2][self.ID_POS][j] - pop_new[i][self.ID_POS][j])
+                            X_ion[j] = self.pop[i1][self.ID_POS][j] + np.random.uniform() * (self.pop[i2][self.ID_POS][j] - self.pop[i][self.ID_POS][j])
                         else:
-                            X_ion[j] = pop_new[i1][self.ID_POS][j] - np.random.uniform() * (pop_new[i2][self.ID_POS][j] - pop_new[i][self.ID_POS][j])
+                            X_ion[j] = self.pop[i1][self.ID_POS][j] - np.random.uniform() * (self.pop[i2][self.ID_POS][j] - self.pop[i][self.ID_POS][j])
 
             else:  #### Levy flight strategy is described as Eq. 21
-                _, _, worst = self.get_special_solutions(pop_new, worst=1)
+                _, _, worst = self.get_special_solutions(self.pop, worst=1)
                 X_worst = worst[0]
                 for j in range(self.problem.n_dims):
                     ##### Based on Eq. 21
                     if X_worst[self.ID_POS][j] == self.g_best[self.ID_POS][j]:
-                        X_ion[j] = pop_new[i][self.ID_POS][j] + alpha * levy_b * (self.problem.ub[j] - self.problem.lb[j])
+                        X_ion[j] = self.pop[i][self.ID_POS][j] + alpha * levy_b * (self.problem.ub[j] - self.problem.lb[j])
                     ##### Based on Eq. 13
                     else:
-                        X_ion[j] = pop_new[i][self.ID_POS][j] + round(np.random.uniform()) * np.random.uniform() * \
+                        X_ion[j] = self.pop[i][self.ID_POS][j] + round(np.random.uniform()) * np.random.uniform() * \
                                    (X_worst[self.ID_POS][j] - self.g_best[self.ID_POS][j])
 
             ## Check the boundary and evaluate the fitness function for X_ion
@@ -168,46 +168,44 @@ class BaseNRO(Optimizer):
             pop_child.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_child[-1] = self.get_better_solution([pos_new, target], pop_new[i])
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
         if self.mode in self.AVAILABLE_MODES:
             pop_child = self.update_target_wrapper_population(pop_child)
-            pop_child = self.greedy_selection_population(pop_child, pop_new)
+            self.pop = self.greedy_selection_population(pop_child, self.pop)
 
         ## Fusion Stage
 
         ### all ions obtained from ionization are ranked based on (14) - Calculate the Pc through Eq. (14)
         pop_new = []
-        ranked_pop = np.argsort([pop_child[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
+        ranked_pop = np.argsort([self.pop[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
         for i in range(self.pop_size):
             i1, i2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
 
             #### Generate fusion nucleus
             if (ranked_pop[i] * 1.0 / self.pop_size) < np.random.random():
-                t1 = np.random.uniform() * (pop_child[i1][self.ID_POS] - self.g_best[self.ID_POS])
-                t2 = np.random.uniform() * (pop_child[i2][self.ID_POS] - self.g_best[self.ID_POS])
-                temp2 = pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS]
-                X_fu = pop_child[i][self.ID_POS] + t1 + t2 - np.exp(-np.linalg.norm(temp2)) * temp2
+                t1 = np.random.uniform() * (self.pop[i1][self.ID_POS] - self.g_best[self.ID_POS])
+                t2 = np.random.uniform() * (self.pop[i2][self.ID_POS] - self.g_best[self.ID_POS])
+                temp2 = self.pop[i1][self.ID_POS] - self.pop[i2][self.ID_POS]
+                X_fu = self.pop[i][self.ID_POS] + t1 + t2 - np.exp(-np.linalg.norm(temp2)) * temp2
             #### Else
             else:
                 ##### Based on Eq. 22
-                check_equal = (pop_child[i1][self.ID_POS] == pop_child[i2][self.ID_POS])
+                check_equal = (self.pop[i1][self.ID_POS] == self.pop[i2][self.ID_POS])
                 if check_equal.all():
-                    X_fu = pop_child[i][self.ID_POS] + alpha * levy_b * (pop_child[i][self.ID_POS] - self.g_best[self.ID_POS])
+                    X_fu = self.pop[i][self.ID_POS] + alpha * levy_b * (self.pop[i][self.ID_POS] - self.g_best[self.ID_POS])
                 ##### Based on Eq. 16, 17
                 else:
                     if np.random.uniform() > 0.5:
-                        X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) *
-                                                                  (self.epoch - epoch) / self.epoch + 1) * (
-                                           pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
+                        X_fu = self.pop[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) *
+                            (self.epoch - epoch) / self.epoch + 1) * (self.pop[i1][self.ID_POS] - self.pop[i2][self.ID_POS])
                     else:
-                        X_fu = pop_child[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) * epoch / self.epoch + 1) * \
-                               (pop_child[i1][self.ID_POS] - pop_child[i2][self.ID_POS])
+                        X_fu = self.pop[i][self.ID_POS] - 0.5 * (np.sin(2 * np.pi * freq * epoch + np.pi) * epoch / self.epoch + 1) * \
+                               (self.pop[i1][self.ID_POS] - self.pop[i2][self.ID_POS])
             pos_new = self.amend_position(X_fu, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], pop_child[i])
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(pop_child, pop_new)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
