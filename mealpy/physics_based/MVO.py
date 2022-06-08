@@ -85,18 +85,17 @@ class BaseMVO(Optimizer):
                 black_hole_pos_1 = self.pop[idx][self.ID_POS] + tdr * np.random.normal(0, 1) * \
                                    (self.pop[white_hole_id][self.ID_POS] - self.pop[idx][self.ID_POS])
                 black_hole_pos_2 = self.g_best[self.ID_POS] + tdr * np.random.normal(0, 1) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                black_hole_pos = np.where(np.random.uniform(0, 1, self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
+                black_hole_pos = np.where(np.random.random(self.problem.n_dims) < 0.5, black_hole_pos_1, black_hole_pos_2)
             else:
                 black_hole_pos = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(black_hole_pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[idx])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class OriginalMVO(BaseMVO):
@@ -104,7 +103,7 @@ class OriginalMVO(BaseMVO):
     The original version of: Multi-Verse Optimizer (MVO)
 
     Links:
-        1. http://dx.doi.org/10.1007/s00521-015-1870-7
+        1. https://dx.doi.org/10.1007/s00521-015-1870-7
         2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
@@ -154,7 +153,7 @@ class OriginalMVO(BaseMVO):
         self.sort_flag = True
 
     # sorted_inflation_rates
-    def _roulette_wheel_selection__(self, weights=None):
+    def roulette_wheel_selection__(self, weights=None):
         accumulation = np.cumsum(weights)
         p = np.random.uniform() * accumulation[-1]
         chosen_idx = None
@@ -164,7 +163,7 @@ class OriginalMVO(BaseMVO):
                 break
         return chosen_idx
 
-    def _normalize(self, d, to_sum=True):
+    def normalize__(self, d, to_sum=True):
         # d is a (n x dimension) np np.array
         d -= np.min(d, axis=0)
         if to_sum:
@@ -197,7 +196,7 @@ class OriginalMVO(BaseMVO):
             list_fitness_normalized = np.random.uniform(0, 0.1, self.pop_size)
         else:
             ### Normalize inflation rates (NI in Eq. (3.1) in the paper)
-            list_fitness_normalized = np.reshape(self._normalize(np.array([list_fitness_raw])), self.pop_size)  # Matrix
+            list_fitness_normalized = np.reshape(self.normalize__(np.array([list_fitness_raw])), self.pop_size)  # Matrix
 
         pop_new = []
         for idx in range(0, self.pop_size):
@@ -205,7 +204,7 @@ class OriginalMVO(BaseMVO):
             for j in range(0, self.problem.n_dims):
                 r1 = np.random.uniform()
                 if r1 < list_fitness_normalized[idx]:
-                    white_hole_id = self._roulette_wheel_selection__((-1 * list_fitness_raw))
+                    white_hole_id = self.roulette_wheel_selection__((-1 * list_fitness_raw))
                     if white_hole_id == None or white_hole_id == -1:
                         white_hole_id = 0
                     # Eq. (3.1) in the paper
@@ -222,6 +221,8 @@ class OriginalMVO(BaseMVO):
             pos_new = self.amend_position(black_hole_pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
