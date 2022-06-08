@@ -19,9 +19,9 @@ class BaseABC(Optimizer):
     Notes
     ~~~~~
     + This version is based on ABC in the book Clever Algorithms
-    + Improved the function _search_neigh__
+    + Improved the function search_neighborhood__
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + couple_bees (list, tuple): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
         + patch_variables (list, tuple): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
         + patch_variables = patch_variables * patch_factor (0.985)
@@ -86,7 +86,7 @@ class BaseABC(Optimizer):
         self.nfe_per_epoch = self.e_bees * self.elite_sites + self.o_bees * self.num_sites + (self.pop_size - self.num_sites)
         self.sort_flag = True
 
-    def _search_neigh__(self, parent=None, neigh_size=None):
+    def search_neighborhood__(self, parent=None, neigh_size=None):
         """
         Search 1 best position in neigh_size position
         """
@@ -96,8 +96,10 @@ class BaseABC(Optimizer):
             new_bee = deepcopy(parent[self.ID_POS])
             new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
                 else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
-            new_bee = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
-            pop_neigh.append([new_bee, None])
+            pos_new = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
+            pop_neigh.append([pos_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_neigh[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_neigh = self.update_target_wrapper_population(pop_neigh)
         _, current_best = self.get_global_best_solution(pop_neigh)
         return current_best
@@ -116,8 +118,11 @@ class BaseABC(Optimizer):
                     neigh_size = self.e_bees
                 else:
                     neigh_size = self.o_bees
-                agent = self._search_neigh__(self.pop[idx], neigh_size)
+                agent = self.search_neighborhood__(self.pop[idx], neigh_size)
             else:
                 agent = self.create_solution(self.problem.lb, self.problem.ub)
             pop_new.append(agent)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx] = self.get_better_solution(agent, self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
