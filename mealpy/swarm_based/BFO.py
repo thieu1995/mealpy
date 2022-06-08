@@ -22,7 +22,7 @@ class OriginalBFO(Optimizer):
     + The Nc parameter will also decreased to reduce the computation time.
     + Cost in this version equal to Fitness value in the paper.
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + Ci (float): [0.01, 0.3], step size, default=0.01
         + Ped (float): [0.1, 0.5], probability of elimination, default=0.25
         + Ned (int): elim_disp_steps (Removed), Ned=5,
@@ -98,43 +98,40 @@ class OriginalBFO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, cost, interaction, sum_nutrients]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         cost = 0.0
         interaction = 0.0
         sum_nutrients = 0.0
         return [position, target, cost, interaction, sum_nutrients]
 
-    def _compute_cell_interaction(self, cell, cells, d, w):
+    def compute_cell_interaction__(self, cell, cells, d, w):
         sum_inter = 0.0
         for other in cells:
             diff = self.problem.n_dims * ((cell[self.ID_POS] - other[self.ID_POS]) ** 2).mean(axis=None)
             sum_inter += d * np.exp(w * diff)
         return sum_inter
 
-    def _attract_repel(self, idx, cells):
-        attract = self._compute_cell_interaction(cells[idx], cells, -self.d_attr, -self.w_attr)
-        repel = self._compute_cell_interaction(cells[idx], cells, self.h_rep, -self.w_rep)
+    def attract_repel__(self, idx, cells):
+        attract = self.compute_cell_interaction__(cells[idx], cells, -self.d_attr, -self.w_attr)
+        repel = self.compute_cell_interaction__(cells[idx], cells, self.h_rep, -self.w_rep)
         return attract + repel
 
-    def _evaluate(self, idx, cells):
-        cells[idx][self.ID_INTER] = self._attract_repel(idx, cells)
+    def evaluate__(self, idx, cells):
+        cells[idx][self.ID_INTER] = self.attract_repel__(idx, cells)
         cells[idx][self.ID_COST] = cells[idx][self.ID_TAR][self.ID_FIT] + cells[idx][self.ID_INTER]
         return cells
 
-    def _tumble_cell(self, cell, step_size):
+    def tumble_cell__(self, cell, step_size):
         delta_i = np.random.uniform(self.problem.lb, self.problem.ub)
         unit_vector = delta_i / np.sqrt(np.abs(np.dot(delta_i, delta_i.T)))
         vector = cell[self.ID_POS] + step_size * unit_vector
@@ -151,7 +148,7 @@ class OriginalBFO(Optimizer):
         for j in range(0, self.chem_steps):
             for idx in range(0, self.pop_size):
                 sum_nutrients = 0.0
-                self.pop = self._evaluate(idx, self.pop)
+                self.pop = self.evaluate__(idx, self.pop)
                 sum_nutrients += self.pop[idx][self.ID_COST]
 
                 for m in range(0, self.swim_length):
@@ -187,7 +184,7 @@ class ABFO(Optimizer):
     + This is the best improvement version of BFO
     + The population will remain the same length as initialization due to add and remove operators
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + Ci (list): C_s (start), C_e (end)  -=> step size # step size in BFO, default=(0.1, 0.001)
         + Ped (float): Probability eliminate, default=0.01
         + Ns (int): swim_length, default=4
@@ -257,26 +254,23 @@ class ABFO(Optimizer):
         self.C_s = self.step_size[0] * (self.problem.ub - self.problem.lb)
         self.C_e = self.step_size[1] * (self.problem.ub - self.problem.lb)
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, nutrient, local_pos_best, local_fit_best]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
         local_pos_best = deepcopy(position)
         local_fit_best = deepcopy(target)
         return [position, target, nutrient, local_pos_best, local_fit_best]
 
-    def _update_step_size(self, pop=None, idx=None):
+    def update_step_size__(self, pop=None, idx=None):
         total_fitness = np.sum([temp[self.ID_TAR][self.ID_FIT] for temp in pop])
         step_size = self.C_s - (self.C_s - self.C_e) * pop[idx][self.ID_TAR][self.ID_FIT] / total_fitness
         step_size = step_size / self.pop[idx][self.ID_NUT] if self.pop[idx][self.ID_NUT] > 0 else step_size
@@ -291,7 +285,7 @@ class ABFO(Optimizer):
         """
         nfe_epoch = 0
         for i in range(0, self.pop_size):
-            step_size = self._update_step_size(self.pop, i)
+            step_size = self.update_step_size__(self.pop, i)
             for m in range(0, self.swim_length):  # Ns
                 delta_i = (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS]) + \
                           (self.pop[i][self.ID_LOC_POS] - self.pop[i][self.ID_POS])
