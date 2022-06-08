@@ -76,25 +76,24 @@ class BaseHGSO(Optimizer):
         self.C_j = self.l3 * np.random.uniform()
         self.pop_group, self.p_best = None, None
 
-    def _create_group(self, pop):
+    def after_initialization(self):
+        _, self.g_best = self.get_global_best_solution(self.pop)
+        self.pop_group = self.create_group__(self.pop)
+        self.p_best = self.get_best_solution_in_team__(self.pop_group)  # multiple element
+
+    def create_group__(self, pop):
         pop_group = []
         for idx in range(0, self.n_clusters):
             pop_group.append(pop[idx * self.n_elements:(idx + 1) * self.n_elements])
         return pop_group
 
-    def _flatten_group(self, group):
+    def flatten_group__(self, group):
         pop = []
         for idx in range(0, self.n_clusters):
             pop += group[idx]
         return pop
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
-        _, self.g_best = self.get_global_best_solution(self.pop)
-        self.pop_group = self._create_group(self.pop)
-        self.p_best = self._get_best_solution_in_team(self.pop_group)  # multiple element
-
-    def _get_best_solution_in_team(self, group=None):
+    def get_best_solution_in_team__(self, group=None):
         list_best = []
         for i in range(len(group)):
             _, best_agent = self.get_global_best_solution(group[i])
@@ -131,7 +130,7 @@ class BaseHGSO(Optimizer):
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop_group[i] = pop_new
             nfe_epoch += self.n_elements
-        self.pop = self._flatten_group(self.pop_group)
+        self.pop = self.flatten_group__(self.pop_group)
 
         ## Update Henry's coefficient using Eq.8
         self.H_j = self.H_j * np.exp(-self.C_j * (1.0 / np.exp(-epoch / self.epoch) - 1.0 / self.T0))
@@ -156,6 +155,6 @@ class BaseHGSO(Optimizer):
         nfe_epoch += N_w
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = deepcopy(pop_new[idx])
-        self.pop_group = self._create_group(self.pop)
-        self.p_best = self._get_best_solution_in_team(self.pop_group)
+        self.pop_group = self.create_group__(self.pop)
+        self.p_best = self.get_best_solution_in_team__(self.pop_group)
         self.nfe_per_epoch = nfe_epoch
