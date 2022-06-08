@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-import math
 from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
@@ -59,25 +58,12 @@ class BaseDO(Optimizer):
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
-    def dragonfly_levy(self):
-        beta = 3 / 2
-        # Eq.(3.10)
-        sigma = (math.gamma(1 + beta) * np.sin(np.pi * beta / 2) / (math.gamma((1 + beta) / 2) * beta * 2 ** ((beta - 1) / 2))) ** (1 / beta)
-        u = np.random.randn(self.problem.n_dims) * sigma
-        v = np.random.randn(self.problem.n_dims)
-        step = u / np.abs(v) ** (1 / beta)
-        # Eq.(3.9)
-        return 0.01 * step
-
-    def initialization(self):
-        # Initial radius of dragonflies' neighbouhoods
-        self.radius = (self.problem.ub - self.problem.lb) / 10
-        self.delta_max = (self.problem.ub - self.problem.lb) / 10
-
-        # Initial population
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         _, self.g_best = self.get_global_best_solution(self.pop)
         self.pop_delta = self.create_population(self.pop_size)
+        # Initial radius of dragonflies' neighborhoods
+        self.radius = (self.problem.ub - self.problem.lb) / 10
+        self.delta_max = (self.problem.ub - self.problem.lb) / 10
 
     def evolve(self, epoch):
         """
@@ -100,6 +86,8 @@ class BaseDO(Optimizer):
         f = 2 * np.random.rand()  # Food attraction weight
         e = my_c  # Enemy distraction weight
 
+        pop_new = []
+        pop_delta_new = []
         for i in range(0, self.pop_size):
             pos_neighbours = []
             pos_neighbours_delta = []
@@ -111,7 +99,6 @@ class BaseDO(Optimizer):
                     neighbours_num += 1
                     pos_neighbours.append(self.pop[j][self.ID_POS])
                     pos_neighbours_delta.append(self.pop_delta[j][self.ID_POS])
-
             pos_neighbours = np.array(pos_neighbours)
             pos_neighbours_delta = np.array(pos_neighbours_delta)
 
@@ -150,7 +137,7 @@ class BaseDO(Optimizer):
                     pos_delta_new = deepcopy(temp)
                     pos_new += temp
                 else:  # Eq. 3.8
-                    pos_new += self.dragonfly_levy() * self.pop[i][self.ID_POS]
+                    pos_new += self.get_levy_flight_step(beta=1.5, multiplier=0.01, case=-1) * self.pop[i][self.ID_POS]
                     pos_delta_new = np.zeros(self.problem.n_dims)
             else:
                 # Eq. 3.6
@@ -160,8 +147,17 @@ class BaseDO(Optimizer):
                 pos_new += temp
 
             # Amend solution
-            self.pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            self.pop_delta[i][self.ID_POS] = self.amend_position(pos_delta_new, self.problem.lb, self.problem.ub)
-
-        self.pop = self.update_target_wrapper_population(self.pop)
-        self.pop_delta = self.update_target_wrapper_population(self.pop_delta)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_delta_new = self.amend_position(pos_delta_new, self.problem.lb, self.problem.ub)
+            pop_new.append([pos_new, None])
+            pop_delta_new.append([pos_delta_new, None])
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                target_delta = self.get_target_wrapper(pos_delta_new)
+                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop_delta[i] = self.get_better_solution([pos_delta_new, target_delta], self.pop_delta[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_delta_new = self.update_target_wrapper_population(pop_delta_new)
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
+            self.pop_delta = self.greedy_selection_population(pop_delta_new, self.pop_delta)
