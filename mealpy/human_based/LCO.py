@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -70,33 +69,28 @@ class OriginalLCO(Optimizer):
             epoch (int): The current iteration
         """
         pop_new = []
-        for i in range(0, self.pop_size):
-            rand_number = np.random.rand()
-
-            if rand_number > 0.875:  # Update using Eq. 1, update from n best position
+        for idx in range(0, self.pop_size):
+            prob = np.random.rand()
+            if prob > 0.875:  # Update using Eq. 1, update from n best position
                 temp = np.array([np.random.rand() * self.pop[j][self.ID_POS] for j in range(0, self.n_agents)])
                 temp = np.mean(temp, axis=0)
-            elif rand_number < 0.7:  # Update using Eq. 2-6
+            elif prob < 0.7:  # Update using Eq. 2-6
                 f1 = 1 - epoch / self.epoch
                 f2 = 1 - f1
-                if i == 0:
-                    pop_new.append(deepcopy(self.g_best))
-                    continue
-                else:
-                    best_diff = f1 * self.r1 * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
-                    better_diff = f2 * self.r1 * (self.pop[i - 1][self.ID_POS] - self.pop[i][self.ID_POS])
-                temp = self.pop[i][self.ID_POS] + np.random.rand() * better_diff + np.random.rand() * best_diff
+                prev_pos = self.g_best[self.ID_POS] if idx == 0 else self.pop[idx-1][self.ID_POS]
+                best_diff = f1 * self.r1 * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                better_diff = f2 * self.r1 * (prev_pos - self.pop[idx][self.ID_POS])
+                temp = self.pop[idx][self.ID_POS] + np.random.rand() * better_diff + np.random.rand() * best_diff
             else:
-                temp = self.problem.ub - (self.pop[i][self.ID_POS] - self.problem.lb) * np.random.rand()
+                temp = self.problem.ub - (self.pop[idx][self.ID_POS] - self.problem.lb) * np.random.rand()
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(pop_new, self.pop)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
 
 
 class BaseLCO(OriginalLCO):
@@ -154,32 +148,29 @@ class BaseLCO(OriginalLCO):
         """
         # epoch: current chance, self.epoch: number of chances
         pop_new = []
-        for i in range(0, self.pop_size):
-            rand = np.random.rand()
-
-            if rand > 0.875:  # Update using Eq. 1, update from n best position
+        for idx in range(0, self.pop_size):
+            prob = np.random.rand()
+            if prob > 0.875:  # Update using Eq. 1, update from n best position
                 temp = np.array([np.random.rand() * self.pop[j][self.ID_POS] for j in range(0, self.n_agents)])
                 temp = np.mean(temp, axis=0)
-            elif rand < 0.7:  # Update using Eq. 2-6
+            elif prob < 0.7:  # Update using Eq. 2-6
                 f = (epoch + 1) / self.epoch
-                if i != 0:
-                    better_diff = f * self.r1 * (self.pop[i - 1][self.ID_POS] - self.pop[i][self.ID_POS])
+                if idx != 0:
+                    better_diff = f * self.r1 * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS])
                 else:
-                    better_diff = f * self.r1 * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
-                best_diff = (1 - f) * self.r1 * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS])
-                temp = self.pop[i][self.ID_POS] + np.random.rand() * better_diff + np.random.rand() * best_diff
+                    better_diff = f * self.r1 * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                best_diff = (1 - f) * self.r1 * (self.pop[0][self.ID_POS] - self.pop[idx][self.ID_POS])
+                temp = self.pop[idx][self.ID_POS] + np.random.rand() * better_diff + np.random.rand() * best_diff
             else:
                 temp = self.generate_position(self.problem.lb, self.problem.ub)
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-            # print(pos_new)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(pop_new, self.pop)
-        self.pop = pop_new
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
 
 
 class ImprovedLCO(Optimizer):
@@ -237,7 +228,7 @@ class ImprovedLCO(Optimizer):
         """
         # epoch: current chance, self.epoch: number of chances
         pop_new = []
-        for i in range(0, self.pop_size):
+        for idx in range(0, self.pop_size):
             rand = np.random.random()
             if rand > 0.875:  # Update using Eq. 1, update from n best position
                 n = int(np.ceil(np.sqrt(self.pop_size)))
@@ -245,54 +236,54 @@ class ImprovedLCO(Optimizer):
                 pos_new = np.mean(pos_new, axis=0)
             elif rand < 0.7:  # Update using Eq. 2-6
                 f = (epoch + 1) / self.epoch
-                if i != 0:
-                    better_diff = f * np.random.rand() * (self.pop[i - 1][self.ID_POS] - self.pop[i][self.ID_POS])
+                if idx != 0:
+                    better_diff = f * np.random.rand() * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS])
                 else:
-                    better_diff = f * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
-                best_diff = (1 - f) * np.random.rand() * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS])
-                pos_new = self.pop[i][self.ID_POS] + better_diff + best_diff
+                    better_diff = f * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                best_diff = (1 - f) * np.random.rand() * (self.pop[0][self.ID_POS] - self.pop[idx][self.ID_POS])
+                pos_new = self.pop[idx][self.ID_POS] + better_diff + best_diff
             else:
-                pos_new = self.problem.ub - (self.pop[i][self.ID_POS] - self.problem.lb) * np.random.rand()
+                pos_new = self.problem.ub - (self.pop[idx][self.ID_POS] - self.problem.lb) * np.random.rand()
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_new[-1] = self.get_better_solution([pos_new, target], self.pop[i])
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-            pop_new = self.greedy_selection_population(pop_new, self.pop)
+            self.pop = self.greedy_selection_population(pop_new, self.pop)
 
         ## Sort the updated population based on fitness
-        pop, local_best = self.get_global_best_solution(pop_new)
+        pop, local_best = self.get_global_best_solution(self.pop)
         pop_s1, pop_s2 = pop[:self.pop_len], pop[self.pop_len:]
 
         ## Mutation scheme
         pop_child1 = []
-        for i in range(0, self.pop_len):
-            pos_new = pop_s1[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * pop_s1[i][self.ID_POS]
+        for idx in range(0, self.pop_len):
+            pos_new = pop_s1[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * pop_s1[idx][self.ID_POS]
             # np.random.rand() * ((epoch+1) / self.epoch) * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child1.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_child1[-1] = self.get_better_solution([pos_new, target], pop_s1[i])
+                pop_s1[idx] = self.get_better_solution([pos_new, target], pop_s1[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_child1 = self.update_target_wrapper_population(pop_child1)
-            pop_child1 = self.greedy_selection_population(pop_s1, pop_child1)
+            pop_s1 = self.greedy_selection_population(pop_s1, pop_child1)
 
         ## Search Mechanism
         pos_s1_list = [item[self.ID_POS] for item in pop_s1]
         pos_s1_mean = np.mean(pos_s1_list, axis=0)
         pop_child2 = []
-        for i in range(0, self.pop_len):
+        for idx in range(0, self.pop_len):
             pos_new = local_best[self.ID_POS] + np.random.uniform(0, 1) * pos_s1_mean * ((epoch+1) / self.epoch)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_child2.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                pop_child2[-1] = self.get_better_solution(pop_s2[i], [pos_new, target])
+                pop_s2[idx] = self.get_better_solution(pop_s2[idx], [pos_new, target])
         if self.mode in self.AVAILABLE_MODES:
             pop_child2 = self.update_target_wrapper_population(pop_s2)
-            pop_child2 = self.greedy_selection_population(pop_s2, pop_child2)
+            pop_s2 = self.greedy_selection_population(pop_s2, pop_child2)
         ## Construct a new population
-        self.pop = pop_child1 + pop_child2
+        self.pop = pop_s1 + pop_s2
