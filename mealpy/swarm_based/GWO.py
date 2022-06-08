@@ -52,7 +52,6 @@ class BaseGWO(Optimizer):
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -77,8 +76,12 @@ class BaseGWO(Optimizer):
             pos_new = (X1 + X2 + X3) / 3.0
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class RW_GWO(Optimizer):
@@ -125,7 +128,6 @@ class RW_GWO(Optimizer):
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-
         self.nfe_per_epoch = self.pop_size + 3
         self.sort_flag = False
 
@@ -140,7 +142,6 @@ class RW_GWO(Optimizer):
         b = 2 - 2 * epoch / (self.epoch - 1)
         # linearly decreased from 2 to 0
         a = 2 - 2 * epoch / (self.epoch - 1)
-
         _, leaders, _ = self.get_special_solutions(self.pop, best=3)
 
         ## Random walk here
@@ -149,8 +150,12 @@ class RW_GWO(Optimizer):
             pos_new = leaders[i][self.ID_POS] + a * np.random.standard_cauchy(self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             leaders_new.append([pos_new, None])
-        leaders_new = self.update_target_wrapper_population(leaders_new)
-        leaders = self.greedy_selection_population(leaders, leaders_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                leaders[i] = self.get_better_solution([pos_new, target], leaders[i])
+        if self.mode in self.AVAILABLE_MODES:
+            leaders_new = self.update_target_wrapper_population(leaders_new)
+            leaders = self.greedy_selection_population(leaders, leaders_new)
 
         ## Update other wolfs
         pop_new = []
@@ -165,6 +170,11 @@ class RW_GWO(Optimizer):
             pos_new = (X1 + X2 + X3) / 3.0
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = self.get_sorted_strim_population(pop_new + leaders, self.pop_size)
+
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
+        self.pop = self.get_sorted_strim_population(self.pop + leaders, self.pop_size)
