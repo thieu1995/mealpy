@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -62,7 +63,7 @@ class BaseEO(Optimizer):
         self.a2 = 1
         self.GP = 0.5
 
-    def make_equilibrium_pool(self, list_equilibrium=None):
+    def make_equilibrium_pool__(self, list_equilibrium=None):
         pos_list = [item[self.ID_POS] for item in list_equilibrium]
         pos_mean = np.mean(pos_list, axis=0)
         pos_mean = self.amend_position(pos_mean, self.problem.lb, self.problem.ub)
@@ -79,7 +80,7 @@ class BaseEO(Optimizer):
         """
         # ---------------- Memory saving-------------------  make equilibrium pool
         _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
-        c_pool = self.make_equilibrium_pool(c_eq_list)
+        c_pool = self.make_equilibrium_pool__(c_eq_list)
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
         pop_new = []
@@ -97,9 +98,11 @@ class BaseEO(Optimizer):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class ModifiedEO(BaseEO):
@@ -157,7 +160,7 @@ class ModifiedEO(BaseEO):
         """
         # ---------------- Memory saving-------------------  make equilibrium pool
         _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
-        c_pool = self.make_equilibrium_pool(c_eq_list)
+        c_pool = self.make_equilibrium_pool__(c_eq_list)
 
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
@@ -177,23 +180,28 @@ class ModifiedEO(BaseEO):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
         ## Sort the updated population based on fitness
-        _, pop_s1, _ = self.get_special_solutions(pop_new, best=self.pop_len)
+        _, pop_s1, _ = self.get_special_solutions(self.pop, best=self.pop_len)
 
         ## Mutation scheme
+        pop_s2 = deepcopy(pop_s1)
         pop_s2_new = []
         for i in range(0, self.pop_len):
-            pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
+            pos_new = pop_s2[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_s2_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_s2_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_s2_new = self.update_target_wrapper_population(pop_s2_new)
-        pop_s2 = pop_s2_new
+                target = self.get_target_wrapper(pos_new)
+                pop_s2[i] = self.get_better_solution([pos_new, target], pop_s2[i])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_s2_new = self.update_target_wrapper_population(pop_s2_new)
+            pop_s2 = self.greedy_selection_population(pop_s2_new, pop_s2)
 
         ## Search Mechanism
         pos_s1_list = [item[self.ID_POS] for item in pop_s1]
@@ -272,7 +280,7 @@ class AdaptiveEO(BaseEO):
         """
         # ---------------- Memory saving-------------------  make equilibrium pool
         _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
-        c_pool = self.make_equilibrium_pool(c_eq_list)
+        c_pool = self.make_equilibrium_pool__(c_eq_list)
 
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
@@ -300,6 +308,8 @@ class AdaptiveEO(BaseEO):
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
