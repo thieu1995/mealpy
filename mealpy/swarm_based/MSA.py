@@ -23,7 +23,7 @@ class BaseMSA(Optimizer):
     + The matlab version of original paper is not good (especially convergence chart)
     + I add Normal random number (Gaussian distribution) in each updating equation (Better performance)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5
         + partition (float): [0.3, 0.8], The proportional of first partition, default=0.5
         + max_step_size (float): [0.5, 2.0], Max step size used in Levy-flight technique, default=1.0
@@ -118,10 +118,13 @@ class BaseMSA(Optimizer):
                 pos_new = np.where(np.random.uniform(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
-
-        self.pop, _ = self.get_global_best_solution(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
+        self.pop, _ = self.get_global_best_solution(self.pop)
         # Replace the worst with the previous generation's elites.
         for i in range(0, self.n_best):
             self.pop[-1 - i] = deepcopy(pop_best[i])
