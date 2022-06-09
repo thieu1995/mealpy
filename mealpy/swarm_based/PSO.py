@@ -13,7 +13,7 @@ class BasePSO(Optimizer):
     """
     The original version of: Particle Swarm Optimization (PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c1 (float): [1, 3], local coefficient, default = 2.05
         + c2 (float): [1, 3], global coefficient, default = 2.05
         + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
@@ -79,19 +79,16 @@ class BasePSO(Optimizer):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, velocity, local_pos, local_fit]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
@@ -100,9 +97,6 @@ class BasePSO(Optimizer):
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        Depend on what kind of problem are we trying to solve, there will be an different amend_position
-        function to rebound the position of agent into the valid range.
-
         Args:
             position: vector position (location) of the solution.
             lb: list of lower bound values
@@ -111,7 +105,9 @@ class BasePSO(Optimizer):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        condition = np.logical_and(lb <= position, position <= ub)
+        pos_rand = np.random.uniform(lb, ub)
+        return np.where(condition, position, pos_rand)
 
     def evolve(self, epoch):
         """
@@ -122,7 +118,6 @@ class BasePSO(Optimizer):
         """
         # Update weight after each move count  (weight down)
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
-        pop_new = []
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
             v_new = w * self.pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * \
@@ -130,17 +125,14 @@ class BasePSO(Optimizer):
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             x_new = self.pop[idx][self.ID_POS] + v_new  # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
+            target = self.get_target_wrapper(pos_new)
             agent[self.ID_POS] = pos_new
             agent[self.ID_VEC] = v_new
-            pop_new.append(agent)
-        pop_new = self.update_target_wrapper_population(pop_new)
-
-        for idx in range(0, self.pop_size):
-            if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = deepcopy(pop_new[idx])
-                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
-                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
-                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
+            agent[self.ID_TAR] = target
+            if self.compare_agent([pos_new, target], [None, self.pop[idx][self.ID_TAR]]):
+                agent[self.ID_LOP] = pos_new
+                agent[self.ID_LOF] = target
+            self.pop[idx] = self.get_better_solution(self.pop[idx], agent)
 
 
 class PPSO(Optimizer):
@@ -201,19 +193,16 @@ class PPSO(Optimizer):
         # Dynamic variable
         self.dyn_delta_list = np.random.uniform(0, 2 * np.pi, self.pop_size)
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, velocity, local_pos, local_fit]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
@@ -265,7 +254,7 @@ class HPSO_TVAC(PPSO):
     ~~~~~
     + This code is converted from matlab code (sent from author: Ebrahim Akbari)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + ci (float): [0.3, 1.0], c initial, default = 0.5
         + cf (float): [0.0, 0.3], c final, default = 0.0
 
@@ -365,7 +354,7 @@ class C_PSO(BasePSO):
     """
     The original version of: Chaos Particle Swarm Optimization (C-PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c1 (float): [1.0, 3.0] local coefficient, default = 2.05
         + c2 (float): [1.0, 3.0] global coefficient, default = 2.05
         + w_min (float): [0.1, 0.4], Weight min of bird, default = 0.4
@@ -431,7 +420,7 @@ class C_PSO(BasePSO):
         self.dyn_lb = deepcopy(self.problem.lb)
         self.dyn_ub = deepcopy(self.problem.ub)
 
-    def __get_weights__(self, fit, fit_avg, fit_min):
+    def get_weights__(self, fit, fit_avg, fit_min):
         temp1 = self.w_min + (self.w_max - self.w_min) * (fit - fit_min) / (fit_avg - fit_min)
         if self.problem.minmax == "min":
             output = temp1 if fit <= fit_avg else self.w_max
@@ -453,7 +442,7 @@ class C_PSO(BasePSO):
         pop_new = []
         for i in range(self.pop_size):
             agent = deepcopy(self.pop[i])
-            w = self.__get_weights__(self.pop[i][self.ID_TAR][self.ID_FIT], fit_avg, fit_min)
+            w = self.get_weights__(self.pop[i][self.ID_TAR][self.ID_FIT], fit_avg, fit_min)
             v_new = w * self.pop[i][self.ID_VEC] + self.c1 * np.random.rand() * (self.pop[i][self.ID_LOP] - self.pop[i][self.ID_POS]) + \
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
             v_new = np.clip(v_new, self.v_min, self.v_max)
@@ -500,7 +489,7 @@ class CL_PSO(Optimizer):
     """
     The original version of: Comprehensive Learning Particle Swarm Optimization (CL-PSO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c_local (float): [1.0, 3.0], local coefficient, default = 1.2
         + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
         + w_max (float): [0.7, 2.0], Weight max of bird, default = 0.9
@@ -568,19 +557,16 @@ class CL_PSO(Optimizer):
         # Dynamic variable
         self.flags = np.zeros(self.pop_size)
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, velocity, local_pos, local_fit]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         velocity = np.random.uniform(self.v_min, self.v_max)
         local_pos = deepcopy(position)
