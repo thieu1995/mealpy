@@ -72,7 +72,12 @@ class BaseJA(Optimizer):
                       np.random.normal() * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class OriginalJA(BaseJA):
@@ -134,7 +139,11 @@ class OriginalJA(BaseJA):
                       np.random.uniform(0, 1, self.problem.n_dims) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[idx][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+        self.pop = pop_new
 
 
 class LevyJA(BaseJA):
@@ -198,10 +207,15 @@ class LevyJA(BaseJA):
         g_best, g_worst = best[0], worst[0]
         pop_new = []
         for idx in range(0, self.pop_size):
-            L1 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
-            L2 = self.get_levy_flight_step(multiplier=1.0, beta=1.0, case=-1)
+            L1 = self.get_levy_flight_step(multiplier=1.0, beta=1.8, case=-1)
+            L2 = self.get_levy_flight_step(multiplier=1.0, beta=1.8, case=-1)
             pos_new = self.pop[idx][self.ID_POS] + np.abs(L1) * (g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - \
                       np.abs(L2) * (g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
