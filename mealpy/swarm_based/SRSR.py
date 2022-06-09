@@ -64,19 +64,16 @@ class BaseSRSR(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, target, mu, sigma, x_new, target_new, target_move]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         mu = 0
         sigma = 0
@@ -85,10 +82,8 @@ class BaseSRSR(Optimizer):
         target_move = 0
         return [position, target, mu, sigma, x_new, target_new, target_move]
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         self.pop, self.g_best = self.get_global_best_solution(self.pop)
-
         # Control Parameters Of Algorithm
         # ==============================================================================================
         #  [c1] movement_factor : Determines Movement Pace Of Robots During Exploration Policy
@@ -128,13 +123,16 @@ class BaseSRSR(Optimizer):
             if epoch == 0:
                 self.SIF = 6
             self.sigma_temp[i] = self.SIF * np.random.uniform()
-            self.pop[i][self.ID_SIGMA] = self.sigma_temp[i] * abs(self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
+            self.pop[i][self.ID_SIGMA] = self.sigma_temp[i] * np.abs(self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
                                          np.random.uniform() ** 2 * ((self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) < 0.05)
 
             # ----- Generating New Positions Using New Obtained Mu And Sigma Values --------------
             pos_new = np.random.normal(self.pop[i][self.ID_MU], self.pop[i][self.ID_SIGMA], self.problem.n_dims)
-            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = pos_new
             pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
@@ -171,8 +169,11 @@ class BaseSRSR(Optimizer):
             gb[gb < 0] = -1
             pos_new = self.pop[i][self.ID_POS] * np.random.uniform() + gb * (self.pop[0][self.ID_POS] - self.pop[i][self.ID_POS]) + \
                    self.movement_factor * np.random.uniform(self.problem.lb, self.problem.ub)
-            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = pos_new
             pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
@@ -246,6 +247,8 @@ class BaseSRSR(Optimizer):
             for i in range(0, 5):
                 pos_new = self.amend_position(workers[i], self.problem.lb, self.problem.ub)
                 pop_workers.append([pos_new, None])
+                if self.mode not in self.AVAILABLE_MODES:
+                    pop_workers[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_workers = self.update_target_wrapper_population(pop_workers)
             nfe_epoch += 5
 
