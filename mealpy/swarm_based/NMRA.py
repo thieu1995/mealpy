@@ -16,7 +16,7 @@ class BaseNMRA(Optimizer):
     Links:
         1. https://www.doi.org10.1007/s00521-019-04464-7
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
 
     Examples
@@ -59,7 +59,6 @@ class BaseNMRA(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
-
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
@@ -83,8 +82,12 @@ class BaseNMRA(Optimizer):
                 pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[t1][self.ID_POS] - self.pop[t2][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class ImprovedNMRA(Optimizer):
@@ -96,7 +99,7 @@ class ImprovedNMRA(Optimizer):
     + Use crossover operator
     + Use Levy-flight technique
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
         + pm (float): [0.01, 0.1], probability of mutation, default = 0.01
 
@@ -148,7 +151,7 @@ class ImprovedNMRA(Optimizer):
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
 
-    def _crossover_random(self, pop, g_best):
+    def crossover_random__(self, pop, g_best):
         start_point = np.random.randint(0, self.problem.n_dims / 2)
         id1 = start_point
         id2 = int(start_point + self.problem.n_dims / 3)
@@ -186,11 +189,15 @@ class ImprovedNMRA(Optimizer):
                     pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * \
                               (self.pop[t1][self.ID_POS] - self.pop[t2][self.ID_POS])
                 else:
-                    pos_new = self._crossover_random(self.pop, self.g_best)
+                    pos_new = self.crossover_random__(self.pop, self.g_best)
             # Mutation
             temp = np.random.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(np.random.uniform(0, 1, self.problem.n_dims) < self.pm, temp, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
