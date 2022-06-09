@@ -38,7 +38,7 @@ To use the library, your computer must installed all of these packages first:
 ::
 
    $ pip uninstall mealpy
-   $ pip install mealpy==2.4.0
+   $ pip install mealpy==2.4.1
 
 - Or install the development version from GitHub:
 
@@ -257,6 +257,8 @@ Advances
 .. include:: advances/termination.rst
 .. include:: advances/problem_preparation.rst
 .. include:: advances/model_definition.rst
+.. include:: advances/starting_positions.rst
+.. include:: advances/agent_history.rst
 .. include:: advances/import_all_models.rst
 
 .. toctree::
