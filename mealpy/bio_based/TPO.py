@@ -8,7 +8,7 @@ class UpdatedTPO:
 
     Notes
     _____
-    The `alpha`, `beta` and `theta` should fine tuned to get faster
+    The `alpha`, `beta` and `theta` should fine-tune to get faster
     convergence toward the global optimum. A good approximate range for
     `alpha` is [0.3, 3], for `beta` [20, 70] and for `theta` [0.7, 0.99].
 

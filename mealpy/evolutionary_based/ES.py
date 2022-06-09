@@ -73,8 +73,9 @@ class BaseES(Optimizer):
         Returns:
             list: solution with format [position, target, strategy]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         strategy = np.random.uniform(0, self.distance)
         return [position, target, strategy]

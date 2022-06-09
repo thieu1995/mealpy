@@ -77,7 +77,7 @@ class OriginalHGS(Optimizer):
             list: wrapper of solution with format [position, target, hunger]
         """
         if pos is None:
-            pos = np.random.uniform(lb, ub)
+            pos = self.generate_position(lb, ub)
         position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         hunger = 1.0
