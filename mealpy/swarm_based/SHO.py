@@ -15,7 +15,7 @@ class BaseSHO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.advengsoft.2017.05.014
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
         + rand_v (list, tuple): (uniform min, uniform max), random vector, default = [0.5, 1]
         + N_tried (int): default = 10,
@@ -64,9 +64,8 @@ class BaseSHO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.h_factor = self.validator.check_float("h_factor", h_factor, (0.5, 10.0))
-        self.rand_v = self.validator.check_tuple_float("rand_v", rand_v, ([-10, 0], [0, 10]))
+        self.rand_v = self.validator.check_tuple_float("rand_v", rand_v, ([-100, 100], [-100, 100]))
         self.N_tried = self.validator.check_int("N_tried", N_tried, (1, float("inf")))
-
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -110,7 +109,11 @@ class BaseSHO(Optimizer):
                 pos_new = np.mean(np.array(circle_list), axis=0)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
         nfe_epoch += self.pop_size
         self.nfe_per_epoch = nfe_epoch
