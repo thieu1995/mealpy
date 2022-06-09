@@ -15,7 +15,7 @@ class BaseMRFO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.engappai.2019.103300
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + somersault_range (float): [1.5, 3], somersault factor that decides the somersault range of manta rays, default=2
 
     Examples
@@ -58,7 +58,6 @@ class BaseMRFO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.somersault_range = self.validator.check_int("somersault_range", somersault_range, [1.0, 5.0])
-
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
@@ -103,15 +102,23 @@ class BaseMRFO(Optimizer):
                            alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_new = self.greedy_selection_population(self.pop, pop_new)
-        _, g_best = self.update_global_best_solution(pop_new, save=False)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
+        _, g_best = self.update_global_best_solution(self.pop, save=False)
         pop_child = []
         for idx in range(0, self.pop_size):
             # Somersault foraging   (Eq. 8)
-            x_t1 = pop_new[idx][self.ID_POS] + self.somersault_range * \
-                   (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * pop_new[idx][self.ID_POS])
+            x_t1 = self.pop[idx][self.ID_POS] + self.somersault_range * \
+                   (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
-        pop_child = self.update_target_wrapper_population(pop_child)
-        self.pop = self.greedy_selection_population(pop_new, pop_child)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_child = self.update_target_wrapper_population(pop_child)
+            self.pop = self.greedy_selection_population(self.pop, pop_child)
