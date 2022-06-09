@@ -16,7 +16,7 @@ class BaseSFO(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.engappai.2019.01.001
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
         + AP (float): coefficient for decreasing the value of Attack Power linearly from AP to 0
         + epxilon (float): should be 0.0001, 0.001
@@ -68,13 +68,11 @@ class BaseSFO(Optimizer):
         self.pp = self.validator.check_float("pp", pp, (0, 1.0))
         self.AP = self.validator.check_float("AP", AP, (0, 100))
         self.epxilon = self.validator.check_float("epxilon", epxilon, (0, 0.1))
-
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         self.s_pop = self.create_population(self.s_size)
         _, self.g_best = self.get_global_best_solution(self.pop)  # pop = sailfish
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)  # s_pop = sardines
@@ -91,13 +89,18 @@ class BaseSFO(Optimizer):
         nfe_epoch = 0
         pop_new = []
         PD = 1 - self.pop_size / (self.pop_size + self.s_size)
-        for i in range(0, self.pop_size):
+        for idx in range(0, self.pop_size):
             lamda_i = 2 * np.random.uniform() * PD - PD
             pos_new = self.s_gbest[self.ID_POS] - lamda_i * \
-                (np.random.uniform() * (self.pop[i][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+                (np.random.uniform() * (self.pop[idx][self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
         nfe_epoch += self.pop_size
 
         ## Calculate AttackPower using Eq.(10)
@@ -155,7 +158,7 @@ class ImprovedSFO(Optimizer):
     + Removes parameters AP (A) and epsilon
     + Applies the idea of Opposition-based Learning technique
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
 
     Examples
@@ -203,8 +206,7 @@ class ImprovedSFO(Optimizer):
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
-    def initialization(self):
-        self.pop = self.create_population(self.pop_size)
+    def after_initialization(self):
         self.s_pop = self.create_population(self.s_size)
         _, self.g_best = self.get_global_best_solution(self.pop)
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
@@ -220,14 +222,19 @@ class ImprovedSFO(Optimizer):
         ## Update the position of sailfish using Eq.(6)
         nfe_epoch = 0
         pop_new = []
-        for i in range(0, self.pop_size):
+        for idx in range(0, self.pop_size):
             PD = 1 - len(self.pop) / (len(self.pop) + len(self.s_pop))
             lamda_i = 2 * np.random.uniform() * PD - PD
             pos_new = self.s_gbest[self.ID_POS] - \
-                lamda_i * (np.random.uniform() * (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+                lamda_i * (np.random.uniform() * (self.g_best[self.ID_POS] + self.s_gbest[self.ID_POS]) / 2 - self.pop[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        self.pop = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
         nfe_epoch += self.pop_size
 
         ## ## Calculate AttackPower using my Eq.thieu
