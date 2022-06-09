@@ -64,9 +64,6 @@ class BaseSLO(Optimizer):
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        Depend on what kind of problem are we trying to solve, there will be an different amend_position
-        function to rebound the position of agent into the valid range.
-
         Args:
             position: vector position (location) of the solution.
             lb: list of lower bound values
@@ -75,7 +72,9 @@ class BaseSLO(Optimizer):
         Returns:
             Amended position (make the position is in bound)
         """
-        return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
+        condition = np.logical_and(lb <= position, position <= ub)
+        pos_rand = np.random.uniform(lb, ub)
+        return np.where(condition, position, pos_rand)
 
     def evolve(self, epoch):
         """
@@ -106,8 +105,12 @@ class BaseSLO(Optimizer):
             # In the paper doesn't check also doesn't update old solution at this point
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
 class ModifiedSLO(Optimizer):
@@ -157,20 +160,17 @@ class ModifiedSLO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
+        Overriding method in Optimizer class
 
         Returns:
             list: wrapper of solution with format [position, [target, [obj1, obj2, ...]], local_pos, local_fit]
         """
         ## Increase exploration at the first initial population using opposition-based learning.
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         local_pos = lb + ub - position
         local_pos = self.amend_position(local_pos, lb, ub)
@@ -180,7 +180,7 @@ class ModifiedSLO(Optimizer):
         else:
             return [position, target, local_pos, local_target]
 
-    def _shrink_encircling_levy__(self, current_pos, epoch, dist, c, beta=1):
+    def shrink_encircling_levy__(self, current_pos, epoch, dist, c, beta=1):
         up = gamma(1 + beta) * np.sin(np.pi * beta / 2)
         down = (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2))
         xich_ma_1 = np.power(up / down, 1 / beta)
@@ -216,7 +216,7 @@ class ModifiedSLO(Optimizer):
             else:
                 if np.random.uniform() < pa:
                     dist1 = np.random.uniform() * np.abs(2 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                    pos_new = self._shrink_encircling_levy__(self.pop[idx][self.ID_POS], epoch, dist1, c)
+                    pos_new = self.shrink_encircling_levy__(self.pop[idx][self.ID_POS], epoch, dist1, c)
                 else:
                     rand_SL = self.pop[np.random.randint(0, self.pop_size)][self.ID_LOC_POS]
                     rand_SL = 2 * self.g_best[self.ID_POS] - rand_SL
@@ -237,7 +237,7 @@ class ISLO(ModifiedSLO):
     """
     My improved version of: Improved Sea Lion Optimization (ISLO)
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c1 (float): Local coefficient same as PSO, default = 1.2
         + c2 (float): Global coefficient same as PSO, default = 1.2
 
