@@ -28,7 +28,7 @@
 # >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 
-__version__ = "2.4.0"
+__version__ = "2.4.1"
 
 from . import bio_based
 from . import evolutionary_based

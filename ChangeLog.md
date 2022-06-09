@@ -1,3 +1,31 @@
+
+# Version 2.4.1
+
+### Update
+
++ Add after_initialization(), termination_end() to Optimizer class 
++ Update create_solution(), initialization() in Optimizer class
++ Add "starting_positions" parameter to solve() function in Optimizer class
++ Fix missing amend_position function in GA
++ Fix bug fitness value in history object
++ Update 4 training modes in all algorithms
+```code 
+Type: Parallel (no effect on updating process of agents) has 2 training modes:
+
+1. Process: Using multi-cores to update fitness for whole population
+2. Thread: Using multi-threads to update fitness for whole population
+
+Type: Sequential has 2 training modes
+
+3. Swarm (no effect on updating process): Updating fitness after the whole population move
+4. Single (effect on updating process): Updating fitness after each agent move
+```
++ Add agent's history and starting positions to docs.
+
+
+---------------------------------------------------------------------
+
+
 # Version 2.4.0
 
 ### Update

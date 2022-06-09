@@ -1,5 +1,5 @@
 # Meta-Heuristic Algorithms using Python (MEALPY)
-[![GitHub release](https://img.shields.io/badge/release-2.4.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.4.1-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
@@ -11,7 +11,7 @@
 
 [comment]: <> (> "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality.")
 
-[comment]: <> (>  --- [Nguyen Van Thieu]&#40;https://www.researchgate.net/profile/Nguyen_Thieu2&#41;)
+[comment]: <> (>  --- [Nguyen Van Thieu](https://thieu1995.github.io/))
 
 [comment]: <> (---)
 
@@ -19,14 +19,14 @@
 ## Quick Notification
 
 * Check out repo https://github.com/thieu1995/MHA-TSP to see how to use MEALPY to solve Travelling Salesman Problem.
-
+* check out repo https://github.com/thieu1995/MHA-FS to see how to solve feature selection problem using MEALPY.
 
 
 ## Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic 
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.4.0, Total algorithms: 155 (original + variants), 88 original algorithms (8 dummy algorithms)
+* Current version: 2.4.1, Total algorithms: 155 (original + variants), 88 original algorithms (8 dummy algorithms)
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
@@ -34,7 +34,7 @@
   * 2.0.0 <= mealpy <= 2.1.2
   * mealpy == 2.2.0 
   * mealpy == 2.3.0 
-  * mealpy == 2.4.0 (From this version, algorithms can solve discrete problem)
+  * mealpy >= 2.4.0 (From this version, algorithms can solve discrete problem)
 
 * The goals of this framework are:
     * Sharing knowledge of meta-heuristic fields to everyone without a fee
@@ -49,14 +49,6 @@
     * Test the scalability of algorithms.
     * Analyse the stability of algorithms.
     * Analyse the robustness of algorithms.
-
-* If you guys want me to implement new algorithm, please open
-  an [Issues ticket](https://github.com/thieu1995/mealpy/issues), and better send me an PDF of the original paper so I
-  can read and implement it.
-
-* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to
-  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then I
-  recommend to checkout the [PYMOO library](https://pymoo.org/).
 
 * And please give me some credits if you use this library, [link](https://gist.github.com/thieu1995/2dcebc754bf0038d0c12b26ec9d591aa) to my first-author papers.
 
@@ -84,7 +76,7 @@
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```code 
     pip uninstall mealpy 
-    pip install mealpy==2.4.0 
+    pip install mealpy==2.4.1
 ```
 
 ### Examples
@@ -206,7 +198,7 @@ Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applicatio
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/metaheuristics
-    * https://github.com/chasebk
+    * https://github.com/aiir-team
 
 ### Documents
 * Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))
