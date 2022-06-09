@@ -23,7 +23,7 @@ class BaseSSpiderA(Optimizer):
     + The version on above github is very slow convergence
     + Changes the idea of intensity, which one has better intensity, others will move toward to it
 
-    Hyper-parameters should fine tuned in approximate range to get faster convergence toward the global optimum:
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0
         + p_c (float): controls the probability of the spiders changing their dimension mask in the random walk step, default=0.7
         + p_m (float): the probability of each value in a dimension mask to be one, default=0.1
@@ -84,8 +84,9 @@ class BaseSSpiderA(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None):
+    def create_solution(self, lb=None, ub=None, pos=None):
         """
+        Overriding method in Optimizer class
         + x: The position of s on the web.
         + train: The fitness of the current position of s
         + target_vibration: The target vibration of s in the previous iteration.
@@ -95,17 +96,12 @@ class BaseSSpiderA(Optimizer):
         + The dimension mask is a 0-1 binary vector of length problem size
         + n_changed: The number of iterations since s has last changed its target vibration. (No need)
 
-        To get the position, fitness wrapper, target and obj list
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [target, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: target
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
-
         Returns:
             list: wrapper of solution with format [position, target, intensity, target_position, previous_movement_vector, dimension_mask]
         """
-        position = self.generate_position(lb, ub)
-        position = self.amend_position(position, lb, ub)
+        if pos is None:
+            pos = self.generate_position(lb, ub)
+        position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         intensity = np.log(1. / (abs(target[self.ID_FIT]) + self.EPSILON) + 1)
         target_position = deepcopy(position)
