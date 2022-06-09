@@ -54,7 +54,6 @@ class BaseHHO(Optimizer):
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-
         self.nfe_per_epoch = 1.5 * self.pop_size
         self.sort_flag = False
 
@@ -120,4 +119,9 @@ class BaseHHO(Optimizer):
                         pop_new.append([pos_Z, target_Z])
                         continue
                     pop_new.append(deepcopy(self.pop[idx]))
-        self.pop = self.update_target_wrapper_population(pop_new)
+        if self.mode not in self.AVAILABLE_MODES:
+            for idx, agent in enumerate(pop_new):
+                pop_new[idx][self.ID_TAR] = self.get_target_wrapper(agent[self.ID_POS])
+        else:
+            pop_new = self.update_target_wrapper_population(pop_new)
+        self.pop = self.greedy_selection_population(self.pop, pop_new)
