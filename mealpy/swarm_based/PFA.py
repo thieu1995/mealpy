@@ -53,7 +53,6 @@ class BasePFA(Optimizer):
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -87,5 +86,9 @@ class BasePFA(Optimizer):
             pos_new = (pos_new + t1) / self.pop_size
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.greedy_selection_population(self.pop, pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                target = self.get_target_wrapper(pos_new)
+                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new)
