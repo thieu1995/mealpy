@@ -212,11 +212,13 @@ solve **multiple objective functions**, you need another keyword **"obj_weights"
 Training
 --------
 
-Start learning by call function **solve()**. There are 3 different training modes include:
+Start learning by call function **solve()**. There are 4 different training modes include:
 
-* sequential: Using single core to run (default for all algorithm)
-* thread: Create multiple threading depend on your chip and OS
-* process: Create multiple cores to run your algorithm.
+1. process: Using multi-cores to update fitness for whole population (Parallel: no effect on updating process)
+2. thread: Using multi-threads to update fitness for whole population (Parallel: no effect on updating process)
+3. swarm: Updating fitness after the whole population move (Sequential: no effect on updating process)
+4. single: Updating fitness after each agent move (Sequential: effect on updating process)
+
 
 .. code-block:: python
 
@@ -226,7 +228,13 @@ Start learning by call function **solve()**. There are 3 different training mode
 	from mealpy.swarm_based import PSO
 
 	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve()
+	best_position, best_fitness_value = sma_model.solve()   # default is: single
+
+	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(mode="single")
+
+	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(mode="swarm")
 
 	ga_model = GA.BaseGA(problem_multi, epoch=1000, pop_size=100, pc=0.9, pm=0.05)
 	best_position, best_fitness_value = ga_model.solve(mode="thread")

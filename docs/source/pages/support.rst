@@ -42,7 +42,7 @@ Important links
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/metaheuristics
-    * https://github.com/chasebk
+    * https://github.com/aiir-team
 
 
 ====================
