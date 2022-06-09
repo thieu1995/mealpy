@@ -7,14 +7,6 @@
 [![Downloads](https://pepy.tech/badge/mealpy)](https://pepy.tech/project/mealpy)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-[comment]: <> (---)
-
-[comment]: <> (> "Knowledge is power, sharing it is the premise of progress in life. It seems like a burden to someone, but it is the only way to achieve immortality.")
-
-[comment]: <> (>  --- [Nguyen Van Thieu](https://thieu1995.github.io/))
-
-[comment]: <> (---)
-
 
 ## Quick Notification
 
