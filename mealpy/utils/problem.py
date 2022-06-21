@@ -21,6 +21,7 @@ class Problem:
     + verbose (bool): print out the training process or not (Optional, default = True)
     + n_dims (int): number of dimensions / problem size (Optional)
     + obj_weights: list weights for all your objectives (Optional, default = [1, 1, ...1])
+    + data: Your input data for fitness function (Optional)
     + problem (dict): dictionary of the problem (contains at least the parameter 1, 2, 3) (Optional)
     + save_population (bool): save history of population or not, default = True (Optional). **Warning**:
         + this parameter can save you from error related to 'memory' when your model is too big (i.e, training neural network, ...)
@@ -32,7 +33,7 @@ class Problem:
     >>> import numpy as np
     >>> from mealpy.swarm_based.PSO import BasePSO
     >>>
-    >>> def fitness_function(solution):
+    >>> def fitness_function(solution, data):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
@@ -75,9 +76,8 @@ class Problem:
         self.minmax = "min"
         self.log_to, self.log_file = "console", None
         self.n_objs = 1
-        self.obj_weights = None
-        self.multi_objs = False
-        self.obj_is_list = False
+        self.obj_weights, self.data = None, None
+        self.multi_objs, self.obj_is_list = False, False
         self.n_dims, self.lb, self.ub = None, None, None
         self.save_population = True
         self.__set_keyword_arguments(kwargs)
@@ -161,7 +161,7 @@ class Problem:
             else:
                 self.logger.error("Please enter your 'amend_position' as a callable function, and it needs to return amended solution.")
                 exit(0)
-        result = self.fit_func(tested_solution)
+        result = self.fit_func(tested_solution, self.data)
         if isinstance(result, list) or isinstance(result, np.ndarray):
             self.n_objs = len(result)
             self.obj_is_list = True
