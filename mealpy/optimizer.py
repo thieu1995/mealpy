@@ -13,6 +13,7 @@ from mealpy.utils.termination import Termination
 from mealpy.utils.logger import Logger
 from mealpy.utils.validator import Validator
 import concurrent.futures as parallel
+import os
 import time
 
 
@@ -61,7 +62,7 @@ class Optimizer:
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
-        self.mode, self._print_model = None, ""
+        self.mode, self.n_workers, self._print_model = None, None, ""
         self.pop, self.g_best = None, None
         if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
@@ -185,20 +186,31 @@ class Optimizer:
                     finished = True
         return finished
 
-    def solve(self, mode='sequential', starting_positions=None):
+    def check_mode_and_workers(self, mode, n_workers):
+        self.mode = mode
+        if n_workers is not None:
+            if self.mode == "process":
+                self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
+            if self.mode == "thread":
+                self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(32, os.cpu_count() + 4)])
+
+    def solve(self, mode='single', starting_positions=None, n_workers=None):
         """
         Args:
-            starting_positions: List or 2D matrix (numpy array) of starting positions with length equal pop_size hyper_parameter
-            mode (str): 'sequential', 'thread', 'process'.
+            mode (str): Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
 
-                * 'sequential': recommended for simple and small task (< 10 seconds for calculating objective)
-                * 'thread': recommended for IO bound task, or small computing task (< 2 minutes for calculating objective)
-                * 'process': recommended for hard and big task (> 2 minutes for calculating objective)
+                * 'process': The parallel mode with multiple cores run the tasks
+                * 'thread': The parallel mode with multiple threads run the tasks
+                * 'swarm': The sequential mode that no effect on updating phase of other agents
+                * 'single': The sequential mode that effect on updating phase of other agents, default
+
+            starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size hyper_parameter
+            n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
 
         Returns:
             list: [position, fitness value]
         """
-        self.mode = mode
+        self.check_mode_and_workers(mode, n_workers)
         self.termination_start()
         self.initialization(starting_positions)
         self.after_initialization()
@@ -275,13 +287,13 @@ class Optimizer:
             pop_size = self.pop_size
         pop = []
         if self.mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
+            with parallel.ThreadPoolExecutor(self.n_workers) as executor:
                 list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
                 # This method yield the result everytime a thread finished their job (not by order)
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         elif self.mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
+            with parallel.ProcessPoolExecutor(self.n_workers) as executor:
                 list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
                 # This method yield the result everytime a cpu finished their job (not by order).
                 for f in parallel.as_completed(list_executors):
@@ -302,12 +314,12 @@ class Optimizer:
         """
         pos_list = [agent[self.ID_POS] for agent in pop]
         if self.mode == "thread":
-            with parallel.ThreadPoolExecutor() as executor:
+            with parallel.ThreadPoolExecutor(self.n_workers) as executor:
                 list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
         elif self.mode == "process":
-            with parallel.ProcessPoolExecutor() as executor:
+            with parallel.ProcessPoolExecutor(self.n_workers) as executor:
                 list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
