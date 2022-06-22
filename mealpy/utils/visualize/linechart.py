@@ -18,13 +18,30 @@ LIST_LINESTYLES = [
     '-',        # solid line style
     '--',       # dashed line style
     '-.',       # dash-dot line style
+
     ':',        # point marker
-    's',        # square marker
-    '*',        # star marker
-    'p',        # pentagon marker
-    '+',        # plus marker
-    'x',        # x marker
-    'd',        # thin diamond marker
+    '-',        # solid line style
+    '--',       # dashed line style
+    '-.',       # dash-dot line style
+    ':',        # point marker
+
+    '-',        # solid line style
+    '--',       # dashed line style
+    '-.',       # dash-dot line style
+    ':',        # point marker
+]
+
+LIST_MARKERS = [
+    's',  # square marker
+    '*',  # star marker
+    'p',  # pentagon marker
+    '+',  # plus marker
+    'x',  # x marker
+    'd',  # thin diamond marker
+    '^',  # triangle-up
+    'v',  # triangle-down
+    'o',  # circle
+    '8',  # octagon
 ]
 
 LIST_COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',

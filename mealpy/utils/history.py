@@ -77,7 +77,7 @@ class History:
         self.list_epoch_time = []  # List of runtime for each generation
         self.list_global_best_fit = []  # List of global best fitness found so far in all previous generations
         self.list_current_best_fit = []  # List of current best fitness in each previous generations
-        self.list_population = []  # List of population in each generations
+        self.list_population = []  # List of population in each generation
         self.list_diversity = []  # List of diversity of swarm in all generations
         self.list_exploitation = []  # List of exploitation percentages for all generations
         self.list_exploration = []  # List of exploration percentages for all generations
@@ -157,7 +157,7 @@ class History:
         export_objectives_chart(current_obj_list, title=title, x_label=x_label, y_labels=y_labels,
                                 filename=filename, verbose=verbose)
 
-    def save_trajectory_chart(self, title="Trajectory of some first agents after generations",
+    def save_trajectory_chart(self, title="Trajectory of some agents",
                               list_agent_idx=(1, 2, 3), selected_dimensions=(1, 2),
                               filename="trajectory-chart", verbose=True):
         if len(self.list_population) < 2:
@@ -195,7 +195,7 @@ class History:
             for idx, id_agent in enumerate(list_agent_idx):
                 x = [pop[id_agent - 1][0][selected_dimensions[0] - 1] for pop in self.list_population]
                 pos_list.append(x)
-                list_legends.append(f"Agent {id_agent}.")
+                list_legends.append(f"Agent {id_agent}")
             export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends,
                                     y_label=y_label, filename=filename, verbose=verbose)
         elif n_dim == 2:
@@ -207,6 +207,6 @@ class History:
                     x = [pop[id_agent - 1][0][id_dim - 1] for pop in self.list_population]
                     pos_temp.append(x)
                 pos_list.append(pos_temp)
-                list_legends.append(f"Agent {id_agent}.")
+                list_legends.append(f"Agent {id_agent}")
             export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends, x_label=x_label,
                                     y_label=y_label, filename=filename, verbose=verbose)
