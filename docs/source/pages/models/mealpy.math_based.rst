@@ -2,7 +2,7 @@ mealpy.math\_based package
 ==========================
 
 
-mealpy.math\_based.AOA
+mealpy.math\_based.AOA module
 -----------------------------
 
 .. automodule:: mealpy.math_based.AOA
@@ -10,8 +10,15 @@ mealpy.math\_based.AOA
    :undoc-members:
    :show-inheritance:
 
+mealpy.math\_based.CEM module
+-----------------------------
 
-mealpy.math\_based.CGO
+.. automodule:: mealpy.math_based.CEM
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.math\_based.CGO module
 -----------------------------
 
 .. automodule:: mealpy.math_based.CGO
@@ -19,7 +26,7 @@ mealpy.math\_based.CGO
    :undoc-members:
    :show-inheritance:
 
-mealpy.math\_based.GBO
+mealpy.math\_based.GBO module
 -----------------------------
 
 .. automodule:: mealpy.math_based.GBO
@@ -27,8 +34,7 @@ mealpy.math\_based.GBO
    :undoc-members:
    :show-inheritance:
 
-
-mealpy.math\_based.HC
+mealpy.math\_based.HC module
 ----------------------------
 
 .. automodule:: mealpy.math_based.HC
@@ -36,10 +42,19 @@ mealpy.math\_based.HC
    :undoc-members:
    :show-inheritance:
 
-mealpy.math\_based.SCA
+mealpy.math\_based.PSS module
+-----------------------------
+
+.. automodule:: mealpy.math_based.PSS
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.math\_based.SCA module
 -----------------------------
 
 .. automodule:: mealpy.math_based.SCA
    :members:
    :undoc-members:
    :show-inheritance:
+

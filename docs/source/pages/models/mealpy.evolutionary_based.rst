@@ -1,7 +1,8 @@
 mealpy.evolutionary\_based package
 ==================================
 
-mealpy.evolutionary\_based.CRO
+
+mealpy.evolutionary\_based.CRO module
 -------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.CRO
@@ -9,7 +10,7 @@ mealpy.evolutionary\_based.CRO
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.DE
+mealpy.evolutionary\_based.DE module
 ------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.DE
@@ -17,7 +18,7 @@ mealpy.evolutionary\_based.DE
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.EP
+mealpy.evolutionary\_based.EP module
 ------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.EP
@@ -25,7 +26,7 @@ mealpy.evolutionary\_based.EP
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.ES
+mealpy.evolutionary\_based.ES module
 ------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.ES
@@ -33,7 +34,7 @@ mealpy.evolutionary\_based.ES
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.FPA
+mealpy.evolutionary\_based.FPA module
 -------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.FPA
@@ -41,7 +42,7 @@ mealpy.evolutionary\_based.FPA
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.GA
+mealpy.evolutionary\_based.GA module
 ------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.GA
@@ -49,7 +50,7 @@ mealpy.evolutionary\_based.GA
    :undoc-members:
    :show-inheritance:
 
-mealpy.evolutionary\_based.MA
+mealpy.evolutionary\_based.MA module
 ------------------------------------
 
 .. automodule:: mealpy.evolutionary_based.MA

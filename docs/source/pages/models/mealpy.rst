@@ -10,7 +10,6 @@ Subpackages
    mealpy.math_based
    mealpy.music_based
    mealpy.physics_based
-   mealpy.probabilistic_based
    mealpy.swarm_based
    mealpy.system_based
    mealpy.utils

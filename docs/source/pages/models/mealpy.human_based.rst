@@ -1,7 +1,7 @@
 mealpy.human\_based package
 ===========================
 
-mealpy.human\_based.BRO
+mealpy.human\_based.BRO module
 ------------------------------
 
 .. automodule:: mealpy.human_based.BRO
@@ -9,7 +9,7 @@ mealpy.human\_based.BRO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.BSO
+mealpy.human\_based.BSO module
 ------------------------------
 
 .. automodule:: mealpy.human_based.BSO
@@ -17,7 +17,7 @@ mealpy.human\_based.BSO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.CA
+mealpy.human\_based.CA module
 -----------------------------
 
 .. automodule:: mealpy.human_based.CA
@@ -25,7 +25,7 @@ mealpy.human\_based.CA
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.CHIO
+mealpy.human\_based.CHIO module
 -------------------------------
 
 .. automodule:: mealpy.human_based.CHIO
@@ -33,7 +33,7 @@ mealpy.human\_based.CHIO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.FBIO
+mealpy.human\_based.FBIO module
 -------------------------------
 
 .. automodule:: mealpy.human_based.FBIO
@@ -41,7 +41,7 @@ mealpy.human\_based.FBIO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.GSKA
+mealpy.human\_based.GSKA module
 -------------------------------
 
 .. automodule:: mealpy.human_based.GSKA
@@ -49,7 +49,7 @@ mealpy.human\_based.GSKA
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.ICA
+mealpy.human\_based.ICA module
 ------------------------------
 
 .. automodule:: mealpy.human_based.ICA
@@ -57,7 +57,7 @@ mealpy.human\_based.ICA
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.LCO
+mealpy.human\_based.LCO module
 ------------------------------
 
 .. automodule:: mealpy.human_based.LCO
@@ -65,7 +65,7 @@ mealpy.human\_based.LCO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.QSA
+mealpy.human\_based.QSA module
 ------------------------------
 
 .. automodule:: mealpy.human_based.QSA
@@ -73,7 +73,7 @@ mealpy.human\_based.QSA
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.SARO
+mealpy.human\_based.SARO module
 -------------------------------
 
 .. automodule:: mealpy.human_based.SARO
@@ -81,7 +81,8 @@ mealpy.human\_based.SARO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.SSDO
+
+mealpy.human\_based.SSDO module
 -------------------------------
 
 .. automodule:: mealpy.human_based.SSDO
@@ -89,7 +90,7 @@ mealpy.human\_based.SSDO
    :undoc-members:
    :show-inheritance:
 
-mealpy.human\_based.TLO
+mealpy.human\_based.TLO module
 ------------------------------
 
 .. automodule:: mealpy.human_based.TLO

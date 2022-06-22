@@ -1,7 +1,8 @@
 mealpy.physics\_based package
 =============================
 
-mealpy.physics\_based.ASO
+
+mealpy.physics\_based.ASO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.ASO
@@ -9,7 +10,7 @@ mealpy.physics\_based.ASO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.ArchOA
+mealpy.physics\_based.ArchOA module
 -----------------------------------
 
 .. automodule:: mealpy.physics_based.ArchOA
@@ -17,7 +18,7 @@ mealpy.physics\_based.ArchOA
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.EFO
+mealpy.physics\_based.EFO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.EFO
@@ -25,7 +26,7 @@ mealpy.physics\_based.EFO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.EO
+mealpy.physics\_based.EO module
 -------------------------------
 
 .. automodule:: mealpy.physics_based.EO
@@ -33,7 +34,7 @@ mealpy.physics\_based.EO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.HGSO
+mealpy.physics\_based.HGSO module
 ---------------------------------
 
 .. automodule:: mealpy.physics_based.HGSO
@@ -41,7 +42,7 @@ mealpy.physics\_based.HGSO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.MVO
+mealpy.physics\_based.MVO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.MVO
@@ -49,7 +50,7 @@ mealpy.physics\_based.MVO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.NRO
+mealpy.physics\_based.NRO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.NRO
@@ -57,7 +58,7 @@ mealpy.physics\_based.NRO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.SA
+mealpy.physics\_based.SA module
 -------------------------------
 
 .. automodule:: mealpy.physics_based.SA
@@ -65,7 +66,7 @@ mealpy.physics\_based.SA
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.TWO
+mealpy.physics\_based.TWO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.TWO
@@ -73,11 +74,10 @@ mealpy.physics\_based.TWO
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.WDO
+mealpy.physics\_based.WDO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.WDO
    :members:
    :undoc-members:
    :show-inheritance:
-

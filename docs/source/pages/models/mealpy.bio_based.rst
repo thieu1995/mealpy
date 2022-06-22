@@ -2,16 +2,15 @@ mealpy.bio\_based package
 =========================
 
 
-mealpy.bio\_based.BBO
----------------------
+mealpy.bio\_based.BBO module
+----------------------------
 
 .. automodule:: mealpy.bio_based.BBO
    :members:
    :undoc-members:
    :show-inheritance:
 
-
-mealpy.bio\_based.EOA
+mealpy.bio\_based.EOA module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.EOA
@@ -19,7 +18,7 @@ mealpy.bio\_based.EOA
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.IWO
+mealpy.bio\_based.IWO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.IWO
@@ -27,7 +26,7 @@ mealpy.bio\_based.IWO
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.SBO
+mealpy.bio\_based.SBO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.SBO
@@ -35,7 +34,7 @@ mealpy.bio\_based.SBO
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.SMA
+mealpy.bio\_based.SMA module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.SMA
@@ -43,7 +42,7 @@ mealpy.bio\_based.SMA
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.TPO
+mealpy.bio\_based.TPO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.TPO
@@ -51,7 +50,7 @@ mealpy.bio\_based.TPO
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.VCS
+mealpy.bio\_based.VCS module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.VCS
@@ -59,7 +58,7 @@ mealpy.bio\_based.VCS
    :undoc-members:
    :show-inheritance:
 
-mealpy.bio\_based.WHO
+mealpy.bio\_based.WHO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.WHO
