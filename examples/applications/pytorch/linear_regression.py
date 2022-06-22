@@ -77,7 +77,8 @@ problem = {
     "lb": LB,
     "ub": UB,
     "minmax": "min",
-    "obj_weights": [0.3, 0.7]        # training weight 0.3 and testing weight 0.7
+    "obj_weights": [0.3, 0.7],        # training weight 0.3 and testing weight 0.7
+    "save_population": False
 }
 model = SMA.BaseSMA(problem, epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
 model.solve()

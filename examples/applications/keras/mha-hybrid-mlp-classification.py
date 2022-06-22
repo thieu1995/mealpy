@@ -44,6 +44,8 @@ class HybridMlp:
             "lb": [-1, ] * self.n_dims,
             "ub": [1, ] * self.n_dims,
             "minmax": "max",
+            "log_to": None,
+            "save_population": False
         }
 
     def decode_solution(self, solution):

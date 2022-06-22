@@ -45,7 +45,7 @@ def find_minimum(function_name):
             "lb": LB,
             "ub": UB,
             "minmax": "min",
-            "verbose": True,
+            "log_to": "console",
         }
         model = BaseDE(problem, epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name, fit_name=function_name)
         _, best_fitness = model.solve()

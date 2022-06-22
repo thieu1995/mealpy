@@ -28,7 +28,7 @@ def find_minimum(function_name, n_dims):
         "lb": [-100, ] * n_dims,
         "ub": [100, ] * n_dims,
         "minmax": "min",
-        "verbose": True,
+        "log_to": "console",
     }
     model = BaseDE(problem, epoch=10, pop_size=50, wf=0.8, cr=0.9, name=model_name, fit_name=function_name)
     _, best_fitness = model.solve()

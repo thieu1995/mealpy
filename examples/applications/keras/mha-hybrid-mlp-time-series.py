@@ -20,7 +20,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from mealpy.swarm_based import GWO
 from mealpy.evolutionary_based import FPA
-from permetrics.regression import Metrics
+from permetrics.regression import RegressionMetric
 
 
 # split a univariate sequence into samples
@@ -65,7 +65,8 @@ class HybridMlp:
             "lb": [-1, ] * self.n_dims,
             "ub": [1, ] * self.n_dims,
             "minmax": "min",
-            "obj_weights": [0.3, 0.2, 0.5]  # [mae, mse, rmse]
+            "obj_weights": [0.3, 0.2, 0.5],  # [mae, mse, rmse]
+            "save_population": False,
         }
 
     def prediction(self, solution, data):
@@ -100,7 +101,7 @@ class HybridMlp:
         ## with the weight: [0.3, 0.7]
         self.decode_solution(solution)
         predictions = self.model.predict(self.X_train)
-        obj_metric = Metrics(self.Y_train.flatten(), predictions.flatten())
+        obj_metric = RegressionMetric(self.Y_train.flatten(), predictions.flatten())
         # mse = obj_metric.get_metric_by_name("MSE")
         # rmse = obj_metric.get_metric_by_name("RMSE")
         # mae = obj_metric.get_metric_by_name("MAE")

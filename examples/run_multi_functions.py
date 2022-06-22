@@ -25,6 +25,7 @@ cr = 0.9
 
 func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "F17", "F18", "F19"]
 
+
 ## Run model
 best_fit_full = {}
 best_fit_columns = []
@@ -37,7 +38,7 @@ for func_name in func_names:
         "lb": lb1,
         "ub": ub1,
         "minmax": "min",
-        "verbose": True,
+        "log_to": "console",
     }
     model = BaseDE(problem, epoch, pop_size, wf, cr, fit_name=func_name)
     _, best_fitness = model.solve()

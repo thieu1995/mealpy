@@ -7,18 +7,7 @@
 # https://developers.google.com/optimization/bin/knapsack
 
 import numpy as np
-from mealpy.bio_based import SMA, VCS, BBO, EOA, IWO, SBO, WHO
-from mealpy.physics_based import EO
-from mealpy.evolutionary_based import MA, FPA, ES, EP, DE, GA, CRO
-from mealpy.probabilistic_based import CEM
-from mealpy.music_based import HS
-from mealpy.system_based import WCA, GCO, AEO
-from mealpy.math_based import AOA, HC, SCA
-from mealpy.human_based import BRO, CA, FBIO, SARO, SSDO, TLO, GSKA, LCO, ICA, BSO, QSA, CHIO
-from mealpy.physics_based import ArchOA, ASO, EFO, HGSO, MVO, WDO, SA, TWO, NRO
-from mealpy.swarm_based import ABC, ACOR, AO, BA, WOA, SSA, SLO, SHO, SSO, NMRA, MSA, MRFO, MFO, JA
-from mealpy.swarm_based import GOA, CSA, BSA, ALO, BeesA, BES, FFA, FOA, PFA, COA, FA, SFO, SSpiderA, SSpiderO
-from mealpy.swarm_based import HHO, GWO, EHO, CSO, DO, SRSR, PSO, BFO, HGS
+from mealpy.physics_based import MVO
 
 VALUES = np.array([
     360, 83, 59, 130, 431, 67, 230, 52, 93, 125, 670, 892, 600, 38, 48, 147,
