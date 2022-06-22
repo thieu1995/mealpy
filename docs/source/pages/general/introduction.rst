@@ -7,7 +7,7 @@ Introduction
 MEALPY
 ------
 
-.. image:: https://img.shields.io/badge/release-2.4.0-yellow.svg
+.. image:: https://img.shields.io/badge/release-2.5.0-yellow.svg
    :target: https://github.com/thieu1995/mealpy/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
@@ -32,7 +32,7 @@ MEALPY
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.4.0, Total algorithms: 154 (original + variants), 87 original algorithms (8 dummy algorithms)
+* Current version: 2.5.0, Total algorithms: 155 (original + variants), 88 original algorithms (8 dummy algorithms)
 
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library (Check `All releases`_)
@@ -40,8 +40,9 @@ MEALPY
    * 1.1.0 < mealpy < 1.2.2
    * 2.0.0 <= mealpy <= 2.1.2
    * mealpy == 2.2.0
-   * mealpy == 2.3.0 (From this version, algorithms can solve discrete problem)
-   * mealpy == 2.4.0
+   * mealpy == 2.3.0
+   * 2.4.0 <= mealpy <= 2.4.1 (From this version, algorithms can solve discrete problem)
+   * mealpy >= 2.5.0
 
 .. _All releases: https://pypi.org/project/mealpy/#history
 
@@ -60,8 +61,7 @@ MEALPY
     * Analyse the robustness of algorithms.
 
 
-* If you guys want a new algorithm, please open an `Issues ticket`_, and better send me an PDF of the original paper so I can read and
-  implement it.
+* If you guys want a new algorithm, please open an `Issues ticket`_
 
 .. _Issues ticket: https://github.com/thieu1995/mealpy/issues
 
@@ -80,7 +80,7 @@ MEALPY
 
 	@software{thieu_nguyen_2020_3711949,
 	  author       = {Nguyen Van Thieu},
-	  title        = {A collection of the state-of-the-art Meta-heuristic Algorithms in Python: Mealpy},
+	  title        = {A collection of the state-of-the-art Meta-heuristics Algorithms in Python: Mealpy},
 	  month        = march,
 	  year         = 2020,
 	  publisher    = {Zenodo},

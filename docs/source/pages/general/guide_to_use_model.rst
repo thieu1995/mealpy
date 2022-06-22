@@ -21,38 +21,19 @@ All of this methods are used in the same way. So, in this guide, we'll demo with
 Installation
 ------------
 
-**Dependencies**
-
-To use the library, your computer must installed all of these packages first:
-
-- Python (>= 3.6)
-- Numpy (>= 1.15.1)
-- Matplotlib (>=3.1.3)
-- Scipy (>= 1.5.2)
-
-
 **User Installation**
 
 - Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 
 ::
 
-   $ pip uninstall mealpy
-   $ pip install mealpy==2.4.1
+   $ pip install mealpy==2.5.0
 
 - Or install the development version from GitHub:
 
 ::
 
    $ pip install git+https://github.com/thieu1995/mealpy
-
-
-I accidentally deleted version 2.1.1 on Pypi since it's not synced with version 2.1.1 on Github Release.
-If you still want to use version 2.1.1. Please use this command:
-
-::
-
-   $ pip install -e git+https://github.com/thieu1995/mealpy@ead414d2d9aa5317864e779fa5d4ad7b65159181#egg=mealpy
 
 
 ----------------------

@@ -1,7 +1,7 @@
 Welcome to MEALPY's documentation!
 ==================================
 
-.. image:: https://img.shields.io/badge/release-2.4.1-yellow.svg
+.. image:: https://img.shields.io/badge/release-2.5.0-yellow.svg
    :target: https://github.com/thieu1995/mealpy/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
@@ -29,7 +29,7 @@ Welcome to MEALPY's documentation!
                                                    `Nguyen Van Thieu`_
 
 
-.. _Nguyen Van Thieu: https://www.researchgate.net/profile/Nguyen_Thieu2
+.. _Nguyen Van Thieu: https://www.thieu1995.github.io/
 
 MEALPY is a Python library for the most of cutting-edge population *meta-heuristic algorithms* - a field which provides an fast
 and efficient way to find the global optimal point of mathematical optimization problems.
