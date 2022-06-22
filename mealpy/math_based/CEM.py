@@ -23,7 +23,7 @@ class BaseCEM(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.probabilistic_based.CEM import BaseCEM
+    >>> from mealpy.math_based.CEM import BaseCEM
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)

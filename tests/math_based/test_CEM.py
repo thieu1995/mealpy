@@ -4,7 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.probabilistic_based import CEM
+from mealpy.math_based import CEM
 from mealpy.optimizer import Optimizer
 import numpy as np
 import pytest
