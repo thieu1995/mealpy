@@ -33,7 +33,7 @@ class Problem:
     >>> import numpy as np
     >>> from mealpy.swarm_based.PSO import BasePSO
     >>>
-    >>> def fitness_function(solution, data):
+    >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
@@ -77,6 +77,7 @@ class Problem:
         self.log_to, self.log_file = "console", None
         self.n_objs = 1
         self.obj_weights, self.data = None, None
+        self.multi_args = False
         self.multi_objs, self.obj_is_list = False, False
         self.n_dims, self.lb, self.ub = None, None, None
         self.save_population = True
@@ -161,7 +162,12 @@ class Problem:
             else:
                 self.logger.error("Please enter your 'amend_position' as a callable function, and it needs to return amended solution.")
                 exit(0)
-        result = self.fit_func(tested_solution, self.data)
+        if self.data is None:
+            self.multi_args = False
+            result = self.fit_func(tested_solution)
+        else:
+            self.multi_args = True
+            result = self.fit_func(tested_solution, self.data)
         if isinstance(result, list) or isinstance(result, np.ndarray):
             self.n_objs = len(result)
             self.obj_is_list = True
