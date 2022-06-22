@@ -52,15 +52,18 @@ def __check_filepath__(filename):
     return filename
 
 
-def _draw_line_(data=None, title=None, linestyle='-', color='b', x_label="#Iteration", y_label="Function Value",
-                     filename=None, exts=(".png", ".pdf"), verbose=True):
+def _draw_line_(data=None, title=None, legend=None, linestyle='-', color='b', x_label="#Iteration",
+                y_label="Function Value", filename=None, exts=(".png", ".pdf"), verbose=True):
     x = np.arange(0, len(data))
     y = data
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.plot(x, y, linestyle=linestyle, color=color,)
-    plt.legend()  # show a legend on the plot
+    if legend is None:
+        plt.plot(x, y, linestyle=linestyle, color=color)
+        plt.legend()  # show a legend on the plot
+    else:
+        plt.plot(x, y, linestyle=linestyle, color=color, label=legend)
     if filename is not None:
         filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
@@ -89,7 +92,7 @@ def _draw_multi_line_(data=None, title=None, list_legends=None, list_styles=None
     plt.close()
 
 
-def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, list_styles=None, list_colors=None,
+def _draw_multi_subplots_in_same_figure_(data=None, title=None, list_legends=None, list_styles=None, list_colors=None,
                                      x_label="#Iteration", y_label="Objective", filename=None, exts=(".png", ".pdf"), verbose=True):
     n_lines = len(data)
     len_lines = len(data[0])
@@ -123,11 +126,10 @@ def _draw_multi_line_in_same_figure_(data=None, title=None, list_legends=None, l
     plt.close()
 
 
-
-def export_convergence_chart(data=None, title="Convergence Chart", linestyle='-', color='b', x_label="#Iteration",
-                       y_label="Function Value", filename="convergence_chart", exts=(".png", ".pdf"), verbose=True):
-    _draw_line_(data, title=title, linestyle=linestyle, color=color, x_label=x_label, y_label=y_label,
-                    filename=filename, exts=exts, verbose=verbose)
+def export_convergence_chart(data=None, title="Convergence Chart", legend=None, linestyle='-', color='b', x_label="#Iteration",
+                            y_label="Function Value", filename="convergence_chart", exts=(".png", ".pdf"), verbose=True):
+    _draw_line_(data, title=title, legend=legend, linestyle=linestyle, color=color,
+                x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
 
 def export_explore_exploit_chart(data=None, title="Exploration vs Exploitation Percentages", list_legends=("Exploration %", "Exploitation %"),
@@ -154,11 +156,11 @@ def export_objectives_chart(data=None, title="Objectives chart", list_legends=No
         list_styles = LIST_LINESTYLES[:len(data)]
     if list_colors is None:
         list_colors = LIST_COLORS[:len(data)]
-    _draw_multi_line_in_same_figure_(data=data, title=title, list_legends=list_legends, list_styles=list_styles, list_colors=list_colors,
+    _draw_multi_subplots_in_same_figure_(data=data, title=title, list_legends=list_legends, list_styles=list_styles, list_colors=list_colors,
                                      x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
 
-def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some first agents after generations", list_legends=None,
+def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some agents after generations", list_legends=None,
                                  list_styles=None, list_colors=None, x_label="#Iteration", y_label="X1",
                                  filename="1d_trajectory", exts=(".png", ".pdf"), verbose=True):
     if list_styles is None:

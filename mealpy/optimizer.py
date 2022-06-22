@@ -214,7 +214,7 @@ class Optimizer:
         self.termination_start()
         self.initialization(starting_positions)
         self.after_initialization()
-        self.history.save_initial_best(self.g_best)
+        self.history.store_initial_best(self.g_best)
 
         for epoch in range(0, self.epoch):
             time_epoch = time.perf_counter()

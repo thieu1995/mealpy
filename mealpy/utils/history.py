@@ -90,7 +90,7 @@ class History:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def save_initial_best(self, best_agent):
+    def store_initial_best(self, best_agent):
         self.list_global_best = [deepcopy(best_agent)]
         self.list_current_best = [deepcopy(best_agent)]
 
@@ -104,23 +104,23 @@ class History:
                 count = 0
         return count
 
-    def save_global_best_fitness_chart(self, title='Global Best Fitness', color='b', x_label="#Iteration", y_label="Function Value",
-                                       filename="global-best-fitness-chart", verbose=True):
+    def save_global_best_fitness_chart(self, title='Global Best Fitness', legend=None, linestyle='-', color='b', x_label="#Iteration",
+                                       y_label="Function Value", filename="global-best-fitness-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw global best fitness found so far in previous generations
-        export_convergence_chart(self.list_global_best_fit, title=title, color=color, x_label=x_label,
-                                 y_label=y_label, filename=filename, verbose=verbose)
+        export_convergence_chart(data=self.list_global_best_fit, title=title, legend=legend, linestyle=linestyle,
+                                 color=color, x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
-    def save_local_best_fitness_chart(self, title='Local Best Fitness', color='b', x_label="#Iteration", y_label="Function Value",
-                                      filename="local-best-fitness-chart", verbose=True):
+    def save_local_best_fitness_chart(self, title='Local Best Fitness', legend=None, linestyle='-', color='b', x_label="#Iteration",
+                                      y_label="Function Value", filename="local-best-fitness-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw current best fitness in each previous generation
-        export_convergence_chart(self.list_current_best_fit, title=title, color=color, x_label=x_label,
-                                 y_label=y_label, filename=filename, verbose=verbose)
+        export_convergence_chart(self.list_current_best_fit, title=title, legend=legend, linestyle=linestyle, color=color,
+                                 x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
-    def save_runtime_chart(self, title='Runtime chart', color='b', x_label="#Iteration", y_label='Second',
-                           filename="runtime-chart", verbose=True):
+    def save_runtime_chart(self, title='Runtime chart', legend=None, linestyle='-', color='b', x_label="#Iteration",
+                           y_label='Second', filename="runtime-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw runtime for each generation
-        export_convergence_chart(self.list_epoch_time, title=title, color=color, x_label=x_label,
-                                 y_label=y_label, filename=filename, verbose=verbose)
+        export_convergence_chart(self.list_epoch_time, title=title, legend=legend, linestyle=linestyle, color=color,
+                                 x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
     ## The paper: On the exploration and exploitation in popular swarm-based metaheuristic algorithms
     def save_exploration_exploitation_chart(self, title="Exploration vs Exploitation Percentages", list_colors=('blue', 'orange'),
@@ -130,7 +130,7 @@ class History:
         export_explore_exploit_chart(data=[self.list_exploration, self.list_exploitation], title=title,
                                      list_colors=list_colors, filename=filename, verbose=verbose)
 
-    def save_diversity_chart(self, title='Diversity Measurement Chart', algorithm_name='GA',
+    def save_diversity_chart(self, title='Diversity Measurement Chart', algorithm_name='Algorithm',
                              filename="diversity-chart", verbose=True):
         # This diversity chart should draws for multiple algorithms for a single fitness function at the same time
         # to compare the diversity spreading
