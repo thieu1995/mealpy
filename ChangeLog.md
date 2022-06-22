@@ -1,3 +1,19 @@
+# Version 2.4.2
+
+### Update
+
++ Add n_workers variable to solve() function in Optimizer class
+  + n_workers only effect by parallel mode such as "process" and "thread"
+  + n_workers default value is None and based on concurrent.futures module
++ Add 1 more Optional input parameter to the fitness function
++ Fix bug trajectory chart
++ Update fitness and objective chart
++ Remove supporting Python < 3.7, Mealpy only supports Python >=3.7
++ Group probabilistic is merged into math-based group
++ Update documents, examples, tests
+
+
+---------------------------------------------------------------------
 
 # Version 2.4.1
 

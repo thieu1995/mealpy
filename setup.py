@@ -15,14 +15,14 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.4.1",
+    version="2.4.2",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="A collection of the state-of-the-art Meta-heuristic Algorithms in Python (mealpy)",
     long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/thieu1995/mealpy",
-    download_url="https://github.com/thieu1995/mealpy/archive/v2.4.1.zip",
+    download_url="https://github.com/thieu1995/mealpy/archive/v2.4.2.zip",
     packages=find_packages(exclude=['*tests', 'examples*']),
     include_package_data=True,
     classifiers=[
@@ -34,10 +34,10 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: System :: Benchmark",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Mathematics",
@@ -51,6 +51,6 @@ setup(
         "Topic :: Utilities",
     ],
 
-    install_requires=["numpy>=1.15.1", "matplotlib>=3.1.3", "scipy>=1.5.2", "opfunu>=0.8.0"],
-    python_requires='>=3.6',
+    install_requires=["numpy>=1.16.5", "matplotlib>=3.1.3", "scipy>=1.7.1", "opfunu>=0.8.0"],
+    python_requires='>=3.7',
 )

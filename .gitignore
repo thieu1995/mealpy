@@ -1,3 +1,21 @@
+mealpy/math_based/INFO.py
+mealpy/swarm_based/ChOA.py
+mealpy/swarm_based/DMOA.py
+mealpy/swarm_based/HBA.py
+mealpy/swarm_based/MPA.py
+mealpy/swarm_based/OPA.py
+mealpy/swarm_based/SCSO.py
+mealpy/swarm_based/TSO.py
+mealpy/swarm_based/WSO.py
+mealpy/bio_based/BMO.py
+mealpy/bio_based/SOA.py
+mealpy/bio_based/TSA.py
+mealpy/human_based/PO.py
+mealpy/human_based/SPBO.py
+mealpy/human_based/WarSO.py
+mealpy/math_based/CircleSA.py
+
+
 check_algo.py
 examples/hehu.py
 
@@ -6,6 +24,7 @@ examples/hehu.py
 drafts/
 assets/commands.md
 assets/ga_exam.py
+assets/tut_upcode.md
 docs/build/
 testcase/
 
