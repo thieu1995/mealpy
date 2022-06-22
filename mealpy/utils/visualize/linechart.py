@@ -93,7 +93,7 @@ def _draw_multi_line_(data=None, title=None, list_legends=None, list_styles=None
 
 
 def _draw_multi_subplots_in_same_figure_(data=None, title=None, list_legends=None, list_styles=None, list_colors=None,
-                                     x_label="#Iteration", y_label="Objective", filename=None, exts=(".png", ".pdf"), verbose=True):
+                                     x_label="#Iteration", y_labels=None, filename=None, exts=(".png", ".pdf"), verbose=True):
     n_lines = len(data)
     len_lines = len(data[0])
     x = np.arange(0, len_lines)
@@ -104,6 +104,11 @@ def _draw_multi_subplots_in_same_figure_(data=None, title=None, list_legends=Non
             ax.plot(x, data[0])
         else:
             ax.plot(x, data[0], label=list_legends[0])
+        ax.set_xlabel(x_label)
+        if y_labels is None:
+            ax.set_ylabel("Objective Value")
+        else:
+            ax.set_ylabel(y_labels[0])
         ax.set_title(title)
     elif n_lines > 1:
         fig, ax_list = plt.subplots(n_lines, sharex=True)
@@ -113,7 +118,10 @@ def _draw_multi_subplots_in_same_figure_(data=None, title=None, list_legends=Non
                 ax.plot(x, data[idx], markerfacecolor=list_colors[idx], linestyle=list_styles[idx])
             else:
                 ax.plot(x, data[idx], label=list_legends[idx], markerfacecolor=list_colors[idx], linestyle=list_styles[idx])
-            ax.set_ylabel(f"Objective {idx + 1}")
+            if y_labels is None:
+                ax.set_ylabel(f"Objective {idx + 1}")
+            else:
+                ax.set_ylabel(y_labels[idx])
             if idx == (n_lines - 1):
                 ax.set_xlabel(x_label)
 
@@ -151,13 +159,13 @@ def export_diversity_chart(data=None, title='Diversity Measurement Chart', list_
 
 
 def export_objectives_chart(data=None, title="Objectives chart", list_legends=None, list_styles=None, list_colors=None,
-            x_label="#Iteration", y_label="Function Value", filename="Objective-chart", exts=(".png", ".pdf"), verbose=True):
+            x_label="#Iteration", y_labels=None, filename="Objective-chart", exts=(".png", ".pdf"), verbose=True):
     if list_styles is None:
         list_styles = LIST_LINESTYLES[:len(data)]
     if list_colors is None:
         list_colors = LIST_COLORS[:len(data)]
     _draw_multi_subplots_in_same_figure_(data=data, title=title, list_legends=list_legends, list_styles=list_styles, list_colors=list_colors,
-                                     x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
+                                     x_label=x_label, y_labels=y_labels, filename=filename, exts=exts, verbose=verbose)
 
 
 def export_trajectory_chart(data=None, n_dimensions=1, title="Trajectory of some agents after generations", list_legends=None,

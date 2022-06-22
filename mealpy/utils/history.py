@@ -141,20 +141,20 @@ class History:
     ## thus we also want to draw objective charts to understand the convergence
     ## Need a little bit more pre-processing
 
-    def save_global_objectives_chart(self, title='Global Objectives Chart', x_label="#Iteration", y_label="Function Value",
+    def save_global_objectives_chart(self, title='Global Objectives Chart', x_label="#Iteration", y_labels=None,
                                      filename="global-objectives-chart", verbose=True):
         # 2D array / matrix 2D
         global_obj_list = np.array([agent[1][-1] for agent in self.list_global_best])
         # Make each obj_list as a element in array for drawing
         global_obj_list = [global_obj_list[:, idx] for idx in range(0, len(global_obj_list[0]))]
-        export_objectives_chart(global_obj_list, title=title, x_label=x_label, y_label=y_label, filename=filename, verbose=verbose)
+        export_objectives_chart(global_obj_list, title=title, x_label=x_label, y_labels=y_labels, filename=filename, verbose=verbose)
 
-    def save_local_objectives_chart(self, title='Local Objectives Chart', x_label="#Iteration", y_label="Objective Function Value",
+    def save_local_objectives_chart(self, title='Local Objectives Chart', x_label="#Iteration", y_labels=None,
                                     filename="local-objectives-chart", verbose=True):
         current_obj_list = np.array([agent[1][-1] for agent in self.list_current_best])
         # Make each obj_list as a element in array for drawing
         current_obj_list = [current_obj_list[:, idx] for idx in range(0, len(current_obj_list[0]))]
-        export_objectives_chart(current_obj_list, title=title, x_label=x_label, y_label=y_label,
+        export_objectives_chart(current_obj_list, title=title, x_label=x_label, y_labels=y_labels,
                                 filename=filename, verbose=verbose)
 
     def save_trajectory_chart(self, title="Trajectory of some first agents after generations",
