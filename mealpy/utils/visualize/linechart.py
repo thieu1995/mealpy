@@ -78,9 +78,9 @@ def _draw_line_(data=None, title=None, legend=None, linestyle='-', color='b', x_
     plt.ylabel(y_label)
     if legend is None:
         plt.plot(x, y, linestyle=linestyle, color=color)
-        plt.legend()  # show a legend on the plot
     else:
         plt.plot(x, y, linestyle=linestyle, color=color, label=legend)
+        plt.legend()  # show a legend on the plot
     if filename is not None:
         filepath = __check_filepath__(__clean_filename__(filename))
         for idx, ext in enumerate(exts):
