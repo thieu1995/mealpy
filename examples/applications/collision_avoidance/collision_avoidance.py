@@ -1,4 +1,4 @@
-from mealpy.swarm_based.WOA import BaseWOA
+from mealpy.swarm_based.WOA import BaseWOA ,HI_WOA
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,34 +9,49 @@ class CollisionAvoidance():
         self.obstacle_x = [1,5,6,7,8]
         self.obstacle_y = [1,5,6,7,8]
         
+    def constr_one(self,x):
+        """_summary_
+        This function constraint for problem 
+
+        Args:
+            x (list): _description_ waypoint list x and y
+        """
+        gx = 0
+        for i in range(0,self.number_of_wp-1):
+            gx += np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2) - self.distance_to_target(x)/self.number_of_wp
+            print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)
+        return gx 
     
+    def violate(self,value):
+            return 0 if value >= 0 else value
+        
+    def distance_to_target(self,x):
+        return np.sqrt((x[-2]-x[0])**2 + (x[-1]-x[1])**2)
+        
     def objective_function(self,x):
         fx = 0
         
-        def violate(value):
-            return 0 if value <= 0 else value
-        
         x[0] = 0
         x[1] = 0
-        x[-1] = 10
-        x[-2] = 10
+        x[-1] = 100
+        x[-2] = 100
         
         fx = np.sqrt((x[0] - x [2])**2 + (x[1] - x [3])**2)
-        fx += np.sqrt((x[-1] - x [-3])**2 + (x[-2] - x [4])**2)
+        fx += np.sqrt((x[-1] - x [-3])**2 + (x[-2] - x [-4])**2)
         
         for i in range(1,self.number_of_wp-1):
-            fx += np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2)
+            fx += np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2) 
         
-        """for i in range(0,len(self.obstacle_x)): 
-            fx += np.sqrt((x[2*i] - self.obstacle_x[i])**2 + (x[2*i+1]-self.obstacle_y[i])**2) - 1   """   
+        const1 = self.violate(self.constr_one(x))
+        fx += const1
         
         return fx
     
     def run(self):
         problem_dict1 = {
         "fit_func": self.objective_function,
-        "lb": [0,0,0,0,0,0,0,0,0,0],
-        "ub": [15,15,15,15,15,15,15,15,15,15],
+        "lb": [0,0,0,0,0,0],
+        "ub": [150,150,150,150,150,150],
         "minmax": "min",
         }
         
@@ -44,7 +59,7 @@ class CollisionAvoidance():
         print(len(problem_dict1["ub"]))
         
         ## Run the algorithm
-        model1 = BaseWOA(problem_dict1, epoch=100  , pop_size=400)
+        model1 = BaseWOA(problem_dict1, epoch=100  , pop_size=1000)
         best_position, best_fitness = model1.solve()
         print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
         self.plot(best_position)
@@ -70,5 +85,5 @@ class CollisionAvoidance():
 
 
 if __name__=="__main__":
-    A = CollisionAvoidance(5)
+    A = CollisionAvoidance(3)
     A.run()
