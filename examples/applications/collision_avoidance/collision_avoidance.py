@@ -8,6 +8,10 @@ class CollisionAvoidance():
         self.number_of_wp = number_of_waypoint
         self.obstacle_x = [1,5,6,7,8]
         self.obstacle_y = [1,5,6,7,8]
+        self.number_of_obs = len(self.obstacle_x)
+    
+    def Euclidean_distance(self,waypoint_one, waypoint_two):
+        return np.sqrt(pow(waypoint_one[0]-waypoint_two[0],2) + pow(waypoint_one[1]-waypoint_two[1],2)  )
         
     def constr_one(self,x):
         """_summary_
@@ -18,9 +22,16 @@ class CollisionAvoidance():
         """
         gx = 0
         for i in range(0,self.number_of_wp-1):
-            gx += np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2) - self.distance_to_target(x)/self.number_of_wp
-            print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)
+            gx += self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]]) - self.distance_to_target(x)/self.number_of_wp
+            #print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)
         return gx 
+    
+    def constr_two(self,x):
+        gx = 0
+        for i in range(0,self.number_of_wp):
+            for j in range(0,self.number_of_obs):
+                gx += 1
+        pass
     
     def violate(self,value):
             return 0 if value >= 0 else value
@@ -75,6 +86,7 @@ class CollisionAvoidance():
                 x.append(solutions[i])
             else:
                 y.append(solutions[i])
+                
         print(x)
         print(y)         
         plt.scatter(x, y)
