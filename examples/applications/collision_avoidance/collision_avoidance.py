@@ -11,7 +11,7 @@ class CollisionAvoidance():
         self.number_of_obs = len(self.obstacle_x)
     
     def Euclidean_distance(self,waypoint_one, waypoint_two):
-        return np.sqrt(pow(waypoint_one[0]-waypoint_two[0],2) + pow(waypoint_one[1]-waypoint_two[1],2)  )
+        return np.sqrt(pow(waypoint_one[0]-waypoint_two[0],2) + pow(waypoint_one[1]-waypoint_two[1],2))
         
     def constr_one(self,x):
         """_summary_
@@ -20,11 +20,22 @@ class CollisionAvoidance():
         Args:
             x (list): _description_ waypoint list x and y
         """
-        gx = 0
-        for i in range(0,self.number_of_wp-1):
-            gx += self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]]) - self.distance_to_target(x)/self.number_of_wp
-            #print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)
-        return gx 
+        gx = []
+        """for i in range(0,self.number_of_wp-1):
+            gx.append((self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]]) -50))
+            #print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)"""
+        g1 = 0
+        g2 = 0
+        g1 = pow((x[0]-x[2])**2+(x[1]-x[3]**2),0.5)
+        g1 =  g1-50
+        
+        g2 = pow((x[0]-x[2])**2+(x[1]-x[3]**2),0.5)
+        g2 = g2 - 50
+        gx.append(g1)
+        gx.append(g2)
+      
+        print(gx)
+        return gx
     
     def constr_two(self,x):
         gx = 0
@@ -33,8 +44,14 @@ class CollisionAvoidance():
                 gx += 1
         pass
     
+    def constr_tree(self,x):
+        return pow((x[2]**2+x[3]**2),0.5)-10
+    
+    def constr_four(self,x):
+        return pow((x[4]-x[2])**2 +(x[5]-x[3])**2 ,0.5)-40
+    
     def violate(self,value):
-            return 0 if value >= 0 else value
+            return 0 if value <= 0 else value
         
     def distance_to_target(self,x):
         return np.sqrt((x[-2]-x[0])**2 + (x[-1]-x[1])**2)
@@ -47,14 +64,16 @@ class CollisionAvoidance():
         x[-1] = 100
         x[-2] = 100
         
-        fx = np.sqrt((x[0] - x [2])**2 + (x[1] - x [3])**2)
-        fx += np.sqrt((x[-1] - x [-3])**2 + (x[-2] - x [-4])**2)
+        fx = self.Euclidean_distance(waypoint_one=[x[0],x[1]],waypoint_two=[x[2],[3]])
+        fx += self.Euclidean_distance(waypoint_one=[x[-1],x[-2]],waypoint_two=[x[-3],x[-4]])
         
         for i in range(1,self.number_of_wp-1):
-            fx += np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2) 
+            fx += self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]])
+
         
-        const1 = self.violate(self.constr_one(x))
-        fx += const1
+        #const1 = self.violate(self.constr_one(x))
+        #print(const1)
+        fx += max(self.constr_one(x))**2
         
         return fx
     
@@ -70,7 +89,7 @@ class CollisionAvoidance():
         print(len(problem_dict1["ub"]))
         
         ## Run the algorithm
-        model1 = BaseWOA(problem_dict1, epoch=100  , pop_size=1000)
+        model1 = BaseWOA(problem_dict1, epoch=100  , pop_size=200)
         best_position, best_fitness = model1.solve()
         print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
         self.plot(best_position)
