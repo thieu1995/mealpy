@@ -4,7 +4,9 @@ from mealpy.swarm_based.GOA import BaseGOA
 from mealpy.swarm_based.GWO import BaseGWO
 import numpy as np
 
-
+"""
+https://www.tandfonline.com/doi/abs/10.1080/0305215X.2018.1509963
+"""
 
 def gear_box(x):
     """_summary_
@@ -15,7 +17,6 @@ def gear_box(x):
     Z = x[3]
     m = x[4]
     
-
     Args:
         x (_type_): _description_
     """
