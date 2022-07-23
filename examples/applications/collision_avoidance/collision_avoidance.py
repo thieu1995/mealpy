@@ -34,7 +34,6 @@ class CollisionAvoidance():
         gx.append(g1)
         gx.append(g2)
       
-        print(gx)
         return gx
     
     def constr_two(self,x):
@@ -48,7 +47,7 @@ class CollisionAvoidance():
         return pow((x[2]**2+x[3]**2),0.5)-10
     
     def constr_four(self,x):
-        return pow((x[4]-x[2])**2 +(x[5]-x[3])**2 ,0.5)-40
+        return pow((x[4]-x[2])**2 +(x[5]-x[3])**2 ,0.5)-20
     
     def violate(self,value):
             return 0 if value <= 0 else value
@@ -64,17 +63,17 @@ class CollisionAvoidance():
         x[-1] = 100
         x[-2] = 100
         
-        fx = self.Euclidean_distance(waypoint_one=[x[0],x[1]],waypoint_two=[x[2],[3]])
-        fx += self.Euclidean_distance(waypoint_one=[x[-1],x[-2]],waypoint_two=[x[-3],x[-4]])
+        fx = self.Euclidean_distance(waypoint_one=[x[0],x[1]],waypoint_two=[x[2],x[3]])
+        print("first",fx)
         
-        for i in range(1,self.number_of_wp-1):
-            fx += self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]])
+        fx += self.Euclidean_distance(waypoint_one=[x[-1],x[-2]],waypoint_two=[x[2],x[3]])
+        print("second",fx)
+        """for i in range(1,self.number_of_wp-1):
+            fx += self.Euclidean_distance(waypoint_one=[x[2*i],x[2*i+1]],waypoint_two=[x[2*i+2],x[2*i+3]])"""
 
         
         #const1 = self.violate(self.constr_one(x))
-        #print(const1)
-        fx += max(self.constr_one(x))**2
-        
+        fx += max([self.constr_four(x)])**2 
         return fx
     
     def run(self):
