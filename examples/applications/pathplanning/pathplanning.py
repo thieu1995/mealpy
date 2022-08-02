@@ -1,122 +1,163 @@
-from mealpy.swarm_based.WOA import BaseWOA ,HI_WOA
+from mealpy.swarm_based.WOA import BaseWOA 
+from mealpy.swarm_based.PSO import BasePSO
+from mealpy.swarm_based.GWO import BaseGWO
+from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 class CollisionAvoidance():
-    def __init__(self,number_of_waypoint):
-        self.number_of_wp = number_of_waypoint
-        self.obstacle_x = [5]
-        self.obstacle_y = [5]
-        self.number_of_obs = len(self.obstacle_x)
-        self.distance_between_wp = 2
-        self.distance_from_obstacle = 2
-    
-    def Euclidean_distance(self,point_one, point_two):
-        return np.sqrt(pow(point_one[0]-point_two[0],2) + pow(point_one[1]-point_two[1],2))
-        
-    def constr_one(self,x):
+    def __init__(self,initial_point:list, final_point:list, number_of_waypoint:list):
         """_summary_
-        This function is constraint function to use equal distance
+        This class generate path to reach final point and avoid collision between obstacles and waypoints
 
         Args:
-            x (list): _description_ waypoint list x and y
+            initial_point (list): _description_
+            final_point (list): _description_
+            number_of_waypoint (list): _description_
         """
-        gx = []
-        for i in range(0,self.number_of_wp-1):
-            gx.append((self.Euclidean_distance(point_one=[x[2*i],x[2*i+1]],point_two=[x[2*i+2],x[2*i+3]]) -self.distance_between_wp))
-            #print(i,"zzzz",np.sqrt((x[2*i] - x[2*i+2])**2 + (x[2*i+1] - x[2*i+3])**2), self.distance_to_target(x)/self.number_of_wp,gx)
-        return gx
-    
-    def constr_two(self,x):
-        """
-        This function use for obstacle avoidance constraint
-        
+        self.number_of_wp = number_of_waypoint
+        self.initial_point = initial_point
+        self.final_point = final_point
+        self.obstacle_x = [50,95,100]   # X position of obstacles(m)
+        self.obstacle_y = [50,75,115]   # Y position of obstacles(m)
+        self.number_of_obs = len(self.obstacle_x) # Number of obstacles(m)
+        self.distance_from_obstacle = 20    # Distance from obstacles(m)
+        self.coeficient = 100
+            
+    def constr_one(self,X,Y):
+        """_summary_
+        This function constraint to waypoint for avoiding
+
         Args:
-            x (_type_): _description_ waypoint list x and y
+            X (list): _description_ list of X positions of path
+            Y (list): _description_ list of Y positions of path 
+
+        Returns:
+            _type_: _description_ cost value of constraint
         """
-        gx = []
-        for i in range(1,self.number_of_wp-1):
-            for j in range(0,self.number_of_obs):
-                gx.append((self.Euclidean_distance(point_one=[x[2*i],x[2*i+1]],point_two=[self.obstacle_x[j],self.obstacle_y[j]]) -self.distance_from_obstacle))
-    
-        return gx
-    
-    def constr_tree(self,x):
-        return pow((x[2]**2+x[3]**2),0.5)-10
-    
-    def constr_four(self,x):
-        return pow((x[4]-x[2])**2 +(x[5]-x[3])**2 ,0.5)-50
-    
-    def violate(self,value):
-            return 0 if value <= 0 else value
         
-    def distance_to_target(self,x):
-        return np.sqrt((x[-2]-x[0])**2 + (x[-1]-x[1])**2)
+        lenpx = np.zeros(X.shape[0])
+        count = 0
         
+        
+        for i in range(0,self.number_of_obs):
+            x_center = self.obstacle_x[i]
+            y_center = self.obstacle_y[i]
+            
+            d = np.sqrt((X - x_center) ** 2 + (Y - y_center) ** 2)
+            
+            inside = self.distance_from_obstacle > d
+            
+            cost = np.where(inside, self.coeficient /d, 0)
+            
+            if (inside.any()):
+                count += 1
+            
+            lenpx += np.nanmean(cost)
+        
+        return lenpx
+            
+                                
     def objective_function(self,x):
+        """_summary_
+        The objective function of problem
+        Args:
+            x (list): _description_ generated waypoint from optimization algorithm
+
+        Returns:
+            _type_: _description_
+        """
         fx = 0
         
-        x[0] = 0
-        x[1] = 0
-        x[-1] = 10
-        x[-2] = 10
+        x[0] = self.initial_point[0]                       # initial X position
+        x[self.number_of_wp-1] = self.initial_point[1]    # final X position
         
-        fx = self.Euclidean_distance(point_one=[x[0],x[1]],point_two=[x[2],x[3]])        
-        fx += self.Euclidean_distance(point_one=[x[-1],x[-2]],point_two=[x[2],x[3]])
+        x[self.number_of_wp] = self.final_point[0]        # initial Y position
+        x[2*self.number_of_wp-1] = self.final_point[1]  # final Y position
         
-        for i in range(1,self.number_of_wp-2):
-            fx += self.Euclidean_distance(point_one=[x[2*i],x[2*i+1]],point_two=[x[2*i+2],x[2*i+3]])
+        interpolator ='quadratic'
+        # interpolator = 'cubic'
+        # interpolator = 'slinear'
+        # interpolator = 'zero'
+        
+        
+        d = 50
+        ns = 1 + (self.number_of_wp + 1) * d         # Number of points along the spline
 
         
-        #const1 = self.violate(self.constr_one(x))
-        # this is static penalty function 
-        # link == > https://www.researchgate.net/profile/Oezguer-Yeniay/publication/228339797_Penalty_Function_Methods_for_Constrained_Optimization_with_Genetic_Algorithms/links/56d1ecda08ae85c8234ade07/Penalty-Function-Methods-for-Constrained-Optimization-with-Genetic-Algorithms.pdf
+        x1 = x[0:self.number_of_wp]
+        y1 = x[self.number_of_wp:2*self.number_of_wp]
         
-        """print("const1",self.constr_one(x))
-        print("<<<<<<<<<<<<")
-        print(self.constr_two(x))"""
-        print(self.Euclidean_distance(point_one=[x[2],x[3]],point_two=[self.obstacle_x[0],self.obstacle_y[0]]))
-        fx += max(self.constr_one(x))**2+max(self.constr_two(x))**2
-        return fx
+        
+        t = np.linspace(0, 1, self.number_of_wp)
+        
+        CSx = interp1d(t, x1 ,kind=interpolator, assume_sorted=True)
+        CSy = interp1d(t, y1, kind=interpolator, assume_sorted=True)
+        
+        # Coordinates of the discretized path
+        s = np.linspace(0, 1, ns)
+        
+        Px = CSx(s)
+        Py = CSy(s)
+       
+        dX = np.diff(Px)
+        dY = np.diff(Py)
+        L = np.sqrt(dX ** 2 + dY ** 2)
+        
+        gx = self.constr_one(Px,Py)
+       
+       
+        Cost = L + (1+gx[0:len(L)])
+       
+        return Cost
     
     def run(self):
+        """_summary_
+        Main function of problem 
+        """
+        lb = []
+        ub = []
+        
+        # add bound to waypoint
+        for i in range(0,self.number_of_wp*2):
+            lb.append(0)
+            ub.append(150)
+            
+  
         problem_dict1 = {
         "fit_func": self.objective_function,
-        "lb": [0,0,0,0,0,0],
-        "ub": [150,150,150,150,150,150],
+        "lb": lb,
+        "ub": ub,
         "minmax": "min",
         }
         
-        
-        
         ## Run the algorithm
-        model1 = BaseWOA(problem_dict1, epoch=100  , pop_size=500)
+        model1 = BaseGWO(problem_dict1, epoch=80  , pop_size=200)
         best_position, best_fitness = model1.solve()
         print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
         self.plot(best_position)
         
         
     def plot(self,solutions):
+        """_summary_
+        plot solution waypoint with obstacles
+
+        Args:
+            solutions (list): _description_ solution list of problem
+        """
         
-        x = []
-        y = []
+        x = solutions[0:self.number_of_wp]
+        y = solutions[self.number_of_wp:2*self.number_of_wp]
         
-        for i in range(0,2*self.number_of_wp):
-            if i%2 == 0:
-                x.append(solutions[i])
-            else:
-                y.append(solutions[i])
-                
-        print(x)
-        print(y)         
+                 
         plt.scatter(x, y)
-        plt.scatter(self.obstacle_x,self.obstacle_y,s=(10 * self.distance_from_obstacle)**2 )
+        plt.scatter(self.obstacle_x,self.obstacle_y,s=( self.distance_from_obstacle)**2 )
         plt.show()
         
         
 
 
 if __name__=="__main__":
-    A = CollisionAvoidance(3)
+    A = CollisionAvoidance(5)
     A.run()
