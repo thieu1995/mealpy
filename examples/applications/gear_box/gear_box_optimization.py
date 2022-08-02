@@ -5,6 +5,7 @@ from mealpy.swarm_based.GWO import BaseGWO
 import numpy as np
 
 """
+refenrence article:
 https://www.tandfonline.com/doi/abs/10.1080/0305215X.2018.1509963
 """
 
@@ -18,7 +19,7 @@ def gear_box(x):
     m = x[4]
     
     Args:
-        x (_type_): _description_
+        x (list): _description_ list of variable of gear box problem
     """
     # input parameters
     b = x[0]
@@ -42,6 +43,7 @@ def gear_box(x):
     F_s = np.pi * K_v *K_w * sigma * b* m*y 
     F_p = 2*K_v*K_w*D_1*b*Z_2/( Z1+Z_2)
     
+    # constraint function
     def g1(x):
         return -F_s +b_1
     
