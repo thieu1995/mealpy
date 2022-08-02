@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class CollisionAvoidance():
+class PathPlanning():
     def __init__(self,initial_point:list, final_point:list, number_of_waypoint:list):
         """_summary_
         This class generate path to reach final point and avoid collision between obstacles and waypoints
