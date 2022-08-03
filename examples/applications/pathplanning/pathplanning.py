@@ -10,7 +10,11 @@ class PathPlanning():
     def __init__(self,initial_point:list, final_point:list, number_of_waypoint:list):
         """_summary_
         This class generate path to reach final point and avoid collision between obstacles and waypoints
+        
+        reference:
+        https://link.springer.com/article/10.1007/s10489-018-1384-y
 
+        
         Args:
             initial_point (list): _description_
             final_point (list): _description_
