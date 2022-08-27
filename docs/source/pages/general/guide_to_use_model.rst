@@ -241,6 +241,7 @@ Advances
 .. include:: advances/more_on_fitness_function.rst
 .. include:: advances/starting_positions.rst
 .. include:: advances/agent_history.rst
+.. include:: advances/saving_loading.rst
 .. include:: advances/import_all_models.rst
 
 .. toctree::
