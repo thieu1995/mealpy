@@ -7,7 +7,7 @@
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-from os import getcwd, path, makedirs
+import os
 
 model_name = "DE"
 N_TRIALS = 5
@@ -22,10 +22,10 @@ func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11"
 
 PATH_ERROR = "history/error/" + model_name + "/"
 PATH_BEST_FIT = "history/best_fit/"
-check_dir1 = f"{getcwd()}/{PATH_ERROR}"
-check_dir2 = f"{getcwd()}/{PATH_BEST_FIT}"
-if not path.exists(check_dir1): makedirs(check_dir1)
-if not path.exists(check_dir2): makedirs(check_dir2)
+check_dir1 = f"{os.getcwd()}/{PATH_ERROR}"
+check_dir2 = f"{os.getcwd()}/{PATH_BEST_FIT}"
+if not os.path.exists(check_dir1): os.makedirs(check_dir1)
+if not os.path.exists(check_dir2): os.makedirs(check_dir2)
 
 ## Run model
 best_fit_full = {}

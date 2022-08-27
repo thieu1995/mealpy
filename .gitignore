@@ -18,6 +18,7 @@ mealpy/math_based/CircleSA.py
 
 check_algo.py
 examples/hehu.py
+examples/myhelp.py
 
 # Pycharm
 .idea/

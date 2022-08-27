@@ -15,7 +15,7 @@
 
 
 # univariate mlp example
-from numpy import array, size, reshape
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 from mealpy.swarm_based import GWO
@@ -36,7 +36,7 @@ def split_sequence(sequence, n_steps):
         seq_x, seq_y = sequence[i:end_ix], sequence[end_ix]
         X.append(seq_x)
         y.append(seq_y)
-    return array(X), array(y)
+    return np.array(X), np.array(y)
 
 
 class HybridMlp:
@@ -87,11 +87,11 @@ class HybridMlp:
     def decode_solution(self, solution=None):
         ## solution: vector
         ### Transfer solution back into weights of neural network
-        weight_sizes = [(w.shape, size(w)) for w in self.model.get_weights()]
+        weight_sizes = [(w.shape, np.size(w)) for w in self.model.get_weights()]
         weights = []
         cut_point = 0
         for ws in weight_sizes:
-            temp = reshape(solution[cut_point: cut_point + ws[1]], ws[0])
+            temp = np.reshape(solution[cut_point: cut_point + ws[1]], ws[0])
             weights.append(temp)
             cut_point += ws[1]
         self.model.set_weights(weights)
@@ -132,7 +132,7 @@ model.training()
 # model.solution
 
 ## Predict the up coming time-series points
-x_input = array([210, 220, 230])
+x_input = np.array([210, 220, 230])
 x_input = x_input.reshape((1, n_steps))
 yhat = model.prediction(model.solution, x_input)
 print(yhat)

@@ -7,12 +7,12 @@
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-from os import getcwd, path, makedirs
+import os
 
 PATH_RESULTS = "history/results/"
-check_dir = f"{getcwd()}/{PATH_RESULTS}"
-if not path.exists(check_dir):
-    makedirs(check_dir)
+check_dir = f"{os.getcwd()}/{PATH_RESULTS}"
+if not os.path.exists(check_dir):
+    os.makedirs(check_dir)
 
 ## Setting parameters
 model_name = "DE"

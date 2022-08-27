@@ -7,7 +7,7 @@
 ## https://machinelearningmastery.com/how-to-develop-multilayer-perceptron-models-for-time-series-forecasting/
 
 # univariate mlp example
-from numpy import array
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 
@@ -24,7 +24,7 @@ def split_sequence(sequence, n_steps):
         seq_x, seq_y = sequence[i:end_ix], sequence[end_ix]
         X.append(seq_x)
         y.append(seq_y)
-    return array(X), array(y)
+    return np.array(X), np.array(y)
 
 
 # define input sequence
@@ -50,7 +50,7 @@ model.set_weights(weights)
 model.predict()
 
 # demonstrate prediction
-x_input = array([70, 80, 90])
+x_input = np.array([70, 80, 90])
 x_input = x_input.reshape((1, n_steps))
 yhat = model.predict(x_input, verbose=0)
 print(yhat)
