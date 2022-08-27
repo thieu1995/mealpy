@@ -26,6 +26,8 @@ class History:
         + list_diversity: List of DIVERSITY of swarm in all generations
         + list_exploitation: List of EXPLOITATION percentages for all generations
         + list_exploration: List of EXPLORATION percentages for all generations
+        + list_global_worst: List of global worst SOLUTION found so far in all previous generations
+        + list_current_worst: List of current worst SOLUTION in each previous generations
         + list_population: List of POPULATION in each generations
         + **Warning**, the last variable 'list_population' can cause the error related to 'memory' when saving model.
             Better to set parameter 'save_population' to False in the input problem dictionary to not using it.
@@ -81,6 +83,8 @@ class History:
         self.list_diversity = []  # List of diversity of swarm in all generations
         self.list_exploitation = []  # List of exploitation percentages for all generations
         self.list_exploration = []  # List of exploration percentages for all generations
+        self.list_global_worst = [] # List of global worst solution found so far in all previous generations
+        self.list_current_worst = [] # List of current worst solution in each previous generations
         self.epoch, self.log_to, self.log_file = None, None, None
         self.__set_keyword_arguments(kwargs)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
@@ -90,9 +94,11 @@ class History:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def store_initial_best(self, best_agent):
+    def store_initial_best_worst(self, best_agent, worst_agent):
         self.list_global_best = [deepcopy(best_agent)]
         self.list_current_best = [deepcopy(best_agent)]
+        self.list_global_worst = [deepcopy(worst_agent)]
+        self.list_current_worst = [deepcopy(worst_agent)]
 
     def get_global_repeated_times(self, id_fitness, id_target, epsilon):
         count = 0

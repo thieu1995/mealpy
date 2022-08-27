@@ -63,7 +63,7 @@ class Optimizer:
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
         self.mode, self.n_workers, self._print_model = None, None, ""
-        self.pop, self.g_best = None, None
+        self.pop, self.g_best, self.g_worst = None, None, None
         if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
         self.problem = Problem(problem=problem)
@@ -96,7 +96,7 @@ class Optimizer:
             elif self.termination.mode == 'MG':
                 self.count_terminate = self.epoch
             else:  # number of function evaluation (NFE)
-                self.count_terminate = 0 # self.pop_size  # First out of loop
+                self.count_terminate = 0  # self.pop_size  # First out of loop
             self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
 
     def initialization(self, starting_positions=None):
@@ -115,7 +115,9 @@ class Optimizer:
 
     def after_initialization(self):
         # The initial population is sorted or not depended on algorithm's strategy
-        pop_temp, self.g_best = self.get_global_best_solution(self.pop)
+        pop_temp, best, worst = self.get_special_solutions(self.pop)
+        self.g_best, self.g_worst = best[0], worst[0]
+        # pop_temp, self.g_best = self.get_global_best_solution(self.pop)
         if self.sort_flag: self.pop = pop_temp
 
     def get_target_wrapper(self, position):
@@ -217,7 +219,7 @@ class Optimizer:
         self.termination_start()
         self.initialization(starting_positions)
         self.after_initialization()
-        self.history.store_initial_best(self.g_best)
+        self.history.store_initial_best_worst(self.g_best, self.g_worst)
 
         for epoch in range(0, self.epoch):
             time_epoch = time.perf_counter()
@@ -236,8 +238,8 @@ class Optimizer:
             if self.sort_flag: self.pop = pop_temp
 
             time_epoch = time.perf_counter() - time_epoch
-            self.track_optimize_step(self.pop, epoch+1, time_epoch)
-            if self.termination_end(epoch+1):
+            self.track_optimize_step(self.pop, epoch + 1, time_epoch)
+            if self.termination_end(epoch + 1):
                 break
         self.track_optimize_process()
         return self.solution[self.ID_POS], self.solution[self.ID_TAR][self.ID_FIT]
@@ -264,7 +266,7 @@ class Optimizer:
         self.history.list_diversity.append(np.mean(div, axis=0))
         ## Print epoch
         self.logger.info(f">{self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
-              f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
+                         f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def track_optimize_process(self):
         """
@@ -277,6 +279,8 @@ class Optimizer:
         self.history.list_global_best = self.history.list_global_best[1:]
         self.history.list_current_best = self.history.list_current_best[1:]
         self.solution = self.history.list_global_best[-1]
+        self.history.list_global_worst = self.history.list_global_worst[1:]
+        self.history.list_current_worst = self.history.list_current_worst[1:]
 
     def create_population(self, pop_size=None):
         """
@@ -347,23 +351,24 @@ class Optimizer:
         else:
             return sorted_pop, deepcopy(sorted_pop[-1])
 
-    def get_better_solution(self, agent1: list, agent2: list):
+    def get_better_solution(self, agent1: list, agent2: list, reverse=False):
         """
         Args:
             agent1 (list): A solution
             agent2 (list): Another solution
+            reverse (bool): Transform this function to get_worse_solution if reverse=True, default=False
 
         Returns:
             The better solution between them
         """
         if self.problem.minmax == "min":
             if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
-                return deepcopy(agent1)
-            return deepcopy(agent2)
+                return deepcopy(agent1) if reverse is False else deepcopy(agent2)
+            return deepcopy(agent2) if reverse is False else deepcopy(agent1)
         else:
             if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
-                return deepcopy(agent2)
-            return deepcopy(agent1)
+                return deepcopy(agent2) if reverse is False else deepcopy(agent1)
+            return deepcopy(agent1) if reverse is False else deepcopy(agent2)
 
     def compare_agent(self, agent_new: list, agent_old: list):
         """
@@ -399,6 +404,7 @@ class Optimizer:
             pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         if best is None:
             if worst is None:
+                self.logger.error("Best and Worst can not be None in get_special_solutions function!")
                 exit(0)
             else:
                 return pop, None, deepcopy(pop[::-1][:worst])
@@ -425,7 +431,8 @@ class Optimizer:
 
     def update_global_best_solution(self, pop=None, save=True):
         """
-        Update the global best solution saved in variable named: self.history_list_g_best
+        Update global best and current best solutions in history object.
+        Also update global worst and current worst solutions in history object.
 
         Args:
             pop (list): The population of pop_size individuals
@@ -439,16 +446,28 @@ class Optimizer:
         else:
             sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         current_best = sorted_pop[0]
+        current_worst = sorted_pop[-1]
         if save:
+            ## Save current best
             self.history.list_current_best.append(current_best)
             better = self.get_better_solution(current_best, self.history.list_global_best[-1])
             self.history.list_global_best.append(better)
+            ## Save current worst
+            self.history.list_current_worst.append(current_worst)
+            worse = self.get_better_solution(current_worst, self.history.list_global_worst[-1], reverse=True)
+            self.history.list_global_worst.append(worse)
             return deepcopy(sorted_pop), deepcopy(better)
         else:
+            ## Handle current best
             local_better = self.get_better_solution(current_best, self.history.list_current_best[-1])
             self.history.list_current_best[-1] = local_better
             global_better = self.get_better_solution(current_best, self.history.list_global_best[-1])
             self.history.list_global_best[-1] = global_better
+            ## Handle current worst
+            local_worst = self.get_better_solution(current_worst, self.history.list_current_worst[-1], reverse=True)
+            self.history.list_current_worst[-1] = local_worst
+            global_worst = self.get_better_solution(current_worst, self.history.list_global_worst[-1], reverse=True)
+            self.history.list_global_worst[-1] = global_worst
             return deepcopy(sorted_pop), deepcopy(global_better)
 
     ## Selection techniques
