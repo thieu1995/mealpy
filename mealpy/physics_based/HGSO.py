@@ -76,16 +76,11 @@ class BaseHGSO(Optimizer):
         self.C_j = self.l3 * np.random.uniform()
         self.pop_group, self.p_best = None, None
 
-    def after_initialization(self):
-        _, self.g_best = self.get_global_best_solution(self.pop)
-        self.pop_group = self.create_group__(self.pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
+        self.pop_group = self.create_pop_group__(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)  # multiple element
-
-    def create_group__(self, pop):
-        pop_group = []
-        for idx in range(0, self.n_clusters):
-            pop_group.append(pop[idx * self.n_elements:(idx + 1) * self.n_elements])
-        return pop_group
 
     def flatten_group__(self, group):
         pop = []
@@ -155,6 +150,6 @@ class BaseHGSO(Optimizer):
         nfe_epoch += N_w
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = deepcopy(pop_new[idx])
-        self.pop_group = self.create_group__(self.pop)
+        self.pop_group = self.create_pop_group__(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)
         self.nfe_per_epoch = nfe_epoch
