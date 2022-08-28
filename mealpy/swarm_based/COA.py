@@ -68,9 +68,10 @@ class BaseCOA(Optimizer):
         self.nfe_per_epoch = self.pop_size + 1
         self.sort_flag = False
 
-    def after_initialization(self):
-        self.pop_group = self.create_pop_group__(self.pop)
-        _, self.g_best = self.get_global_best_solution(self.pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
+        self.pop_group = self.create_pop_group__(self.pop, self.n_packs, self.n_coyotes)
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
@@ -85,13 +86,6 @@ class BaseCOA(Optimizer):
         target = self.get_target_wrapper(pos)
         age = 1
         return [pos, target, age]
-
-    def create_pop_group__(self, pop):
-        pop_group = []
-        for i in range(0, self.n_packs):
-            group = pop[i * self.n_coyotes:(i + 1) * self.n_coyotes]
-            pop_group.append(group)
-        return pop_group
 
     def evolve(self, epoch):
         """
