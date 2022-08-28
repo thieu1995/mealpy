@@ -62,10 +62,6 @@ class OriginalGBO(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def after_initialization(self):
-        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
-        self.g_best, self.g_worst = best[0], worst[0]
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
