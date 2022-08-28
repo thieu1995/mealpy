@@ -82,8 +82,7 @@ class BaseSRSR(Optimizer):
         target_move = 0
         return [position, target, mu, sigma, x_new, target_new, target_move]
 
-    def after_initialization(self):
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
+    def initialization(self):
         # Control Parameters Of Algorithm
         # ==============================================================================================
         #  [c1] movement_factor : Determines Movement Pace Of Robots During Exploration Policy
@@ -96,6 +95,8 @@ class BaseSRSR(Optimizer):
         self.sigma_temp = np.zeros(self.pop_size)  # Initializing Temporary Stacks
         self.SIF = None
         self.movement_factor = self.problem.ub - self.problem.lb
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
 
     def evolve(self, epoch):
         """
