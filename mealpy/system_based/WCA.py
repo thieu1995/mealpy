@@ -76,9 +76,11 @@ class BaseWCA(Optimizer):
         self.dmax = self.validator.check_float("dmax", dmax, (0, 1.0))
         self.streams, self.pop_bset, self.pop_stream = None, None, None
         self.nfe_per_epoch = self.pop_size
+        self.sort_flag = True
 
-    def after_initialization(self):
-        # We sort the population
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.pop, self.g_best = self.get_global_best_solution(self.pop)
         self.ecc = self.dmax  # Evaporation condition constant - variable
         n_stream = self.pop_size - self.nsr
