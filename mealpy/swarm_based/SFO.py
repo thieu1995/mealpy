@@ -72,9 +72,10 @@ class BaseSFO(Optimizer):
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
-    def after_initialization(self):
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)    # pop = sailfish
         self.s_pop = self.create_population(self.s_size)
-        _, self.g_best = self.get_global_best_solution(self.pop)  # pop = sailfish
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)  # s_pop = sardines
 
     def evolve(self, epoch):
@@ -206,9 +207,10 @@ class ImprovedSFO(Optimizer):
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
-    def after_initialization(self):
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.s_pop = self.create_population(self.s_size)
-        _, self.g_best = self.get_global_best_solution(self.pop)
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
 
     def evolve(self, epoch):
