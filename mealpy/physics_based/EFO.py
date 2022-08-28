@@ -185,9 +185,7 @@ class OriginalEFO(BaseEFO):
         """
         return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
-    def after_initialization(self):
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
-
+    def initialization(self):
         # %random vectors (this is to increase the calculation speed instead of determining the random values in each
         # iteration we allocate them in the beginning before algorithm start
         self.r_index1 = np.random.randint(0, int(self.pop_size * self.p_field), (self.problem.n_dims, self.epoch))
@@ -206,6 +204,9 @@ class OriginalEFO(BaseEFO):
         # Coefficient of randomization when generated electro magnet is out of boundary
         self.RI = 0
         # index of the electromagnet (variable) which is going to be initialized by random number
+
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
 
     def evolve(self, epoch):
         """
