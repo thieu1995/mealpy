@@ -100,7 +100,9 @@ class Optimizer:
             self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
 
     def before_initialization(self, starting_positions=None):
-        if type(starting_positions) in [list, np.ndarray] and len(starting_positions) == self.pop_size:
+        if starting_positions is None:
+            pass
+        elif type(starting_positions) in [list, np.ndarray] and len(starting_positions) == self.pop_size:
             if isinstance(starting_positions[0], np.ndarray) and len(starting_positions[0]) == self.problem.n_dims:
                 self.pop = [self.create_solution(self.problem.lb, self.problem.ub, pos) for pos in starting_positions]
             else:
