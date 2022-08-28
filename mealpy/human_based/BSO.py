@@ -86,16 +86,11 @@ class ImprovedBSO(Optimizer):
             centers.append(deepcopy(local_best))
         return centers
 
-    def make_group__(self, pop):
-        pop_group = []
-        for idx in range(0, self.m_clusters):
-            pop_group.append(deepcopy(pop[idx * self.m_solution:(idx + 1) * self.m_solution]))
-        return pop_group
-
-    def after_initialization(self):
-        self.pop_group = self.make_group__(self.pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
+        self.pop_group = self.create_pop_group__(self.pop, self.m_clusters, self.m_solution)
         self.centers = self.find_cluster__(self.pop_group)
-        _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
         """
