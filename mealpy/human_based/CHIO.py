@@ -64,10 +64,10 @@ class OriginalCHIO(Optimizer):
         self.brr = self.validator.check_float("brr", brr, (0, 1.0))
         self.max_age = self.validator.check_int("max_age", max_age, [1, 1+int(epoch/5)])
         self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
 
     def after_initialization(self):
-        _, self.g_best = self.get_global_best_solution(self.pop)
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.immunity_type_list = np.random.randint(0, 3, self.pop_size)  # Randint [0, 1, 2]
         self.age_list = np.zeros(self.pop_size)  # Control the age of each position
         self.finished = False
