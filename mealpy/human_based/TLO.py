@@ -249,22 +249,20 @@ class ITLO(BaseTLO):
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
-    def classify__(self, pop):
-        sorted_pop, best = self.get_global_best_solution(pop)
-        teachers = sorted_pop[:self.n_teachers]
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
+        sorted_pop, self.g_best = self.get_global_best_solution(self.pop)
+        self.teachers = deepcopy(sorted_pop[:self.n_teachers])
         sorted_pop = sorted_pop[self.n_teachers:]
         idx_list = np.random.permutation(range(0, self.n_students))
-        teams = []
+        self.teams = []
         for id_teacher in range(0, self.n_teachers):
             group = []
             for idx in range(0, self.n_students_in_team):
                 start_index = id_teacher * self.n_students_in_team + idx
                 group.append(sorted_pop[idx_list[start_index]])
-            teams.append(group)
-        return teachers, teams, best
-
-    def after_initialization(self):
-        self.teachers, self.teams, self.g_best = self.classify__(self.pop)
+            self.teams.append(group)
 
     def evolve(self, epoch):
         """
