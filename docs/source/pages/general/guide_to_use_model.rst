@@ -1,5 +1,5 @@
 ==================
-Guide to use model
+Guide To Use Model
 ==================
 
 In this phase, the main task is to find out the global optimal - in this project, we call it named *model* for simple. We designed the classical as well as

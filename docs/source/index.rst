@@ -64,6 +64,7 @@ Features
 
    pages/models.rst
    pages/visualization.rst
+   pages/build_new_optimizer.rst
 
 
 .. toctree::
