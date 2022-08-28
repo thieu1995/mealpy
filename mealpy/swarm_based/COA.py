@@ -71,7 +71,7 @@ class BaseCOA(Optimizer):
     def initialization(self):
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
-        self.pop_group = self.create_pop_group__(self.pop, self.n_packs, self.n_coyotes)
+        self.pop_group = self.create_pop_group(self.pop, self.n_packs, self.n_coyotes)
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """

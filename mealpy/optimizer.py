@@ -644,7 +644,7 @@ class Optimizer:
         """
         return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
 
-    def create_pop_group__(self, pop, n_groups, m_agents):
+    def create_pop_group(self, pop, n_groups, m_agents):
         pop_group = []
         for i in range(0, n_groups):
             group = pop[i * m_agents: (i + 1) * m_agents]

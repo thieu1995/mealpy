@@ -74,7 +74,7 @@ class BaseEHO(Optimizer):
     def initialization(self):
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
-        self.pop_group = self.create_pop_group__(self.pop, self.n_clans, self.n_individuals)
+        self.pop_group = self.create_pop_group(self.pop, self.n_clans, self.n_individuals)
 
     def evolve(self, epoch):
         """
@@ -103,7 +103,7 @@ class BaseEHO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(pop_new, self.pop)
-        self.pop_group = self.create_pop_group__(self.pop, self.n_clans, self.n_individuals)
+        self.pop_group = self.create_pop_group(self.pop, self.n_clans, self.n_individuals)
         # Separating operator
         for i in range(0, self.n_clans):
             self.pop_group[i], _ = self.get_global_best_solution(self.pop_group[i])

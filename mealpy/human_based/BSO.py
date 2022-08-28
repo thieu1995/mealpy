@@ -89,7 +89,7 @@ class ImprovedBSO(Optimizer):
     def initialization(self):
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
-        self.pop_group = self.create_pop_group__(self.pop, self.m_clusters, self.m_solution)
+        self.pop_group = self.create_pop_group(self.pop, self.m_clusters, self.m_solution)
         self.centers = self.find_cluster__(self.pop_group)
 
     def evolve(self, epoch):
