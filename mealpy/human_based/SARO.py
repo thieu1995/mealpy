@@ -19,7 +19,7 @@ class BaseSARO(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + se (float): [0.3, 0.8], social effect, default = 0.5
-        + mu (int): [10, 20], maximum unsuccessful search number, default = 15
+        + mu (int): maximum unsuccessful search number, belongs to range: [2, 2+int(self.pop_size/2)], default = 15
 
     Examples
     ~~~~~~~~
@@ -52,7 +52,7 @@ class BaseSARO(Optimizer):
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             se (float): social effect, default = 0.5
-            mu (int): maximum unsuccessful search number, default = 50
+            mu (int): maximum unsuccessful search number, default = 15
         """
         super().__init__(problem, kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
@@ -65,9 +65,11 @@ class BaseSARO(Optimizer):
         ## Dynamic variable
         self.dyn_USN = np.zeros(self.pop_size)
 
-    def after_initialization(self):
-        pop = self.pop + self.create_population(self.pop_size)
-        self.pop, self.g_best = self.get_global_best_solution(pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(2 * self.pop_size)
+        else:
+            self.pop = self.pop + self.create_population(self.pop_size)
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
