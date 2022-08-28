@@ -94,12 +94,13 @@ class BaseSA(Optimizer):
             pos_new[np.random.randint(0, self.problem.n_dims)] = np.random.uniform()
         return self.amend_position(pos_new, self.problem.lb, self.problem.ub)
 
-    def after_initialization(self):
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
+    def initialization(self):
         # Initial Temperature
         self.dyn_t = self.t0  # Initial Temperature
         self.t_damp = (self.t1 / self.t0) ** (1.0 / self.epoch)  # Calculate Temperature Damp Rate
         self.dyn_sigma = self.mutation_step_size  # Initial Value of Step Size
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
 
     def evolve(self, epoch):
         """
