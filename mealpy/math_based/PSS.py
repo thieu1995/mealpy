@@ -79,7 +79,7 @@ class OriginalPSS(Optimizer):
             pop = sampler.random(n=pop_size)
         return pop
 
-    def after_initialization(self):
+    def initialization(self):
         lb_pop = np.repeat(np.reshape(self.problem.lb, (1, -1)), self.pop_size, axis=0)
         ub_pop = np.repeat(np.reshape(self.problem.ub, (1, -1)), self.pop_size, axis=0)
         steps_mat = np.repeat(np.reshape(self.steps, (1, -1)), self.pop_size, axis=0)
@@ -91,7 +91,6 @@ class OriginalPSS(Optimizer):
             pos_new = self.amend_position(pos, self.problem.lb, self.problem.ub)
             target = self.get_target_wrapper(pos_new)
             self.pop.append([pos_new, target])
-        _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
         """
