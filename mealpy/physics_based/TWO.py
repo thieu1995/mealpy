@@ -66,8 +66,9 @@ class BaseTWO(Optimizer):
         self.alpha = 0.99
         self.beta = 0.1
 
-    def after_initialization(self):
-        _, self.g_best = self.get_global_best_solution(self.pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.pop = self.update_weight__(self.pop)
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -181,7 +182,9 @@ class OppoTWO(BaseTWO):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def after_initialization(self):
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         list_idx = np.random.choice(range(0, self.pop_size), int(self.pop_size/2), replace=False)
         pop_temp = [self.pop[list_idx[idx]] for idx in range(0, int(self.pop_size/2))]
         pop_oppo = []
@@ -194,7 +197,6 @@ class OppoTWO(BaseTWO):
         pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = pop_temp + pop_oppo
         self.pop = self.update_weight__(self.pop)
-        _, self.g_best = self.get_global_best_solution(self.pop)
 
     def evolve(self, epoch):
         """
@@ -403,7 +405,9 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def after_initialization(self):
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         pop_oppo = deepcopy(self.pop)
         for i in range(self.pop_size):
             pos_opposite = self.problem.ub + self.problem.lb - self.pop[i][self.ID_POS]
@@ -414,7 +418,6 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         pop_oppo = self.update_target_wrapper_population(pop_oppo)
         self.pop = self.get_sorted_strim_population(self.pop + pop_oppo, self.pop_size)
         self.pop = self.update_weight__(self.pop)
-        self.g_best = deepcopy(self.pop[0])
 
     def evolve(self, epoch):
         """
