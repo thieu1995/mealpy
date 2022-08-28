@@ -66,7 +66,7 @@ class BaseSSpiderO(Optimizer):
         fp = self.validator.check_tuple_float("fp (min, max)", fp, ((0, 1.0), (0, 1.0)))
         self.fp = (min(fp), max(fp))
 
-    def after_initialization(self):
+    def initialization(self):
         fp_temp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
         self.n_f = int(self.pop_size * fp_temp)  # number of female
         self.n_m = self.pop_size - self.n_f  # number of male
@@ -75,10 +75,11 @@ class BaseSSpiderO(Optimizer):
 
         idx_males = np.random.choice(range(0, self.pop_size), self.n_m, replace=False)
         idx_females = set(range(0, self.pop_size)) - set(idx_males)
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.pop_males = [self.pop[idx] for idx in idx_males]
         self.pop_females = [self.pop[idx] for idx in idx_females]
         self.pop = self.recalculate_weights__(self.pop)
-        _, self.g_best = self.get_global_best_solution(self.pop)
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
