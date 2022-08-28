@@ -58,8 +58,9 @@ class BaseDO(Optimizer):
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
-    def after_initialization(self):
-        _, self.g_best = self.get_global_best_solution(self.pop)
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
         self.pop_delta = self.create_population(self.pop_size)
         # Initial radius of dragonflies' neighborhoods
         self.radius = (self.problem.ub - self.problem.lb) / 10
