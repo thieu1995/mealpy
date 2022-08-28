@@ -99,26 +99,29 @@ class Optimizer:
                 self.count_terminate = 0  # self.pop_size  # First out of loop
             self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
 
-    def initialization(self, starting_positions=None):
-        if starting_positions is None:
-            self.pop = self.create_population(self.pop_size)
-        else:
-            if type(starting_positions) in [list, np.ndarray] and len(starting_positions) == self.pop_size:
-                if isinstance(starting_positions[0], np.ndarray) and len(starting_positions[0]) == self.problem.n_dims:
-                    self.pop = [self.create_solution(self.problem.lb, self.problem.ub, pos) for pos in starting_positions]
-                else:
-                    self.logger.error("Starting positions should be a list of positions or 2D matrix of positions only.")
-                    exit(0)
+    def before_initialization(self, starting_positions=None):
+        if type(starting_positions) in [list, np.ndarray] and len(starting_positions) == self.pop_size:
+            if isinstance(starting_positions[0], np.ndarray) and len(starting_positions[0]) == self.problem.n_dims:
+                self.pop = [self.create_solution(self.problem.lb, self.problem.ub, pos) for pos in starting_positions]
             else:
-                self.logger.error("Starting positions should be a list/2D matrix of positions with same length as pop_size hyper-parameter.")
+                self.logger.error("Starting positions should be a list of positions or 2D matrix of positions only.")
                 exit(0)
+        else:
+            self.logger.error("Starting positions should be a list/2D matrix of positions with same length as pop_size hyper-parameter.")
+            exit(0)
+
+    def initialization(self):
+        if self.pop is None:
+            self.pop = self.create_population(self.pop_size)
 
     def after_initialization(self):
         # The initial population is sorted or not depended on algorithm's strategy
-        pop_temp, best, worst = self.get_special_solutions(self.pop)
+        pop_temp, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         self.g_best, self.g_worst = best[0], worst[0]
         # pop_temp, self.g_best = self.get_global_best_solution(self.pop)
         if self.sort_flag: self.pop = pop_temp
+        ## Store initial best and worst solutions
+        self.history.store_initial_best_worst(self.g_best, self.g_worst)
 
     def get_target_wrapper(self, position):
         """
@@ -209,7 +212,7 @@ class Optimizer:
                 * 'swarm': The sequential mode that no effect on updating phase of other agents
                 * 'single': The sequential mode that effect on updating phase of other agents, default
 
-            starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size hyper_parameter
+            starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
             n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
 
         Returns:
@@ -217,9 +220,9 @@ class Optimizer:
         """
         self.check_mode_and_workers(mode, n_workers)
         self.termination_start()
-        self.initialization(starting_positions)
+        self.before_initialization(starting_positions)
+        self.initialization()
         self.after_initialization()
-        self.history.store_initial_best_worst(self.g_best, self.g_worst)
 
         for epoch in range(0, self.epoch):
             time_epoch = time.perf_counter()
@@ -638,6 +641,13 @@ class Optimizer:
             The opposite position
         """
         return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
+
+    def create_pop_group__(self, pop, n_groups, m_agents):
+        pop_group = []
+        for i in range(0, n_groups):
+            group = pop[i * m_agents: (i + 1) * m_agents]
+            pop_group.append(deepcopy(group))
+        return pop_group
 
     ### Crossover
     def crossover_arithmetic(self, dad_pos=None, mom_pos=None):
