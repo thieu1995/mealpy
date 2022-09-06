@@ -64,6 +64,7 @@ class OriginalBBO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.elites = self.validator.check_int("elites", elites, [2, int(self.pop_size / 2)])
+        self.set_parameters(["pop_size", "epoch", "p_m", "elites"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -111,7 +112,7 @@ class OriginalBBO(Optimizer):
 
 class BaseBBO(OriginalBBO):
     """
-    My changed version of: Biogeography-Based Optimization (BBO)
+    The developed version: Biogeography-Based Optimization (BBO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_m: [0.01, 0.2], Mutation probability

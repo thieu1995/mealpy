@@ -70,12 +70,41 @@ class Optimizer:
         self._set_problem(problem)
         self._set_utilities(kwargs)
 
-        self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
+        self.sort_flag, self.terminate_counter, self.nfe_per_epoch, self.parameters = False, None, self.pop_size, {}
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    def set_parameters(self, para_names=None):
+        """
+        Set the parameters for current optimizer.
+
+        Args:
+            para_names (list): List of parameters' name
+        """
+        self.parameters = {}
+        for name in para_names:
+            self.parameters[name] = self.__dict__[name]
+
+    def get_parameters(self):
+        """
+        Get parameters of optimizer.
+
+        Returns:
+            dict: [str, any]
+        """
+        return self.parameters
+
+    def get_attributes(self):
+        """
+        Get all attributes in optimizer.
+
+        Returns:
+            dict: [str, any]
+        """
+        return self.__dict__
 
     def _set_problem(self, problem):
         self.problem = Problem(problem=problem)
