@@ -4,8 +4,35 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.utils.validator import Validator
+from mealpy.utils import validator
 import pytest
+
+
+@pytest.mark.parametrize("value, bound, output",
+                         [
+                             (-3.3, [-10, 10], True),
+                             (1000, (2, float("inf")), True),
+                             (0.5, [0.3, 2], True),
+                             (0, (0, 1.0), False),
+                             [2.1, [1, 2.1], True]
+                         ])
+def test_check_int(value, bound, output):
+    value_new = validator.is_in_bound(value, bound)
+    assert value_new == output
+
+
+@pytest.mark.parametrize("value, my_list, output",
+                         [
+                             (-3.3, [-10, 10], False),
+                             (1000, (2, float("inf")), False),
+                             (0.5, [0.3, 2], False),
+                             ("hello", ["hello", "world", "now"], True),
+                             ("a", ("b", "e", "A", "f"), False),
+                             ("a", ("abc", "aa", "dc"), False)
+                         ])
+def test_check_str_in_list(value, my_list, output):
+    value_new = validator.is_str_in_list(value, my_list)
+    assert value_new == output
 
 
 @pytest.mark.parametrize("value, bound, output",
@@ -15,8 +42,8 @@ import pytest
                              (0.5, [0.3, 2], 0),
                          ])
 def test_check_int(value, bound, output):
-    validator = Validator()
-    value_new = validator.check_int("value", value, bound)
+    valid_model = validator.Validator()
+    value_new = valid_model.check_int("value", value, bound)
     assert value_new == output
 
 
@@ -30,7 +57,7 @@ def test_check_int(value, bound, output):
                          ])
 def test_check_float(value, bound, output):
     with pytest.raises(SystemExit) as e:
-        validator = Validator()
-        value_new = validator.check_float("value", value, bound)
+        valid_model = validator.Validator()
+        value_new = valid_model.check_float("value", value, bound)
     assert e.type == SystemExit
     assert e.value.code == output

@@ -10,6 +10,7 @@
 + Remove before_evolve(), after_evolve(), and levy_flight() in Optimizer class
 + Convert termination_start() and termination_end() to check_termination() in Optimizer class
 + Termination dict/object is passed from solve() method instead of Optimizer object.
++ Remove boundary.py in utils
 + Add example how to build new optimizer.
 + Update documents, examples, tests
 
