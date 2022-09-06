@@ -164,13 +164,7 @@ class Optimizer:
         target = self.get_target_wrapper(position)
         return [position, target]
 
-    def before_evolve(self, epoch):
-        pass
-
     def evolve(self, epoch):
-        pass
-
-    def after_evolve(self, epoch):
         pass
 
     def termination_end(self, epoch):
@@ -229,14 +223,8 @@ class Optimizer:
         for epoch in range(0, self.epoch):
             time_epoch = time.perf_counter()
 
-            ## Call before evolve function
-            self.before_evolve(epoch)
-
             ## Evolve method will be called in child class
             self.evolve(epoch)
-
-            ## Call after evolve function
-            self.after_evolve(epoch)
 
             # Update global best position, the population is sorted or not depended on algorithm's strategy
             pop_temp, self.g_best = self.update_global_best_solution(self.pop)
@@ -559,42 +547,6 @@ class Optimizer:
         else:
             step = multiplier * s
         return step[0] if size == 1 else step
-
-    def levy_flight(self, epoch=None, position=None, g_best_position=None, step=0.001, case=0):
-        """
-        Get the Levy-flight position of current agent
-
-        Args:
-            epoch (int): The current epoch/iteration
-            position: The position of current agent
-            g_best_position: The position of the global best solution
-            step (float): The step size in Levy-flight, default = 0.001
-            case (int): Should be one of these value [0, 1, 2]
-
-        Returns:
-            The Levy-flight position of current agent
-        """
-        beta = 1
-        # muy and v are two random variables which follow np.random.normal distribution
-        # sigma_muy : standard deviation of muy
-        sigma_muy = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
-        # sigma_v : standard deviation of v
-        sigma_v = 1
-        muy = np.random.normal(0, sigma_muy ** 2)
-        v = np.random.normal(0, sigma_v ** 2)
-        s = muy / np.power(np.abs(v), 1 / beta)
-        levy = step * s * (g_best_position - position)
-
-        if case == 0:
-            return levy
-        elif case == 1:
-            return position + levy
-        elif case == 2:
-            return position + 1.0 / np.sqrt(epoch + 1) * np.sign(np.random.random(self.problem.n_dims) - 0.5) * levy
-        elif case == 3:
-            return g_best_position + levy
-        else:
-            return g_best_position + 1.0 / np.sqrt(epoch + 1) * levy
 
     ### Survivor Selection
     def greedy_selection_population(self, pop_old=None, pop_new=None):

@@ -71,3 +71,51 @@ This means when raven found better location, it will stop flying immediately.
 2. Can truly optimize CEC benchmark functions.
 3. Faster than both dummy version above.
 ```
+
+
+
+# Dummy Algorithms
+
+
+* **AAA - Artificial Algae Algorithm** . 
+  * **OriginalAAA**: Uymaz, S. A., Tezel, G., & Yel, E. (2015). Artificial algae algorithm (AAA) for nonlinear global optimization. Applied Soft Computing, 31, 153-171.
+  * **BaseAAA**: My trial version
+
+* **BWO - Black Widow Optimization** . 
+  * **OriginalBWO**: Hayyolalam, V., & Kazem, A. A. P. (2020). Black Widow Optimization Algorithm: A novel meta-heuristic approach for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 87, 103249.
+  * **BaseBWO**: My trial version
+
+* **BOA - Butterfly Optimization Algorithm**. 
+  * **OriginalBOA**: Arora, S., & Singh, S. (2019). Butterfly optimization algorithm: a novel approach for global optimization. Soft Computing, 23(3), 715-734.
+  * **BaseBOA**: My trial version
+  * **AdaptiveBOA**: Singh, B., & Anand, P. (2018). A novel adaptive butterfly optimization algorithm. International Journal of Computational Materials Science and Engineering, 7(04), 1850026.
+
+* **BMO - Blue Monkey Optimization** . 
+  * **OriginalBMO**: Blue Monkey Optimization: (2019) The Blue Monkey: A New Nature Inspired Metaheuristic Optimization Algorithm. DOI: http://dx.doi.org/10.21533/pen.v7i3.621
+  * **BaseBMO**: My trial version
+
+* **EPO - Emperor Penguin Optimizer** . 
+  * **OriginalEPO**: Dhiman, G., & Kumar, V. (2018). Emperor penguin optimizer: A bio-inspired algorithm for engineering problems. Knowledge-Based Systems, 159, 20-50.
+  * **BaseEPO**: My trial version
+
+* **PIO - Pigeon-Inspired Optimization** . 
+  * **None**: Duan, H., & Qiao, P. (2014). Pigeon-inspired optimization: a new swarm intelligence optimizer for air robot path planning. International journal of intelligent computing and cybernetics.
+  * **BasePIO**: My trial version, since the Original version not working.
+  * **LevyPIO**: My trial version using Levy-flight
+
+* **RHO - Rhino Herd Optimization** . 
+  * **OriginalRHO**: Wang, G. G., Gao, X. Z., Zenger, K., & Coelho, L. D. S. (2018, December). A novel metaheuristic algorithm inspired by rhino herd behavior. In Proceedings of The 9th EUROSIM Congress on Modelling and Simulation, EUROSIM 2016, The 57th SIMS Conference on Simulation and Modelling SIMS 2016 (No. 142, pp. 1026-1033). Linköping University Electronic Press.
+  * **BaseRHO**: My developed version
+  * **LevyRHO**: My developed using Levy-flight
+
+* **SOA - Sandpiper Optimization Algorithm** . 
+  * **OriginalSOA**: Kaur, A., Jain, S., & Goel, S. (2020). Sandpiper optimization algorithm: a novel approach for solving real-life engineering problems. Applied Intelligence, 50(2), 582-619.
+  * **BaseSOA**: My trial version
+
+* **STOA - Sooty Tern Optimization Algorithm**. Sooty Tern Optimization Algorithm: Dhiman, G., & Kaur, A. (2019). STOA: A bio-inspired based optimization algorithm for industrial engineering problems. Engineering Applications of Artificial Intelligence, 82, 148-174.
+
+* **RRO - Raven Roosting Optimizaiton**. 
+  * **OriginalRRO**: Brabazon, A., Cui, W., & O’Neill, M. (2016). The raven roosting optimisation algorithm. Soft Computing, 20(2), 525-545.
+  * **IRRO**: Torabi, S., & Safi-Esfahani, F. (2018). Improved raven roosting optimization algorithm (IRRO). Swarm and Evolutionary Computation, 40, 144-154.
+  * **BaseRRO**: My developed version
+

@@ -1,3 +1,19 @@
+# Version 2.4.3
+
+### Update
+
++ Add save and load model functionalities in mealpy.utils.io module.
++ Add object that hold global/current worst solution in history object
++ Add method create_pop_group() in Optimizer class 
++ Add method before_initialization() in Optimizer class
++ Refactor initialization() and after_initialization() in Optimizer class
++ Remove before_evolve(), after_evolve(), and levy_flight() in Optimizer class
++ Add example how to build new optimizer.
++ Update documents, examples, tests
+
+
+---------------------------------------------------------------------
+
 # Version 2.4.2
 
 ### Update
