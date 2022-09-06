@@ -40,12 +40,12 @@ But there are different stopping condition you can try by creating an Terminatio
       "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
    }
 
-**After import and create a termination object, you need to pass it to your optimizer as a additional parameter with the keyword "termination"**
+**After import and create a termination object, and an optimizer object, you can pass termination object to solve() function**
 
 .. code-block:: python
 
-   model3 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03, termination=term_dict4)
-   model3.solve()
+   model3 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
+   model3.solve(termination=term_dict4)
 
 .. toctree::
    :maxdepth: 4

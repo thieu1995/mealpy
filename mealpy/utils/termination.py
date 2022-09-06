@@ -46,7 +46,8 @@ class Termination:
     >>>     "mode": "FE",
     >>>     "quantity": 100000  # 100000 number of function evaluation
     >>> }
-    >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50, termination=term_dict)
+    >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50)
+    >>> model1.solve(termination=term_dict)
     """
 
     SUPPORTED_TERMINATIONS = {
