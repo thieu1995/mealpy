@@ -64,40 +64,31 @@ class Optimizer:
         self.epoch, self.pop_size, self.solution = None, None, None
         self.mode, self.n_workers, self._print_model = None, None, ""
         self.pop, self.g_best, self.g_worst = None, None, None
+
         if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
-        self.problem = Problem(problem=problem)
-        self.amend_position = self.problem.amend_position
-        self.generate_position = self.problem.generate_position
-        self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
-        self.logger.info(self.problem.msg)
-        self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
-        self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
-        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
-        if "fit_name" in kwargs: self._print_model += f"Func: {kwargs['fit_name']}, "
-        self.termination_flag = False
-        if "termination" in kwargs:
-            self.termination = Termination(termination=kwargs["termination"], log_to=self.problem.log_to, log_file=self.problem.log_file)
-            self.termination_flag = True
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag, self.count_terminate = False, None
+        self._set_problem(problem)
+        self._set_utilities(kwargs)
+
+        self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def termination_start(self):
-        if self.termination_flag:
-            if self.termination.mode == 'TB':
-                self.count_terminate = time.perf_counter()
-            elif self.termination.mode == 'ES':
-                self.count_terminate = 0
-            elif self.termination.mode == 'MG':
-                self.count_terminate = self.epoch
-            else:  # number of function evaluation (NFE)
-                self.count_terminate = 0  # self.pop_size  # First out of loop
-            self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
+    def _set_problem(self, problem):
+        self.problem = Problem(problem=problem)
+        self.amend_position = self.problem.amend_position
+        self.generate_position = self.problem.generate_position
+
+    def _set_utilities(self, kwargs):
+        self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
+        self.logger.info(self.problem.msg)
+        self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
+        self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
+        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
+        if "fit_name" in kwargs: self._print_model += f"Problem: {kwargs['fit_name']}, "
 
     def before_initialization(self, starting_positions=None):
         if starting_positions is None:
@@ -167,29 +158,6 @@ class Optimizer:
     def evolve(self, epoch):
         pass
 
-    def termination_end(self, epoch):
-        finished = False
-        if self.termination_flag:
-            if self.termination.mode == 'TB':
-                if time.perf_counter() - self.count_terminate >= self.termination.quantity:
-                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
-                    finished = True
-            elif self.termination.mode == 'FE':
-                self.count_terminate += self.nfe_per_epoch
-                if self.count_terminate >= self.termination.quantity:
-                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
-                    finished = True
-            elif self.termination.mode == 'MG':
-                if epoch >= self.termination.quantity:
-                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
-                    finished = True
-            else:  # Early Stopping
-                temp = self.count_terminate + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
-                if temp >= self.termination.quantity:
-                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
-                    finished = True
-        return finished
-
     def check_mode_and_workers(self, mode, n_workers):
         self.mode = mode
         if n_workers is not None:
@@ -198,9 +166,35 @@ class Optimizer:
             if self.mode == "thread":
                 self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(32, os.cpu_count() + 4)])
 
-    def solve(self, mode='single', starting_positions=None, n_workers=None):
+    def check_termination(self, mode="start", termination=None, epoch=None):
+        if mode == "start":
+            self.termination = None
+            if termination is not None:
+                self.termination = Termination(termination=termination, log_to=self.problem.log_to, log_file=self.problem.log_file)
+                self.terminate_counter = self.termination.get_default_counter(self.epoch)
+                self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
+            return False
+        else:
+            finished = False
+            if self.termination is not None:
+                if self.termination.mode == 'TB':
+                    finished = self.termination.is_finished(time.perf_counter() - self.terminate_counter)
+                elif self.termination.mode == 'FE':
+                    self.terminate_counter += self.nfe_per_epoch
+                    finished = self.termination.is_finished(self.terminate_counter)
+                elif self.termination.mode == 'MG':
+                    finished = self.termination.is_finished(epoch)
+                else:  # Early Stopping
+                    temp = self.terminate_counter + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
+                    finished = self.termination.is_finished(temp)
+                if finished:
+                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
+            return finished
+
+    def solve(self, mode='single', starting_positions=None, n_workers=None, termination=None):
         """
         Args:
+
             mode (str): Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
 
                 * 'process': The parallel mode with multiple cores run the tasks
@@ -210,12 +204,14 @@ class Optimizer:
 
             starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
             n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
+            termination (dict, None): The termination dictionary/object
 
         Returns:
             list: [position, fitness value]
         """
         self.check_mode_and_workers(mode, n_workers)
-        self.termination_start()
+        self.check_termination("start", termination, None)
+
         self.before_initialization(starting_positions)
         self.initialization()
         self.after_initialization()
@@ -232,14 +228,14 @@ class Optimizer:
 
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch + 1, time_epoch)
-            if self.termination_end(epoch + 1):
+            if self.check_termination("end", None, epoch+1):
                 break
         self.track_optimize_process()
         return self.solution[self.ID_POS], self.solution[self.ID_TAR][self.ID_FIT]
 
     def track_optimize_step(self, population=None, epoch=None, runtime=None):
         """
-        Save some historical data and print out the detailed information of training process
+        Save some historical data and print out the detailed information of training process in each epoch
 
         Args:
             population (list): the current population

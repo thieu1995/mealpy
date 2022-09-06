@@ -8,6 +8,8 @@
 + Add method before_initialization() in Optimizer class
 + Refactor initialization() and after_initialization() in Optimizer class
 + Remove before_evolve(), after_evolve(), and levy_flight() in Optimizer class
++ Convert termination_start() and termination_end() to check_termination() in Optimizer class
++ Termination dict/object is passed from solve() method instead of Optimizer object.
 + Add example how to build new optimizer.
 + Update documents, examples, tests
 

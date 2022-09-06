@@ -4,6 +4,7 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
+import time
 from mealpy.utils.logger import Logger
 from mealpy.utils.boundary import is_in_bound, is_str_in_list
 
@@ -99,3 +100,16 @@ class Termination:
         else:
             self.logger.error("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
             exit(0)
+
+    def get_default_counter(self, epoch):
+        if self.mode in ["ES", "FE"]:
+            return 0
+        elif self.mode == "TB":
+            return time.perf_counter()
+        else:
+            return epoch
+
+    def is_finished(self, counter):
+        if counter >= self.quantity:
+            return True
+        return False
