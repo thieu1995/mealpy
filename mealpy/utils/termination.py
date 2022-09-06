@@ -5,8 +5,8 @@
 # --------------------------------------------------%
 
 import time
+from mealpy.utils import validator
 from mealpy.utils.logger import Logger
-from mealpy.utils.boundary import is_in_bound, is_str_in_list
 
 
 class Termination:
@@ -84,13 +84,13 @@ class Termination:
             exit(0)
 
     def __check_mode(self, mode, quantity):
-        if is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
+        if validator.is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
             self.mode = mode
             self.name = self.SUPPORTED_TERMINATIONS[mode][0]
 
             if type(quantity) in [int, float]:
                 qt = int(quantity)
-                if is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
+                if validator.is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
                     self.quantity = qt
                 else:
                     self.logger.error(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")

@@ -6,9 +6,8 @@
 
 import numpy as np
 from copy import deepcopy
+from mealpy.utils import visualize
 from mealpy.utils.logger import Logger
-from mealpy.utils.visualize import export_convergence_chart, export_explore_exploit_chart, \
-    export_diversity_chart, export_objectives_chart, export_trajectory_chart
 
 
 class History:
@@ -113,19 +112,19 @@ class History:
     def save_global_best_fitness_chart(self, title='Global Best Fitness', legend=None, linestyle='-', color='b', x_label="#Iteration",
                                        y_label="Function Value", filename="global-best-fitness-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw global best fitness found so far in previous generations
-        export_convergence_chart(data=self.list_global_best_fit, title=title, legend=legend, linestyle=linestyle,
+        visualize.export_convergence_chart(data=self.list_global_best_fit, title=title, legend=legend, linestyle=linestyle,
                                  color=color, x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
     def save_local_best_fitness_chart(self, title='Local Best Fitness', legend=None, linestyle='-', color='b', x_label="#Iteration",
                                       y_label="Function Value", filename="local-best-fitness-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw current best fitness in each previous generation
-        export_convergence_chart(self.list_current_best_fit, title=title, legend=legend, linestyle=linestyle, color=color,
+        visualize.export_convergence_chart(self.list_current_best_fit, title=title, legend=legend, linestyle=linestyle, color=color,
                                  x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
     def save_runtime_chart(self, title='Runtime chart', legend=None, linestyle='-', color='b', x_label="#Iteration",
                            y_label='Second', filename="runtime-chart", exts=(".png", ".pdf"), verbose=True):
         # Draw runtime for each generation
-        export_convergence_chart(self.list_epoch_time, title=title, legend=legend, linestyle=linestyle, color=color,
+        visualize.export_convergence_chart(self.list_epoch_time, title=title, legend=legend, linestyle=linestyle, color=color,
                                  x_label=x_label, y_label=y_label, filename=filename, exts=exts, verbose=verbose)
 
     ## The paper: On the exploration and exploitation in popular swarm-based metaheuristic algorithms
@@ -133,14 +132,14 @@ class History:
                                             filename="exploration-exploitation-chart", verbose=True):
         # This exploration/exploitation chart should draws for single algorithm and single fitness function
         # Draw exploration and exploitation chart
-        export_explore_exploit_chart(data=[self.list_exploration, self.list_exploitation], title=title,
+        visualize.export_explore_exploit_chart(data=[self.list_exploration, self.list_exploitation], title=title,
                                      list_colors=list_colors, filename=filename, verbose=verbose)
 
     def save_diversity_chart(self, title='Diversity Measurement Chart', algorithm_name='Algorithm',
                              filename="diversity-chart", verbose=True):
         # This diversity chart should draws for multiple algorithms for a single fitness function at the same time
         # to compare the diversity spreading
-        export_diversity_chart(data=[self.list_diversity], title=title, list_legends=[algorithm_name],
+        visualize.export_diversity_chart(data=[self.list_diversity], title=title, list_legends=[algorithm_name],
                                filename=filename, verbose=verbose)
 
     ## Because convergence chart is formulated from objective values and weights,
@@ -153,14 +152,14 @@ class History:
         global_obj_list = np.array([agent[1][-1] for agent in self.list_global_best])
         # Make each obj_list as a element in array for drawing
         global_obj_list = [global_obj_list[:, idx] for idx in range(0, len(global_obj_list[0]))]
-        export_objectives_chart(global_obj_list, title=title, x_label=x_label, y_labels=y_labels, filename=filename, verbose=verbose)
+        visualize.export_objectives_chart(global_obj_list, title=title, x_label=x_label, y_labels=y_labels, filename=filename, verbose=verbose)
 
     def save_local_objectives_chart(self, title='Local Objectives Chart', x_label="#Iteration", y_labels=None,
                                     filename="local-objectives-chart", verbose=True):
         current_obj_list = np.array([agent[1][-1] for agent in self.list_current_best])
         # Make each obj_list as a element in array for drawing
         current_obj_list = [current_obj_list[:, idx] for idx in range(0, len(current_obj_list[0]))]
-        export_objectives_chart(current_obj_list, title=title, x_label=x_label, y_labels=y_labels,
+        visualize.export_objectives_chart(current_obj_list, title=title, x_label=x_label, y_labels=y_labels,
                                 filename=filename, verbose=verbose)
 
     def save_trajectory_chart(self, title="Trajectory of some agents",
@@ -202,7 +201,7 @@ class History:
                 x = [pop[id_agent - 1][0][selected_dimensions[0] - 1] for pop in self.list_population]
                 pos_list.append(x)
                 list_legends.append(f"Agent {id_agent}")
-            export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends,
+            visualize.export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends,
                                     y_label=y_label, filename=filename, verbose=verbose)
         elif n_dim == 2:
             x_label = f"x{selected_dimensions[0]}"
@@ -214,5 +213,5 @@ class History:
                     pos_temp.append(x)
                 pos_list.append(pos_temp)
                 list_legends.append(f"Agent {id_agent}")
-            export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends, x_label=x_label,
+            visualize.export_trajectory_chart(pos_list, n_dimensions=n_dim, title=title, list_legends=list_legends, x_label=x_label,
                                     y_label=y_label, filename=filename, verbose=verbose)
