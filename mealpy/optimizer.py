@@ -100,11 +100,9 @@ class Optimizer:
             if isinstance(starting_positions[0], np.ndarray) and len(starting_positions[0]) == self.problem.n_dims:
                 self.pop = [self.create_solution(self.problem.lb, self.problem.ub, pos) for pos in starting_positions]
             else:
-                self.logger.error("Starting positions should be a list of positions or 2D matrix of positions only.")
-                exit(0)
+                raise ValueError("Starting positions should be a list of positions or 2D matrix of positions only.")
         else:
-            self.logger.error("Starting positions should be a list/2D matrix of positions with same length as pop_size hyper-parameter.")
-            exit(0)
+            raise ValueError("Starting positions should be a list/2D matrix of positions with same length as pop_size hyper-parameter.")
 
     def initialization(self):
         if self.pop is None:
@@ -413,8 +411,7 @@ class Optimizer:
             pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
         if best is None:
             if worst is None:
-                self.logger.error("Best and Worst can not be None in get_special_solutions function!")
-                exit(0)
+                raise ValueError("Best and Worst can not be None in get_special_solutions function!")
             else:
                 return pop, None, deepcopy(pop[::-1][:worst])
         else:
@@ -576,8 +573,7 @@ class Optimizer:
         """
         len_old, len_new = len(pop_old), len(pop_new)
         if len_old != len_new:
-            self.logger.error("Greedy selection of two population with different length.")
-            exit(0)
+            raise ValueError("Greedy selection of two population with different length.")
         if self.problem.minmax == "min":
             return [pop_new[i] if pop_new[i][self.ID_TAR][self.ID_FIT] < pop_old[i][self.ID_TAR][self.ID_FIT]
                     else pop_old[i] for i in range(len_old)]

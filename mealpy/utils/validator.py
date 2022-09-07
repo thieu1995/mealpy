@@ -51,8 +51,7 @@ class Validator:
             elif is_in_bound(value, bound):
                 return int(value)
         bound = "" if bound is None else f"and value should be in range: {bound}"
-        self.logger.error(f"'{name}' is an integer {bound}.")
-        exit(0)
+        raise ValueError(f"'{name}' is an integer {bound}.")
 
     def check_float(self, name: str, value: int, bound=None):
         if type(value) in [int, float]:
@@ -61,24 +60,21 @@ class Validator:
             elif is_in_bound(value, bound):
                 return float(value)
         bound = "" if bound is None else f"and value should be in range: {bound}"
-        self.logger.error(f"'{name}' is a float {bound}.")
-        exit(0)
+        raise ValueError(f"'{name}' is a float {bound}.")
 
     def check_str(self, name: str, value: str, bound=None):
         if type(value) is str:
             if bound is None or is_str_in_list(value, bound):
                 return value
         bound = "" if bound is None else f"and value should be one of this: {bound}"
-        self.logger.error(f"'{name}' is a string {bound}.")
-        exit(0)
+        raise ValueError(f"'{name}' is a string {bound}.")
 
     def check_bool(self, name: str, value: bool, bound=(True, False)):
         if type(value) is bool:
             if value in bound:
                 return value
         bound = "" if bound is None else f"and value should be one of this: {bound}"
-        self.logger.error(f"'{name}' is a boolean {bound}.")
-        exit(0)
+        raise ValueError(f"'{name}' is a boolean {bound}.")
 
     def check_tuple_int(self, name: str, values: tuple, bounds=None):
         if type(values) in [tuple, list] and len(values) > 1:
@@ -91,8 +87,7 @@ class Validator:
                 else:
                     return values
         bounds = "" if bounds is None else f"and values should be in range: {bounds}"
-        self.logger.error(f"'{name}' are integer {bounds}.")
-        exit(0)
+        raise ValueError(f"'{name}' are integer {bounds}.")
 
     def check_tuple_float(self, name: str, values: tuple, bounds=None):
         if type(values) in [tuple, list] and len(values) > 1:
@@ -105,5 +100,4 @@ class Validator:
                 else:
                     return values
         bounds = "" if bounds is None else f"and values should be in range: {bounds}"
-        self.logger.error(f"'{name}' are float {bounds}.")
-        exit(0)
+        raise ValueError(f"'{name}' are float {bounds}.")

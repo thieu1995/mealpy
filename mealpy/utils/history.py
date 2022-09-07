@@ -166,8 +166,7 @@ class History:
                               list_agent_idx=(1, 2, 3), selected_dimensions=(1, 2),
                               filename="trajectory-chart", verbose=True):
         if len(self.list_population) < 2:
-            self.logger.error("Can't draw the trajectory because 'save_population' is set to False or the number of epochs is too small.")
-            exit(0)
+            raise ValueError(f"Can't draw the trajectory because 'save_population' is set to False or the number of epochs is too small.")
         ## Drawing trajectory of some agents in the first and second dimensions
         # Need a little bit more pre-processing
         list_agent_idx = set(list_agent_idx)
@@ -177,17 +176,13 @@ class History:
         n_dim = len(selected_dimensions)
 
         if n_dim not in [1, 2]:
-            self.logger.error("Trajectory chart for more than 2 dimensions is not supported.")
-            exit(0)
+            raise ValueError(f"Trajectory chart for more than 2 dimensions is not supported.")
         if len(list_agent_idx) < 1 or len(list_agent_idx) > 10:
-            self.logger.error("Trajectory chart for more than 10 agents is not supported.")
-            exit(0)
+            raise ValueError(f"Trajectory chart for more than 10 agents is not supported.")
         if list_agent_idx[-1] > len(self.list_population[0]) or list_agent_idx[0] < 1:
-            self.logger.error(f"Can't draw trajectory chart, the index of selected agents should be in range of [1, {len(self.list_population[0])}]")
-            exit(0)
+            raise ValueError(f"Can't draw trajectory chart, the index of selected agents should be in range of [1, {len(self.list_population[0])}]")
         if selected_dimensions[-1] > len(self.list_population[0][0][0]) or selected_dimensions[0] < 1:
-            self.logger.error(f"Can't draw trajectory chart, the index of selected dimensions should be in range of [1, {len(self.list_population[0][0][0])}]")
-            exit(0)
+            raise ValueError(f"Can't draw trajectory chart, the index of selected dimensions should be in range of [1, {len(self.list_population[0][0][0])}]")
 
         pos_list = []
         list_legends = []

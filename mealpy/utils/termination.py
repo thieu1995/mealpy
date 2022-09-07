@@ -77,11 +77,9 @@ class Termination:
                 self.__set_keyword_arguments(kwargs["termination"])
                 self.__check_mode(kwargs["termination"]["mode"], kwargs["termination"]["quantity"])
             else:
-                self.logger.error("You need to set up the termination dictionary with at least 'mode' and 'quantity'.")
-                exit(0)
+                raise ValueError("Termination dictionary needs at least 'mode' and 'quantity'.")
         else:
-            self.logger.error("You need to set up the termination dictionary with at least 'mode' and 'quantity'.")
-            exit(0)
+            raise ValueError("Termination dictionary needs at least 'mode' and 'quantity'.")
 
     def __check_mode(self, mode, quantity):
         if validator.is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
@@ -93,14 +91,11 @@ class Termination:
                 if validator.is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
                     self.quantity = qt
                 else:
-                    self.logger.error(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
-                    exit(0)
+                    raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
             else:
-                self.logger.error(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
-                exit(0)
+                raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
         else:
-            self.logger.error("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
-            exit(0)
+            raise ValueError("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
 
     def get_default_counter(self, epoch):
         if self.mode in ["ES", "FE"]:

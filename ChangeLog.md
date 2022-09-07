@@ -13,6 +13,8 @@
 + Remove boundary.py in utils
 + Add set_parameters() and get_parameters() in all optimizers
 + Update new Problem class, move problem parameter from Optimizer to solve() function.
++ Fix bug printing same entry multiple times in logger.
++ Fix bug exit() in Optimizer and utils package.
 + Update input parameters in:
   + Bio-based: 
   + Evolutionary-based:
