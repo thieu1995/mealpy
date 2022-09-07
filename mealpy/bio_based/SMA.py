@@ -11,13 +11,12 @@ from mealpy.optimizer import Optimizer
 
 class BaseSMA(Optimizer):
     """
-    My changed version of: Slime Mould Algorithm (SMA)
+    The developed version: Slime Mould Algorithm (SMA)
 
     Notes
     ~~~~~
-    + Selected 2 unique and random solution to create new solution (not to create variable) --> remove third loop in original version
+    + Selected 2 unique and random solution to create new solution (not to create variable)
     + Check bound and compare old position with new position to get the best one
-    + This version not only faster but also better than the original version
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
@@ -40,25 +39,25 @@ class BaseSMA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> p_t = 0.03
-    >>> model = BaseSMA(problem_dict1, epoch, pop_size, p_t)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseSMA(epoch, pop_size, p_t)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     ID_WEI = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             p_t (float): probability threshold (z in the paper), default = 0.03
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_t = self.validator.check_float("p_t", p_t, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "p_t"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -157,8 +156,8 @@ class OriginalSMA(BaseSMA):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> p_t = 0.03
-    >>> model = OriginalSMA(problem_dict1, epoch, pop_size, p_t)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSMA( epoch, pop_size, p_t)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -169,15 +168,14 @@ class OriginalSMA(BaseSMA):
 
     ID_WEI = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 1000
             pop_size (int): number of population size, default = 100
             p_t (float): probability threshold (z in the paper), default = 0.03
         """
-        super().__init__(problem, epoch, pop_size, p_t, **kwargs)
+        super().__init__(epoch, pop_size, p_t, **kwargs)
 
     def evolve(self, epoch):
         """
