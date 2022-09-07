@@ -31,7 +31,8 @@ False in the input problem dictionary to not using it.
 	    "verbose": True,
 	    "save_population": False        # Then you can't draw the trajectory chart
 	}
-	model = BasePSO(problem_dict, epoch=1000, pop_size=50)
+	model = BasePSO(epoch=1000, pop_size=50)
+	model.solve(problem=problem_dict)
 
 	print(model.history.list_global_best)
 	print(model.history.list_current_best)

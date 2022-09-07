@@ -63,8 +63,8 @@ Getting started in 30s
 	    "log_file": "result.log"
 	}
 
-	ga_model = GA.BaseGA(problem_dict, epoch=100, pop_size=50, pc=0.85, pm=0.1)
-	best_position, best_fitness_value = ga_model.solve()
+	ga_model = GA.BaseGA(epoch=100, pop_size=50, pc=0.85, pm=0.1)
+	best_position, best_fitness_value = ga_model.solve(problem_dict)
 
 	print(best_position)
 	print(best_fitness_value)
@@ -208,20 +208,20 @@ Start learning by call function **solve()**. There are 4 different training mode
 	from mealpy.evolutionary_based import GA
 	from mealpy.swarm_based import PSO
 
-	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve()   # default is: single
+	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(problem_normal)   # default is: single
 
-	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(mode="single")
+	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="single")
 
-	sma_model = SMA.BaseSMA(problem_normal, epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(mode="swarm")
+	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="swarm")
 
-	ga_model = GA.BaseGA(problem_multi, epoch=1000, pop_size=100, pc=0.9, pm=0.05)
-	best_position, best_fitness_value = ga_model.solve(mode="thread")
+	ga_model = GA.BaseGA(epoch=1000, pop_size=100, pc=0.9, pm=0.05)
+	best_position, best_fitness_value = ga_model.solve(problem_multi, mode="thread")
 
-	pso_model = PSO.BasePSO(problem_constrained, epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
-	best_position, best_fitness_value = pso_model.solve(mode="process")
+	pso_model = PSO.BasePSO(epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
+	best_position, best_fitness_value = pso_model.solve(problem_constrained, mode="process")
 
 
 The returned results are 2 values :

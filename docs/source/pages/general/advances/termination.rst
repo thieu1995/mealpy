@@ -44,8 +44,8 @@ But there are different stopping condition you can try by creating an Terminatio
 
 .. code-block:: python
 
-   model3 = SMA.BaseSMA(problem_dict1, epoch=100, pop_size=50, pr=0.03)
-   model3.solve(termination=term_dict4)
+   model3 = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+   model3.solve(problem_dict1, termination=term_dict4)
 
 .. toctree::
    :maxdepth: 4

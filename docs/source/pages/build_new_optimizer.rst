@@ -28,20 +28,20 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 	    + Read more at: https://mealpy.readthedocs.io/en/latest/pages/build_new_optimizer.html
 	    """
 
-	    def __init__(self, problem, epoch=10000, pop_size=100, m_clusters=2, p1=0.75, **kwargs):
+	    def __init__(self, epoch=10000, pop_size=100, m_clusters=2, p1=0.75, **kwargs):
 	        """
 	        Args:
-	            problem (dict): The problem dictionary
 	            epoch (int): maximum number of iterations, default = 10000
 	            pop_size (int): number of population size, default = 100
 	            m_clusters (int): number of clusters
 	            p1 (float): the probability of updating the worst solution
 	        """
-	        super().__init__(problem, kwargs)
+	        super().__init__(**kwargs)
 	        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
 	        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 	        self.m_clusters = self.validator.check_int("m_clusters", m_clusters, [2, 5])
 	        self.p1 = self.validator.check_float("p1", p1, (0, 1.0))
+	        self.set_parameters(["epoch", "pop_size", "m_clusters", "p1"])
 
 	        self.nfe_per_epoch = self.pop_size
 	        self.sort_flag = True
@@ -104,10 +104,6 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 	def fitness(solution):
 	    return np.sum(solution**2)
 
-	## Time to test our new optimizer
-	def fitness(solution):
-	    return np.sum(solution**2)
-
 	problem_dict1 = {
 	    "fit_func": fitness,
 	    "lb": [-100, ]*100,
@@ -117,8 +113,8 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 
 	epoch = 50
 	pop_size = 50
-	model = MyAlgorithm(problem_dict1, epoch, pop_size)
-	best_position, best_fitness = model.solve()
+	model = MyAlgorithm(epoch, pop_size)
+	best_position, best_fitness = model.solve(problem_dict1)
 	print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
 
