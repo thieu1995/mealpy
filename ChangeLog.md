@@ -15,6 +15,7 @@
 + Fix bug printing same entry multiple times in logger.
 + Fix bug exit() in Optimizer and utils package.
 + **Update new Termination class, move termination parameter from Optimizer to solve() function.**
++ **Add Multitask utility that can run multiple optimizers on multiple problems with multiple trials.**
 + Update input parameters in:
   + Bio-based: 
   + Evolutionary-based:
