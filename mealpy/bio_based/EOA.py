@@ -11,7 +11,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseEOA(Optimizer):
     """
-    My changed version of: Earthworm Optimisation Algorithm (EOA)
+    The developed version: Earthworm Optimisation Algorithm (EOA)
 
     Links:
         1. http://doi.org/10.1504/IJBIC.2015.10004283
@@ -19,7 +19,7 @@ class BaseEOA(Optimizer):
 
     Notes
     ~~~~~
-    The original version from matlab code above will not working well, even with small dimensions.
+    The original version from matlab code above will not work well, even with small dimensions.
     I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
@@ -53,8 +53,8 @@ class BaseEOA(Optimizer):
     >>> alpha = 0.98
     >>> beta = 0.9
     >>> gamma = 0.9
-    >>> model = BaseEOA(problem_dict1, epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -63,10 +63,9 @@ class BaseEOA(Optimizer):
     for global optimisation problems. International journal of bio-inspired computation, 12(1), pp.1-22.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_c=0.9, p_m=0.01, n_best=2, alpha=0.98, beta=0.9, gamma=0.9, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_c=0.9, p_m=0.01, n_best=2, alpha=0.98, beta=0.9, gamma=0.9, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             p_c (float): default = 0.9, crossover probability
@@ -76,7 +75,7 @@ class BaseEOA(Optimizer):
             beta (float): default = 0.9, the initial proportional factor
             gamma (float): default = 0.9, a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_c = self.validator.check_float("p_c", p_c, (0, 1.0))
@@ -85,6 +84,7 @@ class BaseEOA(Optimizer):
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "p_c", "p_m", "n_best", "alpha", "beta", "gamma"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
