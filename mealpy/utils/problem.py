@@ -80,7 +80,7 @@ class Problem:
         self.multi_args = False
         self.multi_objs, self.obj_is_list = False, False
         self.n_dims, self.lb, self.ub = None, None, None
-        self.save_population = True
+        self.save_population, self.name = True, None
         self.__set_keyword_arguments(kwargs)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
@@ -108,6 +108,7 @@ class Problem:
         lb, ub, fit_func = problem["lb"], problem["ub"], problem["fit_func"]
         self.__set_domain_range(lb, ub, problem)
         self.__set_fitness_function(fit_func, problem)
+        if self.name is None: self.name = "F"
 
     def __set_domain_range(self, lb, ub, kwargs):
         if isinstance(lb, list) and isinstance(ub, list):
@@ -201,6 +202,9 @@ class Problem:
         else:
             self.logger.error("Fitness function needs to return a single value or a list of values.")
             exit(0)
+
+    def get_name(self):
+        return self.name
 
     def generate_position(self, lb=None, ub=None):
         """

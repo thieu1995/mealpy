@@ -12,15 +12,16 @@ Model Definition
       "lb": [-3, -5, 1, -10, ],
       "ub": [5, 10, 100, 30, ],
       "minmax": "min",
+      "name": "Benchmark Function 5th"
    }
 
-   model = PSO.BasePSO(problem, epoch=10, pop_size=50, name="Normal PSO", fit_name="Benchmark Function 5th")
+   model = PSO.BasePSO(problem, epoch=10, pop_size=50, name="Normal PSO")
 
-   print(model.name)
-   print(model.fit_name)
+   print(model.name)            # Normal PSO
+   print(model.problem.name)    # Benchmark Function 5th
 
 
-**2. Set up Stopping Condition for an optimizer:**
+**2. Set up Stopping Condition for an optimizer via solve() function:**
 
 .. code-block:: python
 
@@ -29,8 +30,8 @@ Model Definition
       "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
    }
 
-   model = PSO.BasePSO(problem, epoch=100, pop_size=50, termination=term_dict)
-   model.solve()
+   model = PSO.BasePSO(problem, epoch=100, pop_size=50)
+   model.solve(termination=term_dict)
 
 
 **3. Hint Validation for setting up the hyper-parameters:**

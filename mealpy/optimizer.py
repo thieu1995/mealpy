@@ -62,14 +62,15 @@ class Optimizer:
         """
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
-        self.mode, self.n_workers, self._print_model = None, None, ""
+        self.mode, self.n_workers, self.name = None, None, None
         self.pop, self.g_best, self.g_worst = None, None, None
 
         if kwargs is None: kwargs = {}
         self.__set_keyword_arguments(kwargs)
         self._set_problem(problem)
-        self._set_utilities(kwargs)
+        self._set_utilities()
 
+        if self.name is None: self.name = self.__class__.__name__
         self.sort_flag, self.terminate_counter, self.nfe_per_epoch, self.parameters = False, None, self.pop_size, {}
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
 
@@ -106,18 +107,19 @@ class Optimizer:
         """
         return self.__dict__
 
+    def get_name(self):
+        return self.name
+
     def _set_problem(self, problem):
         self.problem = Problem(problem=problem)
         self.amend_position = self.problem.amend_position
         self.generate_position = self.problem.generate_position
 
-    def _set_utilities(self, kwargs):
+    def _set_utilities(self):
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
         self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
-        if "name" in kwargs: self._print_model += f"Model: {kwargs['name']}, "
-        if "fit_name" in kwargs: self._print_model += f"Problem: {kwargs['fit_name']}, "
 
     def before_initialization(self, starting_positions=None):
         if starting_positions is None:
@@ -283,7 +285,7 @@ class Optimizer:
         div = np.mean(np.abs(np.median(pos_matrix, axis=0) - pos_matrix), axis=0)
         self.history.list_diversity.append(np.mean(div, axis=0))
         ## Print epoch
-        self.logger.info(f">{self._print_model}Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
+        self.logger.info(f">Problem: {self.problem.name}, Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
                          f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
 
     def track_optimize_process(self):
