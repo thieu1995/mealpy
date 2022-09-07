@@ -1,4 +1,4 @@
-# Version 2.4.3
+# Version 2.5.0
 
 ### Update
 
@@ -11,6 +11,17 @@
 + Convert termination_start() and termination_end() to check_termination() in Optimizer class
 + Termination dict/object is passed from solve() method instead of Optimizer object.
 + Remove boundary.py in utils
++ Add set_parameters() and get_parameters() in all optimizers
++ Update new Problem class, move problem parameter from Optimizer to solve() function.
++ Update input parameters in:
+  + Bio-based: 
+  + Evolutionary-based:
+  + Human-based:
+  + Math-based:
+  + Music-based:
+  + Physics-based:
+  + Swarm-based:
+  + System-based:
 + Add example how to build new optimizer.
 + Update documents, examples, tests
 

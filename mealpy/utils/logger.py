@@ -48,5 +48,6 @@ class Logger:
                 formatter = logging.Formatter(format_str, datefmt="%Y/%m/%d %I:%M:%S %p")
             handler = logging.StreamHandler()
             handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        if not logger.hasHandlers():
+            logger.addHandler(handler)
         return logger

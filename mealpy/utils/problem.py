@@ -130,17 +130,20 @@ class Problem:
                     self.obj_weights = np.squeeze(np.array(self.obj_weights))
                     if self.n_objs != len(self.obj_weights):
                         raise ValueError(f"{self.n_objs}-objective problem, but N weights = {len(self.obj_weights)}.")
+                    self.msg = f"Solving {self.n_objs}-objective optimization problem with weights: {self.obj_weights}."
                 else:
                     raise ValueError(f"Solving {self.n_objs}-objective optimization, need to set obj_weights list with length: {self.n_objs}")
             elif self.n_objs == 1:
                 self.multi_objs = False
                 self.obj_weights = np.ones(1)
+                self.msg = f"Solving single objective optimization problem."
             else:
                 raise ValueError(f"fit_func needs to return a single value or a list of values list")
         elif type(result) in (int, float) or isinstance(result, np.floating) or isinstance(result, np.integer):
             self.multi_objs = False
             self.obj_is_list = False
             self.obj_weights = np.ones(1)
+            self.msg = f"Solving single objective optimization problem."
         else:
             raise ValueError(f"fit_func needs to return a single value or a list of values list")
 

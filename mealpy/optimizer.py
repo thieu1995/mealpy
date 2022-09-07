@@ -163,6 +163,7 @@ class Optimizer:
         self.amend_position = self.problem.amend_position
         self.generate_position = self.problem.generate_position
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
+        self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
 
     def check_mode_and_workers(self, mode, n_workers):
