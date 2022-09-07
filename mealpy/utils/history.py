@@ -55,9 +55,10 @@ class History:
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
     >>>     "verbose": True,
-    >>>     "save_population": False        # Then you can't draw the trajectory chart
+    >>>     "save_population": True        # To be able to draw the trajectory figure
     >>> }
-    >>> model = BasePSO(problem_dict, epoch=1000, pop_size=50)
+    >>> model = BasePSO(epoch=1000, pop_size=50)
+    >>> model.solve(problem_dict)
     >>>
     >>> model.history.save_global_objectives_chart(filename="hello/goc")
     >>> model.history.save_local_objectives_chart(filename="hello/loc")
