@@ -11,7 +11,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseSBO(Optimizer):
     """
-    My changed version of: Satin Bowerbird Optimizer (SBO)
+    The developed version: Satin Bowerbird Optimizer (SBO)
 
     Links:
         1. https://doi.org/10.1016/j.engappai.2017.01.006
@@ -20,7 +20,6 @@ class BaseSBO(Optimizer):
     ~~~~~
     The original version is not good enough and can't handle negative fitness value.
     I remove all third loop for faster training, remove equation (1, 2) in the paper, calculate probability by roulette-wheel.
-
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.5, 2.0], the greatest step size
@@ -47,30 +46,28 @@ class BaseSBO(Optimizer):
     >>> alpha = 0.9
     >>> p_m =0.05
     >>> psw = 0.02
-    >>> model = BaseSBO(problem_dict1, epoch, pop_size, alpha, p_m, psw)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseSBO(epoch, pop_size, alpha, p_m, psw)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             alpha (float): the greatest step size, default=0.94
             p_m (float): mutation probability, default=0.05
             psw (float): proportion of space width (z in the paper), default=0.02
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_float("alpha", alpha, [0.5, 3.0])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.psw = self.validator.check_float("psw", psw, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "p_m", "psw"])
 
-        # (percent of the difference between the upper and lower limit (Eq. 7))
-        self.sigma = self.psw * (self.problem.ub - self.problem.lb)
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -81,6 +78,9 @@ class BaseSBO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
+        # (percent of the difference between the upper and lower limit (Eq. 7))
+        self.sigma = self.psw * (self.problem.ub - self.problem.lb)
+
         ## Calculate the probability of bowers using my equation
         fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
         pop_new = []
@@ -137,8 +137,8 @@ class OriginalSBO(BaseSBO):
     >>> alpha = 0.9
     >>> p_m=0.05
     >>> psw = 0.02
-    >>> model = OriginalSBO(problem_dict1, epoch, pop_size, alpha, p_m, psw)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSBO(epoch, pop_size, alpha, p_m, psw)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -147,17 +147,16 @@ class OriginalSBO(BaseSBO):
     to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, pp.1-15.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             alpha (float): the greatest step size, default=0.94
             p_m (float): mutation probability, default=0.05
             psw (float): proportion of space width (z in the paper), default=0.02
         """
-        super().__init__(problem, epoch, pop_size, alpha, p_m, psw, **kwargs)
+        super().__init__(epoch, pop_size, alpha, p_m, psw, **kwargs)
 
     def roulette_wheel_selection__(self, fitness_list=None) -> int:
         """
@@ -181,6 +180,9 @@ class OriginalSBO(BaseSBO):
         Args:
             epoch (int): The current iteration
         """
+        # (percent of the difference between the upper and lower limit (Eq. 7))
+        self.sigma = self.psw * (self.problem.ub - self.problem.lb)
+
         ## Calculate the probability of bowers using Eqs. (1) and (2)
         fx_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         fit_list = deepcopy(fx_list)
