@@ -1,7 +1,7 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # Created by "Thieu" at 17:28, 13/10/2021 ----------%
-#       Email: nguyenthieu2102@gmail.com            %
-#       Github: https://github.com/thieu1995        %
+#       Email: nguyenthieu2102@gmail.com            %                                                    
+#       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
 import numpy as np
@@ -9,8 +9,12 @@ from mealpy.utils.logger import Logger
 
 
 class Problem:
-    """
-    Define the mathematical form of optimization problem
+    r"""Class representing the mathematical form of the optimization problem.
+
+    Attributes:
+        lb (numpy.ndarray, list, tuple): Lower bounds of the problem.
+        ub (numpy.ndarray, list, tuple): Upper bounds of the problem.
+        minmax (str): Minimization or maximization problem (min, max), default = "min"
 
     Notes
     ~~~~~
@@ -18,11 +22,7 @@ class Problem:
     + lb (list, int, float): lower bound, should be list of values
     + ub (list, int, float): upper bound, should be list of values
     + minmax (str): "min" or "max" problem (Optional, default = "min")
-    + verbose (bool): print out the training process or not (Optional, default = True)
-    + n_dims (int): number of dimensions / problem size (Optional)
     + obj_weights: list weights for all your objectives (Optional, default = [1, 1, ...1])
-    + data: Your input data for fitness function (Optional)
-    + problem (dict): dictionary of the problem (contains at least the parameter 1, 2, 3) (Optional)
     + save_population (bool): save history of population or not, default = True (Optional). **Warning**:
         + this parameter can save you from error related to 'memory' when your model is too big (i.e, training neural network, ...)
         + when set to False, you can't use the function draw trajectory chart in history object (model.history.save_trajectory_chart)
@@ -44,7 +44,8 @@ class Problem:
     >>>     "log_to": None,
     >>>     "save_population": False,
     >>> }
-    >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50)
+    >>> model1 = BasePSO(epoch=1000, pop_size=50)
+    >>> model1.solve(problem_dict)
     >>>
     >>> ## For discrete problem, you need to design an amend_position function that can (1) bring your solution back to the valid range,
     >>> ##    (2) can convert float number into integer number (combinatorial or permutation).
@@ -67,144 +68,114 @@ class Problem:
     >>>     "log_file": "records.log",
     >>>     "amend_position": amend_position
     >>> }
-    >>> model2 = BasePSO(problem_dict2, epoch=1000, pop_size=50)
-    >>> best_position, best_fitness = model2.solve()
+    >>> model2 = BasePSO(epoch=1000, pop_size=50)
+    >>> best_position, best_fitness = model2.solve(problem_dict2)
     >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
     """
 
-    def __init__(self, **kwargs):
-        self.minmax = "min"
-        self.log_to, self.log_file = "console", None
-        self.n_objs = 1
-        self.obj_weights, self.data = None, None
-        self.multi_args = False
-        self.multi_objs, self.obj_is_list = False, False
-        self.n_dims, self.lb, self.ub = None, None, None
-        self.save_population, self.name = True, None
+    SUPPORTED_ARRAY = (list, tuple, np.ndarray)
+
+    def __init__(self, lb=None, ub=None, minmax="min", **kwargs):
+        r"""Initialize Problem.
+
+        Args:
+            lb (numpy.ndarray, list, tuple): Lower bounds of the problem.
+            ub (numpy.ndarray, list, tuple): Upper bounds of the problem.
+            minmax (str): Minimization or maximization problem (min, max)
+            name (str): Name for this particular problem
+        """
+        self.name, self.log_to, self.log_file = "P", "console", "history.txt"
+        self.n_objs, self.obj_is_list, self.multi_objs, self.obj_weights = 1, False, False, None
+        self.n_dims, self.lb, self.ub, self.save_population = None, None, None, False
+
         self.__set_keyword_arguments(kwargs)
+        self.__set_domain_range(lb, ub)
+        self.__set_functions(kwargs)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
-            format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
-        self.__check_problem(kwargs)
+                                    format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
+        self.minmax = minmax
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __check_problem(self, kwargs):
-        if ("fit_func" in kwargs) and ("lb" in kwargs) and ("ub" in kwargs):
-            self.__set_problem(kwargs)
-        elif ("problem" in kwargs) and (type(kwargs["problem"]) is dict):
-            if ("fit_func" in kwargs["problem"]) and ("lb" in kwargs["problem"]) and ("ub" in kwargs["problem"]):
-                self.__set_keyword_arguments(kwargs["problem"])
-                self.__set_problem(kwargs["problem"])
+    def __set_domain_range(self, lb, ub):
+        if type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
+            self.lb = np.squeeze(np.array(lb))
+            self.ub = np.squeeze(np.array(ub))
+            if len(self.lb) == len(self.ub):
+                self.n_dims = len(self.lb)
+                if len(self.lb) <= 1:
+                    raise ValueError(f'Dimensions do not qualify. Length(lb) = {len(self.lb)} <= 1.')
             else:
-                self.logger.error("Defined a problem dictionary with at least 'fit_func', 'lb', and 'ub'.")
-                exit(0)
+                raise ValueError(f"Length of lb and ub do not match. {len(self.lb)} != {len(self.ub)}.")
         else:
-            self.logger.error("Defined a problem dictionary with at least 'fit_func', 'lb', and 'ub'.")
-            exit(0)
+            raise ValueError(f"lb and ub need to be a list, tuple or np.array.")
 
-    def __set_problem(self, problem):
-        lb, ub, fit_func = problem["lb"], problem["ub"], problem["fit_func"]
-        self.__set_domain_range(lb, ub, problem)
-        self.__set_fitness_function(fit_func, problem)
-        if self.name is None: self.name = "F"
-
-    def __set_domain_range(self, lb, ub, kwargs):
-        if isinstance(lb, list) and isinstance(ub, list):
-            if len(lb) == len(ub):
-                if len(lb) > 1:
-                    self.n_dims = len(lb)
-                    self.lb = np.array(lb)
-                    self.ub = np.array(ub)
-                elif len(lb) == 1:
-                    if "n_dims" in kwargs:
-                        self.n_dims = self.__check_problem_size(kwargs["n_dims"])
-                        self.lb = lb[0] * np.ones(self.n_dims)
-                        self.ub = ub[0] * np.ones(self.n_dims)
-                    else:
-                        self.logger.error("n_dims is required in defined problem when lb and ub are a list of 1 element.")
-                        exit(0)
-                else:
-                    self.logger.error("Lower bound and upper bound need to be a list of values and same length.")
-                    exit(0)
-            else:
-                self.logger.error("Lower bound and upper bound need to be same length.")
-                exit(0)
-        elif type(lb) in [int, float] and type(ub) in [int, float]:
-            if "n_dims" in kwargs:
-                self.n_dims = self.__check_problem_size(kwargs["n_dims"])
-                self.lb = lb * np.ones(self.n_dims)
-                self.ub = ub * np.ones(self.n_dims)
-            else:
-                self.logger.error("Parameter n_dims is required in problem dictionary when lb and ub are a single value.")
-                exit(0)
-        else:
-            self.logger.error("Lower bound and Upper bound need to be a list and same length.")
-            exit(0)
-
-    def __check_problem_size(self, n_dims):
-        if type(n_dims) == int and n_dims > 1:
-            return int(n_dims)
-        else:
-            self.logger.error("n_dims (problem size) must be an integer number and > 1.")
-            exit(0)
-
-    def __set_fitness_function(self, fit_func, kwargs):
+    def __set_functions(self, kwargs):
         tested_solution = self.generate_position(self.lb, self.ub)
-        if callable(fit_func):
-            self.fit_func = fit_func
-        else:
-            self.logger.error("Please enter your 'fit_func' as a callable function, and it needs to return a value or list of values.")
-            exit(0)
         if "amend_position" in kwargs:
-            if callable(kwargs["amend_position"]):
-                tested_solution = self.amend_position(tested_solution, self.lb, self.ub)
+            if not callable(self.amend_position):
+                raise ValueError(f"Use default 'amend_position()' or passed a callable function. {type(self.amend_position)} != function")
             else:
-                self.logger.error("Please enter your 'amend_position' as a callable function, and it needs to return amended solution.")
-                exit(0)
-        if self.data is None:
-            self.multi_args = False
-            result = self.fit_func(tested_solution)
-        else:
-            self.multi_args = True
-            result = self.fit_func(tested_solution, self.data)
-        if isinstance(result, list) or isinstance(result, np.ndarray):
+                tested_solution = self.amend_position(tested_solution, self.lb, self.ub)
+        result = self.fit_func(tested_solution)
+        if type(result) in self.SUPPORTED_ARRAY:
+            result = np.squeeze(np.array(result))
             self.n_objs = len(result)
             self.obj_is_list = True
             if self.n_objs > 1:
                 self.multi_objs = True
-                if "obj_weights" in kwargs:
-                    self.obj_weights = kwargs["obj_weights"]
-                    if isinstance(self.obj_weights, list) or isinstance(self.obj_weights, np.ndarray):
-                        if self.n_objs != len(self.obj_weights):
-                            self.logger.error(f"{self.n_objs}-objective problem, but N weights: {len(self.obj_weights)}.")
-                            exit(0)
-                        self.msg = f"N objs: {self.n_objs} with N weights: {self.obj_weights}"
-                    else:
-                        self.logger.error(f"{self.n_objs}-objective problem, obj_weights must be a list or numpy np.array with length: {self.n_objs}.")
-                        exit(0)
+                if type(self.obj_weights) in self.SUPPORTED_ARRAY:
+                    self.obj_weights = np.squeeze(np.array(self.obj_weights))
+                    if self.n_objs != len(self.obj_weights):
+                        raise ValueError(f"{self.n_objs}-objective problem, but N weights = {len(self.obj_weights)}.")
                 else:
-                    self.obj_weights = np.ones(self.n_objs)
-                    self.msg = f"{self.n_objs}-objective problem and default weights: {self.obj_weights}."
+                    raise ValueError(f"Solving {self.n_objs}-objective optimization, need to set obj_weights list with length: {self.n_objs}")
             elif self.n_objs == 1:
                 self.multi_objs = False
                 self.obj_weights = np.ones(1)
-                self.msg = f"Solving single objective optimization problem."
             else:
-                self.logger.error(f"Fitness function needs to return a single value or list of values.")
-                exit(0)
+                raise ValueError(f"fit_func needs to return a single value or a list of values list")
         elif type(result) in (int, float) or isinstance(result, np.floating) or isinstance(result, np.integer):
             self.multi_objs = False
             self.obj_is_list = False
             self.obj_weights = np.ones(1)
-            self.msg = f"Solving single objective optimization problem."
         else:
-            self.logger.error("Fitness function needs to return a single value or a list of values.")
-            exit(0)
+            raise ValueError(f"fit_func needs to return a single value or a list of values list")
+
+    def fit_func(self, x):
+        """Evaluate solution.
+
+        Args:
+            x (numpy.ndarray): Solution.
+
+        Returns:
+            float: Function value of `x`.
+        """
+        raise NotImplementedError
+
+    def __call__(self, x):
+        r"""Evaluate solution.
+
+        Args:
+            x (numpy.ndarray): Solution.
+
+        Returns:
+            float: Function value of `x`.
+
+        See Also:
+            :func:`niapy.problems.Problem.evaluate`
+
+        """
+        return self.fit_func(x)
 
     def get_name(self):
         return self.name
+
+    def get_class_name(self):
+        """Get class name."""
+        return self.__class__.__name__
 
     def generate_position(self, lb=None, ub=None):
         """
@@ -223,7 +194,7 @@ class Problem:
         """
         + This is default function in most algorithms. Otherwise, there will be an overridden function
         in child of Optimizer class for this function.
-        + Depend on what kind of problem are we trying to solve, there will be an different amend_position
+        + Depend on what kind of problem are we trying to solve, there will be a different amend_position
         function to rebound the position of agent into the valid range.
 
         Args:

@@ -39,8 +39,8 @@ class OriginalBBO(Optimizer):
     >>> pop_size = 50
     >>> p_m = 0.01
     >>> elites = 2
-    >>> model = OriginalBBO(problem_dict1, epoch, pop_size, p_m, elites)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalBBO(epoch, pop_size, p_m, elites)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -48,18 +48,17 @@ class OriginalBBO(Optimizer):
     [1] Simon, D., 2008. Biogeography-based optimization. IEEE transactions on evolutionary computation, 12(6), pp.702-713.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_m=0.01, elites=2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_m=0.01, elites=2, **kwargs):
         """
         Initialize the algorithm components.
 
         Args:
-            problem (dict): The problem dictionary
             epoch (int): Maximum number of iterations, default = 10000
             pop_size (int): Number of population size, default = 100
             p_m (float): Mutation probability, default=0.01
             elites (int): Number of elites will be keep for next generation, default=2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
@@ -137,23 +136,22 @@ class BaseBBO(OriginalBBO):
     >>> pop_size = 50
     >>> p_m = 0.01
     >>> elites = 2
-    >>> model = BaseBBO(problem_dict1, epoch, pop_size, p_m, elites)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseBBO(epoch, pop_size, p_m, elites)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_m=0.01, elites=2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_m=0.01, elites=2, **kwargs):
         """
         Initialize the algorithm components.
 
         Args:
-            problem (dict): The problem dictionary
             epoch (int): Maximum number of iterations, default = 10000
             pop_size (int): Number of population size, default = 100
             p_m (float): Mutation probability, default=0.01
             elites (int): Number of elites will be keep for next generation, default=2
         """
-        super().__init__(problem, epoch, pop_size, p_m, elites, **kwargs)
+        super().__init__(epoch, pop_size, p_m, elites, **kwargs)
 
     def evolve(self, epoch):
         """

@@ -44,31 +44,14 @@ class Optimizer:
 
     EPSILON = 10E-10
 
-    def __init__(self, problem, kwargs=None):
-        """
-        Args:
-            problem: an instance of Problem class or a dictionary
-
-        Examples:
-            problem = {
-                "fit_func": your objective function,
-                "lb": list of value
-                "ub": list of value
-                "minmax": "min" or "max"
-                "verbose": True or False
-                "n_dims": int (Optional)
-                "obj_weights": list weights corresponding to all objectives (Optional, default = [1, 1, ...1])
-            }
-        """
+    def __init__(self, **kwargs):
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size, self.solution = None, None, None
         self.mode, self.n_workers, self.name = None, None, None
         self.pop, self.g_best, self.g_worst = None, None, None
-
-        if kwargs is None: kwargs = {}
+        self.problem, self.logger, self.history = None, None, None
         self.__set_keyword_arguments(kwargs)
-        self._set_problem(problem)
-        self._set_utilities()
+        self.validator = Validator(log_to="console", log_file=None)
 
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag, self.terminate_counter, self.nfe_per_epoch, self.parameters = False, None, self.pop_size, {}
@@ -110,17 +93,6 @@ class Optimizer:
     def get_name(self):
         return self.name
 
-    def _set_problem(self, problem):
-        self.problem = Problem(problem=problem)
-        self.amend_position = self.problem.amend_position
-        self.generate_position = self.problem.generate_position
-
-    def _set_utilities(self):
-        self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
-        self.logger.info(self.problem.msg)
-        self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
-        self.validator = Validator(log_to=self.problem.log_to, log_file=self.problem.log_file)
-
     def before_initialization(self, starting_positions=None):
         if starting_positions is None:
             pass
@@ -155,10 +127,7 @@ class Optimizer:
         Returns:
             [fitness, [obj1, obj2,...]]
         """
-        if self.problem.multi_args:
-            objs = self.problem.fit_func(position, self.problem.data)
-        else:
-            objs = self.problem.fit_func(position)
+        objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
             objs = [objs]
         fit = np.dot(objs, self.problem.obj_weights)
@@ -188,6 +157,13 @@ class Optimizer:
 
     def evolve(self, epoch):
         pass
+
+    def check_problem(self, problem):
+        self.problem = problem if isinstance(problem, Problem) else Problem(**problem)
+        self.amend_position = self.problem.amend_position
+        self.generate_position = self.problem.generate_position
+        self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
+        self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
 
     def check_mode_and_workers(self, mode, n_workers):
         self.mode = mode
@@ -222,9 +198,20 @@ class Optimizer:
                     self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
             return finished
 
-    def solve(self, mode='single', starting_positions=None, n_workers=None, termination=None):
+    def solve(self, problem=None, mode='single', starting_positions=None, n_workers=None, termination=None):
         """
         Args:
+            problem (Problem, dict): an instance of Problem class or a dictionary
+
+                problem = {
+                    "fit_func": your objective function,
+                    "lb": list of value
+                    "ub": list of value
+                    "minmax": "min" or "max"
+                    "verbose": True or False
+                    "n_dims": int (Optional)
+                    "obj_weights": list weights corresponding to all objectives (Optional, default = [1, 1, ...1])
+                }
 
             mode (str): Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
 
@@ -240,6 +227,7 @@ class Optimizer:
         Returns:
             list: [position, fitness value]
         """
+        self.check_problem(problem)
         self.check_mode_and_workers(mode, n_workers)
         self.check_termination("start", termination, None)
 

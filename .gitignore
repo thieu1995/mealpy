@@ -20,6 +20,8 @@ check_algo.py
 examples/hehu.py
 examples/myhelp.py
 
+*$.ipynd_checkpoint*
+
 # Pycharm
 .idea/
 drafts/
