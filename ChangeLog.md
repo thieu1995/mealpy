@@ -9,12 +9,12 @@
 + Refactor initialization() and after_initialization() in Optimizer class
 + Remove before_evolve(), after_evolve(), and levy_flight() in Optimizer class
 + Convert termination_start() and termination_end() to check_termination() in Optimizer class
-+ Termination dict/object is passed from solve() method instead of Optimizer object.
 + Remove boundary.py in utils
 + Add set_parameters() and get_parameters() in all optimizers
-+ Update new Problem class, move problem parameter from Optimizer to solve() function.
++ **Update new Problem class, move problem parameter from Optimizer to solve() function.**
 + Fix bug printing same entry multiple times in logger.
 + Fix bug exit() in Optimizer and utils package.
++ **Update new Termination class, move termination parameter from Optimizer to solve() function.**
 + Update input parameters in:
   + Bio-based: 
   + Evolutionary-based:

@@ -174,12 +174,16 @@ class Optimizer:
 
     def check_termination(self, mode="start", termination=None, epoch=None):
         if mode == "start":
-            self.termination = None
+            self.termination = termination
             if termination is not None:
-                self.termination = Termination(termination=termination, log_to=self.problem.log_to, log_file=self.problem.log_file)
+                if isinstance(termination, Termination):
+                    self.termination = termination
+                elif type(termination) == dict:
+                    self.termination = Termination(log_to=self.problem.log_to, log_file=self.problem.log_file, **termination)
+                else:
+                    raise ValueError("Termination needs to be a dict or an instance of Termination class.")
                 self.terminate_counter = self.termination.get_default_counter(self.epoch)
                 self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
-            return False
         else:
             finished = False
             if self.termination is not None:
@@ -221,7 +225,7 @@ class Optimizer:
 
             starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
             n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
-            termination (dict, None): The termination dictionary/object
+            termination (dict, None): The termination dictionary or an instance of Termination class
 
         Returns:
             list: [position, fitness value]

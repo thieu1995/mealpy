@@ -46,47 +46,35 @@ class Termination:
     >>>     "mode": "FE",
     >>>     "quantity": 100000  # 100000 number of function evaluation
     >>> }
-    >>> model1 = BasePSO(problem_dict, epoch=1000, pop_size=50)
-    >>> model1.solve(termination=term_dict)
+    >>> model1 = BasePSO(epoch=1000, pop_size=50)
+    >>> model1.solve(problem_dict, termination=term_dict)
     """
 
     SUPPORTED_TERMINATIONS = {
         "FE": ["Function Evaluation", [10, 1000000000]],
         "ES": ["Early Stopping", [1, 1000000]],
-        "TB": ["Time Bound", [10, 1000000]],
+        "TB": ["Time Bound", [1, 1000000]],
         "MG": ["Maximum Generation", [1, 1000000]],
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, mode="FE", quantity=10000, **kwargs):
+        self.mode, self.quantity, self.name = None, None, None
         self.exit_flag, self.message, self.log_to, self.log_file = False, "", None, None
         self.__set_keyword_arguments(kwargs)
+        self.__set_termination(mode, quantity)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
         self.logger.propagate = False
-        self.__check_termination(kwargs)
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __check_termination(self, kwargs):
-        if ("mode" in kwargs) and ("quantity" in kwargs):
-            self.__check_mode(kwargs["mode"], kwargs["quantity"])
-        elif ("termination" in kwargs) and type(kwargs["termination"] is dict):
-            if ("mode" in kwargs["termination"]) and ("quantity" in kwargs["termination"]):
-                self.__set_keyword_arguments(kwargs["termination"])
-                self.__check_mode(kwargs["termination"]["mode"], kwargs["termination"]["quantity"])
-            else:
-                raise ValueError("Termination dictionary needs at least 'mode' and 'quantity'.")
-        else:
-            raise ValueError("Termination dictionary needs at least 'mode' and 'quantity'.")
-
-    def __check_mode(self, mode, quantity):
+    def __set_termination(self, mode, quantity):
         if validator.is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
             self.mode = mode
             self.name = self.SUPPORTED_TERMINATIONS[mode][0]
-
-            if type(quantity) in [int, float]:
+            if type(quantity) in (int, float):
                 qt = int(quantity)
                 if validator.is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
                     self.quantity = qt
@@ -96,6 +84,9 @@ class Termination:
                 raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
         else:
             raise ValueError("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
+
+    def get_name(self):
+        return self.name
 
     def get_default_counter(self, epoch):
         if self.mode in ["ES", "FE"]:
