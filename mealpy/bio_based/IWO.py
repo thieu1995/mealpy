@@ -21,9 +21,11 @@ class OriginalIWO(Optimizer):
     both parent population and child population
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + seeds (list, tuple): (min_value, max_value) -> ([1, 3], [4, 10]), Number of Seeds
+        + seed_min (int): [1, 3], Number of Seeds (min)
+        + seed_max (int): [4, 10], Number of Seeds (max)
         + exponent (int): [2, 4], Variance Reduction Exponent
-        + sigmas (list, tuple): (initial_value, final_value), ((0.3, 1.0), (0, 0.2)), Value of Standard Deviation
+        + sigma_start (float): (0.3, 1.0), The initial value of Standard Deviation
+        + sigma_end (float): (0, 0.2), The final value of Standard Deviation
 
     Examples
     ~~~~~~~~
@@ -42,11 +44,13 @@ class OriginalIWO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> seeds = (3, 9)
+    >>> seed_min = 3
+    >>> seed_max = 9
     >>> exponent = 3
-    >>> sigmas = (0.6, 0.01)
-    >>> model = OriginalIWO(problem_dict1, epoch, pop_size, seeds, exponent, sigmas)
-    >>> best_position, best_fitness = model.solve()
+    >>> sigma_start = 0.6
+    >>> sigma_end = 0.01
+    >>> model = OriginalIWO(epoch, pop_size, seed_min, seed_max, exponent, sigma_start, sigma_end)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -55,22 +59,26 @@ class OriginalIWO(Optimizer):
     Ecological informatics, 1(4), pp.355-366.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, seeds=(2, 10), exponent=2, sigmas=(1.0, 0.01), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, seed_min=2, seed_max=10, exponent=2, sigma_start=1.0, sigma_end=0.01, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            seeds (tuple, list): (Min, Max) Number of Seeds
+            seed_min (int): Number of Seeds (min)
+            seed_max (int): Number of seeds (max)
             exponent (int): Variance Reduction Exponent
-            sigmas (tuple, list): (Initial, Final) Value of Standard Deviation
+            sigma_start (float): The initial value of standard deviation
+            sigma_end (float): The final value of standard deviation
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.seeds = self.validator.check_tuple_int("seeds (min, max)", seeds, ([1, 3], [4, int(self.pop_size / 2)]))
+        self.seed_min = self.validator.check_int("seed_min", seed_min, [1, 3])
+        self.seed_max = self.validator.check_int("seed_max", seed_max, [4, int(self.pop_size/2)])
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
-        self.sigmas = self.validator.check_tuple_float("sigmas (initial, final)", sigmas, ([0.5, 3.0], (0, 0.5)))
+        self.sigma_start = self.validator.check_float("sigma_start", sigma_start, [0.5, 5.0])
+        self.sigma_end = self.validator.check_float("sigma_end", sigma_end, (0, 0.5))
+        self.set_parameters(["epoch", "pop_size", "seed_min", "seed_max", "exponent", "sigma_start", "sigma_end"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -83,7 +91,7 @@ class OriginalIWO(Optimizer):
             epoch (int): The current iteration
         """
         # Update Standard Deviation
-        sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigmas[0] - self.sigmas[1]) + self.sigmas[1]
+        sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigma_start - self.sigma_end) + self.sigma_end
         pop, best, worst = self.get_special_solutions(self.pop)
         pop_new = []
         nfe_epoch = 0
@@ -93,7 +101,7 @@ class OriginalIWO(Optimizer):
                 ratio = np.random.rand()
             else:
                 ratio = (pop[idx][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]) / temp
-            s = int(np.ceil(self.seeds[0] + (self.seeds[1] - self.seeds[0]) * ratio))
+            s = int(np.ceil(self.seed_min + (self.seed_max - self.seed_min) * ratio))
             if s > int(np.sqrt(self.pop_size)):
                 s = int(np.sqrt(self.pop_size))
             pop_local = []
