@@ -5,13 +5,12 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
 class BaseVCS(Optimizer):
     """
-    My changed version of: Virus Colony Search (VCS)
+    The developed version: Virus Colony Search (VCS)
 
     Links:
         1. https://doi.org/10.1016/j.advengsoft.2015.11.004
@@ -22,7 +21,7 @@ class BaseVCS(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + xichma (float): [0.1, 2.0], Weight factor
+        + sigma (float): [0.1, 2.0], Weight factor
 
     Examples
     ~~~~~~~~
@@ -42,27 +41,27 @@ class BaseVCS(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> lamda = 0.5
-    >>> xichma = 0.3
-    >>> model = BaseVCS(problem_dict1, epoch, pop_size, lamda, xichma)
-    >>> best_position, best_fitness = model.solve()
+    >>> sigma = 0.3
+    >>> model = BaseVCS(epoch, pop_size, lamda, sigma)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=1.5, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, lamda=0.5, sigma=1.5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Percentage of the number of the best will keep, default = 0.5
-            xichma (float): Weight factor, default = 1.5
+            sigma (float): Weight factor, default = 1.5
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.xichma = self.validator.check_float("xichma", xichma, (0, 5.0))
         self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
+        self.sigma = self.validator.check_float("sigma", sigma, (0, 5.0))
         self.n_best = int(self.lamda * self.pop_size)
+        self.set_parameters(["epoch", "pop_size", "lamda", "sigma"])
 
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
@@ -96,8 +95,8 @@ class BaseVCS(Optimizer):
         ## Viruses diffusion
         pop = []
         for idx in range(0, self.pop_size):
-            xichma = (np.log1p(epoch + 1) / self.epoch) * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
-            gauss = np.random.normal(np.random.normal(self.g_best[self.ID_POS], np.abs(xichma)))
+            sigma = (np.log1p(epoch + 1) / self.epoch) * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
+            gauss = np.random.normal(np.random.normal(self.g_best[self.ID_POS], np.abs(sigma)))
             pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * self.pop[idx][self.ID_POS]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
@@ -110,11 +109,11 @@ class BaseVCS(Optimizer):
 
         ## Host cells infection
         x_mean = self.calculate_xmean__(self.pop)
-        xichma = self.xichma * (1 - (epoch + 1) / self.epoch)
+        sigma = self.sigma * (1 - (epoch + 1) / self.epoch)
         pop = []
         for idx in range(0, self.pop_size):
             ## Basic / simple version, not the original version in the paper
-            pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
+            pos_new = x_mean + sigma * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
@@ -152,13 +151,9 @@ class OriginalVCS(BaseVCS):
     Links:
         1. https://doi.org/10.1016/j.advengsoft.2015.11.004
 
-    Notes
-    ~~~~~
-    This is basic version, not the full version of the paper
-
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + xichma (float): [0.1, 0.5], Weight factor
+        + sigma (float): [0.1, 0.5], Weight factor
 
     Examples
     ~~~~~~~~
@@ -178,9 +173,9 @@ class OriginalVCS(BaseVCS):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> lamda = 0.5
-    >>> xichma = 0.3
-    >>> model = OriginalVCS(problem_dict1, epoch, pop_size, lamda, xichma)
-    >>> best_position, best_fitness = model.solve()
+    >>> sigma = 0.3
+    >>> model = OriginalVCS(epoch, pop_size, lamda, sigma)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -189,16 +184,16 @@ class OriginalVCS(BaseVCS):
     for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.5, xichma=1.5, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, lamda=0.5, sigma=1.5, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5
-            xichma (float): Weight factor, default = 1.5
+            sigma (float): Weight factor, default = 1.5
         """
-        super().__init__(problem, epoch, pop_size, lamda, xichma, **kwargs)
+        super().__init__(epoch, pop_size, lamda, sigma, **kwargs)
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
@@ -224,8 +219,8 @@ class OriginalVCS(BaseVCS):
         ## Viruses diffusion
         pop = []
         for idx in range(0, self.pop_size):
-            xichma = (np.log1p(epoch + 1) / self.epoch) * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
-            gauss = np.array([np.random.normal(self.g_best[self.ID_POS][j], np.abs(xichma[j])) for j in range(0, self.problem.n_dims)])
+            sigma = (np.log1p(epoch + 1) / self.epoch) * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
+            gauss = np.array([np.random.normal(self.g_best[self.ID_POS][j], np.abs(sigma[j])) for j in range(0, self.problem.n_dims)])
             pos_new = gauss + np.random.uniform() * self.g_best[self.ID_POS] - np.random.uniform() * self.pop[idx][self.ID_POS]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
@@ -238,11 +233,11 @@ class OriginalVCS(BaseVCS):
 
         ## Host cells infection
         x_mean = self.calculate_xmean__(self.pop)
-        xichma = self.xichma * (1 - (epoch + 1) / self.epoch)
+        sigma = self.sigma * (1 - (epoch + 1) / self.epoch)
         pop = []
         for idx in range(0, self.pop_size):
             ## Basic / simple version, not the original version in the paper
-            pos_new = x_mean + xichma * np.random.normal(0, 1, self.problem.n_dims)
+            pos_new = x_mean + sigma * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
