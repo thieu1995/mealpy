@@ -8,30 +8,29 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseWHO(Optimizer):
+class OriginalWHO(Optimizer):
     """
     The original version of: Wildebeest Herd Optimization (WHO)
 
     Links:
         1. https://doi.org/10.3233/JIFS-190495
 
-    Notes
-    ~~~~~
-    Before updated old position, I check whether new position is better or not.
-
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_s (int): [2, 4], number of exploration step
-        + n_e (int): [2, 4], number of exploitation step
+        + n_explore_step (int): [2, 4], number of exploration step
+        + n_exploit_step (int): [2, 4], number of exploitation step
         + eta (float): [0.05, 0.5], learning rate
         + p_hi (float): [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
-        + local_move (tuple, list): (alpha 1, beta 1) -> ([0.5, 0.9], [0.1, 0.5]), control local movement
-        + global_move (tuple, list): (alpha 2, beta 2) -> ([0.1, 0.5], [0.5, 0.9]), control global movement
-        + delta (tuple, list): (delta_w, delta_c) -> ([1.0, 2.0], [1.0, 2.0]), (dist to worst, dist to best)
+        + local_alpha (float): [0.5, 0.9], control local movement (alpha 1)
+        + local_beta (float): [0.1, 0.5], control local movement (beta 1)
+        + global_alpha (float): [0.1, 0.5], control global movement (alpha 2)
+        + global_beta (float): [0.5, 0.9], control global movement (beta 2)
+        + delta_w (float): [1.0, 2.0], dist to worst
+        + delta_c (float): [1.0, 2.0], dist to best
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.WHO import BaseWHO
+    >>> from mealpy.bio_based.WHO import OriginalWHO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -45,15 +44,19 @@ class BaseWHO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> n_s = 3
-    >>> n_e = 3
+    >>> n_explore_step = 3
+    >>> n_exploit_step = 3
     >>> eta = 0.15
     >>> p_hi = 0.9
-    >>> local_move = (0.9, 0.3)
-    >>> global_move = (0.2, 0.8)
-    >>> delta = (2.0, 2.0)
-    >>> model = BaseWHO(problem_dict1, epoch, pop_size, n_s, n_e, eta, p_hi, local_move, global_move, delta,)
-    >>> best_position, best_fitness = model.solve()
+    >>> local_alpha=0.9
+    >>> local_beta=0.3
+    >>> global_alpha=0.2
+    >>> global_beta=0.8
+    >>> delta_w=2.0
+    >>> delta_c=2.0
+    >>> model = OriginalWHO(epoch, pop_size, n_explore_step, n_exploit_step, eta, p_hi, local_alpha, local_beta,
+    >>>                     global_alpha, global_beta, delta_w, delta_c)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -62,31 +65,39 @@ class BaseWHO(Optimizer):
     by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, 37(6), pp.8063-8076.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_s=3, n_e=3, eta=0.15, p_hi=0.9, local_move=(0.9, 0.3),
-                 global_move=(0.2, 0.8), delta=(2.0, 2.0), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_explore_step=3, n_exploit_step=3, eta=0.15, p_hi=0.9,
+                 local_alpha=0.9, local_beta=0.3, global_alpha=0.2, global_beta=0.8, delta_w=2.0, delta_c=2.0, **kwargs):
         """
         Args:
             problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            n_s (int): default = 3, number of exploration step
-            n_e (int): default = 3, number of exploitation step
+            n_explore_step (int): default = 3, number of exploration step
+            n_exploit_step (int): default = 3, number of exploitation step
             eta (float): default = 0.15, learning rate
             p_hi (float): default = 0.9, the probability of wildebeest move to another position based on herd instinct
-            local_move (tuple, list): default = (0.9, 0.3), (alpha 1, beta 1) - control local movement
-            global_move (tuple, list): default = (0.2, 0.8), (alpha 2, beta 2) - control global movement
-            delta (tuple, list): default = (2.0, 2.0) , (delta_w, delta_c) - (dist to worst, dist to best)
+            local_alpha (float): control local movement (alpha 1)
+            local_beta (float): control local movement (beta 1)
+            global_alpha (float): control global movement (alpha 2)
+            global_beta (float): control global movement (beta 2)
+            delta_w (float): dist to worst
+            delta_c (float): dist to best
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.n_s = self.validator.check_int("n_s", n_s, [2, 10])
-        self.n_e = self.validator.check_int("n_e", n_e, [2, 10])
+        self.n_explore_step = self.validator.check_int("n_explore_step", n_explore_step, [2, 10])
+        self.n_exploit_step = self.validator.check_int("n_exploit_step", n_exploit_step, [2, 10])
         self.eta = self.validator.check_float("eta", eta, (0, 1.0))
         self.p_hi = self.validator.check_float("p_hi", p_hi, (0, 1.0))
-        self.local_move = self.validator.check_tuple_float("local_move (alpha 1, beta 1)", local_move, ((0, 2.0), (0, 2.0)))
-        self.global_move = self.validator.check_tuple_float("global_move (alpha 2, beta 2)", global_move, ((0, 2.0), (0, 2.0)))
-        self.delta = self.validator.check_tuple_float("delta (delta_w, delta_c)", delta, ((0.5, 5.0), (0.5, 5.0)))
+        self.local_alpha = self.validator.check_float("local_alpha", local_alpha, (0, 3.0))
+        self.local_beta = self.validator.check_float("local_beta", local_beta, (0, 3.0))
+        self.global_alpha = self.validator.check_float("global_alpha", global_alpha, (0, 3.0))
+        self.global_beta = self.validator.check_float("global_beta", global_beta, (0, 3.0))
+        self.delta_w = self.validator.check_float("delta_w", delta_w, (0.5, 5.0))
+        self.delta_c = self.validator.check_float("delta_c", delta_c, (0.5, 5.0))
+        self.set_parameters(["epoch", "pop_size", "n_explore_step", "n_exploit_step",
+                             "eta", "p_hi", "local_alpha", "local_beta", "global_alpha", "global_beta", "delta_w", "delta_c"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -103,9 +114,9 @@ class BaseWHO(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             ### 1. Local movement (Milling behaviour)
-            nfe_epoch += self.n_s
+            nfe_epoch += self.n_explore_step
             local_list = []
-            for j in range(0, self.n_s):
+            for j in range(0, self.n_explore_step):
                 temp = self.pop[idx][self.ID_POS] + self.eta * np.random.uniform() * np.random.uniform(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 local_list.append([pos_new, None])
@@ -113,7 +124,7 @@ class BaseWHO(Optimizer):
                     local_list[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             local_list = self.update_target_wrapper_population(local_list)
             _, best_local = self.get_global_best_solution(local_list)
-            temp = self.local_move[0] * best_local[self.ID_POS] + self.local_move[1] * (self.pop[idx][self.ID_POS] - best_local[self.ID_POS])
+            temp = self.local_alpha * best_local[self.ID_POS] + self.local_beta * (self.pop[idx][self.ID_POS] - best_local[self.ID_POS])
             pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
@@ -127,7 +138,7 @@ class BaseWHO(Optimizer):
             ### 2. Herd instinct
             idr = np.random.choice(range(0, self.pop_size))
             if self.compare_agent(self.pop[idr], self.pop[idx]) and np.random.rand() < self.p_hi:
-                temp = self.global_move[0] * self.pop[idx][self.ID_POS] + self.global_move[1] * self.pop[idr][self.ID_POS]
+                temp = self.global_alpha * self.pop[idx][self.ID_POS] + self.global_beta * self.pop[idr][self.ID_POS]
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
                 nfe_epoch += 1
@@ -143,7 +154,7 @@ class BaseWHO(Optimizer):
             dist_to_best = np.linalg.norm(self.pop[idx][self.ID_POS] - g_best[self.ID_POS])
 
             ### 3. Starvation avoidance
-            if dist_to_worst < self.delta[0]:
+            if dist_to_worst < self.delta_w:
                 temp = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.problem.ub - self.problem.lb) * \
                        np.random.uniform(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
@@ -153,7 +164,7 @@ class BaseWHO(Optimizer):
                     self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
 
             ### 4. Population pressure
-            if 1.0 < dist_to_best and dist_to_best < self.delta[1]:
+            if 1.0 < dist_to_best and dist_to_best < self.delta_c:
                 temp = g_best[self.ID_POS] + self.eta * np.random.uniform(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 pop_child.append([pos_new, None])
@@ -162,7 +173,7 @@ class BaseWHO(Optimizer):
                     self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
 
             ### 5. Herd social memory
-            for j in range(0, self.n_e):
+            for j in range(0, self.n_exploit_step):
                 temp = g_best[self.ID_POS] + 0.1 * np.random.uniform(self.problem.lb, self.problem.ub)
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 pop_child.append([pos_new, None])
