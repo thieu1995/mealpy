@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseWCA(Optimizer):
+class OriginalWCA(Optimizer):
     """
     The original version of: Water Cycle Algorithm (WCA)
 
@@ -31,7 +31,7 @@ class BaseWCA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.system_based.WCA import BaseWCA
+    >>> from mealpy.system_based.WCA import OriginalWCA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -48,8 +48,8 @@ class BaseWCA(Optimizer):
     >>> nsr = 4
     >>> wc = 2.0
     >>> dmax = 1e-6
-    >>> model = BaseWCA(problem_dict1, epoch, pop_size, nsr, wc, dmax)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalWCA(epoch, pop_size, nsr, wc, dmax)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -58,23 +58,23 @@ class BaseWCA(Optimizer):
     optimization method for solving constrained engineering optimization problems. Computers & Structures, 110, pp.151-166.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, nsr=4, wc=2.0, dmax=1e-6, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, nsr=4, wc=2.0, dmax=1e-6, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             nsr (int): Number of rivers + sea (sea = 1), default = 4
             wc (float): Weighting coefficient (C in the paper), default = 2.0
             dmax (float): Evaporation condition constant, default=1e-6
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.nsr = self.validator.check_int("nsr", nsr, [2, int(self.pop_size/2)])
         self.wc = self.validator.check_float("wc", wc, (1.0, 3.0))
         self.dmax = self.validator.check_float("dmax", dmax, (0, 1.0))
-        self.streams, self.pop_bset, self.pop_stream = None, None, None
+        self.set_parameters(["epoch", "pop_size", "nsr", "wc", "dmax"])
+        
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
