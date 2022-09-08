@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseHGSO(Optimizer):
+class OriginalHGSO(Optimizer):
     """
     The original version of: Henry Gas Solubility Optimization (HGSO)
 
@@ -22,7 +22,7 @@ class BaseHGSO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.HGSO import BaseHGSO
+    >>> from mealpy.physics_based.HGSO import OriginalHGSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -37,8 +37,8 @@ class BaseHGSO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> n_clusters = 3
-    >>> model = BaseHGSO(problem_dict1, epoch, pop_size, n_clusters)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalHGSO(epoch, pop_size, n_clusters)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,18 +47,19 @@ class BaseHGSO(Optimizer):
     optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, pp.646-667.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_clusters=2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_clusters=2, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_clusters (int): number of clusters, default = 2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_clusters = self.validator.check_int("n_clusters", n_clusters, [2, int(self.pop_size/5)])
+        self.set_parameters(["epoch", "pop_size", "n_clusters"])
+
         self.n_elements = int(self.pop_size / self.n_clusters)
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -67,10 +68,11 @@ class BaseHGSO(Optimizer):
         self.beta = 1.0
         self.alpha = 1
         self.epxilon = 0.05
-
         self.l1 = 5E-2
         self.l2 = 100.0
         self.l3 = 1E-2
+
+    def initialize_variables(self):
         self.H_j = self.l1 * np.random.uniform()
         self.P_ij = self.l2 * np.random.uniform()
         self.C_j = self.l3 * np.random.uniform()
