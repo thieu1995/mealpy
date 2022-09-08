@@ -88,8 +88,9 @@ class BaseEOA(Optimizer):
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        ## Dynamic variable
-        self.dyn_beta = beta
+
+    def initialize_variables(self):
+        self.dyn_beta = self.beta
 
     def evolve(self, epoch):
         """

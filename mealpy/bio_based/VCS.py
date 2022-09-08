@@ -187,7 +187,7 @@ class OriginalVCS(BaseVCS):
     def __init__(self, epoch=10000, pop_size=100, lamda=0.5, sigma=1.5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
+
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5
