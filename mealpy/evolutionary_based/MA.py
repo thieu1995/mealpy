@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseMA(Optimizer):
+class OriginalMA(Optimizer):
     """
     The original version of: Memetic Algorithm (MA)
 
@@ -27,7 +27,7 @@ class BaseMA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.MA import BaseMA
+    >>> from mealpy.evolutionary_based.MA import OriginalMA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -46,8 +46,8 @@ class BaseMA(Optimizer):
     >>> p_local = 0.5
     >>> max_local_gens = 10
     >>> bits_per_param = 4
-    >>> model = BaseMA(problem_dict1, epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalMA(epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -58,11 +58,10 @@ class BaseMA(Optimizer):
 
     ID_BIT = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
+    def __init__(self, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
                  p_local=0.5, max_local_gens=10, bits_per_param=4, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pc (float): cross-over probability, default = 0.85
@@ -71,17 +70,21 @@ class BaseMA(Optimizer):
             max_local_gens (int): Number of local search agent will be created during local search mechanism, default=10
             bits_per_param (int): Number of bits to decode a real number to 0-1 bitstring, default=4
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.pc = self.validator.check_float("p_c", pc, (0, 1.0))
-        self.pm = self.validator.check_float("p_m", pm, (0, 1.0))
+        self.pc = self.validator.check_float("pc", pc, (0, 1.0))
+        self.pm = self.validator.check_float("pm", pm, (0, 1.0))
         self.p_local = self.validator.check_float("p_local", p_local, (0, 1.0))
         self.max_local_gens = self.validator.check_int("max_local_gens", max_local_gens, [2, int(pop_size/2)])
         self.bits_per_param = self.validator.check_int("bits_per_param", bits_per_param, [2, 32])
-        self.bits_total = self.problem.n_dims * self.bits_per_param
+        self.set_parameters(["epoch", "pop_size", "pc", "pm", "p_local", "max_local_gens", "bits_per_param"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
+
+    def initialize_variables(self):
+        self.bits_total = self.problem.n_dims * self.bits_per_param
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
