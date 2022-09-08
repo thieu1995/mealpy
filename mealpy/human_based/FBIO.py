@@ -11,11 +11,11 @@ from mealpy.optimizer import Optimizer
 
 class BaseFBIO(Optimizer):
     """
-    My changed version of: Forensic-Based Investigation Optimization (FBIO)
+    The developed : Forensic-Based Investigation Optimization (FBIO)
 
     Notes
     ~~~~~
-    I remove all the third loop, change a few equations and the flow of the algorithm
+    Third loop is removed, the flowand a few equations is improved
 
     Examples
     ~~~~~~~~
@@ -34,21 +34,22 @@ class BaseFBIO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseFBIO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseFBIO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = False
 
@@ -169,8 +170,8 @@ class OriginalFBIO(BaseFBIO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalFBIO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalFBIO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -178,16 +179,13 @@ class OriginalFBIO(BaseFBIO):
     [1] Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, 93, p.106339.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 4 * self.pop_size
-        self.sort_flag = False
+        super().__init__(epoch, pop_size, **kwargs)
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
