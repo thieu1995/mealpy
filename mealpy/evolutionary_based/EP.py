@@ -9,12 +9,12 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseEP(Optimizer):
+class OriginalEP(Optimizer):
     """
     The original version of: Evolutionary Programming (EP)
 
     Links:
-        1. http://www.cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
+        1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
         2. https://github.com/clever-algorithms/CleverAlgorithms
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
@@ -23,7 +23,7 @@ class BaseEP(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.EP import BaseEP
+    >>> from mealpy.evolutionary_based.EP import OriginalEP
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -38,8 +38,8 @@ class BaseEP(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> bout_size = 0.05
-    >>> model = BaseEP(problem_dict1, epoch, pop_size, bout_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalEP(epoch, pop_size, bout_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -53,23 +53,25 @@ class BaseEP(Optimizer):
     ID_STR = 2  # strategy
     ID_WIN = 3
 
-    def __init__(self, problem, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
-            n_child (float): percentage of child agents implement tournament selection
+            bout_size (float): percentage of child agents implement tournament selection
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.bout_size = self.validator.check_float("bout_size", bout_size, (0, 1.0))
-        self.n_bout_size = int(self.bout_size * pop_size)
-        self.distance = 0.05 * (self.problem.ub - self.problem.lb)
+        self.set_parameters(["epoch", "pop_size", "bout_size"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
+
+    def initialize_variables(self):
+        self.n_bout_size = int(self.bout_size * self.pop_size)
+        self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
@@ -118,13 +120,13 @@ class BaseEP(Optimizer):
         self.pop = pop[:self.pop_size]
 
 
-class LevyEP(BaseEP):
+class LevyEP(OriginalEP):
     """
-    My Levy-flight version of: Evolutionary Programming (LevyEP)
+    The developed Levy-flight version: Evolutionary Programming (LevyEP)
 
     Notes
     ~~~~~
-    I try to apply Levy-flight to EP, change flow and add some equations.
+    Levy-flight is applied to EP, flow and some equations is changed.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
@@ -147,8 +149,8 @@ class LevyEP(BaseEP):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> bout_size = 0.05
-    >>> model = LevyEP(problem_dict1, epoch, pop_size, bout_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = LevyEP(epoch, pop_size, bout_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
@@ -157,15 +159,14 @@ class LevyEP(BaseEP):
     ID_STR = 2  # strategy
     ID_WIN = 3
 
-    def __init__(self, problem, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
             bout_size (float): percentage of child agents implement tournament selection
         """
-        super().__init__(problem, epoch, pop_size, bout_size, **kwargs)
+        super().__init__(epoch, pop_size, bout_size, **kwargs)
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
