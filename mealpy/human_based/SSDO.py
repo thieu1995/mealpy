@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSSDO(Optimizer):
+class OriginalSSDO(Optimizer):
     """
     The original version of: Social Ski-Driver Optimization (SSDO)
 
@@ -20,7 +20,7 @@ class BaseSSDO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.SSDO import BaseSSDO
+    >>> from mealpy.human_based.SSDO import OriginalSSDO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -34,8 +34,8 @@ class BaseSSDO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseSSDO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSSDO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,16 +47,17 @@ class BaseSSDO(Optimizer):
     ID_VEL = 2
     ID_LOC = 3
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -90,13 +91,13 @@ class BaseSSDO(Optimizer):
 
         pop_new = deepcopy(self.pop)
         # Updating velocity vectors
+        r1 = np.random.uniform()  # r1, r2 is a random number in [0,1]
+        r2 = np.random.uniform()
         for i in range(0, self.pop_size):
-            r1 = np.random.uniform()  # r1, r2 is a random number in [0,1]
-            r2 = np.random.uniform()
             if r2 <= 0.5:  ## Use Sine function to move
-                vel_new = c * np.sin(r1) * (self.pop[i][self.ID_LOC] - self.pop[i][self.ID_POS]) + np.sin(r1) * (pos_mean - self.pop[i][self.ID_POS])
+                vel_new = c * np.sin(r1) * (self.pop[i][self.ID_LOC] - self.pop[i][self.ID_POS]) + (2-c)*np.sin(r1) * (pos_mean - self.pop[i][self.ID_POS])
             else:  ## Use Cosine function to move
-                vel_new = c * np.cos(r1) * (self.pop[i][self.ID_LOC] - self.pop[i][self.ID_POS]) + np.cos(r1) * (pos_mean - self.pop[i][self.ID_POS])
+                vel_new = c * np.cos(r1) * (self.pop[i][self.ID_LOC] - self.pop[i][self.ID_POS]) + (2-c)*np.cos(r1) * (pos_mean - self.pop[i][self.ID_POS])
             pop_new[i][self.ID_VEL] = vel_new
 
         ## Reproduction
