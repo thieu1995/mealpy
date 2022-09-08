@@ -11,13 +11,12 @@ from mealpy.optimizer import Optimizer
 
 class BaseMVO(Optimizer):
     """
-    My changed version of: Multi-Verse Optimizer (MVO)
+    The developed version: Multi-Verse Optimizer (MVO)
 
     Notes
     ~~~~~
-    + Use my routtele wheel selection which can handle negative values
-    + No need condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
-    + Change equation 3.3 to match the name of parameter wep_minmax
+    + New routtele wheel selection can handle negative values
+    + Removed condition when np.random.normalize fitness. So the chance to choose while whole higher --> better
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
@@ -42,25 +41,26 @@ class BaseMVO(Optimizer):
     >>> pop_size = 50
     >>> wep_min = 0.2
     >>> wep_max = 1.0
-    >>> model = BaseMVO(problem_dict1, epoch, pop_size, wep_min, wep_max)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseMVO(epoch, pop_size, wep_min, wep_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.wep_min = self.validator.check_float("wep_min", wep_min, [0.01, 0.3])
-        self.wep_max = self.validator.check_float("wep_max", wep_max, [0.31, 1.0])
+        self.wep_min = self.validator.check_float("wep_min", wep_min, (0, 0.5))
+        self.wep_max = self.validator.check_float("wep_max", wep_max, [0.5, 3.0])
+        self.set_parameters(["epoch", "pop_size", "wep_min", "wep_max"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -129,8 +129,8 @@ class OriginalMVO(BaseMVO):
     >>> pop_size = 50
     >>> wep_min = 0.2
     >>> wep_max = 1.0
-    >>> model = OriginalMVO(problem_dict1, epoch, pop_size, wep_min, wep_max)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalMVO(epoch, pop_size, wep_min, wep_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -139,18 +139,15 @@ class OriginalMVO(BaseMVO):
     algorithm for global optimization. Neural Computing and Applications, 27(2), pp.495-513.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, wep_min=0.2, wep_max=1.0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wep_min (float): Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
             wep_max (float: Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
         """
-        super().__init__(problem, epoch, pop_size, wep_min, wep_max, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = True
+        super().__init__(epoch, pop_size, wep_min, wep_max, **kwargs)
 
     # sorted_inflation_rates
     def roulette_wheel_selection__(self, weights=None):
