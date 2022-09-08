@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseWDO(Optimizer):
+class OriginalWDO(Optimizer):
     """
     The original version of: Wind Driven Optimization (WDO)
 
@@ -31,7 +31,7 @@ class BaseWDO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.WDO import BaseWDO
+    >>> from mealpy.physics_based.WDO import OriginalWDO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -51,8 +51,8 @@ class BaseWDO(Optimizer):
     >>> alp = 0.4
     >>> c_e = 0.4
     >>> max_v = 0.3
-    >>> model = BaseWDO(problem_dict1, epoch, pop_size, RT, g_c, alp, c_e, max_v)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalWDO(epoch, pop_size, RT, g_c, alp, c_e, max_v)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -62,10 +62,9 @@ class BaseWDO(Optimizer):
     propagation, 61(5), pp.2745-2757.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, RT=3, g_c=0.2, alp=0.4, c_e=0.4, max_v=0.3, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, RT=3, g_c=0.2, alp=0.4, c_e=0.4, max_v=0.3, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             RT (int): RT coefficient, default = 3
@@ -74,7 +73,7 @@ class BaseWDO(Optimizer):
             c_e (float): coriolis effect, default=0.4
             max_v (float): maximum allowed speed, default=0.3
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.RT = self.validator.check_int("RT", RT, [1, 4])
@@ -82,10 +81,12 @@ class BaseWDO(Optimizer):
         self.alp = self.validator.check_float("alp", alp, (0, 1.0))
         self.c_e = self.validator.check_float("c_e", c_e, (0, 1.0))
         self.max_v = self.validator.check_float("max_v", max_v, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "RT", "g_c", "alp", "c_e", "max_v"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        ## Dynamic variable
+
+    def initialize_variables(self):
         self.dyn_list_velocity = self.max_v * np.random.uniform(self.problem.lb, self.problem.ub, (self.pop_size, self.problem.n_dims))
 
     def evolve(self, epoch):
