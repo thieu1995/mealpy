@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseFPA(Optimizer):
+class OriginalFPA(Optimizer):
     """
     The original version of: Flower Pollination Algorithm (FPA)
 
@@ -22,7 +22,7 @@ class BaseFPA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.FPA import BaseFPA
+    >>> from mealpy.evolutionary_based.FPA import OriginalFPA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -38,8 +38,8 @@ class BaseFPA(Optimizer):
     >>> pop_size = 50
     >>> p_s = 0.8
     >>> levy_multiplier = 0.2
-    >>> model = BaseFPA(problem_dict1, epoch, pop_size, p_s, levy_multiplier)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalFPA(epoch, pop_size, p_s, levy_multiplier)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -48,20 +48,21 @@ class BaseFPA(Optimizer):
     conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_s=0.8, levy_multiplier=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_s=0.8, levy_multiplier=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             p_s (float): switch probability, default = 0.8
-            levy_multiplier (float): mutiplier factor of Levy-flight trajectory, default = 0.2
+            levy_multiplier (float): multiplier factor of Levy-flight trajectory, default = 0.2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
-        self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (0, 1000))
+        self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (-10000, 10000))
+        self.set_parameters(["epoch", "pop_size", "p_s", "levy_multiplier"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
