@@ -20,7 +20,7 @@ class OriginalCGO(Optimizer):
     ~~~~~
     + 4th seed is mutation process, but it is not clear mutation on multiple variables or 1 variable
     + There is no usage of the variable alpha 4th in the paper
-    + The replacement of worst solutions by generated seed are not clear (Lots of grammar errors in this section)
+    + The replacement of the worst solutions by generated seed are not clear (Lots of grammar errors in this section)
 
     Examples
     ~~~~~~~~
@@ -39,8 +39,8 @@ class OriginalCGO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalCGO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCGO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,16 +49,17 @@ class OriginalCGO(Optimizer):
     Artificial Intelligence Review, 54(2), pp.917-1004.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = False
 
