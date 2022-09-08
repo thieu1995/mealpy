@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSSpiderO(Optimizer):
+class OriginalSSpiderO(Optimizer):
     """
     The original version of: Social Spider Optimization (SSpiderO)
 
@@ -17,12 +17,13 @@ class BaseSSpiderO(Optimizer):
         1. https://www.hindawi.com/journals/mpe/2018/6843923/
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fp (list, tuple): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
+        + fp_min (float): Female Percent min, default = 0.65
+        + fp_max (float): Female Percent max, default = 0.9
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SSpiderO import BaseSSpiderO
+    >>> from mealpy.swarm_based.SSpiderO import OriginalSSpiderO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -36,9 +37,10 @@ class BaseSSpiderO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> fb = [0.65, 0.9]
-    >>> model = BaseSSpiderO(problem_dict1, epoch, pop_size, fb)
-    >>> best_position, best_fitness = model.solve()
+    >>> fp_min = 0.65
+    >>> fp_max = 0.9
+    >>> model = OriginalSSpiderO(epoch, pop_size, fp_min, fp_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -52,22 +54,24 @@ class BaseSSpiderO(Optimizer):
     ID_TAR = 1
     ID_WEI = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, fp=(0.65, 0.9), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, fp_min=0.65, fp_max=0.9, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            fp (list, tuple): (fp_min, fp_max): Female Percent, default = (0.65, 0.9)
+            fp_min (float): Female Percent min, default = 0.65
+            fp_max (float): Female Percent max, default = 0.9
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        fp = self.validator.check_tuple_float("fp (min, max)", fp, ((0, 1.0), (0, 1.0)))
-        self.fp = (min(fp), max(fp))
+        fp_min = self.validator.check_float("fp_min", fp_min, (0., 1.0))
+        fp_max = self.validator.check_float("fp_max", fp_max, (0., 1.0))
+        self.fp_min, self.fp_max = min((fp_min, fp_max)), max((fp_min, fp_max))
+        self.set_parameters(["epoch", "pop_size", "fp_min", "fp_max"])
 
     def initialization(self):
-        fp_temp = self.fp[0] + (self.fp[1] - self.fp[0]) * np.random.uniform()  # Female Aleatory Percent
+        fp_temp = self.fp_min + (self.fp_max - self.fp_min) * np.random.uniform()  # Female Aleatory Percent
         self.n_f = int(self.pop_size * fp_temp)  # number of female
         self.n_m = self.pop_size - self.n_f  # number of male
         # Probabilities of attraction or repulsion Proper tuning for better results
@@ -241,7 +245,7 @@ class BaseSSpiderO(Optimizer):
                 dist = np.linalg.norm(pop_males_new[i][self.ID_POS] - self.pop_females[j][self.ID_POS])
                 if dist < r:
                     couples.append([pop_males_new[i], self.pop_females[j]])
-        if couples:
+        if len(couples) >= 2:
             n_child = len(couples)
             for k in range(n_child):
                 child1, child2 = self.crossover__(couples[k][0][self.ID_POS], couples[k][1][self.ID_POS], 0)
@@ -252,8 +256,7 @@ class BaseSSpiderO(Optimizer):
                 list_child.append([pos1, target1, 0.0])
                 list_child.append([pos2, target2, 0.0])
 
-        else:
-            list_child = self.create_population(self.pop_size)
+        list_child += self.create_population(self.pop_size - len(list_child))
         self.nfe_epoch += len(list_child)
         return list_child
 
