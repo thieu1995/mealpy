@@ -14,7 +14,8 @@ class OriginalGBO(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pr (float): [0.2, 0.8], Probability Parameter, default = 0.5
-        + beta_minmax (list, tuple): Fixed parameter (no name in the paper), default = (0.2, 1.2)
+        + beta_min (float): Fixed parameter (no name in the paper), default = 0.2
+        + beta_max (float): Fixed parameter (no name in the paper), default = 1.2
 
     Examples
     ~~~~~~~~
@@ -34,9 +35,10 @@ class OriginalGBO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> pr = 0.5
-    >>> beta_minmax = [0.2, 1.2]
-    >>> model = OriginalGBO(problem_dict1, epoch, pop_size, pr, beta_minmax)
-    >>> best_position, best_fitness = model.solve()
+    >>> beta_min = 0.2
+    >>> beta_max = 1.2
+    >>> model = OriginalGBO(epoch, pop_size, pr, beta_min, beta_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -45,20 +47,23 @@ class OriginalGBO(Optimizer):
     A new metaheuristic optimization algorithm. Information Sciences, 540, pp.131-159.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pr=0.5, beta_minmax=(0.2, 1.2), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pr=0.5, beta_min=0.2, beta_max=1.2, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pr (float): Probability Parameter, default = 0.5
-            beta_minmax (list, tuple): Fixed parameter (no name in the paper), default = (0.2, 1.2)
+            beta_min (float): Fixed parameter (no name in the paper), default = 0.2
+            beta_max (float): Fixed parameter (no name in the paper), default = 1.2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pr = self.validator.check_float("pr", pr, (0, 1.0))
-        self.beta_minmax = self.validator.check_tuple_float("beta (min, max)", beta_minmax, ((0, 0.5), [0.5, 2.0]))
+        self.beta_min = self.validator.check_float("beta_min", beta_min, (0, 2.0))
+        self.beta_max = self.validator.check_float("beta_max", beta_max, (0, 5.0))
+        self.set_parameters(["epoch", "pop_size", "pr", "beta_min", "beta_max"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -70,7 +75,7 @@ class OriginalGBO(Optimizer):
             epoch (int): The current iteration
         """
         # Eq.(14.2), Eq.(14.1)
-        beta = self.beta_minmax[0] + (self.beta_minmax[1] - self.beta_minmax[0]) * (1 - ((epoch + 1) / self.epoch) ** 3) ** 2
+        beta = self.beta_min + (self.beta_max - self.beta_min) * (1 - ((epoch + 1) / self.epoch) ** 3) ** 2
         alpha = np.abs(beta * np.sin(3 * np.pi / 2 + np.sin(beta * 3 * np.pi / 2)))
 
         pop_new = []
