@@ -12,7 +12,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseTLO(Optimizer):
     """
-    The original version of: Teaching Learning-based Optimization (TLO)
+    The developed version: Teaching Learning-based Optimization (TLO)
 
     Links:
        1. https://doi.org/10.5267/j.ijiec.2012.03.007
@@ -39,8 +39,8 @@ class BaseTLO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseTLO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseTLO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,16 +49,17 @@ class BaseTLO(Optimizer):
     complex constrained optimization problems. international journal of industrial engineering computations, 3(4), pp.535-560.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
@@ -113,8 +114,8 @@ class OriginalTLO(BaseTLO):
 
     Notes
     ~~~~~
-    + Removed the third loop to make it faster
-    + This is slower version which inspired from link below
+    + Third loops are removed
+    + This version is inspired from above link
 
     Examples
     ~~~~~~~~
@@ -133,8 +134,8 @@ class OriginalTLO(BaseTLO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalTLO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalTLO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -143,14 +144,13 @@ class OriginalTLO(BaseTLO):
     for constrained mechanical design optimization problems. Computer-aided design, 43(3), pp.303-315.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
@@ -188,17 +188,12 @@ class OriginalTLO(BaseTLO):
                 self.pop[idx] = [pos_new, target]
 
 
-class ITLO(BaseTLO):
+class ImprovedTLO(BaseTLO):
     """
-    The original version of: Improved Teaching-Learning-based Optimization (ITLO)
+    The original version of: Improved Teaching-Learning-based Optimization (ImprovedTLO)
 
     Links:
        1. https://doi.org/10.1016/j.scient.2012.12.005
-
-    Notes
-    ~~~~~
-    + Removed the third loop to make it faster
-    + Kinda similar to the paper, but the pseudo-code in the paper is not clear.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_teachers (int): [3, 10], number of teachers in class, default=5
@@ -206,7 +201,7 @@ class ITLO(BaseTLO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.TLO import ITLO
+    >>> from mealpy.human_based.TLO import ImprovedTLO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -220,8 +215,9 @@ class ITLO(BaseTLO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = ITLO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> n_teachers = 5
+    >>> model = ImprovedTLO(epoch, pop_size, n_teachers)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -230,22 +226,19 @@ class ITLO(BaseTLO):
     for solving unconstrained optimization problems. Scientia Iranica, 20(3), pp.710-720.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_teachers=5, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_teachers=5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_teachers (int): number of teachers in class
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        # Number of teams / group
+        super().__init__(epoch, pop_size, **kwargs)
         self.n_teachers = self.validator.check_int("n_teachers", n_teachers, [2, int(np.sqrt(self.pop_size)-1)])
+        self.set_parameters(["epoch", "pop_size", "n_teachers"])
+
         self.n_students = self.pop_size - self.n_teachers
         self.n_students_in_team = int(self.n_students / self.n_teachers)
-        self.teachers, self.teams = None, None
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
