@@ -10,11 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseEFO(Optimizer):
     """
-    My changed version of: Electromagnetic Field Optimization (EFO)
-
-    Notes
-    ~~~~~
-    + Changed the flow of original algorithm and using global best solution in equation.
+    The developed version: Electromagnetic Field Optimization (EFO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
@@ -43,15 +39,14 @@ class BaseEFO(Optimizer):
     >>> ps_rate = 0.85
     >>> p_field = 0.1
     >>> n_field = 0.45
-    >>> model = BaseEFO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseEFO(epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             r_rate (float): default = 0.3     Like mutation parameter in GA but for one variable
@@ -59,13 +54,15 @@ class BaseEFO(Optimizer):
             p_field (float): default = 0.1     portion of population, positive field
             n_field (float): default = 0.45    portion of population, negative field
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.r_rate = self.validator.check_float("r_rate", r_rate, (0, 1.0))
         self.ps_rate = self.validator.check_float("ps_rate", ps_rate, (0, 1.0))
         self.p_field = self.validator.check_float("p_field", p_field, (0, 1.0))
         self.n_field = self.validator.check_float("n_field", n_field, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "r_rate", "ps_rate", "p_field", "n_field"])
+
         self.phi = (1 + np.sqrt(5)) / 2  # golden ratio
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -144,8 +141,8 @@ class OriginalEFO(BaseEFO):
     >>> ps_rate = 0.85
     >>> p_field = 0.1
     >>> n_field = 0.45
-    >>> model = OriginalEFO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalEFO(epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -155,10 +152,9 @@ class OriginalEFO(BaseEFO):
     Swarm and Evolutionary Computation, 26, pp.8-22.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, r_rate=0.3, ps_rate=0.85, p_field=0.1, n_field=0.45, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             r_rate (float): default = 0.3     Like mutation parameter in GA but for one variable
@@ -166,9 +162,7 @@ class OriginalEFO(BaseEFO):
             p_field (float): default = 0.1     portion of population, positive field
             n_field (float): default = 0.45    portion of population, negative field
         """
-        super().__init__(problem, epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = True
+        super().__init__(epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
