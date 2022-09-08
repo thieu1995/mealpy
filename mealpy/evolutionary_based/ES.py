@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseES(Optimizer):
+class OriginalES(Optimizer):
     """
     The original version of: Evolution Strategies (ES)
 
@@ -21,7 +21,7 @@ class BaseES(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.ES import BaseES
+    >>> from mealpy.evolutionary_based.ES import OriginalES
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -36,8 +36,8 @@ class BaseES(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> lamda = 0.75
-    >>> model = BaseES(problem_dict1, epoch, pop_size, lamda)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalES(epoch, pop_size, lamda)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,22 +49,25 @@ class BaseES(Optimizer):
     ID_TAR = 1
     ID_STR = 2  # strategy
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
             lamda (float): Percentage of child agents evolving in the next generation, default=0.75
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "lamda"])
+
         self.n_child = int(self.lamda * self.pop_size)
-        self.distance = 0.05 * (self.problem.ub - self.problem.lb)
         self.nfe_per_epoch = self.n_child
         self.sort_flag = True
+    
+    def initialize_variables(self):
+        self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
@@ -101,16 +104,16 @@ class BaseES(Optimizer):
         self.pop = self.get_sorted_strim_population(child + self.pop, self.pop_size)
 
 
-class LevyES(BaseES):
+class LevyES(OriginalES):
     """
-    My Levy-flight version of: Evolution Strategies (ES)
+    The developed Levy-flight version: Evolution Strategies (ES)
 
     Links:
         1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
 
     Notes
     ~~~~~
-    I implement Levy-flight and change the flow of original version.
+    The Levy-flight is applied, the flow and equations is changed
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
@@ -118,7 +121,7 @@ class LevyES(BaseES):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.ES import BaseES
+    >>> from mealpy.evolutionary_based.ES import OriginalES
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -133,8 +136,8 @@ class LevyES(BaseES):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> lamda = 0.75
-    >>> model = BaseES(problem_dict1, epoch, pop_size, lamda)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalES(epoch, pop_size, lamda)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -142,15 +145,14 @@ class LevyES(BaseES):
     [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, lamda=0.75, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size (miu in the paper), default = 100
             lamda (float): Percentage of child agents evolving in the next generation, default=0.75
         """
-        super().__init__(problem, epoch, pop_size, lamda, **kwargs)
+        super().__init__(epoch, pop_size, lamda, **kwargs)
 
     def evolve(self, epoch):
         """
