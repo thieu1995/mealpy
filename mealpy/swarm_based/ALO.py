@@ -34,8 +34,8 @@ class OriginalALO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalALO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalALO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -43,16 +43,16 @@ class OriginalALO(Optimizer):
     [1] Mirjalili, S., 2015. The ant lion optimizer. Advances in engineering software, 83, pp.80-98.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
@@ -136,12 +136,12 @@ class OriginalALO(Optimizer):
 
 class BaseALO(OriginalALO):
     """
-    My changed version of: Ant Lion Optimizer (ALO)
+    The developed version: Ant Lion Optimizer (ALO)
 
     Notes
     ~~~~~
-    + Use matrix for better performance.
-    + Change the flow of updating a new position makes it better than the original one
+    + Improved performance by using matrix multiplication
+    + The flow of updating a new position is updated
 
     Examples
     ~~~~~~~~
@@ -160,21 +160,18 @@ class BaseALO(OriginalALO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseALO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseALO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = True
+        super().__init__(epoch, pop_size, **kwargs)
 
     def random_walk_antlion__(self, solution, current_epoch):
         I = 1  # I is the ratio in Equations (2.10) and (2.11)
