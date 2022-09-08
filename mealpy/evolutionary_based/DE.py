@@ -48,8 +48,8 @@ class BaseDE(Optimizer):
     >>> wf = 0.7
     >>> cr = 0.9
     >>> strategy = 0
-    >>> model = BaseDE(problem_dict1, epoch, pop_size, wf, cr, strategy)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseDE(epoch, pop_size, wf, cr, strategy)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -58,22 +58,22 @@ class BaseDE(Optimizer):
     LSHADE algorithms for global numerical optimization. Swarm and Evolutionary Computation, 50, p.100455.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, wf=1.0, cr=0.9, strategy=0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, wf=1.0, cr=0.9, strategy=0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             wf (float): weighting factor, default = 1.5
             cr (float): crossover rate, default = 0.9
             strategy (int): Different variants of DE, default = 0
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.wf = self.validator.check_float("wf", wf, (0, 3.0))
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.strategy = self.validator.check_int("strategy", strategy, [0, 5])
+        self.set_parameters(["epoch", "pop_size", "wf", "cr", "strategy"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -159,7 +159,7 @@ class BaseDE(Optimizer):
 
 class JADE(Optimizer):
     """
-    The variant version of: Differential Evolution (JADE)
+    The original version of: Differential Evolution (JADE)
 
     Links:
         1. https://doi.org/10.1109/TEVC.2009.2014613
@@ -191,8 +191,8 @@ class JADE(Optimizer):
     >>> miu_cr = 0.5
     >>> pt = 0.1
     >>> ap = 0.1
-    >>> model = JADE(problem_dict1, epoch, pop_size, miu_f, miu_cr, pt, ap)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = JADE(epoch, pop_size, miu_f, miu_cr, pt, ap)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -201,10 +201,9 @@ class JADE(Optimizer):
     external archive. IEEE Transactions on evolutionary computation, 13(5), pp.945-958.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             miu_f (float): initial adaptive f, default = 0.5
@@ -212,21 +211,21 @@ class JADE(Optimizer):
             pt (float): The percent of top best agents (p in the paper), default = 0.1
             ap (float): The Adaptation Parameter control value of f and cr (c in the paper), default=0.1
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        # the initial f, location is changed then that f is good
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
-        # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
         # np.random.uniform(0.05, 0.2) # the x_best is select from the top 100p % solutions
         self.pt = self.validator.check_float("pt", pt, (0, 1.0))
         # np.random.uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
         self.ap = self.validator.check_float("ap", ap, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr", "pt", "ap"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        ## Dynamic variable, changing in run time
+
+    def initialize_variables(self):
         self.dyn_miu_cr = self.miu_cr
         self.dyn_miu_f = self.miu_f
         self.dyn_pop_archive = list()
@@ -332,8 +331,8 @@ class SADE(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = SADE(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = SADE(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -342,26 +341,26 @@ class SADE(Optimizer):
     numerical optimization. In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+
+    def initialize_variables(self):
         self.loop_probability = 50
         self.loop_cr = 5
         self.ns1 = self.ns2 = self.nf1 = self.nf2 = 0
         self.crm = 0.5
         self.p1 = 0.5
-
-        # Dynamic variable
         self.dyn_list_cr = list()
 
     def evolve(self, epoch):
@@ -463,8 +462,8 @@ class SHADE(Optimizer):
     >>> pop_size = 50
     >>> miu_f = 0.5
     >>> miu_cr = 0.5
-    >>> model = SHADE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = SHADE( epoch, pop_size, miu_f, miu_cr)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -473,28 +472,29 @@ class SHADE(Optimizer):
     differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
     """
 
-    def __init__(self, problem, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
+    def __init__(self, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             miu_f (float): initial weighting factor, default = 0.5
             miu_cr (float): initial cross-over probability, default = 0.5
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # the initial f, location is changed then that f is good
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
         # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        # Dynamic variable
-        self.dyn_miu_f = miu_f * np.ones(self.pop_size)  # list the initial f,
-        self.dyn_miu_cr = miu_cr * np.ones(self.pop_size)  # list the initial cr,
+
+    def initialize_variables(self):
+        self.dyn_miu_f = self.miu_f * np.ones(self.pop_size)  # list the initial f,
+        self.dyn_miu_cr = self.miu_cr * np.ones(self.pop_size)  # list the initial cr,
         self.dyn_pop_archive = list()
         self.k_counter = 0
 
@@ -502,7 +502,7 @@ class SHADE(Optimizer):
     def weighted_lehmer_mean__(self, list_objects, list_weights):
         up = list_weights * list_objects ** 2
         down = list_weights * list_objects
-        return sum(up) / sum(down)
+        return np.sum(up) / np.sum(down)
 
     def evolve(self, epoch):
         """
@@ -586,12 +586,12 @@ class SHADE(Optimizer):
                     list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
                     list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
                     idx_increase += 1
-            temp = sum(abs(list_fit_new - list_fit_old))
+            temp = np.sum(np.abs(list_fit_new - list_fit_old))
             if temp == 0:
                 list_weights = 1.0 / len(list_fit_new) * np.ones(len(list_fit_new))
             else:
-                list_weights = abs(list_fit_new - list_fit_old) / temp
-            self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
+                list_weights = np.abs(list_fit_new - list_fit_old) / temp
+            self.dyn_miu_cr[self.k_counter] = np.sum(list_weights * np.array(list_cr))
             self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.pop_size:
@@ -628,8 +628,8 @@ class L_SHADE(Optimizer):
     >>> pop_size = 50
     >>> miu_f = 0.5
     >>> miu_cr = 0.5
-    >>> model = L_SHADE(problem_dict1, epoch, pop_size, miu_f, miu_cr)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = L_SHADE(epoch, pop_size, miu_f, miu_cr)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -638,25 +638,25 @@ class L_SHADE(Optimizer):
     linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
     """
 
-    def __init__(self, problem, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
+    def __init__(self, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             miu_f (float): initial weighting factor, default = 0.5
             miu_cr (float): initial cross-over probability, default = 0.5
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        # the initial f, location is changed then that f is good
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
-        # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+
+    def initialize_variables(self):
         # Dynamic variable
         self.dyn_miu_f = self.miu_f * np.ones(self.pop_size)  # list the initial f,
         self.dyn_miu_cr = self.miu_cr * np.ones(self.pop_size)  # list the initial cr,
@@ -667,8 +667,8 @@ class L_SHADE(Optimizer):
 
     ### Survivor Selection
     def weighted_lehmer_mean__(self, list_objects, list_weights):
-        up = sum(list_weights * list_objects ** 2)
-        down = sum(list_weights * list_objects)
+        up = np.sum(list_weights * list_objects ** 2)
+        down = np.sum(list_weights * list_objects)
         return up / down if down != 0 else 0.5
 
     def evolve(self, epoch):
@@ -752,9 +752,9 @@ class L_SHADE(Optimizer):
                     list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
                     list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
                     idx_increase += 1
-            total_fit = sum(np.abs(list_fit_new - list_fit_old))
+            total_fit = np.sum(np.abs(list_fit_new - list_fit_old))
             list_weights = 0 if total_fit == 0 else np.abs(list_fit_new - list_fit_old) / total_fit
-            self.dyn_miu_cr[self.k_counter] = sum(list_weights * np.array(list_cr))
+            self.dyn_miu_cr[self.k_counter] = np.sum(list_weights * np.array(list_cr))
             self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.dyn_pop_size:
@@ -792,8 +792,8 @@ class SAP_DE(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> branch = "ABS"
-    >>> model = SAP_DE(problem_dict1, epoch, pop_size, branch)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = SAP_DE(epoch, pop_size, branch)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -805,18 +805,19 @@ class SAP_DE(Optimizer):
     ID_MR = 3
     ID_PS = 4
 
-    def __init__(self, problem, epoch=750, pop_size=100, branch="ABS", **kwargs):
+    def __init__(self, epoch=750, pop_size=100, branch="ABS", **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             branch (str): gaussian (absolute) or uniform (relative) method
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.branch = self.validator.check_str("branch", branch, ["ABS", "REL"])
+        self.set_parameters(["epoch", "pop_size", "branch"])
+
         self.fixed_pop_size = self.pop_size
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
