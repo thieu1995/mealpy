@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseASO(Optimizer):
+class OriginalASO(Optimizer):
     """
     The original version of: Atom Search Optimization (ASO)
 
@@ -24,7 +24,7 @@ class BaseASO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.ASO import BaseASO
+    >>> from mealpy.physics_based.ASO import OriginalASO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,8 +40,8 @@ class BaseASO(Optimizer):
     >>> pop_size = 50
     >>> alpha = 50
     >>> beta = 0.2
-    >>> model = BaseASO(problem_dict1, epoch, pop_size, alpha, beta)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalASO(epoch, pop_size, alpha, beta)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -55,20 +55,21 @@ class BaseASO(Optimizer):
     ID_VEL = 2  # Velocity
     ID_MAS = 3  # Mass of atom
 
-    def __init__(self, problem, epoch=10000, pop_size=100, alpha=10, beta=0.2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=10, beta=0.2, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             alpha (int): [2, 20], Depth weight, default = 10
             beta (float): [0.1, 1.0], Multiplier weight, default = 0.2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_int("alpha", alpha, [1, 100])
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "alpha", "beta"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
