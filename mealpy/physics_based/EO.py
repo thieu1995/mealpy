@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseEO(Optimizer):
+class OriginalEO(Optimizer):
     """
     The original version of: Equilibrium Optimizer (EO)
 
@@ -20,7 +20,7 @@ class BaseEO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.EO import BaseEO
+    >>> from mealpy.physics_based.EO import OriginalEO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -34,8 +34,8 @@ class BaseEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -44,16 +44,16 @@ class BaseEO(Optimizer):
     optimization algorithm. Knowledge-Based Systems, 191, p.105190.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -105,7 +105,7 @@ class BaseEO(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
-class ModifiedEO(BaseEO):
+class ModifiedEO(OriginalEO):
     """
     The original version of: Modified Equilibrium Optimizer (MEO)
 
@@ -129,8 +129,8 @@ class ModifiedEO(BaseEO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = ModifiedEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ModifiedEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -139,14 +139,13 @@ class ModifiedEO(BaseEO):
     strategy for numerical optimization. Applied Soft Computing, 96, p.106542.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
         self.pop_len = int(self.pop_size / 3)
@@ -224,7 +223,7 @@ class ModifiedEO(BaseEO):
             self.pop.append(c_pool[idx_selected[i]])
 
 
-class AdaptiveEO(BaseEO):
+class AdaptiveEO(OriginalEO):
     """
     The original version of: Adaptive Equilibrium Optimization (AEO)
 
@@ -248,8 +247,8 @@ class AdaptiveEO(BaseEO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = AdaptiveEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = AdaptiveEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -259,14 +258,13 @@ class AdaptiveEO(BaseEO):
     Artificial Intelligence, 94, p.103836.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.pop_len = int(self.pop_size / 3)
