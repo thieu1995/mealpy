@@ -36,8 +36,8 @@ class OriginalLCO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> r1 = 2.35
-    >>> model = OriginalLCO(problem_dict1, epoch, pop_size, r1)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalLCO(epoch, pop_size, r1)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -45,19 +45,20 @@ class OriginalLCO(Optimizer):
     [1] Khatri, A., Gaba, A., Rana, K.P.S. and Kumar, V., 2020. A novel life choice-based optimizer. Soft Computing, 24(12), pp.9121-9141.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, r1=2.35, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, r1=2.35, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             r1 (float): coefficient factor
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.r1 = self.validator.check_float("r1", r1, [1.0, 3.0])
+        self.set_parameters(["epoch", "pop_size", "r1"])
         self.n_agents = int(np.ceil(np.sqrt(self.pop_size)))
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -95,11 +96,11 @@ class OriginalLCO(Optimizer):
 
 class BaseLCO(OriginalLCO):
     """
-    My changed version of: Life Choice-based Optimization (LCO)
+    The developed version: Life Choice-based Optimization (LCO)
 
     Notes
     ~~~~~
-    I only change the flow with simpler if else statement than the original
+    The flow is changed with if else statement.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r1 (float): [1.5, 4], coefficient factor, default = 2.35
@@ -122,22 +123,19 @@ class BaseLCO(OriginalLCO):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> r1 = 2.35
-    >>> model = BaseLCO(problem_dict1, epoch, pop_size, r1)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseLCO(epoch, pop_size, r1)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, r1=2.35, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, r1=2.35, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             r1 (float): coefficient factor
         """
-        super().__init__(problem, epoch, pop_size, r1, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = True
+        super().__init__(epoch, pop_size, r1, **kwargs)
 
     def evolve(self, epoch):
         """
@@ -175,13 +173,13 @@ class BaseLCO(OriginalLCO):
 
 class ImprovedLCO(Optimizer):
     """
-    My improved version of: Life Choice-based Optimization (ILCO)
+    The improved version: Life Choice-based Optimization (ILCO)
 
     Notes
     ~~~~~
     + The flow of the original LCO is kept.
-    + Add gaussian distribution and mutation mechanism
-    + Remove the hyper-parameter r1
+    + Gaussian distribution and mutation mechanism are added
+    + R1 parameter is removed
 
     Examples
     ~~~~~~~~
@@ -200,21 +198,21 @@ class ImprovedLCO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseLCO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseLCO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.pop_len = int(self.pop_size / 2)
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
