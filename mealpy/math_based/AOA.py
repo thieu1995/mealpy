@@ -43,8 +43,8 @@ class OriginalAOA(Optimizer):
     >>> miu = 0.5
     >>> moa_min = 0.2
     >>> moa_max = 0.9
-    >>> model = OriginalAOA(problem_dict1, epoch, pop_size, alpha, miu, moa_min, moa_max)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalAOA(epoch, pop_size, alpha, miu, moa_min, moa_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -53,10 +53,9 @@ class OriginalAOA(Optimizer):
     optimization algorithm. Computer methods in applied mechanics and engineering, 376, p.113609.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, alpha=5, miu=0.5, moa_min=0.2, moa_max=0.9, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=5, miu=0.5, moa_min=0.2, moa_max=0.9, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             alpha (int): fixed parameter, sensitive exploitation parameter, Default: 5,
@@ -64,13 +63,15 @@ class OriginalAOA(Optimizer):
             moa_min (float): range min of Math Optimizer Accelerated, Default: 0.2,
             moa_max (float): range max of Math Optimizer Accelerated, Default: 0.9,
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_int("alpha", alpha, [2, 10])
         self.miu = self.validator.check_float("miu", miu, [0.1, 2.0])
         self.moa_min = self.validator.check_float("moa_min", moa_min, (0, 0.41))
         self.moa_max = self.validator.check_float("moa_max", moa_max, (0.41, 1.0))
+        self.set_parameters(["epoch", "pop_size", "alpha", "miu", "moa_min", "moa_max"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
