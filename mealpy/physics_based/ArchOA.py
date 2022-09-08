@@ -47,8 +47,8 @@ class OriginalArchOA(Optimizer):
     >>> c4 = 0.5
     >>> acc_max = 0.9
     >>> acc_min = 0.1
-    >>> model = OriginalArchOA(problem_dict1, epoch, pop_size, c1, c2, c3, c4, acc_max, acc_min)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalArchOA(epoch, pop_size, c1, c2, c3, c4, acc_max, acc_min)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -63,10 +63,9 @@ class OriginalArchOA(Optimizer):
     ID_VOL = 3  # Volume
     ID_ACC = 4  # Acceleration
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c1=2, c2=6, c3=2, c4=0.5, acc_max=0.9, acc_min=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c1=2, c2=6, c3=2, c4=0.5, acc_max=0.9, acc_min=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             c1 (int): factor, default belongs [1, 2]
@@ -76,7 +75,7 @@ class OriginalArchOA(Optimizer):
             acc_max (float): acceleration max, Default 0.9
             acc_min (float): acceleration min, Default 0.1
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c1 = self.validator.check_int("c1", c1, [1, 3])
@@ -85,6 +84,8 @@ class OriginalArchOA(Optimizer):
         self.c4 = self.validator.check_float("c4", c4, (0, 1.0))
         self.acc_max = self.validator.check_float("acc_max", acc_max, (0.3, 1.0))
         self.acc_min = self.validator.check_float("acc_min", acc_min, (0, 0.3))
+        self.set_parameters(["epoch", "pop_size", "c1", "c2", "c3", "c4", "acc_max", "acc_min"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
