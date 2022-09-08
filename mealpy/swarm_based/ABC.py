@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseABC(Optimizer):
+class OriginalABC(Optimizer):
     """
     The original version of: Artificial Bee Colony (ABC)
 
@@ -22,15 +22,17 @@ class BaseABC(Optimizer):
     + Improved the function search_neighborhood__
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + couple_bees (list, tuple): n bees for (good locations, other locations) -> ([10, 20], [3, 8])
-        + patch_variables (list, tuple): (patch_var, patch_reduce_factor) -> ([3, 6], [0.85, 0,.99])
-        + patch_variables = patch_variables * patch_factor (0.985)
-        + sites (list, tuple): 3 bees (employed bees, onlookers and scouts), 1 good partition -> (3, 1), fixed parameter
+        + n_elites (int): number of employed bees which provided for good location
+        + n_others (int): number of employed bees which provided for other location
+        + patch_size (float): patch_variables = patch_variables * patch_reduction
+        + patch_reduction (float): the reduction factor
+        + n_sites (int): 3 bees (employed bees, onlookers and scouts),
+        + n_elite_sites (int): 1 good partition
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.ABC import BaseABC
+    >>> from mealpy.swarm_based.ABC import OriginalABC
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -44,11 +46,14 @@ class BaseABC(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> couple_bees = [16, 4]
-    >>> patch_variables = [5, 0.98]
-    >>> sites = [3, 1]
-    >>> model = BaseABC(problem_dict1, epoch, pop_size, couple_bees, patch_variables, sites)
-    >>> best_position, best_fitness = model.solve()
+    >>> n_elites = 16
+    >>> n_others = 4
+    >>> patch_size = 5.0
+    >>> patch_reduction = 0.985
+    >>> n_sites = 3
+    >>> n_elite_sites = 1
+    >>> model = OriginalABC(epoch, pop_size, n_elites, n_others, patch_size, patch_reduction, n_sites, n_elite_sites)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -57,33 +62,30 @@ class BaseABC(Optimizer):
     algorithm. Applied soft computing, 8(1), pp.687-697.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, couple_bees=(16, 4),
-                 patch_variables=(5.0, 0.985), sites=(3, 1), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_elites=16, n_others=4, patch_size=5.0, patch_reduction=0.985, n_sites=3, n_elite_sites=1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            couple_bees (list, tuple): number of bees which provided for good location and other location
-            patch_variables (list, tuple): patch_variables = patch_variables * patch_factor (0.985)
-            sites (list, tuple): 3 bees (employed bees, onlookers and scouts), 1 good partition
+            n_elites (int): number of employed bees which provided for good location
+            n_others (int): number of employed bees which provided for other location
+            patch_size (float): patch_variables = patch_variables * patch_reduction
+            patch_reduction (float): the reduction factor
+            n_sites (int): 3 bees (employed bees, onlookers and scouts),
+            n_elite_sites (int): 1 good partition
         """
-        super().__init__(problem, kwargs)
-
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.couple_bees = self.validator.check_tuple_int("couple_bees (good location, other location)", couple_bees, ([4, 20], [2, 4]))
-        self.patch_variables = self.validator.check_tuple_float("(patch_variables, reduction_factor)", patch_variables, ([2, 10], (0, 1.0)))
-        self.sites = self.validator.check_tuple_int("sites (employed bees, onlookers and scouts; 1 good partition)", sites, ([2, 5], [1, 3]))
+        self.n_elites = self.validator.check_int("n_elites", n_elites, [4, 20])
+        self.n_others = self.validator.check_int("n_others", n_others, [2, 5])
+        self.patch_size = self.validator.check_float("patch_size", patch_size, [2, 10])
+        self.patch_reduction = self.validator.check_float("patch_reduction", patch_reduction, (0, 1.0))
+        self.n_sites = self.validator.check_int("n_sites", n_sites, [2, 5])
+        self.n_elite_sites = self.validator.check_int("n_elite_sites", n_elite_sites, [1, 3])
+        self.set_parameters(["epoch", "pop_size", "n_elites", "n_others", "patch_size", "patch_reduction", "n_sites", "n_elite_sites"])
 
-        self.e_bees = self.couple_bees[0]
-        self.o_bees = self.couple_bees[1]
-        self.patch_size = self.patch_variables[0]
-        self.patch_factor = self.patch_variables[1]
-        self.num_sites = self.sites[0]
-        self.elite_sites = self.sites[1]
-
-        self.nfe_per_epoch = self.e_bees * self.elite_sites + self.o_bees * self.num_sites + (self.pop_size - self.num_sites)
+        self.nfe_per_epoch = self.n_elites * self.n_elite_sites + self.n_others * self.n_sites + (self.pop_size - self.n_sites)
         self.sort_flag = True
 
     def search_neighborhood__(self, parent=None, neigh_size=None):
@@ -113,11 +115,11 @@ class BaseABC(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            if idx < self.num_sites:
-                if idx < self.elite_sites:
-                    neigh_size = self.e_bees
+            if idx < self.n_sites:
+                if idx < self.n_elite_sites:
+                    neigh_size = self.n_elites
                 else:
-                    neigh_size = self.o_bees
+                    neigh_size = self.n_others
                 agent = self.search_neighborhood__(self.pop[idx], neigh_size)
             else:
                 agent = self.create_solution(self.problem.lb, self.problem.ub)
