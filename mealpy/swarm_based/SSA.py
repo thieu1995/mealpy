@@ -11,13 +11,12 @@ from mealpy.optimizer import Optimizer
 
 class BaseSSA(Optimizer):
     """
-    My changed version of: Sparrow Search Algorithm (SSA)
+    The developed version: Sparrow Search Algorithm (SSA)
 
     Notes
     ~~~~~
-    + First, I sort the algorithm and find g-best and g-worst
-    + In Eq. 4, Instead of using A+ and L, I used np.random.normal()
-    + Some components (g_best_position, fitness updated) are missing in Algorithm 1 (paper)
+    + First, the population is sorted to find g-best and g-worst
+    + In Eq. 4, the np.random.normal() gaussian distribution is used instead of A+ and L
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
@@ -44,8 +43,8 @@ class BaseSSA(Optimizer):
     >>> ST = 0.8
     >>> PD = 0.2
     >>> SD = 0.1
-    >>> model = BaseSSA(problem_dict1, epoch, pop_size, ST, PD, SD)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseSSA(epoch, pop_size, ST, PD, SD)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -54,22 +53,23 @@ class BaseSSA(Optimizer):
     sparrow search algorithm. Systems Science & Control Engineering, 8(1), pp.22-34.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, ST=0.8, PD=0.2, SD=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, ST=0.8, PD=0.2, SD=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
             PD (float): number of producers (percentage), default = 0.2
             SD (float): number of sparrows who perceive the danger, default = 0.1
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.ST = self.validator.check_float("ST", ST, (0, 1.0))
         self.PD = self.validator.check_float("PD", PD, (0, 1.0))
         self.SD = self.validator.check_float("SD", SD, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "ST", "PD", "SD"])
+
         self.n1 = int(self.PD * self.pop_size)
         self.n2 = int(self.SD * self.pop_size)
         self.nfe_per_epoch = 2 * self.pop_size - self.n2
@@ -182,8 +182,8 @@ class OriginalSSA(BaseSSA):
     >>> ST = 0.8
     >>> PD = 0.2
     >>> SD = 0.1
-    >>> model = OriginalSSA(problem_dict1, epoch, pop_size, ST, PD, SD)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSSA(epoch, pop_size, ST, PD, SD)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -192,17 +192,16 @@ class OriginalSSA(BaseSSA):
     sparrow search algorithm. Systems Science & Control Engineering, 8(1), pp.22-34.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, ST=0.8, PD=0.2, SD=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, ST=0.8, PD=0.2, SD=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
             PD (float): number of producers (percentage), default = 0.2
             SD (float): number of sparrows who perceive the danger, default = 0.1
         """
-        super().__init__(problem, epoch, pop_size, ST, PD, SD, **kwargs)
+        super().__init__(epoch, pop_size, ST, PD, SD, **kwargs)
 
     def evolve(self, epoch):
         """
