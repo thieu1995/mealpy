@@ -11,12 +11,12 @@ from mealpy.optimizer import Optimizer
 
 class BaseSCA(Optimizer):
     """
-    My changed version of: Sine Cosine Algorithm (SCA)
+    The developed version: Sine Cosine Algorithm (SCA)
 
     Notes
     ~~~~~
-    + The flow and few equations is changed
-    + Removed third loop for faster computational time
+    + The flow and few equations are changed
+    + Third loops are removed faster computational time
 
     Examples
     ~~~~~~~~
@@ -35,21 +35,22 @@ class BaseSCA(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseSCA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseSCA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -108,8 +109,8 @@ class OriginalSCA(BaseSCA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalSCA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSCA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -117,14 +118,13 @@ class OriginalSCA(BaseSCA):
     [1] Mirjalili, S., 2016. SCA: a sine cosine algorithm for solving optimization problems. Knowledge-based systems, 96, pp.120-133.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
