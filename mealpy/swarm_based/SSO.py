@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseSSO(Optimizer):
+class OriginalSSO(Optimizer):
     """
     The original version of: Salp Swarm Optimization (SSO)
 
@@ -18,7 +18,7 @@ class BaseSSO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SSO import BaseSSO
+    >>> from mealpy.swarm_based.SSO import OriginalSSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -32,8 +32,8 @@ class BaseSSO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseSSO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSSO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -43,16 +43,17 @@ class BaseSSO(Optimizer):
     Engineering Software, 114, pp.163-191.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
