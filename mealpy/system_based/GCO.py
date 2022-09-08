@@ -11,7 +11,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseGCO(Optimizer):
     """
-    My changed version of: Germinal Center Optimization (GCO)
+    The developed version: Germinal Center Optimization (GCO)
 
     Notes
     ~~~~~
@@ -40,29 +40,30 @@ class BaseGCO(Optimizer):
     >>> pop_size = 50
     >>> cr = 0.7
     >>> wf = 1.25
-    >>> model = BaseGCO(problem_dict1, epoch, pop_size, cr, wf)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseGCO(epoch, pop_size, cr, wf)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.wf = self.validator.check_float("wf", wf, (0, 3.0))
+        self.set_parameters(["epoch", "pop_size", "cr", "wf"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        ## Dynamic variables
+
+    def initialize_variables(self):
         self.dyn_list_cell_counter = np.ones(self.pop_size)  # CEll Counter
         self.dyn_list_life_signal = 70 * np.ones(self.pop_size)  # 70% to duplicate, and 30% to die  # LIfe-Signal
 
@@ -136,8 +137,8 @@ class OriginalGCO(BaseGCO):
     >>> pop_size = 50
     >>> cr = 0.7
     >>> wf = 1.25
-    >>> model = OriginalGCO(problem_dict1, epoch, pop_size, cr, wf)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalGCO(epoch, pop_size, cr, wf)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -146,18 +147,15 @@ class OriginalGCO(BaseGCO):
     Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), p.13.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, cr=0.7, wf=1.25, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             cr (float): crossover rate, default = 0.7 (Same as DE algorithm)
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
-        super().__init__(problem, epoch, pop_size, cr, wf, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
+        super().__init__(epoch, pop_size, cr, wf, **kwargs)
 
     def evolve(self, epoch):
         """
