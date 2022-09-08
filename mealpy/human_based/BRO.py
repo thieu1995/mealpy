@@ -12,11 +12,11 @@ from mealpy.optimizer import Optimizer
 
 class BaseBRO(Optimizer):
     """
-    My changed version of: Battle Royale Optimization (BRO)
+    The developed version: Battle Royale Optimization (BRO)
 
     Notes
     ~~~~~
-    I change the flow of algorithm
+    The flow of algorithm is changed. Thrid loop is removed
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + threshold (int): [2, 5], dead threshold, default=3
@@ -39,31 +39,32 @@ class BaseBRO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> threshold = 3
-    >>> model = BaseBRO(problem_dict1, epoch, pop_size, threshold)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseBRO(epoch, pop_size, threshold)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     ID_DAM = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, threshold=3, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, threshold=3, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.threshold = self.validator.check_float("threshold", threshold, [1, 10])
+        self.set_parameters(["epoch", "pop_size", "threshold"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
-        ## Dynamic variable
+
+    def initialize_variables(self):
         shrink = np.ceil(np.log10(self.epoch))
-        self.dyn_delta = round(self.epoch / shrink)
+        self.dyn_delta = np.round(self.epoch / shrink)
         self.problem.lb_updated = deepcopy(self.problem.lb)
         self.problem.ub_updated = deepcopy(self.problem.ub)
 
@@ -180,8 +181,8 @@ class OriginalBRO(BaseBRO):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> threshold = 3
-    >>> model = BaseBRO(problem_dict1, epoch, pop_size, threshold)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseBRO(epoch, pop_size, threshold)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -189,15 +190,14 @@ class OriginalBRO(BaseBRO):
     [1] Rahkar Farshi, T., 2021. Battle royale optimization algorithm. Neural Computing and Applications, 33(4), pp.1139-1157.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, threshold=3, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, threshold=3, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             threshold (int): dead threshold, default=3
         """
-        super().__init__(problem, epoch, pop_size, threshold, **kwargs)
+        super().__init__(epoch, pop_size, threshold, **kwargs)
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
