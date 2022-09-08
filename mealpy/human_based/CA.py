@@ -36,8 +36,8 @@ class OriginalCA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> accepted_rate = 0.15
-    >>> model = OriginalCA(problem_dict1, epoch, pop_size, accepted_rate)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCA(epoch, pop_size, accepted_rate)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -46,21 +46,24 @@ class OriginalCA(Optimizer):
     In 2009 International Conference on Sustainable Power Generation and Supply (pp. 1-6). IEEE.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, accepted_rate=0.15, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, accepted_rate=0.15, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             accepted_rate (float): probability of accepted rate, default: 0.15
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
 
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.accepted_rate = self.validator.check_float("accepted_rate", accepted_rate, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "accepted_rate"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
+
+    def initialize_variables(self):
         ## Dynamic variables
         self.dyn_belief_space = {
             "lb": self.problem.lb,
