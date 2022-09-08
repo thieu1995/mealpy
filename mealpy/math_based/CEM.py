@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseCEM(Optimizer):
+class OriginalCEM(Optimizer):
     """
     The original version of: Cross-Entropy Method (CEM)
 
@@ -23,7 +23,7 @@ class BaseCEM(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.CEM import BaseCEM
+    >>> from mealpy.math_based.CEM import OriginalCEM
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -37,10 +37,10 @@ class BaseCEM(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> n_best = 30
+    >>> n_best = 20
     >>> alpha = 0.7
-    >>> model = BaseCEM(problem_dict1, epoch, pop_size, n_best, alpha)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCEM(epoch, pop_size, n_best, alpha)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,24 +49,27 @@ class BaseCEM(Optimizer):
     cross-entropy method. Annals of operations research, 134(1), pp.19-67.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, n_best=25, alpha=0.7, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_best=20, alpha=0.7, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             n_best (int): N selected solutions as a samples for next evolution
             alpha (float): weight factor for means and stdevs (normal distribution)
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size/2)])
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
-        self.means = np.random.uniform(self.problem.lb, self.problem.ub)
-        self.stdevs = np.abs(self.problem.ub - self.problem.lb)
+        self.set_parameters(["epoch", "pop_size", "n_best", "alpha"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
+
+    def initialize_variables(self):
+        self.means = np.random.uniform(self.problem.lb, self.problem.ub)
+        self.stdevs = np.abs(self.problem.ub - self.problem.lb)
 
     def evolve(self, epoch):
         """
