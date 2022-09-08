@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseTWO(Optimizer):
+class OriginalTWO(Optimizer):
     """
     The original version of: Tug of War Optimization (TWO)
 
@@ -19,7 +19,7 @@ class BaseTWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.TWO import BaseTWO
+    >>> from mealpy.physics_based.TWO import OriginalTWO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -33,8 +33,8 @@ class BaseTWO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseTWO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalTWO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,16 +47,16 @@ class BaseTWO(Optimizer):
     ID_TAR = 1
     ID_WEIGHT = 2
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
 
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
@@ -141,13 +141,9 @@ class BaseTWO(Optimizer):
         self.pop = self.update_weight__(self.pop)
 
 
-class OppoTWO(BaseTWO):
+class OppoTWO(OriginalTWO):
     """
-    The opossition-based learning version of: Tug of War Optimization (OTWO)
-
-    Notes
-    ~~~~~
-    + Applied the idea of Opposition-based learning technique
+    The opossition-based learning version: Tug of War Optimization (OTWO)
 
     Examples
     ~~~~~~~~
@@ -166,21 +162,18 @@ class OppoTWO(BaseTWO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OppoTWO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OppoTWO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
+        super().__init__(epoch, pop_size, **kwargs)
 
     def initialization(self):
         if self.pop is None:
@@ -255,13 +248,9 @@ class OppoTWO(BaseTWO):
         self.nfe_per_epoch = nfe_epoch
 
 
-class LevyTWO(BaseTWO):
+class LevyTWO(OriginalTWO):
     """
-    The Levy-flight version of: Tug of War Optimization (LTWO)
-
-    Notes
-    ~~~~~
-    + Applied the idea of Levy-flight technique
+    The Levy-flight version of: Tug of War Optimization (LevyTWO)
 
     Examples
     ~~~~~~~~
@@ -280,21 +269,18 @@ class LevyTWO(BaseTWO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = LevyTWO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = LevyTWO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
+        super().__init__(epoch, pop_size, **kwargs)
 
     def evolve(self, epoch):
         """
@@ -384,8 +370,8 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>> ps_rate = 0.85
     >>> p_field = 0.1
     >>> n_field = 0.45
-    >>> model = EnhancedTWO(problem_dict1, epoch, pop_size, r_rate, ps_rate, p_field, n_field)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = EnhancedTWO(epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -394,16 +380,13 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     extreme learning machine and enhanced tug of war optimization. Procedia Computer Science, 170, pp.362-369.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = self.pop_size
-        self.sort_flag = False
+        super().__init__(epoch, pop_size, **kwargs)
 
     def initialization(self):
         if self.pop is None:
