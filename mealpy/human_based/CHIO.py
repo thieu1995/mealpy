@@ -39,8 +39,8 @@ class OriginalCHIO(Optimizer):
     >>> pop_size = 50
     >>> brr = 0.15
     >>> max_age = 10
-    >>> model = OriginalCHIO(problem_dict1, epoch, pop_size, brr, max_age)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCHIO(epoch, pop_size, brr, max_age)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,25 +49,24 @@ class OriginalCHIO(Optimizer):
     Neural Comput & Applic 33, 5011–5042 (2021). https://doi.org/10.1007/s00521-020-05296-6
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, brr=0.15, max_age=10, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, brr=0.15, max_age=10, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
+
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             brr (float): Basic reproduction rate, default=0.15
             max_age (int): Maximum infected cases age, default=10
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.brr = self.validator.check_float("brr", brr, (0, 1.0))
         self.max_age = self.validator.check_int("max_age", max_age, [1, 1+int(epoch/5)])
+        self.set_parameters(["epoch", "pop_size", "brr", "max_age"])
         self.nfe_per_epoch = self.pop_size
 
-    def initialization(self):
-        if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
+    def initialize_variables(self):
         self.immunity_type_list = np.random.randint(0, 3, self.pop_size)  # Randint [0, 1, 2]
         self.age_list = np.zeros(self.pop_size)  # Control the age of each position
         self.finished = False
@@ -142,7 +141,7 @@ class OriginalCHIO(Optimizer):
 
 class BaseCHIO(OriginalCHIO):
     """
-    My changed version of: Coronavirus Herd Immunity Optimization (CHIO)
+    The developed version of: Coronavirus Herd Immunity Optimization (CHIO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
@@ -167,21 +166,20 @@ class BaseCHIO(OriginalCHIO):
     >>> pop_size = 50
     >>> brr = 0.15
     >>> max_age = 10
-    >>> model = BaseCHIO(problem_dict1, epoch, pop_size, brr, max_age)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseCHIO(epoch, pop_size, brr, max_age)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, brr=0.15, max_age=10, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, brr=0.15, max_age=10, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             brr (float): Basic reproduction rate, default=0.15
             max_age (int): Maximum infected cases age, default=10
         """
-        super().__init__(problem, epoch, pop_size, brr, max_age, **kwargs)
+        super().__init__(epoch, pop_size, brr, max_age, **kwargs)
 
     def evolve(self, epoch):
         """
