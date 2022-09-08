@@ -11,13 +11,13 @@ from mealpy.optimizer import Optimizer
 
 class BaseGSKA(Optimizer):
     """
-    My changed version of: Gaining Sharing Knowledge-based Algorithm (GSKA)
+    The developed version: Gaining Sharing Knowledge-based Algorithm (GSKA)
 
     Notes
     ~~~~~
-    + I remove all the third loop, remove 2 parameters
+    + Third loop is removed, 2 parameters is removed
     + Solution represent junior or senior instead of dimension of solution
-    + Change some equations for large-scale optimization
+    + Equations is based vector, can handle large-scale problem
     + Apply the ideas of levy-flight and global best
     + Keep the better one after updating process
 
@@ -44,25 +44,26 @@ class BaseGSKA(Optimizer):
     >>> pop_size = 50
     >>> pb = 0.1
     >>> kr = 0.9
-    >>> model = BaseGSKA(problem_dict1, epoch, pop_size, pb, kr)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseGSKA(epoch, pop_size, pb, kr)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pb=0.1, kr=0.7, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pb=0.1, kr=0.7, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, n: pop_size, m: clusters
-            pb (float): percent of the best   0.1%, 0.8%, 0.1% (p in the paper), default = 0.1
+            pb (float): percent of the best 0.1%, 0.8%, 0.1% (p in the paper), default = 0.1
             kr (float): knowledge ratio, default = 0.7
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "pb", "kr"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -158,8 +159,8 @@ class OriginalGSKA(Optimizer):
     >>> kf = 0.5
     >>> kr = 0.9
     >>> kg = 5
-    >>> model = OriginalGSKA(problem_dict1, epoch, pop_size, pb, kf, kr, kg)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalGSKA(epoch, pop_size, pb, kf, kr, kg)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -168,10 +169,9 @@ class OriginalGSKA(Optimizer):
     optimization problems: a novel nature-inspired algorithm. International Journal of Machine Learning and Cybernetics, 11(7), pp.1501-1529.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pb=0.1, kf=0.5, kr=0.9, kg=5, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pb=0.1, kf=0.5, kr=0.9, kg=5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, n: pop_size, m: clusters
             pb (float): percent of the best   0.1%, 0.8%, 0.1% (p in the paper), default = 0.1
@@ -180,13 +180,15 @@ class OriginalGSKA(Optimizer):
             kr (float): knowledge ratio, default = 0.9
             kg (int): Number of generations effect to D-dimension, default = 5
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.kf = self.validator.check_float("kf", kf, (0, 1.0))
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
         self.kg = self.validator.check_int("kg", kg, [1, 1 + int(epoch / 2)])
+        self.set_parameters(["epoch", "pop_size", "pb", "kf", "kr", "kg"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
