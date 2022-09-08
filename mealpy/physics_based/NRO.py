@@ -10,7 +10,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseNRO(Optimizer):
+class OriginalNRO(Optimizer):
     """
     The original version of: Nuclear Reaction Optimization (NRO)
 
@@ -20,7 +20,7 @@ class BaseNRO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.NRO import BaseNRO
+    >>> from mealpy.physics_based.NRO import OriginalNRO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -34,8 +34,8 @@ class BaseNRO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseNRO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalNRO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,16 +47,17 @@ class BaseNRO(Optimizer):
     Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = False
 
