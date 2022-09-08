@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSA(Optimizer):
+class OriginalSA(Optimizer):
     """
     The original version of: Simulated Annealing (SA)
 
@@ -25,7 +25,7 @@ class BaseSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.SA import BaseSA
+    >>> from mealpy.physics_based.SA import OriginalSA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -46,8 +46,8 @@ class BaseSA(Optimizer):
     >>> mutation_rate = 0.1
     >>> mutation_step_size = 0.1
     >>> mutation_step_size_damp = 0.99
-    >>> model = BaseSA(problem_dict1, epoch, pop_size, max_sub_iter, t0, t1, move_count, mutation_rate, mutation_step_size, mutation_step_size_damp)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSA(epoch, pop_size, max_sub_iter, t0, t1, move_count, mutation_rate, mutation_step_size, mutation_step_size_damp)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -56,11 +56,10 @@ class BaseSA(Optimizer):
     annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, max_sub_iter=5, t0=1000, t1=1, move_count=5,
+    def __init__(self, epoch=10000, pop_size=100, max_sub_iter=5, t0=1000, t1=1, move_count=5,
                  mutation_rate=0.1, mutation_step_size=0.1, mutation_step_size_damp=0.99, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             max_sub_iter (int): Maximum Number of Sub-Iteration (within fixed temperature), default=5
@@ -71,7 +70,7 @@ class BaseSA(Optimizer):
             mutation_step_size (float): Mutation Step Size, default=0.1
             mutation_step_size_damp (float): Mutation Step Size Damp, default=0.99
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.max_sub_iter = self.validator.check_int("max_sub_iter", max_sub_iter, [1, 100000])
@@ -81,6 +80,8 @@ class BaseSA(Optimizer):
         self.mutation_rate = self.validator.check_float("mutation_rate", mutation_rate, (0, 1.0))
         self.mutation_step_size = self.validator.check_float("mutation_step_size", mutation_step_size, (0, 1.0))
         self.mutation_step_size_damp = self.validator.check_float("mutation_step_size_damp", mutation_step_size_damp, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "max_sub_iter", "t0", "t1", "move_count",
+                             "mutation_rate", "mutation_step_size", "mutation_step_size_damp"])
 
         self.nfe_per_epoch = self.pop_size * self.max_sub_iter * self.move_count
         self.sort_flag = True
