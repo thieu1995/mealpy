@@ -11,11 +11,7 @@ from mealpy.optimizer import Optimizer
 
 class BaseSARO(Optimizer):
     """
-    My changed version of: Search And Rescue Optimization (SARO)
-
-    Notes
-    ~~~~~
-    All third loop is removed
+    The developed version: Search And Rescue Optimization (SARO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + se (float): [0.3, 0.8], social effect, default = 0.5
@@ -40,29 +36,30 @@ class BaseSARO(Optimizer):
     >>> pop_size = 50
     >>> se = 0.5
     >>> mu = 50
-    >>> model = BaseSARO(problem_dict1, epoch, pop_size, se, mu)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseSARO(epoch, pop_size, se, mu)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, se=0.5, mu=15, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, se=0.5, mu=15, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             se (float): social effect, default = 0.5
             mu (int): maximum unsuccessful search number, default = 15
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.se = self.validator.check_float("se", se, (0, 1.0))
         self.mu = self.validator.check_int("mu", mu, [2, 2+int(self.pop_size/2)])
+        self.set_parameters(["epoch", "pop_size", "se", "mu"])
 
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
-        ## Dynamic variable
+
+    def initialize_variables(self):
         self.dyn_USN = np.zeros(self.pop_size)
 
     def initialization(self):
@@ -178,8 +175,8 @@ class OriginalSARO(BaseSARO):
     >>> pop_size = 50
     >>> se = 0.5
     >>> mu = 50
-    >>> model = OriginalSARO(problem_dict1, epoch, pop_size, se, mu)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSARO(epoch, pop_size, se, mu)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -188,16 +185,15 @@ class OriginalSARO(BaseSARO):
     algorithm based on search and rescue operations. Mathematical Problems in Engineering, 2019.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, se=0.5, mu=15, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, se=0.5, mu=15, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             se (float): social effect, default = 0.5
             mu (int): maximum unsuccessful search number, default = 15
         """
-        super().__init__(problem, epoch, pop_size, se, mu, **kwargs)
+        super().__init__(epoch, pop_size, se, mu, **kwargs)
 
     def evolve(self, epoch):
         """
