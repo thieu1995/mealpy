@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -34,8 +33,8 @@ class OriginalAEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalAEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalAEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -44,17 +43,17 @@ class OriginalAEO(Optimizer):
     nature-inspired meta-heuristic algorithm. Neural Computing and Applications, 32(13), pp.9383-9425.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
@@ -124,9 +123,9 @@ class OriginalAEO(Optimizer):
             self.pop = self.greedy_selection_population(pop_child, self.pop)
 
 
-class IAEO(OriginalAEO):
+class ImprovedAEO(OriginalAEO):
     """
-    The original version of: Improved Artificial Ecosystem-based Optimization (IAEO)
+    The original version of: Improved Artificial Ecosystem-based Optimization (ImprovedAEO)
 
     Links:
         1. https://doi.org/10.1016/j.ijhydene.2020.06.256
@@ -134,7 +133,7 @@ class IAEO(OriginalAEO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.system_based.AEO import IAEO
+    >>> from mealpy.system_based.AEO import ImprovedAEO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -148,8 +147,8 @@ class IAEO(OriginalAEO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = IAEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ImprovedAEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -159,14 +158,13 @@ class IAEO(OriginalAEO):
     International Journal of Hydrogen Energy, 46(75), pp.37612-37627.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
 
     def evolve(self, epoch):
         """
@@ -268,8 +266,8 @@ class EnhancedAEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = EnhancedAEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = EnhancedAEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -278,16 +276,17 @@ class EnhancedAEO(Optimizer):
     optimization for optimal allocation of multiple distributed generations. IEEE Access, 8, pp.178493-178513.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
@@ -406,8 +405,8 @@ class ModifiedAEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = ModifiedAEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ModifiedAEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -417,16 +416,17 @@ class ModifiedAEO(Optimizer):
     modified artificial ecosystem optimization algorithm. IEEE Access, 8, pp.31892-31909.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
@@ -513,9 +513,6 @@ class AdaptiveAEO(Optimizer):
     """
     The original version of: Adaptive Artificial Ecosystem Optimization (AAEO)
 
-    Links:
-        1. https://doi.org/10.1109/ACCESS.2020.2973351
-
     Notes
     ~~~~~
     + Used linear weight factor reduce from 2 to 0 through time
@@ -538,8 +535,8 @@ class AdaptiveAEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = AdaptiveAEO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = AdaptiveAEO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -547,16 +544,17 @@ class AdaptiveAEO(Optimizer):
     [1] Under Review
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
