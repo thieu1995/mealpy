@@ -11,11 +11,12 @@ from mealpy.optimizer import Optimizer
 
 class BaseQSA(Optimizer):
     """
-    My changed version of: Queuing Search Algorithm (QSA)
+    The developed version: Queuing Search Algorithm (QSA)
 
     Notes
     ~~~~~
-    All third loop is removed, the global best solution is used in business 3 instead of random solution
+    + The third loops are removed
+    + Global best solution is used in business 3-th instead of random solution
 
     Examples
     ~~~~~~~~
@@ -34,21 +35,22 @@ class BaseQSA(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseQSA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = BaseQSA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
@@ -179,11 +181,7 @@ class BaseQSA(Optimizer):
 
 class OppoQSA(BaseQSA):
     """
-    My Opposition-based learning version of: Queuing Search Algorithm (OQSA)
-
-    Notes
-    ~~~~~
-    Added the opposition-based learning technique
+    The opposition-based learning version: Queuing Search Algorithm (OQSA)
 
     Examples
     ~~~~~~~~
@@ -202,19 +200,18 @@ class OppoQSA(BaseQSA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OppoQSA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OppoQSA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = True
 
@@ -248,11 +245,7 @@ class OppoQSA(BaseQSA):
 
 class LevyQSA(BaseQSA):
     """
-    My Levy-flight version of: Queuing Search Algorithm (LQSA)
-
-    Notes
-    ~~~~~
-    Added the Levy-flight technique to QSA
+    The Levy-flight version: Queuing Search Algorithm (LQSA)
 
     Examples
     ~~~~~~~~
@@ -271,19 +264,18 @@ class LevyQSA(BaseQSA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = LevyQSA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = LevyQSA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
@@ -360,8 +352,8 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = ImprovedQSA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ImprovedQSA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -370,14 +362,13 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     global space search and workload modeling. Journal of Ambient Intelligence and Humanized Computing, 12(1), pp.27-46.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = True
 
@@ -418,8 +409,8 @@ class OriginalQSA(BaseQSA):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalQSA(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalQSA(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -428,14 +419,13 @@ class OriginalQSA(BaseQSA):
     for solving engineering optimization problems. Applied Mathematical Modelling, 63, pp.464-490.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
