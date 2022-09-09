@@ -32,8 +32,8 @@ class OriginalAO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = OriginalAO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalAO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -42,18 +42,17 @@ class OriginalAO(Optimizer):
     Aquila optimizer: a novel meta-heuristic optimization algorithm. Computers & Industrial Engineering, 157, p.107250.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.alpha = 0.1
-        self.delta = 0.1
+        self.set_parameters(["epoch", "pop_size"])
+
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -64,6 +63,7 @@ class OriginalAO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
+        alpha = delta = 0.1
         g1 = 2 * np.random.rand() - 1  # Eq. 16
         g2 = 2 * (1 - epoch / self.epoch)  # Eq. 17
 
@@ -91,8 +91,8 @@ class OriginalAO(Optimizer):
                     pos_new = self.g_best[self.ID_POS] * levy_step + self.pop[idx][self.ID_POS] + np.random.rand() * (y - x)  # Eq. 5
             else:
                 if np.random.rand() < 0.5:
-                    pos_new = self.alpha * (self.g_best[self.ID_POS] - x_mean) - np.random.rand() * \
-                              (np.random.rand() * (self.problem.ub - self.problem.lb) + self.problem.lb) * self.delta  # Eq. 13
+                    pos_new = alpha * (self.g_best[self.ID_POS] - x_mean) - np.random.rand() * \
+                              (np.random.rand() * (self.problem.ub - self.problem.lb) + self.problem.lb) * delta  # Eq. 13
                 else:
                     pos_new = QF * self.g_best[self.ID_POS] - (g2 * self.pop[idx][self.ID_POS] * np.random.rand()) - \
                               g2 * levy_step + np.random.rand() * g1  # Eq. 14
