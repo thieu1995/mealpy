@@ -10,7 +10,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseHHO(Optimizer):
+class OriginalHHO(Optimizer):
     """
     The original version of: Harris Hawks Optimization (HHO)
 
@@ -20,7 +20,7 @@ class BaseHHO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.HHO import BaseHHO
+    >>> from mealpy.swarm_based.HHO import OriginalHHO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -34,8 +34,8 @@ class BaseHHO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseHHO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalHHO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -44,16 +44,16 @@ class BaseHHO(Optimizer):
     Harris hawks optimization: Algorithm and applications. Future generation computer systems, 97, pp.849-872.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = 1.5 * self.pop_size
         self.sort_flag = False
 
