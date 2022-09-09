@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseFFA(Optimizer):
+class OriginalFFA(Optimizer):
     """
     The original version of: Firefly Algorithm (FFA)
 
@@ -24,7 +24,7 @@ class BaseFFA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.FFA import BaseFFA
+    >>> from mealpy.swarm_based.FFA import OriginalFFA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -44,8 +44,8 @@ class BaseFFA(Optimizer):
     >>> alpha_damp = 0.99
     >>> delta = 0.05
     >>> exponent = 2
-    >>> model = BaseFFA(problem_dict1, epoch, pop_size, gamma, beta_base, alpha, alpha_damp, delta, exponent)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalFFA(epoch, pop_size, gamma, beta_base, alpha, alpha_damp, delta, exponent)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -56,11 +56,9 @@ class BaseFFA(Optimizer):
     parameter selection. International Journal of Computer Applications, 69(3).
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100,
-                 gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             gamma (float): Light Absorption Coefficient, default = 0.001
@@ -70,7 +68,7 @@ class BaseFFA(Optimizer):
             delta (float): Mutation Step Size, default = 0.05
             exponent (int): Exponent (m in the paper), default = 2
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
@@ -79,10 +77,11 @@ class BaseFFA(Optimizer):
         self.alpha_damp = self.validator.check_float("alpha_damp", alpha_damp, (0, 1.0))
         self.delta = self.validator.check_float("delta", delta, (0, 1.0))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
-
-        ## Dynamic variable
+        self.set_parameters(["epoch", "pop_size", "gamma", "beta_base", "alpha", "alpha_damp", "delta", "exponent"])
         self.nfe_per_epoch = int(self.pop_size * (self.pop_size + 1) / 2 * 0.5)
         self.sort_flag = False
+
+    def initialize_variables(self):
         self.dyn_alpha = self.alpha  # Initial Value of Mutation Coefficient
 
     def evolve(self, epoch):
@@ -110,14 +109,12 @@ class BaseFFA(Optimizer):
                                      np.random.uniform(0, 1, (self.problem.n_dims, self.problem.n_dims)))
                     pos_new = agent[self.ID_POS] + self.dyn_alpha * mutation_vector + beta * temp
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    pop_child.append([pos_new, None])
-                    if self.mode not in self.AVAILABLE_MODES:
-                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            if len(pop_child) < 2:
-                continue
-            pop_child = self.update_target_wrapper_population(pop_child)
-            nfe_epoch += len(pop_child)
+                    target = self.get_target_wrapper(pos_new)
+                    pop_child.append([pos_new, target])
+            if len(pop_child) < self.pop_size:
+                pop_child += self.create_population(self.pop_size - len(pop_child))
             _, local_best = self.get_global_best_solution(pop_child)
+            nfe_epoch += len(pop_child)
             # Compare to Previous Solution
             if self.compare_agent(local_best, agent):
                 self.pop[idx] = local_best
