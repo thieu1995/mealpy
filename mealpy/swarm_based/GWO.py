@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseGWO(Optimizer):
+class OriginalGWO(Optimizer):
     """
     The original version of: Grey Wolf Optimizer (GWO)
 
@@ -19,7 +19,7 @@ class BaseGWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GWO import BaseGWO
+    >>> from mealpy.swarm_based.GWO import OriginalGWO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -33,8 +33,8 @@ class BaseGWO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseGWO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalGWO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -42,16 +42,16 @@ class BaseGWO(Optimizer):
     [1] Mirjalili, S., Mirjalili, S.M. and Lewis, A., 2014. Grey wolf optimizer. Advances in engineering software, 69, pp.46-61.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -88,10 +88,6 @@ class RW_GWO(Optimizer):
     """
     The original version of: Random Walk Grey Wolf Optimizer (RW-GWO)
 
-    Notes
-    ~~~~~
-    + This version is always performs worst than BaseGWO. Not sure why paper is accepted at Swarm and evolutionary computation
-
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -109,8 +105,8 @@ class RW_GWO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = RW_GWO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = RW_GWO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -118,16 +114,16 @@ class RW_GWO(Optimizer):
     [1] Gupta, S. and Deep, K., 2019. A novel random walk grey wolf optimizer. Swarm and evolutionary computation, 44, pp.101-112.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size + 3
         self.sort_flag = False
 
