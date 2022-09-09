@@ -10,22 +10,17 @@ from mealpy.math_based import GBO, PSS
 from mealpy.physics_based import HGSO
 from mealpy.human_based import SARO
 
-ndim = 30
-f18 = F292017(ndim, f_bias=0)
 
-def fitness(solution):
-    fit = f18.evaluate(solution)
-    return fit
-
+f18 = F292017(ndim=30, f_bias=0)
 problem_dict1 = {
-    "fit_func": fitness,
+    "fit_func": f18.evaluate,
     "lb": f18.lb.tolist(),
     "ub": f18.ub.tolist(),
     "minmax": "min",
 }
 
 ## Define a model 1 time, and train model multiple times with different stopping conditions
-model = HGSO.BaseHGSO(problem_dict1, epoch=200, pop_size=50)
+model = HGSO.OriginalHGSO(epoch=200, pop_size=50)
 
 ## 1. Epoch/Maximum Generation (default)
 term_dict1 = {

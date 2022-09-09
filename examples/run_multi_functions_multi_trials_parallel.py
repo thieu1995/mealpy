@@ -45,9 +45,10 @@ def find_minimum(function_name):
             "ub": UB,
             "minmax": "min",
             "log_to": "console",
+            "name": function_name
         }
-        model = BaseDE(problem, epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name, fit_name=function_name)
-        _, best_fitness = model.solve()
+        model = BaseDE(epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name)
+        _, best_fitness = model.solve(problem)
 
         temp = f"trial_{id_trial}"
         error_full[temp] = model.history.list_global_best_fit

@@ -17,16 +17,16 @@ class MyAlgorithm(Optimizer):
     + Read more at: https://mealpy.readthedocs.io/en/latest/pages/build_new_optimizer.html
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, m_clusters=2, p1=0.75, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, m_clusters=2, p1=0.75, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
+
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             m_clusters (int): number of clusters
             p1 (float): the probability of updating the worst solution
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.m_clusters = self.validator.check_int("m_clusters", m_clusters, [2, 5])
@@ -38,6 +38,16 @@ class MyAlgorithm(Optimizer):
         ## if True, the problem always sorted with fitness value increase
         ## if False, the problem is not sorted
 
+    def initialize_variables(self):
+        """
+        This is method is called before initialization() method.
+        Returns:
+
+        """
+        ## Support variables
+        self.n_agents = int(self.pop_size / self.m_clusters)
+        self.space = self.problem.ub - self.problem.lb
+
     def initialization(self):
         """
         Override this method if needed. But the first 2 lines of code is required.
@@ -47,10 +57,7 @@ class MyAlgorithm(Optimizer):
             self.pop = self.create_population(self.pop_size)
 
         ### Your additional code can be implemented here
-        ## Calculate support variables
-        self.n_agents = int(self.pop_size/self.m_clusters)
         self.mean_pos = np.mean([agent[self.ID_POS] for agent in self.pop])
-        self.space = self.problem.ub - self.problem.lb
 
     def evolve(self, epoch):
         """
@@ -102,6 +109,6 @@ problem_dict1 = {
 
 epoch = 50
 pop_size = 50
-model = MyAlgorithm(problem_dict1, epoch, pop_size)
-best_position, best_fitness = model.solve()
+model = MyAlgorithm(epoch, pop_size)
+best_position, best_fitness = model.solve(problem_dict1)
 print(f"Solution: {best_position}, Fitness: {best_fitness}")

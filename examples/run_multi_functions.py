@@ -40,8 +40,8 @@ for func_name in func_names:
         "minmax": "min",
         "log_to": "console",
     }
-    model = BaseDE(problem, epoch, pop_size, wf, cr, fit_name=func_name)
-    _, best_fitness = model.solve()
+    model = BaseDE(epoch, pop_size, wf, cr, fit_name=func_name)
+    _, best_fitness = model.solve(problem)
 
     error_full[func_name] = model.history.list_global_best_fit
     error_columns.append(func_name)
