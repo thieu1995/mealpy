@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseBES(Optimizer):
+class OriginalBES(Optimizer):
     """
     The original version of: Bald Eagle Search (BES)
 
@@ -25,7 +25,7 @@ class BaseBES(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BES import BaseBES
+    >>> from mealpy.swarm_based.BES import OriginalBES
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -44,8 +44,8 @@ class BaseBES(Optimizer):
     >>> alpha = 2.0
     >>> c1 = 2.0
     >>> c2 = 2.0
-    >>> model = BaseBES(problem_dict1, epoch, pop_size, a_factor, R_factor, alpha, c1, c2)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalBES(epoch, pop_size, a_factor, R_factor, alpha, c1, c2)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -54,10 +54,9 @@ class BaseBES(Optimizer):
     search optimisation algorithm. Artificial Intelligence Review, 53(3), pp.2237-2264.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, a_factor=10, R_factor=1.5, alpha=2.0, c1=2.0, c2=2.0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, a_factor=10, R_factor=1.5, alpha=2.0, c1=2.0, c2=2.0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             a_factor (int): default: 10, determining the corner between point search in the central point, in [5, 10]
@@ -66,7 +65,7 @@ class BaseBES(Optimizer):
             c1 (float): default: 2, in [1, 2]
             c2 (float): c1 and c2 increase the movement intensity of bald eagles towards the best and centre points
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.a_factor = self.validator.check_int("a_factor", a_factor, [2, 20])
@@ -74,6 +73,7 @@ class BaseBES(Optimizer):
         self.alpha = self.validator.check_float("alpha", alpha, [0.5, 3.0])
         self.c1 = self.validator.check_float("c1", c1, (0, 4.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 4.0))
+        self.set_parameters(["epoch", "pop_size", "a_factor", "R_factor", "alpha", "c1", "c2"])
         self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = False
 
