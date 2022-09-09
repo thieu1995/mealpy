@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSRSR(Optimizer):
+class OriginalSRSR(Optimizer):
     """
     The original version of: Swarm Robotics Search And Rescue (SRSR)
 
@@ -19,7 +19,7 @@ class BaseSRSR(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SRSR import BaseSRSR
+    >>> from mealpy.swarm_based.SRSR import OriginalSRSR
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -33,8 +33,8 @@ class BaseSRSR(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseSRSR(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSRSR(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -51,16 +51,16 @@ class BaseSRSR(Optimizer):
     ID_FIT_NEW = 5
     ID_FIT_MOVE = 6
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
@@ -82,7 +82,7 @@ class BaseSRSR(Optimizer):
         target_move = 0
         return [position, target, mu, sigma, x_new, target_new, target_move]
 
-    def initialization(self):
+    def initialize_variables(self):
         # Control Parameters Of Algorithm
         # ==============================================================================================
         #  [c1] movement_factor : Determines Movement Pace Of Robots During Exploration Policy
@@ -95,8 +95,6 @@ class BaseSRSR(Optimizer):
         self.sigma_temp = np.zeros(self.pop_size)  # Initializing Temporary Stacks
         self.SIF = None
         self.movement_factor = self.problem.ub - self.problem.lb
-        if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
 
     def evolve(self, epoch):
         """
