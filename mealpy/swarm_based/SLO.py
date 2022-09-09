@@ -10,7 +10,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSLO(Optimizer):
+class OriginalSLO(Optimizer):
     """
     The original version of: Sea Lion Optimization Algorithm (SLO)
 
@@ -20,13 +20,12 @@ class BaseSLO(Optimizer):
 
     Notes
     ~~~~~
-    + The original paper is unclear in some equations and parameters
-    + This version is based on my expertise
+    + There are some unclear equations and parameters in the original paper 
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SLO import BaseSLO
+    >>> from mealpy.swarm_based.SLO import OriginalSLO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,8 +39,8 @@ class BaseSLO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseSLO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalSLO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -49,16 +48,16 @@ class BaseSLO(Optimizer):
     [1] Masadeh, R., Mahafzah, B.A. and Sharieh, A., 2019. Sea lion optimization algorithm. Sea, 10(5), p.388.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -115,12 +114,13 @@ class BaseSLO(Optimizer):
 
 class ModifiedSLO(Optimizer):
     """
-    My modified version of: Sea Lion Optimization (M-SLO)
+    The original version of: Modified Sea Lion Optimization (M-SLO)
 
     Notes
     ~~~~~
-    + Use the idea of shrink encircling combine with levy flight techniques
-    + Beside, the idea of local best in PSO is used
+    + Local best idea in PSO is inspired 
+    + Levy-flight technique is used 
+    + Shrink encircling idea is used 
 
     Examples
     ~~~~~~~~
@@ -139,24 +139,24 @@ class ModifiedSLO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = ModifiedSLO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ModifiedSLO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
     ID_LOC_POS = 2
     ID_LOC_FIT = 3
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -222,7 +222,9 @@ class ModifiedSLO(Optimizer):
                     rand_SL = 2 * self.g_best[self.ID_POS] - rand_SL
                     pos_new = rand_SL - c * np.abs(np.random.uniform() * rand_SL - self.pop[idx][self.ID_POS])
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                agent[self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new.append(agent)
         pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
@@ -233,9 +235,9 @@ class ModifiedSLO(Optimizer):
                     self.pop[idx][self.ID_LOC_FIT] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
-class ISLO(ModifiedSLO):
+class ImprovedSLO(ModifiedSLO):
     """
-    My improved version of: Improved Sea Lion Optimization (ISLO)
+    The original version: Improved Sea Lion Optimization (ImprovedSLO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + c1 (float): Local coefficient same as PSO, default = 1.2
@@ -244,7 +246,7 @@ class ISLO(ModifiedSLO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SLO import ISLO
+    >>> from mealpy.swarm_based.SLO import ImprovedSLO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -260,25 +262,25 @@ class ISLO(ModifiedSLO):
     >>> pop_size = 50
     >>> c1 = 1.2
     >>> c2 = 1.5
-    >>> model = ISLO(problem_dict1, epoch, pop_size, c1, c2)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ImprovedSLO(epoch, pop_size, c1, c2)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c1=1.2, c2=1.2, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c1=1.2, c2=1.2, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             c1 (float): Local coefficient same as PSO, default = 1.2
             c2 (float): Global coefficient same as PSO, default = 1.2
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
+        self.set_parameters(["epoch", "pop_size", "c1", "c2"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -303,15 +305,16 @@ class ISLO(ModifiedSLO):
                     # pos_new = g_best[self.ID_POS] - c * np.abs(2 * rand() * g_best[self.ID_POS] - pop[i][self.ID_POS])
                     dif1 = np.abs(2 * np.random.rand() * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                     dif2 = np.abs(2 * np.random.rand() * self.pop[idx][self.ID_LOC_POS] - self.pop[idx][self.ID_POS])
-                    pos_new = self.c1 * np.random.rand() * (self.pop[idx][self.ID_POS] - c * dif1) + \
-                              self.c2 * np.random.rand() * (self.pop[idx][self.ID_POS] - c * dif2)
+                    pos_new = self.c1 * np.random.rand() * (self.pop[idx][self.ID_POS] - dif1) + \
+                              self.c2 * np.random.rand() * (self.pop[idx][self.ID_POS] - dif2)
                 else:  # Exploration improved by opposition-based learning
                     # Create a new solution by equation below
                     # Then create an opposition solution of above solution
                     # Compare both of them and keep the good one (Searching at both direction)
                     pos_new = self.g_best[self.ID_POS] + c * np.random.normal(0, 1, self.problem.n_dims) * \
                               (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                    target_new = self.get_target_wrapper(self.amend_position(pos_new, self.problem.lb, self.problem.ub))
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    target_new = self.get_target_wrapper(pos_new)
                     pos_new_oppo = self.problem.lb + self.problem.ub - self.g_best[self.ID_POS] + \
                                    np.random.rand() * (self.g_best[self.ID_POS] - pos_new)
                     target_new_oppo = self.get_target_wrapper(self.amend_position(pos_new_oppo, self.problem.lb, self.problem.ub))
@@ -321,7 +324,9 @@ class ISLO(ModifiedSLO):
                 pos_new = self.g_best[self.ID_POS] + np.cos(2 * np.pi * np.random.uniform(-1, 1)) * \
                           np.abs(self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                agent[self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new.append(agent)
         pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
