@@ -5,11 +5,10 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseEHO(Optimizer):
+class OriginalEHO(Optimizer):
     """
     The original version of: Elephant Herding Optimization (EHO)
 
@@ -24,7 +23,7 @@ class BaseEHO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.EHO import BaseEHO
+    >>> from mealpy.swarm_based.EHO import OriginalEHO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -41,8 +40,8 @@ class BaseEHO(Optimizer):
     >>> alpha = 0.5
     >>> beta = 0.5
     >>> n_clans = 5
-    >>> model = BaseEHO(problem_dict1, epoch, pop_size, alpha, beta, n_clans)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalEHO(epoch, pop_size, alpha, beta, n_clans)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -51,22 +50,22 @@ class BaseEHO(Optimizer):
     In 2015 3rd international symposium on computational and business intelligence (ISCBI) (pp. 1-5). IEEE.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, alpha=0.5, beta=0.5, n_clans=5, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=0.5, beta=0.5, n_clans=5, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             alpha (float): a factor that determines the influence of the best in each clan, default=0.5
             beta (float): a factor that determines the influence of the x_center, default=0.5
             n_clans (int): the number of clans, default=5
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.alpha = self.validator.check_float("alpha", alpha, (0, 3.0))
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.n_clans = self.validator.check_int("n_clans", n_clans, [2, int(self.pop_size/5)])
+        self.set_parameters(["epoch", "pop_size", "alpha", "beta", "n_clans"])
         self.n_individuals = int(self.pop_size / self.n_clans)
         self.nfe_per_epoch = self.pop_size + self.n_clans
         self.sort_flag = False
