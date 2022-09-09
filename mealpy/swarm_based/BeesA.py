@@ -9,7 +9,7 @@ from mealpy.optimizer import Optimizer
 from copy import deepcopy
 
 
-class BaseBeesA(Optimizer):
+class OriginalBeesA(Optimizer):
     """
     The original version of: Bees Algorithm (BeesA)
 
@@ -18,14 +18,17 @@ class BaseBeesA(Optimizer):
         2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + site_ratio (list, tuple): (selected_site_ratio, elite_site_ratio), default = (0.5, 0.4)
-        + site_bee_ratio (list, tuple): (selected_site_bee_ratio, elite_site_bee_ratio), default = (0.1, 2)
-        + dance_factor (list, tuple): (radius, reduction), default = (0.1, 0.99)
+        + selected_site_ratio (float): default = 0.5
+        + elite_site_ratio (float): default = 0.4
+        + selected_site_bee_ratio (float): default = 0.1
+        + elite_site_bee_ratio (float): default = 2.0
+        + dance_radius (float): default = 0.1
+        + dance_reduction (float): default = 0.99
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BeesA import BaseBeesA
+    >>> from mealpy.swarm_based.BeesA import OriginalBeesA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -39,12 +42,14 @@ class BaseBeesA(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> site_ratio = [0.5, 0.4]
-    >>> site_bee_ratio = [0.1, 2]
-    >>> dance_factor = [0.1, 0.99]
-    >>> dance_radius_damp = 0.99
-    >>> model = BaseBeesA(problem_dict1, epoch, pop_size, site_ratio, site_bee_ratio, dance_factor)
-    >>> best_position, best_fitness = model.solve()
+    >>> selected_site_ratio=0.5
+    >>> elite_site_ratio=0.4
+    >>> selected_site_bee_ratio=0.1
+    >>> elite_site_bee_ratio=2.0
+    >>> dance_radius=0.1
+    >>> dance_reduction=0.99
+    >>> model = OriginalBeesA(epoch, pop_size, selected_site_ratio, elite_site_ratio, selected_site_bee_ratio, elite_site_bee_ratio, dance_radius, dance_reduction)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -54,34 +59,37 @@ class BaseBeesA(Optimizer):
     production machines and systems (pp. 454-459). Elsevier Science Ltd.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, site_ratio=(0.5, 0.4),
-                 site_bee_ratio=(0.1, 2.0), dance_factor=(0.1, 0.99), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, selected_site_ratio=0.5, elite_site_ratio=0.4, 
+                 selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0, dance_radius=0.1, dance_reduction=0.99, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            site_ratio (list, tuple): (selected_site_ratio, elite_site_ratio)
-            site_bee_ratio (list, tuple): (selected_site_bee_ratio, elite_site_bee_ratio)
-            dance_factor (list, tuple): Bees Dance Radius, Bees Dance Radius Reduction Rate
+            selected_site_ratio (float): 
+            elite_site_ratio (float):
+            selected_site_bee_ratio (float): 
+            elite_site_bee_ratio (float): 
+            dance_radius (float): 
+            dance_reduction (float): 
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         # (Scout Bee Count or Population Size, Selected Sites Count)
-        self.site_ratio = self.validator.check_tuple_float("site_ratio (selected_site_ratio, elite_site_ratio)", site_ratio, ((0, 1.0), (0, 1.0)))
-        # Scout Bee Count, Selected Sites Bee Count
-        self.site_bee_ratio = self.validator.check_tuple_float("site_bee_ratio (selected_site_bee_ratio, elite_site_bee_ratio)", site_bee_ratio, ((0, 1.0), (0, 3.0)))
-        self.dance_factor = self.validator.check_tuple_float("dance_factor (radius, reduction)", dance_factor, ((0, 1.0), (0, 1.0)))
-        self.dance_radius_damp = self.dance_factor[1]
-
+        self.selected_site_ratio = self.validator.check_float("selected_site_ratio", selected_site_ratio, (0, 1.0))
+        self.elite_site_ratio = self.validator.check_float("elite_site_ratio", elite_site_ratio, (0, 1.0))
+        self.selected_site_bee_ratio = self.validator.check_float("selected_site_bee_ratio", selected_site_bee_ratio, (0, 1.0))
+        self.elite_site_bee_ratio = self.validator.check_float("elite_site_bee_ratio", elite_site_bee_ratio, (0, 3.0))
+        self.dance_radius = self.validator.check_float("dance_radius", dance_radius, (0, 1.0))
+        self.dance_reduction = self.validator.check_float("dance_reduction", dance_reduction, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "selected_site_ratio", "elite_site_ratio", "selected_site_bee_ratio", 
+                             "elite_site_bee_ratio", "dance_radius", "dance_reduction"])
         # Initial Value of Dance Radius
-        self.dance_radius = self.dance_factor[0]
-        self.dyn_radius = self.dance_factor[0]
-        self.n_selected_bees = int(round(self.site_ratio[0] * self.pop_size))
-        self.n_elite_bees = int(round(self.site_ratio[1] * self.n_selected_bees))
-        self.n_selected_bees_local = int(round(self.site_bee_ratio[0] * self.pop_size))
-        self.n_elite_bees_local = int(round(self.site_bee_ratio[1] * self.n_selected_bees_local))
+        self.dyn_radius = self.dance_radius
+        self.n_selected_bees = int(round(self.selected_site_ratio * self.pop_size))
+        self.n_elite_bees = int(round(self.elite_site_ratio * self.n_selected_bees))
+        self.n_selected_bees_local = int(round(self.selected_site_bee_ratio * self.pop_size))
+        self.n_elite_bees_local = int(round(self.elite_site_bee_ratio * self.n_selected_bees_local))
         self.nfe_per_epoch = self.n_elite_bees * self.n_elite_bees_local + self.pop_size - self.n_selected_bees + \
                              (self.n_selected_bees - self.n_elite_bees) * self.n_selected_bees_local
         self.sort_flag = True
@@ -133,17 +141,13 @@ class BaseBeesA(Optimizer):
                 pop_new[idx] = self.create_solution(self.problem.lb, self.problem.ub)
         self.pop = pop_new
         # Damp Dance Radius
-        self.dyn_radius = self.dance_radius_damp * self.dance_radius
+        self.dyn_radius = self.dance_reduction * self.dance_radius
         self.nfe_per_epoch = nfe_epoch
 
 
 class ProbBeesA(Optimizer):
     """
-    The original version of: Bees Algorithm (BeesA)
-
-    Notes
-    ~~~~~
-    + This is probabilistic version of Bees Algorithm
+    The original version of: Probabilistic Bees Algorithm (BeesA)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
@@ -167,9 +171,10 @@ class ProbBeesA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> recruited_bee_ratio = 0.1
-    >>> dance_factor = (0.1, 0.99)
-    >>> model = ProbBeesA(problem_dict1, epoch, pop_size, recruited_bee_ratio, dance_factor)
-    >>> best_position, best_fitness = model.solve()
+    >>> dance_radius = 0.1
+    >>> dance_reduction = 0.99
+    >>> model = ProbBeesA(epoch, pop_size, recruited_bee_ratio, dance_radius, dance_reduction)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -178,23 +183,22 @@ class ProbBeesA(Optimizer):
     function optimisation. Cogent Engineering, 2(1), p.1091540.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, recruited_bee_ratio=0.1, dance_factor=(0.1, 0.99), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, recruited_bee_ratio=0.1, dance_radius=0.1, dance_reduction=0.99, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             recruited_bee_ratio (float): percent of bees recruited, default = 0.1
-            dance_factor (tuple, list): Bees Dance Radius, Bees Dance Radius Reduction Rate, default=(0.1, 0.99)
+            dance_radius (float): Bees Dance Radius, default=0.1
+            dance_reduction (float): Bees Dance Radius Reduction Rate, default=0.99
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.recruited_bee_ratio = self.validator.check_float("recruited_bee_ratio", recruited_bee_ratio, (0, 1.0))
-        self.dance_factor = self.validator.check_tuple_float("dance_factor (radius, reduction)", dance_factor, ((0, 1.0), (0, 1.0)))
-        self.dance_radius = self.dance_factor[0]
-        self.dance_radius_damp = self.dance_factor[1]
-
+        self.dance_radius = self.validator.check_float("dance_radius", dance_radius, (0, 1.0))
+        self.dance_reduction = self.validator.check_float("dance_reduction", dance_reduction, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "recruited_bee_ratio", "dance_radius", "dance_reduction"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         # Initial Value of Dance Radius
@@ -253,4 +257,4 @@ class ProbBeesA(Optimizer):
                 self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
         self.nfe_per_epoch = nfe_epoch
         # Damp Dance Radius
-        self.dyn_radius = self.dance_radius_damp * self.dance_radius
+        self.dyn_radius = self.dance_reduction * self.dance_radius
