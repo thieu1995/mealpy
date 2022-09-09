@@ -27,11 +27,11 @@ def problem():
 
 def test_BeesA_results(problem):
     models = [
-        BeesA.ProbBeesA(problem, epoch=10, pop_size=50, recruited_bee_ratio=0.1, dance_factor=(0.1, 0.99)),
-        BeesA.BaseBeesA(problem, epoch=10, pop_size=50, site_ratio=(0.5, 0.4), site_bee_ratio=(0.1, 2.0), dance_factor=(0.1, 0.99)),
+        BeesA.ProbBeesA(epoch=10, pop_size=50, recruited_bee_ratio=0.1, dance_factor=(0.1, 0.99)),
+        BeesA.OriginalBeesA(epoch=10, pop_size=50, site_ratio=(0.5, 0.4), site_bee_ratio=(0.1, 2.0), dance_factor=(0.1, 0.99)),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

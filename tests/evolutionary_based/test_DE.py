@@ -27,15 +27,15 @@ def problem():
 
 def test_DE_results(problem):
     models = [
-        DE.BaseDE(problem, epoch=10, pop_size=50, wf=0.1, cr=0.9, strategy=5),
-        DE.JADE(problem, epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1),
-        DE.SADE(problem, epoch=20, pop_size=50),
-        DE.SHADE(problem, epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5),
-        DE.L_SHADE(problem, epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5),
-        DE.SAP_DE(problem, epoch=20, pop_size=50, branch="ABS"),
+        DE.BaseDE(epoch=10, pop_size=50, wf=0.1, cr=0.9, strategy=5),
+        DE.JADE(epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1),
+        DE.SADE(epoch=20, pop_size=50),
+        DE.SHADE(epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5),
+        DE.L_SHADE(epoch=20, pop_size=50, miu_f=0.5, miu_cr=0.5),
+        DE.SAP_DE(epoch=20, pop_size=50, branch="ABS"),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

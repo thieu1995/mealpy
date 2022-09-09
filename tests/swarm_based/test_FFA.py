@@ -27,10 +27,10 @@ def problem():
 
 def test_FFA_results(problem):
     models = [
-        FFA.BaseFFA(problem, epoch=10, pop_size=50, gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2)
+        FFA.OriginalFFA(epoch=10, pop_size=50, gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

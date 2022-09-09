@@ -27,14 +27,14 @@ def problem():
 
 def test_PSO_results(problem):
     models = [
-        PSO.BasePSO(problem, epoch=100, pop_size=50, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9),
-        PSO.C_PSO(problem, epoch=10, pop_size=50, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9),
-        PSO.CL_PSO(problem, epoch=10, pop_size=50, c_local=1.2, w_min=0.4, w_max=0.9, max_flag=7),
-        PSO.PPSO(problem, epoch=10, pop_size=50),
-        PSO.HPSO_TVAC(problem, epoch=10, pop_size=50, ci=0.5, cf=0.2)
+        PSO.OriginalPSO(epoch=100, pop_size=50, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9),
+        PSO.C_PSO(epoch=10, pop_size=50, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9),
+        PSO.CL_PSO(epoch=10, pop_size=50, c_local=1.2, w_min=0.4, w_max=0.9, max_flag=7),
+        PSO.PPSO(epoch=10, pop_size=50),
+        PSO.HPSO_TVAC(epoch=10, pop_size=50, ci=0.5, cf=0.2)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

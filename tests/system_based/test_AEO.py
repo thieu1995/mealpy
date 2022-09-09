@@ -26,14 +26,14 @@ def problem():
 
 def test_AEO_results(problem):
     models = [
-        AEO.AdaptiveAEO(problem, epoch=100, pop_size=50),
-        AEO.OriginalAEO(problem, epoch=10, pop_size=50),
-        AEO.ModifiedAEO(problem, epoch=10, pop_size=50),
-        AEO.EnhancedAEO(problem, epoch=10, pop_size=50),
-        AEO.IAEO(problem, epoch=10, pop_size=50)
+        AEO.AdaptiveAEO(epoch=100, pop_size=50),
+        AEO.OriginalAEO(epoch=10, pop_size=50),
+        AEO.ModifiedAEO(epoch=10, pop_size=50),
+        AEO.EnhancedAEO(epoch=10, pop_size=50),
+        AEO.ImprovedAEO(epoch=10, pop_size=50)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

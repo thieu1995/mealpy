@@ -27,10 +27,10 @@ def problem():
 
 def test_CEM_results(problem):
     models = [
-        CEM.BaseCEM(problem, epoch=100, pop_size=50, n_best=25, alpha=0.7),
+        CEM.OriginalCEM(epoch=100, pop_size=50, n_best=25, alpha=0.7),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

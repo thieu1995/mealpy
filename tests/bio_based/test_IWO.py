@@ -30,8 +30,8 @@ def test_OriginalIWO_results(problem):
     seeds = (2, 10)
     exponent = 2
     sigmas = (0.5, 0.001)
-    model = IWO.OriginalIWO(problem, epoch, pop_size, seeds, exponent, sigmas)
-    best_position, best_fitness = model.solve()
+    model = IWO.OriginalIWO(epoch, pop_size, seeds, exponent, sigmas)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -47,12 +47,12 @@ def test_OriginalIWO_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_IWO(problem, epoch, system_code):
+def test_epoch_IWO(epoch, system_code):
     pop_size = 50
     algorithms = [IWO.OriginalIWO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -72,7 +72,7 @@ def test_pop_size_IWO(problem, pop_size, system_code):
     algorithms = [IWO.OriginalIWO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 

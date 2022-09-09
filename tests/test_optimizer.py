@@ -21,7 +21,7 @@ def model():
         "minmax": "min",
         "log_to": None,
     }
-    model = Optimizer(problem)
+    model = Optimizer()
     return model
 
 

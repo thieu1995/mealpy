@@ -34,8 +34,8 @@ def test_BaseEOA_results(problem):
     alpha = 0.98
     beta = 0.9
     gamma = 0.9
-    model = EOA.BaseEOA(problem, epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma )
-    best_position, best_fitness = model.solve()
+    model = EOA.BaseEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma )
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -51,12 +51,12 @@ def test_BaseEOA_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_EOA(problem, epoch, system_code):
+def test_epoch_EOA(epoch, system_code):
     pop_size = 50
     algorithms = [EOA.BaseEOA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -76,7 +76,7 @@ def test_pop_size_EOA(problem, pop_size, system_code):
     algorithms = [EOA.BaseEOA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 

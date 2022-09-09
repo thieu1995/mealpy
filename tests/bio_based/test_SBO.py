@@ -30,8 +30,8 @@ def test_OriginalSBO_results(problem):
     alpha = 0.94
     p_m = 0.05
     psw = 0.02
-    model = SBO.OriginalSBO(problem, epoch, pop_size, alpha, p_m, psw)
-    best_position, best_fitness = model.solve()
+    model = SBO.OriginalSBO(epoch, pop_size, alpha, p_m, psw)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -43,8 +43,8 @@ def test_BaseSBO_results(problem):
     alpha = 0.94
     p_m = 0.05
     psw = 0.02
-    model = SBO.BaseSBO(problem, epoch, pop_size, alpha, p_m, psw)
-    best_position, best_fitness = model.solve()
+    model = SBO.BaseSBO(epoch, pop_size, alpha, p_m, psw)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -60,12 +60,12 @@ def test_BaseSBO_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_SBO(problem, epoch, system_code):
+def test_epoch_SBO(epoch, system_code):
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -85,7 +85,7 @@ def test_pop_size_SBO(problem, pop_size, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -108,7 +108,7 @@ def test_alpha_SBO(problem, alpha, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, alpha=alpha)
+            model = algorithm(epoch, pop_size, alpha=alpha)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -131,7 +131,7 @@ def test_p_m_SBO(problem, p_m, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_m=p_m)
+            model = algorithm(epoch, pop_size, p_m=p_m)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -154,6 +154,6 @@ def test_p_m_SBO(problem, psw, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, psw=psw)
+            model = algorithm(epoch, pop_size, psw=psw)
         assert e.type == SystemExit
         assert e.value.code == system_code

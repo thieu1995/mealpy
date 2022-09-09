@@ -29,8 +29,8 @@ def test_OriginalBBO_results(problem):
     pop_size = 50
     p_m = 0.01
     elites = 2
-    model = BBO.OriginalBBO(problem, epoch, pop_size, p_m, elites)
-    best_position, best_fitness = model.solve()
+    model = BBO.OriginalBBO(epoch, pop_size, p_m, elites)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -41,8 +41,8 @@ def test_BaseBBO_results(problem):
     pop_size = 50
     p_m = 0.01
     elites = 2
-    model = BBO.BaseBBO(problem, epoch, pop_size, p_m, elites)
-    best_position, best_fitness = model.solve()
+    model = BBO.BaseBBO(epoch, pop_size, p_m, elites)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -58,14 +58,14 @@ def test_BaseBBO_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_BBO(problem, epoch, system_code):
+def test_epoch_BBO(epoch, system_code):
     pop_size = 50
     p_m = 0.01
     elites = 2
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_m, elites)
+            model = algorithm(epoch, pop_size, p_m, elites)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -87,7 +87,7 @@ def test_pop_size_BBO(problem, pop_size, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_m, elites)
+            model = algorithm(epoch, pop_size, p_m, elites)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -111,7 +111,7 @@ def test_p_m_BBO(problem, p_m, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_m, elites)
+            model = algorithm(epoch, pop_size, p_m, elites)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -135,6 +135,6 @@ def test_elites_BBO(problem, elites, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_m, elites)
+            model = algorithm(epoch, pop_size, p_m, elites)
         assert e.type == SystemExit
         assert e.value.code == system_code

@@ -26,10 +26,10 @@ def problem():
 
 def test_ArchOA_results(problem):
     models = [
-        ArchOA.OriginalArchOA(problem, epoch=100, pop_size=50, c1=2, c2=6, c3=2, c4=0.5, acc_max=0.9, acc_min=0.1),
+        ArchOA.OriginalArchOA(epoch=100, pop_size=50, c1=2, c2=6, c3=2, c4=0.5, acc_max=0.9, acc_min=0.1),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

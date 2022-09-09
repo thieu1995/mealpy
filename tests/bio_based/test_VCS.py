@@ -29,8 +29,8 @@ def test_OriginalVCS_results(problem):
     pop_size = 50
     lamda = 0.5
     xichma = 0.3
-    model = VCS.OriginalVCS(problem, epoch, pop_size, lamda, xichma)
-    best_position, best_fitness = model.solve()
+    model = VCS.OriginalVCS(epoch, pop_size, lamda, xichma)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -41,8 +41,8 @@ def test_BaseVCS_results(problem):
     pop_size = 50
     lamda = 0.5
     xichma = 0.3
-    model = VCS.BaseVCS(problem, epoch, pop_size, lamda, xichma)
-    best_position, best_fitness = model.solve()
+    model = VCS.BaseVCS(epoch, pop_size, lamda, xichma)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -58,12 +58,12 @@ def test_BaseVCS_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_VCS(problem, epoch, system_code):
+def test_epoch_VCS(epoch, system_code):
     pop_size = 50
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -83,7 +83,7 @@ def test_pop_size_VCS(problem, pop_size, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -106,7 +106,7 @@ def test_lamda_VCS(problem, lamda, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, lamda=lamda)
+            model = algorithm(epoch, pop_size, lamda=lamda)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -129,6 +129,6 @@ def test_xichma_VCS(problem, xichma, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, xichma=xichma)
+            model = algorithm(epoch, pop_size, xichma=xichma)
         assert e.type == SystemExit
         assert e.value.code == system_code

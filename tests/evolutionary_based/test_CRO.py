@@ -36,8 +36,8 @@ def test_OriginalCRO_results(problem):
     GCR = 0.1
     G = [0.02, 0.2]
     n_trials = 5
-    model = CRO.BaseCRO(problem, epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials)
-    best_position, best_fitness = model.solve()
+    model = CRO.OriginalCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -55,8 +55,8 @@ def test_OCRO_results(problem):
     G = [0.02, 0.2]
     n_trials = 5
     restart_count = 3
-    model = CRO.OCRO(problem, epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
-    best_position, best_fitness = model.solve()
+    model = CRO.OCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -74,7 +74,7 @@ def test_params_CRO(problem):
     G = [0.02, 0.2]
     n_trials = 5
     restart_count = 3
-    model = CRO.OCRO(problem, epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
+    model = CRO.OCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
     assert model.po == po
     assert model.Fb == Fb
     assert model.Fa == Fa

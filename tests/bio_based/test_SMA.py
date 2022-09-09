@@ -28,8 +28,8 @@ def test_OriginalSMA_results(problem):
     epoch = 10
     pop_size = 50
     p_t = 0.05
-    model = SMA.OriginalSMA(problem, epoch, pop_size, p_t)
-    best_position, best_fitness = model.solve()
+    model = SMA.OriginalSMA(epoch, pop_size, p_t)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -39,8 +39,8 @@ def test_BaseSMA_results(problem):
     epoch = 10
     pop_size = 50
     p_t = 0.05
-    model = SMA.BaseSMA(problem, epoch, pop_size, p_t)
-    best_position, best_fitness = model.solve()
+    model = SMA.BaseSMA(epoch, pop_size, p_t)
+    best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
     assert len(best_position) == len(problem["lb"])
@@ -56,12 +56,12 @@ def test_BaseSMA_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_SMA(problem, epoch, system_code):
+def test_epoch_SMA(epoch, system_code):
     pop_size = 50
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -81,7 +81,7 @@ def test_pop_size_SMA(problem, pop_size, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size)
+            model = algorithm(epoch, pop_size)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -104,7 +104,7 @@ def test_alpha_SMA(problem, alpha, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, alpha=alpha)
+            model = algorithm(epoch, pop_size, alpha=alpha)
         assert e.type == SystemExit
         assert e.value.code == system_code
 
@@ -127,6 +127,6 @@ def test_p_t_SMA(problem, p_t, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(SystemExit) as e:
-            model = algorithm(problem, epoch, pop_size, p_t=p_t)
+            model = algorithm(epoch, pop_size, p_t=p_t)
         assert e.type == SystemExit
         assert e.value.code == system_code

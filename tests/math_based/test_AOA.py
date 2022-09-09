@@ -26,10 +26,10 @@ def problem():
 
 def test_AOA_results(problem):
     models = [
-        AOA.OriginalAOA(problem, epoch=100, pop_size=50, alpha=5, miu=0.5, moa_min=0.2, moa_max=0.9),
+        AOA.OriginalAOA(epoch=100, pop_size=50, alpha=5, miu=0.5, moa_min=0.2, moa_max=0.9),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

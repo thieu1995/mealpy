@@ -27,12 +27,12 @@ def problem():
 
 def test_FOA_results(problem):
     models = [
-        FOA.OriginalFOA(problem, epoch=10, pop_size=50),
-        FOA.BaseFOA(problem, epoch=10, pop_size=50),
-        FOA.WhaleFOA(problem, epoch=10, pop_size=50)
+        FOA.OriginalFOA(epoch=10, pop_size=50),
+        FOA.BaseFOA(epoch=10, pop_size=50),
+        FOA.WhaleFOA(epoch=10, pop_size=50)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

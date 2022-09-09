@@ -27,10 +27,10 @@ def problem():
 
 def test_SHO_results(problem):
     models = [
-        SHO.BaseSHO(problem, epoch=10, pop_size=50, h_factor=5, rand_v=(-0.5, 1), N_tried=10),
+        SHO.OriginalSHO(epoch=10, pop_size=50, h_factor=5, rand_v=(-0.5, 1), N_tried=10),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

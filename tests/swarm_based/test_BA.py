@@ -27,12 +27,12 @@ def problem():
 
 def test_BA_results(problem):
     models = [
-        BA.OriginalBA(problem, epoch=10, pop_size=50, loudness=0.8, pulse_rate=0.95, pulse_frequency=(0, 10)),
-        BA.BaseBA(problem, epoch=10, pop_size=50, loudness=(1.0, 2.0), pulse_rate=(0.15, 0.85), pulse_frequency=(0, 10)),
-        BA.ModifiedBA(problem, epoch=10, pop_size=50, pulse_rate=0.95, pulse_frequency=(0, 10))
+        BA.OriginalBA(epoch=10, pop_size=50, loudness=0.8, pulse_rate=0.95, pulse_frequency=(0, 10)),
+        BA.AdaptiveBA(epoch=10, pop_size=50, loudness=(1.0, 2.0), pulse_rate=(0.15, 0.85), pulse_frequency=(0, 10)),
+        BA.ModifiedBA(epoch=10, pop_size=50, pulse_rate=0.95, pulse_frequency=(0, 10))
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

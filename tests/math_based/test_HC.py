@@ -26,11 +26,11 @@ def problem():
 
 def test_HC_results(problem):
     models = [
-        HC.OriginalHC(problem, epoch=100, pop_size=50, neighbour_size=20),
-        HC.BaseHC(problem, epoch=100, pop_size=50, neighbour_size=30),
+        HC.OriginalHC(epoch=100, pop_size=50, neighbour_size=20),
+        HC.SwarmHC(epoch=100, pop_size=50, neighbour_size=30),
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

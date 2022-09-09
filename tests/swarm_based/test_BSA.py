@@ -27,10 +27,10 @@ def problem():
 
 def test_BSA_results(problem):
     models = [
-        BSA.BaseBSA(problem, epoch=10, pop_size=50, ff=10, pff=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5)
+        BSA.OriginalBSA(epoch=10, pop_size=50, ff=10, pff=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])

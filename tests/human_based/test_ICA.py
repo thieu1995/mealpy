@@ -27,11 +27,11 @@ def problem():
 
 def test_ICA_results(problem):
     models = [
-        ICA.BaseICA(problem, epoch=10, pop_size=50, empire_count=5, assimilation_coeff=1.5,
+        ICA.OriginalICA(epoch=10, pop_size=50, empire_count=5, assimilation_coeff=1.5,
                     revolution_prob=0.05, revolution_rate=0.1, revolution_step_size=0.1, zeta=0.1)
     ]
     for model in models:
-        best_position, best_fitness = model.solve()
+        best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])
