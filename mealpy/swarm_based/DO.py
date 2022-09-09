@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseDO(Optimizer):
+class OriginalDO(Optimizer):
     """
     The original version of: Dragonfly Optimization (DO)
 
@@ -19,7 +19,7 @@ class BaseDO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.DO import BaseDO
+    >>> from mealpy.swarm_based.DO import OriginalDO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -33,8 +33,8 @@ class BaseDO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = BaseDO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalDO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -44,17 +44,16 @@ class BaseDO(Optimizer):
     Neural computing and applications, 27(4), pp.1053-1073.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
