@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseCSA(Optimizer):
+class OriginalCSA(Optimizer):
     """
     The original version of: Cuckoo Search Algorithm (CSA)
 
@@ -22,7 +22,7 @@ class BaseCSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.CSA import BaseCSA
+    >>> from mealpy.swarm_based.CSA import OriginalCSA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -37,8 +37,8 @@ class BaseCSA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> p_a = 0.3
-    >>> model = BaseCSA(problem_dict1, epoch, pop_size, p_a)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCSA(epoch, pop_size, p_a)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,18 +47,18 @@ class BaseCSA(Optimizer):
     congress on nature & biologically inspired computing (NaBIC) (pp. 210-214). Ieee.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, p_a=0.3, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, p_a=0.3, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             p_a (float): probability a, default=0.3
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_a = self.validator.check_float("p_a", p_a, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "p_a"])
         self.n_cut = int(self.p_a * self.pop_size)
         self.nfe_per_epoch = self.pop_size + self.n_cut
         self.sort_flag = False
