@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseNMRA(Optimizer):
+class OriginalNMRA(Optimizer):
     """
     The original version of: Naked Mole-Rat Algorithm (NMRA)
 
@@ -22,7 +22,7 @@ class BaseNMRA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.NMRA import BaseNMRA
+    >>> from mealpy.swarm_based.NMRA import OriginalNMRA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -37,8 +37,8 @@ class BaseNMRA(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> pb = 0.75
-    >>> model = BaseNMRA(problem_dict1, epoch, pop_size, pb)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalNMRA(epoch, pop_size, pb)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -47,18 +47,18 @@ class BaseNMRA(Optimizer):
     Neural Computing and Applications, 31(12), pp.8837-8857.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pb=0.75, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pb=0.75, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pb (float): probability of breeding, default = 0.75
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "pb"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
@@ -92,7 +92,7 @@ class BaseNMRA(Optimizer):
 
 class ImprovedNMRA(Optimizer):
     """
-    The original version of: Naked Mole-Rat Algorithm (I-NMRA)
+    The original version of: Improved Naked Mole-Rat Algorithm (I-NMRA)
 
     Notes:
     + Use mutation probability idea
@@ -122,8 +122,8 @@ class ImprovedNMRA(Optimizer):
     >>> pop_size = 50
     >>> pb = 0.75
     >>> pm = 0.01
-    >>> model = ImprovedNMRA(problem_dict1, epoch, pop_size, pb, pm)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ImprovedNMRA(epoch, pop_size, pb, pm)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -132,21 +132,20 @@ class ImprovedNMRA(Optimizer):
     Neural Computing and Applications, 31(12), pp.8837-8857.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pb=0.75, pm=0.01, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pb=0.75, pm=0.01, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             pb (float): breeding probability, default = 0.75
             pm (float): probability of mutation, default = 0.01
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.pm = self.validator.check_float("pm", pm, (0, 1.0))
-
+        self.set_parameters(["epoch", "pop_size", "pb", "pm"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
