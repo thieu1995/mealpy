@@ -73,8 +73,8 @@ if __name__ == "__main__":
                 "save_population": False,
                 "data": DATA,
             }
-            model = WOA.BaseWOA(problem, epoch, pop_size)
-            _, best_fitness = model.solve(mode=mode_name)
+            model = WOA.OriginalWOA(epoch, pop_size)
+            _, best_fitness = model.solve(problem, mode=mode_name)
             time_end = time.perf_counter() - time_start
 
             temp = f"trial_{id_trial}"

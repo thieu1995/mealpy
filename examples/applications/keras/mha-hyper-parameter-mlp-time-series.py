@@ -107,9 +107,9 @@ if __name__ == "__main__":
         "save_population": False,
         "data": DATA,
     }
-    model = FPA.BaseFPA(problem, epoch=5, pop_size=20)
-    # model = GWO.BaseGWO(problem, epoch=5, pop_size=20)
-    model.solve()
+    model = FPA.OriginalFPA(epoch=5, pop_size=20)
+    # model = GWO.OriginalGWO(epoch=5, pop_size=20)
+    model.solve(problem)
 
     print(f"Best solution: {model.solution[0]}")
     sol = decode_solution(model.solution[0], DATA)

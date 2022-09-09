@@ -80,8 +80,8 @@ problem = {
     "obj_weights": [0.3, 0.7],        # training weight 0.3 and testing weight 0.7
     "save_population": False
 }
-model = SMA.BaseSMA(problem, epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
-model.solve()
+model = SMA.BaseSMA(epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
+model.solve(problem)
 print(f"Best fitness: {model.solution[1]}")
 
 # This will print out the best value (optimized value) of opt, learning-rate and epoch. Just need a decode function

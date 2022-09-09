@@ -1,7 +1,7 @@
 
-from mealpy.swarm_based.WOA import BaseWOA
-from mealpy.swarm_based.PSO import BasePSO
-from mealpy.swarm_based.GWO import BaseGWO
+from mealpy.swarm_based.WOA import OriginalWOA
+from mealpy.swarm_based.PSO import OriginalPSO
+from mealpy.swarm_based.GWO import OriginalGWO
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
@@ -131,8 +131,8 @@ class PathPlanning():
         }
 
         ## Run the algorithm
-        model1 = BaseGWO(problem_dict1, epoch=80, pop_size=200)
-        best_position, best_fitness = model1.solve()
+        model1 = OriginalGWO(epoch=80, pop_size=200)
+        best_position, best_fitness = model1.solve(problem_dict1)
         print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
         self.plot(best_position)
 

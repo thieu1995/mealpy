@@ -72,9 +72,9 @@ class HybridMlp:
     def training(self):
         self.create_network()
         self.create_problem()
-        self.optimizer = GWO.BaseGWO(self.problem, self.epoch, self.pop_size)
-        # self.optimizer = FPA.BaseFPA(self.problem, self.epoch, self.pop_size)
-        self.solution, self.best_fit = self.optimizer.solve()
+        self.optimizer = GWO.OriginalGWO(self.epoch, self.pop_size)
+        # self.optimizer = FPA.OriginalFPA(self.problem, self.epoch, self.pop_size)
+        self.solution, self.best_fit = self.optimizer.solve(self.problem)
 
     def fitness_function(self, solution):  # Used in training process
         # Assumption that we have 3 layer , 1 input layer, 1 hidden layer and 1 output layer

@@ -76,9 +76,9 @@ class HybridMlp:
     def training(self):
         self.create_network()
         self.create_problem()
-        # self.optimizer = GWO.BaseGWO(self.problem, self.epoch, self.pop_size)
-        self.optimizer = FPA.BaseFPA(self.problem, self.epoch, self.pop_size)
-        self.solution, self.best_fit = self.optimizer.solve("thread")
+        # self.optimizer = GWO.OriginalGWO(self.problem, self.epoch, self.pop_size)
+        self.optimizer = FPA.OriginalFPA(self.epoch, self.pop_size)
+        self.solution, self.best_fit = self.optimizer.solve(self.problem, mode="thread")
 
         # 3 input nodes, 5 hidden node (1 single hidden layer), 1 output node
         # solution = [w11, w21, w31, w12, w22, w32, ....,  w15, w25, w35, b1, b2, b3, b4, b5, wh11, wh21, wh31, wh41, wh51, bo]

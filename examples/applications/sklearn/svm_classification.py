@@ -56,8 +56,8 @@ problem = {
     "minmax": "max",
 }
 
-model = SMA.BaseSMA(problem, epoch=50, pop_size=50)
-model.solve()
+model = SMA.BaseSMA(epoch=50, pop_size=50)
+model.solve(problem)
 print(f"Best solution: {model.solution[0]}")
 print(f"Best kernel: {KERNEL_ENCODER.inverse_transform([int(model.solution[0][0])])[0]}, Best c: {model.solution[0][1]}")
 

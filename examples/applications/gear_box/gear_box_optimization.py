@@ -1,8 +1,8 @@
 
 from tkinter import W
-from mealpy.swarm_based.WOA import BaseWOA
-from mealpy.swarm_based.GOA import BaseGOA
-from mealpy.swarm_based.GWO import BaseGWO
+from mealpy.swarm_based.WOA import OriginalWOA
+from mealpy.swarm_based.GOA import OriginalGOA
+from mealpy.swarm_based.GWO import OriginalGWO
 import numpy as np
 
 """
@@ -91,6 +91,6 @@ if __name__ == "__main__":
         "ub": [32, 30, 40, 25, 4],
         "minmax": "min",
     }
-    model1 = BaseWOA(problem_dict1, epoch=1000, pop_size=500)
-    best_position, best_fitness = model1.solve()
+    model1 = OriginalWOA(epoch=1000, pop_size=500)
+    best_position, best_fitness = model1.solve(problem_dict1)
     print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
