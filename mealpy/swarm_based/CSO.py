@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseCSO(Optimizer):
+class OriginalCSO(Optimizer):
     """
     The original version of: Cat Swarm Optimization (CSO)
 
@@ -24,13 +24,14 @@ class BaseCSO(Optimizer):
         + cdc (float): counts of dimension to change (larger is more diversity but slow convergence), default=0.8
         + srd (float): seeking range of the selected dimension (smaller is better but slow convergence), default=0.15
         + c1 (float): same in PSO, default=0.4
-        + w_minmax (list, tuple): same in PSO, default=(0.4, 0.9)
+        + w_min (float): same in PSO
+        + w_max (float): same in PSO
         + selected_strategy (int):  0: best fitness, 1: tournament, 2: roulette wheel, else: random (decrease by quality)
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.CSO import BaseCSO
+    >>> from mealpy.swarm_based.CSO import OriginalCSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -50,10 +51,11 @@ class BaseCSO(Optimizer):
     >>> cdc = 0.8
     >>> srd = 0.15
     >>> c1 = 0.4
-    >>> w_minmax = [0.4, 0.9]
+    >>> w_min = 0.4
+    >>> w_max = 0.9
     >>> selected_strategy = 1
-    >>> model = BaseCSO(problem_dict1, epoch, pop_size, mixture_ratio, smp, spc, cdc, srd, c1, w_minmax, selected_strategy)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalCSO(epoch, pop_size, mixture_ratio, smp, spc, cdc, srd, c1, w_min, w_max, selected_strategy)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -67,11 +69,10 @@ class BaseCSO(Optimizer):
     ID_VEL = 2  # velocity
     ID_FLAG = 3  # status
 
-    def __init__(self, problem, epoch=10000, pop_size=100, mixture_ratio=0.15, smp=5, spc=False,
-                 cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, mixture_ratio=0.15, smp=5, spc=False,
+                 cdc=0.8, srd=0.15, c1=0.4, w_min=0.5, w_max=0.9, selected_strategy=1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             mixture_ratio (float): joining seeking mode with tracing mode
@@ -80,11 +81,11 @@ class BaseCSO(Optimizer):
             cdc (float): counts of dimension to change  (larger is more diversity but slow convergence)
             srd (float): seeking range of the selected dimension (smaller is better but slow convergence)
             c1 (float): same in PSO
-            w_minmax (list, tuple): same in PSO
+            w_min (float): same in PSO
+            w_max (float): same in PSO
             selected_strategy (int):  0: best fitness, 1: tournament, 2: roulette wheel, else: random (decrease by quality)
         """
-
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.mixture_ratio = self.validator.check_float("mixture_ratio", mixture_ratio, (0, 1.0))
@@ -93,9 +94,10 @@ class BaseCSO(Optimizer):
         self.cdc = self.validator.check_float("cdc", cdc, (0, 1.0))
         self.srd = self.validator.check_float("srd", srd, (0, 1.0))
         self.c1 = self.validator.check_float("c1", c1, (0, 3.0))
-        self.w_minmax = self.validator.check_tuple_float("w (min, max)", w_minmax, ([0.1, 0.49], [0.5, 2.0]))
-        self.w_min, self.w_max = self.w_minmax
+        self.w_min = self.validator.check_float("w_min", w_min, [0.1, 0.49])
+        self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
         self.selected_strategy = self.validator.check_int("selected_strategy", selected_strategy, [0, 4])
+        self.set_parameters(["epoch", "pop_size", "mixture_ratio", "smp", "spc", "cdc", "srd", "c1", "w_min", "w_max", "selected_strategy"])
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
