@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BasePSO(Optimizer):
+class OriginalPSO(Optimizer):
     """
     The original version of: Particle Swarm Optimization (PSO)
 
@@ -22,7 +22,7 @@ class BasePSO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import BasePSO
+    >>> from mealpy.swarm_based.PSO import OriginalPSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,8 +40,8 @@ class BasePSO(Optimizer):
     >>> c2 = 2.05
     >>> w_min = 0.4
     >>> w_max = 0.9
-    >>> model = BasePSO(problem_dict1, epoch, pop_size, c1, c2, w_min, w_max)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalPSO(epoch, pop_size, c1, c2, w_min, w_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -55,10 +55,9 @@ class BasePSO(Optimizer):
     ID_LOP = 3  # Local position
     ID_LOF = 4  # Local fitness
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             c1 (float): [0-2] local coefficient
@@ -66,16 +65,18 @@ class BasePSO(Optimizer):
             w_min (float): Weight min of bird, default = 0.4
             w_max (float): Weight max of bird, default = 0.9
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
-
+        self.set_parameters(["epoch", "pop_size", "c1", "c2", "w_min", "w_max"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+
+    def initialize_variables(self):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
 
@@ -118,30 +119,33 @@ class BasePSO(Optimizer):
         """
         # Update weight after each move count  (weight down)
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
+        pop_new = []
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
-            v_new = w * self.pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * \
-                    (self.pop[idx][self.ID_LOP] - self.pop[idx][self.ID_POS]) + \
+            v_new = w * self.pop[idx][self.ID_VEC] + self.c1 * np.random.rand() * (self.pop[idx][self.ID_LOP] - self.pop[idx][self.ID_POS]) + \
                     self.c2 * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             x_new = self.pop[idx][self.ID_POS] + v_new  # Xi(new) = Xi(old) + Vi(new) * deltaT (deltaT = 1)
             pos_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
-            target = self.get_target_wrapper(pos_new)
             agent[self.ID_POS] = pos_new
             agent[self.ID_VEC] = v_new
-            agent[self.ID_TAR] = target
-            if self.compare_agent([pos_new, target], [None, self.pop[idx][self.ID_TAR]]):
-                agent[self.ID_LOP] = pos_new
-                agent[self.ID_LOF] = target
-            self.pop[idx] = self.get_better_solution(self.pop[idx], agent)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
+
+        # Update current position, current velocity and compare with past position, past fitness (local best)
+        for idx in range(0, self.pop_size):
+            if self.compare_agent(pop_new[idx], self.pop[idx]):
+                self.pop[idx] = deepcopy(pop_new[idx])
+                if self.compare_agent(pop_new[idx], [None, self.pop[idx][self.ID_LOF]]):
+                    self.pop[idx][self.ID_LOP] = deepcopy(pop_new[idx][self.ID_POS])
+                    self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
 class PPSO(Optimizer):
     """
     The original version of: Phasor Particle Swarm Optimization (P-PSO)
-
-    Notes
-    ~~~~~
-    + This code is converted from matlab code (sent from author: Ebrahim Akbari)
 
     Examples
     ~~~~~~~~
@@ -160,8 +164,8 @@ class PPSO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = PPSO(problem_dict1, epoch, pop_size)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = PPSO(epoch, pop_size)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -174,23 +178,22 @@ class PPSO(Optimizer):
     ID_LOP = 3  # Local position
     ID_LOF = 4  # Local fitness
 
-    def __init__(self, problem, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-
+        self.set_parameters(["epoch", "pop_size"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+
+    def initialize_variables(self):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
-
-        # Dynamic variable
         self.dyn_delta_list = np.random.uniform(0, 2 * np.pi, self.pop_size)
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -234,8 +237,10 @@ class PPSO(Optimizer):
             self.dyn_delta_list[i] += np.abs(aa + bb) * (2 * np.pi)
             self.v_max = (np.abs(np.cos(self.dyn_delta_list[i])) ** 2) * (self.problem.ub - self.problem.lb)
             pop_new.append(agent)
-        # Update fitness for all solutions
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(agent[self.ID_POS])
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
@@ -248,11 +253,7 @@ class PPSO(Optimizer):
 
 class HPSO_TVAC(PPSO):
     """
-    The original version of: Ant Colony Optimization Continuous (HPSO-TVAC)
-
-    Notes
-    ~~~~~
-    + This code is converted from matlab code (sent from author: Ebrahim Akbari)
+    The original version of: Hierarchical PSO Time-Varying Acceleration (HPSO-TVAC)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + ci (float): [0.3, 1.0], c initial, default = 0.5
@@ -277,8 +278,8 @@ class HPSO_TVAC(PPSO):
     >>> pop_size = 50
     >>> ci = 0.5
     >>> cf = 0.0
-    >>> model = HPSO_TVAC(problem_dict1, epoch, pop_size, ci, cf)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = HPSO_TVAC(epoch, pop_size, ci, cf)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -287,21 +288,20 @@ class HPSO_TVAC(PPSO):
     jumping time-varying acceleration coefficients. Electronics Letters, 53(20), pp.1360-1362.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, ci=0.5, cf=0.0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, ci=0.5, cf=0.0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             ci (float): c initial, default = 0.5
             cf (float): c final, default = 0.0
         """
-        super().__init__(problem, epoch, pop_size, **kwargs)
+        super().__init__(epoch, pop_size, **kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.ci = self.validator.check_float("ci", ci, [0.3, 1.0])
         self.cf = self.validator.check_float("cf", cf, [0, 0.3])
-
+        self.set_parameters(["epoch", "pop_size", "ci", "cf"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -335,11 +335,14 @@ class HPSO_TVAC(PPSO):
             v_new = np.minimum(np.maximum(v_new, -self.v_max), self.v_max)
             pos_new = self.pop[i][self.ID_POS] + v_new
             agent[self.ID_VEC] = v_new
-            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-
-            # Update fitness for all solutions
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        # Update fitness for all solutions
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
@@ -350,7 +353,7 @@ class HPSO_TVAC(PPSO):
                     self.pop[idx][self.ID_LOF] = deepcopy(pop_new[idx][self.ID_TAR])
 
 
-class C_PSO(BasePSO):
+class C_PSO(OriginalPSO):
     """
     The original version of: Chaos Particle Swarm Optimization (C-PSO)
 
@@ -381,8 +384,8 @@ class C_PSO(BasePSO):
     >>> c2 = 2.05
     >>> w_min = 0.4
     >>> w_max = 0.9
-    >>> model = C_PSO(problem_dict1, epoch, pop_size, c1, c2, w_min, w_max)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = C_PSO(epoch, pop_size, c1, c2, w_min, w_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -391,10 +394,9 @@ class C_PSO(BasePSO):
     combined with chaos. Chaos, Solitons & Fractals, 25(5), pp.1261-1271.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c1=2.05, c2=2.05, w_min=0.4, w_max=0.9, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             c1 (float): [0-2] local coefficient, default = 2.05
@@ -402,21 +404,21 @@ class C_PSO(BasePSO):
             w_min (float): Weight min of bird, default = 0.4
             w_max (float): Weight max of bird, default = 0.9
         """
-        super().__init__(problem, epoch, pop_size, c1, c2, w_min, w_max, **kwargs)
+        super().__init__(epoch, pop_size, c1, c2, w_min, w_max, **kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
-
+        self.set_parameters(["epoch", "pop_size", "c1", "c2", "w_min", "w_max"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+    
+    def initialize_variables(self):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
         self.N_CLS = int(self.pop_size / 5)  # Number of chaotic local searches
-
-        # Dynamic variable
         self.dyn_lb = deepcopy(self.problem.lb)
         self.dyn_ub = deepcopy(self.problem.ub)
 
@@ -448,11 +450,13 @@ class C_PSO(BasePSO):
             v_new = np.clip(v_new, self.v_min, self.v_max)
             x_new = self.pop[i][self.ID_POS].astype(float) + v_new
             agent[self.ID_VEC] = v_new
-            agent[self.ID_POS] = self.amend_position(x_new, self.dyn_lb, self.dyn_ub)
+            pos_new = self.amend_position(x_new, self.dyn_lb, self.dyn_ub)
+            agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-
-        # Update fitness for all solutions
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
         nfe_epoch += self.pop_size
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
@@ -516,8 +520,8 @@ class CL_PSO(Optimizer):
     >>> w_min = 0.4
     >>> w_max = 0.9
     >>> max_flag = 7
-    >>> model = CL_PSO(problem_dict1, epoch, pop_size, c_local, w_min, w_max, max_flag)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = CL_PSO(epoch, pop_size, c_local, w_min, w_max, max_flag)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -530,10 +534,9 @@ class CL_PSO(Optimizer):
     ID_LOP = 3
     ID_LOF = 4
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c_local=1.2, w_min=0.4, w_max=0.9, max_flag=7, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c_local=1.2, w_min=0.4, w_max=0.9, max_flag=7, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             c_local (float): local coefficient, default = 1.2
@@ -541,20 +544,20 @@ class CL_PSO(Optimizer):
             w_max (float): Weight max of bird, default = 0.9
             max_flag (int): Number of times, default = 7
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c_local = self.validator.check_float("c_local", c_local, (0, 5.0))
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
         self.max_flag = self.validator.check_int("max_flag", max_flag, [2, 100])
-
+        self.set_parameters(["epoch", "pop_size", "c_local", "w_min", "w_max", "max_flag"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
+    
+    def initialize_variables(self):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
-
-        # Dynamic variable
         self.flags = np.zeros(self.pop_size)
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -610,7 +613,10 @@ class CL_PSO(Optimizer):
             agent[self.ID_VEC] = vec_new
             agent[self.ID_POS] = pos_new
             pop_new.append(agent)
-        pop_new = self.update_target_wrapper_population(pop_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
