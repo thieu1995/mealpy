@@ -117,6 +117,9 @@ class Optimizer:
         ## Store initial best and worst solutions
         self.history.store_initial_best_worst(self.g_best, self.g_worst)
 
+    def initialize_variables(self):
+        pass
+
     def get_target_wrapper(self, position):
         """
         Args:
@@ -233,6 +236,7 @@ class Optimizer:
         self.check_problem(problem)
         self.check_mode_and_workers(mode, n_workers)
         self.check_termination("start", termination, None)
+        self.initialize_variables()
 
         self.before_initialization(starting_positions)
         self.initialization()
