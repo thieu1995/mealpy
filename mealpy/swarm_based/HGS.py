@@ -39,8 +39,8 @@ class OriginalHGS(Optimizer):
     >>> pop_size = 50
     >>> PUP = 0.08
     >>> LH = 10000
-    >>> model = OriginalHGS(problem_dict1, epoch, pop_size, PUP, LH)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = OriginalHGS(epoch, pop_size, PUP, LH)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -51,21 +51,20 @@ class OriginalHGS(Optimizer):
 
     ID_HUN = 2  # ID for Hunger value
 
-    def __init__(self, problem, epoch=10000, pop_size=100, PUP=0.08, LH=10000, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, PUP=0.08, LH=10000, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             PUP (float): The probability of updating position (L in the paper), default = 0.08
             LH (float): Largest hunger / threshold, default = 10000
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.PUP = self.validator.check_float("PUP", PUP, (0, 1.0))
         self.LH = self.validator.check_float("LH", LH, [1000, 20000])
-
+        self.set_parameters(["epoch", "pop_size", "PUP", "LH"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
