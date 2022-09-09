@@ -29,8 +29,8 @@ problem = {
 }
 
 ## Run the algorithm
-model = SMA.BaseSMA(problem, epoch=100, pop_size=50)
-best_position, best_fitness = model.solve()
+model = SMA.BaseSMA(epoch=100, pop_size=50)
+best_position, best_fitness = model.solve(problem_dict1)
 print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 export_convergence_chart(model.history.list_global_best_fit, title='Global Best Fitness')            # Draw global best fitness found so far in previous generations

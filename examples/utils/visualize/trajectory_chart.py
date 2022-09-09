@@ -27,8 +27,8 @@ problem = {
 }
 
 ## Run the algorithm
-model = BaseGA(problem, epoch=100, pop_size=50)
-best_position, best_fitness = model.solve()
+model = BaseGA(epoch=100, pop_size=50)
+best_position, best_fitness = model.solve(problem_dict1)
 print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 ## Drawing trajectory of some agents in the first and second dimensions
