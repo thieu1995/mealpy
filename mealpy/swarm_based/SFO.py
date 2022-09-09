@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseSFO(Optimizer):
+class OriginalSFO(Optimizer):
     """
     The original version of: SailFish Optimizer (SFO)
 
@@ -19,12 +19,12 @@ class BaseSFO(Optimizer):
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
         + AP (float): coefficient for decreasing the value of Attack Power linearly from AP to 0
-        + epxilon (float): should be 0.0001, 0.001
+        + epsilon (float): should be 0.0001, 0.001
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SFO import BaseSFO
+    >>> from mealpy.swarm_based.SFO import OriginalSFO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -39,10 +39,10 @@ class BaseSFO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> pp = 0.1
-    >>> AP = 4
-    >>> epxilon = 0.0001
-    >>> model = BaseSFO(problem_dict1, epoch, pop_size, pp, AP, epxilon)
-    >>> best_position, best_fitness = model.solve()
+    >>> AP = 4.0
+    >>> epsilon = 0.0001
+    >>> model = OriginalSFO(epoch, pop_size, pp, AP, epsilon)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -52,22 +52,22 @@ class BaseSFO(Optimizer):
     problems. Engineering Applications of Artificial Intelligence, 80, pp.20-34.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, AP=4, epxilon=0.0001, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pp=0.1, AP=4.0, epsilon=0.0001, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, SailFish pop size
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
             AP (float): coefficient for decreasing the value of Power Attack linearly from AP to 0
-            epxilon (float): should be 0.0001, 0.001
+            epsilon (float): should be 0.0001, 0.001
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pp = self.validator.check_float("pp", pp, (0, 1.0))
         self.AP = self.validator.check_float("AP", AP, (0, 100))
-        self.epxilon = self.validator.check_float("epxilon", epxilon, (0, 0.1))
+        self.epsilon = self.validator.check_float("epsilon", epsilon, (0, 0.1))
+        self.set_parameters(["epoch", "pop_size", "pp", "AP", "epsilon"])
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
@@ -105,7 +105,7 @@ class BaseSFO(Optimizer):
         nfe_epoch += self.pop_size
 
         ## Calculate AttackPower using Eq.(10)
-        AP = self.AP * (1 - 2 * (epoch + 1) * self.epxilon)
+        AP = self.AP * (1 - 2 * (epoch + 1) * self.epsilon)
         if AP < 0.5:
             alpha = int(self.s_size * np.abs(AP))
             beta = int(self.problem.n_dims * np.abs(AP))
@@ -151,13 +151,13 @@ class BaseSFO(Optimizer):
 
 class ImprovedSFO(Optimizer):
     """
-    My improved version of: Sailfish Optimizer (I-SFO)
+    The original version: Improved Sailfish Optimizer (I-SFO)
 
     Notes
     ~~~~~
-    + Reforms Energy equation
-    + Removes parameters AP (A) and epsilon
-    + Applies the idea of Opposition-based Learning technique
+    + Energy equation is reformed
+    + AP (A) and epsilon parameters are removed
+    + Opposition-based learning technique is used
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
@@ -180,8 +180,8 @@ class ImprovedSFO(Optimizer):
     >>> epoch = 1000
     >>> pop_size = 50
     >>> pp = 0.1
-    >>> model = ImprovedSFO(problem_dict1, epoch, pop_size, pp)
-    >>> best_position, best_fitness = model.solve()
+    >>> model = ImprovedSFO(epoch, pop_size, pp)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -190,19 +190,18 @@ class ImprovedSFO(Optimizer):
     European journal of operational research, 185(3), pp.1155-1173.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, pp=0.1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, pp=0.1, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100, SailFish pop size
             pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pp = self.validator.check_float("pp", pp, (0, 1.0))
-
+        self.set_parameters(["epoch", "pop_size", "pp"])
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
@@ -240,7 +239,7 @@ class ImprovedSFO(Optimizer):
         nfe_epoch += self.pop_size
 
         ## ## Calculate AttackPower using my Eq.thieu
-        #### This is our proposed, simple but effective, no need A and epxilon parameters
+        #### This is our proposed, simple but effective, no need A and epsilon parameters
         AP = 1 - epoch * 1.0 / self.epoch
         if AP < 0.5:
             for i in range(0, len(self.s_pop)):
