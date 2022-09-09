@@ -44,7 +44,7 @@ class History:
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import BasePSO
+    >>> from mealpy.swarm_based.PSO import OriginalPSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -57,7 +57,7 @@ class History:
     >>>     "verbose": True,
     >>>     "save_population": True        # To be able to draw the trajectory figure
     >>> }
-    >>> model = BasePSO(epoch=1000, pop_size=50)
+    >>> model = OriginalPSO(epoch=1000, pop_size=50)
     >>> model.solve(problem_dict)
     >>>
     >>> model.history.save_global_objectives_chart(filename="hello/goc")

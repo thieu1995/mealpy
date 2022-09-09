@@ -31,7 +31,7 @@ class Problem:
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import BasePSO
+    >>> from mealpy.swarm_based.PSO import OriginalPSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -44,7 +44,7 @@ class Problem:
     >>>     "log_to": None,
     >>>     "save_population": False,
     >>> }
-    >>> model1 = BasePSO(epoch=1000, pop_size=50)
+    >>> model1 = OriginalPSO(epoch=1000, pop_size=50)
     >>> model1.solve(problem_dict)
     >>>
     >>> ## For discrete problem, you need to design an amend_position function that can (1) bring your solution back to the valid range,
@@ -68,7 +68,7 @@ class Problem:
     >>>     "log_file": "records.log",
     >>>     "amend_position": amend_position
     >>> }
-    >>> model2 = BasePSO(epoch=1000, pop_size=50)
+    >>> model2 = OriginalPSO(epoch=1000, pop_size=50)
     >>> best_position, best_fitness = model2.solve(problem_dict2)
     >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
     """

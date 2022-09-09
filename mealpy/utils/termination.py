@@ -31,7 +31,7 @@ class Termination:
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import BasePSO
+    >>> from mealpy.swarm_based.PSO import OriginalPSO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -46,7 +46,7 @@ class Termination:
     >>>     "mode": "FE",
     >>>     "quantity": 100000  # 100000 number of function evaluation
     >>> }
-    >>> model1 = BasePSO(epoch=1000, pop_size=50)
+    >>> model1 = OriginalPSO(epoch=1000, pop_size=50)
     >>> model1.solve(problem_dict, termination=term_dict)
     """
 
