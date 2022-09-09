@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseGOA(Optimizer):
+class OriginalGOA(Optimizer):
     """
     The original version of: Grasshopper Optimization Algorithm (GOA)
 
@@ -16,18 +16,14 @@ class BaseGOA(Optimizer):
         1. https://dx.doi.org/10.1016/j.advengsoft.2017.01.004
         2. https://www.mathworks.com/matlabcentral/fileexchange/61421-grasshopper-optimisation-algorithm-goa
 
-    Notes:
-        + The matlab version above is not good, therefore
-        + I added np.random.normal() component to Eq, 2.7
-        + I changed the way to calculate distance between two location
-
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c_minmax (list, tuple): (c_min, c_max) -> ([0.00001, 0.01], [0.5, 2.0]), coefficient c, default = (0.00004, 1)
+        + c_min (float): coefficient c min, default = 0.00004
+        + c_max (float): coefficient c max, default = 1.0
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GOA import BaseGOA
+    >>> from mealpy.swarm_based.GOA import OriginalGOA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -41,9 +37,10 @@ class BaseGOA(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> c_minmax = [0.00004, 1]
-    >>> model = BaseGOA(problem_dict1, epoch, pop_size, c_minmax)
-    >>> best_position, best_fitness = model.solve()
+    >>> c_min = 0.00004
+    >>> c_max = 1.0
+    >>> model = OriginalGOA(epoch, pop_size, c_min, c_max)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
@@ -52,19 +49,20 @@ class BaseGOA(Optimizer):
     theory and application. Advances in Engineering Software, 105, pp.30-47.
     """
 
-    def __init__(self, problem, epoch=10000, pop_size=100, c_minmax=(0.00004, 1), **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, c_min=0.00004, c_max=1.0, **kwargs):
         """
         Args:
-            problem (dict): The problem dictionary
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            c_minmax (list, tuple): coefficient c, default = (0.00004, 1)
+            c_min (float): coefficient c min
+            c_max (float): coefficient c max
         """
-        super().__init__(problem, kwargs)
+        super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.c_minmax = self.validator.check_tuple_float("c (min, max)", c_minmax, ([0.00001, 0.2], [0.2, 2.0]))
-
+        self.c_min = self.validator.check_float("c_min", c_min, [0.00001, 0.2])
+        self.c_max = self.validator.check_float("c_max", c_max, [0.2, 5.0])
+        self.set_parameters(["epoch", "pop_size", "c_min", "c_max"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -82,7 +80,7 @@ class BaseGOA(Optimizer):
             epoch (int): The current iteration
         """
         # Eq.(2.8) in the paper
-        c = self.c_minmax[1] - epoch * ((self.c_minmax[1] - self.c_minmax[0]) / self.epoch)
+        c = self.c_max - epoch * ((self.c_max - self.c_min) / self.epoch)
 
         pop_new = []
         for idx in range(0, self.pop_size):
