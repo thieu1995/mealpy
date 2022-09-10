@@ -14,7 +14,7 @@ A. Evolutionary
         SHADE, L_SHADE: select random agents from permutation
         SAP-DE: select random agents
     4. CRO: 
-        + BaseCRO: Mixed methods
+        + OriginalCRO: Mixed methods
         + OCRO: Mixed methods
      
 B. Bio
@@ -32,7 +32,7 @@ F. Human
     2. BSO: Select solutions from different group
     3. SARO: Random 2 agents from population
     4. TLO: 
-        + BaseTLO, OriginalTLO, ITLO
+        + BaseTLO, OriginalTLO, ImprovedTLO
         + Based on different mean, random, different teachers
     5. QSA: Mixed of few methods to choice agents 
         + BaseQSA
@@ -46,7 +46,7 @@ G. Physics
     2. MVO (BaseMVO, OriginalMVO)
     3. SA 
     4. WDO 
-    5. TWO (BaseTWO, OppoTWO, LevyTWO, ImprovedTWO)
+    5. TWO (OriginalTWO, OppoTWO, LevyTWO, ImprovedTWO)
     6. NRO: Mixed method
 
 H. Swarm
@@ -55,10 +55,10 @@ H. Swarm
     3. BSA: Mixed methods
     4. CSA
     5. NMRA: 
-        + BaseNMRA: Random 2 agents
+        + OriginalNMRA: Random 2 agents
         + ImprovedNMRA: Mixed methods
     6. PSO:
-        + BasePSO
+        + OriginalPSO
         + PPSO
         + C-PSO
         + CL-PSO
@@ -120,12 +120,12 @@ H. Swarm
 
 ```
 A. Evolutionary
-    1. ES (BaseES, LevyES) 
-    2. EP (BaseEP, LevyEP)
+    1. ES (OriginalES, LevyES) 
+    2. EP (OriginalEP, LevyEP)
 
 B. Bio
     1. IWO (OriginalIWO)
-    2. WHO (BaseWHO): strong due to the new strategy 
+    2. WHO (OriginalWHO): strong due to the new strategy 
 
 C. Math
     1. AOA 
@@ -151,8 +151,8 @@ H. Swarm
     1. ABC: Neighborhood search
     2. ALO (BaseALO, OriginalALO)
     3. AO
-    4. BA: BaseBA - my version 
-    5. BeesA: BaseBeesA and ProbBeesA version
+    4. BA: AdaptiveBA - my version 
+    5. BeesA: OriginalBeesA and ProbBeesA version
     6. FOA:
         + OriginalFOA: Week, 
         + BaseFOA: Week too
@@ -166,9 +166,9 @@ H. Swarm
     13. MSA: Levy-flight
     14. SFO: Two population (sailfish and sardine)
     15. SHO: Local search --> Strong
-    16. SLO: BaseSLO, ModifiedSLO, ISLO 
+    16. SLO: OriginalSLO, ModifiedSLO, ImprovedSLO 
     17. SSA: BaseSSA, OriginalSSA 
-    18. WOA: BaseWOA, HI_WOA
+    18. WOA: OriginalWOA, HI_WOA
     19. SSpiderA
     20. SSpiderO: Pretty good
     21. COA 
