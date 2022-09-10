@@ -30,7 +30,7 @@ problem = {
 
 ## Run the algorithm
 model = SMA.BaseSMA(epoch=100, pop_size=50)
-best_position, best_fitness = model.solve(problem_dict1)
+best_position, best_fitness = model.solve(problem)
 print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 export_convergence_chart(model.history.list_global_best_fit, title='Global Best Fitness')            # Draw global best fitness found so far in previous generations
@@ -73,12 +73,12 @@ export_trajectory_chart(pos_list, list_legends=list_legends, y_label=y_label)
 
 ### Or better to use the API
 ## You can access all of available figures via object "history" like this:
-model.history.save_global_objectives_chart(filename="hello/goc")
-model.history.save_local_objectives_chart(filename="hello/loc")
-model.history.save_global_best_fitness_chart(filename="hello/gbfc")
-model.history.save_local_best_fitness_chart(filename="hello/lbfc")
-model.history.save_runtime_chart(filename="hello/rtc")
-model.history.save_exploration_exploitation_chart(filename="hello/eec")
-model.history.save_diversity_chart(filename="hello/dc")
-model.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[2], filename="hello/tc")
+model.history.save_global_objectives_chart(filename="results/goc")
+model.history.save_local_objectives_chart(filename="results/loc")
+model.history.save_global_best_fitness_chart(filename="results/gbfc")
+model.history.save_local_best_fitness_chart(filename="results/lbfc")
+model.history.save_runtime_chart(filename="results/rtc")
+model.history.save_exploration_exploitation_chart(filename="results/eec")
+model.history.save_diversity_chart(filename="results/dc")
+model.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[2], filename="results/tc")
 
