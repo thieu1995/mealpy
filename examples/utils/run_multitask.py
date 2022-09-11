@@ -9,7 +9,6 @@ from mealpy.bio_based import BBO
 from mealpy.evolutionary_based import DE
 from mealpy.utils.app import Multitask
 
-
 #### Using multiple algorithm to solve multiple problems with multiple trials
 
 f1 = F52017(30, f_bias=0)
@@ -43,11 +42,13 @@ p3 = {
     "log_to": None,
 }
 
+## Define models
 
 model1 = BBO.BaseBBO(epoch=10, pop_size=50)
 model2 = BBO.OriginalBBO(epoch=10, pop_size=50)
 model3 = DE.BaseDE(epoch=10, pop_size=50)
 
 
-multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3), n_trials=3)
-multitask.execute(save_path="history", save_as="dataframe", save_convergence=True, verbose=True)
+if __name__ == "__main__":
+    multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3))
+    multitask.execute(n_trials=3, mode="parallel", n_workers=4, save_path="history", save_as="csv", save_convergence=True, verbose=True)
