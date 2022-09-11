@@ -8,27 +8,26 @@ import pandas as pd
 from pathlib import Path
 from mealpy.optimizer import Optimizer
 from mealpy.utils.problem import Problem
+from mealpy.utils.validator import Validator
 
 
 class Multitask:
     r"""Multitask utility feature.
 
-    Feature which enables running multiple algorithms with multiple problems.
+    Feature which enables running multiple algorithms with multiple problems, and multiple trials.
     It also supports exporting results in various formats (e.g. Pandas DataFrame, JSON, CSV)
 
     Attributes:
-        dimension (int): Dimension of problem
-        max_evals (int): Number of function evaluations
-        runs (int): Number of repetitions
-        algorithms (Union[List[str], List[Algorithm]]): List of algorithms to run
-        problems (List[Union[str, Problem]]): List of problems to run
+        algorithms (list, tuple): List of algorithms to run
+        problems (list, tuple): List of problems to run
+        n_trials (int): Number of repetitions
 
     """
-
     def __init__(self, algorithms=(), problems=(), n_trials=2):
-        self.algorithms = algorithms
-        self.problems = problems
-        self.n_trials = n_trials
+        self.validator = Validator(log_to="console", log_file=None)
+        self.algorithms = self.validator.check_list_tuple("algorithms", algorithms, "Optimizer")
+        self.problems = self.validator.check_list_tuple("problems", problems, "Problem")
+        self.n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
 
     def export_to_dataframe(self, result: pd.DataFrame, save_path: str):
         result.to_pickle(f"{save_path}.pkl")
@@ -40,16 +39,13 @@ class Multitask:
         result.to_csv(f"{save_path}.csv", header=True, index=False)
 
     def get_export_function(self, export_type="csv"):
-        func = getattr(self, f"export_to_{export_type}")
-        if func is None:
-            raise TypeError(f"Passed export type: {export_type} is not supported!")
-        return func
+        et = self.validator.check_str("export_type", export_type, ["csv", "json", "dataframe"])
+        return getattr(self, f"export_to_{et}")
 
     def execute(self, save_path="", save_as="csv", save_convergence=False, verbose=False):
         """Execute multitask utility.
 
         Args:
-
             save_path (str): The path to the folder that hold results
             save_as (str): Saved file type (e.g. dataframe, json, csv) (default: "csv")
             save_convergence (bool): Save the error (convergence/fitness) during generations (default: False)
@@ -62,10 +58,9 @@ class Multitask:
         ## Get export function
         export_function = self.get_export_function(save_as)
 
-
-        for model in self.algorithms:
+        for id_model, model in enumerate(self.algorithms):
             if not isinstance(model, Optimizer):
-                print(f"{model} is not an instance of Optimizer class.")
+                print(f"Model: {id_model+1} is not an instance of Optimizer class.")
                 continue
 
             ## Check parent directories
@@ -75,10 +70,10 @@ class Multitask:
             Path(path_convergence).mkdir(parents=True, exist_ok=True)
 
             best_fit_model_results = {}
-            for problem in self.problems:
+            for id_prob, problem in enumerate(self.problems):
                 if not isinstance(problem, Problem):
                     if not type(problem) is dict:
-                        print(f"{problem} is not an instance of Problem class or a Python dict.")
+                        print(f"Problem: {id_prob+1} is not an instance of Problem class or a Python dict.")
                         continue
                     else:
                         problem = Problem(**problem)
