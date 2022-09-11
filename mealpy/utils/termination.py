@@ -71,17 +71,17 @@ class Termination:
             setattr(self, key, value)
 
     def __set_termination(self, mode, quantity):
-        if validator.is_str_in_list(mode, list(self.SUPPORTED_TERMINATIONS.keys())):
+        if validator.is_str_in_list(mode, list(Termination.SUPPORTED_TERMINATIONS.keys())):
             self.mode = mode
-            self.name = self.SUPPORTED_TERMINATIONS[mode][0]
+            self.name = Termination.SUPPORTED_TERMINATIONS[mode][0]
             if type(quantity) in (int, float):
                 qt = int(quantity)
-                if validator.is_in_bound(qt, self.SUPPORTED_TERMINATIONS[mode][1]):
+                if validator.is_in_bound(qt, Termination.SUPPORTED_TERMINATIONS[mode][1]):
                     self.quantity = qt
                 else:
-                    raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
+                    raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {Termination.SUPPORTED_TERMINATIONS[mode][1]}.")
             else:
-                raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {self.SUPPORTED_TERMINATIONS[mode][1]}.")
+                raise ValueError(f"Mode: {mode}, 'quantity' is an integer and should be in range: {Termination.SUPPORTED_TERMINATIONS[mode][1]}.")
         else:
             raise ValueError("Supported termination mode: FE (function evaluation), TB (time bound), ES (early stopping), MG (maximum generation).")
 
