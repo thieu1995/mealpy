@@ -3,7 +3,8 @@
    :maxdepth: 4
 
    general/introduction.rst
-   general/guide_to_use_model.rst
+   general/simple_guide.rst
+   general/advance_guide.rst
    general/video_tutorials.rst
 
 .. toctree::

@@ -1,7 +1,6 @@
 mealpy.math\_based package
 ==========================
 
-
 mealpy.math\_based.AOA module
 -----------------------------
 
@@ -26,6 +25,14 @@ mealpy.math\_based.CGO module
    :undoc-members:
    :show-inheritance:
 
+mealpy.math\_based.CircleSA module
+----------------------------------
+
+.. automodule:: mealpy.math_based.CircleSA
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.math\_based.GBO module
 -----------------------------
 
@@ -38,6 +45,14 @@ mealpy.math\_based.HC module
 ----------------------------
 
 .. automodule:: mealpy.math_based.HC
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.math\_based.INFO module
+------------------------------
+
+.. automodule:: mealpy.math_based.INFO
    :members:
    :undoc-members:
    :show-inheritance:
@@ -57,4 +72,3 @@ mealpy.math\_based.SCA module
    :members:
    :undoc-members:
    :show-inheritance:
-

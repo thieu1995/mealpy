@@ -3,36 +3,10 @@ Introduction
 ============
 
 
-------
-MEALPY
-------
-
-.. image:: https://img.shields.io/badge/release-2.4.2-yellow.svg
-   :target: https://github.com/thieu1995/mealpy/releases
-
-.. image:: https://img.shields.io/pypi/wheel/gensim.svg
-   :target: https://pypi.python.org/pypi/mealpy
-
-.. image:: https://badge.fury.io/py/mealpy.svg
-   :target: https://badge.fury.io/py/mealpy
-
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg
-   :target: https://doi.org/10.5281/zenodo.3711948
-
-.. image:: https://readthedocs.org/projects/mealpy/badge/?version=latest
-   :target: https://mealpy.readthedocs.io/en/latest/?badge=latest
-
-.. image:: https://pepy.tech/badge/mealpy
-   :target: https://pepy.tech/project/mealpy
-
-.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
-   :target: https://www.gnu.org/licenses/gpl-3.0
-
-
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.4.2, Total algorithms: 84 original, 24 official variants, 38 developed variants, 9 dummies.
+* Current version: 2.5.0, Total algorithms: 84 original, 24 official variants, 38 developed variants, 9 dummies.
 
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library (Check `All releases`_)
@@ -42,6 +16,7 @@ MEALPY
    * mealpy == 2.2.0
    * mealpy == 2.3.0
    * 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
+   * mealpy >= 2.5.0
 
 .. _All releases: https://pypi.org/project/mealpy/#history
 
@@ -52,24 +27,16 @@ MEALPY
 
 * What you can do with this library:
     * Analyse parameters of algorithms.
-    * Perform Qualitative Analysis of algorithms.
-    * Perform Quantitative Analysis of algorithms.
+    * Perform Qualitative and Quantitative Analysis of algorithms.
     * Analyse rate of convergence of algorithms.
-    * Test the scalability of algorithms.
-    * Analyse the stability of algorithms.
-    * Analyse the robustness of algorithms.
+    * Test and Analyse the scalability and the robustness of algorithms.
 
 
-* If you guys want a new algorithm, please open an `Issues ticket`_
+* If you guys want a new algorithm, please open an `Issues ticket`_, or build your own New Optimizer using mealpy's components.
 
 .. _Issues ticket: https://github.com/thieu1995/mealpy/issues
 
 
-* If you are facing multiple/many objective optimization problems, you can use Mealpy with weighted-sum method to
-  transform it into single-objective optimization problem. But you want to find Pareto front / Reference front, then
-  I recommend to checkout the `PYMOO library`_.
-
-.. _PYMOO library: https://pymoo.org/
 
 * And please give me some credits if you use this library, check some of my `first-author paper`_.
 
@@ -77,16 +44,16 @@ MEALPY
 
 ::
 
-	@software{thieu_nguyen_2020_3711949,
-	  author       = {Nguyen Van Thieu},
-	  title        = {A collection of the state-of-the-art Meta-heuristics Algorithms in Python: Mealpy},
-	  month        = march,
-	  year         = 2020,
+	@software{nguyen_van_thieu_2022_6684223,
+	  author       = {Nguyen Van Thieu and Seyedali Mirjalili},
+	  title        = {{MEALPY: a Framework of The State-of-The-Art Meta-Heuristic Algorithms in Python}},
+	  month        = jun,
+	  year         = 2022,
 	  publisher    = {Zenodo},
-	  doi          = {10.5281/zenodo.3711948},
-	  url          = {https://doi.org/10.5281/zenodo.3711948}
+	  version      = {v2.4.2},
+	  doi          = {10.5281/zenodo.6684223},
+	  url          = {https://doi.org/10.5281/zenodo.6684223}
 	}
-
 
 ------------
 Optimization

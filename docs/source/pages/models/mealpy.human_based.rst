@@ -65,6 +65,14 @@ mealpy.human\_based.LCO module
    :undoc-members:
    :show-inheritance:
 
+mealpy.human\_based.PO module
+-----------------------------
+
+.. automodule:: mealpy.human_based.PO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.human\_based.QSA module
 ------------------------------
 
@@ -81,6 +89,13 @@ mealpy.human\_based.SARO module
    :undoc-members:
    :show-inheritance:
 
+mealpy.human\_based.SPBO module
+-------------------------------
+
+.. automodule:: mealpy.human_based.SPBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 mealpy.human\_based.SSDO module
 -------------------------------
@@ -94,6 +109,14 @@ mealpy.human\_based.TLO module
 ------------------------------
 
 .. automodule:: mealpy.human_based.TLO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.human\_based.WarSO module
+--------------------------------
+
+.. automodule:: mealpy.human_based.WarSO
    :members:
    :undoc-members:
    :show-inheritance:

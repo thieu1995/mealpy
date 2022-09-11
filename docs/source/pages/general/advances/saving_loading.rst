@@ -11,11 +11,11 @@ Above tutorials, we know that we can save the population after each epoch in the
 	  "ub": [5, 10, 100, 30, ],
 	  "minmax": "min",
 	  "log_to": "console",
-	  "save_population": False,              # Default = True
+	  "save_population": True,              # Default = False
 	}
 
 However, as a warning, when your problem is too big. It will cause memory issues when running the model. Besides, "save_population" here means storing the
-population of each epoch in the model.history object. So it doesn't save the model to the file. When we want to save the model and load the model from file.
+population of each epoch in the model.history object. So it doesn't save the model to the file. When we want to save and load the optimizer from file.
 We need to use module io from mealpy.utils.
 
 

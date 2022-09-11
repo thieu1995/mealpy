@@ -1,7 +1,6 @@
 mealpy.evolutionary\_based package
 ==================================
 
-
 mealpy.evolutionary\_based.CRO module
 -------------------------------------
 

@@ -106,64 +106,16 @@ numpy vector (the solution) and output is the single objective value or list of 
 	def fitness_normal(solution=None):
 		return np.sqrt(solution**2)         # Single value
 
-
-	## This is how you design multi-objective function
-	#### Link: https://en.wikipedia.org/wiki/Test_functions_for_optimization
-	def fitness_multi(solution):
-	    def booth(x, y):
-	        return (x + 2*y - 7)**2 + (2*x + y - 5)**2
-	    def bukin(x, y):
-	        return 100 * np.sqrt(np.abs(y - 0.01 * x**2)) + 0.01 * np.abs(x + 10)
-	    def matyas(x, y):
-	        return 0.26 * (x**2 + y**2) - 0.48 * x * y
-	    return [booth(solution[0], solution[1]), bukin(solution[0], solution[1]), matyas(solution[0], solution[1])]
-
-
-	## This is how you design Constrained Benchmark Function (G01)
-	#### Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
-	def fitness_constrained(solution):
-		def g1(x):
-	        return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
-	    def g2(x):
-	        return 2 * x[0] + 2 * x[2] + x[9] + x[10] - 10
-	    def g3(x):
-	        return 2 * x[1] + 2 * x[2] + x[10] + x[11] - 10
-	    def g4(x):
-	        return -8 * x[0] + x[9]
-	    def g5(x):
-	        return -8 * x[1] + x[10]
-	    def g6(x):
-	        return -8 * x[2] + x[11]
-	    def g7(x):
-	        return -2 * x[3] - x[4] + x[9]
-	    def g8(x):
-	        return -2 * x[5] - x[6] + x[10]
-	    def g9(x):
-	        return -2 * x[7] - x[8] + x[11]
-
-	    def violate(value):
-	        return 0 if value <= 0 else value
-
-	    fx = 5 * np.sum(solution[:4]) - 5 * np.sum(solution[:4] ** 2) - np.sum(solution[4:13])
-
-	    ## Increase the punishment for g1 and g4 to boost the algorithm (You can choice any constraint instead of g1 and g4)
-	    fx += violate(g1(solution)) ** 2 + violate(g2(solution)) + violate(g3(solution)) + \
-	        2 * violate(g4(solution)) + violate(g5(solution)) + violate(g6(solution)) + \
-	        violate(g7(solution)) + violate(g8(solution)) + violate(g9(solution))
-	    return fx
-
 -------------------
 Problem Preparation
 -------------------
 
-You will need to define a problem dictionary with must has keywords ("fit_func", "lb", "ub", "minmax"). For special case, when you are trying to
-solve **multiple objective functions**, you need another keyword **"obj_weights"**:
+You will need to define a problem dictionary with must has keywords ("fit_func", "lb", "ub", "minmax").
 
 	* fit_func: Your fitness function
 	* lb: Lower bound of variables, it should be list of values
 	* ub: Upper bound of variables, it should be list of values
 	* minmax: The problem you are trying to solve is minimum or maximum, value can be "min" or "max"
-	* obj_weights: list weights for all your objectives (Optional, default = [1, 1, ...1])
 
 
 .. code-block:: python
@@ -175,24 +127,6 @@ solve **multiple objective functions**, you need another keyword **"obj_weights"
 	    "ub": [100, ] * 30,
 	    "minmax": "min",
 	}
-
-	## Design a problem dictionary for multiple objective functions above
-	problem_multi = {
-	    "fit_func": fitness_multi,
-	    "lb": [-10, -10],
-	    "ub": [10, 10],
-	    "minmax": "min",
-	    "obj_weights": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
-	}
-
-	## Design a problem dictionary for constrained objective function above
-	problem_constrained = {
-	  "fit_func": fitness_constrained,
-	  "lb": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	  "ub": [1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1],
-	  "minmax": "min",
-	}
-
 
 --------
 Training
@@ -227,6 +161,18 @@ Start learning by call function **solve()**. There are 4 different training mode
 
 	pso_model = PSO.OriginalPSO(epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
 	best_position, best_fitness_value = pso_model.solve(problem_constrained, mode="process")
+
+
+
+You can set the number of workers when using "Parallel" training.
+
+.. code-block:: python
+
+	from mealpy.bio_based import SMA
+
+	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="thread", n_workers=8)
+	# Using 8 threads to solve this problem
 
 
 The returned results are 2 values :

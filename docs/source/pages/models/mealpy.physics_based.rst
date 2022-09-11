@@ -1,7 +1,6 @@
 mealpy.physics\_based package
 =============================
 
-
 mealpy.physics\_based.ASO module
 --------------------------------
 

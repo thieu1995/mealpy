@@ -1,50 +1,35 @@
-More on Fitness Function
-========================
+Custom Problem
+==============
 
-Usually, when defining a fitness function we only need 1 parameter which is the solution.
+For a complex problem, we recommend user to define and custom child class of Problem class instead of defining the problem dictionary.
 
-.. code-block:: python
-
-	def fitness_function(solution):
-		fitness = np.sum(solution**2)
-	    return fitness
-
-But what if we need to pass additional data to the fitness function to calculate the fitness value?
-as in the case of calculating the loss of neural network as fitness value, we need to pass the dataset into this function.
-
-In previous version, we deal with this problem by writing all the code in the same file python and use DATASET as global variable.
-
-But from version 2.4.2, you can define your data (whatever it is) as an input parameter to fitness function, such as.
+For example, training neural network will required the dataset passing to the fitness function. Defining a child class can pass any additional data that you
+need.
 
 .. code-block:: python
 
-   from mealpy.swarm_based import PSO
+	from mealpy.swarm_based import PSO
+	from mealpy.utils.problem import Problem
 
-   def fitness_function(solution, data):
-       dataset = data['dataset']
-       additional_infor = data['additional-information']
-       network = NET(dataset, additional_infor)
-       fitness = network.loss
-       return fitness
+	class NeuralNetwork(Problem):
+	    def __init__(self, lb, ub, minmax, name="NeuralNetwork", dataset=None, additional=None, **kwargs):
+	        super().__init__(lb, ub, minmax, **kwargs)
+	        self.name = name
+			self.dataset = dataset
+			self.additional = additional
 
-   DATA = {
-       "dataset": dataset,
-       "additional-information": temp,
-   }
+	    def fit_func(self, solution):
+			network = NET(self.dataset, self.additional)
+			fitness = network.loss
+			return fitness
 
-   problem = {
-      "fit_func": F5,
-      "lb": [-3, -5, 1, -10, ],
-      "ub": [5, 10, 100, 30, ],
-      "minmax": "min",
-      "data": DATA,     # Remember this keyword 'data'
-   }
+	## Create an instance of MOP class
+	problem_cop = COP(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ], name="Network",
+					dataset=dataset, additional=additional, minmax="min")
 
-   model = PSO.OriginalPSO(epoch=10, pop_size=50)
-   model.solve()
-
-**Notes**: As you can see, any data or information should store in same dictionary (Recommended) and then pass it to Problem object.
-And then you can get it by key in fitness function.
+	## Define the model and solve the problem
+	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
+	model.solve(problem=problem_cop)
 
 
 .. toctree::

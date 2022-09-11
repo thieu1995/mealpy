@@ -1,23 +1,23 @@
-=========
-Citations
-=========
-If you use mealpy in your project, I would appreciate citations:
+=======
+Cite Us
+=======
+
+If you are using mealpy in your project, we would appreciate citations:
 
 ::
 
-   @software{thieu_nguyen_2020_3711949,
-      author       = {Nguyen Van Thieu},
-      title        = {A collection of the state-of-the-art Meta-heuristic Algorithms in Python: Mealpy},
-      month        = march,
-      year         = 2020,
+   @software{nguyen_van_thieu_2022_6684223,
+      author       = {Nguyen Van Thieu and Seyedali Mirjalili},
+      title        = {{MEALPY: a Framework of The State-of-The-Art Meta-Heuristic Algorithms in Python}},
+      month        = jun,
+      year         = 2022,
       publisher    = {Zenodo},
-      doi          = {10.5281/zenodo.3711948},
-      url          = {https://doi.org/10.5281/zenodo.3711948}
+      version      = {v2.4.2},
+      doi          = {10.5281/zenodo.6684223},
+      url          = {https://doi.org/10.5281/zenodo.6684223}
    }
 
-If you have an open-ended or a research question, you can contact me via nguyenthieu2102@gmail.com or `Research Gate`_
-
-.. _Research Gate: https://www.researchgate.net/profile/Nguyen_Thieu2
+If you have an open-ended or a research question, you can contact me via nguyenthieu2102@gmail.com
 
 
 ===============
@@ -30,7 +30,6 @@ Important links
 * Issue tracker: https://github.com/thieu1995/mealpy/issues
 * Notable changes log: https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md
 * Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
-* Explain the DUMMY optimizer group: https://github.com/thieu1995/mealpy/blob/master/assets/DUMMY.md
 
 * This project also related to my another projects which are "meta-heuristics" and "neural-network", check it here
     * https://github.com/thieu1995/opfunu

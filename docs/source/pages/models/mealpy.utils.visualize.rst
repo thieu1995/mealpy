@@ -1,7 +1,7 @@
-mealpy.utils.visualize
-======================
+mealpy.utils.visualize package
+==============================
 
-mealpy.utils.visualize.linechart
+mealpy.utils.visualize.linechart module
 ---------------------------------------
 
 .. automodule:: mealpy.utils.visualize.linechart

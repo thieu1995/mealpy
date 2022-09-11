@@ -1,11 +1,18 @@
 mealpy.bio\_based package
 =========================
 
-
 mealpy.bio\_based.BBO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.BBO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.bio\_based.BMO module
+----------------------------
+
+.. automodule:: mealpy.bio_based.BMO
    :members:
    :undoc-members:
    :show-inheritance:
@@ -42,10 +49,26 @@ mealpy.bio\_based.SMA module
    :undoc-members:
    :show-inheritance:
 
+mealpy.bio\_based.SOA module
+----------------------------
+
+.. automodule:: mealpy.bio_based.SOA
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.bio\_based.TPO module
 ----------------------------
 
 .. automodule:: mealpy.bio_based.TPO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.bio\_based.TSA module
+----------------------------
+
+.. automodule:: mealpy.bio_based.TSA
    :members:
    :undoc-members:
    :show-inheritance:
