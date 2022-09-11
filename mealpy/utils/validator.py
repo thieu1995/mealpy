@@ -103,7 +103,7 @@ class Validator:
         raise ValueError(f"'{name}' are float {bounds}.")
 
     def check_list_tuple(self, name: str, value: any, data_type: str):
-        if type(value) in (tuple, list) and len(value) > 1:
+        if type(value) in (tuple, list) and len(value) >= 1:
             return list(value)
         raise ValueError(f"'{name}' should be a list or tuple of {data_type}, and length >= 1.")
 

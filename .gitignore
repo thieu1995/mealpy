@@ -14,7 +14,7 @@ mealpy/human_based/PO.py
 mealpy/human_based/SPBO.py
 mealpy/human_based/WarSO.py
 mealpy/math_based/CircleSA.py
-
+examples/utils/history*
 
 check_algo.py
 examples/hehu.py
