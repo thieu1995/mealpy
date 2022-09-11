@@ -25,10 +25,10 @@ examples/myhelp.py
 # Pycharm
 .idea/
 drafts/
-assets/commands.md
-assets/ga_exam.py
-assets/tut_upcode.md
-assets/levy_flight.py
+.github/commands.md
+.github/ga_exam.py
+.github/tut_upcode.md
+.github/levy_flight.py
 docs/build/
 testcase/
 
