@@ -4,7 +4,7 @@ Tuner / Hyperparameter Tuning
 
 We build a dedicated class, Runer, that can help you tune your algorithm's parameters.
 
-Please head to examples folder to learn more about this `Tuner-Examples`_)
+Please head to examples folder to learn more about this `Tuner-Examples`_
 
 .. _Tuner-Examples: https://github.com/thieu1995/mealpy/tree/master/examples
 

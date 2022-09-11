@@ -20,6 +20,9 @@ Subpackages
    mealpy.utils
 
 
+Submodules
+----------
+
 mealpy.optimizer module
 -----------------------
 
@@ -27,3 +30,21 @@ mealpy.optimizer module
    :members:
    :undoc-members:
    :show-inheritance:
+
+mealpy.tuner module
+-------------------
+
+.. automodule:: mealpy.tuner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.multitask module
+-----------------------
+
+.. automodule:: mealpy.multitask
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

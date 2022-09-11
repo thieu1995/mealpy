@@ -9,7 +9,7 @@ We build a dedicated class, Multitask, that can help you run several different s
 3. Run multiple algorithms with 1 problem, and multiple trials
 4. Run multiple algorithms with multiple problems, and multiple trials
 
-Please head to examples folder to learn more about this `Multitask-Examples`_)
+Please head to examples folder to learn more about this `Multitask-Examples`_
 
 .. _Multitask-Examples: https://github.com/thieu1995/mealpy/tree/master/examples
 
