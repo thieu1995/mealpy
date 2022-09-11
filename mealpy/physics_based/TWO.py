@@ -366,11 +366,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> r_rate = 0.3
-    >>> ps_rate = 0.85
-    >>> p_field = 0.1
-    >>> n_field = 0.45
-    >>> model = EnhancedTWO(epoch, pop_size, r_rate, ps_rate, p_field, n_field)
+    >>> model = EnhancedTWO(epoch, pop_size)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 

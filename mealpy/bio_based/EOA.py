@@ -9,7 +9,7 @@ from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
-class BaseEOA(Optimizer):
+class OriginalEOA(Optimizer):
     """
     The developed version: Earthworm Optimisation Algorithm (EOA)
 
@@ -33,7 +33,7 @@ class BaseEOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.EOA import BaseEOA
+    >>> from mealpy.bio_based.EOA import OriginalEOA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -53,7 +53,7 @@ class BaseEOA(Optimizer):
     >>> alpha = 0.98
     >>> beta = 0.9
     >>> gamma = 0.9
-    >>> model = BaseEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
+    >>> model = OriginalEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
