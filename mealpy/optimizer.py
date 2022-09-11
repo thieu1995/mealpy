@@ -54,23 +54,40 @@ class Optimizer:
         self.validator = Validator(log_to="console", log_file=None)
 
         if self.name is None: self.name = self.__class__.__name__
-        self.sort_flag, self.terminate_counter, self.nfe_per_epoch, self.parameters = False, None, self.pop_size, {}
+        self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
+        self.parameters, self.params_name_ordered = {}, None
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def set_parameters(self, para_names=None):
+    def set_parameters(self, parameters):
         """
         Set the parameters for current optimizer.
 
+        if paras is a list of parameter's name, then it will set the default value in optimizer as current parameters
+        if paras is a dict of parameter's name and value, then it will override the current parameters
+
         Args:
-            para_names (list): List of parameters' name
+            parameters (list, dict): List or dict of parameters
         """
-        self.parameters = {}
-        for name in para_names:
-            self.parameters[name] = self.__dict__[name]
+        if type(parameters) in (list, tuple):
+            self.params_name_ordered = tuple(parameters)
+            self.parameters = {}
+            for name in parameters:
+                self.parameters[name] = self.__dict__[name]
+
+        if type(parameters) is dict:
+            valid_para_names = set(self.parameters.keys())
+            new_para_names = set(parameters.keys())
+            if new_para_names.issubset(valid_para_names):
+                for key, value in parameters.items():
+                    setattr(self, key, value)
+                    self.parameters[key] = value
+            else:
+                raise ValueError(f"Invalid input parameters: {new_para_names} for {self.get_name()} optimizer. "
+                                 f"Valid parameters are: {valid_para_names}.")
 
     def get_parameters(self):
         """
@@ -92,6 +109,13 @@ class Optimizer:
 
     def get_name(self):
         return self.name
+
+    def __str__(self):
+        temp = ""
+        for key in self.params_name_ordered:
+            temp += f"{key}={self.parameters[key]}, "
+        temp = temp[:-2]
+        return f"{self.__class__.__name__}({temp})"
 
     def before_initialization(self, starting_positions=None):
         if starting_positions is None:
@@ -337,12 +361,12 @@ class Optimizer:
         pos_list = [agent[self.ID_POS] for agent in pop]
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor(self.n_workers) as executor:
-                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
+                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result as original order, not the future object
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor(self.n_workers) as executor:
-                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result not the future object
+                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result as original order, not the future object
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
         elif self.mode == "swarm":
