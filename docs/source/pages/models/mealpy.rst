@@ -19,8 +19,6 @@ Subpackages
    mealpy.system_based
    mealpy.utils
 
-Submodules
-----------
 
 mealpy.optimizer module
 -----------------------
