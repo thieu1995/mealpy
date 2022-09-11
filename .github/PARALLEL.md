@@ -1,5 +1,7 @@
 ## Performance effected by parallel training 
 
+* mealpy >= 2.4.0 
+
 1. Select a few random agents to update the current agent
 - small effect, especially with good algorithm, there is in-significant between sequential or parallel training mode
 
