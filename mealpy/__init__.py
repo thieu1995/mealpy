@@ -19,11 +19,12 @@
 # >>>    "minmax": "min",
 # >>>    "save_population": True,
 # >>>    "log_to": "file",
-# >>>    "log_file": "mealpy.log"
+# >>>    "log_file": "mealpy.log",
+# >>>    "name": Square",
 # >>> }
 # >>>
 # >>> ## Run the algorithm
-# >>> model = PSO.C_PSO(epoch=5, pop_size=50, name="C-PSO", fit_name="Square")
+# >>> model = PSO.C_PSO(epoch=5, pop_size=50, name="C-PSO")
 # >>> best_position, best_fitness = model.solve(problem)
 # >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
@@ -39,3 +40,6 @@ from . import physics_based
 from . import swarm_based
 from . import system_based
 from . import utils
+from . import tuner
+from . import multitask
+from . import optimizer
