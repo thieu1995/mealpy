@@ -41,13 +41,22 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 	        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
 	        self.m_clusters = self.validator.check_int("m_clusters", m_clusters, [2, 5])
 	        self.p1 = self.validator.check_float("p1", p1, (0, 1.0))
-	        self.set_parameters(["epoch", "pop_size", "m_clusters", "p1"])
 
 	        self.nfe_per_epoch = self.pop_size
 	        self.sort_flag = True
 	        # Determine to sort the problem or not in each epoch
 	        ## if True, the problem always sorted with fitness value increase
 	        ## if False, the problem is not sorted
+
+	    def initialize_variables(self):
+	        """
+	        This is method is called before initialization() method.
+	        Returns:
+
+	        """
+	        ## Support variables
+	        self.n_agents = int(self.pop_size / self.m_clusters)
+	        self.space = self.problem.ub - self.problem.lb
 
 	    def initialization(self):
 	        """
@@ -58,10 +67,7 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 	            self.pop = self.create_population(self.pop_size)
 
 	        ### Your additional code can be implemented here
-	        ## Calculate support variables
-	        self.n_agents = int(self.pop_size/self.m_clusters)
 	        self.mean_pos = np.mean([agent[self.ID_POS] for agent in self.pop])
-	        self.space = self.problem.ub - self.problem.lb
 
 	    def evolve(self, epoch):
 	        """
@@ -116,6 +122,7 @@ Based on this flow, we create an example in examples/build_new_optimizer.py to s
 	model = MyAlgorithm(epoch, pop_size)
 	best_position, best_fitness = model.solve(problem_dict1)
 	print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
 
 
 

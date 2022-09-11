@@ -1,6 +1,6 @@
-==================
-Guide To Use Model
-==================
+============
+Simple Guide
+============
 
 In this phase, the main task is to find out the global optimal - in this project, we call it named *model* for simple. We designed the classical as well as
 the state-of-the-art population-based meta-heuristics models: `Evolutionary-based`_, `Swarm-based`_, `Physics-based`_, `Human-based`_, `Biology-based`_,
@@ -23,18 +23,25 @@ Installation
 
 **User Installation**
 
-- Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
+Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 
 ::
 
-   $ pip install mealpy==2.4.2
+   $ pip install mealpy==2.5.0
 
-- Or install the development version from GitHub:
+Or install the development version from GitHub:
 
 ::
 
    $ pip install git+https://github.com/thieu1995/mealpy
 
+
+Check the version of MEALPY:
+
+::
+
+   $ import mealpy
+   $ mealpy.__version__
 
 ----------------------
 Getting started in 30s
@@ -59,8 +66,6 @@ Getting started in 30s
 	    "lb": [-100, ] * 30,
 	    "ub": [100, ] * 30,
 	    "minmax": "min",
-	    "log_to": "file",
-	    "log_file": "result.log"
 	}
 
 	ga_model = GA.BaseGA(epoch=100, pop_size=50, pc=0.85, pm=0.1)
@@ -220,7 +225,7 @@ Start learning by call function **solve()**. There are 4 different training mode
 	ga_model = GA.BaseGA(epoch=1000, pop_size=100, pc=0.9, pm=0.05)
 	best_position, best_fitness_value = ga_model.solve(problem_multi, mode="thread")
 
-	pso_model = PSO.BasePSO(epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
+	pso_model = PSO.OriginalPSO(epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
 	best_position, best_fitness_value = pso_model.solve(problem_constrained, mode="process")
 
 
@@ -229,20 +234,6 @@ The returned results are 2 values :
 - best_position: the global best position it found on training process
 - best_fitness_value: the global best fitness value
 
-
---------
-Advances
---------
-
-.. include:: advances/lower_upper_bound.rst
-.. include:: advances/termination.rst
-.. include:: advances/problem_preparation.rst
-.. include:: advances/model_definition.rst
-.. include:: advances/more_on_fitness_function.rst
-.. include:: advances/starting_positions.rst
-.. include:: advances/agent_history.rst
-.. include:: advances/saving_loading.rst
-.. include:: advances/import_all_models.rst
 
 .. toctree::
    :maxdepth: 4

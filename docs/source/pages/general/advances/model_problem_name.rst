@@ -15,7 +15,7 @@ Model Definition
       "name": "Benchmark Function 5th"
    }
 
-   model = PSO.BasePSO(epoch=10, pop_size=50, name="Normal PSO")
+   model = PSO.OriginalPSO(epoch=10, pop_size=50, name="Normal PSO")
    model.solve(problem=problem)
 
    print(model.name)            # Normal PSO
@@ -31,7 +31,7 @@ Model Definition
       "quantity": 60  # 60 seconds = 1 minute to run this algorithm only
    }
 
-   model = PSO.BasePSO(epoch=100, pop_size=50)
+   model = PSO.OriginalPSO(epoch=100, pop_size=50)
    model.solve(problem, termination=term_dict)
 
 
@@ -41,12 +41,12 @@ If you don't know how to set up hyper-parameters and valid range for it. Try to 
 
 .. code-block:: python
 
-   model = PSO.BasePSO(epoch="hello", pop_size="world")
+   model = PSO.OriginalPSO(epoch="hello", pop_size="world")
    model.solve(problem)
 
    # $ 2022/03/22 08:59:16 AM, ERROR, mealpy.utils.validator.Validator [line: 31]: 'epoch' is an integer and value should be in range: [1, 100000].
 
-   model = PSO.BasePSO(epoch=10, pop_size="world")
+   model = PSO.OriginalPSO(epoch=10, pop_size="world")
    model.solve(problem)
 
    # $ 2022/03/22 09:01:51 AM, ERROR, mealpy.utils.validator.Validator [line: 31]: 'pop_size' is an integer and value should be in range: [10, 10000].

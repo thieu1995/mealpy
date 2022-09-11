@@ -44,7 +44,7 @@ Drawing all available figures. There are 8 different figures for each algorithm.
 .. code-block:: python
 
 	model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-	model.solve(problem_dict1)
+	model.solve(problem)
 
 	## You can access them all via object "history" like this:
 	model.history.save_global_objectives_chart(filename="hello/goc")

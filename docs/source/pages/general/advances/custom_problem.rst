@@ -40,7 +40,7 @@ But from version 2.4.2, you can define your data (whatever it is) as an input pa
       "data": DATA,     # Remember this keyword 'data'
    }
 
-   model = PSO.BasePSO(problem, epoch=10, pop_size=50)
+   model = PSO.OriginalPSO(epoch=10, pop_size=50)
    model.solve()
 
 **Notes**: As you can see, any data or information should store in same dictionary (Recommended) and then pass it to Problem object.
