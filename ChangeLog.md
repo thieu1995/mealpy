@@ -16,9 +16,6 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 # Version 2.5.0
 
 ### Update
-https://github.com/karakatic/EvoPreprocess
-https://github.com/SasoPavlic/NiaNet
-https://github.com/lukapecnik/NiaClass
 
 + Add save and load model functionalities in mealpy.utils.io module.
 + Add object that hold global/current worst solution in history object
@@ -33,9 +30,11 @@ https://github.com/lukapecnik/NiaClass
 + Fix bug printing same entry multiple times in logger.
 + Fix bug exit() in Optimizer and utils package.
 + **Update new Termination class, move termination parameter from Optimizer to solve() function.**
-+ **Add Multitask utility that can run multiple optimizers on multiple problems with multiple trials.**
++ **Add Multitask class that can run multiple optimizers on multiple problems with multiple trials.**
 + Refactor all optimizers.
-+ Add example how to build new optimizer.
++ **Add Tuner class that can help tuning hyper-parameters of optimizer.**
++ Add examples how to build new optimizer.
++ Add examples for Multitask and Tuner class.
 + Update documents, examples, tests
 
 
