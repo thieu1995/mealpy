@@ -59,4 +59,4 @@ model3 = DE.BaseDE(epoch=10, pop_size=50)
 
 if __name__ == "__main__":
     multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3))
-    multitask.execute(n_trials=3, mode="parallel", n_workers=4, save_path="history", save_as="csv", save_convergence=True, verbose=True)
+    multitask.execute(n_trials=3, mode="parallel", n_workers=4, save_path="utils/history", save_as="csv", save_convergence=True, verbose=True)
