@@ -102,7 +102,12 @@ class Validator:
         bounds = "" if bounds is None else f"and values should be in range: {bounds}"
         raise ValueError(f"'{name}' are float {bounds}.")
 
-    def check_list_tuple(self, name: str, values: any, data_type: str):
-        if type(values) in (tuple, list) and len(values) > 1:
-            return list(values)
+    def check_list_tuple(self, name: str, value: any, data_type: str):
+        if type(value) in (tuple, list) and len(value) > 1:
+            return list(value)
         raise ValueError(f"'{name}' should be a list or tuple of {data_type}, and length >= 1.")
+
+    def check_is_instance(self, name: str, value: any, class_type: any):
+        if isinstance(value, class_type):
+            return value
+        raise ValueError(f"'{name}' should be an instance of {class_type} class.")
