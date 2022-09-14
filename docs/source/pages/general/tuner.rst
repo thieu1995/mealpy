@@ -2,7 +2,7 @@
 Tuner / Hyperparameter Tuning
 =============================
 
-We build a dedicated class, Runer, that can help you tune your algorithm's parameters.
+We build a dedicated class, Tuner, that can help you tune your algorithm's parameters.
 
 Please head to examples folder to learn more about this `Tuner-Examples`_
 

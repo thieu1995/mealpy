@@ -146,6 +146,134 @@ print(model.problem.get_name())
 print(model.problem.n_dims)
 ```
 
+
+### Tuner class (GridSearchCV/ParameterSearch, Hyper-parameter tuning)
+
+We build a dedicated class, Tuner, that can help you tune your algorithm's parameters.
+
+```python
+import numpy as np
+from mealpy.bio_based import BBO
+from mealpy.tuner import Tuner          # Remember this
+
+
+def fitness(solution):
+    return np.sum(solution**2)
+
+problem = {
+    "lb": [-100, ]*50,
+    "ub": [100, ]*50,
+    "minmax": "min",
+    "fit_func": fitness,
+    "name": "Squared Problem",
+    "log_to": None,
+}
+
+paras_bbo_grid = {
+    "epoch": [100],
+    "pop_size": [50],
+    "elites": [2, 3, 4, 5],
+    "p_m": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2]
+}
+
+if __name__ == "__main__":
+    model = BBO.BaseBBO()
+
+    tuner = Tuner(model, paras_bbo_grid)
+    tuner.execute(problem=problem, n_trials=10, mode="parallel", n_workers=4)
+
+    print(tuner.best_score)
+    print(tuner.best_params)
+    print(tuner.best_algorithm)
+    print(tuner.best_algorithm.get_name())
+    
+    ## Save results to csv file 
+    tuner.export_results(save_path="history/tuning", save_as="csv")
+    
+    ## Re-solve the best model on your problem 
+    best_position, best_fitness = tuner.resolve()
+
+    print(best_position, best_fitness)
+    print(tuner.problem.get_name())
+```
+
+
+### Multitask class (Multitask solving)
+
+We also build a dedicated class, Multitask, that can help you run several different scenarios. For example:
+
+1. Run 1 algorithm with 1 problem, and multiple trials
+2. Run 1 algorithm with multiple problems, and multiple trials
+3. Run multiple algorithms with 1 problem, and multiple trials
+4. Run multiple algorithms with multiple problems, and multiple trials
+
+
+```python
+#### Using multiple algorithm to solve multiple problems with multiple trials
+
+## Import libraries
+## For example, we want to solve F5, F10, F29 problem in CEC-2017
+from opfunu.cec_based.cec2017 import F52017, F102017, F292017
+
+from mealpy.bio_based import BBO
+from mealpy.evolutionary_based import DE
+from mealpy.multitask import Multitask          # Remember this
+
+
+## You can define your own problems
+
+f1 = F52017(30, f_bias=0)
+f2 = F102017(30, f_bias=0)
+f3 = F292017(30, f_bias=0)
+
+p1 = {
+    "lb": f1.lb.tolist(),
+    "ub": f1.ub.tolist(),
+    "minmax": "min",
+    "fit_func": f1.evaluate,
+    "name": "F5-CEC2017",
+    "log_to": None,
+}
+
+p2 = {
+    "lb": f2.lb.tolist(),
+    "ub": f2.ub.tolist(),
+    "minmax": "min",
+    "fit_func": f2.evaluate,
+    "name": "F10-CEC2017",
+    "log_to": None,
+}
+
+p3 = {
+    "lb": f3.lb.tolist(),
+    "ub": f3.ub.tolist(),
+    "minmax": "min",
+    "fit_func": f3.evaluate,
+    "name": "F29-CEC2017",
+    "log_to": None,
+}
+
+## Define models
+
+model1 = BBO.BaseBBO(epoch=10, pop_size=50)
+model2 = BBO.OriginalBBO(epoch=10, pop_size=50)
+model3 = DE.BaseDE(epoch=10, pop_size=50)
+
+
+## Define and run Multitask
+
+if __name__ == "__main__":
+    multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3))
+    multitask.execute(n_trials=3, mode="parallel", n_workers=6, save_path="history", save_as="csv", save_convergence=True, verbose=True)
+    
+    ## Check the directory: history/, you will see list of .csv result files
+```
+
+For more usage examples please look at [examples](/examples) folder.
+
+More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
+
+
 ### Get Visualize Figures
 
 
@@ -182,12 +310,6 @@ print(model.problem.n_dims)
 &nbsp; &nbsp; &nbsp; &nbsp;
   <img alt="Dark" src=".github/img/tc.png" width="45%">
 </p>
-
-
-
-For more usage examples please look at [examples](/examples) folder.
-
-More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
 
 
 
@@ -237,7 +359,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 
 
-### Important links
+### Get helps (questions, problems)
 
 * Official source code repo: https://github.com/thieu1995/mealpy
 * Official document: https://mealpy.readthedocs.io/
@@ -251,7 +373,8 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
     * https://github.com/thieu1995/metaheuristics
     * https://github.com/aiir-team
 
-
+**Want to have an instant assistant? Join our telegram community at [link](https://t.me/+fRVCJGuGJg1mNDg1)**
+We share lots of information, questions, and answers there. You will get more support and knowledge there.
 ### Cite Us
 
 If you are using mealpy in your project, we would appreciate citations:
