@@ -101,12 +101,12 @@ class Problem:
 
     def __set_domain_range(self, lb, ub):
         if type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
-            self.lb = np.squeeze(np.array(lb))
-            self.ub = np.squeeze(np.array(ub))
+            self.lb = np.array(lb).flatten()
+            self.ub = np.array(ub).flatten()
             if len(self.lb) == len(self.ub):
                 self.n_dims = len(self.lb)
-                if len(self.lb) <= 1:
-                    raise ValueError(f'Dimensions do not qualify. Length(lb) = {len(self.lb)} <= 1.')
+                if len(self.lb) < 1:
+                    raise ValueError(f'Dimensions do not qualify. Length(lb) = {len(self.lb)} < 1.')
             else:
                 raise ValueError(f"Length of lb and ub do not match. {len(self.lb)} != {len(self.ub)}.")
         else:
@@ -121,13 +121,13 @@ class Problem:
                 tested_solution = self.amend_position(tested_solution, self.lb, self.ub)
         result = self.fit_func(tested_solution)
         if type(result) in self.SUPPORTED_ARRAY:
-            result = np.squeeze(np.array(result))
+            result = np.array(result).flatten()
             self.n_objs = len(result)
             self.obj_is_list = True
             if self.n_objs > 1:
                 self.multi_objs = True
                 if type(self.obj_weights) in self.SUPPORTED_ARRAY:
-                    self.obj_weights = np.squeeze(np.array(self.obj_weights))
+                    self.obj_weights = np.array(self.obj_weights).flatten()
                     if self.n_objs != len(self.obj_weights):
                         raise ValueError(f"{self.n_objs}-objective problem, but N weights = {len(self.obj_weights)}.")
                     self.msg = f"Solving {self.n_objs}-objective optimization problem with weights: {self.obj_weights}."
