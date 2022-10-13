@@ -163,6 +163,7 @@ class OriginalEFO(BaseEFO):
             n_field (float): default = 0.45    portion of population, negative field
         """
         super().__init__(epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
+        self.support_parallel_modes = False
 
     def amend_position(self, position=None, lb=None, ub=None):
         """

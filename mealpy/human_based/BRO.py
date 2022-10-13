@@ -59,6 +59,7 @@ class BaseBRO(Optimizer):
         self.threshold = self.validator.check_float("threshold", threshold, [1, 10])
         self.set_parameters(["epoch", "pop_size", "threshold"])
 
+        self.support_parallel_modes = False
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -198,6 +199,7 @@ class OriginalBRO(BaseBRO):
             threshold (int): dead threshold, default=3
         """
         super().__init__(epoch, pop_size, threshold, **kwargs)
+        self.support_parallel_modes = False
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 

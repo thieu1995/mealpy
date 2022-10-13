@@ -60,6 +60,7 @@ class OriginalCA(Optimizer):
         self.accepted_rate = self.validator.check_float("accepted_rate", accepted_rate, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "accepted_rate"])
 
+        self.support_parallel_modes = False
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 

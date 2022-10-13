@@ -156,6 +156,7 @@ class OriginalGCO(BaseGCO):
             wf (float): weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
         """
         super().__init__(epoch, pop_size, cr, wf, **kwargs)
+        self.support_parallel_modes = False
 
     def evolve(self, epoch):
         """
@@ -187,8 +188,8 @@ class OriginalGCO(BaseGCO):
         ## Light-zone process   (no needs parallelization)
         self.dyn_list_life_signal -= 10
         fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
-        fit_max = max(fit_list)
-        fit_min = min(fit_list)
+        fit_max = np.max(fit_list)
+        fit_min = np.min(fit_list)
         fit = (fit_list - fit_max) / (fit_min - fit_max)
         if self.problem.minmax != 'min':
             fit = 1 - fit

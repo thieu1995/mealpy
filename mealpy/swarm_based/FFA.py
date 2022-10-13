@@ -79,6 +79,7 @@ class OriginalFFA(Optimizer):
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
         self.set_parameters(["epoch", "pop_size", "gamma", "beta_base", "alpha", "alpha_damp", "delta", "exponent"])
         self.nfe_per_epoch = int(self.pop_size * (self.pop_size + 1) / 2 * 0.5)
+        self.support_parallel_modes = False
         self.sort_flag = False
 
     def initialize_variables(self):

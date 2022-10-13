@@ -151,6 +151,7 @@ class OriginalTLO(BaseTLO):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
+        self.support_parallel_modes = False
         self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 

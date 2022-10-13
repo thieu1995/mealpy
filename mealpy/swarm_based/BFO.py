@@ -105,6 +105,7 @@ class OriginalBFO(Optimizer):
         self.w_repels = self.validator.check_float("w_repels", w_repels, (2.0, 20.0))
         self.set_parameters(["epoch", "pop_size", "Ci", "Ped", "Nc", "Ns", "d_attract", "w_attract", "h_repels", "w_repels"])
         self.half_pop_size = int(self.pop_size / 2)
+        self.support_parallel_modes = False
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
@@ -258,6 +259,7 @@ class ABFO(Optimizer):
         self.N_adapt = self.validator.check_int("N_adapt", N_adapt, [0, 4])
         self.N_split = self.validator.check_int("N_split", N_split, [5, 50])
         self.set_parameters(["epoch", "pop_size", "C_s", "C_e", "Ped", "Ns", "N_adapt", "N_split"])
+        self.support_parallel_modes = False
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 

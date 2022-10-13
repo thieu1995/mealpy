@@ -140,7 +140,8 @@ class OriginalSSpiderA(Optimizer):
                       (self.pop[idx][self.ID_POS] - self.pop[idx][self.ID_PREV_MOVE_VEC]) + \
                       (pos_new - self.pop[idx][self.ID_POS]) * np.random.normal()
             agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                agent[self.ID_TAR] = self.get_target_wrapper(agent[self.ID_POS])
         pop_new = self.update_target_wrapper_population(pop_new)
 
         for idx in range(0, self.pop_size):
