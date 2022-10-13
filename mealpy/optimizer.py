@@ -57,6 +57,7 @@ class Optimizer:
         self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
         self.parameters, self.params_name_ordered = {}, None
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
+        self.support_parallel_modes = True
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -192,12 +193,19 @@ class Optimizer:
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
 
     def check_mode_and_workers(self, mode, n_workers):
-        self.mode = mode
-        if n_workers is not None:
-            if self.mode == "process":
-                self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
-            if self.mode == "thread":
-                self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(32, os.cpu_count() + 4)])
+        self.mode = self.validator.check_str("mode", mode, ["single", "swarm", "thread", "process"])
+        if self.mode in ("process", "thread"):
+            if not self.support_parallel_modes:
+                self.logger.warning(f"{self.__class__.__name__} doesn't support parallelization. The default mode 'single' is activated.")
+                self.mode = "single"
+            elif n_workers is not None:
+                if self.mode == "process":
+                    self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
+                if self.mode == "thread":
+                    self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(32, os.cpu_count() + 4)])
+            else:
+                self.logger.warning(f"The parallel mode: {self.mode} is selected. But n_workers is not set. The default n_workers = 4 is used.")
+                self.n_workers = 4
 
     def check_termination(self, mode="start", termination=None, epoch=None):
         if mode == "start":
