@@ -532,13 +532,20 @@ class Optimizer:
             final_fitness = 1.0 - scaled_fitness
         else:
             final_fitness = scaled_fitness
-        total_sum = sum(final_fitness)
+
+        ## Handling the case with the same fitness in 50% of population
+        unique, counts = np.unique(final_fitness, return_counts=True)
+        prob = np.exp(final_fitness) / np.sum(np.exp(final_fitness))
+        if np.max(counts) / len(final_fitness) >= 0.5:
+            return np.random.choice(range(0, len(list_fitness)), p=prob)
+
+        total_sum = np.sum(final_fitness)
         r = np.random.uniform(low=0, high=total_sum)
         for idx, f in enumerate(final_fitness):
             r = r + f
             if r > total_sum:
                 return idx
-        return np.random.choice(range(0, len(list_fitness)))
+        return np.random.choice(range(0, len(list_fitness)), p=prob)
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
         """

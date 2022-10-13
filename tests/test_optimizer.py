@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.optimizer import Optimizer
+from mealpy.utils.problem import Problem
 import numpy as np
 import pytest
 
@@ -22,6 +23,18 @@ def model():
         "log_to": None,
     }
     model = Optimizer()
+
+    # self.problem = problem if isinstance(problem, Problem) else Problem(**problem)
+    # self.amend_position = self.problem.amend_position
+    # self.generate_position = self.problem.generate_position
+    # self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
+    # self.logger.info(self.problem.msg)
+    # self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
+    #
+
+    model.problem = Problem(**problem)
+    model.amend_position = model.problem.amend_position
+    model.generate_position = model.problem.generate_position
     return model
 
 
@@ -72,6 +85,7 @@ def test_update_target_wrapper_population(model):
         [np.array([5, -4, 0, 1, -1]), None]
     ]
     list_targets = [model.get_target_wrapper(agent[model.ID_POS]) for agent in pop]
+    model.mode = "thread"
     pop = model.update_target_wrapper_population(pop)
     for idx, agent in enumerate(pop):
         assert agent[model.ID_TAR] is not None
@@ -242,3 +256,9 @@ def test_crossover_arithmetic(model):
     assert len(pos_child1) == len(pos_child2)
     assert isinstance(pos_child1, np.ndarray)
     assert len(pos_child2) == model.problem.n_dims
+
+
+def test_get_index_roulette_wheel_selection(model):
+    list_fitness = [0, 0, 0, 1, 1, 0.5]
+    idx = model.get_index_roulette_wheel_selection(list_fitness)
+    assert type(idx) == int
