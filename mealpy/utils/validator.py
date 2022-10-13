@@ -111,3 +111,15 @@ class Validator:
         if isinstance(value, class_type):
             return value
         raise ValueError(f"'{name}' should be an instance of {class_type} class.")
+
+    def check_is_int_and_float(self, name: str, value: any, bound_int=None, bound_float=None):
+        if type(value) is int:
+            if bound_int is None or is_in_bound(value, bound_int):
+                return int(value)
+        bound_int_str = "" if bound_int is None else f"and value in range: {bound_int}"
+        if type(value) is float:
+            if bound_float is None or is_in_bound(value, bound_float):
+                return float(value)
+        bound_float_str = "" if bound_float is None else f"and value in range: {bound_float}"
+        raise ValueError(f"'{name}' can be int {bound_int_str}, or float {bound_float_str}.")
+
