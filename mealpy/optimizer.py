@@ -516,6 +516,13 @@ class Optimizer:
             self.history.list_global_worst[-1] = global_worst
             return deepcopy(sorted_pop), deepcopy(global_better)
 
+    def get_index_best(self, pop):
+        fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop])
+        if self.problem.minmax == "min":
+            return np.argmin(fit_list)
+        else:
+            return np.argmax(fit_list)
+
     ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
