@@ -10,15 +10,10 @@ from mealpy.optimizer import Optimizer
 
 class OriginalBMO(Optimizer):
     """
-    The developed version: Barnacles Mating Optimizer (BMO)
+    The original version: Barnacles Mating Optimizer (BMO)
 
     Links:
         1. https://ieeexplore.ieee.org/document/8441097
-
-    Notes
-    ~~~~~
-    The original version from matlab code above will not work well, even with small dimensions.
-    I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + pl: [1, pop_size - 1], barnacle’s threshold
