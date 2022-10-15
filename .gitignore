@@ -6,7 +6,6 @@ mealpy/swarm_based/OPA.py
 mealpy/swarm_based/SCSO.py
 mealpy/swarm_based/TSO.py
 mealpy/swarm_based/WSO.py
-mealpy/bio_based/BMO.py
 mealpy/bio_based/SOA.py
 mealpy/bio_based/TSA.py
 mealpy/human_based/PO.py
