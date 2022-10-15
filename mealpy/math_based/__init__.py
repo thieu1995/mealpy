@@ -13,3 +13,4 @@ from . import SCA
 from . import CEM
 from . import INFO
 from . import RUN
+from . import CircleSA
