@@ -12,3 +12,5 @@ from . import SMA
 from . import TPO
 from . import VCS
 from . import WHO
+from . import BMO
+from . import SOS
