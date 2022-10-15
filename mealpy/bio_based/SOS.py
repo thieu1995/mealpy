@@ -15,9 +15,6 @@ class OriginalSOS(Optimizer):
     Links:
         1. https://doi.org/10.1016/j.compstruc.2014.03.007
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pl: [1, pop_size - 1], barnacle’s threshold
-
     Examples
     ~~~~~~~~
     >>> import numpy as np
