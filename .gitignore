@@ -7,7 +7,7 @@ mealpy/swarm_based/SCSO.py
 mealpy/swarm_based/TSO.py
 mealpy/swarm_based/WSO.py
 mealpy/human_based/PO.py
-mealpy/human_based/SPBO.py
+mealpy/human_based/HBO.py
 mealpy/human_based/WarSO.py
 examples/utils/history*
 examples/history*
