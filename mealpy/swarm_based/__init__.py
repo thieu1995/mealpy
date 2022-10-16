@@ -41,3 +41,4 @@ from . import SSO
 from . import SSpiderA
 from . import SSpiderO
 from . import WOA
+from . import DMOA
