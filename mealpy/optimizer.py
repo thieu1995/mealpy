@@ -534,25 +534,26 @@ class Optimizer:
         Returns:
             int: Index of selected solution
         """
-        scaled_fitness = (list_fitness - np.min(list_fitness)) / (np.ptp(list_fitness) + self.EPSILON)
+        size = len(list_fitness)
+        if np.any(list_fitness) < 0:
+            list_fitness = list_fitness - np.min(list_fitness)
+        final_fitness = list_fitness
         if self.problem.minmax == "min":
-            final_fitness = 1.0 - scaled_fitness
-        else:
-            final_fitness = scaled_fitness
+            final_fitness = np.max(list_fitness) - list_fitness
+        prob = final_fitness / np.sum(final_fitness)
 
         ## Handling the case with the same fitness in 50% of population
-        unique, counts = np.unique(final_fitness, return_counts=True)
-        prob = np.exp(final_fitness) / np.sum(np.exp(final_fitness))
-        if np.max(counts) / len(final_fitness) >= 0.5:
-            return np.random.choice(range(0, len(list_fitness)), p=prob)
+        unique, counts = np.unique(prob, return_counts=True)
+        if np.max(counts) / size >= 0.5:
+            return np.random.choice(range(0, size), p=prob)
 
-        total_sum = np.sum(final_fitness)
+        total_sum = np.sum(prob)
         r = np.random.uniform(low=0, high=total_sum)
-        for idx, f in enumerate(final_fitness):
+        for idx, f in enumerate(prob):
             r = r + f
             if r > total_sum:
                 return idx
-        return np.random.choice(range(0, len(list_fitness)), p=prob)
+        return np.random.choice(range(0, size), p=prob)
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
         """
