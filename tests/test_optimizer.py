@@ -259,6 +259,15 @@ def test_crossover_arithmetic(model):
 
 
 def test_get_index_roulette_wheel_selection(model):
-    list_fitness = [0, 0, 0, 1, 1, 0.5]
+    model.problem.minmax = "max"
+    list_fitness = np.random.rand(10) * 0.0001 + 1  # flat landscape
+    list_fitness[-1] = 1.1  # local optima as a small 10% bump
+
+    # model.problem.minmax = "min"
+    # list_fitness = np.random.rand(10) * 0.0001 + 1  # flat landscape
+    # list_fitness[-1] = 0.9  # local optima as a small 10% bump
+    # list_fitness[-2] = 0.95
+
     idx = model.get_index_roulette_wheel_selection(list_fitness)
+    print(idx)
     assert type(idx) == int
