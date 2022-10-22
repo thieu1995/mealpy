@@ -541,18 +541,6 @@ class Optimizer:
         if self.problem.minmax == "min":
             final_fitness = np.max(list_fitness) - list_fitness
         prob = final_fitness / np.sum(final_fitness)
-
-        ## Handling the case with the same fitness in 50% of population
-        unique, counts = np.unique(prob, return_counts=True)
-        if np.max(counts) / size >= 0.5:
-            return np.random.choice(range(0, size), p=prob)
-
-        total_sum = np.sum(prob)
-        r = np.random.uniform(low=0, high=total_sum)
-        for idx, f in enumerate(prob):
-            r = r + f
-            if r > total_sum:
-                return idx
         return np.random.choice(range(0, size), p=prob)
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
