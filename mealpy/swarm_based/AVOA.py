@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalAVOA(Optimizer):
     """
-    The original version of: African Vultures Optimization Algorithm
+    The original version of: African Vultures Optimization Algorithm (AVOA)
 
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0360835221003120

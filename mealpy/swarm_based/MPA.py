@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalMPA(Optimizer):
     """
-    The developed version: Marine Predators Algorithm (MFO)
+    The developed version: Marine Predators Algorithm (MPA)
 
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0957417420302025

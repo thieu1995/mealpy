@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class DevSOA(Optimizer):
     """
-    The developed version: Seagull Optimization Algorithm
+    The developed version: Seagull Optimization Algorithm (SOA)
 
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0950705118305768
@@ -124,8 +124,8 @@ class OriginalSOA(Optimizer):
 
     References
     ~~~~~~~~~~
-    [1] Cheng, M. Y., & Prayogo, D. (2014). Symbiotic organisms search: a new metaheuristic
-    optimization algorithm. Computers & Structures, 139, 98-112.
+    [1] Dhiman, G., & Kumar, V. (2019). Seagull optimization algorithm: Theory and its applications
+    for large-scale industrial engineering problems. Knowledge-based systems, 165, 169-196.
     """
 
     def __init__(self, epoch=10000, pop_size=100, fc=2,  **kwargs):
@@ -150,7 +150,6 @@ class OriginalSOA(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-
             B = 2 * A**2 * np.random.random()                                   # Eq. 8
             M = B * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])     # Eq. 7
             C = A * self.pop[idx][self.ID_POS]                                  # Eq. 5

@@ -9,7 +9,7 @@ from mealpy.utils.logger import Logger
 
 
 class Problem:
-    r"""Class representing the mathematical form of the optimization problem.
+    """Class representing the mathematical form of the optimization problem.
 
     Attributes:
         lb (numpy.ndarray, list, tuple): Lower bounds of the problem.
@@ -195,10 +195,9 @@ class Problem:
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        + This is default function in most algorithms. Otherwise, there will be an overridden function
-        in child of Optimizer class for this function.
-        + Depend on what kind of problem are we trying to solve, there will be a different amend_position
-        function to rebound the position of agent into the valid range.
+        This is default function in most algorithms. Otherwise, there will be an overridden function
+        in child of Optimizer class for this function. Depend on what kind of problem are we trying to solve,
+        there will be a different amend_position function to rebound the position of agent into the valid range.
 
         Args:
             position: vector position (location) of the solution.

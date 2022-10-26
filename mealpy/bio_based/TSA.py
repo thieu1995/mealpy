@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalTSA(Optimizer):
     """
-    The original version: Slime Mould Algorithm (SMA)
+    The original version: Tunicate Swarm Algorithm (TSA)
 
     Links:
         1. https://www.sciencedirect.com/science/article/abs/pii/S0952197620300385?via%3Dihub
@@ -42,6 +42,11 @@ class OriginalTSA(Optimizer):
     >>> model = OriginalTSA(epoch, pop_size)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Kaur, S., Awasthi, L. K., Sangal, A. L., & Dhiman, G. (2020). Tunicate Swarm Algorithm: A new bio-inspired
+    based metaheuristic paradigm for global optimization. Engineering Applications of Artificial Intelligence, 90, 103541.
     """
 
     ID_WEI = 2
