@@ -6,8 +6,11 @@
 
 from . import ABC
 from . import ACOR
+from . import AGTO
 from . import ALO
 from . import AO
+from . import ARO
+from . import AVOA
 from . import BA
 from . import BeesA
 from . import BES
@@ -16,6 +19,7 @@ from . import BSA
 from . import COA
 from . import CSA
 from . import CSO
+from . import DMOA
 from . import DO
 from . import EHO
 from . import FA
@@ -23,15 +27,18 @@ from . import FFA
 from . import FOA
 from . import GOA
 from . import GWO
+from . import HBA
 from . import HGS
 from . import HHO
 from . import JA
 from . import MFO
+from . import MPA
 from . import MRFO
 from . import MSA
 from . import NMRA
 from . import PFA
 from . import PSO
+from . import SCSO
 from . import SFO
 from . import SHO
 from . import SLO
@@ -40,5 +47,5 @@ from . import SSA
 from . import SSO
 from . import SSpiderA
 from . import SSpiderO
+from . import TSO
 from . import WOA
-from . import DMOA
