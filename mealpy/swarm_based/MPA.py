@@ -20,6 +20,7 @@ class OriginalMPA(Optimizer):
     ~~~~~
         1. To use the original paper, set the training mode = "swarm"
         2. They update the whole population at the same time before update the fitness
+        3. Two variables that they consider it as constants which are FADS = 0.2 and P = 0.5
 
     Examples
     ~~~~~~~~
@@ -61,9 +62,7 @@ class OriginalMPA(Optimizer):
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
-    def initialization(self):
-        if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
+    def initialize_variables(self):
         self.FADS = 0.2
         self.P = 0.5
 
