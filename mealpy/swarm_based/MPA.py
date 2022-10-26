@@ -44,8 +44,8 @@ class OriginalMPA(Optimizer):
 
     References
     ~~~~~~~~~~
-    [1] Mirjalili, S., 2015. Moth-flame optimization algorithm: A novel nature-inspired
-    heuristic paradigm. Knowledge-based systems, 89, pp.228-249.
+    [1] Faramarzi, A., Heidarinejad, M., Mirjalili, S., & Gandomi, A. H. (2020).
+    Marine Predators Algorithm: A nature-inspired metaheuristic. Expert systems with applications, 152, 113377.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
