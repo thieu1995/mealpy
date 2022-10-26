@@ -1,6 +1,5 @@
 mealpy/swarm_based/ChOA.py
 mealpy/swarm_based/HBA.py
-mealpy/swarm_based/MPA.py
 mealpy/swarm_based/OPA.py
 mealpy/swarm_based/SCSO.py
 mealpy/swarm_based/TSO.py
