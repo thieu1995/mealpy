@@ -1,5 +1,4 @@
 
-
 Different versions of mealpy in terms of passing hyper-parameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
@@ -8,9 +7,47 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * mealpy == 2.2.0 
   * mealpy == 2.3.0 
   * 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
-  * mealpy >= 2.5.0 (Define model 1 time, solve multiple problems)
+  * mealpy >= 2.5.1 (Define model 1 time, solve multiple problems)
 
 
+# Version 2.5.1
+
+### Update
+
++ Add validator when variable can be both int/float value
++ Add algorithms to evolutionary-based group:
+  + EliteSingleGA and EliteMultiGA class
++ Add algorithms to math-based group:
+  + weIghted meaN oF vectOrs (INFO) algorithm 
+  + RUNge Kutta optimizer (RUN) 
+  + Circle Search Algorithm (CSA) 
++ Add algorithms to bio-based group:
+  + Barnacles Mating Optimizer (BMO) 
+  + Symbiotic Organisms Search (SOS) 
+  + Seagull Optimization Algorithm (SOA) 
+  + Tunicate Swarm Optimization (TSA) 
++ Add algorithms to swarm-based group:
+  + Hybrid Grey Wolf - Whale Optimization Algorithm (GWO_WOA)
+  + Marine Predators Algorithm (MPO) 
+  + Honey Badger Algorithm (HBA) 
+  + Sand Cat Swarm Optimization (SCSO) 
+  + Tuna Swarm Optimization (TSO)
+  + African Vultures Optimization Algorithm (AVOA) 
+  + Artificial Rabbits Optimization (ARO) 
+  + Artificial Gorilla Troops Optimization (AGTO) 
++ Add algorithms to human-based group:
+  + Student Psychology Based Optimization (SPBO) (weak algorithm)
+  + Dwarf Mongoose Optimization Algorithm (DMOA) (weak algorithm)
+
++ Fix problem with 1 dimension
++ Enhanced the get index roulette wheel selection in Optimizer class
+
++ Update check parallel mode in Optimizer
++ Update algorithms that don't support parallel modes
++ Update the shebang #! with python codes
++ Update examples
+
+---------------------------------------------------------------------
 
 
 # Version 2.5.0
