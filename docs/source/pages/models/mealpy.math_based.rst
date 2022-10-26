@@ -65,6 +65,14 @@ mealpy.math\_based.PSS module
    :undoc-members:
    :show-inheritance:
 
+mealpy.math\_based.RUN module
+-----------------------------
+
+.. automodule:: mealpy.math_based.RUN
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.math\_based.SCA module
 -----------------------------
 

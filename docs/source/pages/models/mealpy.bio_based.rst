@@ -57,6 +57,14 @@ mealpy.bio\_based.SOA module
    :undoc-members:
    :show-inheritance:
 
+mealpy.bio\_based.SOS module
+----------------------------
+
+.. automodule:: mealpy.bio_based.SOS
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.bio\_based.TPO module
 ----------------------------
 

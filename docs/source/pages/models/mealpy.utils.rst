@@ -4,7 +4,6 @@ mealpy.utils package
 .. toctree::
    :maxdepth: 4
 
-   mealpy.utils.app
    mealpy.utils.visualize
 
 mealpy.utils.history module

@@ -6,7 +6,7 @@ Introduction
 * MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
   algorithms and is distributed under GNU General Public License (GPL) V3 license.
 
-* Current version: 2.5.0, Total algorithms: 148 (84 original, 42 official variants, 24 developed variants)
+* Current version: 2.5.1, Total algorithms: 172 (102 original, 45 official variants, 25 developed variants)
 
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
   using this library (Check `All releases`_)
@@ -50,7 +50,7 @@ Introduction
 	  month        = jun,
 	  year         = 2022,
 	  publisher    = {Zenodo},
-	  version      = {v2.4.2},
+	  version      = {v2.5.0},
 	  doi          = {10.5281/zenodo.6684223},
 	  url          = {https://doi.org/10.5281/zenodo.6684223}
 	}

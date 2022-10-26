@@ -12,7 +12,7 @@ If you are using mealpy in your project, we would appreciate citations:
       month        = jun,
       year         = 2022,
       publisher    = {Zenodo},
-      version      = {v2.4.2},
+      version      = {v2.5.0},
       doi          = {10.5281/zenodo.6684223},
       url          = {https://doi.org/10.5281/zenodo.6684223}
    }
