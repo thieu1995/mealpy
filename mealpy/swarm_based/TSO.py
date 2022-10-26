@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalTSO(Optimizer):
     """
-    The original version of: Sand Cat Swarm Optimization (SCSO)
+    The original version of: Tuna Swarm Optimization (TSO)
 
     Links:
         1. https://www.hindawi.com/journals/cin/2021/9210050/
@@ -18,6 +18,7 @@ class OriginalTSO(Optimizer):
 
     Notes:
         1. Two variables that authors consider it as a constants (aa = 0.7 and zz = 0.05)
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
