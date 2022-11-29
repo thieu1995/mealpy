@@ -137,7 +137,7 @@ class OriginalArchOA(Optimizer):
         max_acc = np.max(list_acc)
         ## Normalize acceleration using Eq. 12
         for i in range(0, self.pop_size):
-            self.pop[i][self.ID_ACC] = self.acc_max * (self.pop[i][self.ID_ACC] - min_acc) / (max_acc - min_acc) + self.acc_min
+            self.pop[i][self.ID_ACC] = self.acc_max * (list_acc[i] - min_acc) / (max_acc - min_acc) + self.acc_min
 
         pop_new = []
         for idx in range(0, self.pop_size):
