@@ -535,6 +535,8 @@ class Optimizer:
             int: Index of selected solution
         """
         size = len(list_fitness)
+        if list_fitness.ptp() == 0:
+            return np.random.choice(range(0, size), p=1.0/size)
         if np.any(list_fitness) < 0:
             list_fitness = list_fitness - np.min(list_fitness)
         final_fitness = list_fitness
