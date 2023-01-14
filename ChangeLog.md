@@ -10,6 +10,23 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * mealpy >= 2.5.1 (Define model 1 time, solve multiple problems)
 
 
+
+
+# Version 2.5.2
+
+### Update
+
+
++ Add Wavelet Mutation and Quadratic Interpolation MRFO (WMQIMRFO) to swarm-based group
+  + An enhanced manta ray foraging optimization algorithm for shape optimization of complex CCG-Ball curves
+  
++ Fix bug all fitness values are equals in function "get index roulette wheel selection" in Optimizer class
++ Rename AdaptiveAEO by AugmentedAEO (Add reference)
++ Update text of Dwarf Mongoose Optimization Algorithm belongs to Swarm-based group
+
+---------------------------------------------------------------------
+
+
 # Version 2.5.1
 
 ### Update
@@ -35,9 +52,10 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   + African Vultures Optimization Algorithm (AVOA) 
   + Artificial Rabbits Optimization (ARO) 
   + Artificial Gorilla Troops Optimization (AGTO) 
+  + Dwarf Mongoose Optimization Algorithm (DMOA) (weak algorithm)
+  
 + Add algorithms to human-based group:
   + Student Psychology Based Optimization (SPBO) (weak algorithm)
-  + Dwarf Mongoose Optimization Algorithm (DMOA) (weak algorithm)
 
 + Fix problem with 1 dimension
 + Enhanced the get index roulette wheel selection in Optimizer class

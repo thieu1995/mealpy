@@ -112,6 +112,8 @@
 | Swarm         | African Vultures Optimization Algorithm          | AVOA      | OriginalAVOA      | 2022  | 7      | medium      |
 | Swarm         | Artificial Gorilla Troops Optimization           | AGTO      | OriginalAGTO      | 2021  | 5      | medium      |
 | Swarm         | Artificial Rabbits Optimization                  | ARO       | OriginalARO       | 2022  | 2      | easy        |
+| Swarm         | Dwarf Mongoose Optimization Algorithm            | DMOA      | OriginalDMOA      | 2022  | 4      | medium      |
+| Swarm         | -                                                | -         | DevDMOA           | -     | 3      | medium      |
 | -             | -                                                | -         | -                 | -     | -      | -           |
 | Physics       | Simulated Annealling                             | SA        | OriginalSA        | 1987  | 9      | medium      |
 | Physics       | Wind Driven Optimization                         | WDO       | OriginalWDO       | 2013  | 7      | easy        |
@@ -159,8 +161,6 @@
 | Human         | -                                                | -         | BaseBRO           | -     | 3      | medium      |
 | Human         | Student Psychology Based Optimization            | SPBO      | OriginalSPBO      | 2020  | 2      | medium      |
 | Human         | -                                                | -         | DevSPBO           |       | 2      | medium      |
-| Human         | Dwarf Mongoose Optimization Algorithm            | DMOA      | OriginalDMOA      | 2022  | 4      | medium      |
-| Human         | -                                                | -         | DevDMOA           | -     | 3      | medium      |
 | -             | -                                                | -         | -                 | -     | -      | -           |
 | Bio           | Invasive Weed Optimization                       | IWO       | OriginalIWO       | 2006  | 7      | easy        |
 | Bio           | Biogeography-Based Optimization                  | BBO       | OriginalBBO       | 2008  | 4      | easy        |
