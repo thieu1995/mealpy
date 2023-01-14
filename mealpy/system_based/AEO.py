@@ -509,7 +509,7 @@ class ModifiedAEO(Optimizer):
             self.pop = self.greedy_selection_population(pop_child, self.pop)
 
 
-class AdaptiveAEO(Optimizer):
+class AugmentedAEO(Optimizer):
     """
     The original version of: Adaptive Artificial Ecosystem Optimization (AAEO)
 
@@ -521,7 +521,7 @@ class AdaptiveAEO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.system_based.AEO import AdaptiveAEO
+    >>> from mealpy.system_based.AEO import AugmentedAEO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -535,13 +535,14 @@ class AdaptiveAEO(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> model = AdaptiveAEO(epoch, pop_size)
+    >>> model = AugmentedAEO(epoch, pop_size)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
     ~~~~~~~~~~
-    [1] Under Review
+    [1] Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2022). Groundwater level modeling
+    using Augmented Artificial Ecosystem Optimization. Journal of Hydrology, 129034.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):

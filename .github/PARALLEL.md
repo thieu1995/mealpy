@@ -140,7 +140,7 @@ D. Music
     1. HS (OrigianlHS and BaseHS)
 
 E. System
-    1. AEO (BaseAEO, ImprovedAEO, ModifiedAEO, AdaptiveAEO, EnhancedAEO)
+    1. AEO (BaseAEO, ImprovedAEO, ModifiedAEO, AugmentedAEO, EnhancedAEO)
         + Select random agents in population but strong algorithm in the end.
 
 F. Human

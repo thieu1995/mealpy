@@ -802,7 +802,7 @@ Import All Models
 		model = AEO.EnhancedAEO(**paras_aeo)
 		model = AEO.ModifiedAEO(**paras_aeo)
 		model = AEO.ImprovedAEO(**paras_aeo)
-		model = AEO.AdaptiveAEO(**paras_aeo)
+		model = AEO.AugmentedAEO(**paras_aeo)
 		model = GCO.BaseGCO(**paras_aeo)
 		model = GCO.OriginalGCO(**paras_aeo)
 		model = WCA.OriginalWCA(**paras_wca)

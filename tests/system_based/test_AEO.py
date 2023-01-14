@@ -26,7 +26,7 @@ def problem():
 
 def test_AEO_results(problem):
     models = [
-        AEO.AdaptiveAEO(epoch=100, pop_size=50),
+        AEO.AugmentedAEO(epoch=100, pop_size=50),
         AEO.OriginalAEO(epoch=10, pop_size=50),
         AEO.ModifiedAEO(epoch=10, pop_size=50),
         AEO.EnhancedAEO(epoch=10, pop_size=50),

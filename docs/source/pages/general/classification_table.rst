@@ -186,7 +186,7 @@
 | System        | -                                                | -         | EnhancedAEO       | 2020  | 2      | medium      |
 | System        | -                                                | -         | ModifiedAEO       | 2020  | 2      | medium      |
 | System        | -                                                | -         | ImprovedAEO       | 2021  | 2      | medium      |
-| System        | -                                                | -         | AdaptiveAEO       | -     | 2      | medium      |
+| System        | -                                                | -         | AugmentedAEO      | 2022  | 2      | medium      |
 | -             | -                                                | -         | -                 | -     | -      | -           |
 | Math          | Hill Climbing                                    | HC        | OriginalHC        | 1993  | 3      | easy        |
 | Math          | -                                                | -         | SwarmHC           | -     | 3      | easy        |

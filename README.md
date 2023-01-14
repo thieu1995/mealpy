@@ -577,7 +577,7 @@ If you are using mealpy in your project, we would appreciate citations:
 | System       | -                                               | -          | EnhancedAEO      | 2020     | 2         | medium         |
 | System       | -                                               | -          | ModifiedAEO      | 2020     | 2         | medium         |
 | System       | -                                               | -          | ImprovedAEO      | 2021     | 2         | medium         |
-| System       | -                                               | -          | AdaptiveAEO      | -        | 2         | medium         |
+| System       | -                                               | -          | AugmentedAEO     | 2022     | 2         | medium         |
 | -            | -                                               | -          | -                | -        | -         | -              |
 | Math         | Hill Climbing                                   | HC         | OriginalHC       | 1993     | 3         | easy           |
 | Math         | -                                               | -          | SwarmHC          | -        | 3         | easy           |
@@ -613,7 +613,7 @@ If you are using mealpy in your project, we would appreciate citations:
 
 * **AEO - Artificial Ecosystem-based Optimization** 
   * **OriginalAEO**: Zhao, W., Wang, L., & Zhang, Z. (2019). Artificial ecosystem-based optimization: a novel nature-inspired meta-heuristic algorithm. Neural Computing and Applications, 1-43.
-  * **AdaptiveAEO**: The adaptive version
+  * **AugmentedAEO**: Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2022). Groundwater level modeling using Augmented Artificial Ecosystem Optimization. Journal of Hydrology, 129034.
   * **ImprovedAEO**: Rizk-Allah, R. M., & El-Fergany, A. A. (2020). Artificial ecosystem optimizer for parameters identification of proton exchange membrane fuel cells model. International Journal of Hydrogen Energy.
   * **EnhancedAEO**: Eid, A., Kamel, S., Korashy, A., & Khurshaid, T. (2020). An Enhanced Artificial Ecosystem-Based Optimization for Optimal Allocation of Multiple Distributed Generations. IEEE Access, 8, 178493-178513.
   * **ModifiedAEO**: Menesy, A. S., Sultan, H. M., Korashy, A., Banakhr, F. A., Ashmawy, M. G., & Kamel, S. (2020). Effective parameter extraction of different polymer electrolyte membrane fuel cell stack models using a modified artificial ecosystem optimization algorithm. IEEE Access, 8, 31892-31909.
