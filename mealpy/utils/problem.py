@@ -169,8 +169,8 @@ class Problem:
 
         See Also:
             :func:`niapy.problems.Problem.evaluate`
-
         """
+        # URL: https://github.com/NiaOrg/NiaPy
         return self.fit_func(x)
 
     def get_name(self):
