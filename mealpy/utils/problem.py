@@ -148,7 +148,7 @@ class Problem:
             raise ValueError(f"fit_func needs to return a single value or a list of values list")
 
     def fit_func(self, x):
-        """Evaluate solution.
+        """Fitness function
 
         Args:
             x (numpy.ndarray): Solution.
@@ -158,22 +158,11 @@ class Problem:
         """
         raise NotImplementedError
 
-    def __call__(self, x):
-        r"""Evaluate solution.
-
-        Args:
-            x (numpy.ndarray): Solution.
-
-        Returns:
-            float: Function value of `x`.
-
-        See Also:
-            :func:`niapy.problems.Problem.evaluate`
-
-        """
-        return self.fit_func(x)
-
     def get_name(self):
+        """
+        Returns:
+            string: The name of the problem
+        """
         return self.name
 
     def get_class_name(self):
