@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -16,18 +15,8 @@ class OriginalABC(Optimizer):
     Links:
         1. https://www.sciencedirect.com/topics/computer-science/artificial-bee-colony
 
-    Notes
-    ~~~~~
-    + This version is based on ABC in the book Clever Algorithms
-    + Improved the function search_neighborhood__
-
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_elites (int): number of employed bees which provided for good location
-        + n_others (int): number of employed bees which provided for other location
-        + patch_size (float): patch_variables = patch_variables * patch_reduction
-        + patch_reduction (float): the reduction factor
-        + n_sites (int): 3 bees (employed bees, onlookers and scouts),
-        + n_elite_sites (int): 1 good partition
+        + n_limits (int): Limit of trials before abandoning a food source, default=25
 
     Examples
     ~~~~~~~~
@@ -46,65 +35,34 @@ class OriginalABC(Optimizer):
     >>>
     >>> epoch = 1000
     >>> pop_size = 50
-    >>> n_elites = 16
-    >>> n_others = 4
-    >>> patch_size = 5.0
-    >>> patch_reduction = 0.985
-    >>> n_sites = 3
-    >>> n_elite_sites = 1
-    >>> model = OriginalABC(epoch, pop_size, n_elites, n_others, patch_size, patch_reduction, n_sites, n_elite_sites)
+    >>> n_limits = 50
+    >>> model = OriginalABC(epoch, pop_size, n_limits)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
     ~~~~~~~~~~
-    [1] Karaboga, D. and Basturk, B., 2008. On the performance of artificial bee colony (ABC)
-    algorithm. Applied soft computing, 8(1), pp.687-697.
+    [1] B. Basturk, D. Karaboga, An artificial bee colony (ABC) algorithm for numeric function optimization,
+    in: IEEE Swarm Intelligence Symposium 2006, May 12–14, Indianapolis, IN, USA, 2006.
     """
-
-    def __init__(self, epoch=10000, pop_size=100, n_elites=16, n_others=4, patch_size=5.0, patch_reduction=0.985, n_sites=3, n_elite_sites=1, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, n_limits=25, **kwargs):
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            n_elites (int): number of employed bees which provided for good location
-            n_others (int): number of employed bees which provided for other location
-            patch_size (float): patch_variables = patch_variables * patch_reduction
-            patch_reduction (float): the reduction factor
-            n_sites (int): 3 bees (employed bees, onlookers and scouts),
-            n_elite_sites (int): 1 good partition
+            pop_size (int): number of population size = onlooker bees = employed bees, default = 100
+            n_limits (int): Limit of trials before abandoning a food source, default=25
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.n_elites = self.validator.check_int("n_elites", n_elites, [4, 20])
-        self.n_others = self.validator.check_int("n_others", n_others, [2, 5])
-        self.patch_size = self.validator.check_float("patch_size", patch_size, [2, 10])
-        self.patch_reduction = self.validator.check_float("patch_reduction", patch_reduction, (0, 1.0))
-        self.n_sites = self.validator.check_int("n_sites", n_sites, [2, 5])
-        self.n_elite_sites = self.validator.check_int("n_elite_sites", n_elite_sites, [1, 3])
-        self.set_parameters(["epoch", "pop_size", "n_elites", "n_others", "patch_size", "patch_reduction", "n_sites", "n_elite_sites"])
+        self.n_limits = self.validator.check_int("n_limits", n_limits, [1, 1000])
+        self.support_parallel_modes = False
+        self.set_parameters(["epoch", "pop_size", "n_limits"])
+        self.nfe_per_epoch = self.pop_size
+        self.sort_flag = False
 
-        self.nfe_per_epoch = self.n_elites * self.n_elite_sites + self.n_others * self.n_sites + (self.pop_size - self.n_sites)
-        self.sort_flag = True
-
-    def search_neighborhood__(self, parent=None, neigh_size=None):
-        """
-        Search 1 best position in neigh_size position
-        """
-        pop_neigh = []
-        for idx in range(0, neigh_size):
-            t1 = np.random.randint(0, len(parent[self.ID_POS]) - 1)
-            new_bee = deepcopy(parent[self.ID_POS])
-            new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
-                else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
-            pos_new = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
-            pop_neigh.append([pos_new, None])
-            if self.mode not in self.AVAILABLE_MODES:
-                pop_neigh[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_neigh = self.update_target_wrapper_population(pop_neigh)
-        _, current_best = self.get_global_best_solution(pop_neigh)
-        return current_best
+    def initialize_variables(self):
+        self.trials = np.zeros(self.pop_size)
 
     def evolve(self, epoch):
         """
@@ -113,18 +71,44 @@ class OriginalABC(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = []
         for idx in range(0, self.pop_size):
-            if idx < self.n_sites:
-                if idx < self.n_elite_sites:
-                    neigh_size = self.n_elites
-                else:
-                    neigh_size = self.n_others
-                agent = self.search_neighborhood__(self.pop[idx], neigh_size)
+            # Choose a random employed bee to generate a new solution
+            t = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
+            # Generate a new solution by the equation x_{ij} = x_{ij} + phi_{ij} * (x_{tj} - x_{ij})
+            phi = np.random.uniform(low=-1, high=1, size=self.problem.n_dims)
+            pos_new = self.pop[idx][self.ID_POS] + phi * (self.pop[t][self.ID_POS] - self.pop[idx][self.ID_POS])
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            target = self.get_target_wrapper(pos_new)
+            if self.compare_agent([pos_new, target], self.pop[idx]):
+                self.pop[idx] = [pos_new, target]
+                self.trials[idx] = 0
             else:
-                agent = self.create_solution(self.problem.lb, self.problem.ub)
-            pop_new.append(agent)
-            if self.mode not in self.AVAILABLE_MODES:
-                self.pop[idx] = self.get_better_solution(agent, self.pop[idx])
-        if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+                self.trials[idx] += 1
+
+        # Onlooker bees phase
+        # Calculate the probabilities of each employed bee
+        employed_fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
+        # probabilities = employed_fits / np.sum(employed_fits)
+        for idx in range(0, self.pop_size):
+            # Select an employed bee using roulette wheel selection
+            selected_bee = self.get_index_roulette_wheel_selection(employed_fits)
+            # Choose a random employed bee to generate a new solution
+            t = np.random.choice(list(set(range(0, self.pop_size)) - {idx, selected_bee}))
+            # Generate a new solution by the equation x_{ij} = x_{ij} + phi_{ij} * (x_{tj} - x_{ij})
+            phi = np.random.uniform(low=-1, high=1, size=self.problem.n_dims)
+            pos_new = self.pop[selected_bee][self.ID_POS] + phi * (self.pop[t][self.ID_POS] - self.pop[selected_bee][self.ID_POS])
+            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            target = self.get_target_wrapper(pos_new)
+            if self.compare_agent([pos_new, target], self.pop[selected_bee]):
+                self.pop[selected_bee] = [pos_new, target]
+                self.trials[selected_bee] = 0
+            else:
+                self.trials[selected_bee] += 1
+
+        # Scout bees phase
+        # Check the number of trials for each employed bee and abandon the food source if the limit is exceeded
+        abandoned = np.where(self.trials >= self.n_limits)[0]
+        for idx in abandoned:
+            self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
+            self.trials[idx] = 0
+        self.nfe_per_epoch = 2 * self.pop_size + len(abandoned)
