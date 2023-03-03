@@ -55,6 +55,7 @@ class Optimizer:
 
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
+        self.nfe_counter = -1       # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
         self.support_parallel_modes = True
@@ -191,6 +192,7 @@ class Optimizer:
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
+        self.pop, self.g_best, self.g_worst = None, None, None
 
     def check_mode_and_workers(self, mode, n_workers):
         self.mode = self.validator.check_str("mode", mode, ["single", "swarm", "thread", "process"])
