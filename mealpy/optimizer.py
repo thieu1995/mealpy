@@ -143,6 +143,9 @@ class Optimizer:
         ## Store initial best and worst solutions
         self.history.store_initial_best_worst(self.g_best, self.g_worst)
 
+    def before_main_loop(self):
+        pass
+
     def initialize_variables(self):
         pass
 
@@ -276,6 +279,7 @@ class Optimizer:
         self.initialization()
         self.after_initialization()
 
+        self.before_main_loop()
         for epoch in range(0, self.epoch):
             time_epoch = time.perf_counter()
 
