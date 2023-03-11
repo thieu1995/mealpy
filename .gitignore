@@ -3,7 +3,6 @@ mealpy/swarm_based/OPA.py
 mealpy/swarm_based/WSO.py
 mealpy/swarm_based/FHO.py
 mealpy/human_based/PO.py
-mealpy/human_based/WarSO.py
 examples/utils/history*
 examples/history*
 history*
