@@ -28,7 +28,7 @@ class OriginalCoatiOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.CoatiOA import OriginalCoatiOA
+    >>> from mealpy.swarm_based.CoatiOA import OriginalCoatiOA
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
