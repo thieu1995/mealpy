@@ -17,8 +17,13 @@ class OriginalZOA(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/122942-zebra-optimization-algorithm-zoa
 
     Notes (Plagiarism):
-        1. Algorithm design is very similar to Osprey Optimization Algorithm (OOA).
+        1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA),
+        Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+        Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+        Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+        2. Check the matlab code of all above algorithms
         2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+        4. Check the results of benchmark functions in the papers, they are mostly make up results
 
     Examples
     ~~~~~~~~
