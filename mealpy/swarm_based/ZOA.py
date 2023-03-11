@@ -16,6 +16,10 @@ class OriginalZOA(Optimizer):
         1. https://ieeexplore.ieee.org/document/9768820
         2. https://www.mathworks.com/matlabcentral/fileexchange/122942-zebra-optimization-algorithm-zoa
 
+    Notes (Plagiarism):
+        1. Algorithm design is very similar to Osprey Optimization Algorithm (OOA).
+        2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
