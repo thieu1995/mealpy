@@ -58,8 +58,8 @@ class OriginalAGTO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p1 = self.validator.check_float("p1", p1, (0, 1))      # p in the paper
         self.p2 = self.validator.check_float("p2", p2, (0, 1))      # w in the paper
-        self.beta = self.validator.check_float("beta", beta, [-5.0, 5.0])
-        self.set_parameters(["epoch", "pop_size"])
+        self.beta = self.validator.check_float("beta", beta, [-10.0, 10.0])
+        self.set_parameters(["epoch", "pop_size", "p1", "p2", "beta"])
         self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
