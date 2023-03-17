@@ -540,6 +540,8 @@ class Optimizer:
         Returns:
             int: Index of selected solution
         """
+        if type(list_fitness) in [list, tuple, np.ndarray]:
+            list_fitness = np.array(list_fitness).flatten()
         size = len(list_fitness)
         if list_fitness.ptp() == 0:
             return np.random.choice(range(0, size), p=1.0/size)
