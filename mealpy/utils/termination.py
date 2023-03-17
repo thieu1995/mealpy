@@ -60,8 +60,11 @@ class Termination:
     def __init__(self, mode="FE", quantity=10000, **kwargs):
         self.mode, self.quantity, self.name = None, None, None
         self.exit_flag, self.message, self.log_to, self.log_file = False, "", None, None
-        self.__set_keyword_arguments(kwargs)
-        self.__set_termination(mode, quantity)
+        self.__set_keyword_arguments(kwargs.get("termination"))
+        if (self.mode is None) and (self.quantity is None):
+            self.__set_termination(mode, quantity)
+        else:
+            self.__set_termination(self.mode, self.quantity)
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
             format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
         self.logger.propagate = False
