@@ -1,6 +1,7 @@
 mealpy.evolutionary\_based package
 ==================================
 
+
 mealpy.evolutionary\_based.CRO module
 -------------------------------------
 
@@ -56,3 +57,4 @@ mealpy.evolutionary\_based.MA module
    :members:
    :undoc-members:
    :show-inheritance:
+

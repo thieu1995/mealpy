@@ -9,6 +9,14 @@ mealpy.bio\_based.BBO module
    :undoc-members:
    :show-inheritance:
 
+mealpy.bio\_based.BBOA module
+-----------------------------
+
+.. automodule:: mealpy.bio_based.BBOA
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.bio\_based.BMO module
 ----------------------------
 

@@ -1,6 +1,7 @@
 mealpy.math\_based package
 ==========================
 
+
 mealpy.math\_based.AOA module
 -----------------------------
 
@@ -77,6 +78,14 @@ mealpy.math\_based.SCA module
 -----------------------------
 
 .. automodule:: mealpy.math_based.SCA
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.math\_based.SHIO module
+------------------------------
+
+.. automodule:: mealpy.math_based.SHIO
    :members:
    :undoc-members:
    :show-inheritance:

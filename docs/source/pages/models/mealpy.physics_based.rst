@@ -1,6 +1,7 @@
 mealpy.physics\_based package
 =============================
 
+
 mealpy.physics\_based.ASO module
 --------------------------------
 
@@ -17,6 +18,14 @@ mealpy.physics\_based.ArchOA module
    :undoc-members:
    :show-inheritance:
 
+mealpy.physics\_based.CDO module
+--------------------------------
+
+.. automodule:: mealpy.physics_based.CDO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 mealpy.physics\_based.EFO module
 --------------------------------
 
@@ -29,6 +38,22 @@ mealpy.physics\_based.EO module
 -------------------------------
 
 .. automodule:: mealpy.physics_based.EO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.physics\_based.EVO module
+--------------------------------
+
+.. automodule:: mealpy.physics_based.EVO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.physics\_based.FLA module
+--------------------------------
+
+.. automodule:: mealpy.physics_based.FLA
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,6 +78,14 @@ mealpy.physics\_based.NRO module
 --------------------------------
 
 .. automodule:: mealpy.physics_based.NRO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.physics\_based.RIME module
+---------------------------------
+
+.. automodule:: mealpy.physics_based.RIME
    :members:
    :undoc-members:
    :show-inheritance:
