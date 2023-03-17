@@ -56,8 +56,7 @@ def test_check_int(value, bound, output):
                              ((4, 2), [0.3, 2], 0),
                          ])
 def test_check_float(value, bound, output):
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         valid_model = validator.Validator()
         value_new = valid_model.check_float("value", value, bound)
-    assert e.type == SystemExit
-    assert e.value.code == output
+    assert e.type == ValueError

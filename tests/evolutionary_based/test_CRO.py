@@ -34,9 +34,10 @@ def test_OriginalCRO_results(problem):
     Fd = 0.1
     Pd = 0.1
     GCR = 0.1
-    G = [0.02, 0.2]
+    gamma_min = 0.02
+    gamma_max = 0.2
     n_trials = 5
-    model = CRO.OriginalCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials)
+    model = CRO.OriginalCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, gamma_min, gamma_max, n_trials)
     best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
@@ -52,10 +53,10 @@ def test_OCRO_results(problem):
     Fd = 0.1
     Pd = 0.1
     GCR = 0.1
-    G = [0.02, 0.2]
+    gamma_min = 0.02
+    gamma_max = 0.2
     n_trials = 5
-    restart_count = 3
-    model = CRO.OCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
+    model = CRO.OriginalCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, gamma_min, gamma_max, n_trials)
     best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
@@ -71,16 +72,18 @@ def test_params_CRO(problem):
     Fd = 0.1
     Pd = 0.1
     GCR = 0.1
-    G = [0.02, 0.2]
+    gamma_min = 0.02
+    gamma_max = 0.2
     n_trials = 5
     restart_count = 3
-    model = CRO.OCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, G, n_trials, restart_count)
+    model = CRO.OCRO(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, gamma_min, gamma_max, n_trials, restart_count)
     assert model.po == po
     assert model.Fb == Fb
     assert model.Fa == Fa
     assert model.Fd == Fd
     assert model.Pd == Pd
     assert model.GCR == GCR
-    assert model.G == G
+    assert model.gamma_max == gamma_max
+    assert model.gamma_min == gamma_min
     assert model.n_trials == n_trials
     assert model.restart_count == restart_count

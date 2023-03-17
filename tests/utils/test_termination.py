@@ -21,10 +21,9 @@ def test_mode(mode, system_code):
         "mode": mode,
         "quantity": 1000
     }
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         prob = Termination(termination=term)
-    assert e.type == SystemExit
-    assert e.value.code == system_code
+    assert e.type == ValueError
 
 
 @pytest.mark.parametrize("quantity, system_code",
@@ -40,7 +39,6 @@ def test_quantity(quantity, system_code):
         "mode": "MG",
         "quantity": quantity
     }
-    with pytest.raises(SystemExit) as e:
+    with pytest.raises(ValueError) as e:
         prob = Termination(termination=term)
-    assert e.type == SystemExit
-    assert e.value.code == system_code
+    assert e.type == ValueError

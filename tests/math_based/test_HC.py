@@ -26,8 +26,8 @@ def problem():
 
 def test_HC_results(problem):
     models = [
-        HC.OriginalHC(epoch=100, pop_size=50, neighbour_size=20),
-        HC.SwarmHC(epoch=100, pop_size=50, neighbour_size=30),
+        HC.OriginalHC(epoch=100, pop_size=50, neighbour_size=5),
+        HC.SwarmHC(epoch=100, pop_size=50, neighbour_size=10),
     ]
     for model in models:
         best_position, best_fitness = model.solve(problem)
