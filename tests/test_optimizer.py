@@ -269,5 +269,4 @@ def test_get_index_roulette_wheel_selection(model):
     # list_fitness[-2] = 0.95
 
     idx = model.get_index_roulette_wheel_selection(list_fitness)
-    print(idx)
-    assert type(idx) == int
+    assert type(idx) == np.int32

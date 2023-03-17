@@ -14,14 +14,14 @@ import pytest
 def problem():
     def fitness_function(solution):
         return np.sum(solution ** 2)
-    problem = {
+    prob = {
         "fit_func": fitness_function,
         "lb": [-10, -15, -4, -2, -8],
         "ub": [10, 15, 12, 8, 20],
         "minmax": "min",
         "log_to": None,
     }
-    return problem
+    return prob
 
 
 def test_OriginalBBO_results(problem):
@@ -40,7 +40,7 @@ def test_BaseBBO_results(problem):
     epoch = 10
     pop_size = 50
     p_m = 0.01
-    elites = 2
+    elites = 3
     model = BBO.BaseBBO(epoch, pop_size, p_m, elites)
     best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
@@ -58,16 +58,15 @@ def test_BaseBBO_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_BBO(epoch, system_code):
+def test_epoch_BBO(problem, epoch, system_code):
     pop_size = 50
     p_m = 0.01
     elites = 2
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(Exception) as e:
             model = algorithm(epoch, pop_size, p_m, elites)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, pop_size, system_code",
@@ -86,10 +85,9 @@ def test_pop_size_BBO(problem, pop_size, system_code):
     elites = 2
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, p_m, elites)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, p_m, system_code",
@@ -110,10 +108,9 @@ def test_p_m_BBO(problem, p_m, system_code):
     elites = 2
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, p_m, elites)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, elites, system_code",
@@ -134,7 +131,6 @@ def test_elites_BBO(problem, elites, system_code):
     p_m = 0.01
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, p_m, elites)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError

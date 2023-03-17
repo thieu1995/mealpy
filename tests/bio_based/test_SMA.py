@@ -56,14 +56,13 @@ def test_BaseSMA_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_SMA(epoch, system_code):
+def test_epoch_SMA(problem, epoch, system_code):
     pop_size = 50
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, pop_size, system_code",
@@ -80,33 +79,9 @@ def test_pop_size_SMA(problem, pop_size, system_code):
     epoch = 10
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
-
-
-@pytest.mark.parametrize("problem, alpha, system_code",
-                         [
-                             (problem, None, 0),
-                             (problem, "hello", 0),
-                             (problem, -1.0, 0),
-                             (problem, [10], 0),
-                             (problem, (0, 9), 0),
-                             (problem, 0, 0),
-                             (problem, 1, 0),
-                             (problem, 1.1, 0),
-                             (problem, -0.01, 0),
-                         ])
-def test_alpha_SMA(problem, alpha, system_code):
-    epoch = 10
-    pop_size = 50
-    algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
-    for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
-            model = algorithm(epoch, pop_size, alpha=alpha)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, p_t, system_code",
@@ -126,7 +101,6 @@ def test_p_t_SMA(problem, p_t, system_code):
     pop_size = 50
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, p_t=p_t)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError

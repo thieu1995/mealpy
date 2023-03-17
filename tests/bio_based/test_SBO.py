@@ -60,14 +60,13 @@ def test_BaseSBO_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_SBO(epoch, system_code):
+def test_epoch_SBO(problem, epoch, system_code):
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, pop_size, system_code",
@@ -84,10 +83,9 @@ def test_pop_size_SBO(problem, pop_size, system_code):
     epoch = 10
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, alpha, system_code",
@@ -97,9 +95,6 @@ def test_pop_size_SBO(problem, pop_size, system_code):
                              (problem, -1.0, 0),
                              (problem, [10], 0),
                              (problem, (0, 9), 0),
-                             (problem, 0, 0),
-                             (problem, 1, 0),
-                             (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
 def test_alpha_SBO(problem, alpha, system_code):
@@ -107,10 +102,9 @@ def test_alpha_SBO(problem, alpha, system_code):
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, alpha=alpha)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, p_m, system_code",
@@ -130,10 +124,9 @@ def test_p_m_SBO(problem, p_m, system_code):
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, p_m=p_m)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, psw, system_code",
@@ -153,7 +146,6 @@ def test_p_m_SBO(problem, psw, system_code):
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, psw=psw)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError

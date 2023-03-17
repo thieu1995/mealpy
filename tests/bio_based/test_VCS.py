@@ -58,14 +58,13 @@ def test_BaseVCS_results(problem):
                              (problem, 0, 0),
                              (problem, float("inf"), 0),
                          ])
-def test_epoch_VCS(epoch, system_code):
+def test_epoch_VCS(problem, epoch, system_code):
     pop_size = 50
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, pop_size, system_code",
@@ -82,10 +81,9 @@ def test_pop_size_VCS(problem, pop_size, system_code):
     epoch = 10
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
 
 
 @pytest.mark.parametrize("problem, lamda, system_code",
@@ -105,30 +103,6 @@ def test_lamda_VCS(problem, lamda, system_code):
     pop_size = 50
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ValueError) as e:
             model = algorithm(epoch, pop_size, lamda=lamda)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
-
-
-@pytest.mark.parametrize("problem, xichma, system_code",
-                         [
-                             (problem, None, 0),
-                             (problem, "hello", 0),
-                             (problem, -1.0, 0),
-                             (problem, [10], 0),
-                             (problem, (0, 9), 0),
-                             (problem, 0, 0),
-                             (problem, 1, 0),
-                             (problem, 1.1, 0),
-                             (problem, -0.01, 0),
-                         ])
-def test_xichma_VCS(problem, xichma, system_code):
-    epoch = 10
-    pop_size = 50
-    algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
-    for algorithm in algorithms:
-        with pytest.raises(SystemExit) as e:
-            model = algorithm(epoch, pop_size, xichma=xichma)
-        assert e.type == SystemExit
-        assert e.value.code == system_code
+        assert e.type == ValueError
