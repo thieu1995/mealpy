@@ -3,8 +3,9 @@ Model's Parameters
 
 **1. Hint Validation for setting up the hyper-parameters:**
 
-In case you don't know how to set up the parameter for the optimizer. You can try to set that parameter to anything you want.
-It will show a "hint validation" that will help you how to set valid parameters.
+If you are unsure how to set up a parameter for the optimizer, you can try setting it to any value. The optimizer will then provide a "hint validation" that
+can help you determine how to set valid parameters.
+
 
 .. code-block:: python
 
@@ -75,8 +76,8 @@ This will definitely be helpful when using ParameterGrid/GridSearchCV from the s
 
 **3. Get the parameters of the model**
 
-Using this method below will return model's parameters as a python dictionary.
-If you want to convert it to string, we recommend to use built-in python method: str
+Using the method below will return the model's parameters as a Python dictionary. If you want to convert it to a string,  we recommend using the built-in
+Python method: str().
 
 .. code-block:: python
 

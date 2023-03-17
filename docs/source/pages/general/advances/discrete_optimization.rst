@@ -1,8 +1,8 @@
 Discrete Optimization
 =====================
 
-With this type of problem, we recommend you create a custom child class of Problem class.
-And override the necessary functions in Problem class, at least 3 functions:
+For this type of problem, we recommend creating a custom child class of the Problem class and overriding the necessary functions.
+At a minimum, three functions should be overridden:
 
 	* fit_func: the fitness function
 	* generate_position: a function that generate solution

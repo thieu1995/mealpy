@@ -1,8 +1,8 @@
 Set Up Model's/Problem's Name
 =============================
 
-You don't really need to set the name for the optimizer and the problem. But it will help in saving results with the name of model and problem (especially in
-multitask problems).
+You do not necessarily need to set names for the optimizer and the problem, but doing so can help in saving results with the names of the model and the
+problem, especially in multitask problems.
 
 
 **1. Name the problem:**

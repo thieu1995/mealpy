@@ -1,10 +1,11 @@
 Custom Problem
 ==============
 
-For a complex problem, we recommend user to define and custom child class of Problem class instead of defining the problem dictionary.
 
-For example, training neural network will required the dataset passing to the fitness function. Defining a child class can pass any additional data that you
-need.
+For complex problems, we recommend that the user define a custom child class of the Problem class instead of defining the problem dictionary.
+For instance, when training a neural network, the dataset needs to be passed to the fitness function. Defining a child class allows for passing any
+additional data that may be needed.
+
 
 .. code-block:: python
 

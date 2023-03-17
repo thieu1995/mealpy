@@ -1,13 +1,14 @@
 Multi-objective Optimization
 ============================
 
-We currently provide a "weighting method" to solve multi-objective optimization problems. All you have to do is define your fitness function, which returns a list of objective values, and set the objective weight corresponding to each value.
+We currently offer a "weighting method" to solve multi-objective optimization problems. All you need to do is define your fitness function, which returns a
+list of objective values, and set the objective weight corresponding to each value.
 
-	* fit_func: Your fitness function
-	* lb: Lower bound of variables, it should be list of values
-	* ub: Upper bound of variables, it should be list of values
-	* minmax: The problem you are trying to solve is minimum or maximum, value can be "min" or "max"
-	* obj_weights: list weights for all your objectives (Optional, default = [1, 1, ...1])
+	* fit_func: Your fitness function.
+	* lb: Lower bound of variables. It should be a list of values.
+	* ub: Upper bound of variables. It should be a list of values.
+	* minmax: Indicates whether the problem you are trying to solve is a minimum or maximum. The value can be "min" or "max".
+	* obj_weights: Optional list of weights for all of your objectives. The default is [1, 1, ..., 1].
 
 
 * Declare problem dictionary with "obj_weights":

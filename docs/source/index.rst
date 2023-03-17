@@ -53,24 +53,27 @@ Welcome to MEALPY's documentation!
 
 .. _Nguyen Van Thieu: https://www.thieu1995.github.io/
 
-MEALPY is a Python library for the most of cutting-edge population *meta-heuristic algorithms* - a field which provides an fast
-and efficient way to find the global optimal point of mathematical optimization problems.
+MEALPY is a Python library that contains the largest number of the cutting-edge population-based *meta-heuristic algorithms* — a field that provides a fast and
+efficient way to find the (approximation) global optimal point of mathematical optimization problems.
 
-Population meta-heuristic algorithms (PMA) are the most popular algorithm in the field of optimization. There are several type of PMA such as:
+Population-based meta-heuristic algorithms (PMAs) are the most popular algorithms in the field of optimization. There are several types of PMAs, including:
 
 - Evolutionary inspired computing
 - Swarm inspired computing
 - Physics inspired computing
 - Human inspired computing
 - Biology inspired computing
-- And others such as: Music inspired, Mathematical inspired computing,...
+- Mathematical inspired computing
+- And others such as: Music inspired, System inspired computing,...
+
+
 
 Features
 --------
 
-- Our library provides all of the state-of-the-art population meta-heuristic algorithms for optimization problems.
-- We implement all algorithms in Numpy to increase speed of algorithms.
-- We've also designed the visualization module to help users understand and explore the result that the model discovers after learning
+- Our library provides all state-of-the-art population meta-heuristic algorithms for optimization problems.
+- We have implemented all algorithms using Numpy to increase the speed of the algorithms.
+- Additionally, we have designed a visualization module to help users understand and explore the results discovered by the model after learning.
 
 
 .. toctree::

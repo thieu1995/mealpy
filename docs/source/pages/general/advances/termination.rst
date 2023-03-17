@@ -1,8 +1,9 @@
 Stopping Condition (Termination)
 ================================
 
-By default, when create an optimizer, the default stopping condition (termination) is epochs (generations, iterations)
-But there are different stopping condition you can try by creating an Termination dictionary. There are 4 termination cases:
+By default, when creating an optimizer, the default stopping condition (termination) is based on epochs (generations, iterations). However, there are
+different stopping conditions that you can try by creating a Termination dictionary. There are 4 termination cases:
+
 
 **1. FE (Number of Function Evaluation)**
 

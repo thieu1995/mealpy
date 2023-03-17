@@ -79,9 +79,11 @@ You can see the error after each iteration which is found by GA:
 ----------------------------
 Fitness Function Preparation
 ----------------------------
-Make sure that your designed Fitness Function take an solution (a numpy vector) and return the fitness value (single real value or list of real value)
 
-We have already included the library *opfunu* which is a framework of benchmark functions for optimization problems. You can use it in the very easy way by:
+Make sure that your designed fitness function takes a solution (a numpy vector) and returns the fitness value (a single real value or a list of real values).
+
+We have already included the *opfunu* library, which is a framework of benchmark functions for optimization problems. You can use it very easily by:
+
 
 .. code-block:: python
 
@@ -95,8 +97,10 @@ We have already included the library *opfunu* which is a framework of benchmark 
 	F2 = type_based.__dixon_price__
 	....
 
-But if you don't want to use it, you want to design your own fitness functions. It is ok, all you need to do is write your own function with input is a
-numpy vector (the solution) and output is the single objective value or list of multiple objective values.
+
+If you prefer not to use the opfunu library and want to design your own fitness functions, that's okay too. All you need to do is write your own function
+that takes a numpy vector (the solution) as input and returns a single objective value or a list of multiple objective values.
+
 
 .. code-block:: python
 
@@ -132,12 +136,13 @@ You will need to define a problem dictionary with must has keywords ("fit_func",
 Training
 --------
 
-Start learning by call function **solve()**. There are 4 different training modes include:
+To start learning, call the **solve()** function. There are four different training modes available:
 
-1. process: Using multi-cores to update fitness for whole population (Parallel: no effect on updating process)
-2. thread: Using multi-threads to update fitness for whole population (Parallel: no effect on updating process)
-3. swarm: Updating fitness after the whole population move (Sequential: no effect on updating process)
-4. single: Updating fitness after each agent move (Sequential: effect on updating process)
+1. **process**: Uses multiple cores to update fitness for the entire population (parallel processing; no effect on updating process).
+2. **thread**: Uses multiple threads to update fitness for the entire population (parallel processing; no effect on updating process).
+3. **swarm**: Updates fitness after the entire population moves (sequential processing; no effect on updating process).
+4. **single**: Updates fitness after each agent moves (sequential processing; affects updating process).
+
 
 
 .. code-block:: python

@@ -2,13 +2,14 @@
 Build New Optimizer
 ===================
 
-The figure below shows the flow of Optimizer class. Which methods you can override, and which methods you shouldn't override to take advantage of Optimizer
-class.
+The figure below shows the flow of the Optimizer class and which methods can be overridden and which methods should not be overridden to take advantage of
+the Optimizer class.
+
 
 .. image:: /_static/images/mealpy_flow.png
 
 
-Based on this flow, we create an example in examples/build_new_optimizer.py to show you how to do in coding.
+Based on this flow, we have created an example in "examples/build_new_optimizer.py" to show you how to do this in code.
 
 
 **How to create a new optimizer?**

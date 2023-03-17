@@ -3,8 +3,8 @@ Introduction
 ============
 
 
-* MEALPY is a largest python module for the most of cutting-edge nature-inspired meta-heuristic
-  algorithms and is distributed under GNU General Public License (GPL) V3 license.
+* MEALPY (MEta-heuristic ALgorithms in PYthon) is the largest Python module for the most cutting-edge nature-inspired meta-heuristic algorithms and is
+distributed under the GNU General Public License (GPL) V3 license.
 
 * Current version: 2.5.1, Total algorithms: 172 (102 original, 45 official variants, 25 developed variants)
 
@@ -21,18 +21,18 @@ Introduction
 .. _All releases: https://pypi.org/project/mealpy/#history
 
 * The goals of this framework are:
-    * Sharing knowledge of meta-heuristic fields to everyone without a fee
-    * Helping other researchers in all field access to optimization algorithms as quickly as possible
-    * Implement the classical as well as the state-of-the-art meta-heuristics (The whole history of meta-heuristics)
+    * To share knowledge of the meta-heuristic field with everyone at no cost.
+    * To help researchers in all fields access optimization algorithms as quickly as possible.
+    * To implement both classical and state-of-the-art meta-heuristics, covering the entire history of meta-heuristics.
 
 * What you can do with this library:
-    * Analyse parameters of algorithms.
-    * Perform Qualitative and Quantitative Analysis of algorithms.
-    * Analyse rate of convergence of algorithms.
-    * Test and Analyse the scalability and the robustness of algorithms.
+    * Analyze the parameters of algorithms.
+    * Perform qualitative and quantitative analyses of algorithms.
+    * Analyze the rate of convergence of algorithms.
+    * Test and analyze the scalability and robustness of algorithms.
 
 
-* If you guys want a new algorithm, please open an `Issues ticket`_, or build your own New Optimizer using mealpy's components.
+* If you would like to request a new algorithm, please open an `Issues ticket`_, or build your own New Optimizer using mealpy's components.
 
 .. _Issues ticket: https://github.com/thieu1995/mealpy/issues
 
@@ -58,35 +58,43 @@ Introduction
 ------------
 Optimization
 ------------
-A very short introduction to meta-heuristic algorithms and how to use them to solve optimization problems. This document also introduces some basic concepts and conventions.
+A very short introduction to meta-heuristic algorithms and how to use them to solve optimization problems. This document also introduces some basic concepts
+and conventions.
 
-Meta-heuristic algorithms are becoming increasingly popular in optimization and applications over the last three decades. There are many reasons for this popularity and success, and one of the main reasons is that these algorithms have been developed by mimicking the most successful processes in nature, including biological systems, and physical and chemical processes. For most algorithms, we know their fundamental components, how exactly they interact to achieve efficiency remains partly a mystery, which inspires more active studies. Convergence analysis of a few algorithms such as particle swarm optimization shows some insight, but in general mathematical analysis of metaheuristic algorithms remains unsolved and still an ongoing active research topic.
+Meta-heuristic algorithms are becoming increasingly popular in optimization and applications over the last three decades. There are many reasons for this
+popularity and success, and one of the main reasons is that these algorithms have been developed by mimicking the most successful processes in nature,
+including biological systems, and physical and chemical processes. For most algorithms, we know their fundamental components, how exactly they interact to
+achieve efficiency remains partly a mystery, which inspires more active studies. Convergence analysis of a few algorithms such as particle swarm
+optimization shows some insight, but in general mathematical analysis of metaheuristic algorithms remains unsolved and still an ongoing active research topic.
 
 
-The solution to an optimization problem requires the choice and the correct use of the right algorithm. The choice of an algorithm largely depends on the type of optimization problem at hand. For large-scale nonlinear global optimization problems, there is no agreed guideline for how to choose and what to choose. We are not even sure whether an efficient algorithm exists, which is especially true for NP-hard problems, and the most real-world problems often are NP-hard indeed and in most applications, we can in general write an optimization problem as the following generic form:
+The solution to an optimization problem requires the choice and the correct use of the right algorithm. The choice of an algorithm largely depends on the
+type of optimization problem at hand. For large-scale nonlinear global optimization problems, there is no agreed guideline for how to choose and what to
+choose. We are not even sure whether an efficient algorithm exists, which is especially true for NP-hard problems, and the most real-world problems often
+are NP-hard indeed and in most applications, we can in general write an optimization problem as the following generic form:
+
 
 .. image:: /_static/images/general_format.png
 
-Here the components xi of x are called design or decision variables, and they can be real continuous, discrete, or a mix of these two. The functions fi(x)
-wherei= 1,2, ..., Mare called the objective functions or simply cost functions, and in the case of M= 1, there is only a single objective. The space spanned by
-the decision variables is called the design space or search space Rn, while the space formed by the objective function values is called the solution space or
-response space. The equalities for hj and inequalities for gk are called constraints. It is worth pointing out that we can also write the inequalities in the
-other way ≥ 0, and we can also formulate the objectives as a maximization problem.
 
+"The components xi of x are called design or decision variables, and they can be real, continuous, discrete, or a mix of these two. The functions fi(x),
+where i=1,2,...,M, are called objective functions or simply cost functions. In the case of M=1, there is only a single objective. The space spanned by the
+decision variables is called the design space or search space Rn, while the space formed by the objective function values is called the solution space or
+response space. The equalities for hj and inequalities for gk are called constraints. It is worth pointing out that we can also write the inequalities in
+the other way (≥0), and we can also formulate the objectives as a maximization problem.
 
-The algorithms used for solving optimization problems can be very diverse, from conventional algorithms to modern meta-heuristics Most conventional or
-classic algorithms are deterministic.  For example, the simplex method in linear programming is deterministic. Some deterministic
-optimization algorithms used gradient information, they are called gradient-based algorithms. For example, the well-known Newton-Raphson algorithm is
-gradient-based, as it uses the function values and their derivatives, and it works extremely well for smooth unimodal problems. However, if there is some
-discontinuity in the objective function, it does not work well. In this case, a non-gradient algorithm is preferred. Non-gradient-based, or
-gradient-free/derivative-free, algorithms do not use any derivative, but only the function values. Hooke-Jeeves pattern search and Nelder-Mead downhill simplex
-are examples of gradient-free algorithms
+The algorithms used for solving optimization problems can be very diverse, ranging from conventional algorithms to modern meta-heuristics.
+Most conventional or classic algorithms are deterministic. For example, the simplex method in linear programming is deterministic.
+Some deterministic optimization algorithms use gradient information and are called gradient-based algorithms. For example, the well-known Newton-Raphson
+algorithm is gradient-based, as it uses the function values and their derivatives, and it works extremely well for smooth unimodal problems. However, if
+there is some discontinuity in the objective function, it does not work well. In this case, a non-gradient algorithm is preferred.
+Non-gradient-based, or gradient-free/derivative-free, algorithms do not use any derivatives but only the function values.
+Hooke-Jeeves pattern search and Nelder-Mead downhill simplex are examples of gradient-free algorithms.
 
-
-For stochastic algorithms, in general, we have two types: heuristic and meta-heuristic, though their difference is small. Loosely speaking, heuristic means ‘to
-find’ or ‘to discover by trial and error’. Quality solutions to a tough optimization problem can be found in a reasonable amount of time, but there is no
-guarantee that optimal solutions are reached. It hopes that these algorithms work most of the time, but not necessarily all the time. This is good when we do
-not necessarily want the best solutions but easily reachable and rather good solutions.
+In stochastic algorithms, we generally have two types: heuristic and meta-heuristic, although their difference is small. Loosely speaking, heuristic means
+'to find' or 'to discover by trial and error'. Quality solutions to a tough optimization problem can be found in a reasonable amount of time, but there is
+no guarantee that optimal solutions will be reached. It is hoped that these algorithms will work most of the time, but not necessarily all the time. This is
+useful when we do not necessarily want the best solutions but rather easily reachable and reasonably good solutions."
 
 
 
@@ -103,20 +111,20 @@ However, the recent trend tends to name all stochastic algorithms with randomiza
 
 .. image:: /_static/images/bio_inspired.png
 
-Randomization provides a good way to move away from local search to the search on a global scale. Therefore, almost all meta-heuristic algorithms intend to
-be suitable for global optimization. Meta-heuristics can be an efficient way to produce acceptable solutions by trial and error to a complex problem in a
-reasonably practical time. The complexity of the problem of interest makes it impossible to search for every possible solution or combination, the aim is to find
-a good feasible solution in an acceptable timescale. There is no guarantee that the best solutions can be found, and we even do not know whether an algorithm
-will work and why it does work. The idea is to have an efficient but practical algorithm that will work most of the time and can produce good-quality
-solutions. Among the found quality solutions, it is expected some of them are nearly optimal, though there is no guarantee for such optimality. The main
-components of any metaheuristic algorithms are intensification and diversification, or exploitation and exploration (Blum and Roli 2003). Diversification
-means generating diverse solutions to explore the search space on a global scale, while intensification means focusing on the search in a local
-region by exploiting the information that a current good solution is found in this region. This is in combination with these lections of the best solutions.
 
+Randomization is a useful tool for escaping local optima and facilitating global search. Consequently, the majority of meta-heuristic algorithms aim to be
+effective in global optimization. These algorithms provide a practical way to generate satisfactory solutions for complex problems within a reasonable time
+frame. Due to the problem's complexity, it is impractical to search for every possible solution or combination, and the goal is to find a feasible solution
+of high quality within an acceptable time limit. Although there is no guarantee that the best solutions can be found, a good meta-heuristic algorithm is
+expected to produce high-quality solutions most of the time. The key components of any meta-heuristic algorithm are intensification and diversification,
+which are also referred to as exploitation and exploration (Blum and Roli 2003). Diversification generates a variety of solutions to explore the search
+space globally, while intensification focuses on local search in a region where a promising solution has been found, utilizing the information from that
+solution to identify the best solutions.
 
-The selection of the best ensures that the solutions will converge to optimality. On other hand, the diversification via randomization avoids the
-solutions being trapped at local optima while increasing the diversity of the solutions. A good combination of these two major components will usually ensure
-that global optimality is achievable.
+The selection of the best solutions ensures that the algorithm will converge to optimality. On the other hand, diversification via randomization helps to
+avoid the algorithm being trapped at local optima and increases the diversity of solutions explored. A good balance between these two major components of
+meta-heuristics can typically lead to global optimality being achieved.
+
 
 Metaheuristic algorithms can be classified in many ways. One way is to classify them as population-based and trajectory-based. For example, genetic algorithms
 are population-based as they use a set of strings, so is the particle swarm optimization (PSO) which uses multiple agents or particles (Kennedy and Eberhart

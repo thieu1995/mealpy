@@ -1,9 +1,10 @@
 Log Training Process
 ====================
 
-We currently provide three logging options: print out training process on console, log training process to file, and don't show or save log process.
+We currently offer three logging options: printing the training process on the console, logging the training process to a file, and not displaying or saving
+the log process.
 
-* By default, if you don't declare "log_to" keyword in problem, it will log to "console"
+* By default, if the "log_to" keyword is not declared in the problem dictionary, it will be logged to the console.
 
 .. code-block:: python
 

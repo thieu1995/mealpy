@@ -3,9 +3,9 @@ Agent's History (Trajectory)
 
 **WARNING: Trajectory will cause the memory issues:**
 
-By default, the history of the population is not saved. You can turn on this option by setting the keyword "save_population" to True in the Problem definition.
-However, this feature can cause memory issues if your problem is too big. (Because it will save the history of the population in each generation).
-If your problem is small, you can turn it on, and you will be able to draw the trajectory chart of search agents.
+The history of the population is not saved by default, but you can enable this feature by setting the "save_population" keyword to True in the Problem
+definition. Keep in mind that enabling this option may cause memory issues if your problem is too large, as it saves the history of the population in each
+generation. However, if your problem is small enough, you can turn it on and visualize the trajectory chart of search agents.
 
 .. code-block:: python
 
@@ -32,8 +32,10 @@ You can access to the history of agent/population in model.history object with v
 	+ list_exploration: List of EXPLORATION percentages for all generations
 	+ list_population: List of POPULATION in each generations
 
-**Note**, The last variable 'list_population' is the one that can cause the "memory" error that describes above.
-It is better to set the parameter 'save_population' to False (this is also the default) in the input problem dictionary to not using it.
+**Note**: The last variable, 'list_population', is the one that can cause the "memory" error described above.
+It is recommended to set the 'save_population' parameter to False (which is also the default) in the input problem dictionary if you do not plan to use it.
+
+
 
 .. code-block:: python
 

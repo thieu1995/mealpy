@@ -1,7 +1,7 @@
 Saving and Loading Model
 ========================
 
-Above tutorials, we know that we can save the population after each epoch in the model by setting "save_population" as True in the problem dictionary.
+Based on the tutorials above, we know that we can save the population after each epoch in the model by setting "save_population" to True in the problem dictionary.
 
 .. code-block:: python
 
@@ -14,9 +14,10 @@ Above tutorials, we know that we can save the population after each epoch in the
 	  "save_population": True,              # Default = False
 	}
 
-However, as a warning, when your problem is too big. It will cause memory issues when running the model. Besides, "save_population" here means storing the
-population of each epoch in the model.history object. So it doesn't save the model to the file. When we want to save and load the optimizer from file.
-We need to use module io from mealpy.utils.
+
+However, as a warning, if your problem is too big, setting "save_population" to True can cause memory issues when running the model. It is also important to
+note that "save_population" here means storing the population of each epoch in the model's history object, and not saving the model to a file. To save and
+load the optimizer from a file, you will need to use the "io" module from "mealpy.utils".
 
 
 .. code-block:: python

@@ -1,8 +1,9 @@
 Constraint Optimization
 =======================
 
-For this problem, we recommend the user define a punish function. The more objective violates, the more punishment function will be.
-Therefore, the fitness will get bigger, and the solution will be had less chance to choose in the updating process.
+For this problem, we recommend that the user defines a punishment function. The more the objective is violated, the greater the punishment function will be.
+As a result, the fitness will increase, and the solution will have a lower chance of being selected in the updating process.
+
 
 * Declare problem dictionary:
 
