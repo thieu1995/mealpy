@@ -8,25 +8,23 @@ from mealpy.utils.termination import Termination
 import pytest
 
 
-@pytest.mark.parametrize("mode, system_code",
+@pytest.mark.parametrize("max_epoch, system_code",
                          [
                              ("FA", 0),
-                             (3, 0),
                              ([1, 2], 0),
                              ((0.3, 2), 0),
                              (None, 0),
                          ])
-def test_mode(mode, system_code):
+def test_max_epoch(max_epoch, system_code):
     term = {
-        "mode": mode,
-        "quantity": 1000
+        "max_epoch": max_epoch,
     }
     with pytest.raises(ValueError) as e:
         prob = Termination(termination=term)
     assert e.type == ValueError
 
 
-@pytest.mark.parametrize("quantity, system_code",
+@pytest.mark.parametrize("max_time, system_code",
                          [
                              ("FA", 0),
                              (-1, 0),
@@ -34,10 +32,43 @@ def test_mode(mode, system_code):
                              ((0.3, 2), 0),
                              (None, 0),
                          ])
-def test_quantity(quantity, system_code):
+def test_max_time(max_time, system_code):
     term = {
-        "mode": "MG",
-        "quantity": quantity
+        "max_time": max_time
+    }
+    with pytest.raises(ValueError) as e:
+        prob = Termination(termination=term)
+    assert e.type == ValueError
+
+
+@pytest.mark.parametrize("max_fe, system_code",
+                         [
+                             ("FA", 0),
+                             (-1, 0),
+                             ([1, 2], 0),
+                             ((0.3, 2), 0),
+                             (None, 0),
+                         ])
+def test_max_fe(max_fe, system_code):
+    term = {
+        "max_fe": max_fe
+    }
+    with pytest.raises(ValueError) as e:
+        prob = Termination(termination=term)
+    assert e.type == ValueError
+
+
+@pytest.mark.parametrize("max_early_stop, system_code",
+                         [
+                             ("FA", 0),
+                             (-1, 0),
+                             ([1, 2], 0),
+                             ((0.3, 2), 0),
+                             (None, 0),
+                         ])
+def test_max_early_stop(max_early_stop, system_code):
+    term = {
+        "max_early_stop": max_early_stop
     }
     with pytest.raises(ValueError) as e:
         prob = Termination(termination=term)
