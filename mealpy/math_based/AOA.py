@@ -71,8 +71,6 @@ class OriginalAOA(Optimizer):
         self.moa_min = self.validator.check_float("moa_min", moa_min, (0, 0.41))
         self.moa_max = self.validator.check_float("moa_max", moa_max, (0.41, 1.0))
         self.set_parameters(["epoch", "pop_size", "alpha", "miu", "moa_min", "moa_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

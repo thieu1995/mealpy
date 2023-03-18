@@ -55,7 +55,6 @@ class OriginalRUN(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def runge_kutta__(self, xb, xw, delta_x):
@@ -86,8 +85,6 @@ class OriginalRUN(Optimizer):
         SF = 2.*(0.5 - np.random.random(self.pop_size)) * f     # Eq.17.5
         x_list = np.array([agent[self.ID_POS] for agent in self.pop])
         x_average = np.mean(x_list, axis=0)     # Determine the Average of Solutions
-
-        nfe_epoch = self.pop_size
         for idx in range(0, self.pop_size):
             ## Determine Delta X (Eqs. 11.1 to 11.3)
             gama = np.random.rand() * (self.pop[idx][self.ID_POS] - np.random.uniform(0, 1, self.problem.n_dims) *
@@ -142,7 +139,6 @@ class OriginalRUN(Optimizer):
                 x_new2 = np.where(w < 1, x_new2_temp1, x_new2_temp2)
                 pos_new2 = self.amend_position(x_new2, self.problem.lb, self.problem.ub)
                 tar_new2 = self.get_target_wrapper(pos_new2)
-                nfe_epoch += 1
 
                 if self.compare_agent([pos_new2, tar_new2], self.pop[idx]):
                     self.pop[idx] = [pos_new2, tar_new2]
@@ -153,7 +149,5 @@ class OriginalRUN(Optimizer):
                                  SF[idx] * (SM + (2 * np.random.random(self.problem.n_dims)*self.g_best[self.ID_POS] - pos_new2))       # Eq. 20
                         pos_new3 = self.amend_position(x_new3, self.problem.lb, self.problem.ub)
                         tar_new3 = self.get_target_wrapper(pos_new3)
-                        nfe_epoch += 1
                         if self.compare_agent([pos_new3, tar_new3], self.pop[idx]):
                             self.pop[idx] = [pos_new3, tar_new3]
-        self.nfe_per_epoch = nfe_epoch

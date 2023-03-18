@@ -64,8 +64,6 @@ class OriginalPSS(Optimizer):
         self.acceptance_rate = self.validator.check_float("acceptance_rate", acceptance_rate, (0, 1.0))
         self.sampling_method = self.validator.check_str("sampling_method", sampling_method, ["MC", "LHS"])
         self.set_parameters(["epoch", "pop_size", "acceptance_rate", "sampling_method"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

@@ -63,8 +63,6 @@ class OriginalGBO(Optimizer):
         self.beta_min = self.validator.check_float("beta_min", beta_min, (0, 2.0))
         self.beta_max = self.validator.check_float("beta_max", beta_max, (0, 5.0))
         self.set_parameters(["epoch", "pop_size", "pr", "beta_min", "beta_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -138,6 +136,5 @@ class OriginalGBO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(pop_new, self.pop)
-        self.nfe_per_epoch = self.pop_size
         _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         self.g_best, self.g_worst = best[0], worst[0]

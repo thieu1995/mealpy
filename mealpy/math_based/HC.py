@@ -60,8 +60,6 @@ class OriginalHC(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.neighbour_size = self.validator.check_int("neighbour_size", neighbour_size, [2, self.pop_size])
         self.set_parameters(["epoch", "pop_size", "neighbour_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -71,7 +69,6 @@ class OriginalHC(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = self.neighbour_size
         step_size = np.mean(self.problem.ub - self.problem.lb) * np.exp(-2 * (epoch + 1) / self.epoch)
         pop_neighbours = []
         for idx in range(0, self.neighbour_size):
@@ -135,8 +132,6 @@ class SwarmHC(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.neighbour_size = self.validator.check_int("neighbour_size", neighbour_size, [2, int(self.pop_size/2)])
         self.set_parameters(["epoch", "pop_size", "neighbour_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

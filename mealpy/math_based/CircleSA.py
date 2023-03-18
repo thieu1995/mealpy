@@ -49,7 +49,6 @@ class OriginalCircleSA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.c_factor = self.validator.check_float("c_factor", c_factor, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "c_factor"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

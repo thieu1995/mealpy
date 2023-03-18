@@ -63,8 +63,6 @@ class OriginalCEM(Optimizer):
         self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size/2)])
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "n_best", "alpha"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):
