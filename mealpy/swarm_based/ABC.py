@@ -58,7 +58,6 @@ class OriginalABC(Optimizer):
         self.n_limits = self.validator.check_int("n_limits", n_limits, [1, 1000])
         self.support_parallel_modes = False
         self.set_parameters(["epoch", "pop_size", "n_limits"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -111,4 +110,3 @@ class OriginalABC(Optimizer):
         for idx in abandoned:
             self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
             self.trials[idx] = 0
-        self.nfe_per_epoch = 2 * self.pop_size + len(abandoned)

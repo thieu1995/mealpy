@@ -58,7 +58,6 @@ class OriginalSLO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def amend_position(self, position=None, lb=None, ub=None):
@@ -157,7 +156,6 @@ class ModifiedSLO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -281,7 +279,6 @@ class ImprovedSLO(ModifiedSLO):
         self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
         self.set_parameters(["epoch", "pop_size", "c1", "c2"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

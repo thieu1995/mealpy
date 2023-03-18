@@ -57,7 +57,6 @@ class OriginalTSO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.P = np.arange(1, 361)
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):

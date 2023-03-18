@@ -78,7 +78,6 @@ class OriginalFFA(Optimizer):
         self.delta = self.validator.check_float("delta", delta, (0, 1.0))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
         self.set_parameters(["epoch", "pop_size", "gamma", "beta_base", "alpha", "alpha_damp", "delta", "exponent"])
-        self.nfe_per_epoch = int(self.pop_size * (self.pop_size + 1) / 2 * 0.5)
         self.support_parallel_modes = False
         self.sort_flag = False
 
@@ -94,7 +93,6 @@ class OriginalFFA(Optimizer):
         """
         # Maximum Distance
         dmax = np.sqrt(self.problem.n_dims)
-        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
             pop_child = []
@@ -115,10 +113,8 @@ class OriginalFFA(Optimizer):
             if len(pop_child) < self.pop_size:
                 pop_child += self.create_population(self.pop_size - len(pop_child))
             _, local_best = self.get_global_best_solution(pop_child)
-            nfe_epoch += len(pop_child)
             # Compare to Previous Solution
             if self.compare_agent(local_best, agent):
                 self.pop[idx] = local_best
         self.pop.append(self.g_best)
         self.dyn_alpha = self.alpha_damp * self.alpha
-        self.nfe_per_epoch = nfe_epoch

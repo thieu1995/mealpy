@@ -58,7 +58,6 @@ class OriginalMRFO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.somersault_range = self.validator.check_float("somersault_range", somersault_range, [1.0, 5.0])
         self.set_parameters(["epoch", "pop_size", "somersault_range"])
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -177,7 +176,6 @@ class WMQIMRFO(Optimizer):
         self.somersault_range = self.validator.check_float("somersault_range", somersault_range, [1.0, 5.0])
         self.pm = self.validator.check_float("pm", pm, (0.0, 1.0))
         self.set_parameters(["epoch", "pop_size", "somersault_range", "pm"])
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

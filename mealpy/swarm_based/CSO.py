@@ -163,7 +163,6 @@ class OriginalCSO(Optimizer):
         """
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
         pop_new = []
-        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             agent = deepcopy(self.pop[idx])
             # tracing mode
@@ -171,14 +170,11 @@ class OriginalCSO(Optimizer):
                 pos_new = self.pop[idx][self.ID_POS] + w * self.pop[idx][self.ID_VEL] + \
                           np.random.uniform() * self.c1 * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                nfe_epoch += 1
             else:
                 pos_new = self.seeking_mode__(self.pop[idx])
-                nfe_epoch += self.smp
             agent[self.ID_POS] = pos_new
             agent[self.ID_FLAG] = True if np.random.uniform() < self.mixture_ratio else False
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         self.pop = self.update_target_wrapper_population(pop_new)
-        self.nfe_per_epoch = nfe_epoch

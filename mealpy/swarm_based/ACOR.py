@@ -68,8 +68,6 @@ class OriginalACOR(Optimizer):
         self.intent_factor = self.validator.check_float("intent_factor", intent_factor, (0, 1.0))
         self.zeta = self.validator.check_float("zeta", zeta, (0, 5))
         self.set_parameters(["epoch", "pop_size", "sample_count", "intent_factor", "zeta"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -79,7 +77,6 @@ class OriginalACOR(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = self.pop_size + self.sample_count
         # Calculate Selection Probabilities
         pop_rank = np.array([i for i in range(1, self.pop_size + 1)])
         qn = self.intent_factor * self.pop_size

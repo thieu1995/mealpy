@@ -153,7 +153,6 @@ class OriginalSSpiderO(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 self.pop_females[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
         self.pop_females = self.update_target_wrapper_population(self.pop_females)
-        self.nfe_epoch += self.n_f
 
     def move_males__(self, epoch=None):
         scale_distance = np.sum(self.problem.ub - self.problem.lb)
@@ -195,7 +194,6 @@ class OriginalSSpiderO(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 self.pop_males[i][self.ID_TAR] = self.get_target_wrapper(pos_new)
         self.pop_males = self.update_target_wrapper_population(self.pop_males)
-        self.nfe_epoch += self.n_m
 
     ### Crossover
     def crossover__(self, mom=None, dad=None, id=0):
@@ -257,7 +255,6 @@ class OriginalSSpiderO(Optimizer):
                 list_child.append([pos2, target2, 0.0])
 
         list_child += self.create_population(self.pop_size - len(list_child))
-        self.nfe_epoch += len(list_child)
         return list_child
 
     def survive__(self, pop=None, pop_child=None):
@@ -284,7 +281,6 @@ class OriginalSSpiderO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_epoch = 0
         ### Movement of spiders
         self.move_females__(epoch)
         self.move_males__(epoch)
@@ -297,4 +293,3 @@ class OriginalSSpiderO(Optimizer):
         pop_child = self.mating__()
         pop = self.survive__(pop, pop_child)
         self.pop = self.recalculate_weights__(pop)
-        self.nfe_per_epoch = self.nfe_epoch

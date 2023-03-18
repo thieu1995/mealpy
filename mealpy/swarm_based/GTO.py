@@ -3,8 +3,8 @@
 #       Email: nguyenthieu2102@gmail.com            %                                                    
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
-from math import gamma
 
+from math import gamma
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -58,7 +58,6 @@ class OriginalGTO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def levy__(self, beta=1.0, size=None, step=0.01):
@@ -76,7 +75,6 @@ class OriginalGTO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = self.pop_size
         # Step 1: Extensive Search
         for idx in range(0, self.pop_size):
             pop_new = []
@@ -91,7 +89,6 @@ class OriginalGTO(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_new = self.update_target_wrapper_population(pop_new)
-            self.nfe_per_epoch += len(pop_new)
             _, self.pop[idx] = self.get_global_best_solution(pop_new + [self.pop[idx]])
         _, self.g_best = self.update_global_best_solution(self.pop, save=False)
 
@@ -137,4 +134,3 @@ class OriginalGTO(Optimizer):
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_new = self.update_target_wrapper_population(pop_new)
             _, self.pop[idx] = self.get_global_best_solution(pop_new + [self.pop[idx]])
-            self.nfe_per_epoch += len(pop_new)

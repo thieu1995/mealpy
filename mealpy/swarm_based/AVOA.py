@@ -70,7 +70,6 @@ class OriginalAVOA(Optimizer):
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1))
         self.gama = self.validator.check_float("gama", gama, (0, 5.0))
         self.set_parameters(["epoch", "pop_size", "p1", "p2", "p3", "alpha", "gama"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def get_levy_flight__(self, beta=1.0, size=None):

@@ -63,7 +63,6 @@ class OriginalCOA(Optimizer):
         self.n_coyotes = self.validator.check_int("n_coyotes", n_coyotes, [2, int(self.pop_size / 2)])
         self.set_parameters(["epoch", "pop_size", "n_coyotes"])
         self.n_packs = int(pop_size / self.n_coyotes)
-        self.nfe_per_epoch = self.pop_size + 1
         self.sort_flag = False
 
     def initialization(self):
@@ -94,7 +93,6 @@ class OriginalCOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         # Execute the operations inside each pack
         for p in range(self.n_packs):
             # Get the coyotes that belong to each pack
@@ -121,7 +119,6 @@ class OriginalCOA(Optimizer):
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             # Evaluate the new social condition (Eq. 13)
             pop_new = self.update_target_wrapper_population(pop_new)
-            nfe_epoch += self.n_coyotes
             # Adaptation (Eq. 14)
             self.pop_group[p] = self.greedy_selection_population(self.pop_group[p], pop_new)
 
@@ -135,7 +132,6 @@ class OriginalCOA(Optimizer):
             pos_new = np.random.normal(0, 1) * pup
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             target = self.get_target_wrapper(pos_new)
-            nfe_epoch += 1
 
             # Verify if the pup will survive
             packs, local_best = self.get_global_best_solution(self.pop_group[p])

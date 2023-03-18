@@ -80,8 +80,6 @@ class CleverBookBeesA(Optimizer):
         self.n_sites = self.validator.check_int("n_sites", n_sites, [2, 5])
         self.n_elite_sites = self.validator.check_int("n_elite_sites", n_elite_sites, [1, 3])
         self.set_parameters(["epoch", "pop_size", "n_elites", "n_others", "patch_size", "patch_reduction", "n_sites", "n_elite_sites"])
-
-        self.nfe_per_epoch = self.n_elites * self.n_elite_sites + self.n_others * self.n_sites + (self.pop_size - self.n_sites)
         self.sort_flag = True
 
     def search_neighborhood__(self, parent=None, neigh_size=None):
@@ -207,8 +205,6 @@ class OriginalBeesA(Optimizer):
         self.n_elite_bees = int(round(self.elite_site_ratio * self.n_selected_bees))
         self.n_selected_bees_local = int(round(self.selected_site_bee_ratio * self.pop_size))
         self.n_elite_bees_local = int(round(self.elite_site_bee_ratio * self.n_selected_bees_local))
-        self.nfe_per_epoch = self.n_elite_bees * self.n_elite_bees_local + self.pop_size - self.n_selected_bees + \
-                             (self.n_selected_bees - self.n_elite_bees) * self.n_selected_bees_local
         self.sort_flag = True
 
     def perform_dance__(self, position, r):
@@ -223,12 +219,10 @@ class OriginalBeesA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for idx in range(0, self.pop_size):
             # Elite Sites
             if idx < self.n_elite_bees:
-                nfe_epoch += self.n_elite_bees_local
                 pop_child = []
                 for j in range(0, self.n_elite_bees_local):
                     pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
@@ -241,7 +235,6 @@ class OriginalBeesA(Optimizer):
                     pop_new[idx] = local_best
             elif self.n_elite_bees <= idx < self.n_selected_bees:
                 # Selected Non-Elite Sites
-                nfe_epoch += self.n_selected_bees_local
                 pop_child = []
                 for j in range(0, self.n_selected_bees_local):
                     pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
@@ -254,12 +247,10 @@ class OriginalBeesA(Optimizer):
                     pop_new[idx] = local_best
             else:
                 # Non-Selected Sites
-                nfe_epoch += 1
                 pop_new[idx] = self.create_solution(self.problem.lb, self.problem.ub)
         self.pop = pop_new
         # Damp Dance Radius
         self.dyn_radius = self.dance_reduction * self.dance_radius
-        self.nfe_per_epoch = nfe_epoch
 
 
 class ProbBeesA(Optimizer):
@@ -316,7 +307,6 @@ class ProbBeesA(Optimizer):
         self.dance_radius = self.validator.check_float("dance_radius", dance_radius, (0, 1.0))
         self.dance_reduction = self.validator.check_float("dance_reduction", dance_reduction, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "recruited_bee_ratio", "dance_radius", "dance_reduction"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         # Initial Value of Dance Radius
         self.dyn_radius = self.dance_radius
@@ -339,7 +329,6 @@ class ProbBeesA(Optimizer):
         fit_list = 1.0 / fit_list
         d_fit = fit_list / np.mean(fit_list)
 
-        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             # Determine Rejection Probability based on Score
             if d_fit[idx] < 0.9:
@@ -359,7 +348,6 @@ class ProbBeesA(Optimizer):
                 if bee_count > self.pop_size: bee_count = self.pop_size
                 # Create New Bees(Solutions)
                 pop_child = []
-                nfe_epoch += bee_count
                 for j in range(0, bee_count):
                     pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
                     pop_child.append([pos_new, None])
@@ -370,8 +358,6 @@ class ProbBeesA(Optimizer):
                 if self.compare_agent(local_best, self.pop[idx]):
                     self.pop[idx] = local_best
             else:
-                nfe_epoch += 1
                 self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
-        self.nfe_per_epoch = nfe_epoch
         # Damp Dance Radius
         self.dyn_radius = self.dance_reduction * self.dance_radius

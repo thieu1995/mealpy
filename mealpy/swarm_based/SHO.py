@@ -62,7 +62,6 @@ class OriginalSHO(Optimizer):
         self.h_factor = self.validator.check_float("h_factor", h_factor, (0.5, 10.0))
         self.N_tried = self.validator.check_int("N_tried", N_tried, (1, float("inf")))
         self.set_parameters(["epoch", "pop_size", "h_factor", "N_tried"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -72,7 +71,6 @@ class OriginalSHO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop_new = []
         for idx in range(0, self.pop_size):
             h = self.h_factor - (epoch + 1.0) * (self.h_factor / self.epoch)
@@ -93,7 +91,6 @@ class OriginalSHO(Optimizer):
                     target = self.get_target_wrapper(pos_temp)
                     if self.compare_agent([pos_temp, target], self.g_best):
                         N += 1
-                        nfe_epoch += 1
                         break
                     N += 1
                 circle_list = []
@@ -111,5 +108,3 @@ class OriginalSHO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
-        self.nfe_per_epoch = nfe_epoch

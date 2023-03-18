@@ -59,7 +59,6 @@ class OriginalDMOA(Optimizer):
         self.n_scout = self.pop_size - self.n_baby_sitter
         self.support_parallel_modes = False
         self.set_parameters(["epoch", "pop_size", "n_baby_sitter", "peep"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -80,7 +79,6 @@ class OriginalDMOA(Optimizer):
         fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         mean_cost = np.mean(fit_list)
         fi = np.exp(-fit_list / mean_cost)
-        self.nfe_per_epoch = 3 * self.pop_size
         for idx in range(0, self.pop_size):
             alpha = self.get_index_roulette_wheel_selection(fi)
             k = np.random.choice(list(set(range(0, self.pop_size)) - {idx, alpha}))
@@ -113,7 +111,6 @@ class OriginalDMOA(Optimizer):
             if self.C[idx] >= self.L:
                 self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
                 self.C[idx] = 0
-                self.nfe_per_epoch += 1
 
         ## Next Mongoose position
         new_tau = np.mean(SM)
@@ -169,7 +166,6 @@ class DevDMOA(Optimizer):
         self.peep = self.validator.check_float("peep", peep, [1, 10.])
         self.set_parameters(["epoch", "pop_size", "peep"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -188,7 +184,6 @@ class DevDMOA(Optimizer):
         fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         mean_cost = np.mean(fit_list)
         fi = np.exp(-fit_list / mean_cost)
-        self.nfe_per_epoch = 3 * self.pop_size
 
         ## Foraging led by Alpha female
         for idx in range(0, self.pop_size):
@@ -225,7 +220,6 @@ class DevDMOA(Optimizer):
             if self.C[idx] >= self.L:
                 self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
                 self.C[idx] = 0
-                self.nfe_per_epoch += 1
 
         ## Next Mongoose position
         new_tau = np.mean(SM)

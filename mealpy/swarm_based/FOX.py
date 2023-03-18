@@ -65,7 +65,6 @@ class OriginalFOX(Optimizer):
         self.c1 = self.validator.check_float("c1", c1, (-100., 100.))      # c1 in the paper
         self.c2 = self.validator.check_float("c2", c2, (-100., 100.))      # c2 in the paper
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

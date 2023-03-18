@@ -65,7 +65,6 @@ class OriginalHGS(Optimizer):
         self.PUP = self.validator.check_float("PUP", PUP, (0, 1.0))
         self.LH = self.validator.check_float("LH", LH, [1000, 20000])
         self.set_parameters(["epoch", "pop_size", "PUP", "LH"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):

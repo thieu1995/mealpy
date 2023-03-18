@@ -63,7 +63,6 @@ class OriginalGOA(Optimizer):
         self.c_min = self.validator.check_float("c_min", c_min, [0.00001, 0.2])
         self.c_max = self.validator.check_float("c_max", c_max, [0.2, 5.0])
         self.set_parameters(["epoch", "pop_size", "c_min", "c_max"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def s_function__(self, r_vector=None):

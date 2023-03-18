@@ -106,7 +106,6 @@ class OriginalBFO(Optimizer):
         self.set_parameters(["epoch", "pop_size", "Ci", "Ped", "Nc", "Ns", "d_attract", "w_attract", "h_repels", "w_repels"])
         self.half_pop_size = int(self.pop_size / 2)
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -155,7 +154,6 @@ class OriginalBFO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         for j in range(0, self.chem_steps):
             for idx in range(0, self.pop_size):
                 sum_nutrients = 0.0
@@ -168,7 +166,6 @@ class OriginalBFO(Optimizer):
                     pos_new = self.pop[idx][self.ID_POS] + self.step_size * unit_vector
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     target = self.get_target_wrapper(pos_new)
-                    nfe_epoch += 1
                     if self.compare_agent([pos_new, target], self.pop[idx]):
                         self.pop[idx][self.ID_POS] = pos_new
                         self.pop[idx][self.ID_TAR] = target
@@ -182,8 +179,6 @@ class OriginalBFO(Optimizer):
             for idc in range(self.pop_size):
                 if np.random.rand() < self.p_eliminate:
                     self.pop[idc] = self.create_solution(self.problem.lb, self.problem.ub)
-                    nfe_epoch += 1
-        self.nfe_per_epoch = nfe_epoch
 
 
 class ABFO(Optimizer):
@@ -260,7 +255,6 @@ class ABFO(Optimizer):
         self.N_split = self.validator.check_int("N_split", N_split, [5, 50])
         self.set_parameters(["epoch", "pop_size", "C_s", "C_e", "Ped", "Ns", "N_adapt", "N_split"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -296,7 +290,6 @@ class ABFO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         for i in range(0, self.pop_size):
             step_size = self.update_step_size__(self.pop, i)
             for m in range(0, self.swim_length):  # Ns
@@ -307,7 +300,6 @@ class ABFO(Optimizer):
                 pos_new = self.pop[i][self.ID_POS] + step_size * unit_vector
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                nfe_epoch += 1
                 if self.compare_agent([pos_new, target], self.pop[i]):
                     self.pop[i][self.ID_POS] = pos_new
                     self.pop[i][self.ID_TAR] = target
@@ -325,12 +317,10 @@ class ABFO(Optimizer):
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
                 self.pop.append([pos_new, target, 0, deepcopy(pos_new), deepcopy(target)])
-                nfe_epoch += 1
 
             nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)
             if self.pop[i][self.ID_NUT] < nut_min or np.random.rand() < self.p_eliminate:
                 self.pop[i] = self.create_solution(self.problem.lb, self.problem.ub)
-                nfe_epoch += 1
 
         ## Make sure the population does not have duplicates.
         new_set = set()
@@ -345,7 +335,6 @@ class ABFO(Optimizer):
         if n_agents < 0:
             for idx in range(0, n_agents):
                 self.pop.append(self.create_solution(self.problem.lb, self.problem.ub))
-                nfe_epoch += 1
         elif n_agents > 0:
             list_idx_removed = np.random.choice(range(0, len(self.pop)), n_agents, replace=False)
             pop_new = []
@@ -353,4 +342,3 @@ class ABFO(Optimizer):
                 if idx not in list_idx_removed:
                     pop_new.append(self.pop[idx])
             self.pop = pop_new
-        self.nfe_per_epoch = nfe_epoch

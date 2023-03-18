@@ -73,7 +73,6 @@ class OriginalPSO(Optimizer):
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
         self.set_parameters(["epoch", "pop_size", "c1", "c2", "w_min", "w_max"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -188,7 +187,6 @@ class PPSO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -302,7 +300,6 @@ class HPSO_TVAC(PPSO):
         self.ci = self.validator.check_float("ci", ci, [0.3, 1.0])
         self.cf = self.validator.check_float("cf", cf, [0, 0.3])
         self.set_parameters(["epoch", "pop_size", "ci", "cf"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -412,7 +409,6 @@ class C_PSO(OriginalPSO):
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
         self.set_parameters(["epoch", "pop_size", "c1", "c2", "w_min", "w_max"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
     
     def initialize_variables(self):
@@ -437,7 +433,6 @@ class C_PSO(OriginalPSO):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         list_fits = [item[self.ID_TAR][self.ID_FIT] for item in self.pop]
         fit_avg = np.mean(list_fits)
         fit_min = np.min(list_fits)
@@ -457,7 +452,6 @@ class C_PSO(OriginalPSO):
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
-        nfe_epoch += self.pop_size
 
         # Update current position, current velocity and compare with past position, past fitness (local best)
         for idx in range(0, self.pop_size):
@@ -485,8 +479,6 @@ class C_PSO(OriginalPSO):
 
         pop_new_child = self.create_population(self.pop_size - self.N_CLS)
         self.pop = self.get_sorted_strim_population(self.pop + pop_new_child, self.pop_size)
-        nfe_epoch += 1 + (self.pop_size - self.N_CLS)
-        self.nfe_per_epoch = nfe_epoch
 
 
 class CL_PSO(Optimizer):
@@ -552,7 +544,6 @@ class CL_PSO(Optimizer):
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
         self.max_flag = self.validator.check_int("max_flag", max_flag, [2, 100])
         self.set_parameters(["epoch", "pop_size", "c_local", "w_min", "w_max", "max_flag"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
     
     def initialize_variables(self):

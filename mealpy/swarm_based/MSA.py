@@ -74,7 +74,6 @@ class OriginalMSA(Optimizer):
         self.partition = self.validator.check_float("partition", partition, (0, 1.0))
         self.max_step_size = self.validator.check_float("max_step_size", max_step_size, (0, 5.0))
         self.set_parameters(["epoch", "pop_size", "n_best", "partition", "max_step_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         # np1 in paper
         self.n_moth1 = int(np.ceil(self.partition * self.pop_size))

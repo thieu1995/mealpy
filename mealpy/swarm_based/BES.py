@@ -74,7 +74,6 @@ class OriginalBES(Optimizer):
         self.c1 = self.validator.check_float("c1", c1, (0, 4.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 4.0))
         self.set_parameters(["epoch", "pop_size", "a_factor", "R_factor", "alpha", "c1", "c2"])
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = False
 
     def create_x_y_x1_y1__(self):

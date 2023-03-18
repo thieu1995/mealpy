@@ -61,7 +61,6 @@ class OriginalSRSR(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -106,7 +105,6 @@ class OriginalSRSR(Optimizer):
         # ========================================================================================= %%
         #            PHASE 1 (ACCUMULATION): CALCULATING Mu AND SIGMA values FOR SOLUTIONS            %
         # ===========================================================================================%%
-        nfe_epoch = 0
         # ------ CALCULATING MU AND SIGMA FOR MASTER ROBOT ----------
         self.pop[0][self.ID_SIGMA] = np.random.uniform()
         if epoch % 2 == 1:
@@ -133,7 +131,6 @@ class OriginalSRSR(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
-        nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
@@ -174,7 +171,6 @@ class OriginalSRSR(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
-        nfe_epoch += self.pop_size
 
         for idx in range(0, self.pop_size):
             # --------- Calculate Degree Of Cost Movement Of Robots During Movement --------------
@@ -249,10 +245,8 @@ class OriginalSRSR(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     pop_workers[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_workers = self.update_target_wrapper_population(pop_workers)
-            nfe_epoch += 5
 
             for i in range(0, 5):
                 if self.compare_agent(pop_workers[i], self.pop[1]):
                     self.pop[-(i + 1)][self.ID_POS] = deepcopy(pop_workers[i][self.ID_POS])
                     self.pop[-(i + 1)][self.ID_TAR] = deepcopy(pop_workers[i][self.ID_TAR])
-            self.nfe_per_epoch = nfe_epoch

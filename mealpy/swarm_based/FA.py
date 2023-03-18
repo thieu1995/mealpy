@@ -75,7 +75,6 @@ class OriginalFA(Optimizer):
         self.max_ea = self.validator.check_int("max_ea", max_ea, [2, 100])
         self.m_sparks = self.validator.check_int("m_sparks", m_sparks, [2, 10000])
         self.set_parameters(["epoch", "pop_size", "max_sparks", "p_a", "p_b", "max_ea", "m_sparks"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -85,7 +84,6 @@ class OriginalFA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
         fit_list = sorted(fit_list)
 
@@ -113,7 +111,6 @@ class OriginalFA(Optimizer):
                                    self.problem.lb + np.abs(pos_new) % (self.problem.ub - self.problem.lb), pos_new)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
-                nfe_epoch += 1
                 if self.mode not in self.AVAILABLE_MODES:
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_new = self.update_target_wrapper_population(pop_new)
@@ -128,7 +125,6 @@ class OriginalFA(Optimizer):
             pos_new = np.where(condition, pos_true, pos_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
-            nfe_epoch += 1
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)

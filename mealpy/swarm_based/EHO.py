@@ -67,7 +67,6 @@ class OriginalEHO(Optimizer):
         self.n_clans = self.validator.check_int("n_clans", n_clans, [2, int(self.pop_size/5)])
         self.set_parameters(["epoch", "pop_size", "alpha", "beta", "n_clans"])
         self.n_individuals = int(self.pop_size / self.n_clans)
-        self.nfe_per_epoch = self.pop_size + self.n_clans
         self.sort_flag = False
 
     def initialization(self):

@@ -57,7 +57,6 @@ class OriginalESOA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.support_parallel_modes = False
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):

@@ -63,7 +63,6 @@ class OriginalSTO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def get_indexes_better__(self, pop, idx):

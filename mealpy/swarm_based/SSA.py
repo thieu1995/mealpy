@@ -69,10 +69,8 @@ class BaseSSA(Optimizer):
         self.PD = self.validator.check_float("PD", PD, (0, 1.0))
         self.SD = self.validator.check_float("SD", SD, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "ST", "PD", "SD"])
-
         self.n1 = int(self.PD * self.pop_size)
         self.n2 = int(self.SD * self.pop_size)
-        self.nfe_per_epoch = 2 * self.pop_size - self.n2
         self.sort_flag = True
 
     def amend_position(self, position=None, lb=None, ub=None):

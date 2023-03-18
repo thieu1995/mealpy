@@ -52,8 +52,6 @@ class OriginalWOA(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -91,6 +89,7 @@ class OriginalWOA(Optimizer):
                 self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
+            print(len(pop_new))
             self.pop = self.greedy_selection_population(self.pop, pop_new)
 
 
@@ -145,8 +144,6 @@ class HI_WOA(Optimizer):
         self.feedback_max = self.validator.check_int("feedback_max", feedback_max, [2, 2+int(self.epoch/2)])
         # The maximum of times g_best doesn't change -> need to change half of population
         self.set_parameters(["epoch", "pop_size", "feedback_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):
@@ -160,7 +157,6 @@ class HI_WOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         a = 2 + 2 * np.cos(np.pi / 2 * (1 + epoch / self.epoch))  # Eq. 8
         pop_new = []
         for idx in range(0, self.pop_size):
@@ -190,7 +186,6 @@ class HI_WOA(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
 
         ## Feedback Mechanism
         _, current_best = self.get_global_best_solution(self.pop)
@@ -202,7 +197,5 @@ class HI_WOA(Optimizer):
         if self.dyn_feedback_count >= self.feedback_max:
             idx_list = np.random.choice(range(0, self.pop_size), self.n_changes, replace=False)
             pop_child = self.create_population(self.n_changes)
-            nfe_epoch += self.n_changes
             for idx_counter, idx in enumerate(idx_list):
                 self.pop[idx] = pop_child[idx_counter]
-        self.nfe_per_epoch = nfe_epoch

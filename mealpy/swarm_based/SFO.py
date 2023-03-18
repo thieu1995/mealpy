@@ -68,7 +68,6 @@ class OriginalSFO(Optimizer):
         self.AP = self.validator.check_float("AP", AP, (0, 100))
         self.epsilon = self.validator.check_float("epsilon", epsilon, (0, 0.1))
         self.set_parameters(["epoch", "pop_size", "pp", "AP", "epsilon"])
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
@@ -87,7 +86,6 @@ class OriginalSFO(Optimizer):
         """
         ## Calculate lamda_i using Eq.(7)
         ## Update the position of sailfish using Eq.(6)
-        nfe_epoch = 0
         pop_new = []
         PD = 1 - self.pop_size / (self.pop_size + self.s_size)
         for idx in range(0, self.pop_size):
@@ -102,7 +100,6 @@ class OriginalSFO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
 
         ## Calculate AttackPower using Eq.(10)
         AP = self.AP * (1 - 2 * (epoch + 1) * self.epsilon)
@@ -127,7 +124,6 @@ class OriginalSFO(Optimizer):
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_target_wrapper_population(self.s_pop)
-        nfe_epoch += self.s_size
 
         ## Sort the population of sailfish and sardine (for reducing computational cost)
         self.pop, g_best = self.get_global_best_solution(self.pop)
@@ -146,7 +142,6 @@ class OriginalSFO(Optimizer):
         else:
             self.s_pop = self.s_pop + self.create_population(self.s_size - len(self.s_pop))
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
-        self.nfe_per_epoch = nfe_epoch
 
 
 class ImprovedSFO(Optimizer):
@@ -202,7 +197,6 @@ class ImprovedSFO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pp = self.validator.check_float("pp", pp, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pp"])
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
         self.s_size = int(self.pop_size / self.pp)
 
@@ -221,7 +215,6 @@ class ImprovedSFO(Optimizer):
         """
         ## Calculate lamda_i using Eq.(7)
         ## Update the position of sailfish using Eq.(6)
-        nfe_epoch = 0
         pop_new = []
         for idx in range(0, self.pop_size):
             PD = 1 - len(self.pop) / (len(self.pop) + len(self.s_pop))
@@ -236,7 +229,6 @@ class ImprovedSFO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
 
         ## ## Calculate AttackPower using my Eq.thieu
         #### This is our proposed, simple but effective, no need A and epsilon parameters
@@ -253,7 +245,6 @@ class ImprovedSFO(Optimizer):
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_target_wrapper_population(self.s_pop)
-        nfe_epoch += len(self.s_pop)
 
         ## Sort the population of sailfish and sardine (for reducing computational cost)
         self.pop = self.get_sorted_strim_population(self.pop, self.pop_size)
@@ -269,4 +260,3 @@ class ImprovedSFO(Optimizer):
 
         self.s_pop = self.s_pop + self.create_population(self.s_size - len(self.s_pop))
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)
-        self.nfe_per_epoch = nfe_epoch

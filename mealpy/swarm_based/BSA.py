@@ -88,7 +88,6 @@ class OriginalBSA(Optimizer):
         self.a2 = self.validator.check_float("a2", a2, (0, 5.0))
         self.fl = self.validator.check_float("fl", fl, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "ff", "pff", "c1", "c2", "a1", "a2", "fl"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -117,7 +116,6 @@ class OriginalBSA(Optimizer):
         fit_list = np.array([item[self.ID_LBF][self.ID_FIT] for item in self.pop])
         pos_mean = np.mean(pos_list, axis=0)
         fit_sum = np.sum(fit_list)
-        nfe_epoch = 0
 
         if epoch % self.ff != 0:
             pop_new = []
@@ -144,7 +142,6 @@ class OriginalBSA(Optimizer):
             if self.mode in self.AVAILABLE_MODES:
                 pop_new = self.update_target_wrapper_population(pop_new)
                 self.pop = self.greedy_selection_population(self.pop, pop_new)
-            nfe_epoch += self.pop_size
         else:
             pop_new = deepcopy(self.pop)
             # Divide the bird swarm into two parts: producers and scroungers.
@@ -203,5 +200,3 @@ class OriginalBSA(Optimizer):
                 for idx in range(0, self.pop_size):
                     pop_new[idx][self.ID_TAR] = self.get_target_wrapper(pop_new[idx][self.ID_POS])
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-            nfe_epoch += self.pop_size
-        self.nfe_per_epoch = nfe_epoch

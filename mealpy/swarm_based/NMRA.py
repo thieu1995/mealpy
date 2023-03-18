@@ -59,7 +59,6 @@ class OriginalNMRA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pb"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
 
@@ -146,7 +145,6 @@ class ImprovedNMRA(Optimizer):
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.pm = self.validator.check_float("pm", pm, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pb", "pm"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
         self.size_b = int(self.pop_size / 5)
 

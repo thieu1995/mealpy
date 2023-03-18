@@ -60,7 +60,6 @@ class OriginalCSA(Optimizer):
         self.p_a = self.validator.check_float("p_a", p_a, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "p_a"])
         self.n_cut = int(self.p_a * self.pop_size)
-        self.nfe_per_epoch = self.pop_size + self.n_cut
         self.sort_flag = False
 
     def evolve(self, epoch):

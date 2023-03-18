@@ -74,9 +74,7 @@ class OriginalBA(Optimizer):
         self.pf_min = self.validator.check_float("pf_min", pf_min, [0., 3.0])
         self.pf_max = self.validator.check_float("pf_max", pf_max, [5., 20.])
         self.set_parameters(["epoch", "pop_size", "loudness", "pulse_rate", "pf_min", "pf_max"])
-
         self.alpha = self.gamma = 0.9
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -199,8 +197,6 @@ class AdaptiveBA(Optimizer):
         self.pf_max = self.validator.check_float("pf_max", pf_max, [2, 10])
         self.alpha = self.gamma = 0.9
         self.set_parameters(["epoch", "pop_size", "loudness_min", "loudness_max", "pr_min", "pr_max", "pf_min", "pf_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -302,8 +298,6 @@ class ModifiedBA(Optimizer):
         self.pf_max = self.validator.check_float("pf_max", pf_max, [2, 10])
         self.alpha = self.gamma = 0.9
         self.set_parameters(["epoch", "pop_size", "pulse_rate", "pf_min", "pf_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -316,7 +310,6 @@ class ModifiedBA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop_new = []
         for idx in range(0, self.pop_size):
             pf = self.pf_min + (self.pf_max - self.pf_min) * np.random.uniform()  # Eq. 2
@@ -328,7 +321,6 @@ class ModifiedBA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
-        nfe_epoch += self.pop_size
         pop_child_idx = []
         pop_child = []
         for idx in range(0, self.pop_size):
@@ -340,7 +332,6 @@ class ModifiedBA(Optimizer):
                     pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
                     pop_child_idx.append(idx)
                     pop_child.append([pos_new, None])
-                    nfe_epoch += 1
                     if self.mode not in self.AVAILABLE_MODES:
                         pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_child = self.update_target_wrapper_population(pop_child)
@@ -348,4 +339,3 @@ class ModifiedBA(Optimizer):
             if self.compare_agent(pop_child[idx], pop_new[idx_selected]):
                 pop_new[idx_selected] = deepcopy(pop_child[idx])
         self.pop = pop_new
-        self.nfe_per_epoch = nfe_epoch
