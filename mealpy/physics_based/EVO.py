@@ -57,7 +57,6 @@ class OriginalEVO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -110,4 +109,3 @@ class OriginalEVO(Optimizer):
                 pop_new[idx][self.ID_TAR] = self.get_target_wrapper(pop_new[idx][self.ID_POS])
         pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
-        self.nfe_per_epoch = len(pop_new)

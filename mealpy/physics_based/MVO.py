@@ -60,8 +60,6 @@ class BaseMVO(Optimizer):
         self.wep_min = self.validator.check_float("wep_min", wep_min, (0, 0.5))
         self.wep_max = self.validator.check_float("wep_max", wep_max, [0.5, 3.0])
         self.set_parameters(["epoch", "pop_size", "wep_min", "wep_max"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

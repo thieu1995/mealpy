@@ -59,9 +59,7 @@ class OriginalHGSO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.n_clusters = self.validator.check_int("n_clusters", n_clusters, [2, int(self.pop_size/5)])
         self.set_parameters(["epoch", "pop_size", "n_clusters"])
-
         self.n_elements = int(self.pop_size / self.n_clusters)
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.T0 = 298.15
         self.K = 1.0
@@ -104,7 +102,6 @@ class OriginalHGSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         ## Loop based on the number of cluster in swarm (number of gases type)
         for i in range(self.n_clusters):
             ### Loop based on the number of individual in each gases type
@@ -126,7 +123,6 @@ class OriginalHGSO(Optimizer):
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop_group[i] = pop_new
-            nfe_epoch += self.n_elements
         self.pop = self.flatten_group__(self.pop_group)
 
         ## Update Henry's coefficient using Eq.8
@@ -149,9 +145,7 @@ class OriginalHGSO(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
-        nfe_epoch += N_w
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = deepcopy(pop_new[idx])
         self.pop_group = self.create_pop_group(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)
-        self.nfe_per_epoch = nfe_epoch

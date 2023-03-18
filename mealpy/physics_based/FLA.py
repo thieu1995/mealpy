@@ -82,7 +82,6 @@ class OriginalFLA(Optimizer):
         self.C5 = self.validator.check_float("C5", C5, (-100., 100.))
         self.DD = self.validator.check_float("DD", DD, (-100., 100.))
         self.set_parameters(["epoch", "pop_size", "C1", "C2", "C3", "C4", "C5", "DD"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def before_main_loop(self):

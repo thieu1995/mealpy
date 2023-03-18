@@ -69,8 +69,6 @@ class OriginalASO(Optimizer):
         self.alpha = self.validator.check_int("alpha", alpha, [1, 100])
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "alpha", "beta"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):

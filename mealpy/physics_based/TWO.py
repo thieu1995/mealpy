@@ -57,8 +57,6 @@ class OriginalTWO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.muy_s = 1
         self.muy_k = 1
@@ -199,7 +197,6 @@ class OppoTWO(OriginalTWO):
             epoch (int): The current iteration
         """
         ## Apply force of others solution on each individual solution
-        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for idx in range(self.pop_size):
             pos_new = pop_new[idx][self.ID_POS].astype(float)
@@ -244,8 +241,6 @@ class OppoTWO(OriginalTWO):
             pop = self.update_target_wrapper_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop)
         self.pop = self.update_weight__(self.pop)
-        nfe_epoch += 2 * self.pop_size
-        self.nfe_per_epoch = nfe_epoch
 
 
 class LevyTWO(OriginalTWO):
@@ -289,7 +284,6 @@ class LevyTWO(OriginalTWO):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             pos_new = self.pop[i][self.ID_POS].astype(float)
@@ -325,13 +319,11 @@ class LevyTWO(OriginalTWO):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
 
         ### Apply levy-flight here
         for i in range(self.pop_size):
             ## Chance for each agent to update using levy is 50%
             if np.random.rand() < 0.5:
-                nfe_epoch += 1
                 levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.1, size=self.problem.n_dims, case=-1)
                 pos_new = pop_new[i][self.ID_POS] + levy_step
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -339,7 +331,6 @@ class LevyTWO(OriginalTWO):
                 if self.compare_agent([pos_new, target, 0.0], pop_new[i]):
                     pop_new[i] = [pos_new, target, 0.0]
         self.pop = self.update_weight__(pop_new)
-        self.nfe_per_epoch = nfe_epoch
 
 
 class EnhancedTWO(OppoTWO, LevyTWO):
@@ -405,7 +396,6 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop_new = deepcopy(self.pop)
         for i in range(self.pop_size):
             pos_new = self.pop[i][self.ID_POS].astype(float)
@@ -441,13 +431,11 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-        nfe_epoch += self.pop_size
 
         for i in range(self.pop_size):
             C_op = self.create_opposition_position(pop_new[i][self.ID_POS], self.g_best[self.ID_POS])
             C_op = self.amend_position(C_op, self.problem.lb, self.problem.ub)
             target_op = self.get_target_wrapper(C_op)
-            nfe_epoch += 1
             if self.compare_agent([C_op, target_op], pop_new[i]):
                 pop_new[i] = [C_op, target_op, 0.0]
             else:
@@ -455,8 +443,6 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                 pos_new = pop_new[i][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * levy_step
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                nfe_epoch += 1
                 if self.compare_agent([pos_new, target], pop_new[i]):
                     pop_new[i] = [pos_new, target, 0.0]
         self.pop = self.update_weight__(pop_new)
-        self.nfe_per_epoch = nfe_epoch

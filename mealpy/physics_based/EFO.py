@@ -62,9 +62,7 @@ class BaseEFO(Optimizer):
         self.p_field = self.validator.check_float("p_field", p_field, (0, 1.0))
         self.n_field = self.validator.check_float("n_field", n_field, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "r_rate", "ps_rate", "p_field", "n_field"])
-
         self.phi = (1 + np.sqrt(5)) / 2  # golden ratio
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

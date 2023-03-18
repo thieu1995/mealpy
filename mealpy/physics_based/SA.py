@@ -82,8 +82,6 @@ class OriginalSA(Optimizer):
         self.mutation_step_size_damp = self.validator.check_float("mutation_step_size_damp", mutation_step_size_damp, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "max_sub_iter", "t0", "t1", "move_count",
                              "mutation_rate", "mutation_step_size", "mutation_step_size_damp"])
-
-        self.nfe_per_epoch = self.pop_size * self.max_sub_iter * self.move_count
         self.sort_flag = True
         self.dyn_t, self.t_damp, self.dyn_sigma = None, None, None
 

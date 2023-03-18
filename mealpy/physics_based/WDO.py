@@ -82,8 +82,6 @@ class OriginalWDO(Optimizer):
         self.c_e = self.validator.check_float("c_e", c_e, (0, 1.0))
         self.max_v = self.validator.check_float("max_v", max_v, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "RT", "g_c", "alp", "c_e", "max_v"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

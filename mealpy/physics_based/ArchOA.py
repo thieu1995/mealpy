@@ -85,8 +85,6 @@ class OriginalArchOA(Optimizer):
         self.acc_max = self.validator.check_float("acc_max", acc_max, (0.3, 1.0))
         self.acc_min = self.validator.check_float("acc_min", acc_min, (0, 0.3))
         self.set_parameters(["epoch", "pop_size", "c1", "c2", "c3", "c4", "acc_max", "acc_min"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
