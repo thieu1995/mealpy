@@ -13,6 +13,7 @@ from mealpy.utils.termination import Termination
 from mealpy.utils.logger import Logger
 from mealpy.utils.validator import Validator
 import concurrent.futures as parallel
+from functools import partial
 import os
 import time
 
@@ -54,7 +55,7 @@ class Optimizer:
         self.validator = Validator(log_to="console", log_file=None)
 
         if self.name is None: self.name = self.__class__.__name__
-        self.sort_flag, self.terminate_counter, self.nfe_per_epoch = False, None, self.pop_size
+        self.sort_flag = False
         self.nfe_counter = -1       # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
         self.AVAILABLE_MODES = ["process", "thread", "swarm"]
@@ -149,14 +150,17 @@ class Optimizer:
     def initialize_variables(self):
         pass
 
-    def get_target_wrapper(self, position):
+    def get_target_wrapper(self, position, counted=True):
         """
         Args:
             position (nd.array): position (nd.array): 1-D numpy array
+            counted (bool): indicating the number of function evaluations is increasing or not
 
         Returns:
             [fitness, [obj1, obj2,...]]
         """
+        if counted:
+            self.nfe += 1
         objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
             objs = [objs]
@@ -222,23 +226,15 @@ class Optimizer:
                     self.termination = Termination(log_to=self.problem.log_to, log_file=self.problem.log_file, **termination)
                 else:
                     raise ValueError("Termination needs to be a dict or an instance of Termination class.")
-                self.terminate_counter = self.termination.get_default_counter(self.epoch)
-                self.logger.warning(f"Stopping condition mode: {self.termination.name}, with maximum value is: {self.termination.quantity}")
+                self.nfe = 0
+                self.termination.set_start_values(0, self.nfe, time.perf_counter(), 0)
         else:
             finished = False
             if self.termination is not None:
-                if self.termination.mode == 'TB':
-                    finished = self.termination.is_finished(time.perf_counter() - self.terminate_counter)
-                elif self.termination.mode == 'FE':
-                    self.terminate_counter += self.nfe_per_epoch
-                    finished = self.termination.is_finished(self.terminate_counter)
-                elif self.termination.mode == 'MG':
-                    finished = self.termination.is_finished(epoch)
-                else:  # Early Stopping
-                    temp = self.terminate_counter + self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.EPSILON)
-                    finished = self.termination.is_finished(temp)
+                es = self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.termination.epsilon)
+                finished = self.termination.should_terminate(epoch, self.nfe, time.perf_counter(), es)
                 if finished:
-                    self.logger.warning(f"Stopping criterion with mode {self.termination.name} occurred. End program!")
+                    self.logger.warning(self.termination.message)
             return finished
 
     def solve(self, problem=None, mode='single', starting_positions=None, n_workers=None, termination=None):
@@ -375,17 +371,22 @@ class Optimizer:
         pos_list = [agent[self.ID_POS] for agent in pop]
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor(self.n_workers) as executor:
-                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result as original order, not the future object
+                # Return result as original order, not the future object
+                list_results = executor.map(partial(self.get_target_wrapper, counted=False), pos_list)
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor(self.n_workers) as executor:
-                list_results = executor.map(self.get_target_wrapper, pos_list)  # Return result as original order, not the future object
+                # Return result as original order, not the future object
+                list_results = executor.map(partial(self.get_target_wrapper, counted=False), pos_list)
                 for idx, target in enumerate(list_results):
                     pop[idx][self.ID_TAR] = target
         elif self.mode == "swarm":
             for idx, pos in enumerate(pos_list):
-                pop[idx][self.ID_TAR] = self.get_target_wrapper(pos)
+                pop[idx][self.ID_TAR] = self.get_target_wrapper(pos, counted=False)
+        else:
+            return pop
+        self.nfe += len(pop)
         return pop
 
     def get_global_best_solution(self, pop: list):
