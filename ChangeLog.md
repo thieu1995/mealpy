@@ -16,13 +16,89 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 ### Update
 
++ Bio-based group:
+  + Add Brown-Bear Optimization Algorithm (BBOA)
+    + Ref: A Novel Brown-bear Optimization Algorithm for Solving Economic Dispatch Problem 
 
-+ Add Wavelet Mutation and Quadratic Interpolation MRFO (WMQIMRFO) to swarm-based group
-  + An enhanced manta ray foraging optimization algorithm for shape optimization of complex CCG-Ball curves
-  
-+ Fix bug all fitness values are equals in function "get index roulette wheel selection" in Optimizer class
++ Human-based group:
+  + Add Heap-based optimizer (HBO)
+    + Ref: Heap-based optimizer inspired by corporate rank hierarchy for global optimization 
+  + Add War Strategy Optimization (WarSO)
+    + Ref: War Strategy Optimization Algorithm: A New Effective Metaheuristic Algorithm for Global Optimization
+  + Add Human Conception Optimizer (HCO)
+    + Ref: A novel Human Conception Optimizer for solving optimization problems
+
++ Math-based group:
+  + Add Q-Learning Embedded Sine Cosine Algorithm (QLESCA)
+    + Ref: Q-learning embedded sine cosine algorithm (QLESCA)
+  + Add Success History Intelligent Optimizer (SHIO)
+    + Ref: Success history intelligent optimizer
+
++ Physics-based group:
+  + Add rime-ice (RIME)
+    + Ref: RIME: A physics-based optimization
+  + Add Energy Valley Optimizer (EVO)
+    + Ref: Energy valley optimizer: a novel metaheuristic algorithm
+  + Add Chernobyl Disaster Optimizer (CDO)
+    + Ref: Chernobyl disaster optimizer (CDO): a novel meta-heuristic method for global optimization
+  + Add Fick's Law Algorithm (FLA)
+    + Ref: Not accepted yet
+
++ Evolutionary-based group:
+  + Add CMA-ES and Simple-CMA-ES 
+    + Ref: Completely derandomized self-adaptation in evolution strategies.
+
++ Swarm-based group:
+  + Add Wavelet Mutation and Quadratic Interpolation MRFO (WMQIMRFO)
+    + Ref: An enhanced manta ray foraging optimization algorithm for shape optimization of complex CCG-Ball curves
+  + Add Egret Swarm Optimization Algorithm (ESOA)
+    + Ref: Egret Swarm Optimization Algorithm: An Evolutionary Computation Approach for Model Free Optimization
+  + Add Sea-Horse Optimization (SeaHO)
+    + Ref: Sea-horse optimizer: A nature-inspired meta-heuristic for global optimization and engineering application
+  + Add Mountain Gazelle Optimizer (MGO)
+    + Ref: Mountain Gazelle Optimizer: A new Nature-inspired Metaheuristic Algorithm for Global Optimization Problems
+  + Add Golden jackal optimization (GJO)
+    + Ref: Golden jackal optimization: A novel nature-inspired optimizer for engineering applications
+  + Add Fox Optimizer (FOX)
+    + Ref: FOX: a FOX-inspired optimization algorithm
+  + Add Giant Trevally Optimizer (GTO)
+    + Ref: Giant Trevally Optimizer (GTO): A Novel Metaheuristic Algorithm for Global Optimization and Challenging Engineering Problems
+
+  + Add Zebra Optimization Algorithm (ZOA)
+    + Ref: Zebra Optimization Algorithm: A New Bio-Inspired Optimization Algorithm for Solving Optimization Algorithm
+  + Add Osprey Optimization Algorithm (OOA)
+    + Ref: Osprey optimization algorithm: A new bio-inspired metaheuristic algorithm for solving engineering optimization problems
+  + Add Coati Optimization Algorithm (CoatiOA)
+    + Ref: Coati Optimization Algorithm: A New Bio-Inspired Metaheuristic Algorithm for Solving Optimization Problems
+  + Add Pelican Optimization Algorithm (POA)
+    + Ref: Pelican optimization algorithm: A novel nature-inspired algorithm for engineering applications
+  + Add Northern Goshawk Optimization (NGO)
+    + Ref: Northern Goshawk Optimization: A New Swarm-Based Algorithm for Solving Optimization Problems
+  + Add Serval Optimization Algorithm (ServalOA) 
+    + Ref: Serval Optimization Algorithm: A New Bio-Inspired Approach for Solving Optimization Problems
+  + Add Siberian Tiger Optimization (STO)
+    + Ref: Siberian Tiger Optimization: A New Bio-Inspired Metaheuristic Algorithm for Solving Engineering Optimization Problems
+  + Add Walrus Optimization Algorithm (WaOA)
+    + Ref: Walrus Optimization Algorithm: A New Bio-Inspired Metaheuristic Algorithm
+  + Add Tasmanian Devil Optimization (TDO)
+    + Ref: Tasmanian devil optimization: a new bio-inspired optimization algorithm for solving optimization algorithm
+  + Add Fennec Fox Optimization (FFO)
+    + Ref: Fennec Fox Optimization: A New Nature-Inspired Optimization Algorithm
+  + Add Teamwork Optimization Algorithm (TOA)
+    + Ref: Teamwork Optimization Algorithm: A New Optimization Approach for Function Minimization/Maximization
+
+Notes:
+    + OOA and STO with the same exact code 
+    + POA and NGO, WaOA, TDO with almost the same exact code 
+    + ZOA and CoatiOA with almost the same exact code 
+    + FFO is swap two phases of POA
+    + TOA is kinda same as OOA and POA 
+
++ Fixed bug all fitness values are equals in function "get index roulette wheel selection" in Optimizer class
 + Rename AdaptiveAEO by AugmentedAEO (Add reference)
 + Update text of Dwarf Mongoose Optimization Algorithm belongs to Swarm-based group
++ Fixed all tests and update all documents
++ Update Termination class, you can now design multiple Stopping Conditions for Optimizer
 
 ---------------------------------------------------------------------
 
