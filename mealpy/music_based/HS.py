@@ -62,8 +62,6 @@ class BaseHS(Optimizer):
         self.c_r = self.validator.check_float("c_r", c_r, (0, 1.0))
         self.pa_r = self.validator.check_float("pa_r", pa_r, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "c_r", "pa_r"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
