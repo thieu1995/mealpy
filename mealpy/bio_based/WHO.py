@@ -16,16 +16,16 @@ class OriginalWHO(Optimizer):
         1. https://doi.org/10.3233/JIFS-190495
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_explore_step (int): [2, 4], number of exploration step
-        + n_exploit_step (int): [2, 4], number of exploitation step
-        + eta (float): [0.05, 0.5], learning rate
-        + p_hi (float): [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
-        + local_alpha (float): [0.5, 0.9], control local movement (alpha 1)
-        + local_beta (float): [0.1, 0.5], control local movement (beta 1)
-        + global_alpha (float): [0.1, 0.5], control global movement (alpha 2)
-        + global_beta (float): [0.5, 0.9], control global movement (beta 2)
-        + delta_w (float): [1.0, 2.0], dist to worst
-        + delta_c (float): [1.0, 2.0], dist to best
+        + n_explore_step (int): [2, 10] -> better [2, 4], number of exploration step
+        + n_exploit_step (int): [2, 10] -> better [2, 4], number of exploitation step
+        + eta (float): (0, 1.0) -> better [0.05, 0.5], learning rate
+        + p_hi (float): (0, 1.0) -> better [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
+        + local_alpha (float): (0, 3.0) -> better [0.5, 0.9], control local movement (alpha 1)
+        + local_beta (float): (0, 3.0) -> better [0.1, 0.5], control local movement (beta 1)
+        + global_alpha (float): (0, 3.0) -> better [0.1, 0.5], control global movement (alpha 2)
+        + global_beta (float): (0, 3.0), control global movement (beta 2)
+        + delta_w (float): (0.5, 5.0) -> better [1.0, 2.0], dist to worst
+        + delta_c (float): (0.5, 5.0) -> better [1.0, 2.0], dist to best
 
     Examples
     ~~~~~~~~
@@ -97,8 +97,6 @@ class OriginalWHO(Optimizer):
         self.delta_c = self.validator.check_float("delta_c", delta_c, (0.5, 5.0))
         self.set_parameters(["epoch", "pop_size", "n_explore_step", "n_exploit_step",
                              "eta", "p_hi", "local_alpha", "local_beta", "global_alpha", "global_beta", "delta_w", "delta_c"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -108,12 +106,10 @@ class OriginalWHO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         ## Begin the Wildebeest Herd Optimization process
         pop_new = []
         for idx in range(0, self.pop_size):
             ### 1. Local movement (Milling behaviour)
-            nfe_epoch += self.n_explore_step
             local_list = []
             for j in range(0, self.n_explore_step):
                 temp = self.pop[idx][self.ID_POS] + self.eta * np.random.uniform() * np.random.uniform(self.problem.lb, self.problem.ub)
@@ -140,7 +136,6 @@ class OriginalWHO(Optimizer):
                 temp = self.global_alpha * self.pop[idx][self.ID_POS] + self.global_beta * self.pop[idr][self.ID_POS]
                 pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                nfe_epoch += 1
                 if self.compare_agent([pos_new, target], self.pop[idx]):
                     self.pop[idx] = [pos_new, target]
 
@@ -183,5 +178,3 @@ class OriginalWHO(Optimizer):
             pop_child = self.update_target_wrapper_population(pop_child)
             pop_child = self.get_sorted_strim_population(pop_child, self.pop_size)
             self.pop = self.greedy_selection_population(pop_child, self.pop)
-        nfe_epoch += len(pop_child)
-        self.nfe_per_epoch = nfe_epoch

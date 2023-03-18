@@ -17,8 +17,8 @@ class OriginalBBO(Optimizer):
         1. https://ieeexplore.ieee.org/abstract/document/4475427
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_m: [0.01, 0.2], Mutation probability
-        + elites: [2, 5], Number of elites will be keep for next generation
+        + p_m (float): (0, 1) -> better [0.01, 0.2], Mutation probability
+        + elites (int): (2, pop_size/2) -> better [2, 5], Number of elites will be keep for next generation
 
     Examples
     ~~~~~~~~
@@ -64,8 +64,6 @@ class OriginalBBO(Optimizer):
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.elites = self.validator.check_int("elites", elites, [2, int(self.pop_size / 2)])
         self.set_parameters(["epoch", "pop_size", "p_m", "elites"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.mu = (self.pop_size + 1 - np.array(range(1, self.pop_size + 1))) / (self.pop_size + 1)
         self.mr = 1 - self.mu
@@ -114,8 +112,8 @@ class BaseBBO(OriginalBBO):
     The developed version: Biogeography-Based Optimization (BBO)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_m: [0.01, 0.2], Mutation probability
-        + elites: [2, 5], Number of elites will be keep for next generation
+        + p_m (float): (0, 1) -> better [0.01, 0.2], Mutation probability
+        + elites (int): (2, pop_size/2) -> better [2, 5], Number of elites will be keep for next generation
 
     Examples
     ~~~~~~~~

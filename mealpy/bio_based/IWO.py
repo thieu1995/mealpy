@@ -22,10 +22,10 @@ class OriginalIWO(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + seed_min (int): [1, 3], Number of Seeds (min)
-        + seed_max (int): [4, 10], Number of Seeds (max)
+        + seed_max (int): [4, pop_size/2], Number of Seeds (max)
         + exponent (int): [2, 4], Variance Reduction Exponent
-        + sigma_start (float): (0.3, 1.0), The initial value of Standard Deviation
-        + sigma_end (float): (0, 0.2), The final value of Standard Deviation
+        + sigma_start (float): [0.5, 5.0], The initial value of Standard Deviation
+        + sigma_end (float): (0, 0.5), The final value of Standard Deviation
 
     Examples
     ~~~~~~~~
@@ -79,8 +79,6 @@ class OriginalIWO(Optimizer):
         self.sigma_start = self.validator.check_float("sigma_start", sigma_start, [0.5, 5.0])
         self.sigma_end = self.validator.check_float("sigma_end", sigma_end, (0, 0.5))
         self.set_parameters(["epoch", "pop_size", "seed_min", "seed_max", "exponent", "sigma_start", "sigma_end"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch=None):
@@ -94,7 +92,6 @@ class OriginalIWO(Optimizer):
         sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigma_start - self.sigma_end) + self.sigma_end
         pop, best, worst = self.get_special_solutions(self.pop)
         pop_new = []
-        nfe_epoch = 0
         for idx in range(0, self.pop_size):
             temp = best[0][self.ID_TAR][self.ID_FIT] - worst[0][self.ID_TAR][self.ID_FIT]
             if temp == 0:
@@ -115,6 +112,4 @@ class OriginalIWO(Optimizer):
             if self.mode in self.AVAILABLE_MODES:
                 pop_local = self.update_target_wrapper_population(pop_local)
             pop_new += pop_local
-            nfe_epoch += s
         self.pop = self.get_sorted_strim_population(pop_new, self.pop_size)
-        self.nfe_per_epoch = nfe_epoch

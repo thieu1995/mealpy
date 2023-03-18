@@ -20,15 +20,15 @@ class OriginalEOA(Optimizer):
     Notes
     ~~~~~
     The original version from matlab code above will not work well, even with small dimensions.
-    I change updating process, change cauchy process using x_mean, use global best solution, and remove third loop for faster
+    I change updating process, change cauchy process using x_mean, use global best solution
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_c: [0.5, 0.95], crossover probability
-        + p_m: [0.01, 0.2], initial mutation probability
-        + n_best: [2, 5], how many of the best earthworm to keep from one generation to the next
-        + alpha: [0.8, 0.99], similarity factor
-        + beta: [0.8, 1.0], the initial proportional factor
-        + gamma: [0.8, 0.99], a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
+        + p_c (float): (0, 1) -> better [0.5, 0.95], crossover probability
+        + p_m (float): (0, 1) -> better [0.01, 0.2], initial mutation probability
+        + n_best (int): (2, pop_size/2) -> better [2, 5], how many of the best earthworm to keep from one generation to the next
+        + alpha (float): (0, 1) -> better [0.8, 0.99], similarity factor
+        + beta (float): (0, 1) -> better [0.8, 1.0], the initial proportional factor
+        + gamma (float): (0, 1) -> better [0.8, 0.99], a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
 
     Examples
     ~~~~~~~~
@@ -85,8 +85,6 @@ class OriginalEOA(Optimizer):
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "p_c", "p_m", "n_best", "alpha", "beta", "gamma"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -101,7 +99,6 @@ class OriginalEOA(Optimizer):
         """
         ## Update the pop best
         pop_elites, local_best = self.get_global_best_solution(self.pop)
-        nfe_epoch = 0
         pop = []
         for idx in range(0, self.pop_size):
             ### Reproduction 1: the first way of reproducing
@@ -128,7 +125,6 @@ class OriginalEOA(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop = self.update_target_wrapper_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop)
-        nfe_epoch += self.pop_size
         self.dyn_beta = self.gamma * self.beta
         self.pop = self.get_sorted_strim_population(self.pop, self.pop_size)
 
@@ -149,7 +145,6 @@ class OriginalEOA(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop[self.n_best:] = self.greedy_selection_population(pop_new, self.pop[self.n_best:])
-        nfe_epoch += self.pop_size - self.n_best
 
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
         self.pop, local_best = self.get_global_best_solution(self.pop)
@@ -161,7 +156,5 @@ class OriginalEOA(Optimizer):
         for idx, agent in enumerate(self.pop):
             if tuple(agent[self.ID_POS].tolist()) in new_set:
                 self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
-                nfe_epoch += 1
             else:
                 new_set.add(tuple(agent[self.ID_POS].tolist()))
-        self.nfe_per_epoch = nfe_epoch

@@ -48,7 +48,6 @@ class OriginalSOS(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -58,7 +57,6 @@ class OriginalSOS(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = 4 * self.pop_size
         for idx in range(0, self.pop_size):
             ## Mutualism Phase
             jdx = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))

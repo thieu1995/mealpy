@@ -16,7 +16,7 @@ class OriginalBMO(Optimizer):
         1. https://ieeexplore.ieee.org/document/8441097
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pl: [1, pop_size - 1], barnacle’s threshold
+        + pl (int): [1, pop_size - 1], barnacle’s threshold
 
     Examples
     ~~~~~~~~
@@ -52,7 +52,6 @@ class OriginalBMO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.pl = self.validator.check_int("pl", pl, [1, self.pop_size-1])
         self.set_parameters(["epoch", "pop_size", "pl"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

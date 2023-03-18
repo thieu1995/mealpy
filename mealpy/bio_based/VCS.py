@@ -20,8 +20,8 @@ class BaseVCS(Optimizer):
     + In Immune response process, updates the whole position instead of updating each variable in position
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + sigma (float): [0.1, 2.0], Weight factor
+        + lamda (float): (0, 1.0) -> better [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
+        + sigma (float): (0, 5.0) -> better [0.1, 2.0], Weight factor
 
     Examples
     ~~~~~~~~
@@ -62,8 +62,6 @@ class BaseVCS(Optimizer):
         self.sigma = self.validator.check_float("sigma", sigma, (0, 5.0))
         self.n_best = int(self.lamda * self.pop_size)
         self.set_parameters(["epoch", "pop_size", "lamda", "sigma"])
-
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
     def calculate_xmean__(self, pop):
@@ -152,8 +150,8 @@ class OriginalVCS(BaseVCS):
         1. https://doi.org/10.1016/j.advengsoft.2015.11.004
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + sigma (float): [0.1, 0.5], Weight factor
+        + lamda (float): (0, 1.0) -> better [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
+        + sigma (float): (0, 5.0) -> better [0.1, 2.0], Weight factor
 
     Examples
     ~~~~~~~~
@@ -187,7 +185,6 @@ class OriginalVCS(BaseVCS):
     def __init__(self, epoch=10000, pop_size=100, lamda=0.5, sigma=1.5, **kwargs):
         """
         Args:
-
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             lamda (float): Number of the best will keep, default = 0.5

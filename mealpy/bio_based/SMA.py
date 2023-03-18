@@ -19,7 +19,7 @@ class BaseSMA(Optimizer):
     + Check bound and compare old position with new position to get the best one
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
+        + p_t (float): (0, 1.0) -> better [0.01, 0.1], probability threshold (z in the paper)
 
     Examples
     ~~~~~~~~
@@ -58,8 +58,6 @@ class BaseSMA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.p_t = self.validator.check_float("p_t", p_t, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "p_t"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -136,7 +134,7 @@ class OriginalSMA(BaseSMA):
         2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_t (float): [0.01, 0.1], probability threshold (z in the paper)
+        + p_t (float): (0, 1.0) -> better [0.01, 0.1], probability threshold (z in the paper)
 
     Examples
     ~~~~~~~~

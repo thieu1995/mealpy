@@ -21,7 +21,7 @@ class DevSOA(Optimizer):
         3. Besides, I will check keep the better one and remove the worst
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fc: [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
+        + fc (float): [1.0, 10.0] -> better [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
 
     Examples
     ~~~~~~~~
@@ -52,8 +52,6 @@ class DevSOA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.fc = self.validator.check_float("fc", fc, [1.0, 10.])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -65,21 +63,17 @@ class DevSOA(Optimizer):
         """
         A = self.fc - (epoch+1)*self.fc / self.epoch    # Eq. 6
         uu = vv = 1
-
         pop_new = []
         for idx in range(0, self.pop_size):
-
             B = 2 * A**2 * np.random.random()                                   # Eq. 8
             M = B * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])     # Eq. 7
             C = A * self.pop[idx][self.ID_POS]                                  # Eq. 5
             D = np.abs(C + M)                                                   # Eq. 9
-
             k = np.random.uniform(0, 2*np.pi)
             r = uu * np.exp(k*vv)
             xx = r * np.cos(k)
             yy = r * np.sin(k)
             zz = r * k
-
             x_new = xx * yy * zz * D + np.random.normal(0, 1) * self.g_best[self.ID_POS]                 # Eq. 14
             x_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_new.append([x_new, None])
@@ -99,7 +93,7 @@ class OriginalSOA(Optimizer):
         1. https://www.sciencedirect.com/science/article/abs/pii/S0950705118305768
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fc: [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
+        + fc (float): [1.0, 10.0] -> better [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
 
     Examples
     ~~~~~~~~
@@ -134,8 +128,6 @@ class OriginalSOA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.fc = self.validator.check_float("fc", fc, [1.0, 10.])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -147,20 +139,17 @@ class OriginalSOA(Optimizer):
         """
         A = self.fc - (epoch+1)*self.fc / self.epoch    # Eq. 6
         uu = vv = 1
-
         pop_new = []
         for idx in range(0, self.pop_size):
             B = 2 * A**2 * np.random.random()                                   # Eq. 8
             M = B * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])     # Eq. 7
             C = A * self.pop[idx][self.ID_POS]                                  # Eq. 5
             D = np.abs(C + M)                                                   # Eq. 9
-
             k = np.random.uniform(0, 2*np.pi)
             r = uu * np.exp(k*vv)
             xx = r * np.cos(k)
             yy = r * np.sin(k)
             zz = r * k
-
             x_new = xx * yy * zz * D + self.g_best[self.ID_POS]                 # Eq. 14
             x_new = self.amend_position(x_new, self.problem.lb, self.problem.ub)
             pop_new.append([x_new, None])
