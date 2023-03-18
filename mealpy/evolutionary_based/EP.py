@@ -65,8 +65,6 @@ class OriginalEP(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.bout_size = self.validator.check_float("bout_size", bout_size, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "bout_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):
@@ -167,7 +165,6 @@ class LevyEP(OriginalEP):
             bout_size (float): percentage of child agents implement tournament selection
         """
         super().__init__(epoch, pop_size, bout_size, **kwargs)
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -215,5 +212,4 @@ class LevyEP(OriginalEP):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_comeback[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_comeback = self.update_target_wrapper_population(pop_comeback)
-        self.nfe_per_epoch = self.pop_size + int(0.5 * len(pop_left))
         self.pop = self.get_sorted_strim_population(pop_new + pop_comeback, self.pop_size)

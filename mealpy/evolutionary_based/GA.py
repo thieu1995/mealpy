@@ -87,8 +87,6 @@ class BaseGA(Optimizer):
         self.pc = self.validator.check_float("pc", pc, (0, 1.0))
         self.pm = self.validator.check_float("pm", pm, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pc", "pm"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.selection = "tournament"
         self.k_way = 0.2
@@ -397,8 +395,6 @@ class SingleGA(BaseGA):
         self.mutation = self.validator.check_str("mutation", mutation, ["flip", "swap", "scramble", "inversion"])
         self.k_way = self.validator.check_float("k_way", k_way, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pc", "pm", "selection", "crossover", "mutation", "k_way"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def mutation_process__(self, child):
@@ -521,7 +517,6 @@ class EliteSingleGA(SingleGA):
         self.strategy = self.validator.check_int("strategy", strategy, [0, 1])
         self.set_parameters(["epoch", "pop_size", "pc", "pm", "selection", "crossover", "mutation", "k_way",
                              "elite_best", "elite_worst", "strategy"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -744,7 +739,6 @@ class EliteMultiGA(MultiGA):
         self.strategy = self.validator.check_int("strategy", strategy, [0, 1])
         self.set_parameters(["epoch", "pop_size", "pc", "pm", "selection", "crossover", "mutation", "k_way",
                              "elite_best", "elite_worst", "strategy"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

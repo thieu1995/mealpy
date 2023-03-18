@@ -62,8 +62,6 @@ class OriginalFPA(Optimizer):
         self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
         self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (-10000, 10000))
         self.set_parameters(["epoch", "pop_size", "p_s", "levy_multiplier"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def amend_position(self, position=None, lb=None, ub=None):

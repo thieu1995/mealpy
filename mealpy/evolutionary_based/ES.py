@@ -61,9 +61,7 @@ class OriginalES(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.lamda = self.validator.check_float("lamda", lamda, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "lamda"])
-
         self.n_child = int(self.lamda * self.pop_size)
-        self.nfe_per_epoch = self.n_child
         self.sort_flag = True
     
     def initialize_variables(self):
@@ -161,7 +159,6 @@ class LevyES(OriginalES):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = 2 * self.n_child
         child = []
         for idx in range(0, self.n_child):
             pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
@@ -235,7 +232,6 @@ class CMA_ES(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -375,7 +371,6 @@ class Simple_CMA_ES(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def before_main_loop(self):

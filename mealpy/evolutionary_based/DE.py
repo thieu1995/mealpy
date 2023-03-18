@@ -74,8 +74,6 @@ class BaseDE(Optimizer):
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.strategy = self.validator.check_int("strategy", strategy, [0, 5])
         self.set_parameters(["epoch", "pop_size", "wf", "cr", "strategy"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def mutation__(self, current_pos, new_pos):
@@ -221,8 +219,6 @@ class JADE(Optimizer):
         # np.random.uniform(1/20, 1/5) # the adaptation parameter control value of f and cr
         self.ap = self.validator.check_float("ap", ap, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr", "pt", "ap"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -351,8 +347,6 @@ class SADE(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -488,8 +482,6 @@ class SHADE(Optimizer):
         # the initial cr,
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -652,8 +644,6 @@ class L_SHADE(Optimizer):
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -817,9 +807,7 @@ class SAP_DE(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.branch = self.validator.check_str("branch", branch, ["ABS", "REL"])
         self.set_parameters(["epoch", "pop_size", "branch"])
-
         self.fixed_pop_size = self.pop_size
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def create_solution(self, lb=None, ub=None, pos=None):
@@ -856,7 +844,6 @@ class SAP_DE(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         pop = []
         for idx in range(0, self.pop_size):
             # Choose 3 random element and different to idx
@@ -895,7 +882,6 @@ class SAP_DE(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     pop[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop = self.update_target_wrapper_population(pop)
-        nfe_epoch += len(pop)
 
         # Calculate new population size
         total = sum([pop[i][self.ID_PS] for i in range(0, self.pop_size)])
@@ -915,4 +901,3 @@ class SAP_DE(Optimizer):
             pop_sorted = self.get_sorted_strim_population(pop)
             self.pop = pop + pop_sorted[:m_new - self.pop_size]
         self.pop_size = len(self.pop)
-        self.nfe_per_epoch = nfe_epoch

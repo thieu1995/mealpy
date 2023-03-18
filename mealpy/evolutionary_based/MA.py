@@ -79,8 +79,6 @@ class OriginalMA(Optimizer):
         self.max_local_gens = self.validator.check_int("max_local_gens", max_local_gens, [2, int(pop_size/2)])
         self.bits_per_param = self.validator.check_int("bits_per_param", bits_per_param, [2, 32])
         self.set_parameters(["epoch", "pop_size", "pc", "pm", "p_local", "max_local_gens", "bits_per_param"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):
@@ -172,7 +170,6 @@ class OriginalMA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = self.pop_size
         ## Binary tournament
         children = []
         for idx in range(0, self.pop_size):
@@ -196,5 +193,3 @@ class OriginalMA(Optimizer):
         for i in range(0, self.pop_size):
             if np.random.rand() < self.p_local:
                 self.pop[i] = self.bits_climber__(pop[i])
-                nfe_epoch += self.max_local_gens
-        self.nfe_per_epoch = nfe_epoch

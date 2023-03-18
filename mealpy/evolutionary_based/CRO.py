@@ -91,8 +91,6 @@ class OriginalCRO(Optimizer):
         self.gamma_max = self.validator.check_float("gamma_max", gamma_max, (0.15, 1.0))
         self.n_trials = self.validator.check_int("n_trials", n_trials, [2, int(self.pop_size / 2)])
         self.set_parameters(["epoch", "pop_size", "po", "Fb", "Fa", "Fd", "Pd", "GCR", "gamma_min", "gamma_max", "n_trials"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialization(self):
@@ -169,11 +167,9 @@ class OriginalCRO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         ## Broadcast Spawning Brooding
         larvae = self.broadcast_spawning_brooding__()
         self.larvae_setting__(larvae)
-        nfe_epoch += len(larvae)
 
         ## Asexual Reproduction
         num_duplicate = int(len(self.occupied_idx_list) * self.Fa)
@@ -189,12 +185,10 @@ class OriginalCRO(Optimizer):
             self.occupied_idx_list = np.setdiff1d(self.occupied_idx_list, selected_depredator)
             for idx in selected_depredator:
                 self.occupied_list[idx] = 0
-
         if self.dyn_Pd <= self.Pd:
             self.dyn_Pd += self.alpha
         if self.G1 >= self.gamma_min:
             self.G1 -= self.gama
-        self.nfe_per_epoch = nfe_epoch
 
 
 class OCRO(OriginalCRO):
@@ -274,8 +268,6 @@ class OCRO(OriginalCRO):
         super().__init__(epoch, pop_size, po, Fb, Fa, Fd, Pd, GCR, gamma_min, gamma_max, n_trials, **kwargs)
         self.restart_count = self.validator.check_int("restart_count", restart_count, [2, int(epoch / 2)])
         self.set_parameters(["epoch", "pop_size", "po", "Fb", "Fa", "Fd", "Pd", "GCR", "gamma_min", "gamma_max", "n_trials", "restart_count"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -300,11 +292,9 @@ class OCRO(OriginalCRO):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         ## Broadcast Spawning Brooding
         larvae = self.broadcast_spawning_brooding__()
         self.larvae_setting__(larvae)
-        nfe_epoch += len(larvae)
 
         ## Asexual Reproduction
         num_duplicate = int(len(self.occupied_idx_list) * self.Fa)
@@ -323,7 +313,6 @@ class OCRO(OriginalCRO):
                 oppo_pos = self.create_opposition_position(self.pop[idx], self.g_best)
                 oppo_pos = self.amend_position(oppo_pos, self.problem.lb, self.problem.ub)
                 oppo_reef = [oppo_pos, self.get_target_wrapper(oppo_pos)]
-                nfe_epoch += 1
                 if self.compare_agent(oppo_reef, self.pop[idx]):
                     self.pop[idx] = oppo_reef
                 else:
@@ -341,10 +330,8 @@ class OCRO(OriginalCRO):
             self.reset_count = 0
 
         if self.reset_count == self.restart_count:
-            nfe_epoch += self.pop_size
             self.pop = self.create_population(self.pop_size)
             self.occupied_list = np.zeros(self.pop_size)
             self.occupied_idx_list = np.random.choice(range(self.pop_size), self.num_occupied, replace=False)
             self.occupied_list[self.occupied_idx_list] = 1
             self.reset_count = 0
-        self.nfe_per_epoch = nfe_epoch
