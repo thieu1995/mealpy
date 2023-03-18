@@ -74,8 +74,6 @@ class OriginalWCA(Optimizer):
         self.wc = self.validator.check_float("wc", wc, (1.0, 3.0))
         self.dmax = self.validator.check_float("dmax", dmax, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "nsr", "wc", "dmax"])
-        
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def initialization(self):
@@ -114,7 +112,6 @@ class OriginalWCA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         # Update stream and river
         for idx, stream_list in self.streams.items():
             # Update stream
@@ -127,7 +124,6 @@ class OriginalWCA(Optimizer):
                     stream_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             stream_new = self.update_target_wrapper_population(stream_new)
             stream_new, stream_best = self.get_global_best_solution(stream_new)
-            nfe_epoch += len(self.streams)
             self.streams[idx] = stream_new
             if self.compare_agent(stream_best, self.pop_best[idx]):
                 self.pop_best[idx] = deepcopy(stream_best)
@@ -136,7 +132,6 @@ class OriginalWCA(Optimizer):
             pos_new = self.pop_best[idx][self.ID_POS] + np.random.uniform() * self.wc * (self.g_best[self.ID_POS] - self.pop_best[idx][self.ID_POS])
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             target = self.get_target_wrapper(pos_new)
-            nfe_epoch += 1
             if self.compare_agent([pos_new, target], self.pop_best[idx]):
                 self.pop_best[idx] = [pos_new, target]
 
@@ -144,16 +139,12 @@ class OriginalWCA(Optimizer):
         for i in range(1, self.nsr):
             distance = np.sqrt(np.sum((self.g_best[self.ID_POS] - self.pop_best[i][self.ID_POS]) ** 2))
             if distance < self.ecc or np.random.rand() < 0.1:
-                nfe_epoch += 1
                 child = self.create_solution(self.problem.lb, self.problem.ub)
                 pop_current_best, _ = self.get_global_best_solution(self.streams[i] + [child])
                 self.pop_best[i] = pop_current_best.pop(0)
                 self.streams[i] = pop_current_best
-
         self.pop = deepcopy(self.pop_best)
         for idx, stream_list in self.streams.items():
             self.pop += stream_list
-
         # Reduce the ecc
         self.ecc = self.ecc - self.ecc / self.epoch
-        self.nfe_per_epoch = nfe_epoch

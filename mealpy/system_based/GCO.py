@@ -59,8 +59,6 @@ class BaseGCO(Optimizer):
         self.cr = self.validator.check_float("cr", cr, (0, 1.0))
         self.wf = self.validator.check_float("wf", wf, (0, 3.0))
         self.set_parameters(["epoch", "pop_size", "cr", "wf"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

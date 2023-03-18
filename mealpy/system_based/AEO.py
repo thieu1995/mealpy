@@ -53,8 +53,6 @@ class OriginalAEO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -286,8 +284,6 @@ class EnhancedAEO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -426,8 +422,6 @@ class ModifiedAEO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -555,8 +549,6 @@ class AugmentedAEO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
