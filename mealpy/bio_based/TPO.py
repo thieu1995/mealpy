@@ -1,140 +1,123 @@
+#!/usr/bin/env python
+# Created by "Thieu" at 00:27, 18/03/2023 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
+# --------------------------------------------------%
+
 import numpy as np
+from mealpy.optimizer import Optimizer
 
 
-class UpdatedTPO:
+class OriginalTPO(Optimizer):
     """
-        The updated Tree Physiology Optimization (TPO) published by
-        A. Hanif Halim and I. Ismail on November 9, 2017.
+    The original version: Tree Physiology Optimization (TPO)
 
-    Notes
-    _____
-    The `alpha`, `beta` and `theta` should fine-tune to get faster
-    convergence toward the global optimum. A good approximate range for
-    `alpha` is [0.3, 3], for `beta` [20, 70] and for `theta` [0.7, 0.99].
+    Links:
+        1. https://www.mathworks.com/matlabcentral/fileexchange/63982-tree-physiology-optimization-tpo-algorithm-for-stochastic-test-function-optimization
+
+    Notes:
+        1. The paper is difficult to read and understand, and the provided MATLAB code is also challenging to understand.
+        2. Based on my idea:
+            + pop_size = number of branhes, the population size should be equal to the number of branches.
+            + The number of leaves should be calculated as int(sqrt(pop_size) + 1), so we don't need to specify the n_leafs parameter, which will also reduce computation time.
+            + When using this algorithm, especially when setting stopping conditions, be careful and set it to the FE type.
+
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
+        + alpha (float): [-10, 10.] -> better [0.2, 0.5], Absorption constant for tree root elongation, default = 0.5
+        + beta (float): [-100, 100.] -> better [10, 50], Diversification facor of tree shoot, default=50.
+        + theta (float): (0, 1.0] -> better [0.5, 0.9], Factor to reduce randomization, Theta = Power law to reduce randomization as iteration increases, default=0.9
 
     Examples
-    --------
-    >>> def obj_function(solution):
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy.bio_based.TPO import OriginalTPO
+    >>>
+    >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict1 = {
-    >>>     "fit_func": obj_function,
-    >>>     "n_dims": 5,
+    >>>     "fit_func": fitness_function,
     >>>     "lb": [-10, -15, -4, -2, -8],
     >>>     "ub": [10, 15, 12, 8, 20],
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> alpha = 0.4
-    >>> beta = 50
-    >>> theta = 0.95
-    >>> num_branches = 50
-    >>> num_leaves = 40
-    >>> epoch = 50
-    >>> model1 = UpdatedTPO(problem_dict1, num_branches, num_leaves, epoch, alpha, beta, theta)
-    >>> solution = model1.solve()
-    >>> print(solution)
+    >>> epoch = 1000
+    >>> pop_size = 50
+    >>> alpha = 0.3
+    >>> beta = 50.
+    >>> theta = 0.9
+    >>> model = OriginalTPO(epoch, pop_size, alpha, beta, theta)
+    >>> best_position, best_fitness = model.solve(problem_dict1)
+    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
     References
-    __________
-    [1] Halim, A. Hanif and Ismail, I. "Tree Physiology Optimization in Benchmark
-    Function and Traveling Salesman Problem" Journal of Intelligent Systems, vol. 28,
-    no. 5, 2019, pp. 849-871.
+    ~~~~~~~~~~
+    [1] Halim, A. H., & Ismail, I. (2017). Tree physiology optimization in benchmark function and
+    traveling salesman problem. Journal of Intelligent Systems, 28(5), 849-871.
     """
 
-    def __init__(self, problem, num_branches, num_leaves, epoch, alpha, beta, theta, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=0.3, beta=50.0, theta=0.9, **kwargs):
         """
-        Initialize the algorithm components using a uniform distribution.
-
-        Parameters
-        ----------
-        problem : dict
-            Problem that conforms with the format of the Problem class
-        num_branches : int
-            Number of branches to have in the shoot system.
-        num_leaves : int
-            Number of leaves to have on each branch.
-        epoch : int
-            The total number iterations to make.
-        alpha : float
-            Absorption factor used for the root elongation.
-        beta : int or float
-            Factor by which shoots are extended as a response to the
-            nutrients coming from the root.
-        theta: float
-            The rate of absorption in the carbon production in shoots
-            and nutrient generation in roots.
-
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+            alpha (float): Absorption constant for tree root elongation, default=0.3
+            beta (float): Diversification factor of tree shoot, default=50.
+            theta (float): Factor to reduce randomization, Theta = Power law to reduce randomization as iteration increases, default=0.9
         """
-        self.num_branches = num_branches
-        self.num_leaves = num_leaves
-        self.num_iterations = epoch
-        self.alpha = alpha
-        self.beta = beta
-        self.theta = theta
-        self.dimension = problem["n_dims"]
-        self.func = problem["fit_func"]
-        self.lb = np.array(problem["lb"]).reshape(-1, 1, 1)
-        self.ub = np.array(problem["ub"]).reshape(-1, 1, 1)
-        self.shoots = np.random.uniform(0, 5, (self.dimension, num_branches, num_leaves))
-        self.roots = np.random.uniform(0, 5, (self.dimension, num_branches, num_leaves))
-        self.nutrient_value = np.random.uniform(0, 5, (self.dimension, num_branches, num_leaves))
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])     # Number of branches
+        self.alpha = self.validator.check_float("alpha", alpha, [-10.0, 10.])
+        self.beta = self.validator.check_float("beta", beta, [-100., 100])
+        self.theta = self.validator.check_float("theta", theta, (0, 1.0))
+        self.set_parameters(["epoch", "pop_size"])
+        self.support_parallel_modes = False
+        self.sort_flag = False
 
-    def trim_values(self):
+    def initialize_variables(self):
         """
-        Trim the values of shoots to make sure they stay within the
-        specified upper and lower bounds.
-
+        The idea is a tree has a pop_size of branches (n_branches), each branch will have several leafs.
         """
-        self.shoots = np.maximum(self.shoots, self.lb)
-        self.shoots = np.minimum(self.shoots, self.ub)
+        self.n_leafs = int(np.sqrt(self.pop_size) + 1)  # Number of leafs
+        self._theta = self.theta
+        self.roots = np.random.uniform(0, 1, (self.n_leafs, self.problem.n_dims))
 
-    def solve(self):
+    def initialization(self):
+        self.pop_total = []
+        self.pop = []                       # The best leaf in each branches
+        for idx in range(self.pop_size):
+            leafs = self.create_population(self.n_leafs)
+            _, best = self.get_global_best_solution(leafs)
+            self.pop.append(best)
+            self.pop_total.append(leafs)
+
+    def evolve(self, epoch):
         """
-        Minimize the objective function specified in the problem.
+        The main operations (equations) of algorithm. Inherit from Optimizer class
 
-        Returns
-        -------
-        numpy.array
-            Best solutions of the problem found after specified epochs.
-
+        Args:
+            epoch (int): The current iteration
         """
-        func_value = np.empty((self.num_branches, self.num_leaves), dtype=np.float32)
-        for i in range(self.num_branches):
-            for j in range(self.num_leaves):
-                func_value[i, j] = self.func(self.shoots[:, i, j])
-
-        rows = np.arange(start=0, stop=self.num_branches)
-        branch_best_idx_old = np.argmin(func_value, axis=1)
-        branch_best_value_old = func_value[rows, branch_best_idx_old]
-        branch_best_shoot_old = self.shoots[:, rows, branch_best_idx_old]
-        global_best_idx = np.argmin(branch_best_value_old)
-        global_best_shoots = branch_best_shoot_old[:, global_best_idx]
-        self.shoots = global_best_shoots.reshape(-1, 1, 1) + self.beta * self.nutrient_value
-        self.trim_values()
-        current_theta = self.theta
-        for _ in range(self.num_iterations):
-            for i in range(self.num_branches):
-                for j in range(self.num_leaves):
-                    func_value[i, j] = self.func(self.shoots[:, i, j])
-
-            branch_best_idx_new = np.argmin(func_value, axis=1)
-            branch_best_value_new = func_value[rows, branch_best_idx_new]
-            branch_best_shoot_new = self.shoots[:, rows, branch_best_idx_new]
-            better_branches = branch_best_value_new < branch_best_value_old
-            branch_best_value_old[better_branches] = branch_best_value_new[better_branches]
-            branch_best_shoot_old[:, better_branches] = branch_best_shoot_new[:, better_branches]
-            branch_best_idx_old[better_branches] = branch_best_idx_new[better_branches]
-            global_best_idx = np.argmin(branch_best_value_old)
-            global_best_shoots = branch_best_shoot_old[:, global_best_idx]
-            carbon_gain = current_theta * (
-                    branch_best_shoot_old.reshape(self.dimension, self.num_branches, 1) - self.shoots)
+        for idx in range(0, self.pop_size):
+            pos_list = np.array([agent[self.ID_POS] for agent in self.pop_total[idx]])
+            carbon_gain = self._theta * self.g_best[self.ID_POS] - pos_list
             roots_old = np.copy(self.roots)
-            self.roots += self.alpha * carbon_gain * np.random.uniform(
-                low=-0.5, high=0.5, size=(self.dimension, self.num_branches, self.num_leaves))
-            nutrient_value = current_theta * (self.roots - roots_old)
-            self.shoots = global_best_shoots.reshape(self.dimension, 1, 1) + self.beta * nutrient_value
-            self.trim_values()
-            current_theta *= self.theta
-
-        return global_best_shoots
+            self.roots += self.alpha * carbon_gain * np.random.uniform(-0.5, 0.5, (self.n_leafs, self.problem.n_dims))
+            nutrient_value = self._theta * (self.roots - roots_old)
+            pos_list_new = self.g_best[self.ID_POS] + self.beta * nutrient_value
+            pop_new = []
+            for jdx in range(0, self.n_leafs):
+                pos_new = self.amend_position(pos_list_new[jdx], self.problem.lb, self.problem.ub)
+                pop_new.append([pos_new, None])
+                if self.mode not in self.AVAILABLE_MODES:
+                    target = self.get_target_wrapper(pos_new)
+                    self.pop_total[idx][jdx] = self.get_better_solution([pos_new, target], self.pop_total[idx][jdx])
+            if self.mode in self.AVAILABLE_MODES:
+                pop_new = self.update_target_wrapper_population(pop_new)
+                self.pop_total[idx] = self.greedy_selection_population(pop_new, self.pop_total[idx])
+        self._theta = self._theta * self.theta
+        for idx in range(0, self.pop_size):
+            _, best = self.get_global_best_solution(self.pop_total[idx])
+            self.pop[idx] = best
