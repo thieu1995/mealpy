@@ -57,9 +57,7 @@ class OriginalWarSO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.rr = self.validator.check_float("rr", rr, (0.0, 1.0))
         self.set_parameters(["epoch", "pop_size"])
-
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

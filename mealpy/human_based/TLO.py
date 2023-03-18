@@ -59,8 +59,6 @@ class BaseTLO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -152,7 +150,6 @@ class OriginalTLO(BaseTLO):
         """
         super().__init__(epoch, pop_size, **kwargs)
         self.support_parallel_modes = False
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -240,7 +237,6 @@ class ImprovedTLO(BaseTLO):
 
         self.n_students = self.pop_size - self.n_teachers
         self.n_students_in_team = int(self.n_students / self.n_teachers)
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def initialization(self):

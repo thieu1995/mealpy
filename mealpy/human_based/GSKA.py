@@ -63,8 +63,6 @@ class BaseGSKA(Optimizer):
         self.pb = self.validator.check_float("pb", pb, (0, 1.0))
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pb", "kr"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -188,8 +186,6 @@ class OriginalGSKA(Optimizer):
         self.kr = self.validator.check_float("kr", kr, (0, 1.0))
         self.kg = self.validator.check_int("kg", kg, [1, 1 + int(epoch / 2)])
         self.set_parameters(["epoch", "pop_size", "pb", "kf", "kr", "kg"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

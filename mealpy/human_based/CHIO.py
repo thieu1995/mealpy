@@ -52,7 +52,6 @@ class OriginalCHIO(Optimizer):
     def __init__(self, epoch=10000, pop_size=100, brr=0.15, max_age=10, **kwargs):
         """
         Args:
-
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             brr (float): Basic reproduction rate, default=0.15
@@ -64,7 +63,6 @@ class OriginalCHIO(Optimizer):
         self.brr = self.validator.check_float("brr", brr, (0, 1.0))
         self.max_age = self.validator.check_int("max_age", max_age, [1, 1+int(epoch/5)])
         self.set_parameters(["epoch", "pop_size", "brr", "max_age"])
-        self.nfe_per_epoch = self.pop_size
 
     def initialize_variables(self):
         self.immunity_type_list = np.random.randint(0, 3, self.pop_size)  # Randint [0, 1, 2]

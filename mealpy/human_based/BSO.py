@@ -73,8 +73,6 @@ class ImprovedBSO(Optimizer):
         self.p3 = self.validator.check_float("p3", p3, (0, 1.0))
         self.p4 = self.validator.check_float("p4", p4, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "m_clusters", "p1", "p2", "p3", "p4"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
         self.m_solution = int(self.pop_size / self.m_clusters)
         self.pop_group, self.centers = None, None

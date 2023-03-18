@@ -58,8 +58,6 @@ class OriginalLCO(Optimizer):
         self.r1 = self.validator.check_float("r1", r1, [1.0, 3.0])
         self.set_parameters(["epoch", "pop_size", "r1"])
         self.n_agents = int(np.ceil(np.sqrt(self.pop_size)))
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -214,7 +212,6 @@ class ImprovedLCO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.pop_len = int(self.pop_size / 2)
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):

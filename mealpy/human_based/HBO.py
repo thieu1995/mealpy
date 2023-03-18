@@ -61,7 +61,6 @@ class OriginalHBO(Optimizer):
         self.degree = self.validator.check_int("degree", degree, [2, 10])
         self.set_parameters(["epoch", "pop_size", "degree"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):

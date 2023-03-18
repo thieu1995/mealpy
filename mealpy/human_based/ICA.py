@@ -81,8 +81,6 @@ class OriginalICA(Optimizer):
         self.zeta = self.validator.check_float("zeta", zeta, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "empire_count", "assimilation_coeff", "revolution_prob",
                              "revolution_rate", "revolution_step_size", "zeta"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = True
 
     def revolution_country_(self, position, idx_list_variables, n_revoluted):
@@ -129,7 +127,6 @@ class OriginalICA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         # Assimilation
         for idx, colonies in self.empires.items():
             for idx_colony, colony in enumerate(colonies):
@@ -140,7 +137,6 @@ class OriginalICA(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     self.empires[idx][idx_colony][self.ID_TAR] = self.get_target_wrapper(pos_new)
             self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
-            nfe_epoch += len(self.empires[idx])
 
         # Revolution
         for idx, colonies in self.empires.items():
@@ -160,10 +156,8 @@ class OriginalICA(Optimizer):
                     if self.mode not in self.AVAILABLE_MODES:
                         self.empires[idx][idx_colony][self.ID_TAR] = self.get_target_wrapper(pos_new)
             self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
-            nfe_epoch+= len(self.empires[idx])
         self.pop_empires = self.update_target_wrapper_population(self.pop_empires)
         self.update_global_best_solution(self.pop_empires, save=False)
-        nfe_epoch += len(self.pop_empires)
 
         # Intra-Empire Competition
         for idx, colonies in self.empires.items():

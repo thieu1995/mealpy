@@ -61,7 +61,6 @@ class OriginalTOA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.support_parallel_modes = False
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = False
 
     def get_indexes_better__(self, pop, idx):
@@ -79,7 +78,6 @@ class OriginalTOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe = 3 * self.pop_size
         for idx in range(0, self.pop_size):
             # Stage 1: Supervisor guidance
             pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - np.random.randint(1, 3) * self.pop[idx][self.ID_POS])
@@ -93,7 +91,6 @@ class OriginalTOA(Optimizer):
             if len(idxs) == 0:
                 sf = self.g_best
             else:
-                nfe += 1
                 sf_pos = np.array([self.pop[jdx][self.ID_POS] for jdx in idxs])
                 sf_pos = self.amend_position(np.mean(sf_pos, axis=0), self.problem.lb, self.problem.ub)
                 sf_tar = self.get_target_wrapper(sf_pos)
@@ -111,4 +108,3 @@ class OriginalTOA(Optimizer):
             tar_new = self.get_target_wrapper(pos_new)
             if self.compare_agent([pos_new, tar_new], self.pop[idx]):
                 self.pop[idx] = [pos_new, tar_new]
-        self.nfe_per_epoch = nfe

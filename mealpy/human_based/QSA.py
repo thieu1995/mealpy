@@ -50,8 +50,6 @@ class BaseQSA(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
     def calculate_queue_length__(self, t1, t2, t3):
@@ -212,7 +210,6 @@ class OppoQSA(BaseQSA):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = True
 
     def opposition_based__(self, pop=None, g_best=None):
@@ -276,7 +273,6 @@ class LevyQSA(BaseQSA):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
     def update_business_2__(self, pop=None, current_epoch=None):
@@ -369,7 +365,6 @@ class ImprovedQSA(OppoQSA, LevyQSA):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 4 * self.pop_size
         self.sort_flag = True
 
     def evolve(self, epoch):
@@ -426,7 +421,6 @@ class OriginalQSA(BaseQSA):
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.nfe_per_epoch = 3 * self.pop_size
         self.sort_flag = True
 
     def update_business_3__(self, pop, g_best):

@@ -58,9 +58,7 @@ class BaseBRO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.threshold = self.validator.check_float("threshold", threshold, [1, 10])
         self.set_parameters(["epoch", "pop_size", "threshold"])
-
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -106,7 +104,6 @@ class BaseBRO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        nfe_epoch = 0
         for i in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
             j = self.find_idx_min_distance__(self.pop[i][self.ID_POS], self.pop)
@@ -132,7 +129,6 @@ class BaseBRO(Optimizer):
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
                 self.pop[j] = [pos_new, target, dam_new]
-                nfe_epoch += 2
             else:
                 ## Update Loser by following position of Winner
                 self.pop[i] = deepcopy(self.pop[j])
@@ -142,8 +138,6 @@ class BaseBRO(Optimizer):
                 target = self.get_target_wrapper(pos_new)
                 dam_new = 0
                 self.pop[j] = [pos_new, target, dam_new]
-                nfe_epoch += 1
-        self.nfe_per_epoch = nfe_epoch
         if epoch >= self.dyn_delta:  # max_epoch = 1000 -> delta = 300, 450, >500,....
             pos_list = np.array([self.pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
             pos_std = np.std(pos_list, axis=0)
@@ -200,7 +194,6 @@ class OriginalBRO(BaseBRO):
         """
         super().__init__(epoch, pop_size, threshold, **kwargs)
         self.support_parallel_modes = False
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def evolve(self, epoch):

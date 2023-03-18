@@ -71,12 +71,9 @@ class OriginalHCO(Optimizer):
         self.c1 = self.validator.check_float("c1", c1, [0., 100.])
         self.c2 = self.validator.check_float("c2", c2, [1., 100.])
         self.set_parameters(["epoch", "pop_size", "w", "w1", "c1", "c2"])
-
-        self.nfe_per_epoch = self.pop_size
         self.sort_flag = False
 
     def initialization(self):
-        nfe = 2 * self.pop_size
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
         pop_op = []
@@ -94,13 +91,10 @@ class OriginalHCO(Optimizer):
         for idx in range(0, self.pop_size):
             if self.compare_agent([None, [pfit, None]], self.pop[idx]):
                 while True:
-                    nfe += 1
                     sol = self.create_solution(self.problem.lb, self.problem.ub)
                     if self.compare_agent(sol, [None, [pfit, None]]):
                         self.pop[idx] = sol
                         break
-        self.nfe_per_epoch = nfe
-        print(self.nfe_per_epoch)
         self.vec = np.random.rand(self.pop_size, self.problem.n_dims)
         self.pop_p = deepcopy(self.pop)
 
@@ -111,7 +105,6 @@ class OriginalHCO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        self.nfe_per_epoch = self.pop_size
         lamda = np.random.rand()
         neu = 2
         fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])

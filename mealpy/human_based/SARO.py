@@ -55,8 +55,6 @@ class BaseSARO(Optimizer):
         self.se = self.validator.check_float("se", se, (0, 1.0))
         self.mu = self.validator.check_int("mu", mu, [2, 2+int(self.pop_size/2)])
         self.set_parameters(["epoch", "pop_size", "se", "mu"])
-
-        self.nfe_per_epoch = 2 * self.pop_size
         self.sort_flag = True
 
     def initialize_variables(self):
