@@ -16,6 +16,12 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 ### Update
 
++ Fixed bug all fitness values are equals in function "get index roulette wheel selection" in Optimizer class
++ Rename AdaptiveAEO by AugmentedAEO (Add reference)
++ Update text of Dwarf Mongoose Optimization Algorithm belongs to Swarm-based group
++ Fixed all tests and update all documents
++ Update Termination class, you can now design multiple Stopping Conditions for Optimizer
+
 + Bio-based group:
   + Add Brown-Bear Optimization Algorithm (BBOA)
     + Ref: A Novel Brown-bear Optimization Algorithm for Solving Economic Dispatch Problem 
@@ -63,7 +69,8 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
     + Ref: FOX: a FOX-inspired optimization algorithm
   + Add Giant Trevally Optimizer (GTO)
     + Ref: Giant Trevally Optimizer (GTO): A Novel Metaheuristic Algorithm for Global Optimization and Challenging Engineering Problems
-
+    
++ **Warning**: The list of all algorithms below we should avoid to use it
   + Add Zebra Optimization Algorithm (ZOA)
     + Ref: Zebra Optimization Algorithm: A New Bio-Inspired Optimization Algorithm for Solving Optimization Algorithm
   + Add Osprey Optimization Algorithm (OOA)
@@ -87,18 +94,13 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   + Add Teamwork Optimization Algorithm (TOA)
     + Ref: Teamwork Optimization Algorithm: A New Optimization Approach for Function Minimization/Maximization
 
-Notes:
++ **Notes on plagiarism and fake algorithm:**
     + OOA and STO with the same exact code 
-    + POA and NGO, WaOA, TDO with almost the same exact code 
+    + POA ServalOA, NGO, WaOA, and TDO with almost the same exact code 
     + ZOA and CoatiOA with almost the same exact code 
     + FFO is swap two phases of POA
     + TOA is kinda same as OOA and POA 
 
-+ Fixed bug all fitness values are equals in function "get index roulette wheel selection" in Optimizer class
-+ Rename AdaptiveAEO by AugmentedAEO (Add reference)
-+ Update text of Dwarf Mongoose Optimization Algorithm belongs to Swarm-based group
-+ Fixed all tests and update all documents
-+ Update Termination class, you can now design multiple Stopping Conditions for Optimizer
 
 ---------------------------------------------------------------------
 
