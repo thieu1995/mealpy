@@ -34,7 +34,7 @@ def test_BaseEOA_results(problem):
     alpha = 0.98
     beta = 0.9
     gamma = 0.9
-    model = EOA.OriginalEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma )
+    model = EOA.OriginalEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
     best_position, best_fitness = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(best_position, np.ndarray)
@@ -56,7 +56,7 @@ def test_epoch_EOA(problem, epoch, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -75,7 +75,7 @@ def test_pop_size_EOA(problem, pop_size, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -95,7 +95,7 @@ def test_p_c_EOA(problem, p_c, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, p_c=p_c)
+            algorithm(10, 50, p_c=p_c)
         assert e.type == ValueError
 
 
@@ -115,7 +115,7 @@ def test_p_m_EOA(problem, p_m, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, p_m=p_m)
+            algorithm(10, 50, p_m=p_m)
         assert e.type == ValueError
 
 
@@ -135,7 +135,7 @@ def test_n_best_EOA(problem, n_best, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, n_best=n_best)
+            algorithm(10, 50, n_best=n_best)
         assert e.type == ValueError
 
 
@@ -155,7 +155,7 @@ def test_alpha_EOA(problem, alpha, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, alpha=alpha)
+            algorithm(10, 50, alpha=alpha)
         assert e.type == ValueError
 
 
@@ -175,7 +175,7 @@ def test_beta_EOA(problem, beta, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, beta=beta)
+            algorithm(10, 50, beta=beta)
         assert e.type == ValueError
 
 
@@ -195,5 +195,5 @@ def test_gamma_EOA(problem, gamma, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(10, 50, gamma=gamma)
+            algorithm(10, 50, gamma=gamma)
         assert e.type == ValueError

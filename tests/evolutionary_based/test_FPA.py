@@ -33,4 +33,3 @@ def test_FPA_results(problem):
         assert isinstance(model, Optimizer)
         assert isinstance(best_position, np.ndarray)
         assert len(best_position) == len(problem["lb"])
-

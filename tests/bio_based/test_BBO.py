@@ -65,7 +65,7 @@ def test_epoch_BBO(problem, epoch, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(Exception) as e:
-            model = algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, elites)
         assert e.type == ValueError
 
 
@@ -86,7 +86,7 @@ def test_pop_size_BBO(problem, pop_size, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, elites)
         assert e.type == ValueError
 
 
@@ -109,7 +109,7 @@ def test_p_m_BBO(problem, p_m, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, elites)
         assert e.type == ValueError
 
 
@@ -132,5 +132,5 @@ def test_elites_BBO(problem, elites, system_code):
     algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, elites)
         assert e.type == ValueError

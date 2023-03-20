@@ -25,8 +25,6 @@ def problem():
     return problem
 
 
-
-
 def test_SLO_results(problem):
     models = [
         SLO.OriginalSLO(epoch=10, pop_size=50),

@@ -65,7 +65,7 @@ def test_epoch_SBO(problem, epoch, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -84,7 +84,7 @@ def test_pop_size_SBO(problem, pop_size, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -103,7 +103,7 @@ def test_alpha_SBO(problem, alpha, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, alpha=alpha)
+            algorithm(epoch, pop_size, alpha=alpha)
         assert e.type == ValueError
 
 
@@ -125,7 +125,7 @@ def test_p_m_SBO(problem, p_m, system_code):
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, p_m=p_m)
+            algorithm(epoch, pop_size, p_m=p_m)
         assert e.type == ValueError
 
 
@@ -141,11 +141,11 @@ def test_p_m_SBO(problem, p_m, system_code):
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
-def test_p_m_SBO(problem, psw, system_code):
+def test_psw_SBO(problem, psw, system_code):
     epoch = 10
     pop_size = 50
     algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, psw=psw)
+            algorithm(epoch, pop_size, psw=psw)
         assert e.type == ValueError

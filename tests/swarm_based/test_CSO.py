@@ -27,9 +27,7 @@ def problem():
 
 def test_CSO_results(problem):
     models = [
-        CSO.OriginalCSO(epoch=10, pop_size=50, mixture_ratio=0.15, smp=5,
-                    spc=False, cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=1)
-    ]
+        CSO.OriginalCSO(epoch=10, pop_size=50, mixture_ratio=0.15, smp=5, spc=False, cdc=0.8, srd=0.15, c1=0.4, w_minmax=(0.4, 0.9), selected_strategy=1)]
     for model in models:
         best_position, best_fitness = model.solve(problem)
         assert isinstance(model, Optimizer)

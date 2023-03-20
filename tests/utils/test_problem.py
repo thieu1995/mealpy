@@ -45,5 +45,5 @@ problem = {
 def test_fit_func(my_problem, my_func, system_code):
     my_problem["fit_func"] = my_func
     with pytest.raises(ValueError) as e:
-        prob = Problem(problem=my_problem)
+        Problem(problem=my_problem)
     assert e.type == ValueError

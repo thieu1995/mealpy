@@ -41,7 +41,7 @@ def test_check_str_in_list(value, my_list, output):
                              (1000, (2, float("inf")), 1000),
                              (0.5, [0.3, 2], 0),
                          ])
-def test_check_int(value, bound, output):
+def test_check_bound(value, bound, output):
     valid_model = validator.Validator()
     value_new = valid_model.check_int("value", value, bound)
     assert value_new == output
@@ -58,5 +58,5 @@ def test_check_int(value, bound, output):
 def test_check_float(value, bound, output):
     with pytest.raises(ValueError) as e:
         valid_model = validator.Validator()
-        value_new = valid_model.check_float("value", value, bound)
+        valid_model.check_float("value", value, bound)
     assert e.type == ValueError

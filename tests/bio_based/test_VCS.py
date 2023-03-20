@@ -63,7 +63,7 @@ def test_epoch_VCS(problem, epoch, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -82,7 +82,7 @@ def test_pop_size_VCS(problem, pop_size, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -104,5 +104,5 @@ def test_lamda_VCS(problem, lamda, system_code):
     algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, lamda=lamda)
+            algorithm(epoch, pop_size, lamda=lamda)
         assert e.type == ValueError

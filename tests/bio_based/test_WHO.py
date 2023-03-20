@@ -53,7 +53,7 @@ def test_epoch_WHO(problem, epoch, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -72,7 +72,7 @@ def test_pop_size_WHO(problem, pop_size, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -92,7 +92,7 @@ def test_p_hi_WHO(problem, p_hi, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(50, p_hi=p_hi)
+            algorithm(50, p_hi=p_hi)
         assert e.type == ValueError
 
 
@@ -112,7 +112,7 @@ def test_eta_WHO(problem, eta, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(50, eta=eta)
+            algorithm(50, eta=eta)
         assert e.type == ValueError
 
 
@@ -131,7 +131,7 @@ def test_n_s_WHO(problem, n_explore_step, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(50, n_explore_step=n_explore_step)
+            algorithm(50, n_explore_step=n_explore_step)
         assert e.type == ValueError
 
 
@@ -151,6 +151,5 @@ def test_n_e_WHO(problem, n_exploit_step, system_code):
     algorithms = [WHO.OriginalWHO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(50, n_exploit_step=n_exploit_step)
+            algorithm(50, n_exploit_step=n_exploit_step)
         assert e.type == ValueError
-

@@ -20,7 +20,7 @@ def test_max_epoch(max_epoch, system_code):
         "max_epoch": max_epoch,
     }
     with pytest.raises(ValueError) as e:
-        prob = Termination(termination=term)
+        Termination(termination=term)
     assert e.type == ValueError
 
 
@@ -37,7 +37,7 @@ def test_max_time(max_time, system_code):
         "max_time": max_time
     }
     with pytest.raises(ValueError) as e:
-        prob = Termination(termination=term)
+        Termination(termination=term)
     assert e.type == ValueError
 
 
@@ -54,7 +54,7 @@ def test_max_fe(max_fe, system_code):
         "max_fe": max_fe
     }
     with pytest.raises(ValueError) as e:
-        prob = Termination(termination=term)
+        Termination(termination=term)
     assert e.type == ValueError
 
 
@@ -71,5 +71,5 @@ def test_max_early_stop(max_early_stop, system_code):
         "max_early_stop": max_early_stop
     }
     with pytest.raises(ValueError) as e:
-        prob = Termination(termination=term)
+        Termination(termination=term)
     assert e.type == ValueError

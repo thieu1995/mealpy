@@ -29,8 +29,8 @@ def test_BeesA_results(problem):
     models = [
 
         BeesA.ProbBeesA(epoch=10, pop_size=10, recruited_bee_ratio=0.1, dance_radius=0.1, dance_reduction=0.99),
-        BeesA.OriginalBeesA(epoch=10, pop_size=10, selected_site_ratio=0.5, elite_site_ratio=0.4,
-                 selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0, dance_radius=0.1, dance_reduction=0.99,),
+        BeesA.OriginalBeesA(epoch=10, pop_size=10, selected_site_ratio=0.5, elite_site_ratio=0.4, selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0,
+                            dance_radius=0.1, dance_reduction=0.99, ),
     ]
     for model in models:
         best_position, best_fitness = model.solve(problem)

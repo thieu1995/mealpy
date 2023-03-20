@@ -61,7 +61,7 @@ def test_epoch_SMA(problem, epoch, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -80,7 +80,7 @@ def test_pop_size_SMA(problem, pop_size, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size)
+            algorithm(epoch, pop_size)
         assert e.type == ValueError
 
 
@@ -102,5 +102,5 @@ def test_p_t_SMA(problem, p_t, system_code):
     algorithms = [SMA.OriginalSMA, SMA.BaseSMA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            model = algorithm(epoch, pop_size, p_t=p_t)
+            algorithm(epoch, pop_size, p_t=p_t)
         assert e.type == ValueError
