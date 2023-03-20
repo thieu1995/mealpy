@@ -20,12 +20,11 @@ import os
 
 class ParameterGrid:
     """
-    Check out this class from scikit-learn library.
+    Please check out this class from the scikit-learn library.
 
-    Grid of parameters with a discrete number of values for each.
-
-    Can be used to iterate over parameter value combinations with the Python built-in function iter.
-    The order of the generated parameter combinations is deterministic.
+    It represents a grid of parameters with a discrete number of values for each parameter.
+    This class is useful for iterating over parameter value combinations using the Python
+    built-in function iter, and the generated parameter combinations' order is deterministic.
 
     Parameters
     ----------
@@ -146,14 +145,15 @@ class ParameterGrid:
 
 
 class Tuner:
-    r"""Tuner utility feature. (it is better than using GridSearchCV / ParameterGrid in scikit-learn library)
+    """Tuner utility class.
 
-    Feature which enables tuning the hyper-parameter of an algorithm.
-    It also supports exporting results in various formats (e.g. Pandas DataFrame, JSON, CSV)
+    This is a feature that enables the tuning of hyper-parameters for an algorithm.
+    It also supports exporting results in various formats, such as Pandas DataFrame, JSON, and CSV.
+    This feature provides a better option compared to using GridSearchCV or ParameterGrid from the scikit-learn library to tune hyper-parameters
 
-    Important functions are execute() and
+    The important functions to note are 'execute()' and resolve()"
 
-    Attributes:
+    Args:
         algorithm (Optimizer): the algorithm/optimizer to tune
         param_grid (dict, list): dict or list of dictionaries
         n_trials (int): number of repetitions

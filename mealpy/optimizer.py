@@ -160,7 +160,7 @@ class Optimizer:
             [fitness, [obj1, obj2,...]]
         """
         if counted:
-            self.nfe += 1
+            self.nfe_counter += 1
         objs = self.problem.fit_func(position)
         if not self.problem.obj_is_list:
             objs = [objs]
@@ -226,13 +226,13 @@ class Optimizer:
                     self.termination = Termination(log_to=self.problem.log_to, log_file=self.problem.log_file, **termination)
                 else:
                     raise ValueError("Termination needs to be a dict or an instance of Termination class.")
-                self.nfe = 0
-                self.termination.set_start_values(0, self.nfe, time.perf_counter(), 0)
+                self.nfe_counter = 0
+                self.termination.set_start_values(0, self.nfe_counter, time.perf_counter(), 0)
         else:
             finished = False
             if self.termination is not None:
                 es = self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.termination.epsilon)
-                finished = self.termination.should_terminate(epoch, self.nfe, time.perf_counter(), es)
+                finished = self.termination.should_terminate(epoch, self.nfe_counter, time.perf_counter(), es)
                 if finished:
                     self.logger.warning(self.termination.message)
             return finished
@@ -386,7 +386,7 @@ class Optimizer:
                 pop[idx][self.ID_TAR] = self.get_target_wrapper(pos, counted=False)
         else:
             return pop
-        self.nfe += len(pop)
+        self.nfe_counter += len(pop)
         return pop
 
     def get_global_best_solution(self, pop: list):

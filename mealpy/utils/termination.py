@@ -101,7 +101,6 @@ class Termination:
 
     def should_terminate(self, current_epoch, current_fe, current_time, current_threshold):
         # Check maximum number of generations
-        print(f"Epoch: {current_epoch}, FE: {current_fe}, Time: {current_time}, ES: {current_threshold}")
         if self.max_epoch is not None and current_epoch >= self.max_epoch:
             self.message = "Stopping criterion with maximum number of epochs/generations/iterations (MG) occurred. End program!"
             return True

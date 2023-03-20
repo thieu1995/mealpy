@@ -31,15 +31,18 @@
 
 __version__ = "2.5.2"
 
-from . import bio_based
-from . import evolutionary_based
-from . import human_based
-from . import math_based
-from . import music_based
-from . import physics_based
-from . import swarm_based
-from . import system_based
-from . import utils
-from . import tuner
-from . import multitask
-from . import optimizer
+from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO)
+from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA)
+from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO)
+from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO)
+from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO)
+from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, BFO, BSA, COA, CoatiOA, CSA, CSO,
+                          DMOA, DO, EHO, ESOA, FA, FFA, FFO, FOA, FOX, GJO, GOA, GTO, GWO, HBA, HGS, HHO, JA,
+                          MFO, MGO, MPA, MRFO, MSA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
+                          SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA)
+from .system_based import AEO, GCO, WCA
+from .music_based import HS
+from .utils.problem import Problem
+from .utils.termination import Termination
+from .tuner import Tuner
+from .multitask import Multitask

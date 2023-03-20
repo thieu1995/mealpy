@@ -15,12 +15,12 @@ import os
 
 
 class Multitask:
-    r"""Multitask utility feature.
+    """Multitask utility class.
 
-    Feature which enables running multiple algorithms with multiple problems, and multiple trials.
-    It also supports exporting results in various formats (e.g. Pandas DataFrame, JSON, CSV)
+    This feature enables the execution of multiple algorithms across multiple problems and trials.
+    Additionally, it allows for exporting results in various formats such as Pandas DataFrame, JSON, and CSV.
 
-    Attributes:
+    Args:
         algorithms (list, tuple): List of algorithms to run
         problems (list, tuple): List of problems to run
 
