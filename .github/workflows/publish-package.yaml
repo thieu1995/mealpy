@@ -86,7 +86,7 @@ jobs:
           path: dist
 
       - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@v2.5.2-alpha.3
+        uses: pypa/gh-action-pypi-publish@master
         with:
           skip_existing: true
           user: __token__
@@ -94,7 +94,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@v2.5.2-alpha.3
+        uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
