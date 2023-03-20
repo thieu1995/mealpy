@@ -254,4 +254,4 @@ def test_get_index_roulette_wheel_selection(model):
     list_fitness = np.random.rand(10) * 0.0001 + 1  # flat landscape
     list_fitness[-1] = 1.1  # local optima as a small 10% bump
     idx = model.get_index_roulette_wheel_selection(list_fitness)
-    assert type(idx) in (np.int, np.int32, np.int64, int)
+    assert type(idx) == int

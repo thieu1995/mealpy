@@ -552,7 +552,7 @@ class Optimizer:
         if self.problem.minmax == "min":
             final_fitness = np.max(list_fitness) - list_fitness
         prob = final_fitness / np.sum(final_fitness)
-        return np.random.choice(range(0, size), p=prob)
+        return int(np.random.choice(range(0, size), p=prob))
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
         """
