@@ -49,7 +49,8 @@ jobs:
 
       - name: Run tests
         run: |
-          flake8 && pytest --doctest-modules --junitxml=junit/pytest-results-${{ matrix.python-version }}.xml --cov=$PROJECT_NAME --cov-report=xml tests/
+          pytest --doctest-modules --junitxml=junit/pytest-results-${{ matrix.python-version }}.xml --cov=$PROJECT_NAME --cov-report=xml tests/
+          flake8 tests/
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@master
