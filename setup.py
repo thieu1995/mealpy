@@ -15,16 +15,18 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.5.1",
+    version="2.5.2",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MEALPY: A Framework Of The State-Of-The-Art Meta-Heuristic Algorithms In Python",
     long_description=readme(),
     long_description_content_type="text/markdown",
+    keywords=["optimization", "metaheuristics", "MHA", "mathematical", "nature-inspired algorithms",
+              "evolutionary computation", "soft computing", "population-based algorithms"],
     url="https://github.com/thieu1995/mealpy",
-    download_url="https://github.com/thieu1995/mealpy/archive/v2.5.1.zip",
-    packages=find_packages(exclude=['*tests', 'examples*']),
+    packages=find_packages(exclude=['tests*', 'examples*']),
     include_package_data=True,
+    license="GPLv3",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -38,6 +40,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: System :: Benchmark",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Mathematics",
@@ -50,7 +53,9 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-
     install_requires=["numpy>=1.16.5", "matplotlib>=3.1.3", "scipy>=1.7.1", "pandas>=1.2.0", "opfunu>=1.0.0"],
+    extras_require={
+        "dev": ["pytest>=7.0", "twine>=4.0.1"],
+    },
     python_requires='>=3.7',
 )

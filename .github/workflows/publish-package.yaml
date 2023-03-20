@@ -1,0 +1,92 @@
+name: Publish Python distributions to PyPI
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+      - ci
+  pull_request:
+    branches:
+      - "*"
+
+env:
+  PROJECT_NAME: mealpy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9, 3.10, 3.11]
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 9
+          submodules: false
+
+      - name: Use Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: actions/cache@v1
+        id: depcache
+        with:
+          path: deps
+          key: requirements-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
+
+      - name: Download dependencies
+        if: steps.depcache.outputs.cache-hit != 'true'
+        run: |
+          pip download --dest=deps -r requirements.txt
+
+      - name: Install dependencies
+        run: |
+          pip install -U --no-index --find-links=deps deps/*
+
+      - name: Run tests
+        run: |
+          flake8 && pytest --doctest-modules --junitxml=junit/pytest-results-${{ matrix.python-version }}.xml --cov=$PROJECT_NAME --cov-report=xml tests/
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@master
+        with:
+          name: pytest-results-${{ matrix.python-version }}
+          path: junit/pytest-results-${{ matrix.python-version }}.xml
+        if: always()
+
+      - name: Install distribution dependencies
+        run: pip install --upgrade twine setuptools wheel
+        if: matrix.python-version == 3.11
+
+      - name: Create distribution package
+        run: python setup.py sdist bdist_wheel
+        if: matrix.python-version == 3.11
+
+      - name: Upload distribution package
+        uses: actions/upload-artifact@master
+        with:
+          name: dist-package-${{ matrix.python-version }}
+          path: dist
+        if: matrix.python-version == 3.11
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release'
+    steps:
+      - name: Download a distribution artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: dist-package-3.10
+          path: dist
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}

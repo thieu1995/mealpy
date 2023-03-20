@@ -4,7 +4,7 @@
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-2.5.1-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.5.2-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -48,7 +48,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 ### Install with pip
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh 
-$ pip install mealpy==2.5.1
+$ pip install mealpy==2.5.2
 ```
 
 ### Install from source
@@ -380,6 +380,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 **Want to have an instant assistant? Join our telegram community at [link](https://t.me/+fRVCJGuGJg1mNDg1)**
 We share lots of information, questions, and answers there. You will get more support and knowledge there.
+
 ### Cite Us
 
 If you are using mealpy in your project, we would appreciate citations:
@@ -395,7 +396,19 @@ If you are using mealpy in your project, we would appreciate citations:
   doi          = {10.5281/zenodo.6684223},
   url          = {https://doi.org/10.5281/zenodo.6684223}
 }
+
+@article{van2023groundwater,
+  title={Groundwater level modeling using Augmented Artificial Ecosystem Optimization},
+  author={Van Thieu, Nguyen and Barma, Surajit Deb and Van Lam, To and Kisi, Ozgur and Mahesha, Amai},
+  journal={Journal of Hydrology},
+  volume={617},
+  pages={129034},
+  year={2023},
+  publisher={Elsevier}
+}
 ```
+
+
 
 # List of papers used MEALPY
 

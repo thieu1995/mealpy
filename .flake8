@@ -1,0 +1,6 @@
+[flake8]
+exclude = __pycache__, built, build, mytest, htmlcov, drafts
+ignore = E203, E266, W291, W503
+max-line-length = 180
+max-complexity = 18
+select = B,C,E,F,W,T4,B9
