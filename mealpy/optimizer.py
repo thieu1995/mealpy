@@ -543,16 +543,15 @@ class Optimizer:
         """
         if type(list_fitness) in [list, tuple, np.ndarray]:
             list_fitness = np.array(list_fitness).flatten()
-        size = len(list_fitness)
         if list_fitness.ptp() == 0:
-            return np.random.choice(range(0, size), p=1.0/size)
+            return int(np.random.randint(0, len(list_fitness)))
         if np.any(list_fitness) < 0:
             list_fitness = list_fitness - np.min(list_fitness)
         final_fitness = list_fitness
         if self.problem.minmax == "min":
             final_fitness = np.max(list_fitness) - list_fitness
         prob = final_fitness / np.sum(final_fitness)
-        return int(np.random.choice(range(0, size), p=prob))
+        return int(np.random.choice(range(0, len(list_fitness)), p=prob))
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
         """
