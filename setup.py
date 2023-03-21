@@ -28,7 +28,8 @@ setup(
         'Documentation': 'https://mealpy.readthedocs.io/',
         'Source Code': 'https://github.com/thieu1995/mealpy',
         'Bug Tracker': 'https://github.com/thieu1995/mealpy/issues',
-        'Change Log': 'https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md'
+        'Change Log': 'https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md',
+        'Forum': 'https://t.me/+fRVCJGuGJg1mNDg1',
     },
     packages=find_packages(exclude=['tests*', 'examples*']),
     include_package_data=True,

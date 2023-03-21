@@ -13,9 +13,11 @@
 [![Downloads](https://pepy.tech/badge/mealpy)](https://pepy.tech/project/mealpy)
 ![GitHub Release Date](https://img.shields.io/github/release-date/thieu1995/mealpy.svg)
 [![Documentation Status](https://readthedocs.org/projects/mealpy/badge/?version=latest)](https://mealpy.readthedocs.io/en/latest/?badge=latest)
+[![Chat](https://img.shields.io/badge/Chat-on%20Telegram-blue)](https://t.me/+fRVCJGuGJg1mNDg1)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/thieu1995/mealpy.svg)](http://isitmaintained.com/project/thieu1995/mealpy "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/thieu1995/mealpy.svg)](http://isitmaintained.com/project/thieu1995/mealpy "Percentage of issues still open")
 ![GitHub contributors](https://img.shields.io/github/contributors/thieu1995/mealpy.svg)
+[![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
