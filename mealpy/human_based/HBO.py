@@ -86,7 +86,7 @@ class OriginalHBO(Optimizer):
             # Heapifying
             t = c
             while t > 0:
-                parent_id = np.int(np.floor((t + 1)/degree) - 1)
+                parent_id = int(np.floor((t + 1)/degree) - 1)
                 if self.compare_agent(pop[parent_id], pop[t]):
                     break
                 else:
@@ -114,7 +114,7 @@ class OriginalHBO(Optimizer):
             if c == 0: # Dealing with root
                 continue
             else:
-                parent_id = np.int(np.floor((c+1)/self.degree) - 1)
+                parent_id = int(np.floor((c+1)/self.degree) - 1)
                 cur_agent = deepcopy(self.pop[self.heap[c][1]])         #Sol to be updated
                 par_agent = self.pop[self.heap[parent_id][1]]           #Sol to be updated with reference to
 
