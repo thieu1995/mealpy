@@ -1,5 +1,5 @@
 
-<p align="center"><img src=".github/img/mealpy-logo-3.png" alt="MEALPY" title="MEALPY"/></p>
+<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy1.png" alt="MEALPY"/></p>
 
 ---
 
@@ -26,7 +26,7 @@ approximate optimization.
 * **Free software:** GNU General Public License (GPL) V3 license
 * **Total algorithms**: 172 (102 original, 45 official variants, 25 developed variants)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
-* **Python versions:** 3.7.x, 3.8.x, 3.9.x, 3.10.x
+* **Python versions:** 3.7.x, 3.8.x, 3.9.x, 3.10.x, 3.11.x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
 ### Multitask class (Multitask solving)
 
-We also build a dedicated class, Multitask, that can help you run several different scenarios. For example:
+We also build a dedicated class, Multitask, that can help you run several scenarios. For example:
 
 1. Run 1 algorithm with 1 problem, and multiple trials
 2. Run 1 algorithm with multiple problems, and multiple trials
@@ -284,38 +284,8 @@ More advanced examples can also be found in the [Mealpy-examples repository](htt
 
 * [Tutorials](/examples/utils/visualize/all_charts.py)
 
-* Global best fitness value and Local best fitness value after generations
-
-<p align="center">
-  <img alt="Light" src=".github/img/gbfc.png" width="45%">
-&nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src=".github/img/lbfc.png" width="45%">
+<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
 </p>
-
-* Global objectives chart and Local objectives chart
-
-<p align="center">
-  <img alt="Light" src=".github/img/goc.png" width="45%">
-&nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src=".github/img/loc.png" width="45%">
-</p>
-
-* Diversity of population chart and Exploration verse Exploitation chart
-
-<p align="center">
-  <img alt="Light" src=".github/img/dc.png" width="45%">
-&nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src=".github/img/eec.png" width="45%">
-</p>
-
-* Running time chart and Trajectory of some first agents chart
-
-<p align="center">
-  <img alt="Light" src=".github/img/rtc.png" width="45%">
-&nbsp; &nbsp; &nbsp; &nbsp;
-  <img alt="Dark" src=".github/img/tc.png" width="45%">
-</p>
-
 
 
 ## Mealpy Application

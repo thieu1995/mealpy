@@ -15,7 +15,7 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.5.2-alpha.3",
+    version="2.5.2-alpha.4",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MEALPY: A Framework Of The State-Of-The-Art Meta-Heuristic Algorithms In Python",
@@ -24,6 +24,12 @@ setup(
     keywords=["optimization", "metaheuristics", "MHA", "mathematical", "nature-inspired algorithms",
               "evolutionary computation", "soft computing", "population-based algorithms"],
     url="https://github.com/thieu1995/mealpy",
+    project_urls={
+        'Documentation': 'https://mealpy.readthedocs.io/',
+        'Source Code': 'https://github.com/thieu1995/mealpy',
+        'Bug Tracker': 'https://github.com/thieu1995/mealpy/issues',
+        'Change Log': 'https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md'
+    },
     packages=find_packages(exclude=['tests*', 'examples*']),
     include_package_data=True,
     license="GPLv3",
