@@ -8,9 +8,11 @@ import pandas as pd
 from pathlib import Path
 from mealpy.optimizer import Optimizer
 from mealpy.utils.problem import Problem
+from mealpy.utils.termination import Termination
 from mealpy.utils.validator import Validator
 from functools import partial
 import concurrent.futures as parallel
+from copy import deepcopy
 import os
 
 
@@ -23,13 +25,36 @@ class Multitask:
     Args:
         algorithms (list, tuple): List of algorithms to run
         problems (list, tuple): List of problems to run
-
+        terminations (list, tuple): List of terminations to apply on algorithm/problem
+        modes (list, tuple): List of modes to apply on algorithm/problem
     """
-    def __init__(self, algorithms=(), problems=(), **kwargs):
+    def __init__(self, algorithms=(), problems=(), terminations=None, modes=None, **kwargs):
         self.__set_keyword_arguments(kwargs)
         self.validator = Validator(log_to="console", log_file=None)
         self.algorithms = self.validator.check_list_tuple("algorithms", algorithms, "Optimizer")
         self.problems = self.validator.check_list_tuple("problems", problems, "Problem")
+        self.n_algorithms = len(self.algorithms)
+        self.m_problems = len(self.problems)
+        self.terminations = self.check_input("terminations", terminations, "Termination")
+        self.modes = self.check_input("modes", modes, "str (thread, process, single, swarm)")
+
+    def check_input(self, name=None, values=None, kind=None):
+        if values is None:
+            return None
+        elif type(values) in (list, tuple):
+            if len(values) == 1:
+                values_final = [[deepcopy(values[0]) for _ in range(0, self.m_problems)] for _ in range(0, self.n_algorithms)]
+            elif len(values) == self.n_algorithms:
+                values_final = [deepcopy(values[idx] for _ in range(0, self.m_problems)) for idx in range(0, self.n_algorithms)]
+            elif len(values) == self.m_problems:
+                values_final = [deepcopy(values) for _ in range(0, self.n_algorithms)]
+            elif len(values) == (self.n_algorithms * self.m_problems):
+                values_final = values
+            else:
+                raise ValueError(f"{name} should be list of {kind} instances with size (1) or (n) or (m) or (n*m), n: #algorithms, m: #problems.")
+            return values_final
+        else:
+            raise ValueError(f"{name} should be list of {kind} instances.")
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -47,8 +72,8 @@ class Multitask:
     def export_to_csv(result: pd.DataFrame, save_path: str):
         result.to_csv(f"{save_path}.csv", header=True, index=False)
 
-    def __run__(self, id_trial, model, problem):
-        _, best_fitness = model.solve(problem)
+    def __run__(self, id_trial, model, problem, termination=None, mode="single"):
+        _, best_fitness = model.solve(problem, mode=mode, termination=termination)
         return {
             "id_trial": id_trial,
             "best_fitness": best_fitness,
@@ -73,7 +98,7 @@ class Multitask:
         """
         n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
         mode = self.validator.check_str("mode", mode, ["parallel", "sequential"])
-        if mode == "process":
+        if mode == "parallel":
             n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
         else:
             n_workers = None
@@ -101,6 +126,23 @@ class Multitask:
                     else:
                         problem = Problem(**problem)
 
+                term = None
+                if self.terminations is not None:
+                    term = self.terminations[id_model][id_prob]
+                    if not isinstance(term, Termination):
+                        if not type(term) is dict:
+                            print(f"Termination: {id_prob + 1} is not an instance of Termination class or a Python dict.")
+                            continue
+                        else:
+                            term = Termination(**term)
+
+                mode = "single"
+                if self.modes is not None:
+                    mode = self.modes[id_model][id_prob]
+                    if mode not in ("process", "thread", "single", "swarm"):
+                        mode = "single"
+                        print(f"Mode: {id_prob + 1} is fall back on 'single'")
+
                 convergence_trials = {}
                 best_fit_trials = []
 
@@ -108,7 +150,7 @@ class Multitask:
 
                 if mode == "parallel":
                     with parallel.ProcessPoolExecutor(n_workers) as executor:
-                        list_results = executor.map(partial(self.__run__, model=model, problem=problem), trial_list)
+                        list_results = executor.map(partial(self.__run__, model=model, problem=problem, termination=term, mode=mode), trial_list)
                         for result in list_results:
                             convergence_trials[f"trial_{result['id_trial']}"] = result['convergence']
                             best_fit_trials.append(result['best_fitness'])
@@ -116,7 +158,7 @@ class Multitask:
                                 print(f"Solving problem: {problem.get_name()} using algorithm: {model.get_name()}, on the: {result['id_trial']} trial")
                 else:
                     for idx in trial_list:
-                        result = self.__run__(idx, model, problem)
+                        result = self.__run__(idx, model, problem, termination=term, mode=mode)
                         convergence_trials[f"trial_{result['id_trial']}"] = result['convergence']
                         best_fit_trials.append(result['best_fitness'])
                         if verbose:
