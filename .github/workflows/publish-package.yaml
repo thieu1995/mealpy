@@ -85,6 +85,14 @@ jobs:
           name: dist-package-3.11
           path: dist
 
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          skip_existing: true
+          user: __token__
+          password: ${{ secrets.test_pypi_password }}
+          repository_url: https://test.pypi.org/legacy/
+
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

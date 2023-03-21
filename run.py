@@ -37,13 +37,13 @@ problem_dict1 = {
 }
 
 term_dict1 = {
-    "max_epoch": 30,
+    "max_epoch": 1000,
     "max_fe": 180000,  # 100000 number of function evaluation
     "max_time": 1000,  # 10 seconds to run the program
     "max_early_stop": 15  # 15 epochs if the best fitness is not getting better we stop the program
 }
 
-epoch = 100
+epoch = 1000
 pop_size = 50
 
 class Squared(Problem):
