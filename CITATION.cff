@@ -4,7 +4,7 @@ authors:
   - family-names: "Nguyen Van"
     given-names: "Thieu"
     orcid: "https://orcid.org/0000-0001-9994-8747"
-    family-names: "Seyedali"
+  - family-names: "Seyedali"
     given-names: "Mirjalili"
     orcid: "https://orcid.org/0000-0002-1599-3573"
 title: "MEALPY: a Framework of The State-of-The-Art Meta-Heuristic Algorithms in Python"
