@@ -15,14 +15,19 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.5.2-alpha.4",
+    version="2.5.2",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MEALPY: A Framework Of The State-Of-The-Art Meta-Heuristic Algorithms In Python",
     long_description=readme(),
     long_description_content_type="text/markdown",
-    keywords=["optimization", "metaheuristics", "MHA", "mathematical", "nature-inspired algorithms",
-              "evolutionary computation", "soft computing", "population-based algorithms"],
+    keywords=["optimization", "metaheuristics", "MHA", "mathematical optimization", "nature-inspired algorithms",
+              "evolutionary computation", "soft computing", "population-based algorithms",
+              "Stochastic optimization", "Global optimization", "Convergence analysis", "Search space exploration",
+              "Local search", "Computational intelligence", "Black-box optimization", "Robust optimization",
+              "Hybrid algorithms", "Benchmark functions", "Metaheuristic design", "Performance analysis",
+              "Exploration versus exploitation", "Self-adaptation", "Constrained optimization",
+              "Intelligent optimization", "Adaptive search", "Simulations", "Algorithm selection"],
     url="https://github.com/thieu1995/mealpy",
     project_urls={
         'Documentation': 'https://mealpy.readthedocs.io/',

@@ -29,7 +29,7 @@
 # >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 
-__version__ = "2.5.2-alpha.4"
+__version__ = "2.5.2"
 
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO)
 from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA)
