@@ -80,13 +80,12 @@ class Multitask:
             "convergence": model.history.list_global_best_fit
         }
 
-    def execute(self, n_trials=2, mode="sequential", n_workers=2, save_path="history", save_as="csv", save_convergence=False, verbose=False):
+    def execute(self, n_trials=2, n_jobs=None, save_path="history", save_as="csv", save_convergence=False, verbose=False):
         """Execute multitask utility.
 
         Args:
             n_trials (int): Number of repetitions
-            mode (str): Execute problem using "sequential" or "parallel" mode, default = "sequential"
-            n_workers (int): Number of processes if mode is "parallel"
+            n_jobs (int, None): Number of processes will be used to speed up the computation (<=1 or None: sequential, >=2: parallel)
             save_path (str): The path to the folder that hold results
             save_as (str): Saved file type (e.g. dataframe, json, csv) (default: "csv")
             save_convergence (bool): Save the error (convergence/fitness) during generations (default: False)
@@ -97,11 +96,10 @@ class Multitask:
 
         """
         n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
-        mode = self.validator.check_str("mode", mode, ["parallel", "sequential"])
-        if mode == "parallel":
-            n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
-        else:
-            n_workers = None
+        n_workers = None
+        if (n_jobs is not None) and (n_jobs >= 1):
+            n_workers = self.validator.check_int("n_jobs", n_jobs, [2, min(61, os.cpu_count() - 1)])
+
         ## Get export function
         save_as = self.validator.check_str("save_as", save_as, ["csv", "json", "dataframe"])
         export_function = getattr(self, f"export_to_{save_as}")
@@ -148,7 +146,7 @@ class Multitask:
 
                 trial_list = list(range(1, n_trials+1))
 
-                if mode == "parallel":
+                if n_workers is not None:
                     with parallel.ProcessPoolExecutor(n_workers) as executor:
                         list_results = executor.map(partial(self.__run__, model=model, problem=problem, termination=term, mode=mode), trial_list)
                         for result in list_results:
