@@ -9,6 +9,7 @@ import pandas as pd
 from pathlib import Path
 from mealpy.optimizer import Optimizer
 from mealpy.utils.problem import Problem
+from mealpy.utils.termination import Termination
 from mealpy.utils.validator import Validator
 from collections import abc
 from functools import partial, reduce
@@ -159,7 +160,6 @@ class Tuner:
         n_trials (int): number of repetitions
         mode (str): set the mode to run (sequential, thread, process), default="sequential"
         n_workers (int): effected only when mode is "thread" or "process".
-
     """
     def __init__(self, algorithm=None, param_grid=None, **kwargs):
         self.__set_keyword_arguments(kwargs)
@@ -214,18 +214,20 @@ class Tuner:
         else:
             self.results.to_csv(f"{save_path}.csv", header=True, index=False)
 
-    def __run__(self, id_trial):
-        _, best_fitness = self.algorithm.solve(self.problem)
+    def __run__(self, id_trial, mode="single", n_workers=None, termination=None):
+        _, best_fitness = self.algorithm.solve(self.problem, mode=mode, n_workers=n_workers, termination=termination)
         return id_trial, best_fitness
 
-    def execute(self, problem=None, n_trials=2, mode="sequential", n_workers=2, verbose=True):
+    def execute(self, problem=None, termination=None, n_trials=2, mode="single", n_workers=2, n_jobs=None, verbose=True):
         """Execute Tuner utility.
 
         Args:
-            problem (dict, Problem): A instance of Problem class or problem dictionary
+            problem (dict, Problem): An instance of Problem class or problem dictionary
+            termination (None, dict, Termination): An instance of Termination class or termination dictionary
             n_trials (int): Number of trials on the Problem
-            mode (str): Execute problem using "sequential" or "parallel" mode, default = "sequential"
-            n_workers (int): Number of processes if mode is "parallel"
+            mode (str): Apply on current Problem ("single", "swarm", "thread", "process"), default="single".
+            n_workers (int): Apply on current Problem, number of processes if mode is "thread" or "process'
+            n_jobs (int, None): Speed up this task (run multiple trials at the same time) by using multiple processes. (<=1 or None: sequential, >=2: parallel)
             verbose (bool): Switch for verbose logging (default: False)
 
         Raises:
@@ -238,11 +240,13 @@ class Tuner:
             else:
                 raise TypeError(f"Problem is not an instance of Problem class or a Python dict.")
         n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
-        mode = self.validator.check_str("mode", mode, ["parallel", "sequential"])
-        if mode == "process":
-            n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
-        else:
-            n_workers = None
+        n_cpus = None
+        if (n_jobs is not None) and (n_jobs >= 1):
+            n_cpus = self.validator.check_int("n_jobs", n_jobs, [2, min(61, os.cpu_count() - 1)])
+
+        if mode not in ("process", "thread", "single", "swarm"):
+            mode = "single"
+
         list_params_grid = list(ParameterGrid(self.param_grid))
         trial_columns = [f"trial_{id_trial}" for id_trial in range(1, n_trials + 1)]
         ascending = True if self.problem.minmax == "min" else False
@@ -254,16 +258,16 @@ class Tuner:
             best_fit_results.append({"params": params})
 
             trial_list = list(range(0, n_trials))
-            if mode == "parallel":
-                with parallel.ProcessPoolExecutor(n_workers) as executor:
-                    list_results = executor.map(self.__run__, trial_list)  # Return results as original order not the future object
+            if n_cpus is not None:
+                with parallel.ProcessPoolExecutor(n_cpus) as executor:
+                    list_results = executor.map(partial(self.__run__, n_workers=n_workers, mode=mode, termination=termination), trial_list)
                     for (idx, best_fitness) in list_results:
                         best_fit_results[-1][trial_columns[idx]] = best_fitness
                         if verbose:
                             print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx + 1}, best fitness: {best_fitness}")
             else:
                 for idx in trial_list:
-                    idx, best_fitness = self.__run__(idx)
+                    idx, best_fitness = self.__run__(idx, mode=mode, n_workers=n_workers, termination=termination)
                     best_fit_results[-1][trial_columns[idx]] = best_fitness
                     if verbose:
                         print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx+1}, best fitness: {best_fitness}")

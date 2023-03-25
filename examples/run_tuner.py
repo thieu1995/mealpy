@@ -26,11 +26,16 @@ paras_bbo_grid = {
     "p_m": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2]
 }
 
+term = {
+    "max_epoch": 200,
+    "max_time": 20,
+    "max_fe": 10000
+}
+
 if __name__ == "__main__":
     model = BBO.BaseBBO()
-
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=p1, n_trials=10, mode="parallel", n_workers=4)
+    tuner.execute(problem=p1, termination=term, n_trials=5, mode="single", n_jobs=4, verbose=True)
 
     print(tuner.best_row)
     print(tuner.best_score)
@@ -40,8 +45,7 @@ if __name__ == "__main__":
     print(tuner.best_algorithm)
     tuner.export_results("history/tuning", save_as="csv")
 
-    best_position, best_fitness = tuner.resolve()
-
+    best_position, best_fitness = tuner.resolve(mode="thread", n_workers=4, termination=term)
     print(best_position, best_fitness)
     print(tuner.problem.get_name())
     print(tuner.best_algorithm.get_name())
