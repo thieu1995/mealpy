@@ -20,6 +20,7 @@ def model():
 def problem():
     def fitness_function(solution):
         return np.sum(solution ** 2)
+
     problem = {
         "fit_func": fitness_function,
         "lb": [-10, -10, -10, -10, -10],
@@ -43,12 +44,13 @@ def test_amend_position(model, problem):
 @pytest.mark.parametrize("para_grids",
                          [
                              ({"epoch": [10, 20], "pop_size": [50, 100]}),
-                             ({"epoch": (10), "pop_size": (50, )}),
-                             ({"epoch": 10, "pop_size": 50,}),
+                             ({"epoch": (10,), "pop_size": (50,)}),
+                             ({"epoch": 10, "pop_size": 50}),
                          ])
 def test_para_grids(problem, para_grids, request):
     def fitness_function(solution):
         return np.sum(solution ** 2)
+
     problem = {
         "fit_func": fitness_function,
         "lb": [-10, -10, -10, -10, -10],
@@ -64,7 +66,3 @@ def test_para_grids(problem, para_grids, request):
         assert type(pos) == np.ndarray
     except TypeError:
         assert True
-
-
-
-
