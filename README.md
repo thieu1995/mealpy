@@ -359,15 +359,12 @@ We share lots of information, questions, and answers there. You will get more su
 If you are using mealpy in your project, we would appreciate citations:
 
 ```bibtex 
-@software{nguyen_van_thieu_2022_6684223,
-  author       = {Nguyen Van Thieu and Seyedali Mirjalili},
-  title        = {{MEALPY: a Framework of The State-of-The-Art Meta-Heuristic Algorithms in Python}},
-  month        = jun,
-  year         = 2022,
-  publisher    = {Zenodo},
-  version      = {v2.4.2},
-  doi          = {10.5281/zenodo.6684223},
-  url          = {https://doi.org/10.5281/zenodo.6684223}
+@article{van2023mealpy,
+  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+  journal={Journal of Systems Architecture},
+  year={2023},
+  publisher={Elsevier}
 }
 
 @article{van2023groundwater,

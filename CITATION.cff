@@ -1,13 +1,28 @@
 cff-version: 1.1.0
 message: "If you use this software, please cite it as below."
 authors:
-  - family-names: "Nguyen Van"
-    given-names: "Thieu"
+  - family-names: "Van Thieu"
+    given-names: "Nguyen"
     orcid: "https://orcid.org/0000-0001-9994-8747"
-  - family-names: "Seyedali"
-    given-names: "Mirjalili"
+  - family-names: "Mirjalili"
+    given-names: "Seyedali"
     orcid: "https://orcid.org/0000-0002-1599-3573"
-title: "MEALPY: a Framework of The State-of-The-Art Meta-Heuristic Algorithms in Python"
-version: v2.5.2
+title: "MEALPY: An open-source library for latest meta-heuristic algorithms in Python"
+version: 2.5.2
+doi: 10.5281/zenodo.3711948
 date-released: 2023-03-20
 url: "https://github.com/thieu1995/mealpy"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Van Thieu"
+    given-names: "Nguyen"
+    orcid: "https://orcid.org/0000-0001-9994-8747"
+  - family-names: "Mirjalili"
+    given-names: "Seyedali"
+    orcid: "https://orcid.org/0000-0002-1599-3573"
+  doi: "10.1016/j.sysarc.2023.102871"
+  journal: "Journal of Systems Architecture"
+  title: "MEALPY: An open-source library for latest meta-heuristic algorithms in Python"
+  year: 2023
+  publisher: "Elsevier"
