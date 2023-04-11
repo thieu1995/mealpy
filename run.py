@@ -15,6 +15,8 @@ from mealpy.swarm_based.ESOA import OriginalESOA
 from mealpy import BBO as T1
 from mealpy.bio_based import BBO as T2
 from mealpy.bio_based.BBO import BaseBBO
+from mealpy.swarm_based.ARO import LARO, OriginalARO
+from mealpy.swarm_based.AGTO import MGTO
 
 # from mealpy.utils.problem import Problem
 from mealpy import Problem
@@ -66,6 +68,9 @@ if __name__ == "__main__":
     model = T1.BaseBBO(epoch, pop_size)
     model = T2.OriginalBBO(epoch, pop_size)
     model = BaseBBO(epoch, pop_size)
+    model = LARO(epoch, pop_size)
+    model = OriginalARO(epoch, pop_size)
+    model = MGTO(epoch, pop_size)
     best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)

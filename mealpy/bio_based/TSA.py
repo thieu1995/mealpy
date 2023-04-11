@@ -17,10 +17,10 @@ class OriginalTSA(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/75182-tunicate-swarm-algorithm-tsa
 
     Notes:
-        1. Weakest algorithm in the list
-        2. The paper has so many wrong equations in algorithm
-        3. Matlab code different to the paper
-        4. This algorithm is typical similar to Barnacles Mating Optimizer (BMO)
+        1. This algorithm has some limitations
+        2. The paper has several wrong equations in algorithm
+        3. The implementation in Matlab code has some difference to the paper
+        4. This algorithm shares some similarities with the Barnacles Mating Optimizer (BMO)
 
     Examples
     ~~~~~~~~

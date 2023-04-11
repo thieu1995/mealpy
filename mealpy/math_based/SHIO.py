@@ -17,10 +17,9 @@ class OriginalSHIO(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/122157-success-history-intelligent-optimizer-shio
 
     Notes:
-        1. The algorithm is very easy with no special operators.
-        2. This is a weak algorithm and should not be used in research or practical problems.
-        3. There is slow convergence in the algorithm. If we look at the Matlab code, we can see that a student
-        is trying to implement it with many errors and unnecessary things. Not sure why it got accepted in that journal
+        1. The algorithm is designed with simplicity and ease of implementation in mind, utilizing basic operators.
+        2. This algorithm has several limitations and weak when dealing with several problems
+        3. The algorithm's convergence is slow. The Matlab code has many errors and unnecessary things.
 
     Examples
     ~~~~~~~~

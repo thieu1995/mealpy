@@ -25,9 +25,9 @@ class OriginalFLA(Optimizer):
         + DD (float): factor D in the paper, default=0.01
 
     Notes:
-        1. Too many parameters, and they are unnecessary
-        2. The algorithms are complex, but they are weak, making it easy to get stuck in local optima.
-        3. Overflow problems will occur due to the division by the fitness value.
+        1. The algorithm contains a high number of parameters, some of which may be unnecessary.
+        2. Despite the complexity of the algorithms, they may not perform optimally and could potentially become trapped in local optima.
+        3. Division by the fitness value may cause overflow issues to arise.
 
     Examples
     ~~~~~~~~

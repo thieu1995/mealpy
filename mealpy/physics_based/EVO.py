@@ -16,9 +16,9 @@ class OriginalEVO(Optimizer):
         1. https://www.nature.com/articles/s41598-022-27344-y
         2. https://www.mathworks.com/matlabcentral/fileexchange/123130-energy-valley-optimizer-a-novel-metaheuristic-algorithm
 
-    Notes (parameters):
-        1. The algorithm is very easy, and there is nothing special about this one.
-        2. This is a very weak algorithm with slow convergence because there is no good strategy, and no special operations are performed.
+    Notes:
+        1. The algorithm is straightforward and does not require any specialized knowledge or techniques.
+        2. The algorithm may not perform optimally due to slow convergence and no good operations, which could be improved by implementing better strategies and operations.
         3. The problem is that it is stuck at a local optimal around 1/2 of the max generations because fitness distance is being used as a factor in the equations.
 
     Examples

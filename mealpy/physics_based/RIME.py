@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalRIME(Optimizer):
     """
-    The original version of: Artificial Gorilla Troops Optimization (RIME)
+    The original version of: physical phenomenon of RIME-ice  (RIME)
 
     Links:
         1. https://doi.org/10.1016/j.neucom.2023.02.010
@@ -18,8 +18,8 @@ class OriginalRIME(Optimizer):
 
     Notes (parameters):
         1. w (float): Soft-rime parameters, default=5.0
-        2. The algorithm is very easy and there is nothing special about this one.
-        3. This is very weak algorithm, slow convergence.
+        2. The algorithm is straightforward and does not require any specialized knowledge or techniques.
+        3. The algorithm may exhibit slow convergence and may not perform optimally.
 
     Examples
     ~~~~~~~~
