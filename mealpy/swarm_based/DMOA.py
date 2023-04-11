@@ -17,9 +17,9 @@ class OriginalDMOA(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/105125-dwarf-mongoose-optimization-algorithm
 
     Notes:
-        1. Matlab code is litle bit difference than original paper
-        2. There are some meaningless parameters and equations in the matlab code
-        3. Weak algorithm
+        1. The Matlab code differs slightly from the original paper
+        2. There are some parameters and equations in the Matlab code that don't seem to have any meaningful purpose.
+        3. The algorithm seems to be weak on solving several problems.
 
     Examples
     ~~~~~~~~

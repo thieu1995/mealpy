@@ -14,7 +14,7 @@ class OriginalACOR(Optimizer):
 
     Notes
     ~~~~~
-    + Use Gaussian Distribution instead of random number (np.random.normal() function)
+    + Use Gaussian Distribution (np.random.normal() function) instead of random number (np.random.rand())
     + Amend solution when they went out of space
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:

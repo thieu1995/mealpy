@@ -18,10 +18,9 @@ class OriginalSSpiderA(Optimizer):
         1. https://doi.org/10.1016/j.asoc.2015.02.014
         2. https://github.com/James-Yu/SocialSpiderAlgorithm  (Modified this version)
 
-    Notes
-    ~~~~~
-    + The version on above github is very slow convergence
-    + Changes the idea of intensity, which one has better intensity, others will move toward to it
+    Notes:
+        + The version of the algorithm available on the GitHub repository has a slow convergence rate.
+        + Changes the idea of intensity, which one has better intensity, others will move toward to it
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0

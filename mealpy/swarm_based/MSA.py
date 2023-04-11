@@ -19,9 +19,8 @@ class OriginalMSA(Optimizer):
         2. https://doi.org/10.1007/s12293-016-0212-3
 
     Notes
-    ~~~~~
-    + The matlab version of original paper is not good (especially convergence chart)
-    + The random number (gaussian distribution) is added in each updating equation
+        + The matlab version of original paper is not good (especially convergence chart)
+        + The random number (gaussian distribution) is added in each updating equation
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5

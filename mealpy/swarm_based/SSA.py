@@ -13,10 +13,9 @@ class BaseSSA(Optimizer):
     """
     The developed version: Sparrow Search Algorithm (SSA)
 
-    Notes
-    ~~~~~
-    + First, the population is sorted to find g-best and g-worst
-    + In Eq. 4, the np.random.normal() gaussian distribution is used instead of A+ and L
+    Notes:
+        + First, the population is sorted to find g-best and g-worst
+        + In Eq. 4, the np.random.normal() gaussian distribution is used instead of A+ and L
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8

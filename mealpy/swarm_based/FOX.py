@@ -20,11 +20,9 @@ class OriginalFOX(Optimizer):
         1. c1 (float): the probability of jumping (c1 in the paper), default = 0.18
         2. c2 (float): the probability of jumping (c2 in the paper), default = 0.82
 
-    Notes (Algorithm's design):
-        1. I don't know how this algorithm get accepted in Applied Intelligence journal
-        2. The equation to calculate distance_S_travel value in matlab code is meaningless
-        3. The whole point of if else conditions with p > 0.18 is meaningless. The authors just choice the best value
-        based on his experiment without explaining it.
+    Notes:
+        1. The equation used to calculate the distance_S_travel value in the Matlab code seems to be lacking in meaning.
+        2. The if-else conditions used with p > 0.18 seem to lack a clear justification. The authors seem to have simply chosen the best value based on their experiments without explaining the rationale behind it.
 
     Examples
     ~~~~~~~~

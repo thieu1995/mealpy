@@ -18,9 +18,8 @@ class OriginalSLO(Optimizer):
         1. https://www.researchgate.net/publication/333516932_Sea_Lion_Optimization_Algorithm
         2. https://doi.org/10.14569/IJACSA.2019.0100548
 
-    Notes
-    ~~~~~
-    + There are some unclear equations and parameters in the original paper 
+    Notes:
+        + There are some unclear equations and parameters in the original paper
 
     Examples
     ~~~~~~~~
