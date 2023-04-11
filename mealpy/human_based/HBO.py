@@ -18,7 +18,7 @@ class OriginalHBO(Optimizer):
         2. https://github.com/qamar-askari/HBO/blob/master/HBO.m
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-            + degree (int): [2, 4], the degree level in Corporate Rank Hierarchy (CRH), default=2
+        + degree (int): [2, 4], the degree level in Corporate Rank Hierarchy (CRH), default=2
 
     Examples
     ~~~~~~~~

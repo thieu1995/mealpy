@@ -15,8 +15,8 @@ class ImprovedBSO(Optimizer):
 
     Notes
     ~~~~~
-    + Remove some probability parameters, and some useless equations.
-    + Levy-flight technique is used for robustness
+    + Remove some probability parameters, and some unnecessary equations.
+    + The Levy-flight technique is employed to enhance the algorithm's robustness and resilience in challenging environments.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + m_clusters (int): [3, 10], number of clusters (m in the paper)

@@ -13,8 +13,8 @@ class OriginalSPBO(Optimizer):
     The original version of: Student Psychology Based Optimization (SPBO)
 
     Notes:
-        1. Weak algorithm
-        2. Consume too much time because of ndim * pop_size updating times.
+        1. This algorithm is a weak algorithm in solving several problems
+        2. It also consumes too much time because of ndim * pop_size updating times.
 
     Links:
        1. https://www.sciencedirect.com/science/article/abs/pii/S0965997820301484

@@ -119,3 +119,160 @@ This means when raven found better location, it will stop flying immediately.
 ```
 
 
+## Teamwork Optimization Algorithm (TOA), Coati Optimization Algorithm (CoatiOA), Osprey Optimization Algorithm (OOA)
+
+```code 
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
+Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Pelican Optimization Algorithm (POA), Northern goshawk optimization (NGO),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+3. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+```
+
+
+
+
+
+## Fennec Fox Optimization (FFO), Serval Optimization Algorithm (ServalOA)
+
+```code 
+0. This is really disgusting, because the source code for this algorithm is almost exactly the same as the source code for Pelican Optimization Algorithm (POA)
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
+Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+Pelican Optimization Algorithm (POA), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+```
+
+## Northern Goshawk Optimization (NGO), Pelican Optimization Algorithm (POA)
+```code 
+0. This is really disgusting, because the source code for this algorithm is exactly the same as the source code for Pelican Optimization Algorithm (POA).
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
+Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Pelican Optimization Algorithm (POA),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+```
+
+
+## Siberian Tiger Optimization (STO)
+
+```code 
+0. This is really disgusting, because the source code for this algorithm is exact the same as the source code for Osprey Optimization Algorithm (OOA)
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
+Northern Goshawk Optimization (NGO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Pelican Optimization Algorithm (POA),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+```
+
+## Tasmanian Devil Optimization (TDO)
+
+```code 
+0. This is really disgusting, because the source code for this algorithm is almost exactly the same as the source code of Osprey Optimization Algorithm
+    1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA),
+    Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+    Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+    Osprey Optimization Algorithm (OOA), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+    2. Check the matlab code of all above algorithms
+    2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+    4. Check the results of benchmark functions in the papers, they are mostly make up results
+
+```
+
+
+
+## Walrus Optimization Algorithm (WaOA)
+
+```code 
+0. This is really disgusting, because the source code for this algorithm is exactly the same as the source code of Northern Goshawk Optimization (NGO)
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
+Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Northern Goshawk Optimization (NGO),
+Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Pelican Optimization Algorithm (POA),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+```
+
+## Zebra Optimization Algorithm (ZOA)
+
+```code 
+1. Algorithm design is very similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA),
+Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
+Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+2. Check the matlab code of all above algorithms
+2. Same authors, self-plagiarized article with kinda same algorithm with different meta-metaphors
+4. Check the results of benchmark functions in the papers, they are mostly make up results
+
+```
+
++ **Warning**: The list of all algorithms below we should avoid to use it
+  + Add Zebra Optimization Algorithm (ZOA)
+    + Ref: Zebra Optimization Algorithm: A New Bio-Inspired Optimization Algorithm for Solving Optimization Algorithm
+  + Add Osprey Optimization Algorithm (OOA)
+    + Ref: Osprey optimization algorithm: A new bio-inspired metaheuristic algorithm for solving engineering optimization problems
+  + Add Coati Optimization Algorithm (CoatiOA)
+    + Ref: Coati Optimization Algorithm: A New Bio-Inspired Metaheuristic Algorithm for Solving Optimization Problems
+  + Add Pelican Optimization Algorithm (POA)
+    + Ref: Pelican optimization algorithm: A novel nature-inspired algorithm for engineering applications
+  + Add Northern Goshawk Optimization (NGO)
+    + Ref: Northern Goshawk Optimization: A New Swarm-Based Algorithm for Solving Optimization Problems
+  + Add Serval Optimization Algorithm (ServalOA) 
+    + Ref: Serval Optimization Algorithm: A New Bio-Inspired Approach for Solving Optimization Problems
+  + Add Siberian Tiger Optimization (STO)
+    + Ref: Siberian Tiger Optimization: A New Bio-Inspired Metaheuristic Algorithm for Solving Engineering Optimization Problems
+  + Add Walrus Optimization Algorithm (WaOA)
+    + Ref: Walrus Optimization Algorithm: A New Bio-Inspired Metaheuristic Algorithm
+  + Add Tasmanian Devil Optimization (TDO)
+    + Ref: Tasmanian devil optimization: a new bio-inspired optimization algorithm for solving optimization algorithm
+  + Add Fennec Fox Optimization (FFO)
+    + Ref: Fennec Fox Optimization: A New Nature-Inspired Optimization Algorithm
+  + Add Teamwork Optimization Algorithm (TOA)
+    + Ref: Teamwork Optimization Algorithm: A New Optimization Approach for Function Minimization/Maximization
+
+
++ **Notes on plagiarism and fake algorithm:**
+    + OOA and STO with the same exact code 
+    + POA ServalOA, NGO, WaOA, and TDO with almost the same exact code 
+    + ZOA and CoatiOA with almost the same exact code 
+    + FFO is swap two phases of POA
+    + TOA is kinda same as OOA and POA 
+    + 
+
+
++ Sandpiper Optimization Algorithm (SOA) to swarm_based group:
+    + OriginalSOA: the original version is made up one
+        + This algorithm suffers from local optimal and lower convergence rate. 
+        + It cannot update the position, so how to converge without update position?
+        + I am curious about the algorithm's publication history, as I have found it submitted to multiple journals.
+        + A detailed explain in this comment section 
+        (https://www.researchgate.net/publication/334897831_Sandpiper_optimization_algorithm_a_novel_approach_for_solving_real-life_engineering_problems/comments)
+    + BaseSOA: my modified version which changed some equations and flow.
+      
++ Sooty Tern Optimization Algorithm (STOA) is another name of Sandpiper Optimization Algorithm (SOA) 
+    + Amandeep Kaur, Sushma Jain, Shivani Goel,  Gaurav Dhiman. What they are doing are plagiarism, uneducated
+     and unethical to meta-heuristics community.
+
+
++ Blue Monkey Optimization (BMO) to swarm_based group:
+    + OriginalBMO: 
+        + It is a made-up algorithm with a similar idea to "Chicken Swarm Optimization," which raises questions about its originality.
+        + The pseudo-code is confusing, particularly the "Rate equation," which starts as a random number and then becomes a vector after the first loop. The movement of the blue monkey and children is also the same.
+        + The unclear point here is the "Rate equation": really confuse because It's contain the position. As you know,
+            The position is the vector, but finally, the author conclude that Rate is random number in range [0, 1]
+            Luckily, using number we can plus/add number and vector or vector and vector.
+            So at first, Rate is random number then after the 1st loop, its become vector. 
+        + Morever, both equtions movement of blue monkey and children is the same.
+        + In addition, they don't check the bound after update position.
+        + Keep going, they don't tell you the how to find the global best (I mean from blue monkey group or child group)
+    + BaseBMO: my modified version which used my knowledge about meta-heuristics to do it. 

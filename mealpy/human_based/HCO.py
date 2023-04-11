@@ -18,8 +18,8 @@ class OriginalHCO(Optimizer):
         2. https://www.nature.com/articles/s41598-022-25031-6
 
     Notes:
-        1. Kinda similar to PSO algorithm. Just the concepts of nature-inspired animals are difference
-        2. Matlab code different to the paper
+        1. This algorithm shares some similarities with the PSO algorithm (equations)
+        2. The implementation of Matlab code is kinda different to the paper
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + w (float): (0, 1.) - weight factor for probability of fitness selection, default=0.65
