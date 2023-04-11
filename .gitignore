@@ -11,6 +11,7 @@ history*
 *$.ipynd_checkpoint*
 
 # Pycharm
+.github/DUMMY.md
 .idea/
 drafts/
 .github/commands.md

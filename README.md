@@ -453,7 +453,7 @@ If you are using mealpy in your project, we would appreciate citations:
     + Math-based: Idea from mathematical form or mathematical law such as sin-cosin 
     + Music-based: Idea from music instrument
 
-* Difficulty - Difficulty Level (Personal Opinion): Objective observation from author. Depend on the number of 
+* Difficulty - Difficulty Level (Personal Opinion): **Objective observation from author**. Depend on the number of 
   parameters, number of equations, the original ideas, time spend for coding, source lines of code (SLOC).
     + Easy: A few paras, few equations, SLOC very short
     + Medium: more equations than Easy level, SLOC longer than Easy level
