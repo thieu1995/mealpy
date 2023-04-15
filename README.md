@@ -1,7 +1,7 @@
 
-<p align="center" style="background-color:#eae9e8 !important;">
+<p align="center">
 <img style="height:400px;" 
-src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy5.png" 
+src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy5-nobg.png" 
 alt="MEALPY"/>
 </p>
 
