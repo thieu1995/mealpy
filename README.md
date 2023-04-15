@@ -1,5 +1,5 @@
 
-<p align="center" style="background:#eae9e8;">
+<p align="center" style="background-color:#eae9e8 !important;">
 <img style="height:400px;" 
 src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy5.png" 
 alt="MEALPY"/>
