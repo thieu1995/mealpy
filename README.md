@@ -8,7 +8,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-2.5.2-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.5.3-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -31,7 +31,7 @@ MEALPY is the largest python library for most of the cutting-edge nature-inspire
 approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
-* **Total algorithms**: 172 (102 original, 45 official variants, 25 developed variants)
+* **Total algorithms**: 174 (102 original, 45 official variants, 27 developed variants)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** 3.7.x, 3.8.x, 3.9.x, 3.10.x, 3.11.x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
@@ -55,7 +55,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 ### Install with pip
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh 
-$ pip install mealpy==2.5.2
+$ pip install mealpy==2.5.3
 ```
 
 ### Install from source
@@ -188,11 +188,17 @@ paras_bbo_grid = {
     "p_m": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2]
 }
 
+term = {
+  "max_fe": 10000
+}
+
 if __name__ == "__main__":
     model = BBO.BaseBBO()
 
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=problem, n_trials=10, mode="parallel", n_workers=4)
+    tuner.execute(problem=problem, termination=term, n_trials=5, n_jobs=5, mode="thread", n_workers=4, verbose=True)
+    ## Solve this problem 5 times (n_trials) using 5 processes (n_jobs), each process will handle 1 trial. 
+    ## The mode to run the solver is thread (mode), we will calculate the fitness of 4 solutions (n_workers) at the same time 
 
     print(tuner.best_score)
     print(tuner.best_params)
@@ -271,12 +277,16 @@ model1 = BBO.BaseBBO(epoch=10, pop_size=50)
 model2 = BBO.OriginalBBO(epoch=10, pop_size=50)
 model3 = DE.BaseDE(epoch=10, pop_size=50)
 
+## Define termination if needed
+term = {
+    "max_fe": 10000
+}
 
 ## Define and run Multitask
-
 if __name__ == "__main__":
-    multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3))
-    multitask.execute(n_trials=3, mode="parallel", n_workers=6, save_path="history", save_as="csv", save_convergence=True, verbose=True)
+    multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3), terminations=(term, ), modes=("thread", ))
+    # default modes = "single", default termination = epoch (as defined in problem dictionary)
+    multitask.execute(n_trials=5, n_jobs=5, save_path="history", save_as="csv", save_convergence=False, verbose=False)
     
     ## Check the directory: history/, you will see list of .csv result files
 ```

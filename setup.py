@@ -15,10 +15,10 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.5.3-alpha.1",
+    version="2.5.3",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
-    description="MEALPY: A Framework Of The State-Of-The-Art Meta-Heuristic Algorithms In Python",
+    description="MEALPY: An Open-source Library for Latest Meta-heuristic Algorithms in Python",
     long_description=readme(),
     long_description_content_type="text/markdown",
     keywords=["optimization", "metaheuristics", "MHA", "mathematical optimization", "nature-inspired algorithms",
