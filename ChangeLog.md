@@ -17,10 +17,12 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Update multitask with input modes and terminations
 + Update Tuner with more input parameters
 + Add Lévy flight, and the selective opposition version of the artificial rabbit algorithm (LARO)
-+ Add Modified Gorilla Troops Optimization (mGTO) 
-
-
-
++ Add Modified Gorilla Troops Optimization (MGTO)
++ Update Giant Trevally Optimizer as requested by the authors
+  + Matlab101GTO: This version was used to produce the results presented in the paper.
+  + Matlab102GTO: This is a new version provided by the authors (Matlab link), which has been updated recently to 
+    reduce computation time.
+  + OriginalGTO: This version is implemented exactly as described in the paper.
 
 
 
