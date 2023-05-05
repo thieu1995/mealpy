@@ -10,6 +10,14 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * mealpy >= 2.5.1 (Define model 1 time, solve multiple problems)
 
 
+# Version 2.5.4
+
+### Update
++ Update the parameter's order in Tuner class  
+
+
+
+
 # Version 2.5.3
 
 ### Update 

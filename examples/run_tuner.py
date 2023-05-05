@@ -11,8 +11,8 @@ from mealpy.tuner import Tuner
 f1 = F52017(30, f_bias=0)
 
 p1 = {
-    "lb": f1.lb.tolist(),
-    "ub": f1.ub.tolist(),
+    "lb": f1.lb,
+    "ub": f1.ub,
     "minmax": "min",
     "fit_func": f1.evaluate,
     "name": "F5",
@@ -35,7 +35,7 @@ term = {
 if __name__ == "__main__":
     model = BBO.BaseBBO()
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=p1, termination=term, n_trials=5, mode="single", n_jobs=4, verbose=True)
+    tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=6, verbose=True)
 
     print(tuner.best_row)
     print(tuner.best_score)

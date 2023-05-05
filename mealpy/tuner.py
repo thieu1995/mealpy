@@ -160,6 +160,16 @@ class Tuner:
         n_trials (int): number of repetitions
         mode (str): set the mode to run (sequential, thread, process), default="sequential"
         n_workers (int): effected only when mode is "thread" or "process".
+
+    Examples
+    --------
+    >>> from mealpy.evolutionary_based import GA
+    >>> param_grid = {'epoch': [50, 100], 'pop_size': [10, 20], 'pc': [0.8, 0.85], 'pm': [0.01, 0.02]}
+    >>> ga_tuner = Tuner(GA.BaseGA(), param_grid)
+    >>> ga_tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=10, verbose=True)
+    >>> ga_tuner.resolve(mode="thread", n_workers=10, termination=term)
+    >>> ga_tuner.export_results(save_path="history/results", save_as="csv")
+    True
     """
     def __init__(self, algorithm=None, param_grid=None, **kwargs):
         self.__set_keyword_arguments(kwargs)
@@ -218,16 +228,16 @@ class Tuner:
         _, best_fitness = self.algorithm.solve(self.problem, mode=mode, n_workers=n_workers, termination=termination)
         return id_trial, best_fitness
 
-    def execute(self, problem=None, termination=None, n_trials=2, mode="single", n_workers=2, n_jobs=None, verbose=True):
-        """Execute Tuner utility.
+    def execute(self, problem=None, termination=None, n_trials=2, n_jobs=None, mode="single", n_workers=2, verbose=True):
+        """Execute Tuner utility
 
         Args:
             problem (dict, Problem): An instance of Problem class or problem dictionary
             termination (None, dict, Termination): An instance of Termination class or termination dictionary
             n_trials (int): Number of trials on the Problem
+            n_jobs (int, None): Speed up this task (run multiple trials at the same time) by using multiple processes. (<=1 or None: sequential, >=2: parallel)
             mode (str): Apply on current Problem ("single", "swarm", "thread", "process"), default="single".
             n_workers (int): Apply on current Problem, number of processes if mode is "thread" or "process'
-            n_jobs (int, None): Speed up this task (run multiple trials at the same time) by using multiple processes. (<=1 or None: sequential, >=2: parallel)
             verbose (bool): Switch for verbose logging (default: False)
 
         Raises:
