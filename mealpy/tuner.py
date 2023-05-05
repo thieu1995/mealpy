@@ -9,7 +9,6 @@ import pandas as pd
 from pathlib import Path
 from mealpy.optimizer import Optimizer
 from mealpy.utils.problem import Problem
-from mealpy.utils.termination import Termination
 from mealpy.utils.validator import Validator
 from collections import abc
 from functools import partial, reduce
@@ -163,13 +162,28 @@ class Tuner:
 
     Examples
     --------
+    >>> from opfunu.cec_based.cec2017 import F52017
     >>> from mealpy.evolutionary_based import GA
+    >>> from mealpy.tuner import Tuner
+    >>> f1 = F52017(30, f_bias=0)
+    >>> p1 = {
+    >>>     "lb": f1.lb,
+    >>>     "ub": f1.ub,
+    >>>     "minmax": "min",
+    >>>     "fit_func": f1.evaluate,
+    >>>     "name": "F5",
+    >>>     "log_to": None,
+    >>> }
+    >>> term = {
+    >>>     "max_epoch": 200,
+    >>>     "max_time": 20,
+    >>>     "max_fe": 10000
+    >>> }
     >>> param_grid = {'epoch': [50, 100], 'pop_size': [10, 20], 'pc': [0.8, 0.85], 'pm': [0.01, 0.02]}
     >>> ga_tuner = Tuner(GA.BaseGA(), param_grid)
     >>> ga_tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=10, verbose=True)
     >>> ga_tuner.resolve(mode="thread", n_workers=10, termination=term)
     >>> ga_tuner.export_results(save_path="history/results", save_as="csv")
-    True
     """
     def __init__(self, algorithm=None, param_grid=None, **kwargs):
         self.__set_keyword_arguments(kwargs)
