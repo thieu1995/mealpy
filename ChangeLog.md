@@ -14,6 +14,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 ### Update
 + Update the parameter's order in Tuner class  
++ Update the saving's bug when using Termination in Multitask
 
 
 
