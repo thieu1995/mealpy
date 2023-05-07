@@ -15,11 +15,12 @@ from mealpy.system_based import AEO, GCO, WCA
 from mealpy.swarm_based import ABC, ACOR, ALO, AO, BA, BeesA, BES, BFO, BSA, COA, CSA, CSO, DO, EHO, FA, FFA, FOA, GOA, GWO, HGS
 from mealpy.swarm_based import HHO, JA, MFO, MRFO, MSA, NMRA, PFA, PSO, SFO, SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, WOA
 
+
 f18 = F292017(ndim=30, f_bias=0)
 P1 = {
     "fit_func": f18.evaluate,
-    "lb": f18.lb.tolist(),
-    "ub": f18.ub.tolist(),
+    "lb": f18.lb,
+    "ub": f18.ub,
     "minmax": "min",
     "name": "F18"
 }

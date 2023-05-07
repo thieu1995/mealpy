@@ -4,10 +4,11 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-import os
+
 
 model_name = "DE"
 N_TRIALS = 3
@@ -22,10 +23,8 @@ func_names = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11"
 
 PATH_ERROR = "history1/error/" + model_name + "/"
 PATH_BEST_FIT = "history1/best_fit/"
-check_dir1 = f"{os.getcwd()}/{PATH_ERROR}"
-check_dir2 = f"{os.getcwd()}/{PATH_BEST_FIT}"
-if not os.path.exists(check_dir1): os.makedirs(check_dir1)
-if not os.path.exists(check_dir2): os.makedirs(check_dir2)
+Path(PATH_ERROR).mkdir(parents=True, exist_ok=True)
+Path(PATH_BEST_FIT).mkdir(parents=True, exist_ok=True)
 
 ## Run model
 best_fit_full = {}

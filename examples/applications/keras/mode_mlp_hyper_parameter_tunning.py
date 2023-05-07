@@ -4,11 +4,11 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+from pathlib import Path
 from pandas import DataFrame
 from mealpy.swarm_based import WOA
 from timeseries_util import decode_solution, generate_loss_value, generate_data
 from sklearn.preprocessing import LabelEncoder
-from os import getcwd, path, makedirs
 import time
 import numpy as np
 np.random.seed(12345)
@@ -47,10 +47,8 @@ if __name__ == "__main__":
 
     PATH_ERROR = "history/error/" + model_name + "/"
     PATH_BEST_FIT = "history/best_fit/"
-    check_dir1 = f"{getcwd()}/{PATH_ERROR}"
-    check_dir2 = f"{getcwd()}/{PATH_BEST_FIT}"
-    if not path.exists(check_dir1): makedirs(check_dir1)
-    if not path.exists(check_dir2): makedirs(check_dir2)
+    Path(PATH_ERROR).mkdir(parents=True, exist_ok=True)
+    Path(PATH_BEST_FIT).mkdir(parents=True, exist_ok=True)
 
     ## Run model
     best_fit_full = {}

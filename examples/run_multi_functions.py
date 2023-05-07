@@ -4,15 +4,14 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-import os
+
 
 PATH_RESULTS = "history/results/"
-check_dir = f"{os.getcwd()}/{PATH_RESULTS}"
-if not os.path.exists(check_dir):
-    os.makedirs(check_dir)
+Path(PATH_RESULTS).mkdir(parents=True, exist_ok=True)
 
 ## Setting parameters
 model_name = "DE"

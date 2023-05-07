@@ -5,10 +5,11 @@
 # --------------------------------------------------%
 
 import concurrent.futures as parallel
+from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
 from mealpy.evolutionary_based.DE import BaseDE
-import os
+
 
 model_name = "DE"
 N_TRIALS = 5
@@ -23,11 +24,8 @@ func_names = ["F1", "F2", "F3"]
 
 PATH_ERROR = "history/error/" + model_name + "/"
 PATH_BEST_FIT = "history/best_fit/"
-check_dir1 = f"{os.getcwd()}/{PATH_ERROR}"
-check_dir2 = f"{os.getcwd()}/{PATH_BEST_FIT}"
-if not os.path.exists(check_dir1): os.makedirs(check_dir1)
-if not os.path.exists(check_dir2): os.makedirs(check_dir2)
-
+Path(PATH_ERROR).mkdir(parents=True, exist_ok=True)
+Path(PATH_BEST_FIT).mkdir(parents=True, exist_ok=True)
 
 def find_minimum(function_name):
     """

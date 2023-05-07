@@ -15,7 +15,10 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 ### Update
 + Update the parameter's order in Tuner class  
 + Update the saving's bug when using Termination in Multitask
-
++ Rename "amend_position()" definition in some algorithms to "bounded_position()".
++ Add a "amend_position()" in Optimizer class. This function will call two functions.
+  + bounded_position() from optimizer. This means for optimizer level (get in valid range of position)
+  + amend_position() from problem. This means for problem level (transform to the correct solution)
 
 
 
