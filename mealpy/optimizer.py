@@ -192,9 +192,40 @@ class Optimizer:
     def evolve(self, epoch):
         pass
 
+    def bounded_position(self, position=None, lb=None, ub=None):
+        """
+        This is default function in most algorithms. Otherwise, there will be an overridden function
+        in child of Optimizer class for this function.
+
+        Args:
+            position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
+
+        Returns:
+            Bounded position (make the position is in bound)
+        """
+        return np.clip(position, lb, ub)
+
+    def amend_position(self, position=None, lb=None, ub=None):
+        """
+        This function will call two functions:
+            + self.bounded_position(): Get the valid position by the Optimizer
+            + self.problem.amend_position(): Amend the position by the problem
+
+        Args:
+            position: vector position (location) of the solution.
+            lb: list of lower bound values
+            ub: list of upper bound values
+
+        Returns:
+            Amended position (make the position is in bound)
+        """
+        pos = self.bounded_position(position, lb, ub)
+        return self.problem.amend_position(pos, lb, ub)
+
     def check_problem(self, problem):
         self.problem = problem if isinstance(problem, Problem) else Problem(**problem)
-        self.amend_position = self.problem.amend_position
         self.generate_position = self.problem.generate_position
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)

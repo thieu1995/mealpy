@@ -168,7 +168,7 @@ class MGTO(Optimizer):
         self.set_parameters(["epoch", "pop_size", "pp"])
         self.sort_flag = False
 
-    def amend_position(self, position=None, lb=None, ub=None):
+    def bounded_position(self, position=None, lb=None, ub=None):
         condition = np.logical_and(lb <= position, position <= ub)
         random_pos = np.random.uniform(lb, ub)
         return np.where(condition, position, random_pos)

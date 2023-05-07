@@ -163,19 +163,7 @@ class OriginalEFO(BaseEFO):
         super().__init__(epoch, pop_size, r_rate, ps_rate, p_field, n_field, **kwargs)
         self.support_parallel_modes = False
 
-    def amend_position(self, position=None, lb=None, ub=None):
-        """
-        Depend on what kind of problem are we trying to solve, there will be an different amend_position
-        function to rebound the position of agent into the valid range.
-
-        Args:
-            position: vector position (location) of the solution.
-            lb: list of lower bound values
-            ub: list of upper bound values
-
-        Returns:
-            Amended position (make the position is in bound)
-        """
+    def bounded_position(self, position=None, lb=None, ub=None):
         return np.where(np.logical_and(lb <= position, position <= ub), position, np.random.uniform(lb, ub))
 
     def initialization(self):

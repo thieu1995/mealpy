@@ -64,16 +64,7 @@ class OriginalFPA(Optimizer):
         self.set_parameters(["epoch", "pop_size", "p_s", "levy_multiplier"])
         self.sort_flag = False
 
-    def amend_position(self, position=None, lb=None, ub=None):
-        """
-        Args:
-            position: vector position (location) of the solution.
-            lb: list of lower bound values
-            ub: list of upper bound values
-
-        Returns:
-            Amended position (make the position is in bound)
-        """
+    def bounded_position(self, position=None, lb=None, ub=None):
         condition = np.logical_and(lb <= position, position <= ub)
         random_pos = np.random.uniform(lb, ub)
         return np.where(condition, position, random_pos)

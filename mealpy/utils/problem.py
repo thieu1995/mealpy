@@ -184,9 +184,9 @@ class Problem:
 
     def amend_position(self, position=None, lb=None, ub=None):
         """
-        This is default function in most algorithms. Otherwise, there will be an overridden function
-        in child of Optimizer class for this function. Depend on what kind of problem are we trying to solve,
-        there will be a different amend_position function to rebound the position of agent into the valid range.
+        The goal is to transform the solution into the right format corresponding to the problem.
+        For example, with discrete problems, floating-point numbers must be converted to integers
+        to ensure the solution is in the correct format.
 
         Args:
             position: vector position (location) of the solution.
@@ -194,7 +194,6 @@ class Problem:
             ub: list of upper bound values
 
         Returns:
-            Amended position (make the position is in bound)
+            Amended position (make the right format of the solution)
         """
-        # return np.maximum(self.problem.lb, np.minimum(self.problem.ub, position))
-        return np.clip(position, lb, ub)
+        pass
