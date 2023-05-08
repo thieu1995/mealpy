@@ -196,4 +196,4 @@ class Problem:
         Returns:
             Amended position (make the right format of the solution)
         """
-        pass
+        return position

@@ -24,7 +24,6 @@ def model():
     }
     model = Optimizer()
     model.problem = Problem(**problem)
-    model.amend_position = model.problem.amend_position
     model.generate_position = model.problem.generate_position
     return model
 
@@ -34,8 +33,8 @@ def test_amend_position(model):
     UB = model.problem.ub
     pos = np.array([-15.4, 100, 0.4, -9, 7])
     pos = model.amend_position(pos, LB, UB)
-    comparison = (pos == np.array([-10, 10, 0.4, -9, 7]))
-    assert comparison.all()
+    print(pos)
+    assert np.all(pos == np.array([-10, 10, 0.4, -9, 7]))
 
 
 def test_get_target_wrapper(model):
