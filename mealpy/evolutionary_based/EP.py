@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -198,8 +197,8 @@ class LevyEP(OriginalEP):
 
         ## Keep the top population, but 50% of left population will make a comeback an take the good position
         pop = sorted(pop, key=lambda agent: agent[self.ID_WIN], reverse=True)
-        pop_new = deepcopy(pop[:self.pop_size])
-        pop_left = deepcopy(pop[self.pop_size:])
+        pop_new = pop[:self.pop_size]
+        pop_left = pop[self.pop_size:]
 
         ## Choice random 50% of population left
         pop_comeback = []
