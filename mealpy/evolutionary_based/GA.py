@@ -126,6 +126,8 @@ class BaseGA(Optimizer):
         if self.selection == "roulette":
             id_c1 = self.get_index_roulette_wheel_selection(list_fitness)
             id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
+            while id_c2 == id_c1:
+                id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
         elif self.selection == "random":
             id_c1, id_c2 = np.random.choice(range(self.pop_size), 2, replace=False)
         else:   ## tournament
@@ -150,6 +152,8 @@ class BaseGA(Optimizer):
             list_fitness = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop_selected])
             id_c1 = self.get_index_roulette_wheel_selection(list_fitness)
             id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
+            while id_c2 == id_c1:
+                id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
         elif self.selection == "random":
             id_c1, id_c2 = np.random.choice(range(len(pop_selected)), 2, replace=False)
         else:   ## tournament
@@ -305,14 +309,18 @@ class BaseGA(Optimizer):
             child1 = self.mutation_process__(child1)
             child2 = self.mutation_process__(child2)
 
-            pop_new.append([self.amend_position(child1, self.problem.lb, self.problem.ub), None])
-            pop_new.append([self.amend_position(child2, self.problem.lb, self.problem.ub), None])
+            child1 = self.amend_position(child1, self.problem.lb, self.problem.ub)
+            child2 = self.amend_position(child2, self.problem.lb, self.problem.ub)
+
+            pop_new.append([child1, None])
+            pop_new.append([child2, None])
 
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-2][self.ID_TAR] = self.get_target_wrapper(child1)
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(child2)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_wrapper_population(pop_new)
         ### Survivor Selection
-        pop_new = self.update_target_wrapper_population(pop_new)
         self.pop = self.survivor_process__(self.pop, pop_new)
 
 
