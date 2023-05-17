@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -131,7 +130,7 @@ class OriginalEOA(Optimizer):
         pos_list = np.array([item[self.ID_POS] for item in self.pop])
         x_mean = np.mean(pos_list, axis=0)
         ## Cauchy mutation (CM)
-        cauchy_w = deepcopy(self.g_best[self.ID_POS])
+        cauchy_w = self.g_best[self.ID_POS].copy()
         pop_new = []
         for idx in range(self.n_best, self.pop_size):  # Don't allow the elites to be mutated
             condition = np.random.random(self.problem.n_dims) < self.p_m
@@ -149,7 +148,7 @@ class OriginalEOA(Optimizer):
         ## Elitism Strategy: Replace the worst with the previous generation's elites.
         self.pop, local_best = self.get_global_best_solution(self.pop)
         for i in range(0, self.n_best):
-            self.pop[self.pop_size - i - 1] = deepcopy(pop_elites[i])
+            self.pop[self.pop_size - i - 1] = pop_elites[i].copy()
 
         ## Make sure the population does not have duplicates.
         new_set = set()
