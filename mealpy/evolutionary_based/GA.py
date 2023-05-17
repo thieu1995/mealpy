@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-import copy as cp
 
 
 class BaseGA(Optimizer):
@@ -534,10 +533,10 @@ class EliteSingleGA(SingleGA):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = cp.deepcopy(self.pop[:self.n_elite_best])
+        pop_new = self.pop[:self.n_elite_best]
 
         if self.strategy == 0:
-            pop_old = cp.deepcopy(self.pop[self.n_elite_best:])
+            pop_old = self.pop[self.n_elite_best:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_00__(pop_old)
@@ -554,8 +553,8 @@ class EliteSingleGA(SingleGA):
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             self.pop = self.update_target_wrapper_population(pop_new)
         else:
-            pop_dad = cp.deepcopy(self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst])
-            pop_mom = cp.deepcopy(self.pop[self.n_elite_best+self.n_elite_worst:])
+            pop_dad = self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst]
+            pop_mom = self.pop[self.n_elite_best+self.n_elite_worst:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_01__(pop_dad, pop_mom)
@@ -756,10 +755,10 @@ class EliteMultiGA(MultiGA):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = cp.deepcopy(self.pop[:self.n_elite_best])
+        pop_new = self.pop[:self.n_elite_best]
 
         if self.strategy == 0:
-            pop_old = cp.deepcopy(self.pop[self.n_elite_best:])
+            pop_old = self.pop[self.n_elite_best:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_00__(pop_old)
@@ -776,8 +775,8 @@ class EliteMultiGA(MultiGA):
                     pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
             self.pop = self.update_target_wrapper_population(pop_new)
         else:
-            pop_dad = cp.deepcopy(self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst])
-            pop_mom = cp.deepcopy(self.pop[self.n_elite_best+self.n_elite_worst:])
+            pop_dad = self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst]
+            pop_mom = self.pop[self.n_elite_best+self.n_elite_worst:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_01__(pop_dad, pop_mom)
