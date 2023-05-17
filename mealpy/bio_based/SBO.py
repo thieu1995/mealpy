@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -183,31 +182,31 @@ class OriginalSBO(BaseSBO):
 
         ## Calculate the probability of bowers using Eqs. (1) and (2)
         fx_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
-        fit_list = deepcopy(fx_list)
-        for i in range(0, self.pop_size):
-            if fx_list[i] < 0:
-                fit_list[i] = 1.0 + np.abs(fx_list[i])
+        fit_list = fx_list.copy()
+        for idx in range(0, self.pop_size):
+            if fx_list[idx] < 0:
+                fit_list[idx] = 1.0 + np.abs(fx_list[idx])
             else:
-                fit_list[i] = 1.0 / (1.0 + np.abs(fx_list[i]))
+                fit_list[idx] = 1.0 / (1.0 + np.abs(fx_list[idx]))
         fit_sum = np.sum(fit_list)
         ## Calculating the probability of each bower
         prob_list = fit_list / fit_sum
         pop_new = []
-        for i in range(0, self.pop_size):
-            pos_new = deepcopy(self.pop[i][self.ID_POS])
+        for idx in range(0, self.pop_size):
+            pos_new = self.pop[idx][self.ID_POS].copy()
             for j in range(0, self.problem.n_dims):
                 ### Select a bower using roulette wheel
-                idx = self.roulette_wheel_selection__(prob_list)
+                rdx = self.roulette_wheel_selection__(prob_list)
                 ### Calculating Step Size
-                lamda = self.alpha / (1 + prob_list[idx])
-                pos_new[j] = self.pop[i][self.ID_POS][j] + lamda * \
-                             ((self.pop[idx][self.ID_POS][j] + self.g_best[self.ID_POS][j]) / 2 - self.pop[i][self.ID_POS][j])
+                lamda = self.alpha / (1 + prob_list[rdx])
+                pos_new[j] = self.pop[idx][self.ID_POS][j] + lamda * \
+                             ((self.pop[rdx][self.ID_POS][j] + self.g_best[self.ID_POS][j]) / 2 - self.pop[idx][self.ID_POS][j])
                 ### Mutation
                 if np.random.uniform() < self.p_m:
-                    pos_new[j] = self.pop[i][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
+                    pos_new[j] = self.pop[idx][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop[i] = [pos_new, self.get_target_wrapper(pos_new)]
+                self.pop[idx] = [pos_new, self.get_target_wrapper(pos_new)]
         if self.mode in self.AVAILABLE_MODES:
             self.pop = self.update_target_wrapper_population(pop_new)
