@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -116,8 +115,7 @@ class OriginalMA(Optimizer):
 
     def crossover__(self, dad=None, mom=None):
         if np.random.uniform() >= self.pc:
-            temp = deepcopy([dad])
-            return temp[0]
+            return dad
         else:
             child = ""
             for idx in range(0, self.bits_total):
@@ -137,10 +135,10 @@ class OriginalMA(Optimizer):
         return child
 
     def bits_climber__(self, child=None):
-        current = deepcopy(child)
+        current = child
         list_local = []
         for idx in range(0, self.max_local_gens):
-            child = deepcopy(current)
+            child = current
             bitstring_new = self.point_mutation__(child[self.ID_BIT])
             pos_new = self.decode_(bitstring_new)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
@@ -174,7 +172,7 @@ class OriginalMA(Optimizer):
         children = []
         for idx in range(0, self.pop_size):
             idx_offspring = self.get_index_kway_tournament_selection(self.pop, k_way=2, output=1)[0]
-            children.append(deepcopy(self.pop[idx_offspring]))
+            children.append(self.pop[idx_offspring].copy())
         pop = []
         for idx in range(0, self.pop_size):
             ancient = children[idx + 1] if idx % 2 == 0 else children[idx - 1]
