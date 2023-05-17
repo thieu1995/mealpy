@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -202,22 +201,21 @@ class OriginalSMA(BaseSMA):
         pop_new = []
         for idx in range(0, self.pop_size):
             # Update the Position of search agent
-            current_agent = deepcopy(self.pop[idx])
+            pos, fit, weight = self.pop[idx][self.ID_POS].copy(), self.pop[idx][self.ID_TAR][self.ID_FIT], self.pop[idx][self.ID_WEI].copy()
             if np.random.uniform() < self.p_t:  # Eq.(2.7)
-                current_agent[self.ID_POS] = np.random.uniform(self.problem.lb, self.problem.ub)
+                pos = np.random.uniform(self.problem.lb, self.problem.ub)
             else:
-                p = np.tanh(np.abs(current_agent[self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
+                p = np.tanh(np.abs(fit - self.g_best[self.ID_TAR][self.ID_FIT]))  # Eq.(2.2)
                 vb = np.random.uniform(-a, a, self.problem.n_dims)  # Eq.(2.3)
                 vc = np.random.uniform(-b, b, self.problem.n_dims)
                 for j in range(0, self.problem.n_dims):
                     # two positions randomly selected from population
                     id_a, id_b = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
                     if np.random.uniform() < p:  # Eq.(2.1)
-                        current_agent[self.ID_POS][j] = self.g_best[self.ID_POS][j] + \
-                            vb[j] * (current_agent[self.ID_WEI][j] * self.pop[id_a][self.ID_POS][j] - self.pop[id_b][self.ID_POS][j])
+                        pos[j] = self.g_best[self.ID_POS][j] + vb[j] * (weight[j] * self.pop[id_a][self.ID_POS][j] - self.pop[id_b][self.ID_POS][j])
                     else:
-                        current_agent[self.ID_POS][j] = vc[j] * current_agent[self.ID_POS][j]
-            pos_new = self.amend_position(current_agent[self.ID_POS], self.problem.lb, self.problem.ub)
+                        pos[j] = vc[j] * pos[j]
+            pos_new = self.amend_position(pos, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None, np.zeros(self.problem.n_dims)])
             if self.mode not in self.AVAILABLE_MODES:
                 self.pop[idx] = [pos_new, self.get_target_wrapper(pos_new), np.zeros(self.problem.n_dims)]
