@@ -86,6 +86,7 @@ class OriginalSOS(Optimizer):
             temp_idx = np.random.randint(0, self.problem.n_dims)
             xi_new = self.pop[jdx][self.ID_POS].copy()
             xi_new[temp_idx] = self.generate_position(self.problem.lb, self.problem.ub)[temp_idx]
+            xi_new = self.amend_position(xi_new, self.problem.lb, self.problem.ub)
             xi_tar = self.get_target_wrapper(xi_new)
             if self.compare_agent([xi_new, xi_tar], self.pop[idx]):
                 self.pop[idx] = [xi_new, xi_tar]
