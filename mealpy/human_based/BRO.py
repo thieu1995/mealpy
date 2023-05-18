@@ -6,7 +6,6 @@
 
 import numpy as np
 from scipy.spatial.distance import cdist
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -64,8 +63,8 @@ class BaseBRO(Optimizer):
     def initialize_variables(self):
         shrink = np.ceil(np.log10(self.epoch))
         self.dyn_delta = np.round(self.epoch / shrink)
-        self.problem.lb_updated = deepcopy(self.problem.lb)
-        self.problem.ub_updated = deepcopy(self.problem.ub)
+        self.problem.lb_updated = self.problem.lb.copy()
+        self.problem.ub_updated = self.problem.ub.copy()
 
     def create_solution(self, lb=None, ub=None, pos=None):
         """
@@ -104,40 +103,40 @@ class BaseBRO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        for i in range(self.pop_size):
+        for idx in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_idx_min_distance__(self.pop[i][self.ID_POS], self.pop)
-            if self.compare_agent(self.pop[i], self.pop[j]):
+            jdx = self.find_idx_min_distance__(self.pop[idx][self.ID_POS], self.pop)
+            if self.compare_agent(self.pop[idx], self.pop[jdx]):
                 ## Update Winner based on global best solution
-                pos_new = self.pop[i][self.ID_POS] + np.random.normal(0, 1) * \
-                          np.mean(np.array([self.pop[i][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
+                pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1) * \
+                          np.mean(np.array([self.pop[idx][self.ID_POS], self.g_best[self.ID_POS]]), axis=0)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                dam_new = self.pop[i][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
-                self.pop[i] = [pos_new, target, dam_new]
+                dam_new = self.pop[idx][self.ID_DAM] - 1  ## Substract damaged hurt -1 to go next battle
+                self.pop[idx] = [pos_new, target, dam_new]
                 ## Update Loser
-                if self.pop[j][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
-                    pos_new = np.random.uniform() * (np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS]) -
-                                                     np.minimum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])) + \
-                              np.maximum(self.pop[j][self.ID_POS], self.g_best[self.ID_POS])
-                    dam_new = self.pop[j][self.ID_DAM] + 1
+                if self.pop[jdx][self.ID_DAM] < self.threshold:  ## If loser not dead yet, move it based on general
+                    pos_new = np.random.uniform() * (np.maximum(self.pop[jdx][self.ID_POS], self.g_best[self.ID_POS]) -
+                                                     np.minimum(self.pop[jdx][self.ID_POS], self.g_best[self.ID_POS])) + \
+                              np.maximum(self.pop[jdx][self.ID_POS], self.g_best[self.ID_POS])
+                    dam_new = self.pop[jdx][self.ID_DAM] + 1
 
-                    self.pop[j][self.ID_TAR] = self.get_target_wrapper(self.pop[j][self.ID_POS])
+                    self.pop[jdx][self.ID_TAR] = self.get_target_wrapper(self.pop[jdx][self.ID_POS])
                 else:  ## Loser dead and respawn again
                     pos_new = self.generate_position(self.problem.lb_updated, self.problem.ub_updated)
                     dam_new = 0
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                self.pop[j] = [pos_new, target, dam_new]
+                self.pop[jdx] = [pos_new, target, dam_new]
             else:
                 ## Update Loser by following position of Winner
-                self.pop[i] = deepcopy(self.pop[j])
+                self.pop[idx] = self.pop[jdx].copy()
                 ## Update Winner by following position of General to protect the King and General
-                pos_new = self.pop[j][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
+                pos_new = self.pop[jdx][self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[jdx][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
                 dam_new = 0
-                self.pop[j] = [pos_new, target, dam_new]
+                self.pop[jdx] = [pos_new, target, dam_new]
         if epoch >= self.dyn_delta:  # max_epoch = 1000 -> delta = 300, 450, >500,....
             pos_list = np.array([self.pop[idx][self.ID_POS] for idx in range(0, self.pop_size)])
             pos_std = np.std(pos_list, axis=0)
@@ -203,12 +202,12 @@ class OriginalBRO(BaseBRO):
         Args:
             epoch (int): The current iteration
         """
-        for i in range(self.pop_size):
+        for idx in range(self.pop_size):
             # Compare ith soldier with nearest one (jth)
-            j = self.find_idx_min_distance__(self.pop[i][self.ID_POS], self.pop)
-            dam, vic = i, j  ## This error in the algorithm's flow in the paper, But in the matlab code, he changed.
-            if self.compare_agent(self.pop[i], self.pop[j]):
-                dam, vic = j, i  ## The mistake also here in the paper.
+            jdx = self.find_idx_min_distance__(self.pop[idx][self.ID_POS], self.pop)
+            dam, vic = idx, jdx  ## This error in the algorithm's flow in the paper, But in the matlab code, he changed.
+            if self.compare_agent(self.pop[idx], self.pop[jdx]):
+                dam, vic = jdx, idx  ## The mistake also here in the paper.
             if self.pop[dam][self.ID_DAM] < self.threshold:
                 pos_new = np.random.uniform(0, 1, self.problem.n_dims) * \
                           (np.maximum(self.pop[dam][self.ID_POS], self.g_best[self.ID_POS]) -
