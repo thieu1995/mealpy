@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -91,7 +90,7 @@ class OriginalCGO(Optimizer):
             seed1 = self.pop[idx][self.ID_POS] + alpha1 * (beta[0] * self.g_best[self.ID_POS] - gama[0] * MG)  # Eq. 3
             seed2 = self.g_best[self.ID_POS] + alpha2 * (beta[1] * self.pop[idx][self.ID_POS] - gama[1] * MG)  # Eq. 4
             seed3 = MG + alpha3 * (beta[2] * self.pop[idx][self.ID_POS] - gama[2] * self.g_best[self.ID_POS])  # Eq. 5
-            seed4 = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
+            seed4 = self.pop[idx][self.ID_POS].copy().astype(float)
             seed4[k_idx] += np.random.uniform(0, 1, k)
 
             # Check if solutions go outside the search space and bring them back

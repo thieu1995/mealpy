@@ -6,7 +6,6 @@
 
 import numpy as np
 from scipy.stats import qmc
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -102,7 +101,7 @@ class OriginalPSS(Optimizer):
         pop_new = []
         pop_rand = self.create_population(self.pop_size)
         for idx in range(0, self.pop_size):
-            pos_new = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
+            pos_new = self.pop[idx][self.ID_POS].copy().astype(float)
             for k in range(self.problem.n_dims):
                 # Update the ranges
                 deviation = np.random.uniform(0, self.g_best[self.ID_POS][k])
