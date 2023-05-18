@@ -129,13 +129,13 @@ class OriginalSA(Optimizer):
             for idx in range(0, self.pop_size):
                 # Check if new solution is better than current
                 if self.compare_agent(pop_new[idx], self.pop[idx]):
-                    self.pop[idx] = deepcopy(pop_new[idx])
+                    self.pop[idx] = pop_new[idx].copy()
                 else:
                     # Compute difference according to problem type
                     delta = np.abs(pop_new[idx][self.ID_TAR][self.ID_FIT] - self.pop[idx][self.ID_TAR][self.ID_FIT])
                     p = np.exp(-delta / self.dyn_t)  # Compute Acceptance Probability
                     if np.random.uniform() <= p:  # Accept / Reject
-                        self.pop[idx] = deepcopy(pop_new[idx])
+                        self.pop[idx] = pop_new[idx].copy()
         # Update Temperature
         self.dyn_t = self.t_damp * self.dyn_t
         self.dyn_sigma = self.mutation_step_size_damp * self.dyn_sigma

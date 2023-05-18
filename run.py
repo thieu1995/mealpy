@@ -18,7 +18,7 @@ from mealpy.bio_based.BBO import BaseBBO
 from mealpy.swarm_based.ARO import LARO, OriginalARO
 from mealpy.swarm_based.AGTO import MGTO
 from mealpy import EOA, SBO, SMA, SOA, MA, BRO, BSO, CHIO, FBIO, HBO, QSA, SARO, TLO
-from mealpy import PSS, ASO, EO, FLA, BFO, GJO, GTO, HHO, MPA, SeaHO, SRSR, AVOA
+from mealpy import PSS, ASO, EO, FLA, BFO, GJO, GTO, HHO, MPA, SeaHO, SRSR, AVOA, SA, BSO
 
 # from mealpy.utils.problem import Problem
 from mealpy import Problem
@@ -107,6 +107,9 @@ if __name__ == "__main__":
     model = SeaHO.OriginalSeaHO(epoch, pop_size)
     model = SRSR.OriginalSRSR(epoch, pop_size)
     model = AVOA.OriginalAVOA(epoch, pop_size)
+    model = SA.OriginalSA(epoch, pop_size)
+    model = BSO.OriginalBSO(epoch, pop_size)
+    model = BSO.ImprovedBSO(epoch, pop_size)
     best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)
