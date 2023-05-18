@@ -99,7 +99,8 @@ class OriginalCA(Optimizer):
         size_new = len(pop_full)
         for _ in range(0, self.pop_size):
             id1, id2 = np.random.choice(list(range(0, size_new)), 2, replace=False)
-            pop_new.append(self.get_better_solution(pop_full[id1], pop_full[id2]))
+            agent = self.get_better_solution(pop_full[id1], pop_full[id2])
+            pop_new.append(agent)
         self.pop = self.get_sorted_strim_population(pop_new)
 
         # Get accepted faithful
