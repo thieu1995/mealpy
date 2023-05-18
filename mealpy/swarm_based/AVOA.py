@@ -72,13 +72,6 @@ class OriginalAVOA(Optimizer):
         self.set_parameters(["epoch", "pop_size", "p1", "p2", "p3", "alpha", "gama"])
         self.sort_flag = False
 
-    def get_levy_flight__(self, beta=1.0, size=None):
-        sigma = np.random.gamma(1 + beta) * np.sin(np.pi * beta/2) / (np.random.gamma((1+beta)/2) * beta * 2**((beta-1)/2)) ** (1 / beta)
-        u = np.random.normal(0, 1, size) * sigma
-        v = np.random.normal(0, 1, size)
-        step = u / np.abs(v)**(1 / beta)
-        return step
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -109,7 +102,8 @@ class OriginalAVOA(Optimizer):
                         B = best_x2-((best_x2 * self.pop[idx][self.ID_POS]) / (best_x2 - self.pop[idx][self.ID_POS]**2))*F
                         pos_new = (A + B) / 2
                     else:
-                        pos_new = rand_pos - np.abs(rand_pos - self.pop[idx][self.ID_POS]) * F * self.get_levy_flight__(beta=1.5, size=self.problem.n_dims)
+                        pos_new = rand_pos - np.abs(rand_pos - self.pop[idx][self.ID_POS]) * F * \
+                                  self.get_levy_flight_step(beta=1.5, multiplier=1., size=self.problem.n_dims, case=-1)
                 else:       # Phase 2
                     if np.random.rand() < self.p3:
                         pos_new = (np.abs((2 * np.random.rand()) * rand_pos - self.pop[idx][self.ID_POS])) * (F + np.random.rand()) - \
