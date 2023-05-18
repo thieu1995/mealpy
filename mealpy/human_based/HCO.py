@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -96,7 +95,7 @@ class OriginalHCO(Optimizer):
                         self.pop[idx] = sol
                         break
         self.vec = np.random.rand(self.pop_size, self.problem.n_dims)
-        self.pop_p = deepcopy(self.pop)
+        self.pop_p = self.pop.copy()
 
     def evolve(self, epoch):
         """
@@ -131,4 +130,4 @@ class OriginalHCO(Optimizer):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
                 self.pop[idx] = pop_new[idx]
                 if self.compare_agent(pop_new[idx], self.pop_p[idx]):
-                    self.pop_p[idx] = deepcopy(pop_new[idx])
+                    self.pop_p[idx] = pop_new[idx].copy()

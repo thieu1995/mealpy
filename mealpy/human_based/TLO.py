@@ -6,7 +6,6 @@
 
 import numpy as np
 from functools import reduce
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -87,7 +86,7 @@ class BaseTLO(Optimizer):
         pop_child = []
         for idx in range(0, self.pop_size):
             ## Learning Phrase
-            temp = deepcopy(self.pop[idx][self.ID_POS]).astype(float)
+            temp = self.pop[idx][self.ID_POS].copy().astype(float)
             id_partner = np.random.choice(np.setxor1d(np.array(range(self.pop_size)), np.array([idx])))
             if self.compare_agent(self.pop[idx], self.pop[id_partner]):
                 temp += np.random.rand(self.problem.n_dims) * (self.pop[idx][self.ID_POS] - self.pop[id_partner][self.ID_POS])
@@ -243,7 +242,7 @@ class ImprovedTLO(BaseTLO):
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
         sorted_pop, self.g_best = self.get_global_best_solution(self.pop)
-        self.teachers = deepcopy(sorted_pop[:self.n_teachers])
+        self.teachers = sorted_pop[:self.n_teachers].copy()
         sorted_pop = sorted_pop[self.n_teachers:]
         idx_list = np.random.permutation(range(0, self.n_students))
         self.teams = []
@@ -315,5 +314,4 @@ class ImprovedTLO(BaseTLO):
             team, local_best = self.get_global_best_solution(team)
             self.teachers[id_teach] = local_best
             self.teams[id_teach] = team[1:]
-
         self.pop = self.teachers + reduce(lambda x, y: x + y, self.teams)

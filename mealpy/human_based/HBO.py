@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -115,7 +114,7 @@ class OriginalHBO(Optimizer):
                 continue
             else:
                 parent_id = int(np.floor((c+1)/self.degree) - 1)
-                cur_agent = deepcopy(self.pop[self.heap[c][1]])         #Sol to be updated
+                cur_agent = self.pop[self.heap[c][1]].copy()         #Sol to be updated
                 par_agent = self.pop[self.heap[parent_id][1]]           #Sol to be updated with reference to
 
                 # Sol to be updated with reference to
@@ -146,7 +145,7 @@ class OriginalHBO(Optimizer):
 
                 if self.compare_agent(cur_agent, [None, self.heap[c][0]]):
                     self.pop[self.heap[c][1]] = cur_agent
-                    self.heap[c][0] = deepcopy(cur_agent[self.ID_TAR])
+                    self.heap[c][0] = cur_agent[self.ID_TAR].copy()
 
             # Heapifying
             t = c

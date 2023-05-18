@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -210,7 +209,7 @@ class OriginalGSKA(Optimizer):
 
             # The random individual is for all dimension values
             rand_idx = np.random.choice(list(set(range(0, self.pop_size)) - {previ, idx, nexti}))
-            pos_new = deepcopy(self.pop[idx][self.ID_POS])
+            pos_new = self.pop[idx][self.ID_POS].copy()
 
             for j in range(0, self.problem.n_dims):
                 if j < D:  # junior gaining and sharing

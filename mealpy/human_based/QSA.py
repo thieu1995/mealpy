@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -79,15 +78,15 @@ class BaseQSA(Optimizer):
             if i < q1:
                 if i == 0:
                     case = 1
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
                 if i == q1:
                     case = 1
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
                 if i == q1 + q2:
                     case = 1
-                A = deepcopy(A3)
+                A = A3.copy()
             beta = np.power(current_epoch, np.power(current_epoch / self.epoch, 0.5))
             alpha = np.random.uniform(-1, 1)
             E = np.random.exponential(0.5, self.problem.n_dims)
@@ -124,11 +123,11 @@ class BaseQSA(Optimizer):
         pop_new = []
         for i in range(self.pop_size):
             if i < q1:
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
-                A = deepcopy(A3)
+                A = A3.copy()
             if np.random.random() < pr[i]:
                 i1, i2 = np.random.choice(self.pop_size, 2, replace=False)
                 if np.random.random() < cv:
@@ -151,7 +150,7 @@ class BaseQSA(Optimizer):
         pr = np.array([i / self.pop_size for i in range(1, self.pop_size + 1)])
         pop_new = []
         for i in range(self.pop_size):
-            X_new = deepcopy(pop[i][self.ID_POS])
+            X_new = pop[i][self.ID_POS].copy()
             id1 = np.random.choice(self.pop_size)
             temp = g_best[self.ID_POS] + np.random.exponential(0.5, self.problem.n_dims) * (pop[id1][self.ID_POS] - pop[i][self.ID_POS])
             X_new = np.where(np.random.random(self.problem.n_dims) > pr[i], temp, X_new)
@@ -287,11 +286,11 @@ class LevyQSA(BaseQSA):
         pop_new = []
         for i in range(self.pop_size):
             if i < q1:
-                A = deepcopy(A1)
+                A = A1.copy()
             elif q1 <= i < q1 + q2:
-                A = deepcopy(A2)
+                A = A2.copy()
             else:
-                A = deepcopy(A3)
+                A = A3.copy()
             if np.random.random() < pr[i]:
                 id1 = np.random.choice(self.pop_size)
                 if np.random.random() < cv:
@@ -427,7 +426,7 @@ class OriginalQSA(BaseQSA):
         pr = [i / self.pop_size for i in range(1, self.pop_size + 1)]
         pop_new = []
         for i in range(self.pop_size):
-            pos_new = deepcopy(pop[i][self.ID_POS])
+            pos_new = pop[i][self.ID_POS].copy()
             for j in range(self.problem.n_dims):
                 if np.random.random() > pr[i]:
                     i1, i2 = np.random.choice(self.pop_size, 2, replace=False)
