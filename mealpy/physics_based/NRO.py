@@ -6,7 +6,6 @@
 
 import numpy as np
 import math
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -118,13 +117,12 @@ class OriginalNRO(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new)
 
         # NFu phase
-
         ## Ionization stage
         ## Calculate the Pa through Eq. (10)
         pop_child = []
         ranked_pop = np.argsort([self.pop[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])
         for i in range(self.pop_size):
-            X_ion = deepcopy(self.pop[i][self.ID_POS])
+            X_ion = self.pop[i][self.ID_POS].copy()
             if (ranked_pop[i] * 1.0 / self.pop_size) < np.random.random():
                 i1, i2 = np.random.choice(list(set(range(0, self.pop_size)) - {i}), 2, replace=False)
                 for j in range(self.problem.n_dims):
@@ -149,7 +147,6 @@ class OriginalNRO(Optimizer):
                     else:
                         X_ion[j] = self.pop[i][self.ID_POS][j] + round(np.random.uniform()) * np.random.uniform() * \
                                    (X_worst[self.ID_POS][j] - self.g_best[self.ID_POS][j])
-
             ## Check the boundary and evaluate the fitness function for X_ion
             pos_new = self.amend_position(X_ion, self.problem.lb, self.problem.ub)
             pop_child.append([pos_new, None])
@@ -161,7 +158,6 @@ class OriginalNRO(Optimizer):
             self.pop = self.greedy_selection_population(pop_child, self.pop)
 
         ## Fusion Stage
-
         ### all ions obtained from ionization are ranked based on (14) - Calculate the Pc through Eq. (14)
         pop_new = []
         ranked_pop = np.argsort([self.pop[i][self.ID_TAR][self.ID_FIT] for i in range(self.pop_size)])

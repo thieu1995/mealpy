@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -65,7 +64,7 @@ class OriginalHGSO(Optimizer):
         self.K = 1.0
         self.beta = 1.0
         self.alpha = 1
-        self.epxilon = 0.05
+        self.epsilon = 0.05
         self.l1 = 5E-2
         self.l2 = 100.0
         self.l3 = 1E-2
@@ -112,8 +111,8 @@ class OriginalHGSO(Optimizer):
                 ##### Based on Eq. 8, 9, 10
                 self.H_j = self.H_j * np.exp(-self.C_j * (1.0 / np.exp(-epoch / self.epoch) - 1.0 / self.T0))
                 S_ij = self.K * self.H_j * self.P_ij
-                gama = self.beta * np.exp(- ((self.p_best[i][self.ID_TAR][self.ID_FIT] + self.epxilon) /
-                                             (self.pop_group[i][j][self.ID_TAR][self.ID_FIT] + self.epxilon)))
+                gama = self.beta * np.exp(- ((self.p_best[i][self.ID_TAR][self.ID_FIT] + self.epsilon) /
+                                             (self.pop_group[i][j][self.ID_TAR][self.ID_FIT] + self.epsilon)))
                 X_ij = self.pop_group[i][j][self.ID_POS] + F * np.random.uniform() * gama * \
                        (self.p_best[i][self.ID_POS] - self.pop_group[i][j][self.ID_POS]) + \
                        F * np.random.uniform() * self.alpha * (S_ij * self.g_best[self.ID_POS] - self.pop_group[i][j][self.ID_POS])
@@ -146,6 +145,6 @@ class OriginalHGSO(Optimizer):
                 pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_new = self.update_target_wrapper_population(pop_new)
         for idx, id_selected in enumerate(pop_idx):
-            self.pop[id_selected] = deepcopy(pop_new[idx])
+            self.pop[id_selected] = pop_new[idx].copy()
         self.pop_group = self.create_pop_group(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)

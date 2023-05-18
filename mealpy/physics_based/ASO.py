@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -117,13 +116,12 @@ class OriginalASO(Optimizer):
     def acceleration__(self, population, g_best, iteration):
         eps = 2 ** (-52)
         pop = self.update_mass__(population)
-
         G = np.exp(-20.0 * (iteration + 1) / self.epoch)
         k_best = int(self.pop_size - (self.pop_size - 2) * ((iteration + 1) / self.epoch) ** 0.5) + 1
         if self.problem.minmax == "min":
-            k_best_pop = deepcopy(sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best])
+            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best].copy()
         else:
-            k_best_pop = deepcopy(sorted(pop, key=lambda agent: agent[self.ID_MAS])[:k_best])
+            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS])[:k_best].copy()
         mk_average = np.mean([item[self.ID_POS] for item in k_best_pop])
 
         acc_list = np.zeros((self.pop_size, self.problem.n_dims))
@@ -155,7 +153,7 @@ class OriginalASO(Optimizer):
         # Update velocity based on random dimensions and position of global best
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = deepcopy(self.pop[idx])
+            agent = self.pop[idx].copy()
             velocity = np.random.random(self.problem.n_dims) * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
             # print(velocity)
             pos_new = self.pop[idx][self.ID_POS] + velocity
@@ -173,4 +171,4 @@ class OriginalASO(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new)
         _, current_best = self.get_global_best_solution(pop_new)
         if self.compare_agent(self.g_best, current_best):
-            self.pop[np.random.randint(0, self.pop_size)] = deepcopy(self.g_best)
+            self.pop[np.random.randint(0, self.pop_size)] = self.g_best.copy()

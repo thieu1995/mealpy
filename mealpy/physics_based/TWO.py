@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -101,9 +100,9 @@ class OriginalTWO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for idx in range(self.pop_size):
-            pos_new = pop_new[idx][self.ID_POS].astype(float)
+            pos_new = pop_new[idx][self.ID_POS].copy().astype(float)
             for j in range(self.pop_size):
                 if self.pop[idx][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
                     force = max(self.pop[idx][self.ID_WEIGHT] * self.muy_s, self.pop[j][self.ID_WEIGHT] * self.muy_s)
@@ -115,7 +114,7 @@ class OriginalTWO(Optimizer):
                     pos_new += delta_x
             pop_new[idx][self.ID_POS] = pos_new
         for idx in range(self.pop_size):
-            pos_new = pop_new[idx][self.ID_POS].astype(float)
+            pos_new = pop_new[idx][self.ID_POS].copy().astype(float)
             for j in range(self.problem.n_dims):
                 if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:
@@ -197,9 +196,9 @@ class OppoTWO(OriginalTWO):
             epoch (int): The current iteration
         """
         ## Apply force of others solution on each individual solution
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for idx in range(self.pop_size):
-            pos_new = pop_new[idx][self.ID_POS].astype(float)
+            pos_new = pop_new[idx][self.ID_POS].copy().astype(float)
             for j in range(self.pop_size):
                 if self.pop[idx][self.ID_WEIGHT] < self.pop[j][self.ID_WEIGHT]:
                     force = max(self.pop[idx][self.ID_WEIGHT] * self.muy_s, self.pop[j][self.ID_WEIGHT] * self.muy_s)
@@ -211,7 +210,6 @@ class OppoTWO(OriginalTWO):
                               (self.problem.ub - self.problem.lb) * np.random.normal(0, 1, self.problem.n_dims)
                     pos_new += delta_x
             self.pop[idx][self.ID_POS] = pos_new
-
         ## Amend solution and update fitness value
         for idx in range(self.pop_size):
             pos_new = self.g_best[self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) / (epoch + 1) * \
@@ -284,9 +282,9 @@ class LevyTWO(OriginalTWO):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for i in range(self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].astype(float)
+            pos_new = self.pop[i][self.ID_POS].copy().astype(float)
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[k][self.ID_WEIGHT] * self.muy_s)
@@ -298,7 +296,7 @@ class LevyTWO(OriginalTWO):
                     pos_new +=delta_x
             pop_new[i][self.ID_POS] = pos_new
         for i in range(self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].astype(float)
+            pos_new = self.pop[i][self.ID_POS].copy().astype(float)
             for j in range(self.problem.n_dims):
                 if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:
@@ -378,7 +376,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     def initialization(self):
         if self.pop is None:
             self.pop = self.create_population(self.pop_size)
-        pop_oppo = deepcopy(self.pop)
+        pop_oppo = self.pop.copy()
         for i in range(self.pop_size):
             pos_opposite = self.problem.ub + self.problem.lb - self.pop[i][self.ID_POS]
             pos_new = self.amend_position(pos_opposite, self.problem.lb, self.problem.ub)
@@ -396,9 +394,9 @@ class EnhancedTWO(OppoTWO, LevyTWO):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for i in range(self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].astype(float)
+            pos_new = self.pop[i][self.ID_POS].copy().astype(float)
             for k in range(self.pop_size):
                 if self.pop[i][self.ID_WEIGHT] < self.pop[k][self.ID_WEIGHT]:
                     force = max(self.pop[i][self.ID_WEIGHT] * self.muy_s, self.pop[k][self.ID_WEIGHT] * self.muy_s)
@@ -410,7 +408,7 @@ class EnhancedTWO(OppoTWO, LevyTWO):
                     pos_new += delta_x
             pop_new[i][self.ID_POS] = pos_new
         for i in range(self.pop_size):
-            pos_new = self.pop[i][self.ID_POS].astype(float)
+            pos_new = self.pop[i][self.ID_POS].copy().astype(float)
             for j in range(self.problem.n_dims):
                 if pos_new[j] < self.problem.lb[j] or pos_new[j] > self.problem.ub[j]:
                     if np.random.random() <= 0.5:

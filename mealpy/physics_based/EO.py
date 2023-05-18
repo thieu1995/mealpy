@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -186,7 +185,7 @@ class ModifiedEO(OriginalEO):
         _, pop_s1, _ = self.get_special_solutions(self.pop, best=self.pop_len)
 
         ## Mutation scheme
-        pop_s2 = deepcopy(pop_s1)
+        pop_s2 = pop_s1.copy()
         pop_s2_new = []
         for i in range(0, self.pop_len):
             pos_new = pop_s2[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))  # Eq. 12
@@ -211,7 +210,6 @@ class ModifiedEO(OriginalEO):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_s3[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
         pop_s3 = self.update_target_wrapper_population(pop_s3)
-
         ## Construct a new population
         self.pop = pop_s1 + pop_s2 + pop_s3
         n_left = self.pop_size - len(self.pop)
@@ -275,26 +273,21 @@ class AdaptiveEO(OriginalEO):
         # ---------------- Memory saving-------------------  make equilibrium pool
         _, c_eq_list, _ = self.get_special_solutions(self.pop, best=4)
         c_pool = self.make_equilibrium_pool__(c_eq_list)
-
         # Eq. 9
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
-
         ## Memory saving, Eq 20, 21
         t = (1 - epoch / self.epoch) ** (self.a2 * epoch / self.epoch)
-
         pop_new = []
         for idx in range(0, self.pop_size):
             lamda = np.random.uniform(0, 1, self.problem.n_dims)
             r = np.random.uniform(0, 1, self.problem.n_dims)
             c_eq = c_pool[np.random.randint(0, len(c_pool))][self.ID_POS]  # random selection 1 of candidate from the pool
             f = self.a1 * np.sign(r - 0.5) * (np.exp(-lamda * t) - 1.0)  # Eq. 14
-
             r1 = np.random.uniform()
             r2 = np.random.uniform()
             gcp = 0.5 * r1 * np.ones(self.problem.n_dims) * (r2 >= self.GP)
             g0 = gcp * (c_eq - lamda * self.pop[idx][self.ID_POS])
             g = g0 * f
-
             fit_average = np.mean([item[self.ID_TAR][self.ID_FIT] for item in self.pop])  # Eq. 19
             pos_new = c_eq + (self.pop[idx][self.ID_POS] - c_eq) * f + (g * self.V / lamda) * (1.0 - f)  # Eq. 9
             if self.pop[idx][self.ID_TAR][self.ID_FIT] >= fit_average:

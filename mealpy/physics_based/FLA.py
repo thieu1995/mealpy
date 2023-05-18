@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -88,8 +87,8 @@ class OriginalFLA(Optimizer):
         self.xss, self.g_best = self.get_global_best_solution(self.pop)
         self.n1 = int(np.round(self.pop_size/2))
         self.n2 = self.pop_size - self.n1
-        self.pop1 = deepcopy(self.pop[:self.n1])
-        self.pop2 = deepcopy(self.pop[self.n1:])
+        self.pop1 = self.pop[:self.n1].copy()
+        self.pop2 = self.pop[self.n1:].copy()
         _, self.best1 = self.get_global_best_solution(self.pop1)
         _, self.best2 = self.get_global_best_solution(self.pop2)
         if self.compare_agent(self.best1, self.best2):
@@ -122,15 +121,18 @@ class OriginalFLA(Optimizer):
                     dfg = np.random.randint(1, 3)
                     jj = -self.DD * (xm2 - xm1) / np.linalg.norm(self.best2[self.ID_POS] - self.pop1[idx][self.ID_POS] + self.EPSILON)
                     pos_new = self.best2[self.ID_POS] + dfg*dof*np.random.rand(self.problem.n_dims)*(jj*self.best2[self.ID_POS] - self.pop1[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(nt12, self.n1):
                     tt = self.pop1[idx][self.ID_POS] + dof * (np.random.rand(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
                     pp = np.random.rand(self.problem.n_dims)
                     pos_new = np.where(pp < 0.8, self.best1[self.ID_POS], np.where(pp >=0.9, self.pop1[idx][self.ID_POS], tt))
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(0, self.n2):
                     pos_new = self.best2[self.ID_POS] + dof * (np.random.rand(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
             else:
                 m1n, m2n = 0.1 * self.n2, 0.2 * self.n2
                 nt12 = int(np.round((m2n - m1n) * np.random.rand() + m1n))
@@ -138,15 +140,18 @@ class OriginalFLA(Optimizer):
                     dfg = np.random.randint(1, 3)
                     jj = -self.DD*(xm1-xm2) / np.linalg.norm(self.best1[self.ID_POS] - self.pop2[idx][self.ID_POS] + self.EPSILON)
                     pos_new = self.best1[self.ID_POS] + dfg * dof * np.random.rand(self.problem.n_dims) * (jj * self.best1[self.ID_POS] - self.pop2[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(nt12, self.n2):
                     tt = self.pop2[idx][self.ID_POS] + dof * (np.random.rand(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
                     pp = np.random.rand(self.problem.n_dims)
                     pos_new = np.where(pp < 0.8, self.best2[self.ID_POS], np.where(pp >= 0.9, self.pop2[idx][self.ID_POS], tt))
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(0, self.n1):
                     pos_new = self.best1[self.ID_POS] + dof * (np.random.rand(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
         else:       # Equilibrium operator (EO)
             if tf <= 1:
                 for idx in range(0, self.n1):
@@ -160,7 +165,8 @@ class OriginalFLA(Optimizer):
                     ms = np.exp(-self.best1[self.ID_TAR][self.ID_FIT] / self.pop1[idx][self.ID_TAR][self.ID_FIT] + self.EPSILON)
                     qeo = dfg * drf * np.random.rand(self.problem.n_dims)
                     pos_new = self.best1[self.ID_POS] + qeo*self.pop1[idx][self.ID_POS] + qeo *(ms * self.best1[self.ID_POS] - self.pop1[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(0, self.n2):
                     dfg = np.random.randint(1, 3)
                     tttt = np.linalg.norm(self.best2[self.ID_POS] - self.pop2[idx][self.ID_POS])
@@ -172,7 +178,8 @@ class OriginalFLA(Optimizer):
                     ms = np.exp(-self.best2[self.ID_TAR][self.ID_FIT] / self.pop2[idx][self.ID_TAR][self.ID_FIT] + self.EPSILON)
                     qeo = dfg * drf * np.random.rand(self.problem.n_dims)
                     pos_new = self.best2[self.ID_POS] + qeo * self.pop2[idx][self.ID_POS] + qeo * (ms * self.best2[self.ID_POS] - self.pop2[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
             else:   # Steady state operator (SSO)
                 for idx in range(0, self.n1):
                     dfg = np.random.randint(1, 3)
@@ -185,7 +192,8 @@ class OriginalFLA(Optimizer):
                     ms = np.exp(-self.fsss / self.pop1[idx][self.ID_TAR][self.ID_FIT] + self.EPSILON)
                     qg = dfg * drf * np.random.rand(self.problem.n_dims)
                     pos_new = self.g_best[self.ID_POS] + qg * self.pop1[idx][self.ID_POS] + qg * (ms * self.best1[self.ID_POS] - self.pop1[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
                 for idx in range(0, self.n2):
                     dfg = np.random.randint(1, 3)
                     tttt = np.linalg.norm(self.g_best[self.ID_POS] - self.pop2[idx][self.ID_POS])
@@ -197,7 +205,8 @@ class OriginalFLA(Optimizer):
                     ms = np.exp(-self.fsss / self.pop2[idx][self.ID_TAR][self.ID_FIT] + self.EPSILON)
                     qg = dfg * drf * np.random.rand(self.problem.n_dims)
                     pos_new = self.g_best[self.ID_POS] + qg * self.pop2[idx][self.ID_POS] + qg * (ms * self.g_best[self.ID_POS] - self.pop2[idx][self.ID_POS])
-                    pop_new.append([self.amend_position(pos_new, self.problem.lb, self.problem.ub), None])
+                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+                    pop_new.append([pos_new, None])
 
         if self.mode not in self.AVAILABLE_MODES:
             for idx in range(0, self.pop_size):
@@ -207,8 +216,8 @@ class OriginalFLA(Optimizer):
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
                 self.pop[idx] = pop_new[idx]
-        self.pop1 = deepcopy(self.pop[:self.n1])
-        self.pop2 = deepcopy(self.pop[self.n1:])
+        self.pop1 = self.pop[:self.n1].copy()
+        self.pop2 = self.pop[self.n1:].copy()
         _, self.best1 = self.get_global_best_solution(self.pop1)
         _, self.best2 = self.get_global_best_solution(self.pop2)
         if self.compare_agent(self.best1, self.best2):
