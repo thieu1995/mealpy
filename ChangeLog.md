@@ -13,6 +13,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 # Version 2.5.4
 
 ### Update
++ Remove deepcopy() to improve the computational speed
 + Update the parameter's order in Tuner class  
 + Update the saving's bug when using Termination in Multitask
 + Remove ILA optimizer 
