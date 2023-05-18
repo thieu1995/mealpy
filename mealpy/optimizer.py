@@ -626,7 +626,7 @@ class Optimizer:
                 * -1: return multiplier * s
 
         Returns:
-            int: The step size of Levy-flight trajectory
+            float, list, np.ndarray: The step size of Levy-flight trajectory
         """
         # u and v are two random variables which follow np.random.normal distribution
         # sigma_u : standard deviation of u

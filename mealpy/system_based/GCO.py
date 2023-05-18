@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -93,7 +92,7 @@ class BaseGCO(Optimizer):
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
                 self.dyn_list_cell_counter[idx] += 10
-                self.pop[idx] = deepcopy(pop_new[idx])
+                self.pop[idx] = pop_new[idx].copy()
 
         ## Light-zone process   (no needs parallelization)
         for i in range(0, self.pop_size):
