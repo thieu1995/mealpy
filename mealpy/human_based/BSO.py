@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
+from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -103,7 +104,7 @@ class ImprovedBSO(Optimizer):
             solution_new = self.create_solution(self.problem.lb, self.problem.ub)
             self.centers[idx] = solution_new
 
-        pop_group = self.pop_group.copy()
+        pop_group = deepcopy(self.pop_group)
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)
@@ -225,7 +226,7 @@ class OriginalBSO(ImprovedBSO):
             solution_new = self.create_solution(self.problem.lb, self.problem.ub)
             self.centers[idx] = solution_new
 
-        pop_group = self.pop_group.copy()
+        pop_group = deepcopy(self.pop_group)
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)

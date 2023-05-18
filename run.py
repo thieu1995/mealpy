@@ -109,8 +109,8 @@ if __name__ == "__main__":
     model = AVOA.OriginalAVOA(epoch, pop_size)
     model = SA.OriginalSA(epoch, pop_size)
     model = BSO.OriginalBSO(epoch, pop_size)
-    model = BSO.ImprovedBSO(epoch, pop_size)
-    best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
+    # model = BSO.ImprovedBSO(epoch, pop_size)
+    best_position, best_fitness = model.solve(P1)#, mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)
     print(model.get_parameters())
