@@ -17,6 +17,8 @@ from mealpy.bio_based import BBO as T2
 from mealpy.bio_based.BBO import BaseBBO
 from mealpy.swarm_based.ARO import LARO, OriginalARO
 from mealpy.swarm_based.AGTO import MGTO
+from mealpy import EOA, SBO, SMA, SOA, MA, BRO, BSO, CHIO, FBIO, HBO, QSA, SARO, TLO
+from mealpy import PSS, ASO, EO, FLA, BFO, GJO, GTO, HHO, MPA, SeaHO, SRSR, AVOA
 
 # from mealpy.utils.problem import Problem
 from mealpy import Problem
@@ -42,7 +44,7 @@ term_dict1 = {
     "max_epoch": 1000,
     "max_fe": 180000,  # 100000 number of function evaluation
     "max_time": 1000,  # 10 seconds to run the program
-    "max_early_stop": 15  # 15 epochs if the best fitness is not getting better we stop the program
+    "max_early_stop": 150  # 15 epochs if the best fitness is not getting better we stop the program
 }
 
 epoch = 1000
@@ -71,6 +73,40 @@ if __name__ == "__main__":
     model = LARO(epoch, pop_size)
     model = OriginalARO(epoch, pop_size)
     model = MGTO(epoch, pop_size)
+    model = EOA.OriginalEOA(epoch, pop_size)
+    model = SBO.OriginalSBO(epoch, pop_size)
+    model = SMA.OriginalSMA(epoch, pop_size)
+    model = SOA.DevSOA(epoch, pop_size)
+    model = MA.OriginalMA(epoch, pop_size)
+    model = BRO.BaseBRO(epoch, pop_size)
+    model = BSO.ImprovedBSO(epoch, pop_size)
+    model = CHIO.BaseCHIO(epoch, pop_size)
+    model = FBIO.OriginalFBIO(epoch, pop_size)
+    model = HBO.OriginalHBO(epoch, pop_size)
+    model = QSA.BaseQSA(epoch, pop_size)
+    model = QSA.OriginalQSA(epoch, pop_size)
+    model = QSA.OppoQSA(epoch, pop_size)
+    model = QSA.ImprovedQSA(epoch, pop_size)
+    model = SARO.BaseSARO(epoch, pop_size)
+    model = SARO.OriginalSARO(epoch, pop_size)
+    model = TLO.BaseTLO(epoch, pop_size)
+    model = TLO.ImprovedTLO(epoch, pop_size)
+    model = TLO.OriginalTLO(epoch, pop_size)
+    model = PSS.OriginalPSS(epoch, pop_size)
+    model = ASO.OriginalASO(epoch, pop_size)
+    model = EO.ModifiedEO(epoch, pop_size)
+    model = EO.AdaptiveEO(epoch, pop_size)
+    model = EO.OriginalEO(epoch, pop_size)
+    model = FLA.OriginalFLA(epoch, pop_size)
+    model = BFO.OriginalBFO(epoch, pop_size)
+    model = BFO.ABFO(epoch, pop_size)
+    model = GJO.OriginalGJO(epoch, pop_size)
+    model = GTO.Matlab102GTO(epoch, pop_size)
+    model = HHO.OriginalHHO(epoch, pop_size)
+    model = MPA.OriginalMPA(epoch, pop_size)
+    model = SeaHO.OriginalSeaHO(epoch, pop_size)
+    model = SRSR.OriginalSRSR(epoch, pop_size)
+    model = AVOA.OriginalAVOA(epoch, pop_size)
     best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)
