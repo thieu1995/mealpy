@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -250,7 +249,7 @@ class OriginalSSpiderO(Optimizer):
         pop_child = self.get_sorted_strim_population(pop_child, n_child)
         for i in range(0, n_child):
             if self.compare_agent(pop_child[i], pop[i]):
-                pop[i] = deepcopy(pop_child[i])
+                pop[i] = pop_child[i].copy()
         return pop
 
     def recalculate_weights__(self, pop=None):

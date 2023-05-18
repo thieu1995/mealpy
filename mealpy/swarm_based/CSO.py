@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -122,8 +121,8 @@ class OriginalCSO(Optimizer):
         candidate_cats = []
         clone_cats = self.create_population(self.smp)
         if self.spc:
-            candidate_cats.append(deepcopy(cat))
-            clone_cats = [deepcopy(cat) for _ in range(self.smp - 1)]
+            candidate_cats.append(cat.copy())
+            clone_cats = [cat.copy() for _ in range(self.smp - 1)]
 
         for clone in clone_cats:
             idx = np.random.choice(range(0, self.problem.n_dims), int(self.cdc * self.problem.n_dims), replace=False)
@@ -164,7 +163,7 @@ class OriginalCSO(Optimizer):
         w = (self.epoch - epoch) / self.epoch * (self.w_max - self.w_min) + self.w_min
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = deepcopy(self.pop[idx])
+            agent = self.pop[idx].copy()
             # tracing mode
             if self.pop[idx][self.ID_FLAG]:
                 pos_new = self.pop[idx][self.ID_POS] + w * self.pop[idx][self.ID_VEL] + \

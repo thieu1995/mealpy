@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -101,7 +100,7 @@ class OriginalBA(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = deepcopy(self.pop[idx])
+            agent = self.pop[idx].copy()
             agent[self.ID_VEC] = agent[self.ID_VEC] + self.pop[idx][self.ID_PFRE] * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
             x = self.pop[idx][self.ID_POS] + agent[self.ID_VEC]
             ## Local Search around g_best position
@@ -117,7 +116,7 @@ class OriginalBA(Optimizer):
             ## Replace the old position by the new one when its has better fitness.
             ##  and then update loudness and emission rate
             if self.compare_agent(pop_new[idx], self.pop[idx]) and np.random.rand() < self.loudness:
-                self.pop[idx] = deepcopy(pop_new[idx])
+                self.pop[idx] = pop_new[idx].copy()
 
 
 class AdaptiveBA(Optimizer):
@@ -226,7 +225,7 @@ class AdaptiveBA(Optimizer):
         mean_a = np.mean([agent[self.ID_LOUD] for agent in self.pop])
         pop_new = []
         for idx in range(0, self.pop_size):
-            agent = deepcopy(self.pop[idx])
+            agent = self.pop[idx].copy()
             agent[self.ID_VEC] = agent[self.ID_VEC] + self.pop[idx][self.ID_PFRE] * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
             x = self.pop[idx][self.ID_POS] + agent[self.ID_VEC]
             ## Local Search around g_best position
@@ -245,7 +244,7 @@ class AdaptiveBA(Optimizer):
             if self.compare_agent(pop_new[idx], self.pop[idx]) and np.random.rand() < pop_new[idx][self.ID_LOUD]:
                 pop_new[idx][self.ID_LOUD] = self.alpha * pop_new[idx][self.ID_LOUD]
                 pop_new[idx][self.ID_PRAT] = pop_new[idx][self.ID_PRAT] * (1 - np.exp(-self.gamma * (epoch + 1)))
-                self.pop[idx] = deepcopy(pop_new[idx])
+                self.pop[idx] = pop_new[idx].copy()
 
 
 class ModifiedBA(Optimizer):
@@ -325,7 +324,7 @@ class ModifiedBA(Optimizer):
         pop_child = []
         for idx in range(0, self.pop_size):
             if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = deepcopy(pop_new[idx])
+                self.pop[idx] = pop_new[idx].copy()
             else:
                 if np.random.random() > self.pulse_rate:
                     x = self.g_best[self.ID_POS] + 0.01 * np.random.uniform(self.problem.lb, self.problem.ub)
@@ -337,5 +336,5 @@ class ModifiedBA(Optimizer):
         pop_child = self.update_target_wrapper_population(pop_child)
         for idx, idx_selected in enumerate(pop_child_idx):
             if self.compare_agent(pop_child[idx], pop_new[idx_selected]):
-                pop_new[idx_selected] = deepcopy(pop_child[idx])
+                pop_new[idx_selected] = pop_child[idx].copy()
         self.pop = pop_new

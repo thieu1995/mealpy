@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from copy import deepcopy
 
 
 class CleverBookBeesA(Optimizer):
@@ -89,7 +88,7 @@ class CleverBookBeesA(Optimizer):
         pop_neigh = []
         for idx in range(0, neigh_size):
             t1 = np.random.randint(0, len(parent[self.ID_POS]) - 1)
-            new_bee = deepcopy(parent[self.ID_POS])
+            new_bee = parent[self.ID_POS].copy()
             new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
                 else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
             pos_new = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
@@ -219,7 +218,7 @@ class OriginalBeesA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for idx in range(0, self.pop_size):
             # Elite Sites
             if idx < self.n_elite_bees:

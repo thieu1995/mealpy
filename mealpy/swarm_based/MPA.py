@@ -65,14 +65,6 @@ class OriginalMPA(Optimizer):
         self.FADS = 0.2
         self.P = 0.5
 
-    def levy_step(self, beta, size=None):
-        num = np.random.gamma(1 + beta) * np.sin(np.pi * beta /2)
-        den = np.random.gamma((1+beta)/2) * beta * 2**((beta-1)/2)
-        sigma_u = (num/den) ** (1 / beta)
-        u = np.random.normal(0, sigma_u, size)
-        v = np.random.normal(0, 1, size)
-        return u / np.abs(v)**(1/beta)
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -82,7 +74,7 @@ class OriginalMPA(Optimizer):
         """
         CF = (1 - (epoch+1)/self.epoch)**(2 * (epoch+1)/self.epoch)
         # RL = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=(self.pop_size, self.problem.n_dims), case=-1)
-        RL = 0.05 * self.levy_step(1.5, (self.pop_size, self.problem.n_dims))
+        RL = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=(self.pop_size, self.problem.n_dims), case=-1)
         RB = np.random.randn(self.pop_size, self.problem.n_dims)
         per1 = np.random.permutation(self.pop_size)
         per2 = np.random.permutation(self.pop_size)

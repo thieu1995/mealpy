@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from math import gamma
 
 
 class OriginalGJO(Optimizer):
@@ -55,14 +54,6 @@ class OriginalGJO(Optimizer):
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
-    def levy__(self, beta=1.0, size=None):
-        num = gamma(1 + beta) * np.sin(np.pi * beta/2)
-        den = gamma((1+beta)/2) * beta * 2**((beta-1)/2)
-        sigma_u = (num/den)**(1.0/beta)
-        u = np.random.normal(0, sigma_u, size=size)
-        v = np.random.normal(0, 1, size=size)
-        return u/(np.abs(v)**(1.0/beta))
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -71,7 +62,7 @@ class OriginalGJO(Optimizer):
             epoch (int): The current iteration
         """
         E1 = 1.5*(1-((1+epoch)/self.epoch))
-        RL = 0.05*self.levy__(beta=1.5, size=(self.pop_size, self.problem.n_dims))
+        RL = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=(self.pop_size, self.problem.n_dims), case=-1)
         _, (male, female), _ = self.get_special_solutions(self.pop, best=2, worst=1)
         pop_new = []
         for idx in range(0, self.pop_size):

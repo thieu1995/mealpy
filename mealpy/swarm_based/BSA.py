@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -101,8 +100,8 @@ class OriginalBSA(Optimizer):
             pos = self.generate_position(lb, ub)
         position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
-        local_position = deepcopy(position)
-        local_fitness = deepcopy(target)
+        local_position = position.copy()
+        local_fitness = target.copy()
         return [position, target, local_position, local_fitness]
 
     def evolve(self, epoch):
@@ -120,7 +119,7 @@ class OriginalBSA(Optimizer):
         if epoch % self.ff != 0:
             pop_new = []
             for i in range(0, self.pop_size):
-                agent = deepcopy(self.pop[i])
+                agent = self.pop[i].copy()
                 prob = np.random.uniform() * 0.2 + self.pff  # The probability of foraging for food
                 if np.random.uniform() < prob:  # Birds forage for food. Eq. 1
                     x_new = self.pop[i][self.ID_POS] + self.c1 * \
@@ -143,7 +142,7 @@ class OriginalBSA(Optimizer):
                 pop_new = self.update_target_wrapper_population(pop_new)
                 self.pop = self.greedy_selection_population(self.pop, pop_new)
         else:
-            pop_new = deepcopy(self.pop)
+            pop_new = self.pop.copy()
             # Divide the bird swarm into two parts: producers and scroungers.
             min_idx = np.argmin(fit_list)
             max_idx = np.argmax(fit_list)
@@ -159,18 +158,18 @@ class OriginalBSA(Optimizer):
 
             if choose < 3:  # Producing (Equation 5)
                 for i in range(int(self.pop_size / 2 + 1), self.pop_size):
-                    agent = deepcopy(self.pop[i])
+                    agent = self.pop[i].copy()
                     x_new = self.pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[i][self.ID_POS]
                     agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                     pop_new[i] = agent
                 if choose == 1:
                     x_new = self.pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[min_idx][self.ID_POS]
-                    agent = deepcopy(self.pop[min_idx])
+                    agent = self.pop[min_idx].copy()
                     agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                     pop_new[min_idx] = agent
                 for i in range(0, int(self.pop_size / 2)):
                     if choose == 2 or min_idx != i:
-                        agent = deepcopy(self.pop[i])
+                        agent = self.pop[i].copy()
                         FL = np.random.uniform() * 0.4 + self.fl
                         idx = np.random.randint(0.5 * self.pop_size + 1, self.pop_size)
                         x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL
@@ -178,17 +177,17 @@ class OriginalBSA(Optimizer):
                         pop_new[i] = agent
             else:  # Scrounging (Equation 6)
                 for i in range(0, int(0.5 * self.pop_size)):
-                    agent = deepcopy(self.pop[i])
+                    agent = self.pop[i].copy()
                     x_new = self.pop[i][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[i][self.ID_POS]
                     agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                     pop_new[i] = agent
                 if choose == 4:
-                    agent = deepcopy(self.pop[min_idx])
+                    agent = self.pop[min_idx].copy()
                     x_new = self.pop[min_idx][self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * self.pop[min_idx][self.ID_POS]
                     agent[self.ID_POS] = self.amend_position(x_new, self.problem.lb, self.problem.ub)
                 for i in range(int(self.pop_size / 2 + 1), self.pop_size):
                     if choose == 3 or min_idx != i:
-                        agent = deepcopy(self.pop[i])
+                        agent = self.pop[i].copy()
                         FL = np.random.uniform() * 0.4 + self.fl
                         idx = np.random.randint(0, 0.5 * self.pop_size)
                         x_new = self.pop[i][self.ID_POS] + (self.pop[idx][self.ID_POS] - self.pop[i][self.ID_POS]) * FL

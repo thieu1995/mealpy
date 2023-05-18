@@ -5,8 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from math import gamma
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -75,9 +73,8 @@ class OriginalHHO(Optimizer):
             if np.abs(E) >= 1:
                 # Harris' hawks perch randomly based on 2 strategy:
                 if np.random.rand() >= 0.5:  # perch based on other family members
-                    X_rand = deepcopy(self.pop[np.random.randint(0, self.pop_size)][self.ID_POS])
+                    X_rand = self.pop[np.random.randint(0, self.pop_size)][self.ID_POS].copy()
                     pos_new = X_rand - np.random.uniform() * np.abs(X_rand - 2 * np.random.uniform() * self.pop[idx][self.ID_POS])
-
                 else:  # perch on a random tall tree (random site inside group's home range)
                     X_m = np.mean([x[self.ID_POS] for x in self.pop])
                     pos_new = (self.g_best[self.ID_POS] - X_m) - np.random.uniform() * \
@@ -98,9 +95,7 @@ class OriginalHHO(Optimizer):
                     pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                     pop_new.append([pos_new, None])
                 else:
-                    xichma = np.power((gamma(1 + 1.5) * np.sin(np.pi * 1.5 / 2.0)) /
-                                      (gamma((1 + 1.5) * 1.5 * np.power(2, (1.5 - 1) / 2)) / 2.0), 1.0 / 1.5)
-                    LF_D = 0.01 * np.random.uniform() * xichma / np.power(np.abs(np.random.uniform()), 1.0 / 1.5)
+                    LF_D = self.get_levy_flight_step(beta=1.5, multiplier=0.01, case=-1)
                     if np.abs(E) >= 0.5:  # Soft besiege Eq. (10) in paper
                         Y = self.g_best[self.ID_POS] - E * np.abs(J * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
                     else:  # Hard besiege Eq. (11) in paper
@@ -117,7 +112,7 @@ class OriginalHHO(Optimizer):
                     if self.compare_agent([pos_Z, target_Z], self.pop[idx]):
                         pop_new.append([pos_Z, target_Z])
                         continue
-                    pop_new.append(deepcopy(self.pop[idx]))
+                    pop_new.append(self.pop[idx].copy())
         if self.mode not in self.AVAILABLE_MODES:
             for idx, agent in enumerate(pop_new):
                 pop_new[idx][self.ID_TAR] = self.get_target_wrapper(agent[self.ID_POS])

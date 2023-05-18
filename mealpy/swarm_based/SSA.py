@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -114,7 +113,7 @@ class BaseSSA(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new)
         self.pop, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
         g_best, g_worst = best[0], worst[0]
-        pop2 = deepcopy(self.pop[self.n2:])
+        pop2 = self.pop[self.n2:]
         child = []
         for idx in range(0, len(pop2)):
             #  Using equation (5) update the sparrow’s location;

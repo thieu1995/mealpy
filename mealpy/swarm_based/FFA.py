@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -94,7 +93,7 @@ class OriginalFFA(Optimizer):
         # Maximum Distance
         dmax = np.sqrt(self.problem.n_dims)
         for idx in range(0, self.pop_size):
-            agent = deepcopy(self.pop[idx])
+            agent = self.pop[idx].copy()
             pop_child = []
             for j in range(idx + 1, self.pop_size):
                 # Move Towards Better Solutions

@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -174,8 +173,7 @@ class OriginalBFO(Optimizer):
                 self.pop[idx][self.ID_SUM_NUTRIENTS] = sum_nutrients
 
             cells = sorted(self.pop, key=lambda cell: cell[self.ID_SUM_NUTRIENTS])
-            self.pop = deepcopy(cells[0:self.half_pop_size]) + deepcopy(cells[0:self.half_pop_size])
-
+            self.pop = cells[0:self.half_pop_size].copy() + cells[0:self.half_pop_size].copy()
             for idc in range(self.pop_size):
                 if np.random.rand() < self.p_eliminate:
                     self.pop[idc] = self.create_solution(self.problem.lb, self.problem.ub)
@@ -273,8 +271,8 @@ class ABFO(Optimizer):
         position = self.amend_position(pos, lb, ub)
         target = self.get_target_wrapper(position)
         nutrient = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
-        local_pos_best = deepcopy(position)
-        local_fit_best = deepcopy(target)
+        local_pos_best = position.copy()
+        local_fit_best = target.copy()
         return [position, target, nutrient, local_pos_best, local_fit_best]
 
     def update_step_size__(self, pop=None, idx=None):
@@ -306,8 +304,8 @@ class ABFO(Optimizer):
                     self.pop[i][self.ID_NUT] += 1
                     # Update personal best
                     if self.compare_agent([pos_new, target], [None, self.pop[i][self.ID_LOC_FIT]]):
-                        self.pop[i][self.ID_LOC_POS] = deepcopy(pos_new)
-                        self.pop[i][self.ID_LOC_FIT] = deepcopy(target)
+                        self.pop[i][self.ID_LOC_POS] = pos_new.copy()
+                        self.pop[i][self.ID_LOC_FIT] = target
                 else:
                     self.pop[i][self.ID_NUT] -= 1
 
@@ -316,7 +314,7 @@ class ABFO(Optimizer):
                           (self.g_best[self.ID_POS] - self.pop[i][self.ID_POS])
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 target = self.get_target_wrapper(pos_new)
-                self.pop.append([pos_new, target, 0, deepcopy(pos_new), deepcopy(target)])
+                self.pop.append([pos_new, target, 0, pos_new.copy(), target.copy()])
 
             nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)
             if self.pop[i][self.ID_NUT] < nut_min or np.random.rand() < self.p_eliminate:

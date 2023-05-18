@@ -90,6 +90,7 @@ class OriginalMGO(Optimizer):
             x4 = self.pop[idx][self.ID_POS] - D + (np.random.randint(1, 3)*self.g_best[self.ID_POS] - np.random.randint(1, 3)*M) * cofi[np.random.randint(0, 4), :]
 
             x1 = self.generate_position(self.problem.lb, self.problem.ub)
+            x1 = self.amend_position(x1, self.problem.lb, self.problem.ub)
             x2 = self.amend_position(x2, self.problem.lb, self.problem.ub)
             x3 = self.amend_position(x3, self.problem.lb, self.problem.ub)
             x4 = self.amend_position(x4, self.problem.lb, self.problem.ub)

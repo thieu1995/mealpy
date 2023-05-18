@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -108,8 +107,8 @@ class OriginalDO(Optimizer):
                 C_temp = np.sum(pos_neighbours, axis=0) / neighbours_num
             else:
                 S = np.zeros(self.problem.n_dims)
-                A = deepcopy(self.pop_delta[i][self.ID_POS])
-                C_temp = deepcopy(self.pop[i][self.ID_POS])
+                A = self.pop_delta[i][self.ID_POS].copy()
+                C_temp = self.pop[i][self.ID_POS].copy()
             C = C_temp - self.pop[i][self.ID_POS]
 
             # Attraction to food: Eq 3.4
@@ -126,14 +125,14 @@ class OriginalDO(Optimizer):
             else:
                 enemy = np.zeros(self.problem.n_dims)
 
-            pos_new = deepcopy(self.pop[i][self.ID_POS]).astype(float)
-            pos_delta_new = deepcopy(self.pop_delta[i][self.ID_POS]).astype(float)
+            pos_new = self.pop[i][self.ID_POS].copy().astype(float)
+            pos_delta_new = self.pop_delta[i][self.ID_POS].copy().astype(float)
             if np.any(dist_to_food > r):
                 if neighbours_num > 1:
                     temp = w * self.pop_delta[i][self.ID_POS] + np.random.uniform(0, 1, self.problem.n_dims) * A + \
                            np.random.uniform(0, 1, self.problem.n_dims) * C + np.random.uniform(0, 1, self.problem.n_dims) * S
                     temp = np.clip(temp, -1 * self.delta_max, self.delta_max)
-                    pos_delta_new = deepcopy(temp)
+                    pos_delta_new = temp.copy()
                     pos_new += temp
                 else:  # Eq. 3.8
                     pos_new += self.get_levy_flight_step(beta=1.5, multiplier=0.01, case=-1) * self.pop[i][self.ID_POS]

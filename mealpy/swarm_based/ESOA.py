@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from copy import deepcopy
 
 
 class OriginalESOA(Optimizer):
@@ -68,7 +67,7 @@ class OriginalESOA(Optimizer):
         g = (np.sum(weights * position) - target[self.ID_FIT]) * position
         m = np.zeros(self.problem.n_dims)
         v = np.zeros(self.problem.n_dims)
-        return [position, target, weights, position.copy(), deepcopy(target), g, m, v]
+        return [position, target, weights, position.copy(), target.copy(), g, m, v]
 
     def initialize_variables(self):
         self.beta1 = 0.9

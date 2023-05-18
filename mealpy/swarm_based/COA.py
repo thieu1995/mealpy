@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -144,7 +143,7 @@ class OriginalCOA(Optimizer):
                     packs = sorted(packs, key=lambda agent: agent[self.ID_AGE], reverse=True)
                 # Replace worst element by new child, New born child with age = 0
                 packs[-1] = [pos_new, target, 0]
-                self.pop_group[p] = deepcopy(packs)
+                self.pop_group[p] = packs.copy()
 
         # A coyote can leave a pack and enter in another pack (Eq. 4)
         if self.n_packs > 1:

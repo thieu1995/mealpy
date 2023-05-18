@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from math import gamma
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -66,14 +65,6 @@ class OriginalGTO(Optimizer):
         self.set_parameters(["epoch", "pop_size", "A", "H"])
         self.sort_flag = True
 
-    def levy__(self, beta=1.0, size=None, step=0.01):
-        num = gamma(1 + beta) * np.sin(np.pi * beta/2)
-        den = gamma((1+beta)/2) * beta * 2**((beta-1)/2)
-        sigma_u = (num/den)**(1.0/beta)
-        u = np.random.normal(0, sigma_u, size=size)
-        v = np.random.normal(0, 1, size=size)
-        return u/(np.abs(v)**(1.0/beta)) * step
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -86,7 +77,7 @@ class OriginalGTO(Optimizer):
         for idx in range(0, self.pop_size):
             # Eq.(4)
             pos_new = self.g_best[self.ID_POS] * np.random.rand() + ((self.problem.ub - self.problem.lb) * np.random.rand() + self.problem.lb) * \
-                      self.levy__(beta=1.5, size=self.problem.n_dims)
+                      self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=self.problem.n_dims, case=-1)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
@@ -187,14 +178,6 @@ class Matlab102GTO(Optimizer):
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = True
 
-    def levy__(self, beta=1.0, size=None, step=0.01):
-        num = gamma(1 + beta) * np.sin(np.pi * beta/2)
-        den = gamma((1+beta)/2) * beta * 2**((beta-1)/2)
-        sigma_u = (num/den)**(1.0/beta)
-        u = np.random.normal(0, sigma_u, size=size)
-        v = np.random.normal(0, 1, size=size)
-        return u/(np.abs(v)**(1.0/beta)) * step
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -207,7 +190,7 @@ class Matlab102GTO(Optimizer):
         for idx in range(0, self.pop_size):
             # foraging movement patterns of giant trevallies are simulated using Eq.(4)
             pos_new = self.g_best[self.ID_POS] * np.random.rand() + ((self.problem.ub - self.problem.lb) * np.random.rand() + self.problem.lb) * \
-                      self.levy__(beta=1.5, size=self.problem.n_dims)
+                    self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=self.problem.n_dims, case=-1)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
@@ -312,14 +295,6 @@ class Matlab101GTO(Optimizer):
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = True
 
-    def levy__(self, beta=1.0, size=None, step=0.01):
-        num = gamma(1 + beta) * np.sin(np.pi * beta/2)
-        den = gamma((1+beta)/2) * beta * 2**((beta-1)/2)
-        sigma_u = (num/den)**(1.0/beta)
-        u = np.random.normal(0, sigma_u, size=size)
-        v = np.random.normal(0, 1, size=size)
-        return u/(np.abs(v)**(1.0/beta)) * step
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -335,7 +310,7 @@ class Matlab101GTO(Optimizer):
                     continue
                 # foraging movement patterns of giant trevallies are simulated using Eq.(4)
                 pos_new = self.g_best[self.ID_POS] * np.random.rand() + ((self.problem.ub - self.problem.lb) * np.random.rand() + self.problem.lb) * \
-                          self.levy__(beta=1.5, size=self.problem.n_dims)
+                          self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=self.problem.n_dims, case=-1)
                 pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
                 pop_new.append([pos_new, None])
                 if self.mode not in self.AVAILABLE_MODES:

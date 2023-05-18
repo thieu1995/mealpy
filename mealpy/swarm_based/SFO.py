@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -100,7 +99,6 @@ class OriginalSFO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-
         ## Calculate AttackPower using Eq.(10)
         AP = self.AP * (1 - 2 * (epoch + 1) * self.epsilon)
         if AP < 0.5:
@@ -111,7 +109,7 @@ class OriginalSFO(Optimizer):
             for i in range(0, self.s_size):
                 if i in list1:
                     #### Random np.random.choice number of dimensions in sardines updated, remove third loop by numpy vector computation
-                    pos_new = deepcopy(self.s_pop[i][self.ID_POS])
+                    pos_new = self.s_pop[i][self.ID_POS].copy()
                     list2 = np.random.choice(range(0, self.problem.n_dims), beta, replace=False)
                     pos_new[list2] = (np.random.uniform(0, 1, self.problem.n_dims) *
                                       (self.pop[self.ID_POS] - self.s_pop[i][self.ID_POS] + AP))[list2]
@@ -124,7 +122,6 @@ class OriginalSFO(Optimizer):
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_target_wrapper_population(self.s_pop)
-
         ## Sort the population of sailfish and sardine (for reducing computational cost)
         self.pop, g_best = self.get_global_best_solution(self.pop)
         self.s_pop, s_gbest = self.get_global_best_solution(self.s_pop)
@@ -132,7 +129,7 @@ class OriginalSFO(Optimizer):
             for j in range(0, self.s_size):
                 ### If there is a better position in sardine population.
                 if self.compare_agent(self.s_pop[j], self.pop[i]):
-                    self.pop[i] = deepcopy(self.s_pop[j])
+                    self.pop[i] = self.s_pop[j].copy()
                     del self.s_pop[j]
                 break  #### This simple keyword helped reducing ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
@@ -229,7 +226,6 @@ class ImprovedSFO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
-
         ## ## Calculate AttackPower using my Eq.thieu
         #### This is our proposed, simple but effective, no need A and epsilon parameters
         AP = 1 - epoch * 1.0 / self.epoch
@@ -245,7 +241,6 @@ class ImprovedSFO(Optimizer):
                 self.s_pop[i][self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
         ## Recalculate the fitness of all sardine
         self.s_pop = self.update_target_wrapper_population(self.s_pop)
-
         ## Sort the population of sailfish and sardine (for reducing computational cost)
         self.pop = self.get_sorted_strim_population(self.pop, self.pop_size)
         self.s_pop = self.get_sorted_strim_population(self.s_pop, len(self.s_pop))
@@ -253,10 +248,9 @@ class ImprovedSFO(Optimizer):
             for j in range(0, len(self.s_pop)):
                 ### If there is a better position in sardine population.
                 if self.compare_agent(self.s_pop[j], self.pop[i]):
-                    self.pop[i] = deepcopy(self.s_pop[j])
+                    self.pop[i] = self.s_pop[j].copy()
                     del self.s_pop[j]
                 break  #### This simple keyword helped reducing ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
-
         self.s_pop = self.s_pop + self.create_population(self.s_size - len(self.s_pop))
         _, self.s_gbest = self.get_global_best_solution(self.s_pop)

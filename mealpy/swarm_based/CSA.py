@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -69,7 +68,7 @@ class OriginalCSA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = deepcopy(self.pop)
+        pop_new = self.pop.copy()
         for i in range(0, self.pop_size):
             ## Generate levy-flight solution
             levy_step = self.get_levy_flight_step(multiplier=0.001, case=-1)

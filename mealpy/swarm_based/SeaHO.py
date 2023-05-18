@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from math import gamma
 
 
 class OriginalSeaHO(Optimizer):
@@ -61,15 +60,6 @@ class OriginalSeaHO(Optimizer):
         self.vv = 0.05
         self.ll = 0.05
 
-    def levy__(self, omega, size):
-        num = gamma(1 + omega) * np.sin(np.pi * omega/2)
-        den = gamma((1 + omega)/2) * omega* 2**((omega - 1) / 2)
-        sigma_u = (num / den) ** (1 / omega)
-        uu = np.random.normal(0, sigma_u, size)
-        vv = np.random.normal(0, 1, size)
-        zz = uu / (np.abs(vv) ** (1 / omega))
-        return zz
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -78,7 +68,7 @@ class OriginalSeaHO(Optimizer):
             epoch (int): The current iteration
         """
         # The motor behavior of sea horses
-        step_length = self.levy__(1.5, (self.pop_size, self.problem.n_dims))
+        step_length = self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=(self.pop_size, self.problem.n_dims), case=-1)
         pop_new = []
         for idx in range(0, self.pop_size):
             beta = np.random.normal(0, 1, self.problem.n_dims)
