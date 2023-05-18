@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -81,7 +80,7 @@ class ImprovedBSO(Optimizer):
         centers = []
         for i in range(0, self.m_clusters):
             _, local_best = self.get_global_best_solution(pop_group[i])
-            centers.append(deepcopy(local_best))
+            centers.append(local_best)
         return centers
 
     def initialization(self):
@@ -97,21 +96,21 @@ class ImprovedBSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        epxilon = 1 - 1 * (epoch + 1) / self.epoch  # 1. Changed here, no need: k
+        epsilon = 1 - 1 * (epoch + 1) / self.epoch  # 1. Changed here, no need: k
 
         if np.random.uniform() < self.p1:  # p_5a
             idx = np.random.randint(0, self.m_clusters)
             solution_new = self.create_solution(self.problem.lb, self.problem.ub)
             self.centers[idx] = solution_new
 
-        pop_group = deepcopy(self.pop_group)
+        pop_group = self.pop_group.copy()
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)
 
             if np.random.uniform() < self.p2:  # p_6b
                 if np.random.uniform() < self.p3:
-                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                    pos_new = self.centers[cluster_id][self.ID_POS] + epsilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:  # 2. Using levy flight here
                     levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.001, size=self.problem.n_dims, case=-1)
                     pos_new = self.pop_group[cluster_id][location_id][self.ID_POS] + levy_step
@@ -119,12 +118,12 @@ class ImprovedBSO(Optimizer):
                 id1, id2 = np.random.choice(range(0, self.m_clusters), 2, replace=False)
                 if np.random.uniform() < self.p4:
                     pos_new = 0.5 * (self.centers[id1][self.ID_POS] + self.centers[id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                              epsilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_id1 = np.random.randint(0, self.m_solution)
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                              epsilon * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
             if self.mode not in self.AVAILABLE_MODES:
@@ -219,14 +218,14 @@ class OriginalBSO(ImprovedBSO):
             epoch (int): The current iteration
         """
         x = (0.5 * self.epoch - (epoch + 1)) / self.slope
-        epxilon = np.random.uniform() * (1 / (1 + np.exp(-x)))
+        epsilon = np.random.uniform() * (1 / (1 + np.exp(-x)))
 
         if np.random.rand() < self.p1:  # p_5a
             idx = np.random.randint(0, self.m_clusters)
             solution_new = self.create_solution(self.problem.lb, self.problem.ub)
             self.centers[idx] = solution_new
 
-        pop_group = deepcopy(self.pop_group)
+        pop_group = self.pop_group.copy()
         for i in range(0, self.pop_size):  # Generate new individuals
             cluster_id = int(i / self.m_solution)
             location_id = int(i % self.m_solution)
@@ -235,7 +234,7 @@ class OriginalBSO(ImprovedBSO):
                 if np.random.uniform() < self.p3:  # p_6i
                     cluster_id = np.random.randint(0, self.m_clusters)
                 if np.random.uniform() < self.p3:
-                    pos_new = self.centers[cluster_id][self.ID_POS] + epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                    pos_new = self.centers[cluster_id][self.ID_POS] + epsilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_idx = np.random.randint(0, self.m_solution)
                     pos_new = self.pop_group[cluster_id][rand_idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims)
@@ -243,12 +242,12 @@ class OriginalBSO(ImprovedBSO):
                 id1, id2 = np.random.choice(range(0, self.m_clusters), 2, replace=False)
                 if np.random.uniform() < self.p4:
                     pos_new = 0.5 * (self.centers[id1][self.ID_POS] + self.centers[id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                              epsilon * np.random.normal(0, 1, self.problem.n_dims)
                 else:
                     rand_id1 = np.random.randint(0, self.m_solution)
                     rand_id2 = np.random.randint(0, self.m_solution)
                     pos_new = 0.5 * (self.pop_group[id1][rand_id1][self.ID_POS] + self.pop_group[id2][rand_id2][self.ID_POS]) + \
-                              epxilon * np.random.normal(0, 1, self.problem.n_dims)
+                              epsilon * np.random.normal(0, 1, self.problem.n_dims)
             pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
             pop_group[cluster_id][location_id] = [pos_new, None]
             if self.mode not in self.AVAILABLE_MODES:
