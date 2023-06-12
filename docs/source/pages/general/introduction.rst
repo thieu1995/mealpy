@@ -8,15 +8,14 @@ distributed under the GNU General Public License (GPL) V3 license.
 
 * Current version: 2.5.1, Total algorithms: 172 (102 original, 45 official variants, 25 developed variants)
 
-* Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before
-  using this library (Check `All releases`_)
-   * mealpy < 1.0.5
-   * 1.1.0 < mealpy < 1.2.2
-   * 2.0.0 <= mealpy <= 2.1.2
-   * mealpy == 2.2.0
-   * mealpy == 2.3.0
-   * 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
-   * mealpy >= 2.5.0
+* Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before using this library (Check `All releases`_)
+	* mealpy < 1.0.5
+	* 1.1.0 < mealpy < 1.2.2
+	* 2.0.0 <= mealpy <= 2.1.2
+	* mealpy == 2.2.0
+	* mealpy == 2.3.0
+	* 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
+	* mealpy >= 2.5.0
 
 .. _All releases: https://pypi.org/project/mealpy/#history
 
