@@ -52,14 +52,19 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 
 # Installation
 
-### Install with pip
+### Install the stable (latest) version
 Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh 
 $ pip install mealpy==2.5.3
 ```
 
-### Install from source
-In case you want to install directly from the source code, use:
+### Install the alpha/beta version
+```sh 
+$ pip install mealpy==2.5.4a4
+```
+
+### Install the pre-release version
+You can install pre-release directly from the source code:
 ```sh 
 $ git clone https://github.com/thieu1995/mealpy.git
 $ cd mealpy
