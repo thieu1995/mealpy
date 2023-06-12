@@ -67,8 +67,12 @@ class OriginalGWO(Optimizer):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            A1, A2, A3 = a * (2 * np.random.uniform() - 1), a * (2 * np.random.uniform() - 1), a * (2 * np.random.uniform() - 1)
-            C1, C2, C3 = 2 * np.random.uniform(), 2 * np.random.uniform(), 2 * np.random.uniform()
+            A1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            A2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            A3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            C1 = 2 * np.random.rand(self.problem.n_dims)
+            C2 = 2 * np.random.rand(self.problem.n_dims)
+            C3 = 2 * np.random.rand(self.problem.n_dims)
             X1 = list_best[0][self.ID_POS] - A1 * np.abs(C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS])
             X2 = list_best[1][self.ID_POS] - A2 * np.abs(C2 * list_best[1][self.ID_POS] - self.pop[idx][self.ID_POS])
             X3 = list_best[2][self.ID_POS] - A3 * np.abs(C3 * list_best[2][self.ID_POS] - self.pop[idx][self.ID_POS])
@@ -154,10 +158,13 @@ class RW_GWO(Optimizer):
         ## Update other wolfs
         pop_new = []
         for idx in range(0, self.pop_size):
-            # Eq. 3
-            miu1, miu2, miu3 = b * (2 * np.random.uniform() - 1), b * (2 * np.random.uniform() - 1), b * (2 * np.random.uniform() - 1)
-            # Eq. 4
-            c1, c2, c3 = 2 * np.random.uniform(), 2 * np.random.uniform(), 2 * np.random.uniform()
+            # Eq. 3 and 4
+            miu1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            miu2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            miu3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            c1 = 2 * np.random.rand(self.problem.n_dims)
+            c2 = 2 * np.random.rand(self.problem.n_dims)
+            c3 = 2 * np.random.rand(self.problem.n_dims)
             X1 = leaders[0][self.ID_POS] - miu1 * np.abs(c1 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             X2 = leaders[1][self.ID_POS] - miu2 * np.abs(c2 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
             X3 = leaders[2][self.ID_POS] - miu3 * np.abs(c3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
@@ -231,8 +238,12 @@ class GWO_WOA(OriginalGWO):
 
         pop_new = []
         for idx in range(0, self.pop_size):
-            A1, A2, A3 = a * (2 * np.random.uniform() - 1), a * (2 * np.random.uniform() - 1), a * (2 * np.random.uniform() - 1)
-            C1, C2, C3 = 2 * np.random.uniform(), 2 * np.random.uniform(), 2 * np.random.uniform()
+            A1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            A2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            A3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
+            C1 = 2 * np.random.rand(self.problem.n_dims)
+            C2 = 2 * np.random.rand(self.problem.n_dims)
+            C3 = 2 * np.random.rand(self.problem.n_dims)
             if np.random.random() < 0.5:
                 da = np.random.random() * np.abs(C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS])
             else:
