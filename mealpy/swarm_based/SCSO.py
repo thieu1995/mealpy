@@ -16,10 +16,6 @@ class OriginalSCSO(Optimizer):
         1. https://link.springer.com/article/10.1007/s00366-022-01604-x
         2. https://www.mathworks.com/matlabcentral/fileexchange/110185-sand-cat-swarm-optimization
 
-    Notes:
-        1. The matlab code will not work since the R value always in the range (-1, 1).
-        2. The authors make a mistake in matlab code. It should be 0 <= R <= 1 in the If condition
-
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -57,11 +53,11 @@ class OriginalSCSO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.P = np.arange(1, 361)
         self.sort_flag = False
 
     def initialize_variables(self):
         self.S = 2      # maximum Sensitivity range
+        self.P = np.arange(1, 361)
 
     def get_index_roulette_wheel_selection__(self, p):
         p = p / np.sum(p)
@@ -75,8 +71,7 @@ class OriginalSCSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        t = self.epoch + 1
-        guides_r = self.S - (self.S * t / self.epoch)
+        guides_r = self.S - (self.S * (epoch + 1) / self.epoch)
         pop_new = []
         for idx in range(0, self.pop_size):
             r = np.random.rand() * guides_r
@@ -84,7 +79,7 @@ class OriginalSCSO(Optimizer):
             pos_new = self.pop[idx][self.ID_POS].copy()
             for jdx in range(0, self.problem.n_dims):
                 teta = self.get_index_roulette_wheel_selection__(self.P)
-                if 0 <= R <= 1:
+                if -1 <= R <= 1:
                     rand_pos = np.abs(np.random.rand() * self.g_best[self.ID_POS][jdx] - self.pop[idx][self.ID_POS][jdx])
                     pos_new[jdx] = self.g_best[self.ID_POS][jdx] - r * rand_pos * np.cos(teta)
                 else:
