@@ -22,6 +22,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   + bounded_position() from optimizer. This means for optimizer level (get in valid range of position)
   + amend_position() from problem. This means for problem level (transform to the correct solution)
 + Fix bugs coefficients in GWO-based optimizers.
++ Fig bug self.epoch in SCSO optimizer.
 
 
 # Version 2.5.3

@@ -60,7 +60,7 @@ $ pip install mealpy==2.5.3
 
 ### Install the alpha/beta version
 ```sh 
-$ pip install mealpy==2.5.4a4
+$ pip install mealpy==2.5.4a5
 ```
 
 ### Install the pre-release version
