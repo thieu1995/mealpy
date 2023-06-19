@@ -1,36 +1,64 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 16:53, 20/03/2023 ----------%                                                                               
-#       Email: nguyenthieu2102@gmail.com            %                                                    
-#       Github: https://github.com/thieu1995        %                         
+# Created by "Thieu" at 16:53, 20/03/2023 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
 import numpy as np
 from opfunu.cec_based.cec2017 import F292017
-from mealpy.swarm_based import WOA
+
+# from mealpy.utils.problem import Problem
+from mealpy import ASO, AVOA
+from mealpy import BBO as T1
+from mealpy import (
+    BFO,
+    BRO,
+    BSO,
+    CHIO,
+    EO,
+    EOA,
+    FBIO,
+    FLA,
+    GJO,
+    GTO,
+    GWO,
+    HBO,
+    HHO,
+    MA,
+    MPA,
+    PSS,
+    QSA,
+    SA,
+    SARO,
+    SBO,
+    SCSO,
+    SMA,
+    SOA,
+    SRSR,
+    TLO,
+    TS,
+    Problem,
+    SeaHO,
+)
+from mealpy.bio_based import BBO as T2
+from mealpy.bio_based.BBO import BaseBBO
 from mealpy.bio_based.BMO import OriginalBMO
 from mealpy.bio_based.TPO import OriginalTPO
+from mealpy.swarm_based import WOA
+from mealpy.swarm_based.AGTO import MGTO
+from mealpy.swarm_based.ARO import LARO, OriginalARO
 from mealpy.swarm_based.EHO import OriginalEHO
 from mealpy.swarm_based.ESOA import OriginalESOA
 
-from mealpy import BBO as T1
-from mealpy.bio_based import BBO as T2
-from mealpy.bio_based.BBO import BaseBBO
-from mealpy.swarm_based.ARO import LARO, OriginalARO
-from mealpy.swarm_based.AGTO import MGTO
-from mealpy import EOA, SBO, SMA, SOA, MA, BRO, BSO, CHIO, FBIO, HBO, QSA, SARO, TLO
-from mealpy import PSS, ASO, EO, FLA, BFO, GJO, GTO, HHO, MPA, SeaHO, SRSR, AVOA, SA, BSO
-from mealpy import GWO, SCSO, TS
-
-# from mealpy.utils.problem import Problem
-from mealpy import Problem
-
 ndim = 30
 f18 = F292017(ndim, f_bias=0)
+
 
 def fitness(solution):
     # time.sleep(5)
     fit = f18.evaluate(solution)
     return fit
+
 
 # print(type(fitness))
 
@@ -45,11 +73,12 @@ term_dict1 = {
     "max_epoch": 1000,
     "max_fe": 180000,  # 100000 number of function evaluation
     "max_time": 1000,  # 10 seconds to run the program
-    "max_early_stop": 150  # 15 epochs if the best fitness is not getting better we stop the program
+    "max_early_stop": 150,  # 15 epochs if the best fitness is not getting better we stop the program
 }
 
 epoch = 1000
 pop_size = 50
+
 
 class Squared(Problem):
     def __init__(self, lb, ub, minmax, name="Squared", **kwargs):
@@ -57,10 +86,20 @@ class Squared(Problem):
         self.name = name
 
     def fit_func(self, solution):
-        return np.sum(solution ** 2)
+        return np.sum(solution**2)
 
 
-P1 = Squared(lb=[-10, ] * 100, ub=[10, ] * 100, minmax="min")
+P1 = Squared(
+    lb=[
+        -10,
+    ]
+    * 100,
+    ub=[
+        10,
+    ]
+    * 100,
+    minmax="min",
+)
 
 if __name__ == "__main__":
     model = WOA.OriginalWOA(epoch, pop_size)
@@ -113,10 +152,15 @@ if __name__ == "__main__":
     model = GWO.OriginalGWO(epoch, pop_size)
     model = GWO.GWO_WOA(epoch, pop_size)
     model = GWO.RW_GWO(epoch, pop_size)
+    model = GWO.IGWO(epoch, pop_size, a_min=0.02, a_max=1.6)
     # model = BSO.ImprovedBSO(epoch, pop_size)
     model = SCSO.OriginalSCSO(epoch, pop_size)
-    model = TS.OriginalTS(epoch, pop_size=2, tabu_size=5, neighbour_size=20, perturbation_scale=0.05)
-    best_position, best_fitness = model.solve(P1)#, mode="thread", n_workers=4, termination=term_dict1)
+    model = TS.OriginalTS(
+        epoch, pop_size=2, tabu_size=5, neighbour_size=20, perturbation_scale=0.05
+    )
+    best_position, best_fitness = model.solve(
+        P1
+    )  # , mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)
     print(model.get_parameters())
