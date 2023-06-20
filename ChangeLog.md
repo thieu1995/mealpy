@@ -23,6 +23,12 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   + amend_position() from problem. This means for problem level (transform to the correct solution)
 + Fix bugs coefficients in GWO-based optimizers.
 + Fig bug self.epoch in SCSO optimizer.
++ Fix bug self.dyn_pop_size when pop_size is small value
++ Move SHADE-based optimizers from DE to SHADE module in evolutionary_based group
++ Add Improved Grey Wolf Optimization (IGWO) in GWO algorithm
++ Add Tabu Search (TS) to math-based group
++ Add get_all_optimizers() and get_optimizer_by_name() in Mealpy
+
 
 
 # Version 2.5.3

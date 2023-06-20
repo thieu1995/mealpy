@@ -23,25 +23,24 @@ Installation
 
 **User Installation**
 
-Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
+Install the `current PyPI release`_. ::
 
-::
+   $ pip install mealpy==2.5.3
 
-   $ pip install mealpy==2.5.0
+.. _current PyPI release: https://pypi.python.org/pypi/mealpy
 
-Or install the development version from GitHub:
-
-::
+Or install the development version from GitHub::
 
    $ pip install git+https://github.com/thieu1995/mealpy
 
 
-Check the version of MEALPY:
-
-::
+Check the version of MEALPY::
 
    $ import mealpy
    $ mealpy.__version__
+
+   $ print(mealpy.get_all_optimizers())
+   $ model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
 
 ----------------------
 Getting started in 30s

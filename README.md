@@ -31,7 +31,7 @@ MEALPY is the largest python library for most of the cutting-edge nature-inspire
 approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
-* **Total algorithms**: 174 (102 original, 45 official variants, 27 developed variants)
+* **Total algorithms**: 175 (102 original, 46 official variants, 27 developed variants)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** 3.7.x, 3.8.x, 3.9.x, 3.10.x, 3.11.x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
@@ -60,7 +60,7 @@ $ pip install mealpy==2.5.3
 
 ### Install the alpha/beta version
 ```sh 
-$ pip install mealpy==2.5.4a5
+$ pip install mealpy==2.5.4a6
 ```
 
 ### Install the pre-release version
@@ -80,6 +80,9 @@ After installation, you can import Mealpy as any other Python module:
 $ python
 >>> import mealpy
 >>> mealpy.__version__
+
+>>> print(mealpy.get_all_optimizers())
+>>> model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
 ```
 
 Let's go through a basic and advanced example.
@@ -364,14 +367,14 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * Issue tracker: https://github.com/thieu1995/mealpy/issues
 * Notable changes log: https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md
 * Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
+* Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
 
 * This project also related to our another projects which are "meta-heuristics" and "neural-network", check it here
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/metaheuristics
     * https://github.com/aiir-team
-
-**Want to have an instant assistant? Join our telegram community at [link](https://t.me/+fRVCJGuGJg1mNDg1)**
-We share lots of information, questions, and answers there. You will get more support and knowledge there.
+    * https://github.com/mafese
+    * https://github.com/permetrics
 
 ### Cite Us
 
@@ -383,7 +386,8 @@ If you are using mealpy in your project, we would appreciate citations:
   author={Van Thieu, Nguyen and Mirjalili, Seyedali},
   journal={Journal of Systems Architecture},
   year={2023},
-  publisher={Elsevier}
+  publisher={Elsevier},
+  doi={10.1016/j.sysarc.2023.102871}
 }
 
 @article{van2023groundwater,
@@ -393,7 +397,8 @@ If you are using mealpy in your project, we would appreciate citations:
   volume={617},
   pages={129034},
   year={2023},
-  publisher={Elsevier}
+  publisher={Elsevier},
+  doi={10.1016/j.jhydrol.2022.129034}
 }
 ```
 
