@@ -10,9 +10,9 @@ from scipy.stats import cauchy
 from copy import deepcopy
 
 
-class SHADE(Optimizer):
+class OriginalSHADE(Optimizer):
     """
-    The original version of: Success-History Adaptation Differential Evolution (SHADE)
+    The original version of: Success-History Adaptation Differential Evolution (OriginalSHADE)
 
     Links:
         1. https://doi.org/10.1109/CEC.2013.6557555
@@ -24,7 +24,7 @@ class SHADE(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.SHADE import SHADE
+    >>> from mealpy.evolutionary_based.SHADE import OriginalSHADE
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,7 +40,7 @@ class SHADE(Optimizer):
     >>> pop_size = 50
     >>> miu_f = 0.5
     >>> miu_cr = 0.5
-    >>> model = SHADE( epoch, pop_size, miu_f, miu_cr)
+    >>> model = OriginalSHADE(epoch, pop_size, miu_f, miu_cr)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
@@ -278,7 +278,7 @@ class L_SHADE(Optimizer):
             list_cr_new[idx] = cr
             list_f_new[idx] = f
             p = np.random.uniform(0.15, 0.2)
-            top = int(self.dyn_pop_size * p)
+            top = int(np.ceil(self.dyn_pop_size * p))
             x_best = pop_sorted[np.random.randint(0, top)]
             x_r1 = self.pop[np.random.choice(list(set(range(0, self.dyn_pop_size)) - {idx}))]
             new_pop = self.pop + self.dyn_pop_archive
@@ -517,7 +517,7 @@ class AL_SHADE(Optimizer):
                 F[idx] = self.MF[r[idx] - 1] + self.Chy[iChy]
         iChy = (iChy + 1) % len(self.Chy)
         F[F > 1] = 1
-        PA = np.concatenate((self.X, A), axis=1)
+        # PA = np.concatenate((self.X, A), axis=1)
 
     #     F = zeros(1, SearchAgents_no)
     #     for i = 1 : SearchAgents_no
