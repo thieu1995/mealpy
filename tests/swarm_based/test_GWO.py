@@ -29,6 +29,7 @@ def test_GWO_results(problem):
     models = [
         GWO.OriginalGWO(epoch=10, pop_size=50),
         GWO.RW_GWO(epoch=10, pop_size=50),
+        GWO.IGWO(epoch=10, pop_size=50, a_min=0.01, a_max=1.5),
     ]
     for model in models:
         best_position, best_fitness = model.solve(problem)

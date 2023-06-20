@@ -113,6 +113,7 @@ if __name__ == "__main__":
     model = GWO.OriginalGWO(epoch, pop_size)
     model = GWO.GWO_WOA(epoch, pop_size)
     model = GWO.RW_GWO(epoch, pop_size)
+    model = GWO.IGWO(epoch, pop_size, a_min=0.02, a_max=1.6)
     # model = BSO.ImprovedBSO(epoch, pop_size)
     model = SCSO.OriginalSCSO(epoch, pop_size)
     model = TS.OriginalTS(epoch, pop_size=2, tabu_size=5, neighbour_size=20, perturbation_scale=0.05)
