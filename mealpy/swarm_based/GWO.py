@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-
 from mealpy.optimizer import Optimizer
 
 
@@ -266,10 +265,15 @@ class GWO_WOA(OriginalGWO):
 
 class IGWO(OriginalGWO):
     """
-    Improved GWO algorithm (IGWO) for optimal design of truss structures
+    The original version of: Improved Grey Wolf Optimization (IGWO)
 
-    Links:
-        1. https://doi.org/10.1007/s00366-017-0567-1
+    Notes:
+        1. Link: https://doi.org/10.1007/s00366-017-0567-1
+        2. Implemented by: Mohammadtaher Abbasi (https://github.com/mtabbasi)
+
+    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
+        + a_min (float): Lower bound of a, default = 0.02
+        + a_max (float): Upper bound of a, default = 2.2
 
     Examples
     ~~~~~~~~
@@ -296,7 +300,8 @@ class IGWO(OriginalGWO):
 
     References
     ~~~~~~~~~~
-    [1] Kaveh, A. & Zakian, P.. (2018). Improved GWO algorithm for optimal design of truss structures. Engineering with Computers. 34. 10.1007/s00366-017-0567-1.
+    [1] Kaveh, A. & Zakian, P.. (2018). Improved GWO algorithm for optimal design of truss structures.
+    Engineering with Computers. 34. 10.1007/s00366-017-0567-1.
     """
 
     def __init__(self, epoch=10000, pop_size=100, a_min=0.02, a_max=2.2, **kwargs):
@@ -304,12 +309,13 @@ class IGWO(OriginalGWO):
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            a_min (float): Upper bound of a, default = 0.02
-            a_max (float): Lower bound of a, default = 2.2
+            a_min (float): Lower bound of a, default = 0.02
+            a_max (float): Upper bound of a, default = 2.2
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.a_min = self.validator.check_float("a_min", a_min, (0.001, 1.6))
-        self.a_max = self.validator.check_float("a_max", a_max, (1, 4))
+        self.a_min = self.validator.check_float("a_min", a_min, (0.0, 1.6))
+        self.a_max = self.validator.check_float("a_max", a_max, [1., 4.])
+        self.set_parameters(["epoch", "pop_size", "a_min", "a_max"])
         self.growth_alpha = 2
         self.growth_delta = 3
 
@@ -354,9 +360,6 @@ class IGWO(OriginalGWO):
             pop_new.append([pos_new, None])
             if self.mode not in self.AVAILABLE_MODES:
                 target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(
-                    [pos_new, target], self.pop[idx]
-                )
                 self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_wrapper_population(pop_new)
