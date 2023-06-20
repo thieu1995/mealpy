@@ -29,10 +29,11 @@
 # >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 
-__version__ = "2.5.4-alpha.5"
+__version__ = "2.5.4-alpha.6"
 
+import sys, inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO)
-from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA)
+from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO)
 from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS)
 from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO)
@@ -46,3 +47,41 @@ from .utils.problem import Problem
 from .utils.termination import Termination
 from .tuner import Tuner
 from .multitask import Multitask
+from .optimizer import Optimizer
+
+__EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
+
+
+def get_all_optimizers():
+    """
+    Get all available optimizer classes in Mealpy library
+
+    Returns:
+        dict_optimizers (dict): key is the string optimizer class name, value is the actual optimizer class
+    """
+    cls = {}
+    for name, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.ismodule(obj) and (name not in __EXCLUDE_MODULES):
+            for cls_name, cls_obj in inspect.getmembers(obj):
+                if inspect.isclass(cls_obj) and issubclass(cls_obj, Optimizer):
+                    cls[cls_name] = cls_obj
+    del cls['Optimizer']
+    return cls
+
+
+def get_optimizer_by_name(name):
+    """
+    Get an optimizer class by name
+
+    Args:
+        name (str): the classname of the optimizer (e.g, OriginalGA, OriginalWOA), don't pass the module name (e.g, ABC, WOA, GA)
+
+    Returns:
+        optimizer (Optimizer): the actual optimizer class or None if the classname is not supported
+    """
+    try:
+        return get_all_optimizers()[name]
+    except KeyError:
+        print(f"Mealpy doesn't support optimizer named: {name}.\n"
+              f"Please see the supported Optimizer name from here: https://mealpy.readthedocs.io/en/latest/pages/support.html#classification-table")
+        return None
