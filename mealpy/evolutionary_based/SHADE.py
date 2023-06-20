@@ -349,6 +349,8 @@ class AL_SHADE(Optimizer):
         + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
         + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
 
+    TODO: Not finished yet
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
