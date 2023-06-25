@@ -818,6 +818,8 @@ Import All Models
 		model = MVO.OriginalMVO(**paras_mvo)
 		model = NRO.OriginalNRO(**paras_nro)
 		model = SA.OriginalSA(**paras_sa)
+		model = SA.SwarmSA(**paras_sa)
+		model = SA.GaussianSA(**paras_sa)
 		model = TWO.OriginalTWO(**paras_two)
 		model = TWO.OppoTWO(**paras_two)
 		model = TWO.LevyTWO(**paras_two)

@@ -128,7 +128,9 @@ if __name__ == "__main__":
     ## 2nd way
     model = get_optimizer_by_name("IGWO")(epoch, pop_size, a_min=0.02, a_max=1.6)
     model = get_optimizer_by_name("OriginalHC")(epoch, pop_size=2)
-    model = get_optimizer_by_name("SwarmHC")(epoch, pop_size=50)
+    model = get_optimizer_by_name("GaussianSA")(epoch, pop_size=50, temp_init=100)
+    model = get_optimizer_by_name("SwarmSA")(epoch, pop_size=50, temp_init=100)
+    model = get_optimizer_by_name("OriginalSA")(epoch, pop_size=50, temp_init=100)
     best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
 
     print(best_position)

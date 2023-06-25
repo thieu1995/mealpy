@@ -28,6 +28,8 @@ def problem():
 def test_SA_results(problem):
     models = [
         SA.OriginalSA(epoch=100, pop_size=50),
+        SA.GaussianSA(epoch=100, pop_size=20),
+        SA.SwarmSA(epoch=100, pop_size=50)
     ]
     for model in models:
         best_position, best_fitness = model.solve(problem)
