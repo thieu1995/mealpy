@@ -579,7 +579,9 @@ If you are using mealpy in your project, we would appreciate citations:
 | Swarm        | Dwarf Mongoose Optimization Algorithm           | DMOA       | OriginalDMOA     | 2022     | 4         | medium         |
 | Swarm        | -                                               | -          | DevDMOA          | -        | 3         | medium         |
 | -            | -                                               | -          | -                | -        | -         | -              |
-| Physics      | Simulated Annealling                            | SA         | OriginalSA       | 1987     | 9         | medium         |
+| Physics      | Simulated Annealling                            | SA         | OriginalSA       | 1983     | 3         | easy           |
+| Physics      |                                                 |            | GaussianSA       | -        | 4         | easy           |
+| Physics      |                                                 |            | SwarmSA          | 1987     | 9         | medium         |
 | Physics      | Wind Driven Optimization                        | WDO        | OriginalWDO      | 2013     | 7         | easy           |
 | Physics      | Multi-Verse Optimizer                           | MVO        | OriginalMVO      | 2016     | 4         | easy           |
 | Physics      | -                                               | -          | BaseMVO          | -        | 4         | easy           |
@@ -1002,7 +1004,9 @@ If you are using mealpy in your project, we would appreciate citations:
 ### S
 
 * **SA - Simulated Annealling** 
-  * **OriginalSA**: . Van Laarhoven, P. J., & Aarts, E. H. (1987). Simulated annealing. In Simulated annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
+  **OriginalSA**: Kirkpatrick, S., Gelatt Jr, C. D., & Vecchi, M. P. (1983). Optimization by simulated annealing. science, 220(4598), 671-680.
+  **GaussianSA**: Van Laarhoven, P. J., Aarts, E. H., van Laarhoven, P. J., & Aarts, E. H. (1987). Simulated annealing (pp. 7-15). Springer Netherlands.
+  **SwarmSA**: My developed version
 
 * **SSpiderO - Social Spider Optimization** 
   * **OriginalSSpiderO**: Cuevas, E., Cienfuegos, M., ZaldíVar, D., & Pérez-Cisneros, M. (2013). A swarm optimization algorithm inspired in the behavior of the social-spider. Expert Systems with Applications, 40(16), 6374-6384.
