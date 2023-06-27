@@ -69,8 +69,7 @@ class ParameterGrid:
                 if isinstance(value, str) or not isinstance(value, (np.ndarray, abc.Sequence)):
                     raise TypeError(
                         f"Parameter grid for parameter {key!r} needs to be a list or a"
-                        f" numpy array, but got {value!r} (of type "
-                        f"{type(value).__name__}) instead. Single values "
+                        f" numpy array, but got {value!r} (of type {type(value).__name__}) instead. Single values "
                         "need to be wrapped in a list with one element.")
                 if len(value) == 0:
                     raise ValueError(f"Parameter grid for parameter {key!r} need to be a non-empty sequence, got: {value!r}")
@@ -82,16 +81,14 @@ class ParameterGrid:
         Returns
         -------
         params : iterator over dict of str to any
-            Yields dictionaries mapping each estimator parameter to one of its
-            allowed values.
+            Yields dictionaries mapping each estimator parameter to one of its allowed values.
         """
         for p in self.param_grid:
-            # Always sort the keys of a dictionary, for reproducibility
-            items = sorted(p.items())
-            if not items:
+            ## My version: Don't sort the key here. Keep it as it is
+            if not p.items():
                 yield {}
             else:
-                keys, values = zip(*items)
+                keys, values = zip(*p.items())
                 for v in product(*values):
                     params = dict(zip(keys, v))
                     yield params
@@ -115,8 +112,7 @@ class ParameterGrid:
         params : dict of str to any
             Equal to list(self)[ind]
         """
-        # This is used to make discrete sampling without replacement memory
-        # efficient.
+        # This is used to make discrete sampling without replacement memory efficient.
         for sub_grid in self.param_grid:
             # XXX: could memoize information used here
             if not sub_grid:
@@ -127,7 +123,9 @@ class ParameterGrid:
                     continue
 
             # Reverse so most frequent cycling parameter comes first
-            keys, values_lists = zip(*sorted(sub_grid.items())[::-1])
+            # keys, values_lists = zip(*sorted(sub_grid.items())[::-1])
+            ## My version: Don't sort the values and don't reverse here. Keep it as it is
+            keys, values_lists = zip(*sub_grid.items())
             sizes = [len(v_list) for v_list in values_lists]
             total = np.product(sizes)
 

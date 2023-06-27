@@ -45,7 +45,7 @@ from .system_based import AEO, GCO, WCA
 from .music_based import HS
 from .utils.problem import Problem
 from .utils.termination import Termination
-from .tuner import Tuner
+from .tuner import Tuner, ParameterGrid
 from .multitask import Multitask
 from .optimizer import Optimizer
 
