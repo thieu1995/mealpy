@@ -20,10 +20,10 @@ p1 = {
 }
 
 paras_bbo_grid = {
-    "epoch": [100],
-    "pop_size": [50],
+    "epoch": [10],
+    "pop_size": [10],
     "elites": [2, 3, 4, 5],
-    "p_m": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2]
+    "p_m": [0.01, 0.02, 0.05]
 }
 
 term = {
@@ -43,7 +43,8 @@ if __name__ == "__main__":
     print(type(tuner.best_params))
 
     print(tuner.best_algorithm)
-    tuner.export_results("history/tuning", save_as="csv")
+    tuner.export_results()
+    tuner.export_figures()
 
     best_position, best_fitness = tuner.resolve(mode="thread", n_workers=4, termination=term)
     print(best_position, best_fitness)

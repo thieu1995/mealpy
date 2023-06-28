@@ -30,7 +30,9 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add get_all_optimizers() and get_optimizer_by_name() in Mealpy
 + Rename the OriginalSA to SwarmSA in SA optimizer
 + Add the OriginalSA and GaussianSA in SA optimizer
-
++ Update parameters in OriginalHC and SwarmHC
++ Update ParameterGrid class to produce the dict with same order as original input
++ Add export_figures() to Tuner class. It can draw the hyperparameter tuning process. 
 
 
 # Version 2.5.3
