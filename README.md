@@ -32,9 +32,9 @@ MEALPY is the largest python library for most of the cutting-edge nature-inspire
 approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
-* **Total algorithms**: 175 (102 original, 46 official variants, 27 developed variants)
+* **Total algorithms**: 209 (129 original, 46 official variants, 34 developed variants)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
-* **Python versions:** 3.7.x, 3.8.x, 3.9.x, 3.10.x, 3.11.x
+* **Python versions:** >=3.7x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 

@@ -33,6 +33,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Update parameters in OriginalHC and SwarmHC
 + Update ParameterGrid class to produce the dict with same order as original input
 + Add export_figures() to Tuner class. It can draw the hyperparameter tuning process. 
++ Fix several bugs in docs folders. 
 
 
 # Version 2.5.3
