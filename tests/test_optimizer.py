@@ -59,7 +59,7 @@ def test_create_population(model):
     pop = model.create_population(pop_size=n_agent)
     idx_rand = np.random.choice(range(0, n_agent))
     agent = pop[idx_rand]
-    assert type(pop) == list
+    assert type(pop) is list
     assert len(pop) == n_agent
     assert len(agent) == 2
     assert len(agent[model.ID_POS]) == model.problem.n_dims
@@ -253,4 +253,4 @@ def test_get_index_roulette_wheel_selection(model):
     list_fitness = np.random.rand(10) * 0.0001 + 1  # flat landscape
     list_fitness[-1] = 1.1  # local optima as a small 10% bump
     idx = model.get_index_roulette_wheel_selection(list_fitness)
-    assert type(idx) == int
+    assert type(idx) is int

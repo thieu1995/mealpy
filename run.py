@@ -132,6 +132,11 @@ if __name__ == "__main__":
     model = get_optimizer_by_name("SwarmSA")(epoch, pop_size=50, temp_init=100)
     model = get_optimizer_by_name("OriginalSA")(epoch, pop_size=50, temp_init=100)
     best_position, best_fitness = model.solve(P1, mode="thread", n_workers=4, termination=term_dict1)
+    # print(model.nfe)
+
+    model = GWO.RW_GWO(epoch, pop_size)
+    model.solve(P1)
+    print(model.nfe_counter)
 
     print(best_position)
     print(model.get_parameters())

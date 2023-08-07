@@ -63,6 +63,6 @@ def test_para_grids(problem, para_grids, request):
         tuner = Tuner(model, para_grids)
         tuner.execute(problem)
         pos, fit = tuner.resolve()
-        assert type(pos) == np.ndarray
+        assert isinstance(pos, np.ndarray)
     except TypeError:
         assert True
