@@ -252,6 +252,11 @@ class ImprovedSLO(ModifiedSLO):
     >>> model = ImprovedSLO(epoch, pop_size, c1, c2)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Nguyen, Binh Minh, Trung Tran, Thieu Nguyen, and Giang Nguyen. "An improved sea lion optimization for workload elasticity
+    prediction with neural networks." International Journal of Computational Intelligence Systems 15, no. 1 (2022): 90.
     """
 
     def __init__(self, epoch=10000, pop_size=100, c1=1.2, c2=1.2, **kwargs):
