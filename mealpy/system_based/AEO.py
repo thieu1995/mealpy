@@ -505,7 +505,7 @@ class ModifiedAEO(Optimizer):
 
 class AugmentedAEO(Optimizer):
     """
-    The original version of: Adaptive Artificial Ecosystem Optimization (AAEO)
+    The original version of: Augmented Artificial Ecosystem Optimization (AAEO)
 
     Notes
     ~~~~~
