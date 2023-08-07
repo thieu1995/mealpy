@@ -4,7 +4,7 @@ Simple Guide
 
 In this phase, the main task is to find out the global optimal - in this project, we call it named *model* for simple. We designed the classical as well as
 the state-of-the-art population-based meta-heuristics models: `Evolutionary-based`_, `Swarm-based`_, `Physics-based`_, `Human-based`_, `Biology-based`_,
-`Mathematical-based`_, `Musical-based`_
+`Mathematical-based`_, `Musical-based`_, and `System-based`_
 
 .. _Evolutionary-based: ../models/mealpy.evolutionary_based.html
 .. _Swarm-based: ../models/mealpy.swarm_based.html
@@ -13,6 +13,7 @@ the state-of-the-art population-based meta-heuristics models: `Evolutionary-base
 .. _Biology-based: ../models/mealpy.bio_based.html
 .. _Mathematical-based: ../models/mealpy.math_based.html
 .. _Musical-based: ../models/mealpy.music_based.html
+.. _System-based: ../models/mealpy.system_based.html
 
 All of this methods are used in the same way. So, in this guide, we'll demo with a specific method such as **Genetic Algorithm** in *Evolutionary-based*.
 
@@ -25,7 +26,7 @@ Installation
 
 Install the `current PyPI release`_. ::
 
-   $ pip install mealpy==2.5.3
+   $ pip install mealpy==2.5.4
 
 .. _current PyPI release: https://pypi.python.org/pypi/mealpy
 

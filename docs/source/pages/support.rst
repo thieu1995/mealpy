@@ -42,7 +42,7 @@ Official Links
 * Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
 * Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
 
-* This project also related to our another projects which are "meta-heuristics" and "neural-network", check it here
+* This project also related to our another projects which are "meta-heuristics" and "machine learning", check it here:
    * https://github.com/thieu1995/opfunu
    * https://github.com/thieu1995/metaheuristics
    * https://github.com/thieu1995/enoppy
