@@ -195,7 +195,7 @@ class LARO(Optimizer):
 
 class IARO(Optimizer):
     """
-    The improved version of: Improved Artificial Rabbits Optimization (ARO)
+    The improved version of: Improved Artificial Rabbits Optimization (IARO)
 
     Links:
         1. https://doi.org/10.1016/j.engappai.2022.105082
