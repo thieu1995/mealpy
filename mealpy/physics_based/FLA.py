@@ -57,7 +57,8 @@ class OriginalFLA(Optimizer):
 
     References
     ~~~~~~~~~~
-    [1] Fatma Hashim, Reham R Mostafa, Abdelazim G. Hussien, Seyedali Mirjalili, & Karam M. Sallam   Knowledge-based Systems
+    [1] Hashim, F. A., Mostafa, R. R., Hussien, A. G., Mirjalili, S., & Sallam, K. M. (2023). Fick’s Law Algorithm: A physical
+    law-based algorithm for numerical optimization. Knowledge-Based Systems, 260, 110146.
     """
     def __init__(self, epoch=10000, pop_size=100, C1=0.5, C2=2.0, C3=0.1, C4=0.2, C5=2.0, DD=0.01, **kwargs):
         """
