@@ -8,7 +8,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-2.5.3-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-2.5.4-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -26,6 +26,7 @@ alt="MEALPY"/>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+# Introduction 
 
 MEALPY is the largest python library for most of the cutting-edge nature-inspired meta-heuristic algorithms (population-based). Population meta-heuristic algorithms (PMA) are the most popular algorithms in the field of 
 approximate optimization.
@@ -37,7 +38,7 @@ approximate optimization.
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
-# Goals
+### Goals
 
 Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
 
@@ -49,30 +50,58 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 - Export and import models can also be done with Mealpy.
 
 
+### Citation Request
 
-# Installation
+Please include these citations if you plan to use this library:
 
-### Install the stable (latest) version
-Install the [current PyPI release](https://pypi.python.org/pypi/mealpy):
-```sh 
-$ pip install mealpy==2.5.3
+```code 
+@software{nguyen_van_thieu_2023_8214540,
+  author       = {Nguyen Van Thieu},
+  title        = {MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library},
+  month        = aug,
+  year         = 2023,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.8214539},
+  url          = {https://github.com/thieu1995/metacluster}
+}
+
+@article{van2023mealpy,
+  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+  journal={Journal of Systems Architecture},
+  year={2023},
+  publisher={Elsevier},
+  doi={10.1016/j.sysarc.2023.102871}
+}
 ```
 
-### Install the alpha/beta version
+
+# Usage 
+
+## Installation
+
+* Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
+```sh 
+$ pip install mealpy==2.5.4
+```
+
+* Install the alpha/beta version from PyPi
 ```sh 
 $ pip install mealpy==2.5.4a6
 ```
 
-### Install the pre-release version
-You can install pre-release directly from the source code:
+* Install the pre-release version directly from the source code:
 ```sh 
 $ git clone https://github.com/thieu1995/mealpy.git
 $ cd mealpy
 $ python setup.py install
 ```
 
+* In case, you want to install the development version from Github:
+```sh 
+$ pip install git+https://github.com/thieu1995/permetrics 
+```
 
-# Usage
 
 After installation, you can import Mealpy as any other Python module:
 
@@ -85,10 +114,9 @@ $ python
 >>> model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
 ```
 
-Let's go through a basic and advanced example.
-
 
 ## Examples
+Let's go through a basic and advanced example.
 
 ### Simple Benchmark Function
 
@@ -214,7 +242,7 @@ if __name__ == "__main__":
     print(tuner.best_algorithm.get_name())
     
     ## Save results to csv file 
-    tuner.export_results(save_path="history/tuning", save_as="csv")
+    tuner.export_results(save_path="history", file_name="tuning_best_fit.csv")
     
     ## Re-solve the best model on your problem 
     best_position, best_fitness = tuner.resolve()
@@ -359,7 +387,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 
 
-### Get helps (questions, problems)
+## Official Channels (questions, problems)
 
 * Official source code repo: https://github.com/thieu1995/mealpy
 * Official document: https://mealpy.readthedocs.io/
@@ -369,39 +397,15 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
 * Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
 
-* This project also related to our another projects which are "meta-heuristics" and "neural-network", check it here
+* This project also related to our another projects which are optimization and machine learning. Check it here:
     * https://github.com/thieu1995/opfunu
     * https://github.com/thieu1995/metaheuristics
-    * https://github.com/aiir-team
     * https://github.com/mafese
     * https://github.com/permetrics
-
-### Cite Us
-
-If you are using mealpy in your project, we would appreciate citations:
-
-```bibtex 
-@article{van2023mealpy,
-  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
-  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
-  journal={Journal of Systems Architecture},
-  year={2023},
-  publisher={Elsevier},
-  doi={10.1016/j.sysarc.2023.102871}
-}
-
-@article{van2023groundwater,
-  title={Groundwater level modeling using Augmented Artificial Ecosystem Optimization},
-  author={Van Thieu, Nguyen and Barma, Surajit Deb and Van Lam, To and Kisi, Ozgur and Mahesha, Amai},
-  journal={Journal of Hydrology},
-  volume={617},
-  pages={129034},
-  year={2023},
-  publisher={Elsevier},
-  doi={10.1016/j.jhydrol.2022.129034}
-}
-```
-
+    * https://github.com/pfevaluator
+    * https://github.com/MetaCluster
+    * https://github.com/enoppy
+    * https://github.com/aiir-team
 
 
 # List of papers used MEALPY
@@ -487,191 +491,7 @@ If you are using mealpy in your project, we would appreciate citations:
 ** For newbie, we recommend to read the paper of algorithms which difficulty is "easy" or "medium" difficulty level.
 
 
-| **Group**    | **Name**                                        | **Module** | **Class**        | **Year** | **Paras** | **Difficulty** |
-|--------------|-------------------------------------------------|------------|------------------|----------|-----------|----------------|
-| Evolutionary | Evolutionary Programming                        | EP         | OriginalEP       | 1964     | 3         | easy           |
-| Evolutionary | -                                               | -          | LevyEP           | -        | 3         | easy           |
-| Evolutionary | Evolution Strategies                            | ES         | OriginalES       | 1971     | 3         | easy           |
-| Evolutionary | -                                               | -          | LevyES           | -        | 3         | easy           |
-| Evolutionary | Memetic Algorithm                               | MA         | OriginalMA       | 1989     | 7         | easy           |
-| Evolutionary | Genetic Algorithm                               | GA         | BaseGA           | 1992     | 4         | easy           |
-| Evolutionary | -                                               | -          | SingleGA         | -        | 7         | easy           |
-| Evolutionary | -                                               | -          | MultiGA          | -        | 7         | easy           |
-| Evolutionary | -                                               | -          | EliteSingleGA    | -        | 10        | easy           |
-| Evolutionary | -                                               | -          | EliteMultiGA     | -        | 10        | easy           |
-| Evolutionary | Differential Evolution                          | DE         | BaseDE           | 1997     | 5         | easy           |
-| Evolutionary | -                                               | -          | JADE             | 2009     | 6         | medium         |
-| Evolutionary | -                                               | -          | SADE             | 2005     | 2         | medium         |
-| Evolutionary | -                                               | -          | SHADE            | 2013     | 4         | medium         |
-| Evolutionary | -                                               | -          | L_SHADE          | 2014     | 4         | medium         |
-| Evolutionary | -                                               | -          | SAP_DE           | 2006     | 3         | medium         |
-| Evolutionary | Flower Pollination Algorithm                    | FPA        | OriginalFPA      | 2014     | 4         | medium         |
-| Evolutionary | Coral Reefs Optimization                        | CRO        | OriginalCRO      | 2014     | 11        | medium         |
-| Evolutionary | -                                               | -          | OCRO             | 2019     | 12        | medium         |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Swarm        | Particle Swarm Optimization                     | PSO        | OriginalPSO      | 1995     | 6         | easy           |
-| Swarm        | -                                               | -          | PPSO             | 2019     | 2         | medium         |
-| Swarm        | -                                               | -          | HPSO_TVAC        | 2017     | 4         | medium         |
-| Swarm        | -                                               | -          | C_PSO            | 2015     | 6         | medium         |
-| Swarm        | -                                               | -          | CL_PSO           | 2006     | 6         | medium         |
-| Swarm        | Bacterial Foraging Optimization                 | BFO        | OriginalBFO      | 2002     | 10        | hard           |
-| Swarm        | -                                               | -          | ABFO             | 2019     | 8         | medium         |
-| Swarm        | Bees Algorithm                                  | BeesA      | OriginalBeesA    | 2005     | 8         | medium         |
-| Swarm        | -                                               | -          | ProbBeesA        | 2015     | 5         | medium         |
-| Swarm        | Cat Swarm Optimization                          | CSO        | OriginalCSO      | 2006     | 11        | hard           |
-| Swarm        | Artificial Bee Colony                           | ABC        | OriginalABC      | 2007     | 8         | medium         |
-| Swarm        | Ant Colony Optimization                         | ACO-R      | OriginalACOR     | 2008     | 5         | easy           |
-| Swarm        | Cuckoo Search Algorithm                         | CSA        | OriginalCSA      | 2009     | 3         | medium         |
-| Swarm        | Firefly Algorithm                               | FFA        | OriginalFFA      | 2009     | 8         | easy           |
-| Swarm        | Fireworks Algorithm                             | FA         | OriginalFA       | 2010     | 7         | medium         |
-| Swarm        | Bat Algorithm                                   | BA         | OriginalBA       | 2010     | 6         | medium         |
-| Swarm        | -                                               | -          | AdaptiveBA       | -        | 8         | medium         |
-| Swarm        | -                                               | -          | ModifiedBA       | -        | 5         | medium         |
-| Swarm        | Fruit-fly Optimization Algorithm                | FOA        | OriginalFOA      | 2012     | 2         | easy           |
-| Swarm        | -                                               | -          | BaseFOA          | -        | 2         | easy           |
-| Swarm        | -                                               | -          | WhaleFOA         | 2020     | 2         | medium         |
-| Swarm        | Social Spider Optimization                      | SSpiderO   | OriginalSSpiderO | 2018     | 4         | hard*          |
-| Swarm        | Grey Wolf Optimizer                             | GWO        | OriginalGWO      | 2014     | 2         | easy           |
-| Swarm        | -                                               | -          | RW_GWO           | 2019     | 2         | easy           |
-| Swarm        | -                                               | -          | IGWO             | 2017     | 4         | easy           |
-| Swarm        | Social Spider Algorithm                         | SSpiderA   | OriginalSSpiderA | 2015     | 5         | medium         |
-| Swarm        | Ant Lion Optimizer                              | ALO        | OriginalALO      | 2015     | 2         | easy           |
-| Swarm        | -                                               | -          | BaseALO          | -        | 2         | easy           |
-| Swarm        | Moth Flame Optimization                         | MFO        | OriginalMFO      | 2015     | 2         | easy           |
-| Swarm        | -                                               | -          | BaseMFO          | -        | 2         | easy           |
-| Swarm        | Elephant Herding Optimization                   | EHO        | OriginalEHO      | 2015     | 5         | easy           |
-| Swarm        | Jaya Algorithm                                  | JA         | OriginalJA       | 2016     | 2         | easy           |
-| Swarm        | -                                               | -          | BaseJA           | -        | 2         | easy           |
-| Swarm        | -                                               | -          | LevyJA           | 2021     | 2         | easy           |
-| Swarm        | Whale Optimization Algorithm                    | WOA        | OriginalWOA      | 2016     | 2         | medium         |
-| Swarm        | -                                               | -          | HI_WOA           | 2019     | 3         | medium         |
-| Swarm        | Dragonfly Optimization                          | DO         | OriginalDO       | 2016     | 2         | medium         |
-| Swarm        | Bird Swarm Algorithm                            | BSA        | OriginalBSA      | 2016     | 9         | medium         |
-| Swarm        | Spotted Hyena Optimizer                         | SHO        | OriginalSHO      | 2017     | 4         | medium         |
-| Swarm        | Salp Swarm Optimization                         | SSO        | OriginalSSO      | 2017     | 2         | easy           |
-| Swarm        | Swarm Robotics Search And Rescue                | SRSR       | OriginalSRSR     | 2017     | 2         | hard*          |
-| Swarm        | Grasshopper Optimisation Algorithm              | GOA        | OriginalGOA      | 2017     | 4         | easy           |
-| Swarm        | Coyote Optimization Algorithm                   | COA        | OriginalCOA      | 2018     | 3         | medium         |
-| Swarm        | Moth Search Algorithm                           | MSA        | OriginalMSA      | 2018     | 5         | easy           |
-| Swarm        | Sea Lion Optimization                           | SLO        | OriginalSLO      | 2019     | 2         | medium         |
-| Swarm        | -                                               | -          | ModifiedSLO      | -        | 2         | medium         |
-| Swarm        | -                                               | -          | ImprovedSLO      | -        | 4         | medium         |
-| Swarm        | Nake Mole-Rat Algorithm                         | NMRA       | OriginalNMRA     | 2019     | 3         | easy           |
-| Swarm        | -                                               | -          | ImprovedNMRA     | -        | 4         | medium         |
-| Swarm        | Pathfinder Algorithm                            | PFA        | OriginalPFA      | 2019     | 2         | medium         |
-| Swarm        | Sailfish Optimizer                              | SFO        | OriginalSFO      | 2019     | 5         | easy           |
-| Swarm        | -                                               | -          | ImprovedSFO      | -        | 3         | medium         |
-| Swarm        | Harris Hawks Optimization                       | HHO        | OriginalHHO      | 2019     | 2         | medium         |
-| Swarm        | Manta Ray Foraging Optimization                 | MRFO       | OriginalMRFO     | 2020     | 3         | medium         |
-| Swarm        | Bald Eagle Search                               | BES        | OriginalBES      | 2020     | 7         | easy           |
-| Swarm        | Sparrow Search Algorithm                        | SSA        | OriginalSSA      | 2020     | 5         | medium         |
-| Swarm        | -                                               | -          | BaseSSA          | -        | 5         | medium         |
-| Swarm        | Hunger Games Search                             | HGS        | OriginalHGS      | 2021     | 4         | medium         |
-| Swarm        | Aquila Optimizer                                | AO         | OriginalAO       | 2021     | 2         | easy           |
-| Swarm        | Hybrid Grey Wolf - Whale Optimization Algorithm | GWO        | GWO_WOA          | 2022     | 2         | easy           |
-| Swarm        | Marine Predators Algorithm                      | MPA        | OriginalMPA      | 2020     | 2         | medium         |
-| Swarm        | Honey Badger Algorithm                          | HBA        | OriginalHBA      | 2022     | 2         | easy           |
-| Swarm        | Sand Cat Swarm Optimization                     | SCSO       | OriginalSCSO     | 2022     | 2         | easy           |
-| Swarm        | Tuna Swarm Optimization                         | TSO        | OriginalTSO      | 2021     | 2         | medium         |
-| Swarm        | African Vultures Optimization Algorithm         | AVOA       | OriginalAVOA     | 2022     | 7         | medium         |
-| Swarm        | Artificial Gorilla Troops Optimization          | AGTO       | OriginalAGTO     | 2021     | 5         | medium         |
-| Swarm        | Artificial Rabbits Optimization                 | ARO        | OriginalARO      | 2022     | 2         | easy           |
-| Swarm        | Dwarf Mongoose Optimization Algorithm           | DMOA       | OriginalDMOA     | 2022     | 4         | medium         |
-| Swarm        | -                                               | -          | DevDMOA          | -        | 3         | medium         |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Physics      | Simulated Annealling                            | SA         | OriginalSA       | 1983     | 3         | easy           |
-| Physics      |                                                 |            | GaussianSA       | -        | 4         | easy           |
-| Physics      |                                                 |            | SwarmSA          | 1987     | 9         | medium         |
-| Physics      | Wind Driven Optimization                        | WDO        | OriginalWDO      | 2013     | 7         | easy           |
-| Physics      | Multi-Verse Optimizer                           | MVO        | OriginalMVO      | 2016     | 4         | easy           |
-| Physics      | -                                               | -          | BaseMVO          | -        | 4         | easy           |
-| Physics      | Tug of War Optimization                         | TWO        | OriginalTWO      | 2016     | 2         | easy           |
-| Physics      | -                                               | -          | OppoTWO          | -        | 2         | medium         |
-| Physics      | -                                               | -          | LevyTWO          | -        | 2         | medium         |
-| Physics      | -                                               | -          | EnhancedTWO      | 2020     | 2         | medium         |
-| Physics      | Electromagnetic Field Optimization              | EFO        | OriginalEFO      | 2016     | 6         | easy           |
-| Physics      | -                                               | -          | BaseEFO          | -        | 6         | medium         |
-| Physics      | Nuclear Reaction Optimization                   | NRO        | OriginalNRO      | 2019     | 2         | hard*          |
-| Physics      | Henry Gas Solubility Optimization               | HGSO       | OriginalHGSO     | 2019     | 3         | medium         |
-| Physics      | Atom Search Optimization                        | ASO        | OriginalASO      | 2019     | 4         | medium         |
-| Physics      | Equilibrium Optimizer                           | EO         | OriginalEO       | 2019     | 2         | easy           |
-| Physics      | -                                               | -          | ModifiedEO       | 2020     | 2         | medium         |
-| Physics      | -                                               | -          | AdaptiveEO       | 2020     | 2         | medium         |
-| Physics      | Archimedes Optimization Algorithm               | ArchOA     | OriginalArchOA   | 2021     | 8         | medium         |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Human        | Culture Algorithm                               | CA         | OriginalCA       | 1994     | 3         | easy           |
-| Human        | Imperialist Competitive Algorithm               | ICA        | OriginalICA      | 2007     | 8         | hard*          |
-| Human        | Teaching Learning-based Optimization            | TLO        | OriginalTLO      | 2011     | 2         | easy           |
-| Human        | -                                               | -          | BaseTLO          | 2012     | 2         | easy           |
-| Human        | -                                               | -          | ITLO             | 2013     | 3         | medium         |
-| Human        | Brain Storm Optimization                        | BSO        | OriginalBSO      | 2011     | 8         | medium         |
-| Human        | -                                               | -          | ImprovedBSO      | 2017     | 7         | medium         |
-| Human        | Queuing Search Algorithm                        | QSA        | OriginalQSA      | 2019     | 2         | hard           |
-| Human        | -                                               | -          | BaseQSA          | -        | 2         | hard           |
-| Human        | -                                               | -          | OppoQSA          | -        | 2         | hard           |
-| Human        | -                                               | -          | LevyQSA          | -        | 2         | hard           |
-| Human        | -                                               | -          | ImprovedQSA      | 2021     | 2         | hard           |
-| Human        | Search And Rescue Optimization                  | SARO       | OriginalSARO     | 2019     | 4         | medium         |
-| Human        | -                                               | -          | BaseSARO         | -        | 4         | medium         |
-| Human        | Life Choice-Based Optimization                  | LCO        | OriginalLCO      | 2019     | 3         | easy           |
-| Human        | -                                               | -          | BaseLCO          | -        | 3         | easy           |
-| Human        | -                                               | -          | ImprovedLCO      | -        | 2         | easy           |
-| Human        | Social Ski-Driver Optimization                  | SSDO       | OriginalSSDO     | 2019     | 2         | easy           |
-| Human        | Gaining Sharing Knowledge-based Algorithm       | GSKA       | OriginalGSKA     | 2019     | 6         | medium         |
-| Human        | -                                               | -          | BaseGSKA         | -        | 4         | medium         |
-| Human        | Coronavirus Herd Immunity Optimization          | CHIO       | OriginalCHIO     | 2020     | 4         | medium         |
-| Human        | -                                               | -          | BaseCHIO         | -        | 4         | medium         |
-| Human        | Forensic-Based Investigation Optimization       | FBIO       | OriginalFBIO     | 2020     | 2         | medium         |
-| Human        | -                                               | -          | BaseFBIO         | -        | 2         | medium         |
-| Human        | Battle Royale Optimization                      | BRO        | OriginalBRO      | 2020     | 3         | medium         |
-| Human        | -                                               | -          | BaseBRO          | -        | 3         | medium         |
-| Human        | Student Psychology Based Optimization           | SPBO       | OriginalSPBO     | 2020     | 2         | medium         |
-| Human        | -                                               | -          | DevSPBO          |          | 2         | medium         |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Bio          | Invasive Weed Optimization                      | IWO        | OriginalIWO      | 2006     | 7         | easy           |
-| Bio          | Biogeography-Based Optimization                 | BBO        | OriginalBBO      | 2008     | 4         | easy           |
-| Bio          | -                                               | -          | BaseBBO          | -        | 4         | easy           |
-| Bio          | Virus Colony Search                             | VCS        | OriginalVCS      | 2016     | 4         | hard*          |
-| Bio          | -                                               | -          | BaseVCS          | -        | 4         | hard*          |
-| Bio          | Satin Bowerbird Optimizer                       | SBO        | OriginalSBO      | 2017     | 5         | easy           |
-| Bio          | -                                               | -          | BaseSBO          | -        | 5         | easy           |
-| Bio          | Earthworm Optimisation Algorithm                | EOA        | OriginalEOA      | 2018     | 8         | medium         |
-| Bio          | Wildebeest Herd Optimization                    | WHO        | OriginalWHO      | 2019     | 12        | hard           |
-| Bio          | Slime Mould Algorithm                           | SMA        | OriginalSMA      | 2020     | 3         | easy           |
-| Bio          | -                                               | -          | BaseSMA          | -        | 3         | easy           |
-| Bio          | Barnacles Mating Optimizer                      | BMO        | OriginalBMO      | 2018     | 3         | easy           |
-| Bio          | Tunicate Swarm Algorithm                        | TSA        | OriginalTSA      | 2020     | 2         | easy           |
-| Bio          | Symbiotic Organisms Search                      | SOS        | OriginalSOS      | 2014     | 2         | medium         |
-| Bio          | Seagull Optimization Algorithm                  | SOA        | OriginalSOA      | 2019     | 3         | easy           |
-| Bio          | -                                               | -          | DevSOA           | -        | 3         | easy           |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| System       | Germinal Center Optimization                    | GCO        | OriginalGCO      | 2018     | 4         | medium         |
-| System       | -                                               | -          | BaseGCO          | -        | 4         | medium         |
-| System       | Water Cycle Algorithm                           | WCA        | OriginalWCA      | 2012     | 5         | medium         |
-| System       | Artificial Ecosystem-based Optimization         | AEO        | OriginalAEO      | 2019     | 2         | easy           |
-| System       | -                                               | -          | EnhancedAEO      | 2020     | 2         | medium         |
-| System       | -                                               | -          | ModifiedAEO      | 2020     | 2         | medium         |
-| System       | -                                               | -          | ImprovedAEO      | 2021     | 2         | medium         |
-| System       | -                                               | -          | AugmentedAEO     | 2022     | 2         | medium         |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Math         | Hill Climbing                                   | HC         | OriginalHC       | 1993     | 3         | easy           |
-| Math         | -                                               | -          | SwarmHC          | -        | 3         | easy           |
-| Math         | Cross-Entropy Method                            | CEM        | OriginalCEM      | 1997     | 4         | easy           |
-| Math         | Sine Cosine Algorithm                           | SCA        | OriginalSCA      | 2016     | 2         | easy           |
-| Math         | -                                               | -          | BaseSCA          | -        | 2         | easy           |
-| Math         | Gradient-Based Optimizer                        | GBO        | OriginalGBO      | 2020     | 5         | medium         |
-| Math         | Arithmetic Optimization Algorithm               | AOA        | OrginalAOA       | 2021     | 6         | easy           |
-| Math         | Chaos Game Optimization                         | CGO        | OriginalCGO      | 2021     | 2         | easy           |
-| Math         | Pareto-like Sequential Sampling                 | PSS        | OriginalPSS      | 2021     | 4         | medium         |
-| Math         | weIghted meaN oF vectOrs                        | INFO       | OriginalINFO     | 2022     | 2         | medium         |
-| Math         | RUNge Kutta optimizer                           | RUN        | OriginalRUN      | 2021     | 2         | hard           |
-| Math         | Circle Search Algorithm                         | CircleSA   | OriginalCircleSA | 2022     | 3         | easy           |
-| -            | -                                               | -          | -                | -        | -         | -              |
-| Music        | Harmony Search                                  | HS         | OriginalHS       | 2001     | 4         | easy           |
-| Music        | -                                               | -          | BaseHS           | -        | 4         | easy           |
-
-
-
+<table><thead><tr><th>Group</th><th>Name</th><th>Module</th><th>Class</th><th>Year</th><th>Paras</th><th>Difficulty</th></tr></thead><tbody><tr><th>Evolutionary</th><td>Evolutionary Programming</td><td>EP</td><td>OriginalEP</td><td>1964</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>LevyEP</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Evolution Strategies</td><td>ES</td><td>OriginalES</td><td>1971</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>LevyES</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>CMA_ES</td><td>2003</td><td>2</td><td>hard</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>Simple_CMA_ES</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Memetic Algorithm</td><td>MA</td><td>OriginalMA</td><td>1989</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Genetic Algorithm</td><td>GA</td><td>BaseGA</td><td>1992</td><td>4</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SingleGA</td><td>*</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>MultiGA</td><td>*</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>EliteSingleGA</td><td>*</td><td>10</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>EliteMultiGA</td><td>*</td><td>10</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Differential Evolution</td><td>DE</td><td>BaseDE</td><td>1997</td><td>5</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>JADE</td><td>2009</td><td>6</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SADE</td><td>2005</td><td>2</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SAP_DE</td><td>2006</td><td>3</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Success-History Adaptation Differential Evolution</td><td>SHADE</td><td>OriginalSHADE</td><td>2013</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>L_SHADE</td><td>2014</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Flower Pollination Algorithm</td><td>FPA</td><td>OriginalFPA</td><td>2014</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Coral Reefs Optimization</td><td>CRO</td><td>OriginalCRO</td><td>2014</td><td>11</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>OCRO</td><td>2019</td><td>12</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Swarm</th><td>Particle Swarm Optimization</td><td>PSO</td><td>OriginalPSO</td><td>1995</td><td>6</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>PPSO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>HPSO_TVAC</td><td>2017</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>C_PSO</td><td>2015</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>CL_PSO</td><td>2006</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>Bacterial Foraging Optimization</td><td>BFO</td><td>OriginalBFO</td><td>2002</td><td>10</td><td>hard</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ABFO</td><td>2019</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Bees Algorithm</td><td>BeesA</td><td>OriginalBeesA</td><td>2005</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ProbBeesA</td><td>2015</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>CleverBookBeesA</td><td>2006</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Cat Swarm Optimization</td><td>CSO</td><td>OriginalCSO</td><td>2006</td><td>11</td><td>hard</td></tr><tr><th>Swarm</th><td>Artificial Bee Colony</td><td>ABC</td><td>OriginalABC</td><td>2007</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Ant Colony Optimization</td><td>ACOR</td><td>OriginalACOR</td><td>2008</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Cuckoo Search Algorithm</td><td>CSA</td><td>OriginalCSA</td><td>2009</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Firefly Algorithm </td><td>FFA</td><td>OriginalFFA</td><td>2009</td><td>8</td><td>easy</td></tr><tr><th>Swarm</th><td>Fireworks Algorithm</td><td>FA</td><td>OriginalFA</td><td>2010</td><td>7</td><td>medium</td></tr><tr><th>Swarm</th><td>Bat Algorithm</td><td>BA</td><td>OriginalBA</td><td>2010</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>AdaptiveBA</td><td>2010</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ModifiedBA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Fruit-fly Optimization Algorithm</td><td>FOA</td><td>OriginalFOA</td><td>2012</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseFOA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>WhaleFOA</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Social Spider Optimization</td><td>SSpiderO</td><td>OriginalSSpiderO</td><td>2018</td><td>4</td><td>hard*</td></tr><tr><th>Swarm</th><td>Grey Wolf Optimizer</td><td>GWO</td><td>OriginalGWO</td><td>2014</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>RW_GWO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Social Spider Algorithm</td><td>SSpiderA</td><td>OriginalSSpiderA</td><td>2015</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Ant Lion Optimizer</td><td>ALO</td><td>OriginalALO</td><td>2015</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseALO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Moth Flame Optimization</td><td>MFO</td><td>OriginalMFO</td><td>2015</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseMFO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Elephant Herding Optimization</td><td>EHO</td><td>OriginalEHO</td><td>2015</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Jaya Algorithm</td><td>JA</td><td>OriginalJA</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseJA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>LevyJA</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Whale Optimization Algorithm</td><td>WOA</td><td>OriginalWOA</td><td>2016</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>HI_WOA</td><td>2019</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Dragonfly Optimization</td><td>DO</td><td>OriginalDO</td><td>2016</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Bird Swarm Algorithm</td><td>BSA</td><td>OriginalBSA</td><td>2016</td><td>9</td><td>medium</td></tr><tr><th>Swarm</th><td>Spotted Hyena Optimizer</td><td>SHO</td><td>OriginalSHO</td><td>2017</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Salp Swarm Optimization</td><td>SSO</td><td>OriginalSSO</td><td>2017</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Swarm Robotics Search And Rescue</td><td>SRSR</td><td>OriginalSRSR</td><td>2017</td><td>2</td><td>hard*</td></tr><tr><th>Swarm</th><td>Grasshopper Optimisation Algorithm</td><td>GOA</td><td>OriginalGOA</td><td>2017</td><td>4</td><td>easy</td></tr><tr><th>Swarm</th><td>Coyote Optimization Algorithm</td><td>COA</td><td>OriginalCOA</td><td>2018</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Moth Search Algorithm</td><td>MSA</td><td>OriginalMSA</td><td>2018</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Sea Lion Optimization</td><td>SLO</td><td>OriginalSLO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ModifiedSLO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedSLO</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Nake Mole*Rat Algorithm</td><td>NMRA</td><td>OriginalNMRA</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedNMRA</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Pathfinder Algorithm</td><td>PFA</td><td>OriginalPFA</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Sailfish Optimizer</td><td>SFO</td><td>OriginalSFO</td><td>2019</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedSFO</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Harris Hawks Optimization</td><td>HHO</td><td>OriginalHHO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Manta Ray Foraging Optimization</td><td>MRFO</td><td>OriginalMRFO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Bald Eagle Search</td><td>BES</td><td>OriginalBES</td><td>2020</td><td>7</td><td>easy</td></tr><tr><th>Swarm</th><td>Sparrow Search Algorithm</td><td>SSA</td><td>OriginalSSA</td><td>2020</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseSSA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Hunger Games Search</td><td>HGS</td><td>OriginalHGS</td><td>2021</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Aquila Optimizer</td><td>AO</td><td>OriginalAO</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Hybrid Grey Wolf * Whale Optimization Algorithm</td><td>GWO</td><td>GWO_WOA</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Marine Predators Algorithm</td><td>MPA</td><td>OriginalMPA</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Honey Badger Algorithm</td><td>HBA</td><td>OriginalHBA</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Sand Cat Swarm Optimization</td><td>SCSO</td><td>OriginalSCSO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Tuna Swarm Optimization</td><td>TSO</td><td>OriginalTSO</td><td>2021</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>African Vultures Optimization Algorithm</td><td>AVOA</td><td>OriginalAVOA</td><td>2022</td><td>7</td><td>medium</td></tr><tr><th>Swarm</th><td>Artificial Gorilla Troops Optimization</td><td>AGTO</td><td>OriginalAGTO</td><td>2021</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>MGTO</td><td>2023</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Artificial Rabbits Optimization</td><td>ARO</td><td>OriginalARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>LARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>IARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Egret Swarm Optimization Algorithm</td><td>ESOA</td><td>OriginalESOA</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Fox Optimizer</td><td>FOX</td><td>OriginalFOX</td><td>2023</td><td>4</td><td>easy</td></tr><tr><th>Swarm</th><td>Golden Jackal Optimization</td><td>GJO</td><td>OriginalGJO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Giant Trevally Optimization</td><td>GTO</td><td>OriginalGTO</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>Matlab101GTO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>Matlab102GTO</td><td>2023</td><td>2</td><td>hard</td></tr><tr><th>Swarm</th><td>Mountain Gazelle Optimizer</td><td>MGO</td><td>OriginalMGO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Sea-Horse Optimization</td><td>SeaHO</td><td>OriginalSeaHO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Physics</th><td>Simulated Annealling</td><td>SA</td><td>OriginalSA</td><td>1983</td><td>9</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>GaussianSA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>SwarmSA</td><td>1987</td><td>9</td><td>medium</td></tr><tr><th>Physics</th><td>Wind Driven Optimization</td><td>WDO</td><td>OriginalWDO</td><td>2013</td><td>7</td><td>easy</td></tr><tr><th>Physics</th><td>Multi*Verse Optimizer</td><td>MVO</td><td>OriginalMVO</td><td>2016</td><td>4</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>BaseMVO</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>Physics</th><td>Tug of War Optimization</td><td>TWO</td><td>OriginalTWO</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>OppoTWO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>LevyTWO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>EnhancedTWO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Electromagnetic Field Optimization</td><td>EFO</td><td>OriginalEFO</td><td>2016</td><td>6</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>BaseEFO</td><td>*</td><td>6</td><td>medium</td></tr><tr><th>Physics</th><td>Nuclear Reaction Optimization</td><td>NRO</td><td>OriginalNRO</td><td>2019</td><td>2</td><td>hard*</td></tr><tr><th>Physics</th><td>Henry Gas Solubility Optimization</td><td>HGSO</td><td>OriginalHGSO</td><td>2019</td><td>3</td><td>medium</td></tr><tr><th>Physics</th><td>Atom Search Optimization</td><td>ASO</td><td>OriginalASO</td><td>2019</td><td>4</td><td>medium</td></tr><tr><th>Physics</th><td>Equilibrium Optimizer</td><td>EO</td><td>OriginalEO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>ModifiedEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>AdaptiveEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Archimedes Optimization Algorithm</td><td>ArchOA</td><td>OriginalArchOA</td><td>2021</td><td>8</td><td>medium</td></tr><tr><th>Physics</th><td>Chernobyl Disaster Optimization</td><td>CDO</td><td>OriginalCDO</td><td>2023</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>Energy Valley Optimization</td><td>EVO</td><td>OriginalEVO</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Fick&#39;s Law Algorithm</td><td>FLA</td><td>OriginalFLA</td><td>2023</td><td>8</td><td>hard</td></tr><tr><th>Physics</th><td>Physical Phenomenon of RIME-ice</td><td>RIME</td><td>OriginalRIME</td><td>2023</td><td>3</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Human</th><td>Culture Algorithm</td><td>CA</td><td>OriginalCA</td><td>1994</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>Imperialist Competitive Algorithm</td><td>ICA</td><td>OriginalICA</td><td>2007</td><td>8</td><td>hard*</td></tr><tr><th>Human</th><td>Teaching Learning*based Optimization</td><td>TLO</td><td>OriginalTLO</td><td>2011</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseTLO</td><td>2012</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ITLO</td><td>2013</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Brain Storm Optimization</td><td>BSO</td><td>OriginalBSO</td><td>2011</td><td>8</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedBSO</td><td>2017</td><td>7</td><td>medium</td></tr><tr><th>Human</th><td>Queuing Search Algorithm</td><td>QSA</td><td>OriginalQSA</td><td>2019</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>OppoQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>LevyQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedQSA</td><td>2021</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>Search And Rescue Optimization</td><td>SARO</td><td>OriginalSARO</td><td>2019</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseSARO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Life Choice*Based Optimization </td><td>LCO</td><td>OriginalLCO</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseLCO</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedLCO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>Social Ski*Driver Optimization</td><td>SSDO</td><td>OriginalSSDO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>Gaining Sharing Knowledge*based Algorithm</td><td>GSKA</td><td>OriginalGSKA</td><td>2019</td><td>6</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseGSKA</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Coronavirus Herd Immunity Optimization</td><td>CHIO</td><td>OriginalCHIO</td><td>2020</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseCHIO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Forensic*Based Investigation Optimization</td><td>FBIO</td><td>OriginalFBIO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseFBIO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>Battle Royale Optimization</td><td>BRO</td><td>OriginalBRO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseBRO</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Student Psychology Based Optimization</td><td>SPBO</td><td>OriginalSPBO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>DevSPBO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>Heap-based Optimization</td><td>HBO</td><td>OriginalHBO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Human Conception Optimization</td><td>HCO</td><td>OriginalHCO</td><td>2022</td><td>6</td><td>medium</td></tr><tr><th>Human</th><td>Dwarf Mongoose Optimization Algorithm</td><td>DMOA</td><td>OriginalDMOA</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>DevDMOA</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>War Strategy Optimization</td><td>WarSO</td><td>OriginalWarSO</td><td>2022</td><td>3</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Bio</th><td>Invasive Weed Optimization</td><td>IWO</td><td>OriginalIWO</td><td>2006</td><td>7</td><td>easy</td></tr><tr><th>Bio</th><td>Biogeography*Based Optimization</td><td>BBO</td><td>OriginalBBO</td><td>2008</td><td>4</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseBBO</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>Bio</th><td>Virus Colony Search</td><td>VCS</td><td>OriginalVCS</td><td>2016</td><td>4</td><td>hard*</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseVCS</td><td>*</td><td>4</td><td>hard*</td></tr><tr><th>Bio</th><td>Satin Bowerbird Optimizer</td><td>SBO</td><td>OriginalSBO</td><td>2017</td><td>5</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseSBO</td><td>*</td><td>5</td><td>easy</td></tr><tr><th>Bio</th><td>Earthworm Optimisation Algorithm</td><td>EOA</td><td>OriginalEOA</td><td>2018</td><td>8</td><td>medium</td></tr><tr><th>Bio</th><td>Wildebeest Herd Optimization</td><td>WHO</td><td>OriginalWHO</td><td>2019</td><td>12</td><td>hard</td></tr><tr><th>Bio</th><td>Slime Mould Algorithm</td><td>SMA</td><td>OriginalSMA</td><td>2020</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseSMA</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Barnacles Mating Optimizer</td><td>BMO</td><td>OriginalBMO</td><td>2018</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Tunicate Swarm Algorithm</td><td>TSA</td><td>OriginalTSA</td><td>2020</td><td>2</td><td>easy</td></tr><tr><th>Bio</th><td>Symbiotic Organisms Search</td><td>SOS</td><td>OriginalSOS</td><td>2014</td><td>2</td><td>medium</td></tr><tr><th>Bio</th><td>Seagull Optimization Algorithm</td><td>SOA</td><td>OriginalSOA</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>DevSOA</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Brown-Bear Optimization Algorithm</td><td>BBOA</td><td>OriginalBBOA</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Bio</th><td>Tree Physiology Optimization</td><td>TPO</td><td>OriginalTPO</td><td>2017</td><td>5</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>System</th><td>Germinal Center Optimization</td><td>GCO</td><td>OriginalGCO</td><td>2018</td><td>4</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>BaseGCO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>System</th><td>Water Cycle Algorithm</td><td>WCA</td><td>OriginalWCA</td><td>2012</td><td>5</td><td>medium</td></tr><tr><th>System</th><td>Artificial Ecosystem*based Optimization</td><td>AEO</td><td>OriginalAEO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>System</th><td>*</td><td>*</td><td>EnhancedAEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>ModifiedAEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>ImprovedAEO</td><td>2021</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>AugmentedAEO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Math</th><td>Hill Climbing</td><td>HC</td><td>OriginalHC</td><td>1993</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>SwarmHC</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>Cross-Entropy Method </td><td>CEM</td><td>OriginalCEM</td><td>1997</td><td>4</td><td>easy</td></tr><tr><th>Math</th><td>Tabu Search</td><td>TS</td><td>OriginalTS</td><td>2004</td><td>5</td><td>easy</td></tr><tr><th>Math</th><td>Sine Cosine Algorithm</td><td>SCA</td><td>OriginalSCA</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>BaseSCA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>QLE-SCA</td><td>2022</td><td>4</td><td>hard</td></tr><tr><th>Math</th><td>Gradient-Based Optimizer</td><td>GBO</td><td>OriginalGBO</td><td>2020</td><td>5</td><td>medium</td></tr><tr><th>Math</th><td>Arithmetic Optimization Algorithm</td><td>AOA</td><td>OrginalAOA</td><td>2021</td><td>6</td><td>easy</td></tr><tr><th>Math</th><td>Chaos Game Optimization</td><td>CGO</td><td>OriginalCGO</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>Pareto-like Sequential Sampling</td><td>PSS</td><td>OriginalPSS</td><td>2021</td><td>4</td><td>medium</td></tr><tr><th>Math</th><td>weIghted meaN oF vectOrs</td><td>INFO</td><td>OriginalINFO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Math</th><td>RUNge Kutta optimizer</td><td>RUN</td><td>OriginalRUN</td><td>2021</td><td>2</td><td>hard</td></tr><tr><th>Math</th><td>Circle Search Algorithm</td><td>CircleSA</td><td>OriginalCircleSA</td><td>2022</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>Success History Intelligent Optimization</td><td>SHIO</td><td>OriginalSHIO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Music</th><td>Harmony Search</td><td>HS</td><td>OriginalHS</td><td>2001</td><td>4</td><td>easy</td></tr><tr><th>Music</th><td>*</td><td>*</td><td>BaseHS</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>+++</th><td>+++</td><td>+++</td><td>+++</td><td>+++</td><td>+++</td><td>+++</td></tr><tr><th>WARNING</th><td>PLEASE CHECK PLAGIARISM BEFORE USING BELOW ALGORITHMS</td><td>*</td><td>*</td><td>*</td><td>*</td><td>*</td></tr><tr><th>Swarm</th><td>Coati Optimization Algorithm</td><td>CoatiOA</td><td>OriginalCoatiOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Fennec For Optimization</td><td>FFO</td><td>OriginalFFO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Northern Goshawk Optimization</td><td>NGO</td><td>OriginalNGO</td><td>2021</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Osprey Optimization Algorithm</td><td>OOA</td><td>OriginalOOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Pelican Optimization Algorithm </td><td>POA</td><td>OriginalPOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Serval Optimization Algorithm</td><td>ServalOA</td><td>OriginalServalOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Siberian Tiger Optimization</td><td>STO</td><td>OriginalSTO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Tasmanian Devil Optimization</td><td>TDO</td><td>OriginalTDO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Walrus Optimization Algorithm</td><td>WaOA</td><td>OriginalWaOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Zebra Optimization Algorithm </td><td>ZOA</td><td>OriginalZOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Human</th><td>Teamwork Optimization Algorithm</td><td>TOA</td><td>OriginalTOA</td><td>2021</td><td>2</td><td>easy</td></tr></tbody></table>
 
 
 ### A
