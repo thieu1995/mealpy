@@ -121,7 +121,7 @@ class OriginalBA(Optimizer):
 
 class AdaptiveBA(Optimizer):
     """
-    The original version of: Adaptive Bat-inspired Algorithm (BA)
+    The original version of: Adaptive Bat-inspired Algorithm (ABA)
 
     Notes
     ~~~~~
