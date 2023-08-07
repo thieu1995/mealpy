@@ -1,8 +1,8 @@
-=======
-Cite Us
-=======
+================
+Citation Request
+================
 
-If you are using mealpy in your project, we would appreciate citations::
+Please include these citations if you plan to use this library::
 
    @article{van2023mealpy,
       title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
@@ -29,9 +29,9 @@ If you are using mealpy in your project, we would appreciate citations::
 If you have an open-ended or a research question, you can contact me via nguyenthieu2102@gmail.com
 
 
-===============
-Important links
-===============
+==============
+Official Links
+==============
 
 
 * Official source code repo: https://github.com/thieu1995/mealpy
@@ -43,12 +43,14 @@ Important links
 * Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
 
 * This project also related to our another projects which are "meta-heuristics" and "neural-network", check it here
-    * https://github.com/thieu1995/opfunu
-    * https://github.com/thieu1995/metaheuristics
-    * https://github.com/aiir-team
-    * https://github.com/mafese
-    * https://github.com/permetrics
-
+   * https://github.com/thieu1995/opfunu
+   * https://github.com/thieu1995/metaheuristics
+   * https://github.com/thieu1995/enoppy
+   * https://github.com/thieu1995/MetaCluster
+   * https://github.com/thieu1995/pfevaluator
+   * https://github.com/mafese
+   * https://github.com/permetrics
+   * https://github.com/aiir-team
 
 
 ====================
