@@ -23,7 +23,7 @@ Welcome to MEALPY's documentation!
 .. image:: https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml/badge.svg
    :target: https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml
 
-.. image:: https://pepy.tech/badge/mealpy
+.. image:: https://static.pepy.tech/badge/mealpy
    :target: https://pepy.tech/project/mealpy
 
 .. image:: https://img.shields.io/github/release-date/thieu1995/mealpy.svg
