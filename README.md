@@ -23,7 +23,7 @@ alt="MEALPY"/>
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/thieu1995/mealpy.svg)](http://isitmaintained.com/project/thieu1995/mealpy "Percentage of issues still open")
 ![GitHub contributors](https://img.shields.io/github/contributors/thieu1995/mealpy.svg)
 [![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.1016/j.sysarc.2023.102871)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # Introduction 
