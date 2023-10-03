@@ -26,6 +26,11 @@ alt="MEALPY"/>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.1016/j.sysarc.2023.102871)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+# MEALPY version 3.0.0 in the future.
+
+![MEALPY3-0-0](.github/img/mealpy-3.0.0.png)
+
+
 # Introduction 
 
 MEALPY is the largest python library for most of the cutting-edge nature-inspired meta-heuristic algorithms (population-based). Population meta-heuristic algorithms (PMA) are the most popular algorithms in the field of 
