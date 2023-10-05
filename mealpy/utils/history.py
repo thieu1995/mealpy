@@ -5,8 +5,8 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.utils import visualize
+from mealpy.utils.agent import Agent
 from mealpy.utils.logger import Logger
 
 
@@ -44,21 +44,20 @@ class History:
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import OriginalPSO
+    >>> from mealpy import FloatVar, BBO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> p1 = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
-    >>>     "verbose": True,
-    >>>     "save_population": True        # To be able to draw the trajectory figure
+    >>>     "fit_func": fitness_function,
+    >>>     "save_population": True,    # To be able to draw the trajectory figure
+    >>>     "name": "Test Function"
     >>> }
-    >>> model = OriginalPSO(epoch=1000, pop_size=50)
-    >>> model.solve(problem_dict)
+    >>> model = BBO.OriginalBBO(epoch=1000, pop_size=50)
+    >>> model.solve(p1)
     >>>
     >>> model.history.save_global_objectives_chart(filename="hello/goc")
     >>> model.history.save_local_objectives_chart(filename="hello/loc")
@@ -94,16 +93,16 @@ class History:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def store_initial_best_worst(self, best_agent, worst_agent):
-        self.list_global_best = [deepcopy(best_agent)]
-        self.list_current_best = [deepcopy(best_agent)]
-        self.list_global_worst = [deepcopy(worst_agent)]
-        self.list_current_worst = [deepcopy(worst_agent)]
+    def store_initial_best_worst(self, best_agent: Agent, worst_agent: Agent) -> None:
+        self.list_global_best = [best_agent.copy()]
+        self.list_current_best = [best_agent.copy()]
+        self.list_global_worst = [worst_agent.copy()]
+        self.list_current_worst = [worst_agent.copy()]
 
-    def get_global_repeated_times(self, id_fitness, id_target, epsilon):
+    def get_global_repeated_times(self, epsilon: float) -> int:
         count = 0
-        for i in range(0, len(self.list_global_best) - 1):
-            temp = np.abs(self.list_global_best[i][id_fitness][id_target] - self.list_global_best[i + 1][id_fitness][id_target])
+        for idx in range(0, len(self.list_global_best) - 1):
+            temp = np.abs(self.list_global_best[idx].fitness - self.list_global_best[idx + 1].fitness)
             if temp <= epsilon:
                 count += 1
             else:

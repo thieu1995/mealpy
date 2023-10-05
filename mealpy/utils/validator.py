@@ -44,7 +44,7 @@ class Validator:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def check_int(self, name:str, value:int, bound=None):
+    def check_int(self, name:str, value: int, bound=None):
         if type(value) in [int, float]:
             if bound is None:
                 return int(value)
@@ -53,7 +53,7 @@ class Validator:
         bound = "" if bound is None else f"and value should be in range: {bound}"
         raise ValueError(f"'{name}' is an integer {bound}.")
 
-    def check_float(self, name: str, value: int, bound=None):
+    def check_float(self, name: str, value: float, bound=None):
         if type(value) in [int, float]:
             if bound is None:
                 return float(value)
@@ -122,4 +122,3 @@ class Validator:
                 return float(value)
         bound_float_str = "" if bound_float is None else f"and value in range: {bound_float}"
         raise ValueError(f"'{name}' can be int {bound_int_str}, or float {bound_float_str}.")
-

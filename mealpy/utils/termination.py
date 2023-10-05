@@ -34,15 +34,16 @@ class Termination:
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.PSO import OriginalPSO
+    >>> from mealpy import FloatVar, BBO
     >>>
     >>> def fitness_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict = {
+    >>> p1 = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="C-params"),
+    >>>     "minmax": "min",
     >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>>     "name": "Test Function"
     >>> }
     >>>
     >>> term_dict = {
@@ -51,8 +52,8 @@ class Termination:
     >>>     "max_time": 10,     # 10 seconds to run the program
     >>>     "max_early_stop": 15    # 15 epochs if the best fitness is not getting better we stop the program
     >>> }
-    >>> model1 = OriginalPSO(epoch=1000, pop_size=50)
-    >>> model1.solve(problem_dict, termination=term_dict)
+    >>> model1 = BBO.OriginalBBO(epoch=1000, pop_size=50)
+    >>> model1.solve(p1, termination=term_dict)
     """
 
     def __init__(self, max_epoch=None, max_fe=None, max_time=None, max_early_stop=None, **kwargs):
