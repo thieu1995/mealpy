@@ -36,13 +36,13 @@ class Termination:
     >>> import numpy as np
     >>> from mealpy import FloatVar, BBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> p1 = {
     >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="C-params"),
     >>>     "minmax": "min",
-    >>>     "fit_func": fitness_function,
+    >>>     "obj_func": objective_function,
     >>>     "name": "Test Function"
     >>> }
     >>>

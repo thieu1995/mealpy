@@ -46,13 +46,13 @@ class History:
     >>> import numpy as np
     >>> from mealpy import FloatVar, BBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> p1 = {
     >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
-    >>>     "fit_func": fitness_function,
+    >>>     "obj_func": objective_function,
     >>>     "save_population": True,    # To be able to draw the trajectory figure
     >>>     "name": "Test Function"
     >>> }
@@ -102,7 +102,7 @@ class History:
     def get_global_repeated_times(self, epsilon: float) -> int:
         count = 0
         for idx in range(0, len(self.list_global_best) - 1):
-            temp = np.abs(self.list_global_best[idx].fitness - self.list_global_best[idx + 1].fitness)
+            temp = np.abs(self.list_global_best[idx].target.fitness - self.list_global_best[idx + 1].target.fitness)
             if temp <= epsilon:
                 count += 1
             else:

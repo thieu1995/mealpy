@@ -4,10 +4,12 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+import numbers
 import numpy as np
 from typing import Union, List, Tuple, Dict
 from mealpy.utils.space import BaseVar, IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar
 from mealpy.utils.logger import Logger
+from mealpy.utils.target import Target
 
 
 class Problem:
@@ -19,7 +21,7 @@ class Problem:
         self.set_bounds(bounds)
         self.minmax = minmax
         self.name, self.log_to, self.log_file = "P", "console", "history.txt"
-        self.n_objs, self.obj_is_list, self.multi_objs, self.obj_weights = 1, False, False, None
+        self.n_objs, self.obj_weights = 1, None
         self.n_dims, self.save_population = None, False
         self.__set_keyword_arguments(kwargs)
         self.__set_functions()
@@ -50,13 +52,11 @@ class Problem:
     def __set_functions(self):
         tested_solution = self.generate_solution(encoded=True)
         self.n_dims = len(tested_solution)
-        result = self.fit_func(tested_solution)
+        result = self.obj_func(tested_solution)
         if type(result) in self.SUPPORTED_ARRAYS:
             result = np.array(result).flatten()
             self.n_objs = len(result)
-            self.obj_is_list = True
             if self.n_objs > 1:
-                self.multi_objs = True
                 if type(self.obj_weights) in self.SUPPORTED_ARRAYS:
                     self.obj_weights = np.array(self.obj_weights).flatten()
                     if self.n_objs != len(self.obj_weights):
@@ -65,21 +65,18 @@ class Problem:
                 else:
                     raise ValueError(f"Solving {self.n_objs}-objective optimization, need to set obj_weights list with length: {self.n_objs}")
             elif self.n_objs == 1:
-                self.multi_objs = False
                 self.obj_weights = np.ones(1)
                 self.msg = f"Solving single objective optimization problem."
             else:
-                raise ValueError(f"fit_func needs to return a single value or a list of values list")
-        elif type(result) in (int, float) or isinstance(result, np.floating) or isinstance(result, np.integer):
-            self.multi_objs = False
-            self.obj_is_list = False
+                raise ValueError(f"obj_func needs to return a single value or a list of values")
+        elif isinstance(result, numbers.Number):
             self.obj_weights = np.ones(1)
             self.msg = f"Solving single objective optimization problem."
         else:
-            raise ValueError(f"fit_func needs to return a single value or a list of values list")
+            raise ValueError(f"obj_func needs to return a single value or a list of values")
 
-    def fit_func(self, x: np.ndarray) -> object:
-        """Fitness function
+    def obj_func(self, x: np.ndarray) -> Union[List, Tuple, np.ndarray, int, float]:
+        """Objective function
 
         Args:
             x (numpy.ndarray): Solution.
@@ -182,16 +179,13 @@ class Problem:
         """
         return self.generate_solution_with_bounds(self.bounds, encoded)
 
-    def get_fitness(self, solution: np.ndarray) -> Union[float, int, np.ndarray]:
+    def get_target(self, solution: np.ndarray) -> Target:
         """
         Args:
             solution: The real-value solution
 
         Returns:
-            The fitness value
+            The target object
         """
-        objs = self.fit_func(solution)
-        if not self.obj_is_list:
-            objs = np.array([objs])
-        fit = np.sum(objs * self.obj_weights)
-        return fit
+        objs = self.obj_func(solution)
+        return Target(objectives=objs, weights=self.obj_weights)
