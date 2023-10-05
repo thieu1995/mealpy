@@ -5,28 +5,26 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy.evolutionary_based.GA import BaseGA
+from mealpy import FloatVar, BBO
 from mealpy.utils import io
 
 
 def fitness_function(solution):
-    ## Define your own fitness function
     return np.sum(solution**2)
 
 
 problem = {
     "fit_func": fitness_function,
-    "lb": [-100, ] * 50,
-    "ub": [100, ] * 50,
+    "bounds": FloatVar(n_vars=20, lb=(-100.,)*20, ub=(100.,)*20, name="delta"),
     "minmax": "min",
 }
 
 ## Run the algorithm
-model = BaseGA(epoch=100, pop_size=50)
-best_position, best_fitness = model.solve(problem)
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+model = BBO.OriginalBBO(epoch=100, pop_size=50)
+g_best = model.solve(problem)
+print(f"Best solution: {g_best.solution}, Best fitness: {g_best.fitness}")
 
 io.save_model(model, "model.pkl")
 
 new_model = io.load_model("model.pkl")
-print(f"Best solution: {new_model.solution[0]}, Best fitness: {new_model.solution[1][0]}")
+print(f"Best solution: {new_model.g_best.solution}, Best fitness: {new_model.g_best.fitness}")

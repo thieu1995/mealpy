@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy.evolutionary_based.GA import BaseGA
+from mealpy import FloatVar, BBO
 from mealpy.utils.visualize import *
 
 
@@ -14,23 +14,22 @@ from mealpy.utils.visualize import *
 
 def fitness_function(solution):
     f1 = (np.sum(solution**2) - np.mean(solution)) / len(solution)
-    f2 = np.um(np.sqrt(np.abs(solution)))
+    f2 = np.sum(np.sqrt(np.abs(solution)))
     f3 = np.sum(np.mean(solution**2) - solution)
     return [f1, f2, f3]
 
 
 problem = {
     "fit_func": fitness_function,
-    "lb": [-10, -5, -15, -20, -10, -15, -10, -30],
-    "ub": [10, 5, 15, 20, 50, 30, 100, 85],
+    "bounds": FloatVar(n_vars=8, lb=[-10, -5, -15, -20, -10, -15, -10, -30], ub=[10, 5, 15, 20, 50, 30, 100, 85]),
     "minmax": "min",
     "obj_weights": [0.2, 0.5, 0.3]
 }
 
 ## Run the algorithm
-model = BaseGA(epoch=100, pop_size=50)
-best_position, best_fitness = model.solve(problem)
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+model = BBO.OriginalBBO(epoch=100, pop_size=50)
+g_best = model.solve(problem)
+print(f"Best solution: {g_best.solution}, Best fitness: {g_best.fitness}")
 
 
 ## Draw convergence chart for globest solution found so far in each previous generation
@@ -52,4 +51,3 @@ export_convergence_chart(model.history.list_current_best_fit, title='Local Best 
 
 ## Draw runtime for each generation
 export_convergence_chart(model.history.list_epoch_time, title='Runtime chart', y_label="Second", filename='Runtime-per-epoch-chart')
-
