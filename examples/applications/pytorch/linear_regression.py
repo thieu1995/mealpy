@@ -5,21 +5,11 @@
 # --------------------------------------------------%
 
 # https://www.deeplearningwizard.com/deep_learning/practical_pytorch/pytorch_linear_regression/
-
+import numpy as np
 import torch
 from torch.autograd import Variable
-from sklearn import preprocessing
-from mealpy.bio_based import SMA
+from mealpy import StringVar, FloatVar, IntegerVar, BBO, Problem
 
-X_TRAIN = Variable(torch.Tensor([[1.0], [2.0], [3.0], [4.0], [5.0], [6.0]]))
-Y_TRAIN = Variable(torch.Tensor([[2.1], [4.2], [6.3], [8.4], [10.5], [12.6]]))
-
-X_TEST = Variable(torch.Tensor([[8.0], [9.0], [10.0]]))
-Y_TEST = Variable(torch.Tensor([[16.8], [18.9], [21.0]]))
-
-# Handle categorical variable first
-OPT_ENCODER = preprocessing.LabelEncoder()
-OPT_ENCODER.fit(["SGD", "Adam", "RMSprop", "Rprop", "Adamax", "Adagrad"])
 
 # Define LR model
 class LinearRegressionModel(torch.nn.Module):
@@ -31,64 +21,64 @@ class LinearRegressionModel(torch.nn.Module):
         return self.linear(x)
 
 
-def fitness_function(solution):
-    def training(epoch):
+class MyProblem(Problem):
+    def __init__(self, bounds, minmax="min", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def fit_func(self, x: np.ndarray):
+        # Decode solution from real value to real-world solution
+        x = self.decode_solution(x)
+        opt, learning_rate, epoch = x["optimizer"], x["learning-rate"], x["epoch"]
+
+        # Create model object
+        ml_model = LinearRegressionModel()
+        criterion = torch.nn.MSELoss(reduction="sum")
+        optimizer = getattr(torch.optim, opt)(ml_model.parameters(), lr=learning_rate)
+
+        ## Training
         for iter in range(epoch):
             # Forward pass: Compute predicted y by passing x to the model
-            pred_y = our_model(X_TRAIN)
+            y_pred = ml_model(self.data["X_train"])
             # Compute and print loss
-            loss = criterion(pred_y, Y_TRAIN)
+            loss = criterion(y_pred, self.data["y_train"])
             # Zero gradients, perform a backward pass, and update the weights.
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             # print('epoch {}, loss {}'.format(epoch, loss.item()))
-            return loss.item()
-    def testing():
-        pred_y = our_model(X_TEST)
-        return criterion(pred_y, Y_TEST).item()
+        train_loss = loss.item()
 
-    ## De-coded solution into real parameters
-    ## 1st dimension is: optimizer
-    ## 2nd dimension is: learning-rate
-    ## 3rt dimension is: epoch
-    opt = OPT_ENCODER.inverse_transform([ int(solution[0]) ])[0]
-    lr = solution[1]
-    epoch = int(solution[2]) * 50
+        ## Testing
+        y_pred_test = ml_model(self.data["X_test"])
+        test_loss = criterion(y_pred_test, self.data["y_test"]).item()
 
-    # Create model object
-    our_model = LinearRegressionModel()
-    criterion = torch.nn.MSELoss(reduction="sum")
-    optimizer = getattr(torch.optim, opt)(our_model.parameters(), lr=lr)
-    train_loss = training(epoch)
-    test_loss = testing()
-    return [train_loss, test_loss]      # We will use weighting method to get the best model based on both train and test
+        ## Return metrics as fitness values
+        # We will use weighting method to get the best model based on both train and test
+        return [train_loss, test_loss]
 
 
-# So now we need to define lower/upper bound and metaheursitic algorithm
-LB = [1, 0, 10]  # [lowerbound for optimizer, lowerbound for learning-rate, lowerbound for epoch]
-UB = [6.99, 1, 40]  # [upperbound for optimizer, upperbound for learning-rate, upperbound for poch]
+MAX_GEN = 10
+POP_SIZE = 10
 
-MAX_GEN = 50
-POP_SIZE = 20
-
-problem = {
-    "fit_func": fitness_function,
-    "lb": LB,
-    "ub": UB,
-    "minmax": "min",
-    "obj_weights": [0.3, 0.7],        # training weight 0.3 and testing weight 0.7
-    "save_population": False
+dataset = {
+    "X_train": Variable(torch.Tensor([[1.0], [2.0], [3.0], [4.0], [5.0], [6.0]])),
+    "y_train": Variable(torch.Tensor([[2.1], [4.2], [6.3], [8.4], [10.5], [12.6]])),
+    "X_test": Variable(torch.Tensor([[8.0], [9.0], [10.0]])),
+    "y_test": Variable(torch.Tensor([[16.8], [18.9], [21.0]]))
 }
-model = SMA.BaseSMA(epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
-model.solve(problem)
-print(f"Best fitness: {model.solution[1]}")
 
-# This will print out the best value (optimized value) of opt, learning-rate and epoch. Just need a decode function
-opt_optimized = OPT_ENCODER.inverse_transform([ int(model.solution[0][0]) ])[0]
-lr_optimized = model.solution[0][1]
-epoch_optimized = int(model.solution[0][2]) * 50
-print(f"Best optimizer = {opt_optimized}, lr = {lr_optimized}, epoch = {epoch_optimized}")
+bounds = [
+    StringVar(n_vars=1, valid_sets=["SGD", "Adam", "RMSprop", "Rprop", "Adamax", "Adagrad"], name="optimizer"),
+    FloatVar(n_vars=1, lb=0., ub=1.0, name="learning-rate"),
+    IntegerVar(n_vars=1, lb=10, ub=40, name="epoch")
+]
 
+## training weight 0.3 and testing weight 0.7
+problem = MyProblem(bounds=bounds, minmax="min", data=dataset, name="ml-problem", obj_weights=(0.5, 0.5))
+model = BBO.OriginalBBO(epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
+best_agent = model.solve(problem)
 
-
+print(best_agent.solution)
+print(best_agent.fitness)
+print(problem.decode_solution(best_agent.solution))
