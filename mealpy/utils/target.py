@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from typing import Union, List, Tuple
+import numbers
 import numpy as np
 
 
@@ -25,6 +26,9 @@ class Target:
         self.set_weights(weights)
         self.calculate_fitness(self.weights)
 
+    def copy(self) -> 'Target':
+        return Target(self.objectives, self.weights)
+
     @property
     def objectives(self):
         """Returns the list of objective values."""
@@ -35,7 +39,7 @@ class Target:
             raise ValueError(f"Invalid objectives. It should be a list, tuple, np.ndarray, int or float.")
         else:
             if type(objs) not in self.SUPPORTED_ARRAY:
-                if type(objs) in (int, float):
+                if isinstance(objs, numbers.Number):
                     objs = [objs]
                 else:
                     raise ValueError(f"Invalid objectives. It should be a list, tuple, np.ndarray, int or float.")
@@ -52,7 +56,7 @@ class Target:
             self._weights = len(self.objectives)
         else:
             if type(weights) not in self.SUPPORTED_ARRAY:
-                if type(weights) in (int, float):
+                if isinstance(weights, numbers.Number):
                     weights = [weights, ] * len(self.objectives)
                 else:
                     raise ValueError(f"Invalid weights. It should be a list, tuple, np.ndarray.")
