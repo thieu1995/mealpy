@@ -6,28 +6,26 @@
 #
 # Examples:
 # >>>
-# >>> from mealpy.swarm_based import PSO
+# >>> from mealpy import FloatVar, PSO
 # >>> import numpy as np
 # >>>
 # >>> def fitness_function(solution):
 # >>>     return np.sum(solution ** 2)
 # >>>
-# >>> problem = {
-# >>>    "fit_func": fitness_function,
-# >>>    "lb": [-100, ] * 30,
-# >>>    "ub": [100, ] * 30,
-# >>>    "minmax": "min",
-# >>>    "save_population": True,
-# >>>    "log_to": "file",
-# >>>    "log_file": "mealpy.log",
-# >>>    "name": Square",
+# >>> p1 = {
+# >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+# >>>     "minmax": "min",
+# >>>     "fit_func": fitness_function,
+# >>>     "save_population": True,  # To be able to draw the trajectory figure
+# >>>     "log_to": "file",
+# >>>     "log_file": "mealpy.log",
+# >>>     "name": "Square"
 # >>> }
 # >>>
 # >>> ## Run the algorithm
 # >>> model = PSO.C_PSO(epoch=5, pop_size=50, name="C-PSO")
 # >>> best_position, best_fitness = model.solve(problem)
 # >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
-
 
 __version__ = "2.5.4"
 
@@ -48,6 +46,7 @@ from .utils.termination import Termination
 from .tuner import Tuner, ParameterGrid
 from .multitask import Multitask
 from .optimizer import Optimizer
+from .utils.space import (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar)
 
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 

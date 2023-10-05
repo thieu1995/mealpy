@@ -5,10 +5,12 @@
 # --------------------------------------------------%
 
 import numpy as np
+from typing import List, Union, Tuple, Dict
+from mealpy.utils.agent import Agent
+from mealpy.utils.problem import Problem
 from math import gamma
 from copy import deepcopy
 from mealpy.utils.history import History
-from mealpy.utils.problem import Problem
 from mealpy.utils.termination import Termination
 from mealpy.utils.logger import Logger
 from mealpy.utils.validator import Validator
@@ -25,7 +27,7 @@ class Optimizer:
     Notes
     ~~~~~
     + The function solve() is the most important method, trained the model
-    + The parallel (multithreading or multiprocessing) is used in method: create_population(), update_target_wrapper_population()
+    + The parallel (multithreading or multiprocessing) is used in method: generate_population(), update_target_wrapper_population()
     + The general format of:
         + population = [agent_1, agent_2, ..., agent_N]
         + agent = global_best = solution = [position, target]
@@ -37,17 +39,15 @@ class Optimizer:
         + objective values: solution[1][1] or solution[self.ID_TAR][self.ID_OBJ] or model.solution[model.ID_TAR][model.ID_OBJ]
     """
 
-    ID_POS = 0  # Index of position/location of solution/agent
-    ID_TAR = 1  # Index of target list, (includes fitness value and objectives list)
-
-    ID_FIT = 0  # Index of target (the final fitness) in fitness
-    ID_OBJ = 1  # Index of objective list in target
-
     EPSILON = 10E-10
+    SUPPORTED_MODES = ["process", "thread", "swarm", "single"]
+    AVAILABLE_MODES = ["process", "thread", "swarm"]
+    PARALLEL_MODES = ["process", "thread"]
+    SUPPORTED_ARRAYS = [list, tuple, np.ndarray]
 
     def __init__(self, **kwargs):
         super(Optimizer, self).__init__()
-        self.epoch, self.pop_size, self.solution = None, None, None
+        self.epoch, self.pop_size = None, None
         self.mode, self.n_workers, self.name = None, None, None
         self.pop, self.g_best, self.g_worst = None, None, None
         self.problem, self.logger, self.history = None, None, None
@@ -56,16 +56,15 @@ class Optimizer:
 
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag = False
-        self.nfe_counter = -1       # The first one is tested in Problem class
+        self.nfe_counter = -1  # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
-        self.AVAILABLE_MODES = ["process", "thread", "swarm"]
         self.support_parallel_modes = True
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def set_parameters(self, parameters):
+    def set_parameters(self, parameters: Union[List, Tuple, Dict]) -> None:
         """
         Set the parameters for current optimizer.
 
@@ -73,7 +72,7 @@ class Optimizer:
         if paras is a dict of parameter's name and value, then it will override the current parameters
 
         Args:
-            parameters (list, dict): List or dict of parameters
+            parameters: The parameters
         """
         if type(parameters) in (list, tuple):
             self.params_name_ordered = tuple(parameters)
@@ -92,25 +91,22 @@ class Optimizer:
                 raise ValueError(f"Invalid input parameters: {new_para_names} for {self.get_name()} optimizer. "
                                  f"Valid parameters are: {valid_para_names}.")
 
-    def get_parameters(self):
+    def get_parameters(self) -> Dict:
         """
         Get parameters of optimizer.
-
-        Returns:
-            dict: [str, any]
         """
         return self.parameters
 
-    def get_attributes(self):
+    def get_attributes(self) -> Dict:
         """
         Get all attributes in optimizer.
-
-        Returns:
-            dict: [str, any]
         """
         return self.__dict__
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        Get name of the optimizer
+        """
         return self.name
 
     def __str__(self):
@@ -120,26 +116,32 @@ class Optimizer:
         temp = temp[:-2]
         return f"{self.__class__.__name__}({temp})"
 
-    def before_initialization(self, starting_positions=None):
-        if starting_positions is None:
+    def initialize_variables(self):
+        pass
+
+    def before_initialization(self, starting_solutions: Union[List, Tuple, np.ndarray] = None) -> None:
+        """
+        Args:
+            starting_solutions: The starting solutions (not recommended)
+        """
+        if starting_solutions is None:
             pass
-        elif type(starting_positions) in [list, np.ndarray] and len(starting_positions) == self.pop_size:
-            if isinstance(starting_positions[0], np.ndarray) and len(starting_positions[0]) == self.problem.n_dims:
-                self.pop = [self.create_solution(self.problem.lb, self.problem.ub, pos) for pos in starting_positions]
+        elif type(starting_solutions) in self.SUPPORTED_ARRAYS and len(starting_solutions) == self.pop_size:
+            if type(starting_solutions[0]) in self.SUPPORTED_ARRAYS and len(starting_solutions[0]) == self.problem.n_dims:
+                self.pop = [self.generate_agent(solution) for solution in starting_solutions]
             else:
-                raise ValueError("Starting positions should be a list of positions or 2D matrix of positions only.")
+                raise ValueError("Invalid starting_solutions. It should be a list of positions or 2D matrix of positions only.")
         else:
-            raise ValueError("Starting positions should be a list/2D matrix of positions with same length as pop_size hyper-parameter.")
+            raise ValueError("Invalid starting_solutions. It should be a list/2D matrix of positions with same length as pop_size.")
 
-    def initialization(self):
+    def initialization(self) -> None:
         if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
+            self.pop = self.generate_population(self.pop_size)
 
-    def after_initialization(self):
+    def after_initialization(self) -> None:
         # The initial population is sorted or not depended on algorithm's strategy
-        pop_temp, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        pop_temp, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
         self.g_best, self.g_worst = best[0], worst[0]
-        # pop_temp, self.g_best = self.get_global_best_solution(self.pop)
         if self.sort_flag: self.pop = pop_temp
         ## Store initial best and worst solutions
         self.history.store_initial_best_worst(self.g_best, self.g_worst)
@@ -147,96 +149,26 @@ class Optimizer:
     def before_main_loop(self):
         pass
 
-    def initialize_variables(self):
+    def evolve(self, epoch: int) -> None:
         pass
 
-    def get_target_wrapper(self, position, counted=True):
-        """
-        Args:
-            position (nd.array): position (nd.array): 1-D numpy array
-            counted (bool): indicating the number of function evaluations is increasing or not
-
-        Returns:
-            [fitness, [obj1, obj2,...]]
-        """
-        if counted:
-            self.nfe_counter += 1
-        objs = self.problem.fit_func(position)
-        if not self.problem.obj_is_list:
-            objs = [objs]
-        fit = np.dot(objs, self.problem.obj_weights)
-        return [fit, objs]
-
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        To get the position, target wrapper [fitness and obj list]
-            + A[self.ID_POS]                  --> Return: position
-            + A[self.ID_TAR]                  --> Return: [fitness, [obj1, obj2, ...]]
-            + A[self.ID_TAR][self.ID_FIT]     --> Return: fitness
-            + A[self.ID_TAR][self.ID_OBJ]     --> Return: [obj1, obj2, ...]
-
-        Args:
-            lb: list of lower bound values
-            ub: list of upper bound values
-            pos (np.ndarray): the known position. If None is passed, the default function generate_position() will be used
-
-        Returns:
-            list: wrapper of solution with format [position, [fitness, [obj1, obj2, ...]]]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        return [position, target]
-
-    def evolve(self, epoch):
-        pass
-
-    def bounded_position(self, position=None, lb=None, ub=None):
-        """
-        This is default function in most algorithms. Otherwise, there will be an overridden function
-        in child of Optimizer class for this function.
-
-        Args:
-            position: vector position (location) of the solution.
-            lb: list of lower bound values
-            ub: list of upper bound values
-
-        Returns:
-            Bounded position (make the position is in bound)
-        """
-        return np.clip(position, lb, ub)
-
-    def amend_position(self, position=None, lb=None, ub=None):
-        """
-        This function will call two functions:
-            + self.bounded_position(): Get the valid position by the Optimizer
-            + self.problem.amend_position(): Amend the position by the problem
-
-        Args:
-            position: vector position (location) of the solution.
-            lb: list of lower bound values
-            ub: list of upper bound values
-
-        Returns:
-            Amended position (make the position is in bound)
-        """
-        pos = self.bounded_position(position, lb, ub)
-        return self.problem.amend_position(pos, lb, ub)
-
-    def check_problem(self, problem):
-        self.problem = problem if isinstance(problem, Problem) else Problem(**problem)
-        self.generate_position = self.problem.generate_position
+    def check_problem(self, problem) -> None:
+        if isinstance(problem, Problem):
+            self.problem = problem
+        elif type(problem) == dict:
+            self.problem = Problem(**problem)
+        else:
+            raise ValueError("problem needs to be a dict or an instance of Problem class.")
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
         self.pop, self.g_best, self.g_worst = None, None, None
 
     def check_mode_and_workers(self, mode, n_workers):
-        self.mode = self.validator.check_str("mode", mode, ["single", "swarm", "thread", "process"])
-        if self.mode in ("process", "thread"):
+        self.mode = self.validator.check_str("mode", mode, self.SUPPORTED_MODES)
+        if self.mode in self.PARALLEL_MODES:
             if not self.support_parallel_modes:
-                self.logger.warning(f"{self.__class__.__name__} doesn't support parallelization. The default mode 'single' is activated.")
+                self.logger.warning(f"{self.get_name()} doesn't support parallelization. The default mode 'single' is activated.")
                 self.mode = "single"
             elif n_workers is not None:
                 if self.mode == "process":
@@ -262,93 +194,82 @@ class Optimizer:
         else:
             finished = False
             if self.termination is not None:
-                es = self.history.get_global_repeated_times(self.ID_TAR, self.ID_FIT, self.termination.epsilon)
+                es = self.history.get_global_repeated_times(self.termination.epsilon)
                 finished = self.termination.should_terminate(epoch, self.nfe_counter, time.perf_counter(), es)
                 if finished:
                     self.logger.warning(self.termination.message)
             return finished
 
-    def solve(self, problem=None, mode='single', starting_positions=None, n_workers=None, termination=None):
+    def solve(self, problem: Union[Dict, Problem] = None, mode: str = 'single', n_workers: int = None,
+              termination: Union[Dict, Termination] = None, starting_solutions: Union[List, np.ndarray, Tuple] = None) -> Agent:
         """
         Args:
-            problem (Problem, dict): an instance of Problem class or a dictionary
-
-                problem = {
-                    "fit_func": your objective function,
-                    "lb": list of value
-                    "ub": list of value
-                    "minmax": "min" or "max"
-                    "verbose": True or False
-                    "n_dims": int (Optional)
-                    "obj_weights": list weights corresponding to all objectives (Optional, default = [1, 1, ...1])
-                }
-
-            mode (str): Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
+            problem: an instance of Problem class or a dictionary
+            mode: Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
 
                 * 'process': The parallel mode with multiple cores run the tasks
                 * 'thread': The parallel mode with multiple threads run the tasks
                 * 'swarm': The sequential mode that no effect on updating phase of other agents
-                * 'single': The sequential mode that effect on updating phase of other agents, default
+                * 'single': The sequential mode that effect on updating phase of other agents, this is default mode
 
-            starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
             n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
             termination (dict, None): The termination dictionary or an instance of Termination class
+            starting_solutions: List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
 
         Returns:
-            list: [position, fitness value]
+            g_best: g_best, the best found agent, that hold the best solution and the best fitness. Access by: .g_best.solution, .g_best.fitness
         """
         self.check_problem(problem)
         self.check_mode_and_workers(mode, n_workers)
         self.check_termination("start", termination, None)
         self.initialize_variables()
 
-        self.before_initialization(starting_positions)
+        self.before_initialization(starting_solutions)
         self.initialization()
         self.after_initialization()
 
         self.before_main_loop()
-        for epoch in range(0, self.epoch):
+        for epoch in range(1, self.epoch + 1):
             time_epoch = time.perf_counter()
 
             ## Evolve method will be called in child class
             self.evolve(epoch)
 
-            # Update global best position, the population is sorted or not depended on algorithm's strategy
+            # Update global best solution, the population is sorted or not depended on algorithm's strategy
             pop_temp, self.g_best = self.update_global_best_solution(self.pop)
             if self.sort_flag: self.pop = pop_temp
 
             time_epoch = time.perf_counter() - time_epoch
-            self.track_optimize_step(self.pop, epoch + 1, time_epoch)
-            if self.check_termination("end", None, epoch+1):
+            self.track_optimize_step(self.pop, epoch, time_epoch)
+            if self.check_termination("end", None, epoch):
                 break
         self.track_optimize_process()
-        return self.solution[self.ID_POS], self.solution[self.ID_TAR][self.ID_FIT]
+        return self.g_best
 
-    def track_optimize_step(self, population=None, epoch=None, runtime=None):
+    def track_optimize_step(self, pop: List[Agent] = None, epoch: int = None, runtime: float = None) -> None:
         """
         Save some historical data and print out the detailed information of training process in each epoch
 
         Args:
-            population (list): the current population
-            epoch (int): current iteration
-            runtime (float): the runtime for current iteration
+            pop: the current population
+            epoch: current iteration
+            runtime: the runtime for current iteration
         """
         ## Save history data
-        pop = deepcopy(population)
         if self.problem.save_population:
-            self.history.list_population.append(pop)
+            self.history.list_population.append(Optimizer.duplicate_pop(pop))
         self.history.list_epoch_time.append(runtime)
-        self.history.list_global_best_fit.append(self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT])
-        self.history.list_current_best_fit.append(self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT])
+        self.history.list_global_best_fit.append(self.history.list_global_best[-1].fitness)
+        self.history.list_current_best_fit.append(self.history.list_current_best[-1].fitness)
         # Save the exploration and exploitation data for later usage
-        pos_matrix = np.array([agent[self.ID_POS] for agent in pop])
+        pos_matrix = np.array([agent.solution for agent in pop])
         div = np.mean(np.abs(np.median(pos_matrix, axis=0) - pos_matrix), axis=0)
         self.history.list_diversity.append(np.mean(div, axis=0))
         ## Print epoch
-        self.logger.info(f">Problem: {self.problem.name}, Epoch: {epoch}, Current best: {self.history.list_current_best[-1][self.ID_TAR][self.ID_FIT]}, "
-                         f"Global best: {self.history.list_global_best[-1][self.ID_TAR][self.ID_FIT]}, Runtime: {runtime:.5f} seconds")
+        self.logger.info(f">>>Problem: {self.problem.name}, Epoch: {epoch}, Current best: {self.history.list_current_best[-1].fitness}, "
+                         f"Global best: {self.history.list_global_best[-1].fitness}, Runtime: {runtime:.5f} seconds")
 
-    def track_optimize_process(self):
+    def track_optimize_process(self) -> None:
         """
         Save some historical data after training process finished
         """
@@ -358,11 +279,22 @@ class Optimizer:
         self.history.list_exploitation = 100 - self.history.list_exploration
         self.history.list_global_best = self.history.list_global_best[1:]
         self.history.list_current_best = self.history.list_current_best[1:]
-        self.solution = self.history.list_global_best[-1]
         self.history.list_global_worst = self.history.list_global_worst[1:]
         self.history.list_current_worst = self.history.list_current_worst[1:]
 
-    def create_population(self, pop_size=None):
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        """
+        Generate new agent
+
+        Args:
+            solution (np.ndarray): The solution
+        """
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        fit = self.get_fitness(solution)
+        return Agent(solution=solution, fitness=fit)
+
+    def generate_population(self, pop_size: int = None) -> List[Agent]:
         """
         Args:
             pop_size (int): number of solutions
@@ -375,145 +307,213 @@ class Optimizer:
         pop = []
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor(self.n_workers) as executor:
-                list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
+                list_executors = [executor.submit(self.generate_agent) for _ in range(pop_size)]
                 # This method yield the result everytime a thread finished their job (not by order)
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor(self.n_workers) as executor:
-                list_executors = [executor.submit(self.create_solution, self.problem.lb, self.problem.ub) for _ in range(pop_size)]
+                list_executors = [executor.submit(self.generate_agent) for _ in range(pop_size)]
                 # This method yield the result everytime a cpu finished their job (not by order).
                 for f in parallel.as_completed(list_executors):
                     pop.append(f.result())
         else:
-            pop = [self.create_solution(self.problem.lb, self.problem.ub) for _ in range(0, pop_size)]
+            pop = [self.generate_agent() for _ in range(0, pop_size)]
         return pop
 
-    def update_target_wrapper_population(self, pop=None):
+    def update_fitness_for_population(self, pop: List[Agent] = None) -> List[Agent]:
         """
-        Update target wrapper for input population
+        Update fitness for the input population
 
         Args:
-            pop (list): the population
+            pop: the population of agents
 
         Returns:
             list: population with updated fitness value
         """
-        pos_list = [agent[self.ID_POS] for agent in pop]
+        pos_list = [agent.solution for agent in pop]
         if self.mode == "thread":
             with parallel.ThreadPoolExecutor(self.n_workers) as executor:
                 # Return result as original order, not the future object
-                list_results = executor.map(partial(self.get_target_wrapper, counted=False), pos_list)
-                for idx, target in enumerate(list_results):
-                    pop[idx][self.ID_TAR] = target
+                list_results = executor.map(partial(self.get_fitness, counted=False), pos_list)
+                for idx, fitness in enumerate(list_results):
+                    pop[idx].fitness = fitness
         elif self.mode == "process":
             with parallel.ProcessPoolExecutor(self.n_workers) as executor:
                 # Return result as original order, not the future object
-                list_results = executor.map(partial(self.get_target_wrapper, counted=False), pos_list)
-                for idx, target in enumerate(list_results):
-                    pop[idx][self.ID_TAR] = target
+                list_results = executor.map(partial(self.get_fitness, counted=False), pos_list)
+                for idx, fitness in enumerate(list_results):
+                    pop[idx].fitness = fitness
         elif self.mode == "swarm":
             for idx, pos in enumerate(pos_list):
-                pop[idx][self.ID_TAR] = self.get_target_wrapper(pos, counted=False)
+                pop[idx].fitness = self.get_fitness(pos, counted=False)
         else:
             return pop
         self.nfe_counter += len(pop)
         return pop
 
-    def get_global_best_solution(self, pop: list):
+    def get_fitness(self, solution: np.ndarray, counted: bool = True) -> Union[float, int]:
         """
-        Sort population and return the sorted population and the best solution
+        Get fitness value
 
         Args:
-            pop (list): The population of pop_size individuals
+            solution: The real-value solution
+            counted: Indicating the number of function evaluations is increasing or not
 
         Returns:
-            Sorted population and global best solution
+            The fitness value
         """
-        sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])  # Already returned a new sorted list
-        if self.problem.minmax == "min":
-            return sorted_pop, deepcopy(sorted_pop[0])
-        else:
-            return sorted_pop, deepcopy(sorted_pop[-1])
+        if counted:
+            self.nfe_counter += 1
+        fit = self.problem.get_fitness(solution)
+        return fit
 
-    def get_better_solution(self, agent1: list, agent2: list, reverse=False):
+    @staticmethod
+    def duplicate_pop(pop: List[Agent]) -> List[Agent]:
+        return [agent.copy() for agent in pop]
+
+    @staticmethod
+    def get_sorted_population(pop: List[Agent], minmax: str = "min") -> List[Agent]:
+        """
+        Get sorted population based on type (minmax) of problem
+
+        Args:
+            pop: The population
+            minmax: The type of the problem
+
+        Returns:
+            Sorted population (1st agent is the best, last agent is the worst
+        """
+        if minmax == "min":
+            return sorted(pop, key=lambda agent: agent.fitness)
+        else:
+            return sorted(pop, key=lambda agent: agent.fitness, reverse=True)
+
+    @staticmethod
+    def get_best_agent(pop: List[Agent], minmax: str = "min") -> Agent:
         """
         Args:
-            agent1 (list): A solution
-            agent2 (list): Another solution
-            reverse (bool): Transform this function to get_worse_solution if reverse=True, default=False
+            pop: The population of agents
+            minmax: The type of problem
 
         Returns:
-            The better solution between them
+            The best agent
         """
-        if self.problem.minmax == "min":
-            if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
-                return deepcopy(agent1) if reverse is False else deepcopy(agent2)
-            return deepcopy(agent2) if reverse is False else deepcopy(agent1)
-        else:
-            if agent1[self.ID_TAR][self.ID_FIT] < agent2[self.ID_TAR][self.ID_FIT]:
-                return deepcopy(agent2) if reverse is False else deepcopy(agent1)
-            return deepcopy(agent1) if reverse is False else deepcopy(agent2)
+        pop = Optimizer.get_sorted_population(pop, minmax)
+        return pop[0].copy()
 
-    def compare_agent(self, agent_new: list, agent_old: list):
+    @staticmethod
+    def get_worst_agent(pop: List[Agent], minmax: str = "min") -> Agent:
         """
         Args:
-            agent_new (list): The new solution
-            agent_old (list): The old solution
+            pop: The population of agents
+            minmax: The type of problem
 
         Returns:
-            boolean: Return True if the new solution is better than the old one and otherwise
+            The worst agent
         """
-        if self.problem.minmax == "min":
-            if agent_new[self.ID_TAR][self.ID_FIT] < agent_old[self.ID_TAR][self.ID_FIT]:
-                return True
-            return False
-        else:
-            if agent_new[self.ID_TAR][self.ID_FIT] < agent_old[self.ID_TAR][self.ID_FIT]:
-                return False
-            return True
+        pop = Optimizer.get_sorted_population(pop, minmax)
+        return pop[-1].copy()
 
-    def get_special_solutions(self, pop=None, best=3, worst=3):
+    @staticmethod
+    def get_special_agents(pop: List[Agent] = None, n_best: int = 3, n_worst: int = 3,
+                           minmax: str = "min") -> Tuple[List[Agent], Union[List[Agent], None], Union[List[Agent], None]]:
         """
+        Get special agents include sorted population, n1 best agents, n2 worst agents
+
         Args:
-            pop (list): The population
-            best (int): Top k1 best solutions, default k1=3, good level reduction
-            worst (int): Top k2 worst solutions, default k2=3, worst level reduction
+            pop: The population
+            n_best: Top n1 best agents, default n1=3, good level reduction
+            n_worst: Top n2 worst agents, default n2=3, worst level reduction
+            minmax: The problem type
 
         Returns:
-            list: sorted_population, k1 best solutions and k2 worst solutions
+            The sorted_population, n1 best agents and n2 worst agents
         """
-        if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
-        else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
-        if best is None:
-            if worst is None:
-                raise ValueError("Best and Worst can not be None in get_special_solutions function!")
+        pop = Optimizer.get_sorted_population(pop, minmax)
+        if n_best is None:
+            if n_worst is None:
+                return pop, None, None
             else:
-                return pop, None, deepcopy(pop[::-1][:worst])
+                return pop, None, [agent.copy() for agent in pop[::-1][:n_worst]]
         else:
-            if worst is None:
-                return pop, deepcopy(pop[:best]), None
+            if n_worst is None:
+                return pop, [agent.copy() for agent in pop[:n_best]], None
             else:
-                return pop, deepcopy(pop[:best]), deepcopy(pop[::-1][:worst])
+                return pop, [agent.copy() for agent in pop[:n_best]], [agent.copy() for agent in pop[::-1][:n_worst]]
 
-    def get_special_fitness(self, pop=None):
+    @staticmethod
+    def get_special_fitness(pop: List[Agent] = None, minmax: str = "min") -> Tuple[Union[float, np.ndarray], float, float]:
         """
+        Get special fitness include the total fitness, the best fitness, and the worst fitness
+
         Args:
-            pop (list): The population
+            pop: The population
+            minmax: The problem type
 
         Returns:
-            list: Total fitness, best fitness, worst fitness
+            The total fitness, the best fitness, and the worst fitness
         """
-        total_fitness = np.sum([agent[self.ID_TAR][self.ID_FIT] for agent in pop])
-        if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
-        else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
-        return total_fitness, pop[0][self.ID_TAR][self.ID_FIT], pop[-1][self.ID_TAR][self.ID_FIT]
+        total_fitness = np.sum([agent.fitness for agent in pop])
+        pop = Optimizer.get_sorted_population(pop, minmax)
+        return total_fitness, pop[0].fitness, pop[-1].fitness
 
-    def update_global_best_solution(self, pop=None, save=True):
+    @staticmethod
+    def get_better_agent(agent_x: Agent, agent_y: Agent, minmax: str = "min", reverse: bool = False) -> Agent:
+        """
+        Args:
+            agent_x: First agent
+            agent_y: Second agent
+            minmax: The problem type
+            reverse: Reverse the minmax
+
+        Returns:
+            The better agent based on fitness
+        """
+        minmax_dict = {"min": 0, "max": 1}
+        idx = minmax_dict[minmax]
+        if reverse:
+            idx = 1 - idx
+        if idx == 0:
+            return agent_x.copy() if agent_x.fitness < agent_y.fitness else agent_y.copy()
+        else:
+            return agent_y.copy() if agent_x.fitness < agent_y.fitness else agent_x.copy()
+
+    ### Survivor Selection
+    @staticmethod
+    def greedy_selection_population(pop_old: List[Agent] = None, pop_new: List[Agent] = None, minmax: str = "min") -> List[Agent]:
+        """
+        Args:
+            pop_old: The current population
+            pop_new: The next population
+            minmax: The problem type
+
+        Returns:
+            The new population with better solutions
+        """
+        len_old, len_new = len(pop_old), len(pop_new)
+        if len_old != len_new:
+            raise ValueError("Greedy selection of two population with different length.")
+        if minmax == "min":
+            return [pop_new[idx] if pop_new[idx].fitness < pop_old[idx].fitness else pop_old[idx] for idx in range(len_old)]
+        else:
+            return [pop_new[idx] if pop_new[idx].fitness > pop_old[idx].fitness else pop_old[idx] for idx in range(len_old)]
+
+    @staticmethod
+    def get_sorted_and_trimmed_population(pop: List[Agent] = None, pop_size: int = None, minmax: str = "min") -> List[Agent]:
+        """
+        Args:
+            pop: The population
+            pop_size: The number of selected agents
+            minmax: The problem type
+
+        Returns:
+            The sorted and trimmed population with pop_size size
+        """
+        pop = Optimizer.get_sorted_population(pop, minmax)
+        return pop[:pop_size]
+
+    def update_global_best_solution(self, pop: List[Agent], save: bool = True) -> Union[List, Tuple]:
         """
         Update global best and current best solutions in history object.
         Also update global worst and current worst solutions in history object.
@@ -525,41 +525,30 @@ class Optimizer:
         Returns:
             list: Sorted population and the global best solution
         """
-        if self.problem.minmax == "min":
-            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT])
-        else:
-            sorted_pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=True)
-        current_best = sorted_pop[0]
-        current_worst = sorted_pop[-1]
+        sorted_pop = self.get_sorted_population(pop, self.problem.minmax)
+        c_best, c_worst = sorted_pop[0], sorted_pop[-1]
         if save:
             ## Save current best
-            self.history.list_current_best.append(current_best)
-            better = self.get_better_solution(current_best, self.history.list_global_best[-1])
+            self.history.list_current_best.append(c_best)
+            better = self.get_better_agent(c_best, self.history.list_global_best[-1])
             self.history.list_global_best.append(better)
             ## Save current worst
-            self.history.list_current_worst.append(current_worst)
-            worse = self.get_better_solution(current_worst, self.history.list_global_worst[-1], reverse=True)
+            self.history.list_current_worst.append(c_worst)
+            worse = self.get_better_agent(c_worst, self.history.list_global_worst[-1], reverse=True)
             self.history.list_global_worst.append(worse)
-            return deepcopy(sorted_pop), deepcopy(better)
+            return sorted_pop, better
         else:
             ## Handle current best
-            local_better = self.get_better_solution(current_best, self.history.list_current_best[-1])
+            local_better = self.get_better_agent(c_best, self.history.list_current_best[-1])
             self.history.list_current_best[-1] = local_better
-            global_better = self.get_better_solution(current_best, self.history.list_global_best[-1])
+            global_better = self.get_better_agent(c_best, self.history.list_global_best[-1])
             self.history.list_global_best[-1] = global_better
             ## Handle current worst
-            local_worst = self.get_better_solution(current_worst, self.history.list_current_worst[-1], reverse=True)
+            local_worst = self.get_better_agent(c_worst, self.history.list_current_worst[-1], reverse=True)
             self.history.list_current_worst[-1] = local_worst
-            global_worst = self.get_better_solution(current_worst, self.history.list_global_worst[-1], reverse=True)
+            global_worst = self.get_better_agent(c_worst, self.history.list_global_worst[-1], reverse=True)
             self.history.list_global_worst[-1] = global_worst
-            return deepcopy(sorted_pop), deepcopy(global_better)
-
-    def get_index_best(self, pop):
-        fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop])
-        if self.problem.minmax == "min":
-            return np.argmin(fit_list)
-        else:
-            return np.argmax(fit_list)
+            return sorted_pop, global_better
 
     ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
@@ -644,42 +633,6 @@ class Optimizer:
         else:
             step = multiplier * s
         return step[0] if size == 1 else step
-
-    ### Survivor Selection
-    def greedy_selection_population(self, pop_old=None, pop_new=None):
-        """
-        Args:
-            pop_old (list): The current population
-            pop_new (list): The next population
-
-        Returns:
-            The new population with better solutions
-        """
-        len_old, len_new = len(pop_old), len(pop_new)
-        if len_old != len_new:
-            raise ValueError("Greedy selection of two population with different length.")
-        if self.problem.minmax == "min":
-            return [pop_new[i] if pop_new[i][self.ID_TAR][self.ID_FIT] < pop_old[i][self.ID_TAR][self.ID_FIT]
-                    else pop_old[i] for i in range(len_old)]
-        else:
-            return [pop_new[i] if pop_new[i][self.ID_TAR] > pop_old[i][self.ID_TAR]
-                    else pop_old[i] for i in range(len_old)]
-
-    def get_sorted_strim_population(self, pop=None, pop_size=None, reverse=False):
-        """
-        Args:
-            pop (list): The population
-            pop_size (int): The number of population
-            reverse (bool): False (ascending fitness order), and True (descending fitness order)
-
-        Returns:
-            The sorted population with pop_size size
-        """
-        if self.problem.minmax == "min":
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=reverse)
-        else:
-            pop = sorted(pop, key=lambda agent: agent[self.ID_TAR][self.ID_FIT], reverse=reverse)
-        return pop[:pop_size]
 
     def create_opposition_position(self, agent=None, g_best=None):
         """
