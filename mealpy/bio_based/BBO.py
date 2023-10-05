@@ -25,19 +25,19 @@ class OriginalBBO(Optimizer):
     >>> import numpy as np
     >>> from mealpy import FloatVar, BBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
     >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
-    >>>     "fit_func": fitness_function
+    >>>     "obj_func": objective_function
     >>> }
     >>>
     >>> model = BBO.OriginalBBO(epoch=1000, pop_size=50, p_m=0.01, n_elites=2)
     >>> g_best = model.solve(problem_dict)
-    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
-    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.fitness}")
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -93,10 +93,10 @@ class OriginalBBO(Optimizer):
             pos_new = self.problem.correct_solution(pos_new)
             pop.append(Agent(pos_new, None))
             if self.mode not in self.AVAILABLE_MODES:
-                fit_new = self.get_fitness(pos_new)
-                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, fit_new), minmax=self.problem.minmax)
+                tar_new = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, tar_new), minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop = self.update_fitness_for_population(pop)
+            pop = self.update_target_for_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_elites, self.pop_size, self.problem.minmax)
@@ -115,19 +115,19 @@ class DevBBO(OriginalBBO):
     >>> import numpy as np
     >>> from mealpy import FloatVar, BBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
     >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
-    >>>     "fit_func": fitness_function
+    >>>     "obj_func": objective_function
     >>> }
     >>>
     >>> model = BBO.DevBBO(epoch=1000, pop_size=50, p_m=0.01, n_elites=2)
     >>> g_best = model.solve(problem_dict)
-    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
-    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.fitness}")
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_m: float = 0.01, n_elites: int = 2, **kwargs: object) -> None:
@@ -150,7 +150,7 @@ class DevBBO(OriginalBBO):
             epoch (int): The current iteration
         """
         _, pop_elites, _ = self.get_special_agents(self.pop, n_best=self.n_elites)
-        list_fitness = [agent.fitness for agent in self.pop]
+        list_fitness = [agent.target.fitness for agent in self.pop]
         pop_new = []
         for idx in range(0, self.pop_size):
             # Probabilistic migration to the i-th position
@@ -165,10 +165,10 @@ class DevBBO(OriginalBBO):
             pos_new = self.problem.correct_solution(pos_new)
             pop_new.append(Agent(pos_new, None))
             if self.mode not in self.AVAILABLE_MODES:
-                fit_new = self.get_fitness(pos_new)
-                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, fit_new), minmax=self.problem.minmax)
+                tar_new = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, tar_new), minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_fitness_for_population(pop_new)
+            pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_elites, self.pop_size, self.problem.minmax)
