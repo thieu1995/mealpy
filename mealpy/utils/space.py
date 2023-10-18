@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
+import numbers as nb
 from abc import ABC, abstractmethod
 
 
@@ -95,19 +96,14 @@ class LabelEncoder:
 class BaseVar(ABC):
     SUPPORTED_ARRAY = [tuple, list, np.ndarray]
 
-    def __init__(self, n_vars=1, name="variable"):
-        self._n_vars = None
-        self.set_n_vars(n_vars)
+    def __init__(self, name="variable"):
         self.name = name
+        self.n_vars = None
         self.lb, self.ub = None, None
-
-    @property
-    def n_vars(self):
-        return self._n_vars
 
     def set_n_vars(self, n_vars):
         if type(n_vars) is int and n_vars > 0:
-            self._n_vars = n_vars
+            self.n_vars = n_vars
         else:
             raise ValueError(f"Invalid n_vars. It should be integer and > 0.")
 
@@ -129,24 +125,22 @@ class BaseVar(ABC):
 
 
 class IntegerVar(BaseVar):
-    def __init__(self, n_vars=1, lb=-10, ub=10, name="integer"):
-        super().__init__(n_vars, name)
+    def __init__(self, lb=-10, ub=10, name="integer"):
+        super().__init__(name)
         self._set_bounds(lb, ub)
 
     def _set_bounds(self, lb, ub):
-        if self.n_vars == 1:
-            if type(lb) is int and type(ub) is int:
-                self.lb, self.ub = (lb, ), (ub, )
+        if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
+            self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int)
+            self.n_vars = 1
+        elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
+            if len(lb) == len(ub):
+                self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int)
+                self.n_vars = len(lb)
             else:
-                raise ValueError(f"Invalid lb or ub. It should be int value and lb < ub")
+                raise ValueError(f"Invalid lb or ub. Length of lb should equal to length of ub.")
         else:
-            if type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
-                if len(lb) == len(ub) == self.n_vars:
-                    self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int)
-                else:
-                    raise ValueError(f"Invalid lb or ub. Length of lb, ub should equal to n_vars.")
-            else:
-                raise TypeError(f"Invalid lb or ub. It should be {self.SUPPORTED_ARRAY}")
+            raise TypeError(f"Invalid lb or ub. It should be one of following: {self.SUPPORTED_ARRAY}")
 
     def encode(self, x):
         return np.array(x, dtype=float)
@@ -163,24 +157,22 @@ class IntegerVar(BaseVar):
 
 
 class FloatVar(BaseVar):
-    def __init__(self, n_vars=1, lb=-10., ub=10., name="float"):
-        super().__init__(n_vars, name)
+    def __init__(self, lb=-10., ub=10., name="float"):
+        super().__init__(name)
         self._set_bounds(lb, ub)
 
     def _set_bounds(self, lb, ub):
-        if self.n_vars == 1:
-            if type(lb) in (int, float) and type(ub) in (int, float):
-                self.lb, self.ub = (float(lb), ), (float(ub), )
+        if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
+            self.lb, self.ub = np.array(lb, dtype=float), np.array(ub, dtype=float)
+            self.n_vars = 1
+        elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
+            if len(lb) == len(ub):
+                self.lb, self.ub = np.array(lb, dtype=float), np.array(ub, dtype=float)
+                self.n_vars = len(lb)
             else:
-                raise ValueError(f"Invalid lb or ub. It should be int value and lb < ub")
+                raise ValueError(f"Invalid lb or ub. Length of lb should equal to length of ub.")
         else:
-            if type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
-                if len(lb) == len(ub) == self.n_vars:
-                    self.lb, self.ub = np.array(lb, dtype=float), np.array(ub, dtype=float)
-                else:
-                    raise ValueError(f"Invalid lb or ub. Length of lb, ub should equal to n_vars.")
-            else:
-                raise TypeError(f"Invalid lb or ub. It should be {self.SUPPORTED_ARRAY}")
+            raise TypeError(f"Invalid lb or ub. It should be one of following: {self.SUPPORTED_ARRAY}")
 
     def encode(self, x):
         return np.array(x, dtype=float)
@@ -197,24 +189,20 @@ class FloatVar(BaseVar):
 
 
 class PermutationVar(BaseVar):
-    def __init__(self, n_vars=2, valid_set=(1, 2), name="permutation"):
-        super().__init__(n_vars, name)
+    def __init__(self, valid_set=(1, 2), name="permutation"):
+        super().__init__(name)
         self.eps = 1e-4
         self._set_bounds(valid_set)
 
     def _set_bounds(self, valid_set):
-        if self.n_vars == 1:
-            raise ValueError(f"Invalid n_vars. Permutation type needs at least 2 variables.")
-        if type(valid_set) in self.SUPPORTED_ARRAY:
-            if len(valid_set) == self.n_vars:
-                self.valid_set = np.array(valid_set)
-                self.le = LabelEncoder().fit(valid_set)
-                self.lb = np.zeros(self.n_vars)
-                self.ub = (self.n_vars - self.eps) * np.ones(self.n_vars)
-            else:
-                raise ValueError(f"Invalid valid_set. Length of valid_set should equal to n_vars.")
+        if type(valid_set) in self.SUPPORTED_ARRAY and len(valid_set) > 1:
+            self.valid_set = np.array(valid_set)
+            self.n_vars = len(valid_set)
+            self.le = LabelEncoder().fit(valid_set)
+            self.lb = np.zeros(self.n_vars)
+            self.ub = (self.n_vars - self.eps) * np.ones(self.n_vars)
         else:
-            raise TypeError(f"Invalid valid_set. It should be {self.SUPPORTED_ARRAY}")
+            raise TypeError(f"Invalid valid_set. It should be {self.SUPPORTED_ARRAY} and contains at least 2 variables")
 
     @staticmethod
     def min_max_scale(data, min_val, max_val):
@@ -249,43 +237,28 @@ class PermutationVar(BaseVar):
 
 
 class StringVar(BaseVar):
-    def __init__(self, n_vars=1, valid_sets=(("",),), name="string"):
-        super().__init__(n_vars, name)
+    def __init__(self, valid_sets=(("",),), name="string"):
+        super().__init__(name)
         self.eps = 1e-4
         self._set_bounds(valid_sets)
 
     def _set_bounds(self, valid_sets):
-        if self.n_vars == 1:
-            if type(valid_sets) in self.SUPPORTED_ARRAY:
-                if len(valid_sets) > 1:
-                    self.valid_sets = (tuple(valid_sets), )
-                    le = LabelEncoder().fit(valid_sets)
-                    self.list_le = (le, )
-                    self.lb = np.array([0, ])
-                    self.ub = np.array([len(valid_sets), ])
-                else:
-                    raise ValueError(f"Invalid valid_sets. It should contains at least 2 values")
+        if type(valid_sets) in self.SUPPORTED_ARRAY:
+            self.n_vars = len(valid_sets)
+            if all(len(item) > 1 for item in valid_sets):
+                self.valid_sets = valid_sets
+                self.list_le = []
+                ub = []
+                for vl_set in valid_sets:
+                    le = LabelEncoder().fit(vl_set)
+                    self.list_le.append(le)
+                    ub.append(len(vl_set) - self.eps)
+                self.lb = np.zeros(self.n_vars)
+                self.ub = np.array(ub)
             else:
-                raise ValueError(f"Invalid valid_sets. It should be {self.SUPPORTED_ARRAY} an contains at least 2 values")
+                raise ValueError(f"Invalid valid_sets. All string variables need to have at least 2 values.")
         else:
-            if type(valid_sets) in self.SUPPORTED_ARRAY:
-                if len(valid_sets) == self.n_vars:
-                    if all(len(item) > 1 for item in valid_sets):
-                        self.valid_sets = valid_sets
-                        self.list_le = []
-                        ub = []
-                        for vl_set in valid_sets:
-                            le = LabelEncoder().fit(vl_set)
-                            self.list_le.append(le)
-                            ub.append(len(vl_set) - self.eps)
-                        self.lb = np.zeros(self.n_vars)
-                        self.ub = np.array(ub)
-                    else:
-                        raise ValueError(f"Invalid valid_sets. All string variables need to have at least 2 values.")
-                else:
-                    raise ValueError(f"Invalid valid_sets. Length of valid_sets should equal to n_vars.")
-            else:
-                raise TypeError(f"Invalid valid_sets. It should be {self.SUPPORTED_ARRAY}")
+            raise TypeError(f"Invalid valid_sets. It should be {self.SUPPORTED_ARRAY}.")
 
     def encode(self, x):
         return np.array([le.transform(val)[0] for (le, val) in zip(self.list_le, x)], dtype=float)
@@ -304,7 +277,8 @@ class StringVar(BaseVar):
 
 class BinaryVar(BaseVar):
     def __init__(self, n_vars=1, name="binary"):
-        super().__init__(n_vars, name)
+        super().__init__(name)
+        self.set_n_vars(n_vars)
         self.eps = 1e-4
         self.lb = np.zeros(self.n_vars)
         self.ub = (2 - self.eps) * np.ones(self.n_vars)
@@ -326,7 +300,8 @@ class BinaryVar(BaseVar):
 
 class BoolVar(BaseVar):
     def __init__(self, n_vars=1, name="boolean"):
-        super().__init__(n_vars, name)
+        super().__init__(name)
+        self.set_n_vars(n_vars)
         self.eps = 1e-4
         self.lb = np.zeros(self.n_vars)
         self.ub = (2 - self.eps) * np.ones(self.n_vars)
