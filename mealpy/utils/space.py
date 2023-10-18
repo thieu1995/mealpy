@@ -244,19 +244,27 @@ class StringVar(BaseVar):
 
     def _set_bounds(self, valid_sets):
         if type(valid_sets) in self.SUPPORTED_ARRAY:
-            self.n_vars = len(valid_sets)
-            if all(len(item) > 1 for item in valid_sets):
-                self.valid_sets = valid_sets
-                self.list_le = []
-                ub = []
-                for vl_set in valid_sets:
-                    le = LabelEncoder().fit(vl_set)
-                    self.list_le.append(le)
-                    ub.append(len(vl_set) - self.eps)
-                self.lb = np.zeros(self.n_vars)
-                self.ub = np.array(ub)
+            if type(valid_sets[0]) not in self.SUPPORTED_ARRAY:
+                self.n_vars = 1
+                self.valid_sets = (tuple(valid_sets),)
+                le = LabelEncoder().fit(valid_sets)
+                self.list_le = (le,)
+                self.lb = np.array([0, ])
+                self.ub = np.array([len(valid_sets), ])
             else:
-                raise ValueError(f"Invalid valid_sets. All string variables need to have at least 2 values.")
+                self.n_vars = len(valid_sets)
+                if all(len(item) > 1 for item in valid_sets):
+                    self.valid_sets = valid_sets
+                    self.list_le = []
+                    ub = []
+                    for vl_set in valid_sets:
+                        le = LabelEncoder().fit(vl_set)
+                        self.list_le.append(le)
+                        ub.append(len(vl_set) - self.eps)
+                    self.lb = np.zeros(self.n_vars)
+                    self.ub = np.array(ub)
+                else:
+                    raise ValueError(f"Invalid valid_sets. All string variables need to have at least 2 values.")
         else:
             raise TypeError(f"Invalid valid_sets. It should be {self.SUPPORTED_ARRAY}.")
 
