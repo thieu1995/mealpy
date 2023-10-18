@@ -12,8 +12,8 @@ from opfunu.cec_based.cec2017 import F292017
 f18 = F292017(ndim=30)
 
 problem_dict1 = {
-    "fit_func": f18.evaluate,
-    "bounds": FloatVar(n_vars=30, lb=f18.lb, ub=f18.ub),
+    "obj_func": f18.evaluate,
+    "bounds": FloatVar(lb=f18.lb, ub=f18.ub),
     "minmax": "min",
 }
 
@@ -22,22 +22,22 @@ model = BBO.OriginalBBO(epoch=200, pop_size=50)
 
 ## 1. Epoch/Maximum Generation (default)
 g_best = model.solve(problem_dict1, termination={"max_epoch": 100})
-print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
+print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
 
 
 ## 2. Number of Function Evaluation
 g_best = model.solve(problem_dict1, termination={"max_fe": 10000})
-print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
+print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
 
 
 ## 3. Time bound
 g_best = model.solve(problem_dict1, termination={"max_time": 5.5})
-print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
+print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
 
 
 ## 4. Early Stopping
 g_best = model.solve(problem_dict1, termination={"max_early_stop": 5})
-print(f"Solution: {g_best.solution}, Fitness: {g_best.fitness}")
+print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
 
 
 ## 2) Combine all of them
@@ -55,9 +55,9 @@ term_dict = {
 
 # Define the problem dimension and search space (e.g., for a 30-D problem with [-10, 10] bounds for each variable)
 p1 = {
-    "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     "minmax": "min",
-    "fit_func": fitness,
+    "obj_func": fitness,
     "name": "Test Function"
 }
 
@@ -65,7 +65,7 @@ p1 = {
 model = BBO.OriginalBBO(epoch=10, pop_size=50)
 best_agent = model.solve(p1, termination=term_dict)
 print(best_agent.solution)
-print(best_agent.fitness)
+print(best_agent.target.fitness)
 print(model.get_parameters())
 print(model.get_name())
 print(model.problem.get_name())
@@ -76,7 +76,7 @@ print(model.get_attributes()["g_best"])
 term2 = Termination(max_epoch=10, max_time=1.5)
 best_agent = model.solve(p1, termination=term2)
 print(best_agent.solution)
-print(best_agent.fitness)
+print(best_agent.target.fitness)
 print(model.get_parameters())
 print(model.get_name())
 print(model.problem.get_name())

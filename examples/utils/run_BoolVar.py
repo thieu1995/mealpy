@@ -23,7 +23,7 @@ bounds = [
     BoolVar(n_vars=11, name="delta"),
 ]
 
-problem = Problem(bounds, fit_func=lambda sol: np.sum(sol**2))
+problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
 print(f"Problem: {problem}")
 print(f"Bounds: {problem.bounds}")
 

@@ -8,25 +8,20 @@ import numpy as np
 from mealpy import StringVar, Problem
 
 
-## 1. Show error
+# ## 1. One variable
 # bounds = [
-#     StringVar(n_vars=-2, valid_sets=("auto", "hello", "case", "nano")),
+#     StringVar(valid_sets=("auto", 12, "hello", 5, "case", "nano", 1)),
 # ]
 
-## 2. One variable
-# bounds = [
-#     StringVar(n_vars=1, valid_sets=("auto", 12, "hello", 5, "case", "nano", 1)),
-# ]
-
-## 3. Multiple variables
+## 2. Multiple variables
 bounds = [
-    StringVar(4, (("auto", "backward", "forward"),
-                  ("leaf", "branch", "root"),
-                  (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
-                  ("random", "tournament", "roulette", "round-robin")), name="delta")
+    StringVar(valid_sets=(("auto", "backward", "forward"),
+                          ("leaf", "branch", "root"),
+                          (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
+                          ("random", "tournament", "roulette", "round-robin")), name="delta")
 ]
 
-problem = Problem(bounds, fit_func=lambda sol: np.sum(sol**2))
+problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
 print(f"Problem: {problem}")
 print(f"Bounds: {problem.bounds}")
 

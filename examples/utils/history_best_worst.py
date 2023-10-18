@@ -9,15 +9,15 @@ from mealpy import FloatVar, BBO
 
 
 problem = {
-    "fit_func": lambda sol: np.sum(sol**2),
-    "bounds": FloatVar(n_vars=20, lb=(-100.,)*20, ub=(100.,)*20, name="delta"),
+    "obj_func": lambda sol: np.sum(sol**2),
+    "bounds": FloatVar(lb=(-100.,)*20, ub=(100.,)*20, name="delta"),
     "minmax": "min",
 }
 
 ## Run the algorithm
 model = BBO.OriginalBBO(epoch=100, pop_size=50)
 g_best = model.solve(problem)
-print(f"Best solution: {g_best.solution}, Best fitness: {g_best.fitness}")
+print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 
 print("List current worst")
 print(model.history.list_current_worst)

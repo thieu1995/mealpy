@@ -8,22 +8,17 @@ import numpy as np
 from mealpy import IntegerVar, Problem
 
 
-## 1. Show error
+# ## 1. One variable
 # bounds = [
-#     IntegerVar(n_vars=-2, lb=(-10, ), ub=(10, 10)),
+#     IntegerVar(lb=-10, ub=10, name="delta"),
 # ]
 
-## 2. One variable
-# bounds = [
-#     IntegerVar(n_vars=1, lb=-10, ub=10),
-# ]
-
-## 3. Multiple variables
+## 2. Multiple variables
 bounds = [
-    IntegerVar(n_vars=7, lb=(-10., )*7, ub=(10., )*7, name="delta")
+    IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")
 ]
 
-problem = Problem(bounds, fit_func=lambda sol: np.sum(sol**2))
+problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
 print(f"Problem: {problem}")
 print(f"Bounds: {problem.bounds}")
 

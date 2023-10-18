@@ -7,23 +7,17 @@
 import numpy as np
 from mealpy import FloatVar, Problem
 
-
-## 1. Show error
+# ## 1. One variable
 # bounds = [
-#     FloatVar(n_vars=-2, lb=(-10.0, )*5, ub=(10.0, )*5),
+#     FloatVar(lb=-10.0, ub=10.0, name="delta"),
 # ]
 
-## 2. One variable
-# bounds = [
-#     FloatVar(n_vars=1, lb=-10.0, ub=10.0),
-# ]
-
-## 3. Multiple variables
+## 2. Multiple variables
 bounds = [
-    FloatVar(n_vars=7, lb=(-10., )*7, ub=(10., )*7, name="delta")
+    FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")
 ]
 
-problem = Problem(bounds, fit_func=lambda sol: np.sum(sol**2))
+problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
 print(f"Problem: {problem}")
 print(f"Bounds: {problem.bounds}")
 
