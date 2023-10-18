@@ -131,7 +131,7 @@ class IntegerVar(BaseVar):
 
     def _set_bounds(self, lb, ub):
         if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
-            self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int)
+            self.lb, self.ub = np.array((lb, ), dtype=int), np.array((ub, ), dtype=int)
             self.n_vars = 1
         elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
             if len(lb) == len(ub):
@@ -163,7 +163,7 @@ class FloatVar(BaseVar):
 
     def _set_bounds(self, lb, ub):
         if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
-            self.lb, self.ub = np.array(lb, dtype=float), np.array(ub, dtype=float)
+            self.lb, self.ub = np.array((lb, ), dtype=float), np.array((ub,), dtype=float)
             self.n_vars = 1
         elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
             if len(lb) == len(ub):
