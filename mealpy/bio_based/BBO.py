@@ -6,7 +6,6 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.agent import Agent
 
 
 class OriginalBBO(Optimizer):
@@ -77,9 +76,9 @@ class OriginalBBO(Optimizer):
             # Probabilistic migration to the i-th position
             pos_new = self.pop[idx].solution.copy()
             for j in range(self.problem.n_dims):
-                if np.random.uniform() < self.mr[idx]:  # Should we immigrate?
+                if self.generator.random() < self.mr[idx]:  # Should we immigrate?
                     # Pick a position from which to emigrate (roulette wheel selection)
-                    random_number = np.random.uniform() * np.sum(self.mu)
+                    random_number = self.generator.random() * np.sum(self.mu)
                     select = self.mu[0]
                     select_index = 0
                     while (random_number > select) and (select_index < self.pop_size - 1):
@@ -87,14 +86,15 @@ class OriginalBBO(Optimizer):
                         select += self.mu[select_index]
                     # this is the migration step
                     pos_new[j] = self.pop[select_index].solution[j]
-            noise = np.random.uniform(self.problem.lb, self.problem.ub)
-            condition = np.random.random(self.problem.n_dims) < self.p_m
+            noise = self.generator.uniform(self.problem.lb, self.problem.ub)
+            condition = self.generator.random(self.problem.n_dims) < self.p_m
             pos_new = np.where(condition, noise, pos_new)
             pos_new = self.problem.correct_solution(pos_new)
-            pop.append(Agent(pos_new, None))
+            agent_new = self.generate_empty_agent(pos_new)
+            pop.append(agent_new)
             if self.mode not in self.AVAILABLE_MODES:
-                tar_new = self.get_target(pos_new)
-                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, tar_new), minmax=self.problem.minmax)
+                agent_new.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent_new, minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop = self.update_target_for_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop)
@@ -157,16 +157,17 @@ class DevBBO(OriginalBBO):
             # Pick a position from which to emigrate (roulette wheel selection)
             idx_selected = self.get_index_roulette_wheel_selection(list_fitness)
             # this is the migration step
-            condition = np.random.random(self.problem.n_dims) < self.mr[idx]
+            condition = self.generator.random(self.problem.n_dims) < self.mr[idx]
             pos_new = np.where(condition, self.pop[idx_selected].solution, self.pop[idx].solution)
             # Mutation
-            mutated = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = np.where(np.random.random(self.problem.n_dims) < self.p_m, mutated, pos_new)
+            mutated = self.generator.uniform(self.problem.lb, self.problem.ub)
+            pos_new = np.where(self.generator.random(self.problem.n_dims) < self.p_m, mutated, pos_new)
             pos_new = self.problem.correct_solution(pos_new)
-            pop_new.append(Agent(pos_new, None))
+            agent_new = self.generate_empty_agent(pos_new)
+            pop_new.append(agent_new)
             if self.mode not in self.AVAILABLE_MODES:
-                tar_new = self.get_target(pos_new)
-                self.pop[idx] = self.get_better_agent(self.pop[idx], Agent(pos_new, tar_new), minmax=self.problem.minmax)
+                agent_new.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent_new, minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)

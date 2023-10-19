@@ -288,9 +288,20 @@ class Optimizer:
         self.history.list_global_worst = self.history.list_global_worst[1:]
         self.history.list_current_worst = self.history.list_current_worst[1:]
 
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
+        """
+        Generate new agent with solution
+
+        Args:
+            solution (np.ndarray): The solution
+        """
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        return Agent(solution=solution)
+
     def generate_agent(self, solution: np.ndarray = None) -> Agent:
         """
-        Generate new agent
+        Generate new agent with full information
 
         Args:
             solution (np.ndarray): The solution
