@@ -164,7 +164,7 @@ class IntegerVar(BaseVar):
         return np.clip(x, self.lb, self.ub)
 
     def generate(self):
-        return self.generator.randint(self.lb, self.ub)
+        return self.generator.integers(self.lb, self.ub)
 
 
 class FloatVar(BaseVar):
@@ -314,7 +314,7 @@ class BinaryVar(BaseVar):
         return np.array(x, dtype=int)
 
     def generate(self):
-        return self.generator.randint(0, 2, self.n_vars)
+        return self.generator.integers(0, 2, self.n_vars)
 
 
 class BoolVar(BaseVar):
