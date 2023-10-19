@@ -153,13 +153,16 @@ class Optimizer:
     def evolve(self, epoch: int) -> None:
         pass
 
-    def check_problem(self, problem) -> None:
+    def check_problem(self, problem, seed) -> None:
         if isinstance(problem, Problem):
+            problem.set_seed(seed)
             self.problem = problem
         elif type(problem) == dict:
+            problem["seed"] = seed
             self.problem = Problem(**problem)
         else:
             raise ValueError("problem needs to be a dict or an instance of Problem class.")
+        self.generator = np.random.default_rng(seed)
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
@@ -202,7 +205,8 @@ class Optimizer:
             return finished
 
     def solve(self, problem: Union[Dict, Problem] = None, mode: str = 'single', n_workers: int = None,
-              termination: Union[Dict, Termination] = None, starting_solutions: Union[List, np.ndarray, Tuple] = None) -> Agent:
+              termination: Union[Dict, Termination] = None, starting_solutions: Union[List, np.ndarray, Tuple] = None,
+              seed: int = None) -> Agent:
         """
         Args:
             problem: an instance of Problem class or a dictionary
@@ -213,14 +217,15 @@ class Optimizer:
                 * 'swarm': The sequential mode that no effect on updating phase of other agents
                 * 'single': The sequential mode that effect on updating phase of other agents, this is default mode
 
-            n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
-            termination (dict, None): The termination dictionary or an instance of Termination class
+            n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
+            termination: The termination dictionary or an instance of Termination class
             starting_solutions: List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
+            seed: seed for random number generation needed to be *explicitly* set to int value
 
         Returns:
             g_best: g_best, the best found agent, that hold the best solution and the best target. Access by: .g_best.solution, .g_best.target
         """
-        self.check_problem(problem)
+        self.check_problem(problem, seed)
         self.check_mode_and_workers(mode, n_workers)
         self.check_termination("start", termination, None)
         self.initialize_variables()

@@ -100,12 +100,23 @@ class BaseVar(ABC):
         self.name = name
         self.n_vars = None
         self.lb, self.ub = None, None
+        self._seed = None
+        self.generator = np.random.default_rng()
 
     def set_n_vars(self, n_vars):
         if type(n_vars) is int and n_vars > 0:
             self.n_vars = n_vars
         else:
             raise ValueError(f"Invalid n_vars. It should be integer and > 0.")
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, value: int) -> None:
+        self._seed = value
+        self.generator = np.random.default_rng(self._seed)
 
     @abstractmethod
     def encode(self, x):
@@ -153,7 +164,7 @@ class IntegerVar(BaseVar):
         return np.clip(x, self.lb, self.ub)
 
     def generate(self):
-        return np.random.randint(self.lb, self.ub)
+        return self.generator.randint(self.lb, self.ub)
 
 
 class FloatVar(BaseVar):
@@ -185,7 +196,7 @@ class FloatVar(BaseVar):
         return np.clip(x, self.lb, self.ub)
 
     def generate(self):
-        return np.random.uniform(self.lb, self.ub)
+        return self.generator.uniform(self.lb, self.ub)
 
 
 class PermutationVar(BaseVar):
@@ -233,7 +244,7 @@ class PermutationVar(BaseVar):
         return np.array(x, dtype=int)
 
     def generate(self):
-        return np.random.permutation(self.valid_set)
+        return self.generator.permutation(self.valid_set)
 
 
 class StringVar(BaseVar):
@@ -280,7 +291,7 @@ class StringVar(BaseVar):
         return np.array(x, dtype=int)
 
     def generate(self):
-        return [np.random.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
+        return [self.generator.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
 
 
 class BinaryVar(BaseVar):
@@ -303,7 +314,7 @@ class BinaryVar(BaseVar):
         return np.array(x, dtype=int)
 
     def generate(self):
-        return np.random.randint(0, 2, self.n_vars)
+        return self.generator.randint(0, 2, self.n_vars)
 
 
 class BoolVar(BaseVar):
@@ -326,4 +337,4 @@ class BoolVar(BaseVar):
         return np.array(x, dtype=int)
 
     def generate(self):
-        return np.random.choice([True, False], self.n_vars, replace=True)
+        return self.generator.choice([True, False], self.n_vars, replace=True)

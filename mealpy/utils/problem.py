@@ -18,12 +18,13 @@ class Problem:
 
     def __init__(self, bounds: Union[List, Tuple, np.ndarray, BaseVar], minmax: str = "min", **kwargs) -> None:
         self._bounds, self.lb, self.ub = None, None, None
-        self.set_bounds(bounds)
         self.minmax = minmax
+        self.seed = None
         self.name, self.log_to, self.log_file = "P", "console", "history.txt"
         self.n_objs, self.obj_weights = 1, None
         self.n_dims, self.save_population = None, False
         self.__set_keyword_arguments(kwargs)
+        self.set_bounds(bounds)
         self.__set_functions()
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
                                     format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
@@ -34,16 +35,27 @@ class Problem:
 
     def set_bounds(self, bounds):
         if isinstance(bounds, BaseVar):
+            bounds.seed = self.seed
             self._bounds = [bounds, ]
         elif type(bounds) in self.SUPPORTED_ARRAYS:
+            self._bounds = []
             for bound in bounds:
-                if not isinstance(bound, BaseVar):
+                if isinstance(bound, BaseVar):
+                    bound.seed = self.seed
+                else:
                     raise ValueError(f"Invalid bounds. All variables in bounds should be an instance of {self.SUPPORTED_VARS}")
-            self._bounds = bounds
+                self._bounds.append(bound)
         else:
             raise TypeError(f"Invalid bounds. It should be type of {self.SUPPORTED_ARRAYS} or an instance of {self.SUPPORTED_VARS}")
         self.lb = np.concatenate([bound.lb for bound in self._bounds])
         self.ub = np.concatenate([bound.ub for bound in self._bounds])
+
+    def set_seed(self, seed: int = None) -> None:
+        self.seed = seed
+        bound_temp = []
+        for bound in self._bounds:
+            bound.seed = seed
+        self._bounds = bound_temp
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
