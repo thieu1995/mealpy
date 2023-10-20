@@ -421,7 +421,7 @@ class HPSO_TVAC(P_PSO):
         """
         super().__init__(epoch, pop_size, **kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.ci = self.validator.check_float("ci", ci, [0.3, 1.0])
         self.cf = self.validator.check_float("cf", cf, [0, 0.3])
         self.set_parameters(["epoch", "pop_size", "ci", "cf"])
@@ -509,7 +509,7 @@ class C_PSO(P_PSO):
         """
         super().__init__(epoch, pop_size, **kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.c1 = self.validator.check_float("c1", c1, (0, 5.0))
         self.c2 = self.validator.check_float("c2", c2, (0, 5.0))
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
@@ -629,7 +629,7 @@ class CL_PSO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.c_local = self.validator.check_float("c_local", c_local, (0, 5.0))
         self.w_min = self.validator.check_float("w_min", w_min, (0, 0.5))
         self.w_max = self.validator.check_float("w_max", w_max, [0.5, 2.0])
