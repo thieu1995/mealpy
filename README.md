@@ -43,20 +43,7 @@ approximate optimization.
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
-
-<details><summary><h2>Goals</h2></summary>
-
-Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
-
-- Analyse parameters of meta-heuristic algorithms.
-- Perform Qualitative and Quantitative Analysis of algorithms.
-- Analyse rate of convergence of algorithms.
-- Test and Analyse the scalability and the robustness of algorithms.
-- Save results in various formats (csv, json, pickle, png, pdf, jpeg)
-- Export and import models can also be done with Mealpy.
-
-</details>
-
+![MEALPY3-0-0](.github/img/mealpy-classification.png)
 
 
 
@@ -87,6 +74,21 @@ Please include these citations if you plan to use this library:
 
 
 # Usage 
+
+
+<details><summary><h2>Goals</h2></summary>
+
+Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
+
+- Analyse parameters of meta-heuristic algorithms.
+- Perform Qualitative and Quantitative Analysis of algorithms.
+- Analyse rate of convergence of algorithms.
+- Test and Analyse the scalability and the robustness of algorithms.
+- Save results in various formats (csv, json, pickle, png, pdf, jpeg)
+- Export and import models can also be done with Mealpy.
+
+</details>
+
 
 
 <details><summary><h2>Installation</h2></summary>
@@ -363,12 +365,15 @@ More advanced examples can also be found in the [Mealpy-examples repository](htt
 
 
 
-### Get Visualize Figures
+<details><summary><h3>Get Visualize Figures</h3></summary>
 
 * [Tutorials](/examples/utils/visualize/all_charts.py)
 
 <p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
 </p>
+
+</details>
+
 
 
 
@@ -413,7 +418,17 @@ Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applicatio
 
 
 
-## Tutorial Videos
+<details><summary><h3>Get Visualize Figures</h3></summary>
+
+* [Tutorials](/examples/utils/visualize/all_charts.py)
+
+<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
+</p>
+
+</details>
+
+
+<details><summary><h3>Tutorial Videos</h3></summary>
 
 All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
 
@@ -421,6 +436,10 @@ All code examples: [Link](https://github.com/thieu1995/mealpy/tree/master/exampl
 
 All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages/visualization.html)
 
+</details>
+
+
+# Documents
 
 
 ## Official Channels (questions, problems)
@@ -444,8 +463,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
     * https://github.com/aiir-team
 
 
-
-# Documents
+## My Comments
 
 * Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))
     + Evolutionary-based: Idea from Darwin's law of natural selection, evolutionary computing 
