@@ -33,8 +33,11 @@ alt="MEALPY"/>
 
 # Introduction 
 
-MEALPY is the largest python library for most of the cutting-edge nature-inspired meta-heuristic algorithms (population-based). Population meta-heuristic algorithms (PMA) are the most popular algorithms in the field of 
-approximate optimization.
+MEALPY is the largest python library in the world for most of the cutting-edge meta-heuristic algorithms 
+(nature-inspired algorithms, black-box optimization, global search optimizers, iterative learning algorithms, 
+continuous optimization, derivative free optimization, gradient free optimization, zeroth order optimization, 
+stochastic search optimization, random search optimization). These algorithms belong to population-based algorithms 
+(PMA), which are the most popular algorithms in the field of approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
 * **Total algorithms**: 209 (129 original, 46 official variants, 34 developed variants)
@@ -52,16 +55,6 @@ approximate optimization.
 Please include these citations if you plan to use this library:
 
 ```code 
-@software{nguyen_van_thieu_2023_8214540,
-  author       = {Nguyen Van Thieu},
-  title        = {MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library},
-  month        = aug,
-  year         = 2023,
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.8214539},
-  url          = {https://github.com/thieu1995/metacluster}
-}
-
 @article{van2023mealpy,
   title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
   author={Van Thieu, Nguyen and Mirjalili, Seyedali},
@@ -70,6 +63,29 @@ Please include these citations if you plan to use this library:
   publisher={Elsevier},
   doi={10.1016/j.sysarc.2023.102871}
 }
+
+@article{van2023groundwater,
+  title={Groundwater level modeling using Augmented Artificial Ecosystem Optimization},
+  author={Van Thieu, Nguyen and Barma, Surajit Deb and Van Lam, To and Kisi, Ozgur and Mahesha, Amai},
+  journal={Journal of Hydrology},
+  volume={617},
+  pages={129034},
+  year={2023},
+  publisher={Elsevier},
+  doi={https://doi.org/10.1016/j.jhydrol.2022.129034}
+}
+
+@article{ahmed2021comprehensive,
+  title={A comprehensive comparison of recent developed meta-heuristic algorithms for streamflow time series forecasting problem},
+  author={Ahmed, Ali Najah and Van Lam, To and Hung, Nguyen Duy and Van Thieu, Nguyen and Kisi, Ozgur and El-Shafie, Ahmed},
+  journal={Applied Soft Computing},
+  volume={105},
+  pages={107282},
+  year={2021},
+  publisher={Elsevier},
+  doi={10.1016/j.asoc.2021.107282}
+}
+
 ```
 
 
@@ -135,7 +151,7 @@ Let's go through a basic and advanced example.
 
 ### Simple Benchmark Function
 
-```python 
+```python
 from mealpy.bio_based import SMA
 import numpy as np
 
@@ -163,6 +179,67 @@ print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 
 ### Multi-objective Benchmark Function
 * [Multi-objective benchmark functions](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_multi_objective_functions.py)
+
+
+### Large-Scale Optimization 
+
+```python
+from mealpy.evolutionary_based import SHADE
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+problem = {
+    "fit_func": fitness_function,
+    "lb": [-1000, ] * 10000,
+    "ub": [1000, ] * 10000,
+    "minmax": "min",
+    "log_to": "console",
+}
+
+## Run the algorithm
+model = SHADE.OriginalSHADE(epoch=10000, pop_size=100)
+best_position, best_fitness = model.solve(problem)
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+
+
+### Distributed Optimization / Parallelization Optimization
+
+Please read the article titled [MEALPY: An open-source library for latest meta-heuristic algorithms in Python](https://doi.org/10.1016/j.sysarc.2023.102871) to 
+gain a clear understanding of the concept of parallelization (distributed 
+optimization) in metaheuristics. Not all metaheuristics can be run in parallel.
+
+
+```python
+from mealpy.bio_based import SMA
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+problem = {
+    "fit_func": fitness_function,
+    "lb": [-100, ] * 100,
+    "ub": [100, ] * 100,
+    "minmax": "min",
+    "log_to": "console",
+}
+
+## Run distributed SMA algorithm using 10 threads 
+model = SMA.BaseSMA(epoch=10000, pop_size=100, pr=0.03)
+best_position, best_fitness = model.solve(problem, mode="thread", n_workers=10)        # Distributed to 10 threads  
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+
+
+## Run distributed SMA algorithm using 8 CPUs (cores)
+best_position, best_fitness = model.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores  
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+
 
 
 
