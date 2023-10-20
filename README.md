@@ -43,7 +43,8 @@ approximate optimization.
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
-### Goals
+
+<details><summary><h3>Goals</h3></summary>
 
 Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
 
@@ -53,6 +54,10 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 - Test and Analyse the scalability and the robustness of algorithms.
 - Save results in various formats (csv, json, pickle, png, pdf, jpeg)
 - Export and import models can also be done with Mealpy.
+
+</details>
+
+
 
 
 ### Citation Request
@@ -82,6 +87,7 @@ Please include these citations if you plan to use this library:
 
 
 # Usage 
+
 
 ## Installation
 
@@ -175,11 +181,11 @@ from mealpy.utils.problem import Problem
 
 # Our custom problem class
 class Squared(Problem):
-    def __init__(self, lb=(-5, -5, -5, -5, -5, -5), ub=(5, 5, 5, 5, 5, 5), minmax="min", name="Squared", **kwargs):
+    def __init__(cls, lb=(-5, -5, -5, -5, -5, -5), ub=(5, 5, 5, 5, 5, 5), minmax="min", name="Squared", **kwargs):
         super().__init__(lb, ub, minmax, **kwargs)
-        self.name = name
+        cls.name = name
 
-    def fit_func(self, solution):
+    def fit_func(cls, solution):
         return np.sum(solution ** 2)
 ```
 
@@ -617,7 +623,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
   * **SADE**: Qin, A. K., & Suganthan, P. N. (2005, September). Self-adaptive differential evolution algorithm for numerical optimization. In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
   * **SHADE**: Tanabe, R., & Fukunaga, A. (2013, June). Success-history based parameter adaptation for differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
   * **L_SHADE**: Tanabe, R., & Fukunaga, A. S. (2014, July). Improving the search performance of SHADE using linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
-  * **SAP_DE**: Teo, J. (2006). Exploring dynamic self-adaptive populations in differential evolution. Soft Computing, 10(8), 673-686.
+  * **SAP_DE**: Teo, J. (2006). Exploring dynamic cls-adaptive populations in differential evolution. Soft Computing, 10(8), 673-686.
   
 * **DSA - Differential Search Algorithm (not done)** 
   * **BaseDSA**: Civicioglu, P. (2012). Transforming geocentric cartesian coordinates to geodetic coordinates by using differential search algorithm. Computers & Geosciences, 46, 229-247.
@@ -801,7 +807,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **PSO - Particle Swarm Optimization** 
   * **OriginalPSO**: Eberhart, R., & Kennedy, J. (1995, October). A new optimizer using particle swarm theory. In MHS'95. Proceedings of the Sixth International Symposium on Micro Machine and Human Science (pp. 39-43). Ieee.
   * **PPSO**: Ghasemi, M., Akbari, E., Rahimnejad, A., Razavi, S. E., Ghavidel, S., & Li, L. (2019). Phasor particle swarm optimization: a simple and efficient variant of PSO. Soft Computing, 23(19), 9701-9718.
-  * **HPSO_TVAC**: Ghasemi, M., Aghaei, J., & Hadipour, M. (2017). New self-organising hierarchical PSO with jumping time-varying acceleration coefficients. Electronics Letters, 53(20), 1360-1362.
+  * **HPSO_TVAC**: Ghasemi, M., Aghaei, J., & Hadipour, M. (2017). New cls-organising hierarchical PSO with jumping time-varying acceleration coefficients. Electronics Letters, 53(20), 1360-1362.
   * **C_PSO**: Liu, B., Wang, L., Jin, Y. H., Tang, F., & Huang, D. X. (2005). Improved particle swarm optimization combined with chaos. Chaos, Solitons & Fractals, 25(5), 1261-1271.
   * **CL_PSO**: Liang, J. J., Qin, A. K., Suganthan, P. N., & Baskar, S. (2006). Comprehensive learning particle swarm optimizer for global optimization of multimodal functions. IEEE transactions on evolutionary computation, 10(3), 281-295.
 
