@@ -23,13 +23,21 @@ alt="MEALPY"/>
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/thieu1995/mealpy.svg)](http://isitmaintained.com/project/thieu1995/mealpy "Percentage of issues still open")
 ![GitHub contributors](https://img.shields.io/github/contributors/thieu1995/mealpy.svg)
 [![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.5281/zenodo.3711948)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.1016/j.sysarc.2023.102871)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+# MEALPY version 3.0.0 in the future.
+
+![MEALPY3-0-0](.github/img/mealpy-3.0.0.png)
+
 
 # Introduction 
 
-MEALPY is the largest python library for most of the cutting-edge nature-inspired meta-heuristic algorithms (population-based). Population meta-heuristic algorithms (PMA) are the most popular algorithms in the field of 
-approximate optimization.
+MEALPY is the largest python library in the world for most of the cutting-edge meta-heuristic algorithms 
+(nature-inspired algorithms, black-box optimization, global search optimizers, iterative learning algorithms, 
+continuous optimization, derivative free optimization, gradient free optimization, zeroth order optimization, 
+stochastic search optimization, random search optimization). These algorithms belong to population-based algorithms 
+(PMA), which are the most popular algorithms in the field of approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
 * **Total algorithms**: 209 (129 original, 46 official variants, 34 developed variants)
@@ -38,7 +46,53 @@ approximate optimization.
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
-### Goals
+![MEALPY3-0-0](.github/img/mealpy-classification.png)
+
+
+
+### Citation Request
+
+Please include these citations if you plan to use this library:
+
+```code 
+@article{van2023mealpy,
+  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
+  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
+  journal={Journal of Systems Architecture},
+  year={2023},
+  publisher={Elsevier},
+  doi={10.1016/j.sysarc.2023.102871}
+}
+
+@article{van2023groundwater,
+  title={Groundwater level modeling using Augmented Artificial Ecosystem Optimization},
+  author={Van Thieu, Nguyen and Barma, Surajit Deb and Van Lam, To and Kisi, Ozgur and Mahesha, Amai},
+  journal={Journal of Hydrology},
+  volume={617},
+  pages={129034},
+  year={2023},
+  publisher={Elsevier},
+  doi={https://doi.org/10.1016/j.jhydrol.2022.129034}
+}
+
+@article{ahmed2021comprehensive,
+  title={A comprehensive comparison of recent developed meta-heuristic algorithms for streamflow time series forecasting problem},
+  author={Ahmed, Ali Najah and Van Lam, To and Hung, Nguyen Duy and Van Thieu, Nguyen and Kisi, Ozgur and El-Shafie, Ahmed},
+  journal={Applied Soft Computing},
+  volume={105},
+  pages={107282},
+  year={2021},
+  publisher={Elsevier},
+  doi={10.1016/j.asoc.2021.107282}
+}
+
+```
+
+
+# Usage 
+
+
+<details><summary><h2>Goals</h2></summary>
 
 Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
 
@@ -49,59 +103,33 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 - Save results in various formats (csv, json, pickle, png, pdf, jpeg)
 - Export and import models can also be done with Mealpy.
 
-
-### Citation Request
-
-Please include these citations if you plan to use this library:
-
-```code 
-@software{nguyen_van_thieu_2023_8214540,
-  author       = {Nguyen Van Thieu},
-  title        = {MetaCluster: Metaheuristic Algorithm for Feature Selection - An Open Source Python Library},
-  month        = aug,
-  year         = 2023,
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.8214539},
-  url          = {https://github.com/thieu1995/metacluster}
-}
-
-@article{van2023mealpy,
-  title={MEALPY: An open-source library for latest meta-heuristic algorithms in Python},
-  author={Van Thieu, Nguyen and Mirjalili, Seyedali},
-  journal={Journal of Systems Architecture},
-  year={2023},
-  publisher={Elsevier},
-  doi={10.1016/j.sysarc.2023.102871}
-}
-```
+</details>
 
 
-# Usage 
 
-## Installation
+<details><summary><h2>Installation</h2></summary>
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
-```sh 
+```sh
 $ pip install mealpy==2.5.4
 ```
 
 * Install the alpha/beta version from PyPi
-```sh 
+```sh
 $ pip install mealpy==2.5.4a6
 ```
 
 * Install the pre-release version directly from the source code:
-```sh 
+```sh
 $ git clone https://github.com/thieu1995/mealpy.git
 $ cd mealpy
 $ python setup.py install
 ```
 
 * In case, you want to install the development version from Github:
-```sh 
+```sh
 $ pip install git+https://github.com/thieu1995/permetrics 
 ```
-
 
 After installation, you can import Mealpy as any other Python module:
 
@@ -114,13 +142,16 @@ $ python
 >>> model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
 ```
 
+</details>
+
+
 
 ## Examples
 Let's go through a basic and advanced example.
 
 ### Simple Benchmark Function
 
-```python 
+```python
 from mealpy.bio_based import SMA
 import numpy as np
 
@@ -150,7 +181,70 @@ print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
 * [Multi-objective benchmark functions](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_multi_objective_functions.py)
 
 
-### Custom Problem 
+### Large-Scale Optimization 
+
+```python
+from mealpy.evolutionary_based import SHADE
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+problem = {
+    "fit_func": fitness_function,
+    "lb": [-1000, ] * 10000,
+    "ub": [1000, ] * 10000,
+    "minmax": "min",
+    "log_to": "console",
+}
+
+## Run the algorithm
+model = SHADE.OriginalSHADE(epoch=10000, pop_size=100)
+best_position, best_fitness = model.solve(problem)
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+
+
+### Distributed Optimization / Parallelization Optimization
+
+Please read the article titled [MEALPY: An open-source library for latest meta-heuristic algorithms in Python](https://doi.org/10.1016/j.sysarc.2023.102871) to 
+gain a clear understanding of the concept of parallelization (distributed 
+optimization) in metaheuristics. Not all metaheuristics can be run in parallel.
+
+
+```python
+from mealpy.bio_based import SMA
+import numpy as np
+
+def fitness_function(solution):
+    return np.sum(solution**2)
+
+problem = {
+    "fit_func": fitness_function,
+    "lb": [-100, ] * 100,
+    "ub": [100, ] * 100,
+    "minmax": "min",
+    "log_to": "console",
+}
+
+## Run distributed SMA algorithm using 10 threads 
+model = SMA.BaseSMA(epoch=10000, pop_size=100, pr=0.03)
+best_position, best_fitness = model.solve(problem, mode="thread", n_workers=10)        # Distributed to 10 threads  
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+
+
+## Run distributed SMA algorithm using 8 CPUs (cores)
+best_position, best_fitness = model.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores  
+print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+```
+
+
+
+
+
+<details><summary><h3>Custom Problem </h3></summary>
+
 
 For our custom problem, we can create a class and inherit from the Problem class, named the child class the  
 'Squared' class. In the initialization method of the 'Squared' class, we have to set the *lb*, *ub*, and *minmax*  
@@ -163,7 +257,7 @@ below. 'Name' is an additional parameter we want to include in this class, and y
 parameters you need.
 
 
-```python 
+```python
 import numpy as np
 from mealpy.bio_based import BBO
 from mealpy.utils.problem import Problem
@@ -194,8 +288,14 @@ print(model.problem.get_name())
 print(model.problem.n_dims)
 ```
 
+</details>
 
-### Tuner class (GridSearchCV/ParameterSearch, Hyper-parameter tuning)
+
+
+
+
+<details><summary><h3>Tuner class (GridSearchCV/ParameterSearch, Hyper-parameter tuning)</h3></summary>
+
 
 We build a dedicated class, Tuner, that can help you tune your algorithm's parameters.
 
@@ -251,8 +351,12 @@ if __name__ == "__main__":
     print(tuner.problem.get_name())
 ```
 
+</details>
 
-### Multitask class (Multitask solving)
+
+
+<details><summary><h3>Multitask class (Multitask solver)</h3></summary>
+
 
 We also build a dedicated class, Multitask, that can help you run several scenarios. For example:
 
@@ -332,16 +436,27 @@ For more usage examples please look at [examples](/examples) folder.
 More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
 
 
-### Get Visualize Figures
+</details>
 
+
+
+
+
+<details><summary><h3>Get Visualize Figures</h3></summary>
 
 * [Tutorials](/examples/utils/visualize/all_charts.py)
 
 <p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
 </p>
 
+</details>
 
-## Mealpy Application
+
+
+
+
+<details><summary><h2>Mealpy Application</h2></summary>
+
 
 ### Mealpy + Neural Network (Replace the Gradient Descent Optimizer)
 
@@ -375,9 +490,22 @@ Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applicatio
 
 * Feature selection problem: https://github.com/thieu1995/MHA-FS
 
+</details>
 
 
-## Tutorial Videos
+
+
+<details><summary><h3>Get Visualize Figures</h3></summary>
+
+* [Tutorials](/examples/utils/visualize/all_charts.py)
+
+<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
+</p>
+
+</details>
+
+
+<details><summary><h3>Tutorial Videos</h3></summary>
 
 All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
 
@@ -385,6 +513,10 @@ All code examples: [Link](https://github.com/thieu1995/mealpy/tree/master/exampl
 
 All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages/visualization.html)
 
+</details>
+
+
+# Documents
 
 
 ## Official Channels (questions, problems)
@@ -408,68 +540,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
     * https://github.com/aiir-team
 
 
-# List of papers used MEALPY
-
-- Min, J., Oh, M., Kim, W., Seo, H., & Paek, J. (2022, October). Evaluation of Metaheuristic Algorithms for TAS Scheduling in Time-Sensitive Networking. In 2022 13th International Conference on Information and Communication Technology Convergence (ICTC) (pp. 809-812). IEEE.
-- Khozeimeh, F., Sharifrazi, D., Izadi, N. H., Joloudari, J. H., Shoeibi, A., Alizadehsani, R., ... & Islam, S. M. S. (2021). Combining a convolutional neural network with autoencoders to predict the survival chance of COVID-19 patients. Scientific Reports, 11(1), 15343.
-- Rajesh, K., Jain, E., & Kotecha, P. (2022). A Multi-Objective approach to the Electric Vehicle Routing Problem. arXiv preprint arXiv:2208.12440.
-- Sánchez, A. J. H., & Upegui, F. R. (2022). Una herramienta para el diseño de redes MSMN de banda ancha en líneas de transmisión basada en algoritmos heurísticos de optimización comparados. Revista Ingeniería UC, 29(2), 106-123.
-- Khanmohammadi, M., Armaghani, D. J., & Sabri Sabri, M. M. (2022). Prediction and Optimization of Pile Bearing Capacity Considering Effects of Time. Mathematics, 10(19), 3563.
-- Kudela, J. (2023). The Evolutionary Computation Methods No One Should Use. arXiv preprint arXiv:2301.01984.
-- Vieira, M., Faia, R., Pinto, T., & Vale, Z. (2022, September). Schedule Peer-to-Peer Transactions of an Energy Community Using Particle Swarm. In 2022 18th International Conference on the European Energy Market (EEM) (pp. 1-6). IEEE.
-- Bui, X. N., Nguyen, H., Le, Q. T., & Le, T. N. Forecasting PM. MINING SCIENCE ANDTECHNOLOGY (Russia), 111.
-- Bui, X. N., Nguyen, H., Le, Q. T., & Le, T. N. (2022). Forecasting PM 2.5 emissions in open-pit minesusing a functional link neural network optimized by various optimization algorithms. Gornye nauki i tekhnologii= Mining Science and Technology (Russia), 7(2), 111-125.
-- Doğan, E., & Yörükeren, N. (2022). Enhancement of Transmission System Security with Archimedes Optimization Algorithm.
-- Ayub, N., Aurangzeb, K., Awais, M., & Ali, U. (2020, November). Electricity theft detection using CNN-GRU and manta ray foraging optimization algorithm. In 2020 IEEE 23Rd international multitopic conference (INMIC) (pp. 1-6). IEEE.
-- Pintilie, L., Nechita, M. T., Suditu, G. D., Dafinescu, V., & Drăgoi, E. N. (2022). Photo-decolorization of Eriochrome Black T: process optimization with Differential Evolution algorithm. In PASEW-22, MESSH-22 & CABES-22 April 19–21, 2022 Paris (France). Eminent Association of Pioneers.
-- LaTorre, A., Molina, D., Osaba, E., Poyatos, J., Del Ser, J., & Herrera, F. (2021). A prescription of methodological guidelines for comparing bio-inspired optimization algorithms. Swarm and Evolutionary Computation, 67, 100973.
-- Gottam, S., Nanda, S. J., & Maddila, R. K. (2021, December). A CNN-LSTM Model Trained with Grey Wolf Optimizer for Prediction of Household Power Consumption. In 2021 IEEE International Symposium on Smart Electronic Systems (iSES)(Formerly iNiS) (pp. 355-360). IEEE.
-- Darius, P. S., Devadason, J., & Solomon, D. G. (2022, December). Prospects of Ant Colony Optimization (ACO) in Various Domains. In 2022 4th International Conference on Circuits, Control, Communication and Computing (I4C) (pp. 79-84). IEEE.
-- Ayub, N., Irfan, M., Awais, M., Ali, U., Ali, T., Hamdi, M., ... & Muhammad, F. (2020). Big data analytics for short and medium-term electricity load forecasting using an AI techniques ensembler. Energies, 13(19), 5193.
-- Biundini, I. Z., Melo, A. G., Coelho, F. O., Honório, L. M., Marcato, A. L., & Pinto, M. F. (2022). Experimentation and Simulation with Autonomous Coverage Path Planning for UAVs. Journal of Intelligent & Robotic Systems, 105(2), 46.
-- Yousaf, I., Anwar, F., Imtiaz, S., Almadhor, A. S., Ishmanov, F., & Kim, S. W. (2022). An Optimized Hyperparameter of Convolutional Neural Network Algorithm for Bug Severity Prediction in Alzheimer’s-Based IoT System. Computational Intelligence and Neuroscience, 2022.
-- Xu, L., Yan, W., & Ji, J. (2023). The research of a novel WOG-YOLO algorithm for autonomous driving object detection. Scientific reports, 13(1), 3699.
-- Costache, R. D., Arabameri, A., Islam, A. R. M. T., Abba, S. I., Pandey, M., Ajin, R. S., & Pham, B. T. (2022). Flood susceptibility computation using state-of-the-art machine learning and optimization algorithms.
-- Del Ser, J., Osaba, E., Martinez, A. D., Bilbao, M. N., Poyatos, J., Molina, D., & Herrera, F. (2021, December). More is not always better: insights from a massive comparison of meta-heuristic algorithms over real-parameter optimization problems. In 2021 IEEE Symposium Series on Computational Intelligence (SSCI) (pp. 1-7). IEEE.
-- Rustam, F., Aslam, N., De La Torre Díez, I., Khan, Y. D., Mazón, J. L. V., Rodríguez, C. L., & Ashraf, I. (2022, November). White Blood Cell Classification Using Texture and RGB Features of Oversampled Microscopic Images. In Healthcare (Vol. 10, No. 11, p. 2230). MDPI.
-- Neupane, D., Kafle, S., Gurung, S., Neupane, S., & Bhattarai, N. (2021). Optimal sizing and financial analysis of a stand-alone SPV-micro-hydropower hybrid system considering generation uncertainty. International Journal of Low-Carbon Technologies, 16(4), 1479-1491.
-- Liang, R., Le-Hung, T., & Nguyen-Thoi, T. (2022). Energy consumption prediction of air-conditioning systems in eco-buildings using hunger games search optimization-based artificial neural network model. Journal of Building Engineering, 59, 105087.
-- He, Z., Nguyen, H., Vu, T. H., Zhou, J., Asteris, P. G., & Mammou, A. (2022). Novel integrated approaches for predicting the compressibility of clay using cascade forward neural networks optimized by swarm-and evolution-based algorithms. Acta Geotechnica, 1-16.
-- Xu, L., Yan, W., & Ji, J. (2022). The research of a novel WOG-YOLO algorithm forautonomous driving object detection.
-- Nasir Ayub, M. I., Awais, M., Ali, U., Ali, T., Hamdi, M., Alghamdi, A., & Muhammad, F. Big Data Analytics for Short and Medium Term Electricity Load Forecasting using AI Techniques Ensembler.
-- Xie, C., Nguyen, H., Choi, Y., & Armaghani, D. J. (2022). Optimized functional linked neural network for predicting diaphragm wall deflection induced by braced excavations in clays. Geoscience Frontiers, 13(2), 101313.
-- Hakemi, S., Houshmand, M., & Hosseini, S. A. (2022). A Dynamic Quantum-Inspired Genetic Algorithm with Lengthening Chromosome Size.
-- Kashifi, M. T. City-Wide Crash Risk Prediction and Interpretation Using Deep Learning Model with Multi-Source Big Data. Available at SSRN 4329686.
-- Nguyen, H., & Hoang, N. D. (2022). Computer vision-based classification of concrete spall severity using metaheuristic-optimized Extreme Gradient Boosting Machine and Deep Convolutional Neural Network. Automation in Construction, 140, 104371.
-- Zheng, J., Lu, Z., Wu, K., Ning, G. H., & Li, D. (2020). Coinage-metal-based cyclic trinuclear complexes with metal–metal interactions: Theories to experiments and structures to functions. Chemical Reviews, 120(17), 9675-9742.
-- Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2023). Groundwater level modeling using Augmented Artificial Ecosystem Optimization. Journal of Hydrology, 617, 129034.
-- Mo, Z., Zhang, Z., Miao, Q., & Tsui, K. L. (2022). Intelligent Informative Frequency Band Searching Assisted by a Dynamic Bandit Tree Method for Machine Fault Diagnosis. IEEE/ASME Transactions on Mechatronics.
-- Dangi, D., Chandel, S. T., Dixit, D. K., Sharma, S., & Bhagat, A. (2023). An Efficient Model for Sentiment Analysis using Artificial Rabbits Optimized Vector Functional Link Network. Expert Systems with Applications, 119849.
-- Dey, S., Roychoudhury, R., Malakar, S., & Sarkar, R. (2022). An optimized fuzzy ensemble of convolutional neural networks for detecting tuberculosis from Chest X-ray images. Applied Soft Computing, 114, 108094.
-- Mousavirad, S. J., & Alexandre, L. A. (2022). Population-based JPEG Image Compression: Problem Re-Formulation. arXiv preprint arXiv:2212.06313.
-- Tsui, K. L. Intelligent Informative Frequency Band Searching Assisted by A Dynamic Bandit Tree Method for Machine Fault Diagnosis.
-- Neupane, D. (2020). Optimal Sizing and Performance Analysis of Solar PV-Micro hydropower Hybrid System in the Context of Rural Area of Nepal (Doctoral dissertation, Pulchowk Campus).
-- LaTorre, A., Molina, D., Osaba, E., Poyatos, J., Del Ser, J., & Herrera, F. Swarm and Evolutionary Computation.
-- Vieira, M. A. (2022). Otimização dos custos operacionais de uma comunidade energética considerando transações locais em “peer-to-peer” (Doctoral dissertation).
-- Toğaçar, M. (2022). Using DarkNet models and metaheuristic optimization methods together to detect weeds growing along with seedlings. Ecological Informatics, 68, 101519.
-- Toğaçar, M. (2021). Detection of segmented uterine cancer images by Hotspot Detection method using deep learning models, Pigeon-Inspired Optimization, types-based dominant activation selection approaches. Computers in Biology and Medicine, 136, 104659.
-- Khan, N. A Short Term Electricity Load and Price Forecasting Model Based on BAT Algorithm in Logistic Regression and CNN-GRU with WOA.
-- Yelisetti, S., Saini, V. K., Kumar, R., & Lamba, R. (2022, May). Energy Consumption Cost Benefits through Smart Home Energy Management in Residential Buildings: An Indian Case Study. In 2022 IEEE IAS Global Conference on Emerging Technologies (GlobConET) (pp. 930-935). IEEE.
-- Nguyen, H., Cao, M. T., Tran, X. L., Tran, T. H., & Hoang, N. D. (2022). A novel whale optimization algorithm optimized XGBoost regression for estimating bearing capacity of concrete piles. Neural Computing and Applications, 1-28.
-- Hirsching, C., de Jongh, S., Eser, D., Suriyah, M., & Leibfried, T. (2022). Meta-heuristic optimization of control structure and design for MMC-HVdc applications. Electric Power Systems Research, 213, 108371.
-- Amelin, V., Gatiyatullin, E., Romanov, N., Samarkhanov, R., Vasilyev, R., & Yanovich, Y. (2022). Black-Box for Blockchain Parameters Adjustment. IEEE Access, 10, 101795-101802.
-- Ngo, T. Q., Nguyen, L. Q., & Tran, V. Q. (2022). Novel hybrid machine learning models including support vector machine with meta-heuristic algorithms in predicting unconfined compressive strength of organic soils stabilised with cement and lime. International Journal of Pavement Engineering, 1-18.
-- Zhu, Y., & Iiduka, H. (2021). Unified Algorithm Framework for Nonconvex Stochastic Optimization in Deep Neural Networks. IEEE Access, 9, 143807-143823.
-- Hakemi, S., Houshmand, M., KheirKhah, E., & Hosseini, S. A. (2022). A review of recent advances in quantum-inspired metaheuristics. Evolutionary Intelligence, 1-16.
-- Das, A., Das, S. R., Panda, J. P., Dey, A., Gajrani, K. K., Somani, N., & Gupta, N. (2022). Machine learning based modelling and optimization in hard turning of AISI D6 steel with newly developed AlTiSiN coated carbide tool. arXiv preprint arXiv:2202.00596.
-- Yelisetti, S., Saini, V. K., Kumar, R., Lamba, R., & Saxena, A. (2022). Optimal energy management system for residential buildings considering the time of use price with swarm intelligence algorithms. Journal of Building Engineering, 59, 105062.
-- Valdés, G. T. (2022). Algoritmo para la detección de vehículos y peatones combinando CNN´ sy técnicas de búsqueda.
-- Sallam, N. M., Saleh, A. I., Ali, H. A., & Abdelsalam, M. M. (2023). An efficient EGWO algorithm as feature selection for B-ALL diagnoses and its subtypes classification using peripheral blood smear images. Alexandria Engineering Journal, 68, 39-66.
-
-
-
-
-# Documents
+## My Comments
 
 * Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))
     + Evolutionary-based: Idea from Darwin's law of natural selection, evolutionary computing 
@@ -493,6 +564,10 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 <table><thead><tr><th>Group</th><th>Name</th><th>Module</th><th>Class</th><th>Year</th><th>Paras</th><th>Difficulty</th></tr></thead><tbody><tr><th>Evolutionary</th><td>Evolutionary Programming</td><td>EP</td><td>OriginalEP</td><td>1964</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>LevyEP</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Evolution Strategies</td><td>ES</td><td>OriginalES</td><td>1971</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>LevyES</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>CMA_ES</td><td>2003</td><td>2</td><td>hard</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>Simple_CMA_ES</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Memetic Algorithm</td><td>MA</td><td>OriginalMA</td><td>1989</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Genetic Algorithm</td><td>GA</td><td>BaseGA</td><td>1992</td><td>4</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SingleGA</td><td>*</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>MultiGA</td><td>*</td><td>7</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>EliteSingleGA</td><td>*</td><td>10</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>EliteMultiGA</td><td>*</td><td>10</td><td>easy</td></tr><tr><th>Evolutionary</th><td>Differential Evolution</td><td>DE</td><td>BaseDE</td><td>1997</td><td>5</td><td>easy</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>JADE</td><td>2009</td><td>6</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SADE</td><td>2005</td><td>2</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>SAP_DE</td><td>2006</td><td>3</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Success-History Adaptation Differential Evolution</td><td>SHADE</td><td>OriginalSHADE</td><td>2013</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>L_SHADE</td><td>2014</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Flower Pollination Algorithm</td><td>FPA</td><td>OriginalFPA</td><td>2014</td><td>4</td><td>medium</td></tr><tr><th>Evolutionary</th><td>Coral Reefs Optimization</td><td>CRO</td><td>OriginalCRO</td><td>2014</td><td>11</td><td>medium</td></tr><tr><th>Evolutionary</th><td>*</td><td>*</td><td>OCRO</td><td>2019</td><td>12</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Swarm</th><td>Particle Swarm Optimization</td><td>PSO</td><td>OriginalPSO</td><td>1995</td><td>6</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>PPSO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>HPSO_TVAC</td><td>2017</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>C_PSO</td><td>2015</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>CL_PSO</td><td>2006</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>Bacterial Foraging Optimization</td><td>BFO</td><td>OriginalBFO</td><td>2002</td><td>10</td><td>hard</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ABFO</td><td>2019</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Bees Algorithm</td><td>BeesA</td><td>OriginalBeesA</td><td>2005</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ProbBeesA</td><td>2015</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>CleverBookBeesA</td><td>2006</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Cat Swarm Optimization</td><td>CSO</td><td>OriginalCSO</td><td>2006</td><td>11</td><td>hard</td></tr><tr><th>Swarm</th><td>Artificial Bee Colony</td><td>ABC</td><td>OriginalABC</td><td>2007</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>Ant Colony Optimization</td><td>ACOR</td><td>OriginalACOR</td><td>2008</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Cuckoo Search Algorithm</td><td>CSA</td><td>OriginalCSA</td><td>2009</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Firefly Algorithm </td><td>FFA</td><td>OriginalFFA</td><td>2009</td><td>8</td><td>easy</td></tr><tr><th>Swarm</th><td>Fireworks Algorithm</td><td>FA</td><td>OriginalFA</td><td>2010</td><td>7</td><td>medium</td></tr><tr><th>Swarm</th><td>Bat Algorithm</td><td>BA</td><td>OriginalBA</td><td>2010</td><td>6</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>AdaptiveBA</td><td>2010</td><td>8</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ModifiedBA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Fruit-fly Optimization Algorithm</td><td>FOA</td><td>OriginalFOA</td><td>2012</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseFOA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>WhaleFOA</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Social Spider Optimization</td><td>SSpiderO</td><td>OriginalSSpiderO</td><td>2018</td><td>4</td><td>hard*</td></tr><tr><th>Swarm</th><td>Grey Wolf Optimizer</td><td>GWO</td><td>OriginalGWO</td><td>2014</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>RW_GWO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Social Spider Algorithm</td><td>SSpiderA</td><td>OriginalSSpiderA</td><td>2015</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Ant Lion Optimizer</td><td>ALO</td><td>OriginalALO</td><td>2015</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseALO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Moth Flame Optimization</td><td>MFO</td><td>OriginalMFO</td><td>2015</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseMFO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Elephant Herding Optimization</td><td>EHO</td><td>OriginalEHO</td><td>2015</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Jaya Algorithm</td><td>JA</td><td>OriginalJA</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseJA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>LevyJA</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Whale Optimization Algorithm</td><td>WOA</td><td>OriginalWOA</td><td>2016</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>HI_WOA</td><td>2019</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Dragonfly Optimization</td><td>DO</td><td>OriginalDO</td><td>2016</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Bird Swarm Algorithm</td><td>BSA</td><td>OriginalBSA</td><td>2016</td><td>9</td><td>medium</td></tr><tr><th>Swarm</th><td>Spotted Hyena Optimizer</td><td>SHO</td><td>OriginalSHO</td><td>2017</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Salp Swarm Optimization</td><td>SSO</td><td>OriginalSSO</td><td>2017</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Swarm Robotics Search And Rescue</td><td>SRSR</td><td>OriginalSRSR</td><td>2017</td><td>2</td><td>hard*</td></tr><tr><th>Swarm</th><td>Grasshopper Optimisation Algorithm</td><td>GOA</td><td>OriginalGOA</td><td>2017</td><td>4</td><td>easy</td></tr><tr><th>Swarm</th><td>Coyote Optimization Algorithm</td><td>COA</td><td>OriginalCOA</td><td>2018</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Moth Search Algorithm</td><td>MSA</td><td>OriginalMSA</td><td>2018</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>Sea Lion Optimization</td><td>SLO</td><td>OriginalSLO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ModifiedSLO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedSLO</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Nake Mole*Rat Algorithm</td><td>NMRA</td><td>OriginalNMRA</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedNMRA</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Pathfinder Algorithm</td><td>PFA</td><td>OriginalPFA</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Sailfish Optimizer</td><td>SFO</td><td>OriginalSFO</td><td>2019</td><td>5</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>ImprovedSFO</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Harris Hawks Optimization</td><td>HHO</td><td>OriginalHHO</td><td>2019</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Manta Ray Foraging Optimization</td><td>MRFO</td><td>OriginalMRFO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Bald Eagle Search</td><td>BES</td><td>OriginalBES</td><td>2020</td><td>7</td><td>easy</td></tr><tr><th>Swarm</th><td>Sparrow Search Algorithm</td><td>SSA</td><td>OriginalSSA</td><td>2020</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>BaseSSA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>Hunger Games Search</td><td>HGS</td><td>OriginalHGS</td><td>2021</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>Aquila Optimizer</td><td>AO</td><td>OriginalAO</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Hybrid Grey Wolf * Whale Optimization Algorithm</td><td>GWO</td><td>GWO_WOA</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Marine Predators Algorithm</td><td>MPA</td><td>OriginalMPA</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Honey Badger Algorithm</td><td>HBA</td><td>OriginalHBA</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Sand Cat Swarm Optimization</td><td>SCSO</td><td>OriginalSCSO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Tuna Swarm Optimization</td><td>TSO</td><td>OriginalTSO</td><td>2021</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>African Vultures Optimization Algorithm</td><td>AVOA</td><td>OriginalAVOA</td><td>2022</td><td>7</td><td>medium</td></tr><tr><th>Swarm</th><td>Artificial Gorilla Troops Optimization</td><td>AGTO</td><td>OriginalAGTO</td><td>2021</td><td>5</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>MGTO</td><td>2023</td><td>3</td><td>medium</td></tr><tr><th>Swarm</th><td>Artificial Rabbits Optimization</td><td>ARO</td><td>OriginalARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>LARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>IARO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Egret Swarm Optimization Algorithm</td><td>ESOA</td><td>OriginalESOA</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>Fox Optimizer</td><td>FOX</td><td>OriginalFOX</td><td>2023</td><td>4</td><td>easy</td></tr><tr><th>Swarm</th><td>Golden Jackal Optimization</td><td>GJO</td><td>OriginalGJO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Giant Trevally Optimization</td><td>GTO</td><td>OriginalGTO</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>Matlab101GTO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Swarm</th><td>*</td><td>*</td><td>Matlab102GTO</td><td>2023</td><td>2</td><td>hard</td></tr><tr><th>Swarm</th><td>Mountain Gazelle Optimizer</td><td>MGO</td><td>OriginalMGO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>Swarm</th><td>Sea-Horse Optimization</td><td>SeaHO</td><td>OriginalSeaHO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Physics</th><td>Simulated Annealling</td><td>SA</td><td>OriginalSA</td><td>1983</td><td>9</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>GaussianSA</td><td>*</td><td>5</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>SwarmSA</td><td>1987</td><td>9</td><td>medium</td></tr><tr><th>Physics</th><td>Wind Driven Optimization</td><td>WDO</td><td>OriginalWDO</td><td>2013</td><td>7</td><td>easy</td></tr><tr><th>Physics</th><td>Multi*Verse Optimizer</td><td>MVO</td><td>OriginalMVO</td><td>2016</td><td>4</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>BaseMVO</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>Physics</th><td>Tug of War Optimization</td><td>TWO</td><td>OriginalTWO</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>OppoTWO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>LevyTWO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>EnhancedTWO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Electromagnetic Field Optimization</td><td>EFO</td><td>OriginalEFO</td><td>2016</td><td>6</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>BaseEFO</td><td>*</td><td>6</td><td>medium</td></tr><tr><th>Physics</th><td>Nuclear Reaction Optimization</td><td>NRO</td><td>OriginalNRO</td><td>2019</td><td>2</td><td>hard*</td></tr><tr><th>Physics</th><td>Henry Gas Solubility Optimization</td><td>HGSO</td><td>OriginalHGSO</td><td>2019</td><td>3</td><td>medium</td></tr><tr><th>Physics</th><td>Atom Search Optimization</td><td>ASO</td><td>OriginalASO</td><td>2019</td><td>4</td><td>medium</td></tr><tr><th>Physics</th><td>Equilibrium Optimizer</td><td>EO</td><td>OriginalEO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>ModifiedEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>*</td><td>*</td><td>AdaptiveEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Archimedes Optimization Algorithm</td><td>ArchOA</td><td>OriginalArchOA</td><td>2021</td><td>8</td><td>medium</td></tr><tr><th>Physics</th><td>Chernobyl Disaster Optimization</td><td>CDO</td><td>OriginalCDO</td><td>2023</td><td>2</td><td>easy</td></tr><tr><th>Physics</th><td>Energy Valley Optimization</td><td>EVO</td><td>OriginalEVO</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Physics</th><td>Fick&#39;s Law Algorithm</td><td>FLA</td><td>OriginalFLA</td><td>2023</td><td>8</td><td>hard</td></tr><tr><th>Physics</th><td>Physical Phenomenon of RIME-ice</td><td>RIME</td><td>OriginalRIME</td><td>2023</td><td>3</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Human</th><td>Culture Algorithm</td><td>CA</td><td>OriginalCA</td><td>1994</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>Imperialist Competitive Algorithm</td><td>ICA</td><td>OriginalICA</td><td>2007</td><td>8</td><td>hard*</td></tr><tr><th>Human</th><td>Teaching Learning*based Optimization</td><td>TLO</td><td>OriginalTLO</td><td>2011</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseTLO</td><td>2012</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ITLO</td><td>2013</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Brain Storm Optimization</td><td>BSO</td><td>OriginalBSO</td><td>2011</td><td>8</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedBSO</td><td>2017</td><td>7</td><td>medium</td></tr><tr><th>Human</th><td>Queuing Search Algorithm</td><td>QSA</td><td>OriginalQSA</td><td>2019</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>OppoQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>LevyQSA</td><td>*</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedQSA</td><td>2021</td><td>2</td><td>hard</td></tr><tr><th>Human</th><td>Search And Rescue Optimization</td><td>SARO</td><td>OriginalSARO</td><td>2019</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseSARO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Life Choice*Based Optimization </td><td>LCO</td><td>OriginalLCO</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseLCO</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>ImprovedLCO</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>Social Ski*Driver Optimization</td><td>SSDO</td><td>OriginalSSDO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>Human</th><td>Gaining Sharing Knowledge*based Algorithm</td><td>GSKA</td><td>OriginalGSKA</td><td>2019</td><td>6</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseGSKA</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Coronavirus Herd Immunity Optimization</td><td>CHIO</td><td>OriginalCHIO</td><td>2020</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseCHIO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>Forensic*Based Investigation Optimization</td><td>FBIO</td><td>OriginalFBIO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseFBIO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>Battle Royale Optimization</td><td>BRO</td><td>OriginalBRO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>BaseBRO</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Student Psychology Based Optimization</td><td>SPBO</td><td>OriginalSPBO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>DevSPBO</td><td>*</td><td>2</td><td>medium</td></tr><tr><th>Human</th><td>Heap-based Optimization</td><td>HBO</td><td>OriginalHBO</td><td>2020</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>Human Conception Optimization</td><td>HCO</td><td>OriginalHCO</td><td>2022</td><td>6</td><td>medium</td></tr><tr><th>Human</th><td>Dwarf Mongoose Optimization Algorithm</td><td>DMOA</td><td>OriginalDMOA</td><td>2022</td><td>4</td><td>medium</td></tr><tr><th>Human</th><td>*</td><td>*</td><td>DevDMOA</td><td>*</td><td>3</td><td>medium</td></tr><tr><th>Human</th><td>War Strategy Optimization</td><td>WarSO</td><td>OriginalWarSO</td><td>2022</td><td>3</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Bio</th><td>Invasive Weed Optimization</td><td>IWO</td><td>OriginalIWO</td><td>2006</td><td>7</td><td>easy</td></tr><tr><th>Bio</th><td>Biogeography*Based Optimization</td><td>BBO</td><td>OriginalBBO</td><td>2008</td><td>4</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseBBO</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>Bio</th><td>Virus Colony Search</td><td>VCS</td><td>OriginalVCS</td><td>2016</td><td>4</td><td>hard*</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseVCS</td><td>*</td><td>4</td><td>hard*</td></tr><tr><th>Bio</th><td>Satin Bowerbird Optimizer</td><td>SBO</td><td>OriginalSBO</td><td>2017</td><td>5</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseSBO</td><td>*</td><td>5</td><td>easy</td></tr><tr><th>Bio</th><td>Earthworm Optimisation Algorithm</td><td>EOA</td><td>OriginalEOA</td><td>2018</td><td>8</td><td>medium</td></tr><tr><th>Bio</th><td>Wildebeest Herd Optimization</td><td>WHO</td><td>OriginalWHO</td><td>2019</td><td>12</td><td>hard</td></tr><tr><th>Bio</th><td>Slime Mould Algorithm</td><td>SMA</td><td>OriginalSMA</td><td>2020</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>BaseSMA</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Barnacles Mating Optimizer</td><td>BMO</td><td>OriginalBMO</td><td>2018</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Tunicate Swarm Algorithm</td><td>TSA</td><td>OriginalTSA</td><td>2020</td><td>2</td><td>easy</td></tr><tr><th>Bio</th><td>Symbiotic Organisms Search</td><td>SOS</td><td>OriginalSOS</td><td>2014</td><td>2</td><td>medium</td></tr><tr><th>Bio</th><td>Seagull Optimization Algorithm</td><td>SOA</td><td>OriginalSOA</td><td>2019</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>*</td><td>*</td><td>DevSOA</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Bio</th><td>Brown-Bear Optimization Algorithm</td><td>BBOA</td><td>OriginalBBOA</td><td>2023</td><td>2</td><td>medium</td></tr><tr><th>Bio</th><td>Tree Physiology Optimization</td><td>TPO</td><td>OriginalTPO</td><td>2017</td><td>5</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>System</th><td>Germinal Center Optimization</td><td>GCO</td><td>OriginalGCO</td><td>2018</td><td>4</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>BaseGCO</td><td>*</td><td>4</td><td>medium</td></tr><tr><th>System</th><td>Water Cycle Algorithm</td><td>WCA</td><td>OriginalWCA</td><td>2012</td><td>5</td><td>medium</td></tr><tr><th>System</th><td>Artificial Ecosystem*based Optimization</td><td>AEO</td><td>OriginalAEO</td><td>2019</td><td>2</td><td>easy</td></tr><tr><th>System</th><td>*</td><td>*</td><td>EnhancedAEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>ModifiedAEO</td><td>2020</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>ImprovedAEO</td><td>2021</td><td>2</td><td>medium</td></tr><tr><th>System</th><td>*</td><td>*</td><td>AugmentedAEO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Math</th><td>Hill Climbing</td><td>HC</td><td>OriginalHC</td><td>1993</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>SwarmHC</td><td>*</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>Cross-Entropy Method </td><td>CEM</td><td>OriginalCEM</td><td>1997</td><td>4</td><td>easy</td></tr><tr><th>Math</th><td>Tabu Search</td><td>TS</td><td>OriginalTS</td><td>2004</td><td>5</td><td>easy</td></tr><tr><th>Math</th><td>Sine Cosine Algorithm</td><td>SCA</td><td>OriginalSCA</td><td>2016</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>BaseSCA</td><td>*</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>*</td><td>*</td><td>QLE-SCA</td><td>2022</td><td>4</td><td>hard</td></tr><tr><th>Math</th><td>Gradient-Based Optimizer</td><td>GBO</td><td>OriginalGBO</td><td>2020</td><td>5</td><td>medium</td></tr><tr><th>Math</th><td>Arithmetic Optimization Algorithm</td><td>AOA</td><td>OrginalAOA</td><td>2021</td><td>6</td><td>easy</td></tr><tr><th>Math</th><td>Chaos Game Optimization</td><td>CGO</td><td>OriginalCGO</td><td>2021</td><td>2</td><td>easy</td></tr><tr><th>Math</th><td>Pareto-like Sequential Sampling</td><td>PSS</td><td>OriginalPSS</td><td>2021</td><td>4</td><td>medium</td></tr><tr><th>Math</th><td>weIghted meaN oF vectOrs</td><td>INFO</td><td>OriginalINFO</td><td>2022</td><td>2</td><td>medium</td></tr><tr><th>Math</th><td>RUNge Kutta optimizer</td><td>RUN</td><td>OriginalRUN</td><td>2021</td><td>2</td><td>hard</td></tr><tr><th>Math</th><td>Circle Search Algorithm</td><td>CircleSA</td><td>OriginalCircleSA</td><td>2022</td><td>3</td><td>easy</td></tr><tr><th>Math</th><td>Success History Intelligent Optimization</td><td>SHIO</td><td>OriginalSHIO</td><td>2022</td><td>2</td><td>easy</td></tr><tr><th>***</th><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td><td>***</td></tr><tr><th>Music</th><td>Harmony Search</td><td>HS</td><td>OriginalHS</td><td>2001</td><td>4</td><td>easy</td></tr><tr><th>Music</th><td>*</td><td>*</td><td>BaseHS</td><td>*</td><td>4</td><td>easy</td></tr><tr><th>+++</th><td>+++</td><td>+++</td><td>+++</td><td>+++</td><td>+++</td><td>+++</td></tr><tr><th>WARNING</th><td>PLEASE CHECK PLAGIARISM BEFORE USING BELOW ALGORITHMS</td><td>*</td><td>*</td><td>*</td><td>*</td><td>*</td></tr><tr><th>Swarm</th><td>Coati Optimization Algorithm</td><td>CoatiOA</td><td>OriginalCoatiOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Fennec For Optimization</td><td>FFO</td><td>OriginalFFO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Northern Goshawk Optimization</td><td>NGO</td><td>OriginalNGO</td><td>2021</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Osprey Optimization Algorithm</td><td>OOA</td><td>OriginalOOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Pelican Optimization Algorithm </td><td>POA</td><td>OriginalPOA</td><td>2023</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Serval Optimization Algorithm</td><td>ServalOA</td><td>OriginalServalOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Siberian Tiger Optimization</td><td>STO</td><td>OriginalSTO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Tasmanian Devil Optimization</td><td>TDO</td><td>OriginalTDO</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Walrus Optimization Algorithm</td><td>WaOA</td><td>OriginalWaOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Swarm</th><td>Zebra Optimization Algorithm </td><td>ZOA</td><td>OriginalZOA</td><td>2022</td><td>2</td><td>easy </td></tr><tr><th>Human</th><td>Teamwork Optimization Algorithm</td><td>TOA</td><td>OriginalTOA</td><td>2021</td><td>2</td><td>easy</td></tr></tbody></table>
 
+
+
+
+<details><summary><h1>References</h1></summary>
 
 ### A
 
@@ -612,7 +687,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
   * **SADE**: Qin, A. K., & Suganthan, P. N. (2005, September). Self-adaptive differential evolution algorithm for numerical optimization. In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
   * **SHADE**: Tanabe, R., & Fukunaga, A. (2013, June). Success-history based parameter adaptation for differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
   * **L_SHADE**: Tanabe, R., & Fukunaga, A. S. (2014, July). Improving the search performance of SHADE using linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
-  * **SAP_DE**: Teo, J. (2006). Exploring dynamic self-adaptive populations in differential evolution. Soft Computing, 10(8), 673-686.
+  * **SAP_DE**: Teo, J. (2006). Exploring dynamic cls-adaptive populations in differential evolution. Soft Computing, 10(8), 673-686.
   
 * **DSA - Differential Search Algorithm (not done)** 
   * **BaseDSA**: Civicioglu, P. (2012). Transforming geocentric cartesian coordinates to geodetic coordinates by using differential search algorithm. Computers & Geosciences, 46, 229-247.
@@ -796,7 +871,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **PSO - Particle Swarm Optimization** 
   * **OriginalPSO**: Eberhart, R., & Kennedy, J. (1995, October). A new optimizer using particle swarm theory. In MHS'95. Proceedings of the Sixth International Symposium on Micro Machine and Human Science (pp. 39-43). Ieee.
   * **PPSO**: Ghasemi, M., Akbari, E., Rahimnejad, A., Razavi, S. E., Ghavidel, S., & Li, L. (2019). Phasor particle swarm optimization: a simple and efficient variant of PSO. Soft Computing, 23(19), 9701-9718.
-  * **HPSO_TVAC**: Ghasemi, M., Aghaei, J., & Hadipour, M. (2017). New self-organising hierarchical PSO with jumping time-varying acceleration coefficients. Electronics Letters, 53(20), 1360-1362.
+  * **HPSO_TVAC**: Ghasemi, M., Aghaei, J., & Hadipour, M. (2017). New cls-organising hierarchical PSO with jumping time-varying acceleration coefficients. Electronics Letters, 53(20), 1360-1362.
   * **C_PSO**: Liu, B., Wang, L., Jin, Y. H., Tang, F., & Huang, D. X. (2005). Improved particle swarm optimization combined with chaos. Chaos, Solitons & Fractals, 25(5), 1261-1271.
   * **CL_PSO**: Liang, J. J., Qin, A. K., Suganthan, P. N., & Baskar, S. (2006). Comprehensive learning particle swarm optimizer for global optimization of multimodal functions. IEEE transactions on evolutionary computation, 10(3), 281-295.
 
@@ -938,3 +1013,68 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 ### Y
 
 ### Z
+
+</details>
+
+
+
+
+<details><summary><h1>List of papers used MEALPY</h1></summary>
+
+- Min, J., Oh, M., Kim, W., Seo, H., & Paek, J. (2022, October). Evaluation of Metaheuristic Algorithms for TAS Scheduling in Time-Sensitive Networking. In 2022 13th International Conference on Information and Communication Technology Convergence (ICTC) (pp. 809-812). IEEE.
+- Khozeimeh, F., Sharifrazi, D., Izadi, N. H., Joloudari, J. H., Shoeibi, A., Alizadehsani, R., ... & Islam, S. M. S. (2021). Combining a convolutional neural network with autoencoders to predict the survival chance of COVID-19 patients. Scientific Reports, 11(1), 15343.
+- Rajesh, K., Jain, E., & Kotecha, P. (2022). A Multi-Objective approach to the Electric Vehicle Routing Problem. arXiv preprint arXiv:2208.12440.
+- Sánchez, A. J. H., & Upegui, F. R. (2022). Una herramienta para el diseño de redes MSMN de banda ancha en líneas de transmisión basada en algoritmos heurísticos de optimización comparados. Revista Ingeniería UC, 29(2), 106-123.
+- Khanmohammadi, M., Armaghani, D. J., & Sabri Sabri, M. M. (2022). Prediction and Optimization of Pile Bearing Capacity Considering Effects of Time. Mathematics, 10(19), 3563.
+- Kudela, J. (2023). The Evolutionary Computation Methods No One Should Use. arXiv preprint arXiv:2301.01984.
+- Vieira, M., Faia, R., Pinto, T., & Vale, Z. (2022, September). Schedule Peer-to-Peer Transactions of an Energy Community Using Particle Swarm. In 2022 18th International Conference on the European Energy Market (EEM) (pp. 1-6). IEEE.
+- Bui, X. N., Nguyen, H., Le, Q. T., & Le, T. N. Forecasting PM. MINING SCIENCE ANDTECHNOLOGY (Russia), 111.
+- Bui, X. N., Nguyen, H., Le, Q. T., & Le, T. N. (2022). Forecasting PM 2.5 emissions in open-pit minesusing a functional link neural network optimized by various optimization algorithms. Gornye nauki i tekhnologii= Mining Science and Technology (Russia), 7(2), 111-125.
+- Doğan, E., & Yörükeren, N. (2022). Enhancement of Transmission System Security with Archimedes Optimization Algorithm.
+- Ayub, N., Aurangzeb, K., Awais, M., & Ali, U. (2020, November). Electricity theft detection using CNN-GRU and manta ray foraging optimization algorithm. In 2020 IEEE 23Rd international multitopic conference (INMIC) (pp. 1-6). IEEE.
+- Pintilie, L., Nechita, M. T., Suditu, G. D., Dafinescu, V., & Drăgoi, E. N. (2022). Photo-decolorization of Eriochrome Black T: process optimization with Differential Evolution algorithm. In PASEW-22, MESSH-22 & CABES-22 April 19–21, 2022 Paris (France). Eminent Association of Pioneers.
+- LaTorre, A., Molina, D., Osaba, E., Poyatos, J., Del Ser, J., & Herrera, F. (2021). A prescription of methodological guidelines for comparing bio-inspired optimization algorithms. Swarm and Evolutionary Computation, 67, 100973.
+- Gottam, S., Nanda, S. J., & Maddila, R. K. (2021, December). A CNN-LSTM Model Trained with Grey Wolf Optimizer for Prediction of Household Power Consumption. In 2021 IEEE International Symposium on Smart Electronic Systems (iSES)(Formerly iNiS) (pp. 355-360). IEEE.
+- Darius, P. S., Devadason, J., & Solomon, D. G. (2022, December). Prospects of Ant Colony Optimization (ACO) in Various Domains. In 2022 4th International Conference on Circuits, Control, Communication and Computing (I4C) (pp. 79-84). IEEE.
+- Ayub, N., Irfan, M., Awais, M., Ali, U., Ali, T., Hamdi, M., ... & Muhammad, F. (2020). Big data analytics for short and medium-term electricity load forecasting using an AI techniques ensembler. Energies, 13(19), 5193.
+- Biundini, I. Z., Melo, A. G., Coelho, F. O., Honório, L. M., Marcato, A. L., & Pinto, M. F. (2022). Experimentation and Simulation with Autonomous Coverage Path Planning for UAVs. Journal of Intelligent & Robotic Systems, 105(2), 46.
+- Yousaf, I., Anwar, F., Imtiaz, S., Almadhor, A. S., Ishmanov, F., & Kim, S. W. (2022). An Optimized Hyperparameter of Convolutional Neural Network Algorithm for Bug Severity Prediction in Alzheimer’s-Based IoT System. Computational Intelligence and Neuroscience, 2022.
+- Xu, L., Yan, W., & Ji, J. (2023). The research of a novel WOG-YOLO algorithm for autonomous driving object detection. Scientific reports, 13(1), 3699.
+- Costache, R. D., Arabameri, A., Islam, A. R. M. T., Abba, S. I., Pandey, M., Ajin, R. S., & Pham, B. T. (2022). Flood susceptibility computation using state-of-the-art machine learning and optimization algorithms.
+- Del Ser, J., Osaba, E., Martinez, A. D., Bilbao, M. N., Poyatos, J., Molina, D., & Herrera, F. (2021, December). More is not always better: insights from a massive comparison of meta-heuristic algorithms over real-parameter optimization problems. In 2021 IEEE Symposium Series on Computational Intelligence (SSCI) (pp. 1-7). IEEE.
+- Rustam, F., Aslam, N., De La Torre Díez, I., Khan, Y. D., Mazón, J. L. V., Rodríguez, C. L., & Ashraf, I. (2022, November). White Blood Cell Classification Using Texture and RGB Features of Oversampled Microscopic Images. In Healthcare (Vol. 10, No. 11, p. 2230). MDPI.
+- Neupane, D., Kafle, S., Gurung, S., Neupane, S., & Bhattarai, N. (2021). Optimal sizing and financial analysis of a stand-alone SPV-micro-hydropower hybrid system considering generation uncertainty. International Journal of Low-Carbon Technologies, 16(4), 1479-1491.
+- Liang, R., Le-Hung, T., & Nguyen-Thoi, T. (2022). Energy consumption prediction of air-conditioning systems in eco-buildings using hunger games search optimization-based artificial neural network model. Journal of Building Engineering, 59, 105087.
+- He, Z., Nguyen, H., Vu, T. H., Zhou, J., Asteris, P. G., & Mammou, A. (2022). Novel integrated approaches for predicting the compressibility of clay using cascade forward neural networks optimized by swarm-and evolution-based algorithms. Acta Geotechnica, 1-16.
+- Xu, L., Yan, W., & Ji, J. (2022). The research of a novel WOG-YOLO algorithm forautonomous driving object detection.
+- Nasir Ayub, M. I., Awais, M., Ali, U., Ali, T., Hamdi, M., Alghamdi, A., & Muhammad, F. Big Data Analytics for Short and Medium Term Electricity Load Forecasting using AI Techniques Ensembler.
+- Xie, C., Nguyen, H., Choi, Y., & Armaghani, D. J. (2022). Optimized functional linked neural network for predicting diaphragm wall deflection induced by braced excavations in clays. Geoscience Frontiers, 13(2), 101313.
+- Hakemi, S., Houshmand, M., & Hosseini, S. A. (2022). A Dynamic Quantum-Inspired Genetic Algorithm with Lengthening Chromosome Size.
+- Kashifi, M. T. City-Wide Crash Risk Prediction and Interpretation Using Deep Learning Model with Multi-Source Big Data. Available at SSRN 4329686.
+- Nguyen, H., & Hoang, N. D. (2022). Computer vision-based classification of concrete spall severity using metaheuristic-optimized Extreme Gradient Boosting Machine and Deep Convolutional Neural Network. Automation in Construction, 140, 104371.
+- Zheng, J., Lu, Z., Wu, K., Ning, G. H., & Li, D. (2020). Coinage-metal-based cyclic trinuclear complexes with metal–metal interactions: Theories to experiments and structures to functions. Chemical Reviews, 120(17), 9675-9742.
+- Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2023). Groundwater level modeling using Augmented Artificial Ecosystem Optimization. Journal of Hydrology, 617, 129034.
+- Mo, Z., Zhang, Z., Miao, Q., & Tsui, K. L. (2022). Intelligent Informative Frequency Band Searching Assisted by a Dynamic Bandit Tree Method for Machine Fault Diagnosis. IEEE/ASME Transactions on Mechatronics.
+- Dangi, D., Chandel, S. T., Dixit, D. K., Sharma, S., & Bhagat, A. (2023). An Efficient Model for Sentiment Analysis using Artificial Rabbits Optimized Vector Functional Link Network. Expert Systems with Applications, 119849.
+- Dey, S., Roychoudhury, R., Malakar, S., & Sarkar, R. (2022). An optimized fuzzy ensemble of convolutional neural networks for detecting tuberculosis from Chest X-ray images. Applied Soft Computing, 114, 108094.
+- Mousavirad, S. J., & Alexandre, L. A. (2022). Population-based JPEG Image Compression: Problem Re-Formulation. arXiv preprint arXiv:2212.06313.
+- Tsui, K. L. Intelligent Informative Frequency Band Searching Assisted by A Dynamic Bandit Tree Method for Machine Fault Diagnosis.
+- Neupane, D. (2020). Optimal Sizing and Performance Analysis of Solar PV-Micro hydropower Hybrid System in the Context of Rural Area of Nepal (Doctoral dissertation, Pulchowk Campus).
+- LaTorre, A., Molina, D., Osaba, E., Poyatos, J., Del Ser, J., & Herrera, F. Swarm and Evolutionary Computation.
+- Vieira, M. A. (2022). Otimização dos custos operacionais de uma comunidade energética considerando transações locais em “peer-to-peer” (Doctoral dissertation).
+- Toğaçar, M. (2022). Using DarkNet models and metaheuristic optimization methods together to detect weeds growing along with seedlings. Ecological Informatics, 68, 101519.
+- Toğaçar, M. (2021). Detection of segmented uterine cancer images by Hotspot Detection method using deep learning models, Pigeon-Inspired Optimization, types-based dominant activation selection approaches. Computers in Biology and Medicine, 136, 104659.
+- Khan, N. A Short Term Electricity Load and Price Forecasting Model Based on BAT Algorithm in Logistic Regression and CNN-GRU with WOA.
+- Yelisetti, S., Saini, V. K., Kumar, R., & Lamba, R. (2022, May). Energy Consumption Cost Benefits through Smart Home Energy Management in Residential Buildings: An Indian Case Study. In 2022 IEEE IAS Global Conference on Emerging Technologies (GlobConET) (pp. 930-935). IEEE.
+- Nguyen, H., Cao, M. T., Tran, X. L., Tran, T. H., & Hoang, N. D. (2022). A novel whale optimization algorithm optimized XGBoost regression for estimating bearing capacity of concrete piles. Neural Computing and Applications, 1-28.
+- Hirsching, C., de Jongh, S., Eser, D., Suriyah, M., & Leibfried, T. (2022). Meta-heuristic optimization of control structure and design for MMC-HVdc applications. Electric Power Systems Research, 213, 108371.
+- Amelin, V., Gatiyatullin, E., Romanov, N., Samarkhanov, R., Vasilyev, R., & Yanovich, Y. (2022). Black-Box for Blockchain Parameters Adjustment. IEEE Access, 10, 101795-101802.
+- Ngo, T. Q., Nguyen, L. Q., & Tran, V. Q. (2022). Novel hybrid machine learning models including support vector machine with meta-heuristic algorithms in predicting unconfined compressive strength of organic soils stabilised with cement and lime. International Journal of Pavement Engineering, 1-18.
+- Zhu, Y., & Iiduka, H. (2021). Unified Algorithm Framework for Nonconvex Stochastic Optimization in Deep Neural Networks. IEEE Access, 9, 143807-143823.
+- Hakemi, S., Houshmand, M., KheirKhah, E., & Hosseini, S. A. (2022). A review of recent advances in quantum-inspired metaheuristics. Evolutionary Intelligence, 1-16.
+- Das, A., Das, S. R., Panda, J. P., Dey, A., Gajrani, K. K., Somani, N., & Gupta, N. (2022). Machine learning based modelling and optimization in hard turning of AISI D6 steel with newly developed AlTiSiN coated carbide tool. arXiv preprint arXiv:2202.00596.
+- Yelisetti, S., Saini, V. K., Kumar, R., Lamba, R., & Saxena, A. (2022). Optimal energy management system for residential buildings considering the time of use price with swarm intelligence algorithms. Journal of Building Engineering, 59, 105062.
+- Valdés, G. T. (2022). Algoritmo para la detección de vehículos y peatones combinando CNN´ sy técnicas de búsqueda.
+- Sallam, N. M., Saleh, A. I., Ali, H. A., & Abdelsalam, M. M. (2023). An efficient EGWO algorithm as feature selection for B-ALL diagnoses and its subtypes classification using peripheral blood smear images. Alexandria Engineering Journal, 68, 39-66.
+
+</details>
