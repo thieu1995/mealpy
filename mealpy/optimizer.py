@@ -59,7 +59,7 @@ class Optimizer:
         self.sort_flag = False
         self.nfe_counter = -1  # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
-        self.support_parallel_modes = True
+        self.is_parallelizable = True
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -171,7 +171,7 @@ class Optimizer:
     def check_mode_and_workers(self, mode, n_workers):
         self.mode = self.validator.check_str("mode", mode, self.SUPPORTED_MODES)
         if self.mode in self.PARALLEL_MODES:
-            if not self.support_parallel_modes:
+            if not self.is_parallelizable:
                 self.logger.warning(f"{self.get_name()} doesn't support parallelization. The default mode 'single' is activated.")
                 self.mode = "single"
             elif n_workers is not None:
@@ -338,6 +338,33 @@ class Optimizer:
             pop = [self.generate_agent() for _ in range(0, pop_size)]
         return pop
 
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        """
+        This function is based on optimizer's strategy.
+        In each optimizer, this function can be overridden
+
+        Args:
+            solution: The position
+
+        Returns:
+            The valid solution based on optimizer's strategy
+        """
+        return solution
+
+    def correct_solution(self, solution: np.ndarray) -> np.ndarray:
+        """
+        This function is based on optimizer's strategy and problem-specific condition
+        DO NOT override this function
+
+        Args:
+            solution: The position
+
+        Returns:
+            The correct solution that can be used to calculate target
+        """
+        solution = self.amend_solution(solution)
+        return self.problem.correct_solution(solution)
+
     def update_target_for_population(self, pop: List[Agent] = None) -> List[Agent]:
         """
         Update target for the input population
@@ -383,6 +410,13 @@ class Optimizer:
         if counted:
             self.nfe_counter += 1
         return self.problem.get_target(solution)
+
+    @staticmethod
+    def compare_target(target_x: Target, target_y: Target, minmax: str = "min") -> bool:
+        if minmax == "min":
+            return True if target_x.fitness < target_y.fitness else False
+        else:
+            return False if target_x.fitness < target_y.fitness else True
 
     @staticmethod
     def duplicate_pop(pop: List[Agent]) -> List[Agent]:
