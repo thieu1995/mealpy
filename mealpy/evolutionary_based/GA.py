@@ -29,50 +29,46 @@ class BaseGA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.GA import BaseGA
+    >>> from mealpy import FloatVar, GA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.9
-    >>> pm = 0.05
-    >>> model1 = BaseGA(epoch, pop_size, pc, pm)
-    >>> best_position, best_fitness = model1.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     >>>
-    >>> model2 = BaseGA(epoch, pop_size, pc, pm, selection="tournament", k_way=0.4, crossover="multi_points")
+    >>> model2 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection="tournament", k_way=0.4, crossover="multi_points")
     >>>
-    >>> model3 = BaseGA(epoch, pop_size, pc, pm, crossover="one_point", mutation="scramble")
+    >>> model3 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="one_point", mutation="scramble")
     >>>
-    >>> model4 = BaseGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation_multipoints=True, mutation="swap")
+    >>> model4 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation_multipoints=True, mutation="swap")
     >>>
-    >>> model5 = BaseGA(epoch, pop_size, pc, pm, selection="roulette", crossover="multi_points")
+    >>> model5 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection="roulette", crossover="multi_points")
     >>>
-    >>> model6 = BaseGA(epoch, pop_size, pc, pm, selection="random", mutation="inversion")
+    >>> model6 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection="random", mutation="inversion")
     >>>
-    >>> model7 = BaseGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="flip")
+    >>> model7 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation="flip")
 
     References
     ~~~~~~~~~~
     [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.025, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025, **kwargs: object) -> None:
         """
         Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            pc (float): cross-over probability, default = 0.95
-            pm (float): mutation probability, default = 0.025
+            epoch: maximum number of iterations, default = 10000
+            pop_size: number of population size, default = 100
+            pc: cross-over probability, default = 0.95
+            pm: mutation probability, default = 0.025
             selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
             k_way (float): Optional, set it when use "tournament" selection, default = 0.2
             crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
@@ -82,7 +78,7 @@ class BaseGA(Optimizer):
         super().__init__(**kwargs)
 
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.pc = self.validator.check_float("pc", pc, (0, 1.0))
         self.pm = self.validator.check_float("pm", pm, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "pc", "pm"])
@@ -128,10 +124,10 @@ class BaseGA(Optimizer):
             while id_c2 == id_c1:
                 id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
         elif self.selection == "random":
-            id_c1, id_c2 = np.random.choice(range(self.pop_size), 2, replace=False)
+            id_c1, id_c2 = self.generator.choice(range(self.pop_size), 2, replace=False)
         else:   ## tournament
             id_c1, id_c2 = self.get_index_kway_tournament_selection(self.pop, k_way=self.k_way, output=2)
-        return self.pop[id_c1][self.ID_POS], self.pop[id_c2][self.ID_POS]
+        return self.pop[id_c1].solution, self.pop[id_c2].solution
 
     def selection_process_00__(self, pop_selected):
         """
@@ -148,16 +144,16 @@ class BaseGA(Optimizer):
             list: The position of dad and mom
         """
         if self.selection == "roulette":
-            list_fitness = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop_selected])
+            list_fitness = np.array([agent.target.fitness for agent in pop_selected])
             id_c1 = self.get_index_roulette_wheel_selection(list_fitness)
             id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
             while id_c2 == id_c1:
                 id_c2 = self.get_index_roulette_wheel_selection(list_fitness)
         elif self.selection == "random":
-            id_c1, id_c2 = np.random.choice(range(len(pop_selected)), 2, replace=False)
+            id_c1, id_c2 = self.generator.choice(range(len(pop_selected)), 2, replace=False)
         else:   ## tournament
             id_c1, id_c2 = self.get_index_kway_tournament_selection(pop_selected, k_way=self.k_way, output=2)
-        return pop_selected[id_c1][self.ID_POS], pop_selected[id_c2][self.ID_POS]
+        return pop_selected[id_c1].solution, pop_selected[id_c2].solution
 
     def selection_process_01__(self, pop_dad, pop_mom):
         """
@@ -171,17 +167,17 @@ class BaseGA(Optimizer):
             list: The position of dad and mom
         """
         if self.selection == "roulette":
-            list_fit_dad = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop_dad])
-            list_fit_mom = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in pop_mom])
+            list_fit_dad = np.array([agent.target.fitness for agent in pop_dad])
+            list_fit_mom = np.array([agent.target.fitness for agent in pop_mom])
             id_c1 = self.get_index_roulette_wheel_selection(list_fit_dad)
             id_c2 = self.get_index_roulette_wheel_selection(list_fit_mom)
         elif self.selection == "random":
-            id_c1 = np.random.choice(range(len(pop_dad)))
-            id_c2 = np.random.choice(range(len(pop_mom)))
+            id_c1 = self.generator.choice(range(len(pop_dad)))
+            id_c2 = self.generator.choice(range(len(pop_mom)))
         else:   ## tournament
             id_c1 = self.get_index_kway_tournament_selection(pop_dad, k_way=self.k_way, output=1)[0]
             id_c2 = self.get_index_kway_tournament_selection(pop_mom, k_way=self.k_way, output=1)[0]
-        return pop_dad[id_c1][self.ID_POS], pop_mom[id_c2][self.ID_POS]
+        return pop_dad[id_c1].solution, pop_mom[id_c2].solution
 
     def crossover_process__(self, dad, mom):
         """
@@ -201,16 +197,16 @@ class BaseGA(Optimizer):
         if self.crossover == "arithmetic":
             w1, w2 = self.crossover_arithmetic(dad, mom)
         elif self.crossover == "one_point":
-            cut = np.random.randint(1, self.problem.n_dims-1)
-            w1 = np.concatenate([ dad[:cut], mom[cut:] ])
-            w2 = np.concatenate([ mom[:cut], dad[cut:] ])
+            cut = self.generator.integers(1, self.problem.n_dims-1)
+            w1 = np.concatenate([dad[:cut], mom[cut:]])
+            w2 = np.concatenate([mom[:cut], dad[cut:]])
         elif self.crossover == "multi_points":
-            idxs = np.random.choice(range(1, self.problem.n_dims-1), 2, replace=False)
+            idxs = self.generator.choice(range(1, self.problem.n_dims-1), 2, replace=False)
             cut1, cut2 = np.min(idxs), np.max(idxs)
-            w1 = np.concatenate([ dad[:cut1], mom[cut1:cut2], dad[cut2:] ])
-            w2 = np.concatenate([ mom[:cut1], dad[cut1:cut2], mom[cut2:] ])
+            w1 = np.concatenate([dad[:cut1], mom[cut1:cut2], dad[cut2:]])
+            w2 = np.concatenate([mom[:cut1], dad[cut1:cut2], mom[cut2:]])
         else:           # uniform
-            flip = np.random.randint(0, 2, self.problem.n_dims)
+            flip = self.generator.integers(0, 2, self.problem.n_dims)
             w1 = dad * flip + mom * (1 - flip)
             w2 = mom * flip + dad * (1 - flip)
         return w1, w2
@@ -240,33 +236,33 @@ class BaseGA(Optimizer):
         if self.mutation_multipoints:
             if self.mutation == "swap":
                 for idx in range(self.problem.n_dims):
-                    idx_swap = np.random.choice(list(set(range(0, self.problem.n_dims)) - {idx}))
+                    idx_swap = self.generator.choice(list(set(range(0, self.problem.n_dims)) - {idx}))
                     child[idx], child[idx_swap] = child[idx_swap], child[idx]
                     return child
             else:       # "flip"
-                mutation_child = self.generate_position(self.problem.lb, self.problem.ub)
-                flag_child = np.random.uniform(0, 1, self.problem.n_dims) < self.pm
+                mutation_child = self.problem.generate_solution()
+                flag_child = self.generator.uniform(0, 1, self.problem.n_dims) < self.pm
                 return np.where(flag_child, mutation_child, child)
         else:
             if self.mutation == "swap":
-                idx1, idx2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+                idx1, idx2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
                 child[idx1], child[idx2] = child[idx2], child[idx1]
                 return child
             elif self.mutation == "inversion":
-                cut1, cut2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+                cut1, cut2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
                 temp = child[cut1:cut2]
                 temp = temp[::-1]
                 child[cut1:cut2] = temp
                 return child
             elif self.mutation == "scramble":
-                cut1, cut2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+                cut1, cut2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
                 temp = child[cut1:cut2]
-                np.random.shuffle(temp)
+                self.generator.shuffle(temp)
                 child[cut1:cut2] = temp
                 return child
             else:   # "flip"
-                idx = np.random.randint(0, self.problem.n_dims)
-                child[idx] = np.random.uniform(self.problem.lb[idx], self.problem.ub[idx])
+                idx = self.generator.integers(0, self.problem.n_dims)
+                child[idx] = self.generator.uniform(self.problem.lb[idx], self.problem.ub[idx])
                 return child
 
     def survivor_process__(self, pop, pop_child):
@@ -284,7 +280,7 @@ class BaseGA(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             id_child = self.get_index_kway_tournament_selection(pop, k_way=0.1, output=1, reverse=True)[0]
-            pop_new.append(self.get_better_solution(pop_child[idx], pop[id_child]))
+            pop_new.append(self.get_better_agent(pop_child[idx], pop[id_child], self.problem.minmax))
         return pop_new
 
     def evolve(self, epoch):
@@ -294,7 +290,7 @@ class BaseGA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        list_fitness = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
+        list_fitness = np.array([agent.target.fitness for agent in self.pop])
         pop_new = []
         for i in range(0, int(self.pop_size/2)):
             ### Selection
@@ -308,17 +304,20 @@ class BaseGA(Optimizer):
             child1 = self.mutation_process__(child1)
             child2 = self.mutation_process__(child2)
 
-            child1 = self.amend_position(child1, self.problem.lb, self.problem.ub)
-            child2 = self.amend_position(child2, self.problem.lb, self.problem.ub)
+            child1 = self.correct_solution(child1)
+            child2 = self.correct_solution(child2)
 
-            pop_new.append([child1, None])
-            pop_new.append([child2, None])
+            agent1 = self.generate_empty_agent(child1)
+            agent2 = self.generate_empty_agent(child2)
+
+            pop_new.append(agent1)
+            pop_new.append(agent2)
 
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-2][self.ID_TAR] = self.get_target_wrapper(child1)
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(child2)
+                pop_new[-2].target = self.get_target(child1)
+                pop_new[-1].target = self.get_target(child2)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.update_target_for_population(pop_new)
         ### Survivor Selection
         self.pop = self.survivor_process__(self.pop, pop_new)
 
@@ -343,58 +342,51 @@ class SingleGA(BaseGA):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.GA import SingleGA
+    >>> from mealpy import FloatVar, GA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.9
-    >>> pm = 0.8
-    >>> selection = "roulette"
-    >>> crossover = "uniform"
-    >>> mutation = "swap"
-    >>> model1 = SingleGA(epoch, pop_size, pc, pm, selection, crossover, mutation)
-    >>> best_position, best_fitness = model1.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection = "roulette", crossover = "uniform", mutation = "swap")
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     >>>
-    >>> model2 = SingleGA(epoch, pop_size, pc, pm, selection="tournament", k_way=0.4, crossover="multi_points")
+    >>> model2 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="tournament", k_way=0.4, crossover="multi_points")
     >>>
-    >>> model3 = SingleGA(epoch, pop_size, pc, pm, crossover="one_point", mutation="scramble")
+    >>> model3 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="one_point", mutation="scramble")
     >>>
-    >>> model4 = SingleGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="swap")
+    >>> model4 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="swap")
     >>>
-    >>> model5 = SingleGA(epoch, pop_size, pc, pm, selection="roulette", crossover="multi_points")
+    >>> model5 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="roulette", crossover="multi_points")
     >>>
-    >>> model6 = SingleGA(epoch, pop_size, pc, pm, selection="random", mutation="inversion")
+    >>> model6 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="inversion")
     >>>
-    >>> model7 = SingleGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="flip")
+    >>> model7 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
 
     References
     ~~~~~~~~~~
     [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.8, selection="roulette",
-                 crossover="uniform", mutation="swap", k_way=0.2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.8, selection: str = "roulette",
+                 crossover: str = "uniform", mutation: str = "swap", k_way: float = 0.2, **kwargs: object) -> None:
         """
         Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            pc (float): cross-over probability, default = 0.95
-            pm (float): mutation probability, default = 0.8
-            selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-            crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-            mutation (str): Optional, can be ["flip", "swap", "scramble", "inversion"], default="flip"
-            k_way (float): Optional, set it when use "tournament" selection, default = 0.2
+            epoch: maximum number of iterations, default = 10000
+            pop_size: number of population size, default = 100
+            pc: cross-over probability, default = 0.95
+            pm: mutation probability, default = 0.8
+            selection: Optional, can be ["roulette", "tournament", "random"], default = "tournament"
+            crossover: Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
+            mutation: Optional, can be ["flip", "swap", "scramble", "inversion"], default="flip"
+            k_way: Optional, set it when use "tournament" selection, default = 0.2
         """
         super().__init__(epoch, pop_size, pc, pm, **kwargs)
         self.selection = self.validator.check_str("selection", selection, ["tournament", "random", "roulette"])
@@ -420,24 +412,24 @@ class SingleGA(BaseGA):
             np.array: The mutated vector of the child
         """
         if self.mutation == "swap":
-            idx1, idx2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+            idx1, idx2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
             child[idx1], child[idx2] = child[idx2], child[idx1]
             return child
         elif self.mutation == "inversion":
-            cut1, cut2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+            cut1, cut2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
             temp = child[cut1:cut2]
             temp = temp[::-1]
             child[cut1:cut2] = temp
             return child
         elif self.mutation == "scramble":
-            cut1, cut2 = np.random.choice(range(0, self.problem.n_dims), 2, replace=False)
+            cut1, cut2 = self.generator.choice(range(0, self.problem.n_dims), 2, replace=False)
             temp = child[cut1:cut2]
-            np.random.shuffle(temp)
+            self.generator.shuffle(temp)
             child[cut1:cut2] = temp
             return child
         else:   # "flip"
-            idx = np.random.randint(0, self.problem.n_dims)
-            child[idx] = np.random.uniform(self.problem.lb[idx], self.problem.ub[idx])
+            idx = self.generator.integers(0, self.problem.n_dims)
+            child[idx] = self.generator.uniform(self.problem.lb[idx], self.problem.ub[idx])
             return child
 
 
@@ -464,43 +456,34 @@ class EliteSingleGA(SingleGA):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.GA import EliteSingleGA
+    >>> from mealpy import FloatVar, GA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.9
-    >>> pm = 0.8
-    >>> selection = "roulette"
-    >>> crossover = "uniform"
-    >>> mutation = "swap"
-    >>> elite_best = 0.1
-    >>> elite_worst = 0.3
-    >>> strategy = 0
-    >>> model1 = EliteSingleGA(epoch, pop_size, pc, pm, selection, crossover, mutation, elite_best, elite_worst, strategy)
-    >>> best_position, best_fitness = model1.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection = "roulette", crossover = "uniform",
+    >>>                         mutation = "swap", elite_best = 0.1, elite_worst = 0.3, strategy = 0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     >>>
-    >>> model2 = EliteSingleGA(epoch, pop_size, pc, pm, selection="tournament", k_way=0.4, crossover="multi_points")
+    >>> model2 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="tournament", k_way=0.4, crossover="multi_points")
     >>>
-    >>> model3 = EliteSingleGA(epoch, pop_size, pc, pm, crossover="one_point", mutation="scramble")
+    >>> model3 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="one_point", mutation="scramble")
     >>>
-    >>> model4 = EliteSingleGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="swap")
+    >>> model4 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="swap")
     >>>
-    >>> model5 = EliteSingleGA(epoch, pop_size, pc, pm, selection="roulette", crossover="multi_points")
+    >>> model5 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="roulette", crossover="multi_points")
     >>>
-    >>> model6 = EliteSingleGA(epoch, pop_size, pc, pm, selection="random", mutation="inversion")
+    >>> model6 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="inversion")
     >>>
-    >>> model7 = EliteSingleGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="flip")
+    >>> model7 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
 
     References
     ~~~~~~~~~~
@@ -534,24 +517,24 @@ class EliteSingleGA(SingleGA):
             epoch (int): The current iteration
         """
         pop_new = self.pop[:self.n_elite_best]
-
         if self.strategy == 0:
             pop_old = self.pop[self.n_elite_best:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_00__(pop_old)
                 ### Crossover
-                if np.random.uniform() < self.pc:
+                if self.generator.uniform() < self.pc:
                     child1, child2 = self.crossover_process__(child1, child2)
-                child = child1 if np.random.random() <= 0.5 else child2
+                child = child1 if self.generator.random() <= 0.5 else child2
                 ### Mutation
                 child = self.mutation_process__(child)
                 ### Survivor Selection
-                pos_new = self.amend_position(child, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = self.correct_solution(child)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.pop = self.update_target_wrapper_population(pop_new)
+                    pop_new[-1].target = self.get_target(pos_new)
+            self.pop = self.update_target_for_population(pop_new)
         else:
             pop_dad = self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst]
             pop_mom = self.pop[self.n_elite_best+self.n_elite_worst:]
@@ -559,17 +542,18 @@ class EliteSingleGA(SingleGA):
                 ### Selection
                 child1, child2 = self.selection_process_01__(pop_dad, pop_mom)
                 ### Crossover
-                if np.random.uniform() < self.pc:
+                if self.generator.uniform() < self.pc:
                     child1, child2 = self.crossover_process__(child1, child2)
-                child = child1 if np.random.random() <= 0.5 else child2
+                child = child1 if self.generator.random() <= 0.5 else child2
                 ### Mutation
                 child = self.mutation_process__(child)
                 ### Survivor Selection
-                pos_new = self.amend_position(child, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = self.correct_solution(child)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.pop = self.update_target_wrapper_population(pop_new)
+                    pop_new[-1].target = self.get_target(pos_new)
+            self.pop = self.update_target_for_population(pop_new)
 
 
 class MultiGA(BaseGA):
@@ -592,58 +576,51 @@ class MultiGA(BaseGA):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.GA import MultiGA
+    >>> from mealpy import FloatVar, GA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.9
-    >>> pm = 0.05
-    >>> selection = "roulette"
-    >>> crossover = "uniform"
-    >>> mutation = "swap"
-    >>> model1 = MultiGA(epoch, pop_size, pc, pm, selection, crossover, mutation)
-    >>> best_position, best_fitness = model1.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection = "roulette", crossover = "uniform", mutation = "swap", k_way=0.2)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     >>>
-    >>> model2 = MultiGA(epoch, pop_size, pc, pm, selection="tournament", k_way=0.4, crossover="multi_points")
+    >>> model2 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="tournament", k_way=0.4, crossover="multi_points")
     >>>
-    >>> model3 = MultiGA(epoch, pop_size, pc, pm, crossover="one_point", mutation="flip")
+    >>> model3 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="one_point", mutation="flip")
     >>>
-    >>> model4 = MultiGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation_multipoints=True, mutation="swap")
+    >>> model4 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation_multipoints=True, mutation="swap")
     >>>
-    >>> model5 = MultiGA(epoch, pop_size, pc, pm, selection="roulette", crossover="multi_points")
+    >>> model5 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="roulette", crossover="multi_points")
     >>>
-    >>> model6 = MultiGA(epoch, pop_size, pc, pm, selection="random", mutation="swap")
+    >>> model6 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="swap")
     >>>
-    >>> model7 = MultiGA(epoch, pop_size, pc, pm, crossover="arithmetic", mutation="flip")
+    >>> model7 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
 
     References
     ~~~~~~~~~~
     [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.025,
-                 selection="roulette", crossover="arithmetic", mutation="flip", k_way=0.2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025,
+                 selection: str = "roulette", crossover: str = "arithmetic", mutation: str = "flip", k_way: float = 0.2, **kwargs: object) -> None:
         """
         Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            pc (float): cross-over probability, default = 0.95
-            pm (float): mutation probability, default = 0.025
-            selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-            crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-            mutation (str): Optional, can be ["flip", "swap"] for multipoints
-            k_way (float): Optional, set it when use "tournament" selection, default = 0.2
+            epoch: maximum number of iterations, default = 10000
+            pop_size: number of population size, default = 100
+            pc: cross-over probability, default = 0.95
+            pm: mutation probability, default = 0.025
+            selection: Optional, can be ["roulette", "tournament", "random"], default = "tournament"
+            crossover: Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
+            mutation: Optional, can be ["flip", "swap"] for multipoints
+            k_way: Optional, set it when use "tournament" selection, default = 0.2
         """
         super().__init__(epoch, pop_size, pc, pm, **kwargs)
         self.selection = self.validator.check_str("selection", selection, ["tournament", "random", "roulette"])
@@ -667,12 +644,12 @@ class MultiGA(BaseGA):
         """
         if self.mutation == "swap":
             for idx in range(self.problem.n_dims):
-                idx_swap = np.random.choice(list(set(range(0, self.problem.n_dims)) - {idx}))
+                idx_swap = self.generator.choice(list(set(range(0, self.problem.n_dims)) - {idx}))
                 child[idx], child[idx_swap] = child[idx_swap], child[idx]
                 return child
         else:       # "flip"
-            mutation_child = self.generate_position(self.problem.lb, self.problem.ub)
-            flag_child = np.random.uniform(0, 1, self.problem.n_dims) < self.pm
+            mutation_child = self.problem.generate_solution()
+            flag_child = self.generator.uniform(0, 1, self.problem.n_dims) < self.pm
             return np.where(flag_child, mutation_child, child)
 
 
@@ -699,30 +676,21 @@ class EliteMultiGA(MultiGA):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.GA import MultiGA
+    >>> from mealpy import FloatVar, GA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.9
-    >>> pm = 0.05
-    >>> selection = "roulette"
-    >>> crossover = "uniform"
-    >>> mutation = "swap"
-    >>> model1 = MultiGA(epoch, pop_size, pc, pm, selection, crossover, mutation)
-    >>> best_position, best_fitness = model1.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
-    >>>
-    >>> model2 = MultiGA(epoch, pop_size, pc, pm, selection="tournament", k_way=0.4, crossover="multi_points")
+    >>> model = GA.EliteMultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection = "roulette", crossover = "uniform", mutation = "swap")
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -756,24 +724,24 @@ class EliteMultiGA(MultiGA):
             epoch (int): The current iteration
         """
         pop_new = self.pop[:self.n_elite_best]
-
         if self.strategy == 0:
             pop_old = self.pop[self.n_elite_best:]
             for idx in range(self.n_elite_best, self.pop_size):
                 ### Selection
                 child1, child2 = self.selection_process_00__(pop_old)
                 ### Crossover
-                if np.random.uniform() < self.pc:
+                if self.generator.uniform() < self.pc:
                     child1, child2 = self.crossover_process__(child1, child2)
-                child = child1 if np.random.random() <= 0.5 else child2
+                child = child1 if self.generator.random() <= 0.5 else child2
                 ### Mutation
                 child = self.mutation_process__(child)
                 ### Survivor Selection
-                pos_new = self.amend_position(child, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = self.correct_solution(child)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.pop = self.update_target_wrapper_population(pop_new)
+                    pop_new[-1].target = self.get_target(pos_new)
+            self.pop = self.update_target_for_population(pop_new)
         else:
             pop_dad = self.pop[self.n_elite_best:self.n_elite_best+self.n_elite_worst]
             pop_mom = self.pop[self.n_elite_best+self.n_elite_worst:]
@@ -781,14 +749,15 @@ class EliteMultiGA(MultiGA):
                 ### Selection
                 child1, child2 = self.selection_process_01__(pop_dad, pop_mom)
                 ### Crossover
-                if np.random.uniform() < self.pc:
+                if self.generator.uniform() < self.pc:
                     child1, child2 = self.crossover_process__(child1, child2)
-                child = child1 if np.random.random() <= 0.5 else child2
+                child = child1 if self.generator.random() <= 0.5 else child2
                 ### Mutation
                 child = self.mutation_process__(child)
                 ### Survivor Selection
-                pos_new = self.amend_position(child, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = self.correct_solution(child)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.pop = self.update_target_wrapper_population(pop_new)
+                    pop_new[-1].target = self.get_target(pos_new)
+            self.pop = self.update_target_for_population(pop_new)
