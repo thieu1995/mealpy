@@ -89,7 +89,7 @@ class OriginalBBO(Optimizer):
             noise = self.generator.uniform(self.problem.lb, self.problem.ub)
             condition = self.generator.random(self.problem.n_dims) < self.p_m
             pos_new = np.where(condition, noise, pos_new)
-            pos_new = self.problem.correct_solution(pos_new)
+            pos_new = self.correct_solution(pos_new)
             agent_new = self.generate_empty_agent(pos_new)
             pop.append(agent_new)
             if self.mode not in self.AVAILABLE_MODES:
@@ -162,7 +162,7 @@ class DevBBO(OriginalBBO):
             # Mutation
             mutated = self.generator.uniform(self.problem.lb, self.problem.ub)
             pos_new = np.where(self.generator.random(self.problem.n_dims) < self.p_m, mutated, pos_new)
-            pos_new = self.problem.correct_solution(pos_new)
+            pos_new = self.correct_solution(pos_new)
             agent_new = self.generate_empty_agent(pos_new)
             pop_new.append(agent_new)
             if self.mode not in self.AVAILABLE_MODES:
