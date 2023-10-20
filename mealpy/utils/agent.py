@@ -39,6 +39,10 @@ class Agent:
         self.solution = solution
         self.target = target
 
+    def update(self, **kwargs) -> None:
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+
     def get_better_solution(self, compared_agent: 'Agent', minmax: str = "min") -> 'Agent':
         if minmax == "min":
             return self if self.target.fitness < compared_agent.target.fitness else compared_agent
@@ -55,6 +59,12 @@ class Agent:
             self.target = compared_agent.target
             return True
         return False
+
+    def is_better_than(self, compared_agent: 'Agent', minmax: str = "min") -> bool:
+        if minmax == "min":
+            return True if self.target.fitness < compared_agent.target.fitness else False
+        else:
+            return False if self.target.fitness < compared_agent.target.fitness else True
 
     def __repr__(self):     # represent
         return f"id: {self.id}, target: {self.target}, solution: {self.solution}"
