@@ -688,5 +688,5 @@ class CL_PSO(Optimizer):
                 self.flags[idx] = 0
             else:
                 self.flags[idx] += 1
-                if  self.flags[idx] >= self.max_flag:
+                if self.flags[idx] >= self.max_flag:
                     self.flags[idx] = 0
