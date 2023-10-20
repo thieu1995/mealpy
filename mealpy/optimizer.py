@@ -242,7 +242,7 @@ class Optimizer:
             self.evolve(epoch)
 
             # Update global best solution, the population is sorted or not depended on algorithm's strategy
-            pop_temp, self.g_best = self.update_global_best_solution(self.pop)
+            pop_temp, self.g_best = self.update_global_best_agent(self.pop)
             if self.sort_flag: self.pop = pop_temp
 
             time_epoch = time.perf_counter() - time_epoch
@@ -563,7 +563,7 @@ class Optimizer:
         pop = Optimizer.get_sorted_population(pop, minmax)
         return pop[:pop_size]
 
-    def update_global_best_solution(self, pop: List[Agent], save: bool = True) -> Union[List, Tuple]:
+    def update_global_best_agent(self, pop: List[Agent], save: bool = True) -> Union[List, Tuple]:
         """
         Update global best and current best solutions in history object.
         Also update global worst and current worst solutions in history object.
@@ -614,14 +614,14 @@ class Optimizer:
         if type(list_fitness) in [list, tuple, np.ndarray]:
             list_fitness = np.array(list_fitness).flatten()
         if list_fitness.ptp() == 0:
-            return int(np.random.randint(0, len(list_fitness)))
+            return int(self.generator.integers(0, len(list_fitness)))
         if np.any(list_fitness) < 0:
             list_fitness = list_fitness - np.min(list_fitness)
         final_fitness = list_fitness
         if self.problem.minmax == "min":
             final_fitness = np.max(list_fitness) - list_fitness
         prob = final_fitness / np.sum(final_fitness)
-        return int(np.random.choice(range(0, len(list_fitness)), p=prob))
+        return int(self.generator.choice(range(0, len(list_fitness)), p=prob))
 
     def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
         """
@@ -636,8 +636,8 @@ class Optimizer:
         """
         if 0 < k_way < 1:
             k_way = int(k_way * len(pop))
-        list_id = np.random.choice(range(len(pop)), k_way, replace=False)
-        list_parents = [[idx, pop[idx][self.ID_TAR][self.ID_FIT]] for idx in list_id]
+        list_id = self.generator.choice(range(len(pop)), k_way, replace=False)
+        list_parents = [[idx, pop[idx].target.fitness] for idx in list_id]
         if self.problem.minmax == "min":
             list_parents = sorted(list_parents, key=lambda agent: agent[1])
         else:
