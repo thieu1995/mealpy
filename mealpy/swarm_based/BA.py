@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 
 
 class OriginalBA(Optimizer):
@@ -24,27 +25,21 @@ class OriginalBA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BA import OriginalBA
+    >>> from mealpy import FloatVar, BA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> loudness = 0.8
-    >>> pulse_rate = 0.95
-    >>> pf_min = 0.
-    >>> pf_max = 10.
-    >>> model = OriginalBA(epoch, pop_size, loudness, pulse_rate, pf_min, pf_max)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BA.OriginalBA(epoch=1000, pop_size=50, loudness=0.8, pulse_rate=0.95, pf_min=0.1, pf_max=10.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -52,10 +47,8 @@ class OriginalBA(Optimizer):
     strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
     """
 
-    ID_VEC = 2  # Velocity
-    ID_PFRE = 3  # Pulse Frequency
-
-    def __init__(self, epoch=10000, pop_size=100, loudness=0.8, pulse_rate=0.95, pf_min=0., pf_max=10., **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, loudness: float = 0.8,
+                 pulse_rate: float = 0.95, pf_min: float = 0., pf_max: float = 10., **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -67,7 +60,7 @@ class OriginalBA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.loudness = self.validator.check_float("loudness", loudness, (0, 1.0))
         self.pulse_rate = self.validator.check_float("pulse_rate", pulse_rate, (0, 1.0))
         self.pf_min = self.validator.check_float("pf_min", pf_min, [0., 3.0])
@@ -76,20 +69,13 @@ class OriginalBA(Optimizer):
         self.alpha = self.gamma = 0.9
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        Overriding method in Optimizer class
-
-        Returns:
-            list: a solution with format [position, target, velocity, pulse_frequency]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        velocity = np.random.uniform(lb, ub)
-        pulse_frequency = self.pf_min + (self.pf_max - self.pf_min) * np.random.uniform()
-        return [position, target, velocity, pulse_frequency]
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        target = self.get_target(solution)
+        velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
+        pulse_frequency = self.pf_min + (self.pf_max - self.pf_min) * self.generator.uniform()
+        return Agent(solution=solution, target=target, velocity=velocity, pulse_frequency=pulse_frequency)
 
     def evolve(self, epoch):
         """
@@ -101,22 +87,22 @@ class OriginalBA(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             agent = self.pop[idx].copy()
-            agent[self.ID_VEC] = agent[self.ID_VEC] + self.pop[idx][self.ID_PFRE] * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
-            x = self.pop[idx][self.ID_POS] + agent[self.ID_VEC]
+            vec = agent.velocity + self.pop[idx].pulse_frequency * (self.pop[idx].solution - self.g_best.solution)
+            x_new = self.pop[idx].solution + agent.velocity
             ## Local Search around g_best position
-            if np.random.uniform() > self.pulse_rate:
-                x = self.g_best[self.ID_POS] + 0.0001 * np.random.normal(self.problem.n_dims)  # gauss
-            pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
-            agent[self.ID_POS] = pos_new
+            if self.generator.random() > self.pulse_rate:
+                x_new = self.g_best.solution + 0.001 * self.generator.normal(self.problem.n_dims)
+            pos_new = self.correct_solution(x_new)
+            agent.update(solution=pos_new, velocity=vec)
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new[-1].target = self.get_target(pos_new)
+        pop_new = self.update_target_for_population(pop_new)
         for idx in range(self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
             ##  and then update loudness and emission rate
-            if self.compare_agent(pop_new[idx], self.pop[idx]) and np.random.rand() < self.loudness:
-                self.pop[idx] = pop_new[idx].copy()
+            if self.compare_target(pop_new[idx].target, self.pop[idx].target, self.problem.minmax) and self.generator.random() < self.loudness:
+                self.pop[idx].update(solution=pop_new[idx].solution, target=pop_new[idx].target)
 
 
 class AdaptiveBA(Optimizer):
@@ -138,29 +124,21 @@ class AdaptiveBA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BA import AdaptiveBA
+    >>> from mealpy import FloatVar, BA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> loudness_min = 1.0 
-    >>> loudness_max = 2.0 
-    >>> pr_min = 0.15
-    >>> pr_max = 0.85
-    >>> pf_min = 0.
-    >>> pf_max = 10.
-    >>> model = AdaptiveBA(epoch, pop_size, loudness_min, loudness_max, pr_min, pr_max, pf_min, pf_max)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BA.AdaptiveBA(epoch=1000, pop_size=50, loudness_min = 1.0, loudness_max = 2.0, pr_min = 0.15, pr_max = 0.85, pf_min = 0.1, pf_max = 10.)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -168,12 +146,8 @@ class AdaptiveBA(Optimizer):
     strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
     """
 
-    ID_VEC = 2  # Velocity
-    ID_LOUD = 3  # Loudness
-    ID_PRAT = 4  # Pulse Rate
-    ID_PFRE = 5  # Pulse Frequency
-
-    def __init__(self, epoch=10000, pop_size=100, loudness_min=1.0, loudness_max=2.0, pr_min=0.15, pr_max=0.85, pf_min=0., pf_max=10., **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: object = 100, loudness_min: float = 1.0, loudness_max: float = 2.0,
+                 pr_min: float = 0.15, pr_max: float = 0.85, pf_min: float = -10., pf_max: float = 10., **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -187,33 +161,25 @@ class AdaptiveBA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.loudness_min = self.validator.check_float("loudness_min", loudness_min, [0.5, 1.5])
         self.loudness_max = self.validator.check_float("loudness_max", loudness_max, [1.5, 3.0])
         self.pr_min = self.validator.check_float("pr_min", pr_min, (0, 1.0))
         self.pr_max = self.validator.check_float("pr_max", pr_max, (0, 1.0))
-        self.pf_min = self.validator.check_float("pf_min", pf_min, [0, 2])
-        self.pf_max = self.validator.check_float("pf_max", pf_max, [2, 10])
+        self.pf_min = self.validator.check_float("pf_min", pf_min, [-10, 0])
+        self.pf_max = self.validator.check_float("pf_max", pf_max, [0, 10])
         self.alpha = self.gamma = 0.9
         self.set_parameters(["epoch", "pop_size", "loudness_min", "loudness_max", "pr_min", "pr_max", "pf_min", "pf_max"])
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        Overriding method in Optimizer class
-
-        Returns:
-            list: a solution with format [position, target, velocity, loudness, pulse_rate, pulse_frequency]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        velocity = np.random.uniform(lb, ub)
-        loudness = np.random.uniform(self.loudness_min, self.loudness_max)
-        pulse_rate = np.random.uniform(self.pr_min, self.pr_max)
-        pulse_frequency = self.pf_min + (self.pf_max - self.pf_min) * np.random.uniform()
-        return [position, target, velocity, loudness, pulse_rate, pulse_frequency]
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        target = self.get_target(solution)
+        velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
+        loudness = self.generator.uniform(self.loudness_min, self.loudness_max)
+        pulse_rate = self.generator.uniform(self.pr_min, self.pr_max)
+        return Agent(solution=solution, target=target, velocity=velocity, loudness=loudness, pulse_rate=pulse_rate)
 
     def evolve(self, epoch):
         """
@@ -222,34 +188,34 @@ class AdaptiveBA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        mean_a = np.mean([agent[self.ID_LOUD] for agent in self.pop])
+        mean_a = np.mean([agent.loudness for agent in self.pop])
         pop_new = []
         for idx in range(0, self.pop_size):
             agent = self.pop[idx].copy()
-            agent[self.ID_VEC] = agent[self.ID_VEC] + self.pop[idx][self.ID_PFRE] * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
-            x = self.pop[idx][self.ID_POS] + agent[self.ID_VEC]
+            pulse_frequency = self.generator.uniform(self.pf_min, self.pf_max)
+            agent.velocity = agent.velocity + pulse_frequency * (self.pop[idx].solution - self.g_best.solution)
+            x_new = self.pop[idx].solution + agent.velocity
             ## Local Search around g_best position
-            if np.random.uniform() > agent[self.ID_PRAT]:
-                # print(f"{epoch}, {mean_a}, {self.dyn_r}")
-                x = self.g_best[self.ID_POS] + mean_a * np.random.normal(-1, 1)
-            pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
-            agent[self.ID_POS] = pos_new
+            if self.generator.random() > agent.pulse_rate:
+                x_new = self.g_best.solution + mean_a * self.generator.normal(-1, 1)
+            pos_new = self.correct_solution(x_new)
+            agent.solution = pos_new
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new[-1].target = self.get_target(pos_new)
+        pop_new = self.update_target_for_population(pop_new)
         for idx in range(0, self.pop_size):
             ## Replace the old position by the new one when its has better fitness.
             ##  and then update loudness and emission rate
-            if self.compare_agent(pop_new[idx], self.pop[idx]) and np.random.rand() < pop_new[idx][self.ID_LOUD]:
-                pop_new[idx][self.ID_LOUD] = self.alpha * pop_new[idx][self.ID_LOUD]
-                pop_new[idx][self.ID_PRAT] = pop_new[idx][self.ID_PRAT] * (1 - np.exp(-self.gamma * (epoch + 1)))
-                self.pop[idx] = pop_new[idx].copy()
+            if self.compare_target(pop_new[idx].target, self.pop[idx].target, self.problem.minmax) and self.generator.random() < pop_new[idx].loudness:
+                loudness = self.alpha * pop_new[idx].loudness
+                pulse_rate = pop_new[idx].pulse_rate * (1 - np.exp(-self.gamma * epoch))
+                self.pop[idx].update(solution=pop_new[idx].solution, target=pop_new[idx].target, loudness=loudness, pulse_rate=pulse_rate)
 
 
-class ModifiedBA(Optimizer):
+class DevBA(Optimizer):
     """
-    The original version of: Modified Bat-inspired Algorithm (MBA)
+    The original version of: Developed Bat-inspired Algorithm (DBA)
 
     Notes
     ~~~~~
@@ -266,32 +232,27 @@ class ModifiedBA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BA import ModifiedBA
+    >>> from mealpy import FloatVar, BA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pulse_rate = 0.95
-    >>> pf_min = 0.
-    >>> pf_max = 10.
-    >>> model = ModifiedBA(epoch, pop_size, pulse_rate, pf_min, pf_max)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BA.DevBA(epoch=1000, pop_size=50, pulse_rate = 0.95, pf_min = 0., pf_max = 10.)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch=10000, pop_size=100, pulse_rate=0.95, pf_min=0., pf_max=10., **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.pulse_rate = self.validator.check_float("pulse_rate", pulse_rate, (0, 1.0))
         self.pf_min = self.validator.check_float("pf_min", pf_min, [0, 2])
         self.pf_max = self.validator.check_float("pf_max", pf_max, [2, 10])
@@ -311,30 +272,31 @@ class ModifiedBA(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            pf = self.pf_min + (self.pf_max - self.pf_min) * np.random.uniform()  # Eq. 2
-            self.dyn_list_velocity[idx] = np.random.uniform() * self.dyn_list_velocity[idx] + \
-                                          (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) * pf  # Eq. 3
-            x = self.pop[idx][self.ID_POS] + self.dyn_list_velocity[idx]  # Eq. 4
-            pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pf = self.pf_min + (self.pf_max - self.pf_min) * self.generator.uniform()  # Eq. 2
+            self.dyn_list_velocity[idx] = self.generator.uniform() * self.dyn_list_velocity[idx] + (self.g_best.solution - self.pop[idx].solution) * pf  # Eq. 3
+            x = self.pop[idx].solution + self.dyn_list_velocity[idx]  # Eq. 4
+            pos_new = self.correct_solution(x)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new[-1].target = self.get_target(pos_new)
+        pop_new = self.update_target_for_population(pop_new)
         pop_child_idx = []
         pop_child = []
         for idx in range(0, self.pop_size):
-            if self.compare_agent(pop_new[idx], self.pop[idx]):
-                self.pop[idx] = pop_new[idx].copy()
+            if self.compare_target(pop_new[idx].target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx].update(solution=pop_new[idx].solution.copy(), target=pop_new[idx].target)
             else:
-                if np.random.random() > self.pulse_rate:
-                    x = self.g_best[self.ID_POS] + 0.01 * np.random.uniform(self.problem.lb, self.problem.ub)
-                    pos_new = self.amend_position(x, self.problem.lb, self.problem.ub)
+                if self.generator.random() > self.pulse_rate:
+                    x = self.g_best.solution + 0.01 * self.generator.uniform(self.problem.lb, self.problem.ub)
+                    pos_new = self.correct_solution(x)
+                    agent = self.generate_empty_agent(pos_new)
                     pop_child_idx.append(idx)
-                    pop_child.append([pos_new, None])
+                    pop_child.append(agent)
                     if self.mode not in self.AVAILABLE_MODES:
-                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_child = self.update_target_wrapper_population(pop_child)
+                        pop_child[-1].target = self.get_target(pos_new)
+        pop_child = self.update_target_for_population(pop_child)
         for idx, idx_selected in enumerate(pop_child_idx):
-            if self.compare_agent(pop_child[idx], pop_new[idx_selected]):
-                pop_new[idx_selected] = pop_child[idx].copy()
+            if self.compare_target(pop_child[idx].target, pop_new[idx_selected].target, self.problem.minmax):
+                pop_new[idx_selected].update(solution=pop_child[idx].solution, target=pop_child[idx].target)
         self.pop = pop_new
