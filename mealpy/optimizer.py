@@ -673,13 +673,13 @@ class Optimizer:
         # sigma_v : standard deviation of v
         sigma_v = 1
         size = 1 if size is None else size
-        u = np.random.normal(0, sigma_u ** 2, size)
-        v = np.random.normal(0, sigma_v ** 2, size)
+        u = self.generator.normal(0, sigma_u ** 2, size)
+        v = self.generator.normal(0, sigma_v ** 2, size)
         s = u / np.power(np.abs(v), 1 / beta)
         if case == 0:
-            step = multiplier * s * np.random.uniform()
+            step = multiplier * s * self.generator.uniform()
         elif case == 1:
-            step = multiplier * s * np.random.normal(0, 1)
+            step = multiplier * s * self.generator.normal(0, 1)
         else:
             step = multiplier * s
         return step[0] if size == 1 else step
