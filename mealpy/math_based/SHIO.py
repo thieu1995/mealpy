@@ -24,30 +24,28 @@ class OriginalSHIO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.SHIO import OriginalSHIO
+    >>> from mealpy import FloatVar, SHIO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalSHIO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SHIO.OriginalSHIO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Fakhouri, H. N., Hamad, F., & Alawamrah, A. (2022). Success history intelligent optimizer. The Journal of Supercomputing, 1-42.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,7 +53,7 @@ class OriginalSHIO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
@@ -66,19 +64,20 @@ class OriginalSHIO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        _, (b1, b2, b3), _ = self.get_special_solutions(self.pop, best=3, worst=1)
+        _, (b1, b2, b3), _ = self.get_special_agents(self.pop, n_best=3, n_worst=1, minmax=self.problem.minmax)
         a = 1.5
         pop_new = []
         for idx in range(0, self.pop_size):
             a = a - 0.04
-            x1 = b1[self.ID_POS] + (a*2*np.random.rand(self.problem.n_dims) - a)*np.abs(np.random.rand(self.problem.n_dims) * b1[self.ID_POS] - self.pop[idx][self.ID_POS])
-            x2 = b2[self.ID_POS] + (a*2*np.random.rand(self.problem.n_dims) - a)*np.abs(np.random.rand(self.problem.n_dims) * b1[self.ID_POS] - self.pop[idx][self.ID_POS])
-            x3 = b3[self.ID_POS] + (a*2*np.random.rand(self.problem.n_dims) - a)*np.abs(np.random.rand(self.problem.n_dims) * b1[self.ID_POS] - self.pop[idx][self.ID_POS])
+            x1 = b1.solution + (a*2*self.generator.random(self.problem.n_dims) - a)*np.abs(self.generator.random(self.problem.n_dims) * b1.solution - self.pop[idx].solution)
+            x2 = b2.solution + (a*2*self.generator.random(self.problem.n_dims) - a)*np.abs(self.generator.random(self.problem.n_dims) * b2.solution - self.pop[idx].solution)
+            x3 = b3.solution + (a*2*self.generator.random(self.problem.n_dims) - a)*np.abs(self.generator.random(self.problem.n_dims) * b3.solution - self.pop[idx].solution)
             pos_new = (x1 + x2 + x3) / 3
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
+                pop_new[-1].target = self.get_target(pos_new)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.update_target_for_population(pop_new)
         self.pop = pop_new
