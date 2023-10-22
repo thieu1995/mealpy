@@ -24,32 +24,28 @@ class OriginalPSS(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.PSS import OriginalPSS
+    >>> from mealpy import FloatVar, PSS
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> acceptance_rate = 0.8
-    >>> sampling_method = "LHS"
-    >>> model = OriginalPSS(epoch, pop_size, acceptance_rate, sampling_method)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = PSS.OriginalPSS(epoch=1000, pop_size=50, acceptance_rate = 0.8, sampling_method = "LHS")
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Shaqfa, M. and Beyer, K., 2021. Pareto-like sequential sampling heuristic for global optimisation. Soft Computing, 25(14), pp.9077-9096.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, acceptance_rate=0.9, sampling_method="LHS", **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, acceptance_rate: float = 0.9, sampling_method: str = "LHS", **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -59,7 +55,7 @@ class OriginalPSS(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.acceptance_rate = self.validator.check_float("acceptance_rate", acceptance_rate, (0, 1.0))
         self.sampling_method = self.validator.check_str("sampling_method", sampling_method, ["MC", "LHS"])
         self.set_parameters(["epoch", "pop_size", "acceptance_rate", "sampling_method"])
@@ -72,7 +68,7 @@ class OriginalPSS(Optimizer):
 
     def create_population(self, pop_size=None):
         if self.sampling_method == "MC":
-            pop = np.random.rand(self.pop_size, self.problem.n_dims)
+            pop = self.generator.random(self.pop_size, self.problem.n_dims)
         else:       # Default: "LHS"
             sampler = qmc.LatinHypercube(d=self.problem.n_dims)
             pop = sampler.random(n=pop_size)
@@ -82,14 +78,13 @@ class OriginalPSS(Optimizer):
         lb_pop = np.repeat(np.reshape(self.problem.lb, (1, -1)), self.pop_size, axis=0)
         ub_pop = np.repeat(np.reshape(self.problem.ub, (1, -1)), self.pop_size, axis=0)
         steps_mat = np.repeat(np.reshape(self.steps, (1, -1)), self.pop_size, axis=0)
-
         random_pop = self.create_population(self.pop_size)
         pop = np.round((lb_pop + random_pop * (ub_pop - lb_pop)) / steps_mat) * steps_mat
         self.pop = []
         for pos in pop:
-            pos_new = self.amend_position(pos, self.problem.lb, self.problem.ub)
-            target = self.get_target_wrapper(pos_new)
-            self.pop.append([pos_new, target])
+            pos_new = self.correct_solution(pos)
+            agent = self.generate_agent(pos_new)
+            self.pop.append(agent)
 
     def evolve(self, epoch):
         """
@@ -101,39 +96,35 @@ class OriginalPSS(Optimizer):
         pop_new = []
         pop_rand = self.create_population(self.pop_size)
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy().astype(float)
+            pos_new = self.pop[idx].solution.copy()
             for k in range(self.problem.n_dims):
                 # Update the ranges
-                deviation = np.random.uniform(0, self.g_best[self.ID_POS][k])
+                deviation = self.generator.uniform(min(0, self.g_best.solution[k]), max(0, self.g_best.solution[k]))
                 if self.new_solution:
                     # The deviation is positive dynamic real number
-                    deviation = abs(0.5 * (1. - self.acceptance_rate) * (self.problem.ub[k] - self.problem.lb[k])) * (1 - ((epoch+1) / self.epoch))
-
-                reduced_lb = self.g_best[self.ID_POS][k] - deviation
+                    deviation = abs(0.5 * (1. - self.acceptance_rate) * (self.problem.ub[k] - self.problem.lb[k])) * (1 - (epoch / self.epoch))
+                reduced_lb = self.g_best.solution[k] - deviation
                 reduced_lb = np.amax([reduced_lb, self.problem.lb[k]])
-
                 reduced_ub = reduced_lb + deviation * 2.
                 reduced_ub = np.amin([reduced_ub, self.problem.ub[k]])
-
                 # Choose new solution
-                if np.random.rand() <= self.acceptance_rate:
+                if self.generator.random() <= self.acceptance_rate:
                     # choose a solution from the prominent domain
                     pos_new[k] = reduced_lb + pop_rand[idx, k] * (reduced_ub - reduced_lb)
                 else:
                     # choose a solution from the overall domain
                     pos_new[k] = self.problem.lb[k] + pop_rand[idx, k] * (self.problem.ub[k] - self.problem.lb[k])
-
                 # Round for the step size
                 pos_new = np.round(pos_new / self.steps) * self.steps
             # Check the bound
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = pop_new
-        _, current_best = self.get_global_best_solution(pop_new)
-        if self.compare_agent(current_best, self.g_best):
+                pop_new[-1].target = self.get_target(pos_new)
+        self.pop = self.update_target_for_population(pop_new)
+        current_best = self.get_best_agent(pop_new)
+        if self.compare_target(current_best.target, self.g_best.target, self.problem.minmax):
             self.new_solution = True
         else:
             self.new_solution = False
