@@ -23,25 +23,21 @@ class OriginalCEM(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.CEM import OriginalCEM
+    >>> from mealpy import FloatVar, CEM
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> n_best = 20
-    >>> alpha = 0.7
-    >>> model = OriginalCEM(epoch, pop_size, n_best, alpha)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = CEM.OriginalCEM(epoch=1000, pop_size=50, n_best = 20, alpha = 0.7)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -49,7 +45,7 @@ class OriginalCEM(Optimizer):
     cross-entropy method. Annals of operations research, 134(1), pp.19-67.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, n_best=20, alpha=0.7, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, n_best: int = 20, alpha: float = 0.7, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -66,7 +62,7 @@ class OriginalCEM(Optimizer):
         self.sort_flag = True
 
     def initialize_variables(self):
-        self.means = np.random.uniform(self.problem.lb, self.problem.ub)
+        self.means = self.generator.uniform(self.problem.lb, self.problem.ub)
         self.stdevs = np.abs(self.problem.ub - self.problem.lb)
 
     def evolve(self, epoch):
@@ -78,23 +74,22 @@ class OriginalCEM(Optimizer):
         """
         ## Selected the best samples and update means and stdevs
         pop_best = self.pop[:self.n_best]
-        pos_list = np.array([item[self.ID_POS] for item in pop_best])
-
+        pos_list = np.array([agent.solution for agent in pop_best])
         means_new = np.mean(pos_list, axis=0)
         means_new_repeat = np.repeat(means_new.reshape((1, -1)), self.n_best, axis=0)
         stdevs_new = np.mean((pos_list - means_new_repeat) ** 2, axis=0)
         self.means = self.alpha * self.means + (1.0 - self.alpha) * means_new
         self.stdevs = np.abs(self.alpha * self.stdevs + (1.0 - self.alpha) * stdevs_new)
-
         ## Create new population for next generation
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = np.random.normal(self.means, self.stdevs)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.generator.normal(self.means, self.stdevs)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] =self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
