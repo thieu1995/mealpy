@@ -30,34 +30,22 @@ class OriginalWHO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.WHO import OriginalWHO
+    >>> from mealpy import FloatVar, WHO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> n_explore_step = 3
-    >>> n_exploit_step = 3
-    >>> eta = 0.15
-    >>> p_hi = 0.9
-    >>> local_alpha=0.9
-    >>> local_beta=0.3
-    >>> global_alpha=0.2
-    >>> global_beta=0.8
-    >>> delta_w=2.0
-    >>> delta_c=2.0
-    >>> model = OriginalWHO(epoch, pop_size, n_explore_step, n_exploit_step, eta, p_hi, local_alpha, local_beta,
-    >>>                     global_alpha, global_beta, delta_w, delta_c)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = WHO.OriginalWHO(epoch=1000, pop_size=50, n_explore_step = 3, n_exploit_step = 3, eta = 0.15, p_hi = 0.9,
+    >>>                         local_alpha=0.9, local_beta=0.3, global_alpha=0.2, global_beta=0.8, delta_w=2.0, delta_c=2.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -84,7 +72,7 @@ class OriginalWHO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.n_explore_step = self.validator.check_int("n_explore_step", n_explore_step, [2, 10])
         self.n_exploit_step = self.validator.check_int("n_exploit_step", n_exploit_step, [2, 10])
         self.eta = self.validator.check_float("eta", eta, (0, 1.0))
@@ -112,69 +100,69 @@ class OriginalWHO(Optimizer):
             ### 1. Local movement (Milling behaviour)
             local_list = []
             for j in range(0, self.n_explore_step):
-                temp = self.pop[idx][self.ID_POS] + self.eta * np.random.uniform() * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-                local_list.append([pos_new, None])
+                temp = self.pop[idx].solution + self.eta * self.generator.uniform() * self.generator.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.correct_solution(temp)
+                agent = self.generate_empty_agent(pos_new)
+                local_list.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    local_list[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            local_list = self.update_target_wrapper_population(local_list)
-            _, best_local = self.get_global_best_solution(local_list)
-            temp = self.local_alpha * best_local[self.ID_POS] + self.local_beta * (self.pop[idx][self.ID_POS] - best_local[self.ID_POS])
-            pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                    local_list[-1].target = self.get_target(pos_new)
+            local_list = self.update_target_for_population(local_list)
+            best_local = self.get_best_agent(local_list, self.problem.minmax)
+            temp = self.local_alpha * best_local.solution + self.local_beta * (self.pop[idx].solution - best_local.solution)
+            pos_new = self.correct_solution(temp)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
         for idx in range(0, self.pop_size):
             ### 2. Herd instinct
-            idr = np.random.choice(range(0, self.pop_size))
-            if self.compare_agent(self.pop[idr], self.pop[idx]) and np.random.rand() < self.p_hi:
-                temp = self.global_alpha * self.pop[idx][self.ID_POS] + self.global_beta * self.pop[idr][self.ID_POS]
-                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-                target = self.get_target_wrapper(pos_new)
-                if self.compare_agent([pos_new, target], self.pop[idx]):
-                    self.pop[idx] = [pos_new, target]
+            idr = self.generator.choice(range(0, self.pop_size))
+            if self.compare_target(self.pop[idr].target, self.pop[idx].target, self.problem.minmax) and self.generator.random() < self.p_hi:
+                temp = self.global_alpha * self.pop[idx].solution + self.global_beta * self.pop[idr].solution
+                pos_new = self.correct_solution(temp)
+                tar_new = self.get_target(pos_new)
+                if self.compare_target(tar_new, self.pop[idx].target, self.problem.minmax):
+                    self.pop[idx].update(solution=pos_new, target=tar_new)
 
-        _, best, worst = self.get_special_solutions(self.pop, best=1, worst=1)
+        _, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
         g_best, g_worst = best[0], worst[0]
-
         pop_child = []
         for idx in range(0, self.pop_size):
-            dist_to_worst = np.linalg.norm(self.pop[idx][self.ID_POS] - g_worst[self.ID_POS])
-            dist_to_best = np.linalg.norm(self.pop[idx][self.ID_POS] - g_best[self.ID_POS])
-
+            dist_to_worst = np.linalg.norm(self.pop[idx].solution - g_worst.solution)
+            dist_to_best = np.linalg.norm(self.pop[idx].solution - g_best.solution)
             ### 3. Starvation avoidance
             if dist_to_worst < self.delta_w:
-                temp = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.problem.ub - self.problem.lb) * \
-                       np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-                pop_child.append([pos_new, None])
+                temp = self.pop[idx].solution + self.generator.uniform() * (self.problem.ub - self.problem.lb) * \
+                       self.generator.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.correct_solution(temp)
+                agent = self.generate_empty_agent(pos_new)
+                pop_child.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    target = self.get_target_wrapper(pos_new)
-                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
-
+                    agent.target = self.get_target(pos_new)
+                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
             ### 4. Population pressure
             if 1.0 < dist_to_best and dist_to_best < self.delta_c:
-                temp = g_best[self.ID_POS] + self.eta * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-                pop_child.append([pos_new, None])
+                temp = g_best.solution + self.eta * self.generator.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.correct_solution(temp)
+                agent = self.generate_empty_agent(pos_new)
+                pop_child.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    target = self.get_target_wrapper(pos_new)
-                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
-
+                    agent.target = self.get_target(pos_new)
+                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
             ### 5. Herd social memory
-            for j in range(0, self.n_exploit_step):
-                temp = g_best[self.ID_POS] + 0.1 * np.random.uniform(self.problem.lb, self.problem.ub)
-                pos_new = self.amend_position(temp, self.problem.lb, self.problem.ub)
-                pop_child.append([pos_new, None])
+            for jdx in range(0, self.n_exploit_step):
+                temp = g_best.solution + 0.1 * self.generator.uniform(self.problem.lb, self.problem.ub)
+                pos_new = self.correct_solution(temp)
+                agent = self.generate_empty_agent(temp)
+                pop_child.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    target = self.get_target_wrapper(pos_new)
-                    self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                    agent.target = self.get_target(pos_new)
+                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_child = self.update_target_wrapper_population(pop_child)
-            pop_child = self.get_sorted_strim_population(pop_child, self.pop_size)
-            self.pop = self.greedy_selection_population(pop_child, self.pop)
+            pop_child = self.update_target_for_population(pop_child)
+            pop_child = self.get_sorted_and_trimmed_population(pop_child, self.pop_size, self.problem.minmax)
+            self.pop = self.greedy_selection_population(self.pop, pop_child, self.problem.minmax)
