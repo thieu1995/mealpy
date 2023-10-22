@@ -16,10 +16,9 @@ class OriginalEOA(Optimizer):
         1. http://doi.org/10.1504/IJBIC.2015.10004283
         2. https://www.mathworks.com/matlabcentral/fileexchange/53479-earthworm-optimization-algorithm-ewa
 
-    Notes
-    ~~~~~
-    The original version from matlab code above will not work well, even with small dimensions.
-    I change updating process, change cauchy process using x_mean, use global best solution
+    Notes:
+        The original version from matlab code above will not work well, even with small dimensions.
+        I change updating process, change cauchy process using x_mean, use global best solution
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + p_c (float): (0, 1) -> better [0.5, 0.95], crossover probability
@@ -69,7 +68,7 @@ class OriginalEOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.p_c = self.validator.check_float("p_c", p_c, (0, 1.0))
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.n_best = self.validator.check_int("n_best", n_best, [2, int(self.pop_size / 2)])
