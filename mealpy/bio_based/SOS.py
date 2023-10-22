@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-import numpy as np
 from mealpy.optimizer import Optimizer
 
 
@@ -18,23 +17,21 @@ class OriginalSOS(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.SOS import OriginalSOS
+    >>> from mealpy import FloatVar, SOS
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalSOS(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SOS.OriginalSOS(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -45,9 +42,9 @@ class OriginalSOS(Optimizer):
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -59,34 +56,32 @@ class OriginalSOS(Optimizer):
         """
         for idx in range(0, self.pop_size):
             ## Mutualism Phase
-            jdx = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-            mutual_vector = (self.pop[idx][self.ID_POS] + self.pop[jdx][self.ID_POS]) / 2
-            bf1, bf2 = np.random.randint(1, 3, 2)
-            xi_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - bf1 * mutual_vector)
-            xj_new = self.pop[jdx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - bf2 * mutual_vector)
-            xi_new = self.amend_position(xi_new, self.problem.lb, self.problem.ub)
-            xj_new = self.amend_position(xj_new, self.problem.lb, self.problem.ub)
-            xi_tar = self.get_target_wrapper(xi_new)
-            xj_tar = self.get_target_wrapper(xj_new)
-            if self.compare_agent([xi_new, xi_tar], self.pop[idx]):
-                self.pop[idx] = [xi_new, xi_tar]
-            if self.compare_agent([xj_new, xj_tar], self.pop[jdx]):
-                self.pop[jdx] = [xj_new, xj_tar]
-
+            jdx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+            mutual_vector = (self.pop[idx].solution + self.pop[jdx].solution) / 2
+            bf1, bf2 = self.generator.integers(1, 3, 2)
+            xi_new = self.pop[idx].solution + self.generator.random() * (self.g_best.solution - bf1 * mutual_vector)
+            xj_new = self.pop[jdx].solution + self.generator.random() * (self.g_best.solution - bf2 * mutual_vector)
+            xi_new = self.correct_solution(xi_new)
+            xj_new = self.correct_solution(xj_new)
+            xi_target = self.get_target(xi_new)
+            xj_target = self.get_target(xj_new)
+            if self.compare_target(xi_target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx].update(solution=xi_new, target=xi_target)
+            if self.compare_target(xj_target, self.pop[jdx].target, self.problem.minmax):
+                self.pop[jdx].update(solution=xj_new, target=xj_target)
             ## Commensalism phase
-            jdx = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-            xi_new = self.pop[idx][self.ID_POS] + np.random.uniform(-1, 1) * (self.g_best[self.ID_POS] - self.pop[jdx][self.ID_POS])
-            xi_new = self.amend_position(xi_new, self.problem.lb, self.problem.ub)
-            xi_tar = self.get_target_wrapper(xi_new)
-            if self.compare_agent([xi_new, xi_tar], self.pop[idx]):
-                self.pop[idx] = [xi_new, xi_tar]
-
+            jdx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+            xi_new = self.pop[idx].solution + self.generator.uniform(-1, 1) * (self.g_best.solution - self.pop[jdx].solution)
+            xi_new = self.correct_solution(xi_new)
+            xi_target = self.get_target(xi_new)
+            if self.compare_target(xi_target, self.pop[idx].target):
+                self.pop[idx].update(solution=xi_new, target=xi_target)
             ## Parasitism phase
-            jdx = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-            temp_idx = np.random.randint(0, self.problem.n_dims)
-            xi_new = self.pop[jdx][self.ID_POS].copy()
-            xi_new[temp_idx] = self.generate_position(self.problem.lb, self.problem.ub)[temp_idx]
-            xi_new = self.amend_position(xi_new, self.problem.lb, self.problem.ub)
-            xi_tar = self.get_target_wrapper(xi_new)
-            if self.compare_agent([xi_new, xi_tar], self.pop[idx]):
-                self.pop[idx] = [xi_new, xi_tar]
+            jdx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+            temp_idx = self.generator.integers(0, self.problem.n_dims)
+            xi_new = self.pop[jdx].solution.copy()
+            xi_new[temp_idx] = self.problem.generate_solution()[temp_idx]
+            xi_new = self.correct_solution(xi_new)
+            xi_target = self.get_target(xi_new)
+            if self.compare_target(xi_target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx].update(solution=xi_new, target=xi_target)
