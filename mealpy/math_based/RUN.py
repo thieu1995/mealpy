@@ -52,7 +52,7 @@ class OriginalRUN(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def runge_kutta__(self, xb, xw, delta_x):
@@ -96,7 +96,6 @@ class OriginalRUN(Optimizer):
                                        (self.problem.ub - self.problem.lb)) * np.exp(-4 * epoch / self.epoch)
             stp = self.generator.uniform(0, 1, self.problem.n_dims) * ((self.g_best.solution - self.generator.random() * x_average) + gama)
             delta_x = 2 * self.generator.uniform(0, 1, self.problem.n_dims) * np.abs(stp)
-
             ## Determine Three Random Indices of Solutions
             a, b, c = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
             id_min_x = self.get_index_of_best_agent__([self.pop[a], self.pop[b], self.pop[c]])
@@ -114,7 +113,6 @@ class OriginalRUN(Optimizer):
             r = self.generator.choice([1, -1], self.problem.n_dims)          # An integer number
             g = 2 * self.generator.random()
             mu = 0.5 + 1 * self.generator.uniform(0, 1, self.problem.n_dims)
-
             ## Determine New Solution Based on Runge Kutta Method (Eq.18)
             if self.generator.random() < 0.5:
                 pos_new = xc + r * SF[idx] * g * xc + SF[idx] * SM + mu * (xm - xc)
@@ -124,7 +122,6 @@ class OriginalRUN(Optimizer):
             tar_new = self.get_target(pos_new)
             if self.compare_target(tar_new, self.pop[idx].target):
                 self.pop[idx].update(solution=pos_new, target=tar_new)
-
             ## Enhanced solution quality (ESQ)  (Eq. 19)
             if self.generator.random() < 0.5:
                 w = self.uniform_random__(0, 2, self.problem.n_dims) * np.exp(-5*self.generator.random() * epoch / self.epoch)        # Eq.19-1
