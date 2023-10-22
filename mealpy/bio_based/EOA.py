@@ -118,7 +118,7 @@ class OriginalEOA(Optimizer):
             pop = self.update_target_for_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
         self.dyn_beta = self.gama * self.beta
-        self.pop = self.get_sorted_and_trimmed_population(self.pop, self.pop_size)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop, self.pop_size, self.problem.minmax)
 
         pos_list = np.array([agent.solution for agent in self.pop])
         x_mean = np.mean(pos_list, axis=0)
