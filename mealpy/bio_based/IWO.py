@@ -107,4 +107,4 @@ class OriginalIWO(Optimizer):
             if self.mode in self.AVAILABLE_MODES:
                 pop_local = self.update_target_for_population(pop_local)
             pop_new += pop_local
-        self.pop = self.get_sorted_and_trimmed_population(pop_new, self.pop_size)
+        self.pop = self.get_sorted_and_trimmed_population(pop_new, self.pop_size, self.problem.minmax)
