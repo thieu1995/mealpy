@@ -12,11 +12,10 @@ class OriginalHC(Optimizer):
     """
     The original version of: Hill Climbing (HC)
 
-    Notes
-    ~~~~~
-    + The number of neighbour solutions are equal to user defined
-    + The step size to calculate neighbour group is randomized (range from -1 to 1)
-    + HC is single-based solution, so the pop_size parameter is not matter in this algorithm
+    Notes:
+        + The number of neighbour solutions are equal to user defined
+        + The step size to calculate neighbour group is randomized
+        + HC is single-based solution, so the pop_size parameter is not matter in this algorithm
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + neighbour_size (int): [2, 1000], fixed parameter, sensitive exploitation parameter, Default: 50
@@ -24,24 +23,21 @@ class OriginalHC(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.HC import OriginalHC
+    >>> from mealpy import FloatVar, HC
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 2
-    >>> neighbour_size = 50
-    >>> model = OriginalHC(epoch, pop_size, neighbour_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = HC.OriginalHC(epoch=1000, pop_size=50, neighbour_size = 50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -49,7 +45,7 @@ class OriginalHC(Optimizer):
     outperform hill climbing. Advances in neural information processing systems, 6.
     """
 
-    def __init__(self, epoch=10000, pop_size=2, neighbour_size=50, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 2, neighbour_size: int = 50, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -70,16 +66,16 @@ class OriginalHC(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        step_size = 1 - 2 * (1 - (epoch + 1) / self.epoch)
+        step_size = np.exp(-2 * epoch / self.epoch)
         pop_neighbours = []
         for idx in range(0, self.neighbour_size):
-            pos_new = self.g_best[self.ID_POS] + np.random.uniform(self.problem.lb, self.problem.ub) * step_size
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_neighbours.append([pos_new, None])
+            pos_new = self.g_best.solution + self.generator.uniform(self.problem.lb, self.problem.ub) * step_size
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_neighbours.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_neighbours[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_neighbours = self.update_target_wrapper_population(pop_neighbours)
-        self.pop = pop_neighbours
+                pop_neighbours[-1].target = self.get_target(pos_new)
+        self.pop = self.update_target_for_population(pop_neighbours)
 
 
 class SwarmHC(Optimizer):
@@ -101,24 +97,21 @@ class SwarmHC(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.HC import SwarmHC
+    >>> from mealpy import FloatVar, HC
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> neighbour_size = 10
-    >>> model = SwarmHC(epoch, pop_size, neighbour_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = HC.SwarmHC(epoch=1000, pop_size=50, neighbour_size = 10)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch=10000, pop_size=100, neighbour_size=10, **kwargs):
@@ -130,7 +123,7 @@ class SwarmHC(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.neighbour_size = self.validator.check_int("neighbour_size", neighbour_size, [2, int(self.pop_size/2)])
         self.set_parameters(["epoch", "pop_size", "neighbour_size"])
         self.sort_flag = False
@@ -147,16 +140,17 @@ class SwarmHC(Optimizer):
         pop = []
         for idx in range(0, self.pop_size):
             pop_neighbours = []
-            for j in range(0, self.neighbour_size):
-                pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * ss[idx]
-                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                pop_neighbours.append([pos_new, None])
+            for jdx in range(0, self.neighbour_size):
+                pos_new = self.pop[idx].solution + self.generator.normal(0, 1, self.problem.n_dims) * ss[idx]
+                pos_new = self.correct_solution(pos_new)
+                agent = self.generate_empty_agent(pos_new)
+                pop_neighbours.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_neighbours[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            pop_neighbours = self.update_target_wrapper_population(pop_neighbours)
-            _, agent = self.get_global_best_solution(pop_neighbours)
-            pop.append(agent)
+                    pop_neighbours[-1].target = self.get_target(pos_new)
+            pop_neighbours = self.update_target_for_population(pop_neighbours)
+            best_local = self.get_best_agent(pop_neighbours, self.problem.minmax)
+            pop.append(best_local)
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop[idx] = self.get_better_solution(agent, self.pop[idx])
+                self.pop[idx] = self.get_better_agent(best_local, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.greedy_selection_population(self.pop, pop)
+            self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
