@@ -97,7 +97,7 @@ class OriginalBBO(Optimizer):
                 self.pop[idx] = self.get_better_agent(self.pop[idx], agent_new, minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop = self.update_target_for_population(pop)
-            self.pop = self.greedy_selection_population(self.pop, pop)
+            self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_elites, self.pop_size, self.problem.minmax)
 
@@ -170,6 +170,6 @@ class DevBBO(OriginalBBO):
                 self.pop[idx] = self.get_better_agent(self.pop[idx], agent_new, minmax=self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
         # replace the solutions with their new migrated and mutated versions then Merge Populations
         self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_elites, self.pop_size, self.problem.minmax)
