@@ -8,17 +8,16 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class BaseSBO(Optimizer):
+class DevSBO(Optimizer):
     """
     The developed version: Satin Bowerbird Optimizer (SBO)
 
     Links:
         1. https://doi.org/10.1016/j.engappai.2017.01.006
 
-    Notes
-    ~~~~~
-    The original version is not good enough and can't handle negative fitness value.
-    I remove all third loop for faster training, remove equation (1, 2) in the paper, calculate probability by roulette-wheel.
+    Notes:
+        The original version can't handle negative fitness value.
+        I remove all third loop for faster training, remove equation (1, 2) in the paper, calculate probability by roulette-wheel.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + alpha (float): [0.5, 3.0] -> better [0.5, 2.0], the greatest step size
@@ -28,29 +27,24 @@ class BaseSBO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.SBO import BaseSBO
+    >>> from mealpy import FloatVar, SBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> alpha = 0.9
-    >>> p_m =0.05
-    >>> psw = 0.02
-    >>> model = BaseSBO(epoch, pop_size, alpha, p_m, psw)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SBO.DevSBO(epoch=1000, pop_size=50, alpha = 0.9, p_m =0.05, psw = 0.02)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    def __init__(self, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.94, p_m: float = 0.05, psw: float = 0.02, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -61,11 +55,11 @@ class BaseSBO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.alpha = self.validator.check_float("alpha", alpha, [0.5, 3.0])
         self.p_m = self.validator.check_float("p_m", p_m, (0, 1.0))
         self.psw = self.validator.check_float("psw", psw, (0, 1.0))
-        self.set_parameters(["epoch", "pop_size", "p_m", "psw"])
+        self.set_parameters(["epoch", "pop_size", "alpha", "p_m", "psw"])
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -79,29 +73,30 @@ class BaseSBO(Optimizer):
         self.sigma = self.psw * (self.problem.ub - self.problem.lb)
 
         ## Calculate the probability of bowers using my equation
-        fit_list = np.array([item[self.ID_TAR][self.ID_FIT] for item in self.pop])
+        fit_list = np.array([agent.target.fitness for agent in self.pop])
         pop_new = []
-        for i in range(0, self.pop_size):
+        for idx in range(0, self.pop_size):
             ### Select a bower using roulette wheel
-            idx = self.get_index_roulette_wheel_selection(fit_list)
+            rdx = self.get_index_roulette_wheel_selection(fit_list)
             ### Calculating Step Size
-            lamda = self.alpha * np.random.uniform()
-            pos_new = self.pop[i][self.ID_POS] + lamda * ((self.pop[idx][self.ID_POS] + self.g_best[self.ID_POS]) / 2 - self.pop[i][self.ID_POS])
+            lamda = self.alpha * self.generator.uniform()
+            pos_new = self.pop[idx].solution + lamda * ((self.pop[rdx].solution + self.g_best.solution) / 2 - self.pop[idx].solution)
             ### Mutation
-            temp = self.pop[i][self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * self.sigma
-            pos_new = np.where(np.random.random(self.problem.n_dims) < self.p_m, temp, pos_new)
+            temp = self.pop[idx].solution + self.generator.normal(0, 1, self.problem.n_dims) * self.sigma
+            pos_new = np.where(self.generator.random(self.problem.n_dims) < self.p_m, temp, pos_new)
             ### In-bound position
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[i] = self.get_better_solution([pos_new, target], self.pop[i])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
-class OriginalSBO(BaseSBO):
+class OriginalSBO(DevSBO):
     """
     The original version of: Satin Bowerbird Optimizer (SBO)
 
@@ -117,26 +112,21 @@ class OriginalSBO(BaseSBO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.SBO import OriginalSBO
+    >>> from mealpy import FloatVar, SBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> alpha = 0.9
-    >>> p_m=0.05
-    >>> psw = 0.02
-    >>> model = OriginalSBO(epoch, pop_size, alpha, p_m, psw)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SBO.DevSBO(epoch=1000, pop_size=50, alpha = 0.9, p_m=0.05, psw = 0.02)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -144,7 +134,7 @@ class OriginalSBO(BaseSBO):
     to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, pp.1-15.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, alpha=0.94, p_m=0.05, psw=0.02, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.94, p_m: float = 0.05, psw: float = 0.02, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -155,7 +145,7 @@ class OriginalSBO(BaseSBO):
         """
         super().__init__(epoch, pop_size, alpha, p_m, psw, **kwargs)
 
-    def roulette_wheel_selection__(self, fitness_list=None) -> int:
+    def roulette_wheel_selection__(self, fitness_list: list = None) -> int:
         """
         Roulette Wheel Selection in the original version, this version can't handle the negative fitness values
 
@@ -165,7 +155,7 @@ class OriginalSBO(BaseSBO):
         Returns:
             f (int): The index of selected solution
         """
-        r = np.random.uniform()
+        r = self.generator.uniform()
         c = np.cumsum(fitness_list)
         f = np.where(r < c)[0][0]
         return f
@@ -179,9 +169,8 @@ class OriginalSBO(BaseSBO):
         """
         # (percent of the difference between the upper and lower limit (Eq. 7))
         self.sigma = self.psw * (self.problem.ub - self.problem.lb)
-
         ## Calculate the probability of bowers using Eqs. (1) and (2)
-        fx_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
+        fx_list = np.array([agent.target.fitness for agent in self.pop])
         fit_list = fx_list.copy()
         for idx in range(0, self.pop_size):
             if fx_list[idx] < 0:
@@ -193,20 +182,21 @@ class OriginalSBO(BaseSBO):
         prob_list = fit_list / fit_sum
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
-            for j in range(0, self.problem.n_dims):
+            pos_new = self.pop[idx].solution.copy()
+            for jdx in range(0, self.problem.n_dims):
                 ### Select a bower using roulette wheel
                 rdx = self.roulette_wheel_selection__(prob_list)
                 ### Calculating Step Size
                 lamda = self.alpha / (1 + prob_list[rdx])
-                pos_new[j] = self.pop[idx][self.ID_POS][j] + lamda * \
-                             ((self.pop[rdx][self.ID_POS][j] + self.g_best[self.ID_POS][j]) / 2 - self.pop[idx][self.ID_POS][j])
+                pos_new[jdx] = self.pop[idx].solution[jdx] + lamda * \
+                             ((self.pop[rdx].solution[jdx] + self.g_best.solution[jdx]) / 2 - self.pop[idx].solution[jdx])
                 ### Mutation
-                if np.random.uniform() < self.p_m:
-                    pos_new[j] = self.pop[idx][self.ID_POS][j] + np.random.normal(0, 1) * self.sigma[j]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                if self.generator.uniform() < self.p_m:
+                    pos_new[jdx] = self.pop[idx].solution[jdx] + self.generator.normal(0, 1) * self.sigma[jdx]
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop[idx] = [pos_new, self.get_target_wrapper(pos_new)]
+                self.pop[idx].target = self.get_target(pos_new)
         if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.update_target_wrapper_population(pop_new)
+            self.pop = self.update_target_for_population(pop_new)
