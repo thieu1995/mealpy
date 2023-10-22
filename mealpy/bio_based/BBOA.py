@@ -18,23 +18,21 @@ class OriginalBBOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.BBOA import OriginalBBOA
+    >>> from mealpy import FloatVar, BBOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalBBOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BBOA.OriginalBBOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -43,7 +41,7 @@ class OriginalBBOA(Optimizer):
     Energy System Operation and Management (pp. 137-164). River Publishers.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -51,7 +49,7 @@ class OriginalBBOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
@@ -62,41 +60,43 @@ class OriginalBBOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pp = (epoch+1) / self.epoch
+        pp = epoch / self.epoch
 
         ## Pedal marking behaviour
         pop_new = []
         for idx in range(0, self.pop_size):
-            if pp <= (epoch+1)/3:           # Gait while walking
-                pos_new = self.pop[idx][self.ID_POS] + (-pp * np.random.rand(self.problem.n_dims) * self.pop[idx][self.ID_POS])
-            elif (epoch+1)/3 < pp <= 2*(epoch+1)/3:     # Careful Stepping
-                qq = pp * np.random.rand(self.problem.n_dims)
-                pos_new = self.pop[idx][self.ID_POS] + (qq * (self.g_best[self.ID_POS] - np.random.randint(1, 3) * self.g_worst[self.ID_POS]))
+            if pp <= epoch/3:           # Gait while walking
+                pos_new = self.pop[idx].solution + (-pp * self.generator.random(self.problem.n_dims) * self.pop[idx].solution)
+            elif epoch/3 < pp <= 2*epoch/3:     # Careful Stepping
+                qq = pp * self.generator.random(self.problem.n_dims)
+                pos_new = self.pop[idx].solution + (qq * (self.g_best.solution - self.generator.integers(1, 3) * self.g_worst.solution))
             else:
-                ww = 2 * pp * np.pi * np.random.rand(self.problem.n_dims)
-                pos_new = self.pop[idx][self.ID_POS] + (ww*self.g_best[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS])) - (ww*self.g_worst[self.ID_POS] - np.abs(self.pop[idx][self.ID_POS]))
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                ww = 2 * pp * np.pi * self.generator.random(self.problem.n_dims)
+                pos_new = self.pop[idx].solution + (ww*self.g_best.solution - np.abs(self.pop[idx].solution)) - (ww*self.g_worst.solution - np.abs(self.pop[idx].solution))
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
 
         ## Sniffing of pedal marks
         pop_new = []
         for idx in range(0, self.pop_size):
-            kk = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-            if self.compare_agent(self.pop[idx], self.pop[kk]):
-                pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.pop[idx][self.ID_POS] - self.pop[kk][self.ID_POS])
+            kk = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+            if self.compare_target(self.pop[idx].target, self.pop[kk].target):
+                pos_new = self.pop[idx].solution + self.generator.random() * (self.pop[idx].solution - self.pop[kk].solution)
             else:
-                pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.pop[kk][self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                pos_new = self.pop[idx].solution + self.generator.random() * (self.pop[kk].solution - self.pop[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx])
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
+            pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new)
