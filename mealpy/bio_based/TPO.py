@@ -8,7 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class OriginalTPO(Optimizer):
+class DevTPO(Optimizer):
     """
     The original version: Tree Physiology Optimization (TPO)
 
@@ -30,26 +30,21 @@ class OriginalTPO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.TPO import OriginalTPO
+    >>> from mealpy import FloatVar, TPO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> alpha = 0.3
-    >>> beta = 50.
-    >>> theta = 0.9
-    >>> model = OriginalTPO(epoch, pop_size, alpha, beta, theta)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = TPO.DevTPO(epoch=1000, pop_size=50, alpha = 0.3, beta = 50., theta = 0.9)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -57,7 +52,7 @@ class OriginalTPO(Optimizer):
     traveling salesman problem. Journal of Intelligent Systems, 28(5), 849-871.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, alpha=0.3, beta=50.0, theta=0.9, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.3, beta: float = 50.0, theta: float = 0.9, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -68,12 +63,11 @@ class OriginalTPO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])     # Number of branches
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])     # Number of branches
         self.alpha = self.validator.check_float("alpha", alpha, [-10.0, 10.])
         self.beta = self.validator.check_float("beta", beta, [-100., 100])
         self.theta = self.validator.check_float("theta", theta, (0, 1.0))
-        self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.set_parameters(["epoch", "pop_size", "alpha", "beta", "theta"])
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -82,14 +76,14 @@ class OriginalTPO(Optimizer):
         """
         self.n_leafs = int(np.sqrt(self.pop_size) + 1)  # Number of leafs
         self._theta = self.theta
-        self.roots = np.random.uniform(0, 1, (self.n_leafs, self.problem.n_dims))
+        self.roots = self.generator.uniform(0, 1, (self.n_leafs, self.problem.n_dims))
 
     def initialization(self):
         self.pop_total = []
         self.pop = []                       # The best leaf in each branches
         for idx in range(self.pop_size):
-            leafs = self.create_population(self.n_leafs)
-            _, best = self.get_global_best_solution(leafs)
+            leafs = self.generate_population(self.n_leafs)
+            best = self.get_best_agent(leafs, self.problem.minmax)
             self.pop.append(best)
             self.pop_total.append(leafs)
 
@@ -101,23 +95,24 @@ class OriginalTPO(Optimizer):
             epoch (int): The current iteration
         """
         for idx in range(0, self.pop_size):
-            pos_list = np.array([agent[self.ID_POS] for agent in self.pop_total[idx]])
-            carbon_gain = self._theta * self.g_best[self.ID_POS] - pos_list
+            pos_list = np.array([agent.solution for agent in self.pop_total[idx]])
+            carbon_gain = self._theta * self.g_best.solution - pos_list
             roots_old = np.copy(self.roots)
-            self.roots += self.alpha * carbon_gain * np.random.uniform(-0.5, 0.5, (self.n_leafs, self.problem.n_dims))
+            self.roots += self.alpha * carbon_gain * self.generator.uniform(-0.5, 0.5, (self.n_leafs, self.problem.n_dims))
             nutrient_value = self._theta * (self.roots - roots_old)
-            pos_list_new = self.g_best[self.ID_POS] + self.beta * nutrient_value
+            pos_list_new = self.g_best.solution + self.beta * nutrient_value
             pop_new = []
             for jdx in range(0, self.n_leafs):
-                pos_new = self.amend_position(pos_list_new[jdx], self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = self.correct_solution(pos_list_new[jdx])
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    target = self.get_target_wrapper(pos_new)
-                    self.pop_total[idx][jdx] = self.get_better_solution([pos_new, target], self.pop_total[idx][jdx])
+                    agent.target = self.get_target(pos_new)
+                    self.pop_total[idx][jdx] = self.get_better_agent(agent, self.pop_total[idx][jdx], self.problem.minmax)
             if self.mode in self.AVAILABLE_MODES:
-                pop_new = self.update_target_wrapper_population(pop_new)
-                self.pop_total[idx] = self.greedy_selection_population(pop_new, self.pop_total[idx])
+                pop_new = self.update_target_for_population(pop_new)
+                self.pop_total[idx] = self.greedy_selection_population(pop_new, self.pop_total[idx], self.problem.minmax)
         self._theta = self._theta * self.theta
         for idx in range(0, self.pop_size):
-            _, best = self.get_global_best_solution(self.pop_total[idx])
+            best = self.get_best_agent(self.pop_total[idx], self.problem.minmax)
             self.pop[idx] = best
