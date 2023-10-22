@@ -54,7 +54,7 @@ class OriginalCGO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.is_parallelizable = False
         self.sort_flag = False
@@ -68,7 +68,7 @@ class OriginalCGO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            s1, s2, s3 = np.random.choice(range(0, self.pop_size), 3, replace=False)
+            s1, s2, s3 = self.generator.choice(range(0, self.pop_size), 3, replace=False)
             MG = (self.pop[s1].solution + self.pop[s2].solution + self.pop[s3].solution) / 3
             ## Calculating alpha based on Eq. 7
             alpha1 = self.generator.random()
@@ -87,7 +87,7 @@ class OriginalCGO(Optimizer):
             seed2 = self.g_best.solution + alpha2 * (beta[1] * self.pop[idx].solution - gama[1] * MG)  # Eq. 4
             seed3 = MG + alpha3 * (beta[2] * self.pop[idx].solution - gama[2] * self.g_best.solution)  # Eq. 5
             seed4 = self.pop[idx].solution.copy().astype(float)
-            seed4[k_idx] += np.random.uniform(0, 1, k)
+            seed4[k_idx] += self.generator.uniform(0, 1, k)
             # Check if solutions go outside the search space and bring them back
             seed1 = self.correct_solution(seed1)
             seed2 = self.correct_solution(seed2)
