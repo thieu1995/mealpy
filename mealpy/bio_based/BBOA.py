@@ -87,7 +87,7 @@ class OriginalBBOA(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             kk = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
-            if self.compare_target(self.pop[idx].target, self.pop[kk].target):
+            if self.compare_target(self.pop[idx].target, self.pop[kk].target, self.problem.minmax):
                 pos_new = self.pop[idx].solution + self.generator.random() * (self.pop[idx].solution - self.pop[kk].solution)
             else:
                 pos_new = self.pop[idx].solution + self.generator.random() * (self.pop[kk].solution - self.pop[idx].solution)
