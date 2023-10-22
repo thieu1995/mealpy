@@ -15,10 +15,9 @@ class OriginalIWO(Optimizer):
     Links:
         1. https://pdfs.semanticscholar.org/734c/66e3757620d3d4016410057ee92f72a9853d.pdf
 
-    Notes
-    ~~~~~
-    Better to use normal distribution instead of uniform distribution, updating population by sorting
-    both parent population and child population
+    Notes:
+        Better to use normal distribution instead of uniform distribution,
+        updating population by sorting both parent population and child population
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + seed_min (int): [1, 3], Number of Seeds (min)
