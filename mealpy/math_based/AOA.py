@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
-import numpy as np
 from mealpy.optimizer import Optimizer
 
 
@@ -24,27 +23,21 @@ class OriginalAOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.math_based.AOA import OriginalAOA
+    >>> from mealpy import FloatVar, AOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> alpha = 5
-    >>> miu = 0.5
-    >>> moa_min = 0.2
-    >>> moa_max = 0.9
-    >>> model = OriginalAOA(epoch, pop_size, alpha, miu, moa_min, moa_max)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = AOA.OriginalAOA(epoch=1000, pop_size=50, alpha = 5, miu = 0.5, moa_min = 0.2, moa_max = 0.9)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -52,7 +45,8 @@ class OriginalAOA(Optimizer):
     optimization algorithm. Computer methods in applied mechanics and engineering, 376, p.113609.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, alpha=5, miu=0.5, moa_min=0.2, moa_max=0.9, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 5,
+                 miu: float = 0.5, moa_min: float = 0.2, moa_max: float = 0.9, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -79,30 +73,30 @@ class OriginalAOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        moa = self.moa_min + (epoch+1) * ((self.moa_max - self.moa_min) / self.epoch)  # Eq. 2
+        moa = self.moa_min + epoch * ((self.moa_max - self.moa_min) / self.epoch)  # Eq. 2
         mop = 1 - ((epoch+1) ** (1.0 / self.alpha)) / (self.epoch ** (1.0 / self.alpha))  # Eq. 4
-
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = self.pop[idx].solution.copy()
             for j in range(0, self.problem.n_dims):
-                r1, r2, r3 = np.random.rand(3)
+                r1, r2, r3 = self.generator.random(3)
                 if r1 > moa:  # Exploration phase
                     if r2 < 0.5:
-                        pos_new[j] = self.g_best[self.ID_POS][j] / (mop + self.EPSILON) * \
+                        pos_new[j] = self.g_best.solution[j] / (mop + self.EPSILON) * \
                                      ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
                     else:
-                        pos_new[j] = self.g_best[self.ID_POS][j] * mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+                        pos_new[j] = self.g_best.solution[j] * mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
                 else:  # Exploitation phase
                     if r3 < 0.5:
-                        pos_new[j] = self.g_best[self.ID_POS][j] - mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+                        pos_new[j] = self.g_best.solution[j] - mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
                     else:
-                        pos_new[j] = self.g_best[self.ID_POS][j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                        pos_new[j] = self.g_best.solution[j] + mop * ((self.problem.ub[j] - self.problem.lb[j]) * self.miu + self.problem.lb[j])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
