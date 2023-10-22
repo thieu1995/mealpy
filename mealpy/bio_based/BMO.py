@@ -21,24 +21,21 @@ class OriginalBMO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.bio_based.BMO import OriginalBMO
+    >>> from mealpy import FloatVar, BMO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pl = 4
-    >>> model = OriginalBMO(epoch, pop_size, pl)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BMO.OriginalBMO(epoch=1000, pop_size=50, pl = 4)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -49,7 +46,7 @@ class OriginalBMO(Optimizer):
     def __init__(self, epoch=10000, pop_size=100, pl=5, **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.pl = self.validator.check_int("pl", pl, [1, self.pop_size-1])
         self.set_parameters(["epoch", "pop_size", "pl"])
         self.sort_flag = True
@@ -61,18 +58,19 @@ class OriginalBMO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        k1 = np.random.permutation(self.pop_size)
-        k2 = np.random.permutation(self.pop_size)
+        k1 = self.generator.permutation(self.pop_size)
+        k2 = self.generator.permutation(self.pop_size)
         temp = np.abs(k1 - k2)
         pop_new = []
         for idx in range(0, self.pop_size):
             if temp[idx] <= self.pl:
-                p = np.random.uniform(0, 1)
-                pos_new = p * self.pop[k1[idx]][self.ID_POS] + (1 - p) * self.pop[k2[idx]][self.ID_POS]
+                p = self.generator.uniform(0, 1)
+                pos_new = p * self.pop[k1[idx]].solution + (1 - p) * self.pop[k2[idx]].solution
             else:
-                pos_new = np.random.uniform(0, 1) * self.pop[k2[idx]][self.ID_POS]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                pos_new = self.generator.uniform(0, 1) * self.pop[k2[idx]].solution
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        self.pop = self.update_target_wrapper_population(pop_new)
+                pop_new[-1].target = self.get_target(pos_new)
+        self.pop = self.update_target_for_population(pop_new)
