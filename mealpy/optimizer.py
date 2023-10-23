@@ -684,16 +684,17 @@ class Optimizer:
             step = multiplier * s
         return step[0] if size == 1 else step
 
-    def create_opposition_position(self, agent=None, g_best=None):
+    def generate_opposition_solution(self, agent=None, g_best=None):
         """
         Args:
-            agent: The current solution (agent)
-            g_best: the global best solution (agent)
+            agent: The current agent
+            g_best: the global best agent
 
         Returns:
-            The opposite position
+            The opposite solution
         """
-        return self.problem.lb + self.problem.ub - g_best[self.ID_POS] + np.random.uniform() * (g_best[self.ID_POS] - agent[self.ID_POS])
+        pos_new = self.problem.lb + self.problem.ub - g_best.solution + self.generator.uniform() * (g_best.solution - agent.solution)
+        return self.correct_solution(pos_new)
 
     def create_pop_group(self, pop, n_groups, m_agents):
         pop_group = []
