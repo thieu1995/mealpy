@@ -30,26 +30,21 @@ class OriginalWCA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.system_based.WCA import OriginalWCA
+    >>> from mealpy import FloatVar, WCA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> nsr = 4
-    >>> wc = 2.0
-    >>> dmax = 1e-6
-    >>> model = OriginalWCA(epoch, pop_size, nsr, wc, dmax)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = WCA.OriginalWCA(epoch=1000, pop_size=50, nsr = 4, wc = 2.0, dmax = 1e-6)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -57,7 +52,7 @@ class OriginalWCA(Optimizer):
     optimization method for solving constrained engineering optimization problems. Computers & Structures, 110, pp.151-166.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, nsr=4, wc=2.0, dmax=1e-6, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, nsr: int = 4, wc: float = 2.0, dmax: float = 1e-6, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -68,7 +63,7 @@ class OriginalWCA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.nsr = self.validator.check_int("nsr", nsr, [2, int(self.pop_size/2)])
         self.wc = self.validator.check_float("wc", wc, (1.0, 3.0))
         self.dmax = self.validator.check_float("dmax", dmax, (0, 1.0))
@@ -77,8 +72,9 @@ class OriginalWCA(Optimizer):
 
     def initialization(self):
         if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
+            self.pop = self.generate_population(self.pop_size)
+        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.g_best = self.pop[0]
         self.ecc = self.dmax  # Evaporation condition constant - variable
         n_stream = self.pop_size - self.nsr
         g_best = self.pop[0].copy()  # Global best solution (sea)
@@ -86,7 +82,7 @@ class OriginalWCA(Optimizer):
         self.pop_stream = self.pop[self.nsr:] # Forming Stream
 
         # Designate streams to rivers and sea
-        cost_river_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop_best])
+        cost_river_list = np.array([agent.target.fitness for agent in self.pop_best])
         num_child_in_river_list = np.round(np.abs(cost_river_list / np.sum(cost_river_list)) * n_stream).astype(int)
         if np.sum(num_child_in_river_list) < n_stream:
             num_child_in_river_list[-1] += n_stream - np.sum(num_child_in_river_list)
@@ -116,32 +112,31 @@ class OriginalWCA(Optimizer):
             # Update stream
             stream_new = []
             for idx_stream, stream in enumerate(stream_list):
-                pos_new = stream[self.ID_POS] + np.random.uniform() * self.wc * (self.pop_best[idx][self.ID_POS] - stream[self.ID_POS])
-                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                stream_new.append([pos_new, None])
+                pos_new = stream.solution + self.generator.uniform() * self.wc * (self.pop_best[idx].solution - stream.solution)
+                pos_new = self.correct_solution(pos_new)
+                agent = self.generate_empty_agent(pos_new)
+                stream_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    stream_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            stream_new = self.update_target_wrapper_population(stream_new)
-            stream_new, stream_best = self.get_global_best_solution(stream_new)
+                    stream_new[-1].target = self.get_target(pos_new)
+            stream_new = self.update_target_for_population(stream_new)
             self.streams[idx] = stream_new
-            if self.compare_agent(stream_best, self.pop_best[idx]):
+            stream_best = self.get_best_agent(stream_new, self.problem.minmax)
+            if self.compare_target(stream_best.target, self.pop_best[idx].target, self.problem.minmax):
                 self.pop_best[idx] = stream_best.copy()
-
             # Update river
-            pos_new = self.pop_best[idx][self.ID_POS] + np.random.uniform() * self.wc * (self.g_best[self.ID_POS] - self.pop_best[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            target = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, target], self.pop_best[idx]):
-                self.pop_best[idx] = [pos_new, target]
-
+            pos_new = self.pop_best[idx].solution + self.generator.uniform() * self.wc * (self.g_best.solution - self.pop_best[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop_best[idx].target, self.problem.minmax):
+                self.pop_best[idx] = agent
         # Evaporation
-        for i in range(1, self.nsr):
-            distance = np.sqrt(np.sum((self.g_best[self.ID_POS] - self.pop_best[i][self.ID_POS]) ** 2))
-            if distance < self.ecc or np.random.rand() < 0.1:
-                child = self.create_solution(self.problem.lb, self.problem.ub)
-                pop_current_best, _ = self.get_global_best_solution(self.streams[i] + [child])
-                self.pop_best[i] = pop_current_best.pop(0)
-                self.streams[i] = pop_current_best
+        for idx in range(1, self.nsr):
+            distance = np.sqrt(np.sum((self.g_best.solution - self.pop_best[idx].solution) ** 2))
+            if distance < self.ecc or self.generator.random() < 0.1:
+                child = self.generate_agent()
+                pop_current_best = self.get_sorted_population(self.streams[idx] + [child], self.problem.minmax)
+                self.pop_best[idx] = pop_current_best.pop(0)
+                self.streams[idx] = pop_current_best
         self.pop = self.pop_best.copy()
         for idx, stream_list in self.streams.items():
             self.pop += stream_list
