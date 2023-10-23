@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 
 
 class OriginalEP(Optimizer):
@@ -22,24 +23,21 @@ class OriginalEP(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.EP import OriginalEP
+    >>> from mealpy import FloatVar, EP
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> bout_size = 0.05
-    >>> model = OriginalEP(epoch, pop_size, bout_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = EP.OriginalEP(epoch=1000, pop_size=50, bout_size = 0.05)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -47,12 +45,7 @@ class OriginalEP(Optimizer):
     IEEE Transactions on Evolutionary computation, 3(2), pp.82-102.
     """
 
-    ID_POS = 0
-    ID_TAR = 1
-    ID_STR = 2  # strategy
-    ID_WIN = 3
-
-    def __init__(self, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, bout_size: float = 0.05, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -61,7 +54,7 @@ class OriginalEP(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.bout_size = self.validator.check_float("bout_size", bout_size, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "bout_size"])
         self.sort_flag = True
@@ -70,20 +63,13 @@ class OriginalEP(Optimizer):
         self.n_bout_size = int(self.bout_size * self.pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        Overriding method in Optimizer class
-
-        Returns:
-            list: wrapper of solution with format [position, target, strategy, times_win]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        strategy = np.random.uniform(0, self.distance, len(lb))
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        target = self.get_target(solution)
+        strategy = self.generator.uniform(0, self.distance, self.problem.n_dims)
         times_win = 0
-        return [position, target, strategy, times_win]
+        return Agent(solution=solution, target=target, strategy=strategy, win=times_win)
 
     def evolve(self, epoch):
         """
@@ -94,26 +80,27 @@ class OriginalEP(Optimizer):
         """
         child = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
-            child.append([pos_new, None, s_old, 0])
+            pos_new = self.pop[idx].solution + self.pop[idx].strategy * self.generator.normal(0, 1.0, self.problem.n_dims)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            s_old = self.pop[idx].strategy + self.generator.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx].strategy) ** 0.5
+            agent.update(solution=pos_new, strategy=s_old, win=0)
+            child.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        child = self.update_target_wrapper_population(child)
-
+                child[-1].target = self.get_target(pos_new)
+        child = self.update_target_for_population(child)
         # Update the global best
-        children, self.g_best = self.update_global_best_solution(child, save=False)
+        children = self.get_sorted_population(child, self.problem.minmax)
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
             for idx in range(0, self.n_bout_size):
-                rand_idx = np.random.randint(0, len(pop))
-                if self.compare_agent(pop[i], pop[rand_idx]):
-                    pop[i][self.ID_WIN] += 1
+                rand_idx = self.generator.integers(0, len(pop))
+                if self.compare_target(pop[i].target, pop[rand_idx].target, self.problem.minmax):
+                    pop[i].win += 1
                 else:
-                    pop[rand_idx][self.ID_WIN] += 1
-        pop = sorted(pop, key=lambda item: item[self.ID_WIN], reverse=True)
+                    pop[rand_idx].win += 1
+        pop = sorted(pop, key=lambda agent: agent.win, reverse=True)
         self.pop = pop[:self.pop_size]
 
 
@@ -121,9 +108,8 @@ class LevyEP(OriginalEP):
     """
     The developed Levy-flight version: Evolutionary Programming (LevyEP)
 
-    Notes
-    ~~~~~
-    Levy-flight is applied to EP, flow and some equations is changed.
+    Notes:
+        + Levy-flight is applied to EP, flow and some equations is changed.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
@@ -131,32 +117,24 @@ class LevyEP(OriginalEP):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.EP import LevyEP
+    >>> from mealpy import FloatVar, EP
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> bout_size = 0.05
-    >>> model = LevyEP(epoch, pop_size, bout_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = EP.LevyEP(epoch=1000, pop_size=50, bout_size = 0.05)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    ID_POS = 0
-    ID_TAR = 1
-    ID_STR = 2  # strategy
-    ID_WIN = 3
-
-    def __init__(self, epoch=10000, pop_size=100, bout_size=0.05, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, bout_size: float = 0.05, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -175,40 +153,41 @@ class LevyEP(OriginalEP):
         """
         child = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS] + self.pop[idx][self.ID_STR] * np.random.normal(0, 1.0, self.problem.n_dims)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            s_old = self.pop[idx][self.ID_STR] + np.random.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx][self.ID_STR]) ** 0.5
-            child.append([pos_new, None, s_old, 0])
+            pos_new = self.pop[idx].solution + self.pop[idx].strategy * self.generator.normal(0, 1.0, self.problem.n_dims)
+            pos_new = self.correct_solution(pos_new)
+            s_old = self.pop[idx].strategy + self.generator.normal(0, 1.0, self.problem.n_dims) * np.abs(self.pop[idx].strategy) ** 0.5
+            agent = self.generate_empty_agent(pos_new)
+            agent.update(solution=pos_new, strategy=s_old, win=0)
+            child.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        child = self.update_target_wrapper_population(child)
-
+                child[-1].target = self.get_target(pos_new)
+        child = self.update_target_for_population(child)
         # Update the global best
-        children, self.g_best = self.update_global_best_solution(child, save=False)
+        children = self.get_sorted_population(child, self.problem.minmax)
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
             for idx in range(0, self.n_bout_size):
-                rand_idx = np.random.randint(0, len(pop))
-                if self.compare_agent(pop[i], pop[rand_idx]):
-                    pop[i][self.ID_WIN] += 1
+                rand_idx = self.generator.integers(0, len(pop))
+                if self.compare_target(pop[i].target, pop[rand_idx].target, self.problem.minmax):
+                    pop[i].win += 1
                 else:
-                    pop[rand_idx][self.ID_WIN] += 1
-
+                    pop[rand_idx].win += 1
         ## Keep the top population, but 50% of left population will make a comeback an take the good position
-        pop = sorted(pop, key=lambda agent: agent[self.ID_WIN], reverse=True)
+        pop = sorted(pop, key=lambda agent: agent.win, reverse=True)
         pop_new = pop[:self.pop_size]
         pop_left = pop[self.pop_size:]
-
         ## Choice random 50% of population left
         pop_comeback = []
-        idx_list = np.random.choice(range(0, len(pop_left)), int(0.5 * len(pop_left)), replace=False)
+        idx_list = self.generator.choice(range(0, len(pop_left)), int(0.5 * len(pop_left)), replace=False)
         for idx in idx_list:
-            pos_new = pop_left[idx][self.ID_POS] + self.get_levy_flight_step(multiplier=0.01, size=self.problem.n_dims, case=-1)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new = pop_left[idx].solution + self.get_levy_flight_step(multiplier=0.01, size=self.problem.n_dims, case=0)
+            pos_new = self.correct_solution(pos_new)
             strategy = self.distance = 0.05 * (self.problem.ub - self.problem.lb)
-            pop_comeback.append([pos_new, None, strategy, 0])
+            agent = self.generate_empty_agent(pos_new)
+            agent.update(solution=pos_new, strategy=strategy, win=0)
+            pop_comeback.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_comeback[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_comeback = self.update_target_wrapper_population(pop_comeback)
-        self.pop = self.get_sorted_strim_population(pop_new + pop_comeback, self.pop_size)
+                pop_comeback[-1].target = self.get_target(pos_new)
+        pop_comeback = self.update_target_for_population(pop_comeback)
+        self.pop = self.get_sorted_and_trimmed_population(pop_new + pop_comeback, self.pop_size, self.problem.minmax)
