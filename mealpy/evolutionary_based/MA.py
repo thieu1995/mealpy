@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 
 
 class OriginalMA(Optimizer):
@@ -26,28 +27,21 @@ class OriginalMA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.MA import OriginalMA
+    >>> from mealpy import FloatVar, MA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> pc = 0.85
-    >>> pm = 0.15
-    >>> p_local = 0.5
-    >>> max_local_gens = 10
-    >>> bits_per_param = 4
-    >>> model = OriginalMA(epoch, pop_size, pc, pm, p_local, max_local_gens, bits_per_param)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = MA.OriginalMA(epoch=1000, pop_size=50, pc = 0.85, pm = 0.15, p_local = 0.5, max_local_gens = 10, bits_per_param = 4)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -55,10 +49,8 @@ class OriginalMA(Optimizer):
     Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, p.1989.
     """
 
-    ID_BIT = 2
-
-    def __init__(self, epoch=10000, pop_size=100, pc=0.85, pm=0.15,
-                 p_local=0.5, max_local_gens=10, bits_per_param=4, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.85, pm: float = 0.15,
+                 p_local: float = 0.5, max_local_gens: int = 10, bits_per_param: int = 4, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -71,7 +63,7 @@ class OriginalMA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.pc = self.validator.check_float("pc", pc, (0, 1.0))
         self.pm = self.validator.check_float("pm", pm, (0, 1.0))
         self.p_local = self.validator.check_float("p_local", p_local, (0, 1.0))
@@ -83,19 +75,12 @@ class OriginalMA(Optimizer):
     def initialize_variables(self):
         self.bits_total = self.problem.n_dims * self.bits_per_param
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        Overriding method in Optimizer class
-
-        Returns:
-            list: wrapper of solution with format [position, target, bitstring]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        bitstring = ''.join(["1" if np.random.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
-        return [position, target, bitstring]
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        target = self.get_target(solution)
+        bitstring = ''.join(["1" if self.generator.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
+        return Agent(solution=solution, target=target, bitstring=bitstring)
 
     def decode_(self, bitstring=None):
         """
@@ -114,12 +99,12 @@ class OriginalMA(Optimizer):
         return vector
 
     def crossover__(self, dad=None, mom=None):
-        if np.random.uniform() >= self.pc:
+        if self.generator.uniform() >= self.pc:
             return dad
         else:
             child = ""
             for idx in range(0, self.bits_total):
-                if np.random.uniform() < 0.5:
+                if self.generator.uniform() < 0.5:
                     child += dad[idx]
                 else:
                     child += mom[idx]
@@ -128,7 +113,7 @@ class OriginalMA(Optimizer):
     def point_mutation__(self, bitstring=None):
         child = ""
         for bit in bitstring:
-            if np.random.uniform() < self.pc:
+            if self.generator.uniform() < self.pc:
                 child += "0" if bit == "1" else "1"
             else:
                 child += bit
@@ -139,27 +124,30 @@ class OriginalMA(Optimizer):
         list_local = []
         for idx in range(0, self.max_local_gens):
             child = current
-            bitstring_new = self.point_mutation__(child[self.ID_BIT])
+            bitstring_new = self.point_mutation__(child.bitstring)
             pos_new = self.decode_(bitstring_new)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            list_local.append([pos_new, None, bitstring_new])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            agent.update(solution=pos_new, bitstring=bitstring_new)
+            list_local.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                list_local[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        list_local = self.update_target_wrapper_population(list_local)
+                list_local[-1].target = self.get_target(pos_new)
+        list_local = self.update_target_for_population(list_local)
         list_local.append(child)
-        _, best = self.get_global_best_solution(list_local)
+        best = self.get_best_agent(list_local, self.problem.minmax)
         return best
 
     def create_child__(self, idx, pop_copy):
         ancient = pop_copy[idx + 1] if idx % 2 == 0 else pop_copy[idx - 1]
         if idx == self.pop_size - 1:
             ancient = pop_copy[0]
-        bitstring_new = self.crossover__(pop_copy[idx][self.ID_BIT], ancient[self.ID_BIT])
+        bitstring_new = self.crossover__(pop_copy[idx].bitstring, ancient.bitstring)
         bitstring_new = self.point_mutation__(bitstring_new)
         pos_new = self.decode_(bitstring_new)
-        pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        target = self.get_target_wrapper(pos_new)
-        return [pos_new, target, bitstring_new]
+        pos_new = self.correct_solution(pos_new)
+        agent = self.generate_agent(pos_new)
+        agent.bitstring = bitstring_new
+        return agent
 
     def evolve(self, epoch):
         """
@@ -178,16 +166,17 @@ class OriginalMA(Optimizer):
             ancient = children[idx + 1] if idx % 2 == 0 else children[idx - 1]
             if idx == self.pop_size - 1:
                 ancient = children[0]
-            bitstring_new = self.crossover__(children[idx][self.ID_BIT], ancient[self.ID_BIT])
+            bitstring_new = self.crossover__(children[idx].bitstring, ancient.bitstring)
             bitstring_new = self.point_mutation__(bitstring_new)
             pos_new = self.decode_(bitstring_new)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop.append([pos_new, None, bitstring_new])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            agent.update(bitstring=bitstring_new)
+            pop.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        self.pop = self.update_target_wrapper_population(pop)
-
+                pop[-1].target = self.get_target(pos_new)
+        self.pop = self.update_target_for_population(pop)
         # Searching in local
-        for i in range(0, self.pop_size):
-            if np.random.rand() < self.p_local:
-                self.pop[i] = self.bits_climber__(pop[i])
+        for idx in range(0, self.pop_size):
+            if self.generator.random() < self.p_local:
+                self.pop[idx] = self.bits_climber__(pop[idx])
