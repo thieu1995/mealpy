@@ -22,25 +22,21 @@ class OriginalFPA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.FPA import OriginalFPA
+    >>> from mealpy import FloatVar, FPA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> p_s = 0.8
-    >>> levy_multiplier = 0.2
-    >>> model = OriginalFPA(epoch, pop_size, p_s, levy_multiplier)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = FPA.OriginalFPA(epoch=1000, pop_size=50, p_s = 0.8, levy_multiplier = 0.2)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -48,7 +44,7 @@ class OriginalFPA(Optimizer):
     conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, p_s=0.8, levy_multiplier=0.1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, p_s: float = 0.8, levy_multiplier: float = 0.1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -58,16 +54,16 @@ class OriginalFPA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.p_s = self.validator.check_float("p_s", p_s, (0, 1.0))
         self.levy_multiplier = self.validator.check_float("levy_multiplier", levy_multiplier, (-10000, 10000))
         self.set_parameters(["epoch", "pop_size", "p_s", "levy_multiplier"])
         self.sort_flag = False
 
-    def bounded_position(self, position=None, lb=None, ub=None):
-        condition = np.logical_and(lb <= position, position <= ub)
-        random_pos = np.random.uniform(lb, ub)
-        return np.where(condition, position, random_pos)
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
+        random_pos = self.problem.generate_solution()
+        return np.where(condition, solution, random_pos)
 
     def evolve(self, epoch):
         """
@@ -78,18 +74,18 @@ class OriginalFPA(Optimizer):
         """
         pop = []
         for idx in range(0, self.pop_size):
-            if np.random.uniform() < self.p_s:
+            if self.generator.uniform() < self.p_s:
                 levy = self.get_levy_flight_step(multiplier=self.levy_multiplier, size=self.problem.n_dims, case=-1)
-                pos_new = self.pop[idx][self.ID_POS] + 1.0 / np.sqrt(epoch + 1) * \
-                          levy * (self.pop[idx][self.ID_POS] - self.g_best[self.ID_POS])
+                pos_new = self.pop[idx].solution + 1.0 / np.sqrt(epoch) * levy * (self.pop[idx].solution - self.g_best.solution)
             else:
-                id1, id2 = np.random.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-                pos_new = self.pop[idx][self.ID_POS] + np.random.uniform() * (self.pop[id1][self.ID_POS] - self.pop[id2][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop.append([pos_new, None])
+                id1, id2 = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
+                pos_new = self.pop[idx].solution + self.generator.uniform() * (self.pop[id1].solution - self.pop[id2].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop = self.update_target_wrapper_population(pop)
-            self.pop = self.greedy_selection_population(self.pop, pop)
+            pop = self.update_target_for_population(pop)
+            self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
