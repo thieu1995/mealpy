@@ -7,7 +7,6 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
-from copy import deepcopy
 
 
 class OriginalSHADE(Optimizer):
@@ -24,25 +23,21 @@ class OriginalSHADE(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.SHADE import OriginalSHADE
+    >>> from mealpy import FloatVar, SHADE
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> miu_f = 0.5
-    >>> miu_cr = 0.5
-    >>> model = OriginalSHADE(epoch, pop_size, miu_f, miu_cr)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SHADE.OriginalSHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -50,7 +45,7 @@ class OriginalSHADE(Optimizer):
     differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
     """
 
-    def __init__(self, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
+    def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -60,7 +55,7 @@ class OriginalSHADE(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         # the initial f, location is changed then that f is good
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
         # the initial cr,
@@ -91,17 +86,15 @@ class OriginalSHADE(Optimizer):
         list_cr = list()
         list_f_index = list()
         list_cr_index = list()
-
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
-        pop_old = deepcopy(self.pop)
-        pop_sorted = self.get_sorted_strim_population(self.pop)
-
+        pop_old = [agent.copy() for agent in self.pop]
+        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
         pop = []
         for idx in range(0, self.pop_size):
             ## Calculate adaptive parameter cr and f
-            idx_rand = np.random.randint(0, self.pop_size)
-            cr = np.random.normal(self.dyn_miu_cr[idx_rand], 0.1)
+            idx_rand = self.generator.integers(0, self.pop_size)
+            cr = self.generator.normal(self.dyn_miu_cr[idx_rand], 0.1)
             cr = np.clip(cr, 0, 1)
             while True:
                 f = cauchy.rvs(self.dyn_miu_f[idx_rand], 0.1)
@@ -112,44 +105,43 @@ class OriginalSHADE(Optimizer):
                 break
             list_cr_new[idx] = cr
             list_f_new[idx] = f
-            p = np.random.uniform(2 / self.pop_size, 0.2)
+            p = self.generator.uniform(2 / self.pop_size, 0.2)
             top = int(self.pop_size * p)
-            x_best = pop_sorted[np.random.randint(0, top)]
-            x_r1 = self.pop[np.random.choice(list(set(range(0, self.pop_size)) - {idx}))]
+            x_best = pop_sorted[self.generator.integers(0, top)]
+            x_r1 = self.pop[self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))]
             new_pop = self.pop + self.dyn_pop_archive
             while True:
-                x_r2 = new_pop[np.random.randint(0, len(new_pop))]
-                if np.any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and np.any(x_r2[self.ID_POS] - self.pop[idx][self.ID_POS]):
+                x_r2 = new_pop[self.generator.integers(0, len(new_pop))]
+                if np.any(x_r2.solution - x_r1.solution) and np.any(x_r2.solution - self.pop[idx].solution):
                     break
-            x_new = self.pop[idx][self.ID_POS] + f * (x_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
-            condition = np.random.random(self.problem.n_dims) < cr
-            pos_new = np.where(condition, x_new, self.pop[idx][self.ID_POS])
-            j_rand = np.random.randint(0, self.problem.n_dims)
+            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1.solution - x_r2.solution)
+            condition = self.generator.random(self.problem.n_dims) < cr
+            pos_new = np.where(condition, x_new, self.pop[idx].solution)
+            j_rand = self.generator.integers(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop = self.update_target_wrapper_population(pop)
-
-        for i in range(0, self.pop_size):
-            if self.compare_agent(pop[i], self.pop[i]):
-                list_cr.append(list_cr_new[i])
-                list_f.append(list_f_new[i])
-                list_f_index.append(i)
-                list_cr_index.append(i)
-                self.pop[i] = deepcopy(pop[i])
-                self.dyn_pop_archive.append(deepcopy(pop[i]))
-
+                pop[-1].target = self.get_target(pos_new)
+        pop = self.update_target_for_population(pop)
+        for idx in range(0, self.pop_size):
+            if self.compare_target(pop[idx].target, self.pop[idx].target, self.problem.minmax):
+                list_cr.append(list_cr_new[idx])
+                list_f.append(list_f_new[idx])
+                list_f_index.append(idx)
+                list_cr_index.append(idx)
+                self.pop[idx] = pop[idx].copy()
+                self.dyn_pop_archive.append(pop[idx].copy())
         # Randomly remove solution
         temp = len(self.dyn_pop_archive) - self.pop_size
         if temp > 0:
-            idx_list = np.random.choice(range(0, len(self.dyn_pop_archive)), temp, replace=False)
+            idx_list = self.generator.choice(range(0, len(self.dyn_pop_archive)), temp, replace=False)
             archive_pop_new = []
-            for idx, solution in enumerate(self.dyn_pop_archive):
+            for idx, agent in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
-                    archive_pop_new.append(solution)
-            self.dyn_pop_archive = deepcopy(archive_pop_new)
+                    archive_pop_new.append(agent.copy())
+            self.dyn_pop_archive = archive_pop_new
 
         # Update miu_cr and miu_f
         if len(list_f) != 0 and len(list_cr) != 0:
@@ -157,10 +149,10 @@ class OriginalSHADE(Optimizer):
             list_fit_old = np.ones(len(list_cr_index))
             list_fit_new = np.ones(len(list_cr_index))
             idx_increase = 0
-            for i in range(0, self.pop_size):
-                if i in list_cr_index:
-                    list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
-                    list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
+            for idx in range(0, self.pop_size):
+                if idx in list_cr_index:
+                    list_fit_old[idx_increase] = pop_old[idx].target.fitness
+                    list_fit_new[idx_increase] = self.pop[idx].target.fitness
                     idx_increase += 1
             temp = np.sum(np.abs(list_fit_new - list_fit_old))
             if temp == 0:
@@ -188,25 +180,21 @@ class L_SHADE(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.evolutionary_based.SHADE import L_SHADE
+    >>> from mealpy import FloatVar, SHADE
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> miu_f = 0.5
-    >>> miu_cr = 0.5
-    >>> model = L_SHADE(epoch, pop_size, miu_f, miu_cr)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SHADE.L_SHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -214,7 +202,7 @@ class L_SHADE(Optimizer):
     linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
     """
 
-    def __init__(self, epoch=750, pop_size=100, miu_f=0.5, miu_cr=0.5, **kwargs):
+    def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -224,7 +212,7 @@ class L_SHADE(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.miu_f = self.validator.check_float("miu_f", miu_f, (0, 1.0))
         self.miu_cr = self.validator.check_float("miu_cr", miu_cr, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "miu_f", "miu_cr"])
@@ -256,17 +244,15 @@ class L_SHADE(Optimizer):
         list_cr = list()
         list_f_index = list()
         list_cr_index = list()
-
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
-        pop_old = deepcopy(self.pop)
-        pop_sorted = self.get_sorted_strim_population(self.pop)
-
+        pop_old = [agent.copy() for agent in self.pop]
+        pop_sorted = self.get_sorted_population(self.pop)
         pop = []
         for idx in range(0, self.pop_size):
             ## Calculate adaptive parameter cr and f
-            idx_rand = np.random.randint(0, self.pop_size)
-            cr = np.random.normal(self.dyn_miu_cr[idx_rand], 0.1)
+            idx_rand = self.generator.integers(0, self.pop_size)
+            cr = self.generator.normal(self.dyn_miu_cr[idx_rand], 0.1)
             cr = np.clip(cr, 0, 1)
             while True:
                 f = cauchy.rvs(self.dyn_miu_f[idx_rand], 0.1)
@@ -277,54 +263,52 @@ class L_SHADE(Optimizer):
                 break
             list_cr_new[idx] = cr
             list_f_new[idx] = f
-            p = np.random.uniform(0.15, 0.2)
+            p = self.generator.uniform(0.15, 0.2)
             top = int(np.ceil(self.dyn_pop_size * p))
-            x_best = pop_sorted[np.random.randint(0, top)]
-            x_r1 = self.pop[np.random.choice(list(set(range(0, self.dyn_pop_size)) - {idx}))]
+            x_best = pop_sorted[self.generator.integers(0, top)]
+            x_r1 = self.pop[self.generator.choice(list(set(range(0, self.dyn_pop_size)) - {idx}))]
             new_pop = self.pop + self.dyn_pop_archive
             while True:
-                x_r2 = new_pop[np.random.randint(0, len(new_pop))]
-                if np.any(x_r2[self.ID_POS] - x_r1[self.ID_POS]) and np.any(x_r2[self.ID_POS] - self.pop[idx][self.ID_POS]):
+                x_r2 = new_pop[self.generator.integers(0, len(new_pop))]
+                if np.any(x_r2.solution - x_r1.solution) and np.any(x_r2.solution - self.pop[idx].solution):
                     break
-            x_new = self.pop[idx][self.ID_POS] + f * (x_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + f * (x_r1[self.ID_POS] - x_r2[self.ID_POS])
-            pos_new = np.where(np.random.random(self.problem.n_dims) < cr, x_new, self.pop[idx][self.ID_POS])
-            j_rand = np.random.randint(0, self.problem.n_dims)
+            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1.solution - x_r2.solution)
+            pos_new = np.where(self.generator.random(self.problem.n_dims) < cr, x_new, self.pop[idx].solution)
+            j_rand = self.generator.integers(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop = self.update_target_wrapper_population(pop)
-
-        for i in range(0, self.pop_size):
-            if self.compare_agent(pop[i], self.pop[i]):
-                list_cr.append(list_cr_new[i])
-                list_f.append(list_f_new[i])
-                list_f_index.append(i)
-                list_cr_index.append(i)
-                self.pop[i] = deepcopy(pop[i])
-                self.dyn_pop_archive.append(deepcopy(self.pop[i]))
-
+                pop[-1].target = self.get_target(pos_new)
+        pop = self.update_target_for_population(pop)
+        for idx in range(0, self.pop_size):
+            if self.compare_target(pop[idx].target, self.pop[idx].target, self.problem.minmax):
+                list_cr.append(list_cr_new[idx])
+                list_f.append(list_f_new[idx])
+                list_f_index.append(idx)
+                list_cr_index.append(idx)
+                self.pop[idx] = pop[idx].copy()
+                self.dyn_pop_archive.append(self.pop[idx].copy())
         # Randomly remove solution
         temp = len(self.dyn_pop_archive) - self.pop_size
         if temp > 0:
-            idx_list = np.random.choice(range(0, len(self.dyn_pop_archive)), temp, replace=False)
+            idx_list = self.generator.choice(range(0, len(self.dyn_pop_archive)), temp, replace=False)
             archive_pop_new = []
-            for idx, solution in enumerate(self.dyn_pop_archive):
+            for idx, agent in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
-                    archive_pop_new.append(solution)
-            self.dyn_pop_archive = deepcopy(archive_pop_new)
-
+                    archive_pop_new.append(agent.copy())
+            self.dyn_pop_archive = archive_pop_new
         # Update miu_cr and miu_f
         if len(list_f) != 0 and len(list_cr) != 0:
             # Eq.13, 14, 10
             list_fit_old = np.ones(len(list_cr_index))
             list_fit_new = np.ones(len(list_cr_index))
             idx_increase = 0
-            for i in range(0, self.dyn_pop_size):
-                if i in list_cr_index:
-                    list_fit_old[idx_increase] = pop_old[i][self.ID_TAR][self.ID_FIT]
-                    list_fit_new[idx_increase] = self.pop[i][self.ID_TAR][self.ID_FIT]
+            for idx in range(0, self.dyn_pop_size):
+                if idx in list_cr_index:
+                    list_fit_old[idx_increase] = pop_old[idx].target.fitness
+                    list_fit_new[idx_increase] = self.pop[idx].target.fitness
                     idx_increase += 1
             total_fit = np.sum(np.abs(list_fit_new - list_fit_old))
             list_weights = 0 if total_fit == 0 else np.abs(list_fit_new - list_fit_old) / total_fit
@@ -333,6 +317,5 @@ class L_SHADE(Optimizer):
             self.k_counter += 1
             if self.k_counter >= self.dyn_pop_size:
                 self.k_counter = 0
-
         # Linear Population Size Reduction
         self.dyn_pop_size = round(self.pop_size + epoch * ((self.n_min - self.pop_size) / self.epoch))
