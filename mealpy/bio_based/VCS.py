@@ -70,7 +70,7 @@ class DevVCS(Optimizer):
             list: Mean position
         """
         ## Calculate the weighted mean of the λ best individuals by
-        pop = self.get_sorted_population(pop)
+        pop = self.get_sorted_population(pop, self.problem.minmax)
         pos_list = [agent.solution for agent in pop[:self.n_best]]
         factor_down = self.n_best * np.log1p(self.n_best + 1) - np.log1p(np.prod(range(1, self.n_best + 1)))
         weight = np.log1p(self.n_best + 1) / factor_down
@@ -117,7 +117,7 @@ class DevVCS(Optimizer):
             pop = self.update_target_for_population(pop)
             self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
         ## Calculate the weighted mean of the λ best individuals by
-        self.pop = self.get_sorted_population(self.pop)
+        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
         ## Immune response
         pop = []
         for idx in range(0, self.pop_size):
