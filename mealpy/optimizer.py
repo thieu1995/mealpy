@@ -623,7 +623,7 @@ class Optimizer:
         prob = final_fitness / np.sum(final_fitness)
         return int(self.generator.choice(range(0, len(list_fitness)), p=prob))
 
-    def get_index_kway_tournament_selection(self, pop=None, k_way=0.2, output=2, reverse=False):
+    def get_index_kway_tournament_selection(self, pop: List = None, k_way: float = 0.2, output: int = 2, reverse: bool = False) -> List:
         """
         Args:
             pop: The population
@@ -646,7 +646,8 @@ class Optimizer:
             return [parent[0] for parent in list_parents[-output:]]
         return [parent[0] for parent in list_parents[:output]]
 
-    def get_levy_flight_step(self, beta=1.0, multiplier=0.001, size=None, case=0):
+    def get_levy_flight_step(self, beta: float = 1.0, multiplier: float = 0.001, 
+                             size: Union[List, Tuple, np.ndarray] = None, case: int = 0) -> Union[float, List, np.ndarray]:
         """
         Get the Levy-flight step size
 
@@ -669,7 +670,7 @@ class Optimizer:
         """
         # u and v are two random variables which follow np.random.normal distribution
         # sigma_u : standard deviation of u
-        sigma_u = np.power(gamma(1 + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2) * beta * np.power(2, (beta - 1) / 2)), 1 / beta)
+        sigma_u = np.power(gamma(1. + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2.) * beta * np.power(2., (beta - 1) / 2)), 1. / beta)
         # sigma_v : standard deviation of v
         sigma_v = 1
         size = 1 if size is None else size
@@ -684,7 +685,7 @@ class Optimizer:
             step = multiplier * s
         return step[0] if size == 1 else step
 
-    def generate_opposition_solution(self, agent=None, g_best=None):
+    def generate_opposition_solution(self, agent: Agent = None, g_best: Agent = None) -> np.ndarray:
         """
         Args:
             agent: The current agent
@@ -696,11 +697,22 @@ class Optimizer:
         pos_new = self.problem.lb + self.problem.ub - g_best.solution + self.generator.uniform() * (g_best.solution - agent.solution)
         return self.correct_solution(pos_new)
 
-    def create_pop_group(self, pop, n_groups, m_agents):
+    def generate_group_population(self, pop: List[Agent], n_groups: int, m_agents: int) -> List:
+        """
+        Generate a list of group population from pop
+
+        Args:
+            pop: The current population
+            n_groups: The n groups
+            m_agents: The m agents in each group
+
+        Returns:
+            A list of group population
+        """
         pop_group = []
-        for i in range(0, n_groups):
-            group = pop[i * m_agents: (i + 1) * m_agents]
-            pop_group.append(deepcopy(group))
+        for idx in range(0, n_groups):
+            group = pop[idx * m_agents: (idx + 1) * m_agents]
+            pop_group.append([agent.copy() for agent in group])
         return pop_group
 
     ### Crossover
