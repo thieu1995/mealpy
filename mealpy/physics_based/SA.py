@@ -39,7 +39,7 @@ class OriginalSA(Optimizer):
     >>> pop_size = 2
     >>> temp_init = 100
     >>> step_size = 0.1
-    >>> model = OriginalSA(epoch, pop_size, temp_init, cooling_rate)
+    >>> model = OriginalSA(epoch, pop_size, temp_init, step_size)
     >>> best_position, best_fitness = model.solve(problem_dict1)
     >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
 
