@@ -22,24 +22,21 @@ class OriginalHBO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.HBO import OriginalHBO
+    >>> from mealpy import FloatVar, HBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> degree = 3
-    >>> model = OriginalHBO(epoch, pop_size, degree)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = HBO.OriginalHBO(epoch=1000, pop_size=50, degree = 3)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -47,7 +44,7 @@ class OriginalHBO(Optimizer):
     for global optimization. Expert Systems with Applications, 161, 113702.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, degree=2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, degree: int = 2, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -56,10 +53,10 @@ class OriginalHBO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.degree = self.validator.check_int("degree", degree, [2, 10])
         self.set_parameters(["epoch", "pop_size", "degree"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -81,12 +78,12 @@ class OriginalHBO(Optimizer):
         pop_size = len(pop)
         heap = []
         for c in range(pop_size):
-            heap.append([pop[c][self.ID_TAR], c])
+            heap.append([pop[c].target, c])
             # Heapifying
             t = c
             while t > 0:
                 parent_id = int(np.floor((t + 1)/degree) - 1)
-                if self.compare_agent(pop[parent_id], pop[t]):
+                if self.compare_target(pop[parent_id].target, pop[t].target, self.problem.minmax):
                     break
                 else:
                     heap[t], heap[parent_id] = heap[parent_id], heap[t]
@@ -104,54 +101,46 @@ class OriginalHBO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        gama = (np.mod(epoch+1, self.it_per_cycle) +1) / self.qtr_cycle
+        gama = (np.mod(epoch, self.it_per_cycle) +1) / self.qtr_cycle
         gama = np.abs(2 - gama)
-        p1 = 1 - (epoch+1) / self.epoch
+        p1 = 1. - epoch / self.epoch
         p2 = p1 + (1 - p1) / 2
         for c in range(self.pop_size-1, 0, -1):
-
             if c == 0: # Dealing with root
                 continue
             else:
                 parent_id = int(np.floor((c+1)/self.degree) - 1)
                 cur_agent = self.pop[self.heap[c][1]].copy()         #Sol to be updated
                 par_agent = self.pop[self.heap[parent_id][1]]           #Sol to be updated with reference to
-
                 # Sol to be updated with reference to
                 if self.friend_limits[c, 0] < self.friend_limits[c, 1]+1:
                     friend_idx = self.friend_limits[c, 0]
                 else:
-                    friend_idx = np.random.choice(list(set(range(self.friend_limits[c, 0], self.friend_limits[c, 1])) - {c}))
+                    friend_idx = self.generator.choice(list(set(range(self.friend_limits[c, 0], self.friend_limits[c, 1])) - {c}))
                 fri_agent = self.pop[self.heap[friend_idx][1]]
-
                 #Position Updating
-                rr = np.random.rand(self.problem.n_dims)
-                rn = (2 * np.random.rand(self.problem.n_dims) - 1)
-
+                rr = self.generator.random(self.problem.n_dims)
+                rn = (2 * self.generator.random(self.problem.n_dims) - 1)
                 for jdx in range(self.problem.n_dims):
                     if rr[jdx] < p1:
                         continue
                     elif rr[jdx] < p2:
-                        cur_agent[self.ID_POS][jdx] = par_agent[self.ID_POS][jdx] + rn[jdx] * gama * \
-                                                      np.abs(par_agent[self.ID_POS][jdx] - cur_agent[self.ID_POS][jdx])
+                        cur_agent.solution[jdx] = par_agent.solution[jdx] + rn[jdx] * gama * np.abs(par_agent.solution[jdx] - cur_agent.solution[jdx])
                     else:
-                        if self.compare_agent([None, self.heap[friend_idx][0]], [None, self.heap[c][0]]):
-                            cur_agent[self.ID_POS][jdx] = fri_agent[self.ID_POS][jdx] + rn[jdx] * \
-                                                          gama * np.abs(fri_agent[self.ID_POS][jdx] - cur_agent[self.ID_POS][jdx])
+                        if self.compare_target(self.heap[friend_idx][0], self.heap[c][0], self.problem.minmax):
+                            cur_agent.solution[jdx] = fri_agent.solution[jdx] + rn[jdx] * gama * np.abs(fri_agent.solution[jdx] - cur_agent.solution[jdx])
                         else:
-                            cur_agent[self.ID_POS][jdx] += rn[jdx] * gama * np.abs(fri_agent[self.ID_POS][jdx] - cur_agent[self.ID_POS][jdx])
-                cur_agent[self.ID_POS] = self.amend_position(cur_agent[self.ID_POS], self.problem.lb, self.problem.ub)
-                cur_agent[self.ID_TAR] = self.get_target_wrapper(cur_agent[self.ID_POS])
-
-                if self.compare_agent(cur_agent, [None, self.heap[c][0]]):
+                            cur_agent.solution[jdx] += rn[jdx] * gama * np.abs(fri_agent.solution[jdx] - cur_agent.solution[jdx])
+                pos_new = self.correct_solution(cur_agent.solution)
+                cur_agent = self.generate_agent(pos_new)
+                if self.compare_target(cur_agent.target, self.heap[c][0], self.problem.minmax):
                     self.pop[self.heap[c][1]] = cur_agent
-                    self.heap[c][0] = cur_agent[self.ID_TAR].copy()
-
+                    self.heap[c][0] = cur_agent.target.copy()
             # Heapifying
             t = c
             while t > 1:
                 parent_id = int((t + 1) / self.degree)
-                if self.compare_agent([None, self.heap[parent_id][0]], [None, self.heap[t][0]]):
+                if self.compare_target(self.heap[parent_id][0], self.heap[t][0], self.problem.minmax):
                     break
                 else:
                     self.heap[t], self.heap[parent_id] = self.heap[parent_id], self.heap[t]
