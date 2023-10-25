@@ -419,6 +419,13 @@ class Optimizer:
             return False if target_x.fitness < target_y.fitness else True
 
     @staticmethod
+    def compare_fitness(fitness_x: Union[float, int], fitness_y: Union[float, int], minmax: str = "min") -> bool:
+        if minmax == "min":
+            return True if fitness_x < fitness_y else False
+        else:
+            return False if fitness_x < fitness_y else True
+
+    @staticmethod
     def duplicate_pop(pop: List[Agent]) -> List[Agent]:
         return [agent.copy() for agent in pop]
 
