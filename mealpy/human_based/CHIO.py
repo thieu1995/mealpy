@@ -223,7 +223,7 @@ class DevCHIO(OriginalCHIO):
             if self.compare_fitness(pop_new[idx].target.fitness, delta_fx, self.problem.minmax) and (self.immunity_type_list[idx] == 0) and is_corona_list[idx]:
                 self.immunity_type_list[idx] = 1
                 self.age_list[idx] = 1
-            if self.compare_fitness(delta_fx, pop_new[idx].target.fitness) and (self.immunity_type_list[idx] == 1):
+            if self.compare_fitness(delta_fx, pop_new[idx].target.fitness, self.problem.minmax) and (self.immunity_type_list[idx] == 1):
                 self.immunity_type_list[idx] = 2
                 self.age_list[idx] = 0
             # Step 5: Fatality condition
