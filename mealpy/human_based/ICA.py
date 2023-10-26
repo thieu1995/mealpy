@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -27,29 +26,22 @@ class OriginalICA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.ICA import OriginalICA
+    >>> from mealpy import FloatVar, ICA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> empire_count = 5
-    >>> assimilation_coeff = 1.5
-    >>> revolution_prob = 0.05
-    >>> revolution_rate = 0.1
-    >>> revolution_step_size = 0.1
-    >>> zeta = 0.1
-    >>> model = OriginalICA(epoch, pop_size, empire_count, assimilation_coeff, revolution_prob, revolution_rate, revolution_step_size, zeta)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = ICA.OriginalICA(epoch=1000, pop_size=50, empire_count = 5, assimilation_coeff = 1.5,
+    >>>                         revolution_prob = 0.05, revolution_rate = 0.1, revolution_step_size = 0.1, zeta = 0.1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -57,8 +49,8 @@ class OriginalICA(Optimizer):
     optimization inspired by imperialistic competition. In 2007 IEEE congress on evolutionary computation (pp. 4661-4667). Ieee.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, empire_count=5, assimilation_coeff=1.5,
-                 revolution_prob=0.05, revolution_rate=0.1, revolution_step_size=0.1, zeta=0.1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, empire_count: int = 5, assimilation_coeff: float = 1.5, revolution_prob: float = 0.05,
+                 revolution_rate: float = 0.1, revolution_step_size: float = 0.1, zeta: float = 0.1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -83,27 +75,27 @@ class OriginalICA(Optimizer):
                              "revolution_rate", "revolution_step_size", "zeta"])
         self.sort_flag = True
 
-    def revolution_country__(self, position, n_revoluted):
-        pos_new = position + self.revolution_step_size * np.random.normal(0, 1, self.problem.n_dims)
-        idx_list = np.random.choice(range(0, self.problem.n_dims), n_revoluted, replace=False)
+    def revolution_country__(self, solution: np.ndarray, n_revoluted: int) -> np.ndarray:
+        pos_new = solution + self.revolution_step_size * self.generator.normal(0, 1, self.problem.n_dims)
+        idx_list = self.generator.choice(range(0, self.problem.n_dims), n_revoluted, replace=False)
         if len(idx_list) == 0:
-            idx_list = np.append(idx_list, np.random.randint(0, self.problem.n_dims))
-        position[idx_list] = pos_new[idx_list]  # Change only those selected index
-        return position
+            idx_list = np.append(idx_list, self.generator.integers(0, self.problem.n_dims))
+        solution[idx_list] = pos_new[idx_list]  # Change only those selected index
+        return solution
 
     def initialization(self):
         if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
-        self.pop, self.g_best = self.get_global_best_solution(self.pop)
+            self.pop = self.generate_population(self.pop_size)
+        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.g_best = self.pop[0].copy()
         # Initialization
         self.n_revoluted_variables = int(round(self.revolution_rate * self.problem.n_dims))
-
         # pop = Empires
         colony_count = self.pop_size - self.empire_count
-        self.pop_empires = deepcopy(self.pop[:self.empire_count])
-        self.pop_colonies = deepcopy(self.pop[self.empire_count:])
+        self.pop_empires = [agent.copy() for agent in self.pop[:self.empire_count]]
+        self.pop_colonies = [agent.copy() for agent in self.pop[self.empire_count:]]
 
-        cost_empires_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop_empires])
+        cost_empires_list = np.array([agent.target.fitness for agent in self.pop_empires])
         cost_empires_list_normalized = cost_empires_list - (np.max(cost_empires_list) + np.min(cost_empires_list))
         prob_empires_list = np.abs(cost_empires_list_normalized / np.sum(cost_empires_list_normalized))
         # Randomly choose colonies to empires
@@ -112,14 +104,14 @@ class OriginalICA(Optimizer):
         for i in range(0, self.empire_count - 1):
             self.empires[i] = []
             n_colonies = int(round(prob_empires_list[i] * colony_count))
-            idx_list = np.random.choice(list(set(range(0, colony_count)) - set(idx_already_selected)), n_colonies, replace=False).tolist()
+            idx_list = self.generator.choice(list(set(range(0, colony_count)) - set(idx_already_selected)), n_colonies, replace=False).tolist()
             idx_already_selected += idx_list
             for idx in idx_list:
                 self.empires[i].append(self.pop_colonies[idx])
         idx_last = list(set(range(0, colony_count)) - set(idx_already_selected))
         self.empires[self.empire_count - 1] = []
         for idx in idx_last:
-            self.empires[self.empire_count - 1].append(self.pop_colonies[idx])
+            self.empires[self.empire_count - 1].append(self.pop_colonies[idx].copy())
 
     def evolve(self, epoch):
         """
@@ -131,61 +123,54 @@ class OriginalICA(Optimizer):
         # Assimilation
         for idx, colonies in self.empires.items():
             for idx_colony, colony in enumerate(colonies):
-                pos_new = colony[self.ID_POS] + self.assimilation_coeff * \
-                          np.random.uniform(0, 1, self.problem.n_dims) * (self.pop_empires[idx][self.ID_POS] - colony[self.ID_POS])
-                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                self.empires[idx][idx_colony][self.ID_POS] = pos_new
+                pos_new = colony.solution + self.assimilation_coeff * \
+                          self.generator.uniform(0, 1, self.problem.n_dims) * (self.pop_empires[idx].solution - colony.solution)
+                pos_new = self.correct_solution(pos_new)
+                self.empires[idx][idx_colony].solution = pos_new
                 if self.mode not in self.AVAILABLE_MODES:
-                    self.empires[idx][idx_colony][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
-
+                    self.empires[idx][idx_colony].target = self.get_target(pos_new)
+            self.empires[idx] = self.update_target_for_population(self.empires[idx])
         # Revolution
         for idx, colonies in self.empires.items():
             # Apply revolution to Imperialist
-            pos_new_em = self.revolution_country__(self.pop_empires[idx][self.ID_POS], self.n_revoluted_variables)
-            pos_new_em = self.amend_position(pos_new_em, self.problem.lb, self.problem.ub)
-            self.pop_empires[idx][self.ID_POS] = pos_new_em
+            pos_new_em = self.revolution_country__(self.pop_empires[idx].solution, self.n_revoluted_variables)
+            pos_new_em = self.correct_solution(pos_new_em)
+            self.pop_empires[idx].solution = pos_new_em
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop_empires[idx][self.ID_TAR] = self.get_target_wrapper(pos_new_em)
-
+                self.pop_empires[idx].target = self.get_target(pos_new_em)
             # Apply revolution to Colonies
             for idx_colony, colony in enumerate(colonies):
-                if np.random.rand() < self.revolution_prob:
-                    pos_new = self.revolution_country__(colony[self.ID_POS], self.n_revoluted_variables)
-                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    self.empires[idx][idx_colony][self.ID_POS] = pos_new
+                if self.generator.random() < self.revolution_prob:
+                    pos_new = self.revolution_country__(colony.solution, self.n_revoluted_variables)
+                    pos_new = self.correct_solution(pos_new)
+                    self.empires[idx][idx_colony].solution = pos_new
                     if self.mode not in self.AVAILABLE_MODES:
-                        self.empires[idx][idx_colony][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            self.empires[idx] = self.update_target_wrapper_population(self.empires[idx])
-        self.pop_empires = self.update_target_wrapper_population(self.pop_empires)
-        self.update_global_best_solution(self.pop_empires, save=False)
-
+                        self.empires[idx][idx_colony].target = self.get_target(pos_new)
+            self.empires[idx] = self.update_target_for_population(self.empires[idx])
+        self.pop_empires = self.update_target_for_population(self.pop_empires)
+        self.update_global_best_agent(self.pop_empires, save=False)
         # Intra-Empire Competition
         for idx, colonies in self.empires.items():
             for idx_colony, colony in enumerate(colonies):
-                if self.compare_agent(colony, self.pop_empires[idx]):
-                    self.empires[idx][idx_colony], self.pop_empires[idx] = deepcopy(self.pop_empires[idx]), deepcopy(colony)
-
+                if self.compare_target(colony.target, self.pop_empires[idx].target, self.problem.minmax):
+                    self.empires[idx][idx_colony], self.pop_empires[idx] = self.pop_empires[idx].copy(), colony.copy()
         # Update Total Objective Values of Empires
         cost_empires_list = []
         for idx, colonies in self.empires.items():
-            fit_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in colonies])
-            fit_empire = self.pop_empires[idx][self.ID_TAR][self.ID_FIT] + self.zeta * np.mean(fit_list)
+            fit_list = np.array([agent.target.fitness for agent in colonies])
+            fit_empire = self.pop_empires[idx].target.fitness + self.zeta * np.mean(fit_list)
             cost_empires_list.append(fit_empire)
         cost_empires_list = np.array(cost_empires_list)
-
         # Find possession probability of each empire based on its total power
         cost_empires_list_normalized = cost_empires_list - (np.max(cost_empires_list) + np.min(cost_empires_list))
         prob_empires_list = np.abs(cost_empires_list_normalized / np.sum(cost_empires_list_normalized))  # Vector P
-
-        uniform_list = np.random.uniform(0, 1, len(prob_empires_list))  # Vector R
+        uniform_list = self.generator.uniform(0, 1, len(prob_empires_list))  # Vector R
         vector_D = prob_empires_list - uniform_list
         idx_empire = np.argmax(vector_D)
-
         # Find the weakest empire and weakest colony inside it
         idx_weakest_empire = np.argmax(cost_empires_list)
         if len(self.empires[idx_weakest_empire]) > 0:
-            colonies_sorted, best, worst = self.get_special_solutions(self.empires[idx_weakest_empire])
+            colonies_sorted, _, _ = self.get_special_agents(self.empires[idx_weakest_empire])
             self.empires[idx_empire].append(colonies_sorted.pop(-1))
         else:
             self.empires[idx_empire].append(self.pop_empires.pop(idx_weakest_empire))
