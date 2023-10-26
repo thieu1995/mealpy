@@ -63,7 +63,7 @@ class OriginalHCO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.wfp = self.validator.check_float("wfp", wfp, [0, 1.0])
         self.wfv = self.validator.check_float("wfv", wfv, [0, 1.0])
         self.c1 = self.validator.check_float("c1", c1, [0., 100.])
