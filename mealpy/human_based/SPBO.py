@@ -23,33 +23,31 @@ class OriginalSPBO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.SPBO import OriginalSPBO
+    >>> from mealpy import FloatVar, SPBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalSPBO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SPBO.OriginalSPBO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Das, B., Mukherjee, V., & Das, D. (2020). Student psychology based optimization algorithm: A new population based
     optimization algorithm for solving optimization problems. Advances in Engineering software, 146, 102804.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
@@ -62,35 +60,36 @@ class OriginalSPBO(Optimizer):
         """
         for jdx in range(0, self.problem.n_dims):
             idx_best = self.get_index_best(self.pop)
-            mid = np.random.randint(1, self.pop_size-1)
-            x_mean = np.mean([agent[self.ID_POS] for agent in self.pop], axis=0)
+            mid = self.generator.integers(1, self.pop_size-1)
+            x_mean = np.mean([agent.solution for agent in self.pop], axis=0)
             pop_new = []
             for idx in range(0, self.pop_size):
                 if idx == idx_best:
-                    k = np.random.choice([1, 2])
-                    j = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-                    new_pos = self.g_best[self.ID_POS] + (-1)**k * np.random.rand() * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
+                    k = self.generator.choice([1, 2])
+                    j = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                    new_pos = self.g_best.solution + (-1)**k * self.generator.random(self.problem.n_dims) * (self.g_best.solution - self.pop[j].solution)
                 elif idx < mid:
                     ## Good Student
-                    if np.random.rand() > np.random.rand():
-                        new_pos = self.g_best[self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    if self.generator.random() > self.generator.random():
+                        new_pos = self.g_best.solution + self.generator.random(self.problem.n_dims) * (self.g_best.solution - self.pop[idx].solution)
                     else:
-                        new_pos = self.pop[idx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                            np.random.rand() * (self.pop[idx][self.ID_POS] - x_mean)
+                        new_pos = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * (self.g_best.solution - self.pop[idx].solution) + \
+                            self.generator.random() * (self.pop[idx].solution - x_mean)
                 else:
                     ## Average Student
-                    if np.random.rand() > np.random.rand():
-                        new_pos = self.pop[idx][self.ID_POS] + np.random.rand() * (x_mean - self.pop[idx][self.ID_POS])
+                    if self.generator.random() > self.generator.random():
+                        new_pos = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * (x_mean - self.pop[idx].solution)
                     else:
-                        new_pos = self.generate_position(self.problem.lb, self.problem.ub)
-                new_pos = self.amend_position(new_pos, self.problem.lb, self.problem.ub)
-                pop_new.append([new_pos, None])
+                        new_pos = self.problem.generate_solution()
+                new_pos = self.correct_solution(new_pos)
+                agent = self.generate_empty_agent(new_pos)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    new_tar = self.get_target_wrapper(new_pos)
-                    self.pop[idx] = self.get_better_solution([new_pos, new_tar], self.pop[idx])
+                    agent.target = self.get_target(new_pos)
+                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
             if self.mode in self.AVAILABLE_MODES:
-                pop_new = self.update_target_wrapper_population(pop_new)
-                self.pop = self.greedy_selection_population(self.pop, pop_new)
+                pop_new = self.update_target_for_population(pop_new)
+                self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
 class DevSPBO(OriginalSPBO):
@@ -98,30 +97,29 @@ class DevSPBO(OriginalSPBO):
     The developed version of: Student Psychology Based Optimization (SPBO)
 
     Notes:
-        1. Replace random number by normal random number
+        1. Replace uniform random number by normal random number
         2. Sort the population and select 1/3 pop size for each category
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.SPBO import DevSPBO
+    >>> from mealpy import FloatVar, SPBO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = DevSPBO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SPBO.DevSPBO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(epoch, pop_size, **kwargs)
         self.sort_flag = True
@@ -135,28 +133,28 @@ class DevSPBO(OriginalSPBO):
         """
         good = int(self.pop_size / 3)
         average = 2 * int(self.pop_size / 3)
-        x_mean = np.mean([agent[self.ID_POS] for agent in self.pop], axis=0)
+        x_mean = np.mean([agent.solution for agent in self.pop], axis=0)
         pop_new = []
         for idx in range(0, self.pop_size):
             if idx == 0:
-                j = np.random.choice(list(set(range(0, self.pop_size)) - {idx}))
-                new_pos = self.g_best[self.ID_POS] + np.random.random(self.problem.n_dims) * (self.g_best[self.ID_POS] - self.pop[j][self.ID_POS])
+                j = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                new_pos = self.g_best.solution + self.generator.normal(0, 1, self.problem.n_dims) * (self.g_best.solution - self.pop[j].solution)
             elif idx < good:    ## Good Student
-                if np.random.rand() > np.random.rand():
-                    new_pos = self.g_best[self.ID_POS] + np.random.normal(0, 1) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                if self.generator.random() > self.generator.random():
+                    new_pos = self.g_best.solution + self.generator.normal(0, 1, self.problem.n_dims) * (self.g_best.solution - self.pop[idx].solution)
                 else:
-                    ra = np.random.rand()
-                    new_pos = self.pop[idx][self.ID_POS] + ra * \
-                              (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + (1 - ra) * (self.pop[idx][self.ID_POS] - x_mean)
+                    ra = self.generator.random(self.problem.n_dims)
+                    new_pos = self.pop[idx].solution + ra * (self.g_best.solution - self.pop[idx].solution) + (1 - ra) * (self.pop[idx].solution - x_mean)
             elif idx < average:  ## Average Student
-                new_pos = self.pop[idx][self.ID_POS] + np.random.normal(0, 1) * (x_mean - self.pop[idx][self.ID_POS])
+                new_pos = self.pop[idx].solution + self.generator.normal(0, 1, self.problem.n_dims) * (x_mean - self.pop[idx].solution)
             else:
-                new_pos = self.generate_position(self.problem.lb, self.problem.ub)
-            new_pos = self.amend_position(new_pos, self.problem.lb, self.problem.ub)
-            pop_new.append([new_pos, None])
+                new_pos = self.problem.generate_solution()
+            new_pos = self.correct_solution(new_pos)
+            agent = self.generate_empty_agent(new_pos)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                new_tar = self.get_target_wrapper(new_pos)
-                self.pop[idx] = self.get_better_solution([new_pos, new_tar], self.pop[idx])
+                agent.target = self.get_target(new_pos)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
