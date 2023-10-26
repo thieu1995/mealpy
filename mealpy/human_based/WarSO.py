@@ -21,23 +21,21 @@ class OriginalWarSO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.WarSO import OriginalWarSO
+    >>> from mealpy import FloatVar, WarSO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalWarSO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = WarSO.OriginalWarSO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -45,7 +43,7 @@ class OriginalWarSO(Optimizer):
     war strategy optimization algorithm." International Journal of Energy Research (2022).
     """
 
-    def __init__(self, epoch=10000, pop_size=100, rr=0.1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, rr: float = 0.1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -54,10 +52,10 @@ class OriginalWarSO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.rr = self.validator.check_float("rr", rr, (0.0, 1.0))
-        self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.set_parameters(["epoch", "pop_size", "rr"])
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -71,19 +69,19 @@ class OriginalWarSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_sorted, _ = self.get_global_best_solution(self.pop)
-        com = np.random.permutation(self.pop_size)
+        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        com = self.generator.permutation(self.pop_size)
         for idx in range(0, self.pop_size):
-            r1 = np.random.rand()
+            r1 = self.generator.random()
             if r1 < self.rr:
-                pos_new = 2*r1*(self.g_best[self.ID_POS] - self.pop[com[idx]][self.ID_POS]) + \
-                          self.wl[idx]*np.random.rand()*(pop_sorted[idx][self.ID_POS] - self.pop[idx][self.ID_POS])
+                pos_new = 2*r1*(self.g_best.solution - self.pop[com[idx]].solution) + \
+                          self.wl[idx]*self.generator.random()*(pop_sorted[idx].solution - self.pop[idx].solution)
             else:
-                pos_new = 2*r1*(pop_sorted[idx][self.ID_POS] - self.g_best[self.ID_POS]) + \
-                          np.random.rand() * (self.wl[idx] * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+                pos_new = 2*r1*(pop_sorted[idx].solution - self.g_best.solution) + \
+                          self.generator.random() * (self.wl[idx] * self.g_best.solution - self.pop[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
                 self.wg[idx] += 1
                 self.wl[idx] = 1 * self.wl[idx] * (1 - self.wg[idx] / self.epoch)**2
