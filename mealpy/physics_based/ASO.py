@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 
 
 class OriginalASO(Optimizer):
@@ -23,25 +24,21 @@ class OriginalASO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.ASO import OriginalASO
+    >>> from mealpy import FloatVar, ASO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> alpha = 50
-    >>> beta = 0.2
-    >>> model = OriginalASO(epoch, pop_size, alpha, beta)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = ASO.OriginalASO(epoch=1000, pop_size=50, alpha = 50, beta = 0.2)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -49,12 +46,7 @@ class OriginalASO(Optimizer):
     hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, pp.283-304.
     """
 
-    ID_POS = 0
-    ID_TAR = 1
-    ID_VEL = 2  # Velocity
-    ID_MAS = 3  # Mass of atom
-
-    def __init__(self, epoch=10000, pop_size=100, alpha=10, beta=0.2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: int = 10, beta: float = 0.2, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -64,44 +56,37 @@ class OriginalASO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.alpha = self.validator.check_int("alpha", alpha, [1, 100])
         self.beta = self.validator.check_float("beta", beta, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "alpha", "beta"])
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        """
-        Overriding method in Optimizer class
-
-        Returns:
-            list: wrapper of solution with format [position, target, velocity, mass]
-        """
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        velocity = self.generate_position(lb, ub)
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        target = self.get_target(solution)
+        velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
         mass = 0.0
-        return [position, target, velocity, mass]
+        return Agent(solution=solution, target=target, velocity=velocity, mass=mass)
 
-    def bounded_position(self, position=None, lb=None, ub=None):
-        condition = np.logical_and(lb <= position, position <= ub)
-        rand_pos = np.random.uniform(lb, ub)
-        return np.where(condition, position, rand_pos)
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
+        rand_pos = self.generator.uniform(self.problem.lb, self.problem.ub)
+        return np.where(condition, solution, rand_pos)
 
     def update_mass__(self, population):
-        list_fit = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in population])
+        list_fit = np.array([agent.target.fitness for agent in population])
         list_fit = np.exp(-(list_fit - np.max(list_fit)) / (np.max(list_fit) - np.min(list_fit) + self.EPSILON))
         list_fit = list_fit / np.sum(list_fit)
         for idx in range(0, self.pop_size):
-            population[idx][self.ID_MAS] = list_fit[idx]
+            population[idx].mass = list_fit[idx]
         return population
 
     def find_LJ_potential__(self, iteration, average_dist, radius):
         c = (1 - iteration / self.epoch) ** 3
         # g0 = 1.1, u = 2.4
-        rsmin = 1.1 + 0.1 * np.sin((iteration + 1) / self.epoch * np.pi / 2)
+        rsmin = 1.1 + 0.1 * np.sin(iteration / self.epoch * np.pi / 2)
         rsmax = 1.24
         if radius / average_dist < rsmin:
             rs = rsmin
@@ -116,28 +101,26 @@ class OriginalASO(Optimizer):
     def acceleration__(self, population, g_best, iteration):
         eps = 2 ** (-52)
         pop = self.update_mass__(population)
-        G = np.exp(-20.0 * (iteration + 1) / self.epoch)
-        k_best = int(self.pop_size - (self.pop_size - 2) * ((iteration + 1) / self.epoch) ** 0.5) + 1
+        G = np.exp(-20.0 * iteration / self.epoch)
+        k_best = int(self.pop_size - (self.pop_size - 2) * (iteration / self.epoch) ** 0.5) + 1
         if self.problem.minmax == "min":
-            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS], reverse=True)[:k_best].copy()
+            k_best_pop = sorted(pop, key=lambda agent: agent.mass, reverse=True)[:k_best].copy()
         else:
-            k_best_pop = sorted(pop, key=lambda agent: agent[self.ID_MAS])[:k_best].copy()
-        mk_average = np.mean([item[self.ID_POS] for item in k_best_pop])
-
+            k_best_pop = sorted(pop, key=lambda agent: agent.mass)[:k_best].copy()
+        mk_average = np.mean([agent.solution for agent in k_best_pop])
         acc_list = np.zeros((self.pop_size, self.problem.n_dims))
-        for i in range(0, self.pop_size):
-            dist_average = np.linalg.norm(pop[i][self.ID_POS] - mk_average)
+        for idx in range(0, self.pop_size):
+            dist_average = np.linalg.norm(pop[idx].solution - mk_average)
             temp = np.zeros((self.problem.n_dims))
-
             for atom in k_best_pop:
                 # calculate LJ-potential
-                radius = np.linalg.norm(pop[i][self.ID_POS] - atom[self.ID_POS])
+                radius = np.linalg.norm(pop[idx].solution - atom.solution)
                 potential = self.find_LJ_potential__(iteration, dist_average, radius)
-                temp += potential * np.random.uniform(0, 1, self.problem.n_dims) * ((atom[self.ID_POS] - pop[i][self.ID_POS]) / (radius + eps))
-            temp = self.alpha * temp + self.beta * (g_best[self.ID_POS] - pop[i][self.ID_POS])
+                temp += potential * self.generator.uniform(0, 1, self.problem.n_dims) * ((atom.solution - pop[idx].solution) / (radius + eps))
+            temp = self.alpha * temp + self.beta * (g_best.solution - pop[idx].solution)
             # calculate acceleration
-            acc = G * temp / pop[i][self.ID_MAS]
-            acc_list[i] = acc
+            acc = G * temp / pop[idx].mass
+            acc_list[idx] = acc
         return acc_list
 
     def evolve(self, epoch):
@@ -149,26 +132,22 @@ class OriginalASO(Optimizer):
         """
         # Calculate acceleration.
         atom_acc_list = self.acceleration__(self.pop, self.g_best, iteration=epoch)
-
         # Update velocity based on random dimensions and position of global best
         pop_new = []
         for idx in range(0, self.pop_size):
             agent = self.pop[idx].copy()
-            velocity = np.random.random(self.problem.n_dims) * self.pop[idx][self.ID_VEL] + atom_acc_list[idx]
-            # print(velocity)
-            pos_new = self.pop[idx][self.ID_POS] + velocity
+            velocity = self.generator.random(self.problem.n_dims) * self.pop[idx].velocity + atom_acc_list[idx]
+            pos_new = self.pop[idx].solution + velocity
             # Relocate atom out of range
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            # print(pos_new)
-            agent[self.ID_POS] = pos_new
+            pos_new = self.correct_solution(pos_new)
+            agent.solution = pos_new
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                agent[self.ID_TAR] = target
-                self.pop[idx] = self.get_better_solution(agent, self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        _, current_best = self.get_global_best_solution(pop_new)
-        if self.compare_agent(self.g_best, current_best):
-            self.pop[np.random.randint(0, self.pop_size)] = self.g_best.copy()
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        current_best = self.get_best_agent(pop_new, self.problem.minmax)
+        if self.compare_target(self.g_best.target, current_best.target, self.problem.minmax):
+            self.pop[self.generator.integers(0, self.pop_size)] = self.g_best.copy()
