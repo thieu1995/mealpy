@@ -31,30 +31,28 @@ class OriginalTOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.human_based.TOA import OriginalTOA
+    >>> from mealpy import FloatVar, TOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalTOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = TOA.OriginalTOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Dehghani, M., & Trojovský, P. (2021). Teamwork optimization algorithm: A new optimization
     approach for function minimization/maximization. Sensors, 21(13), 4567.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -62,17 +60,17 @@ class OriginalTOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def get_indexes_better__(self, pop, idx):
-        fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
+        fits = np.array([agent.target.fitness for agent in self.pop])
         if self.problem.minmax == "min":
-            idxs = np.where(fits < pop[idx][self.ID_TAR][self.ID_FIT])
+            idxs = np.where(fits < pop[idx].target.fitness)
         else:
-            idxs = np.where(fits > pop[idx][self.ID_TAR][self.ID_FIT])
+            idxs = np.where(fits > pop[idx].target.fitness)
         return idxs[0]
 
     def evolve(self, epoch):
@@ -84,31 +82,28 @@ class OriginalTOA(Optimizer):
         """
         for idx in range(0, self.pop_size):
             # Stage 1: Supervisor guidance
-            pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - np.random.randint(1, 3) * self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
-
+            pos_new = self.pop[idx].solution + self.generator.random() * (self.g_best.solution - self.generator.integers(1, 3) * self.pop[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
             # Stage 2: Information sharing
             idxs = self.get_indexes_better__(self.pop, idx)
             if len(idxs) == 0:
                 sf = self.g_best
             else:
-                sf_pos = np.array([self.pop[jdx][self.ID_POS] for jdx in idxs])
-                sf_pos = self.amend_position(np.mean(sf_pos, axis=0), self.problem.lb, self.problem.ub)
-                sf_tar = self.get_target_wrapper(sf_pos)
-                sf = [sf_pos, sf_tar]
-            pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (sf[self.ID_POS] - np.random.randint(1, 3) * self.pop[idx][self.ID_POS]) * \
-                        np.sign(self.pop[idx][self.ID_TAR][self.ID_FIT] - sf[self.ID_TAR][self.ID_FIT])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
-
+                sf_pos = np.array([self.pop[jdx].solution for jdx in idxs])
+                sf_pos = self.correct_solution(np.mean(sf_pos, axis=0))
+                sf = self.generate_agent(sf_pos)
+            pos_new = self.pop[idx].solution + self.generator.random() * (sf.solution - self.generator.integers(1, 3) *
+                                    self.pop[idx].solution) * np.sign(self.pop[idx].target.fitness - sf.target.fitness)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
             # Stage 3: Individual activity
-            pos_new = self.pop[idx][self.ID_POS] + (-0.01 + np.random.rand() * 0.02) * self.pop[idx][self.ID_POS]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            pos_new = self.pop[idx].solution + (-0.01 + self.generator.random() * 0.02) * self.pop[idx].solution
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
