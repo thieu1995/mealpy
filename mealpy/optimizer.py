@@ -460,6 +460,14 @@ class Optimizer:
         return pop[0].copy()
 
     @staticmethod
+    def get_index_best(pop: List[Agent], minmax: str = "min") -> int:
+        fit_list = np.array([agent.target.fitness for agent in pop])
+        if minmax == "min":
+            return np.argmin(fit_list)
+        else:
+            return np.argmax(fit_list)
+
+    @staticmethod
     def get_worst_agent(pop: List[Agent], minmax: str = "min") -> Agent:
         """
         Args:
