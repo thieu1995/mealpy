@@ -595,23 +595,23 @@ class Optimizer:
         if save:
             ## Save current best
             self.history.list_current_best.append(c_best)
-            better = self.get_better_agent(c_best, self.history.list_global_best[-1])
+            better = self.get_better_agent(c_best, self.history.list_global_best[-1], self.problem.minmax)
             self.history.list_global_best.append(better)
             ## Save current worst
             self.history.list_current_worst.append(c_worst)
-            worse = self.get_better_agent(c_worst, self.history.list_global_worst[-1], reverse=True)
+            worse = self.get_better_agent(c_worst, self.history.list_global_worst[-1], self.problem.minmax, reverse=True)
             self.history.list_global_worst.append(worse)
             return sorted_pop, better
         else:
             ## Handle current best
-            local_better = self.get_better_agent(c_best, self.history.list_current_best[-1])
+            local_better = self.get_better_agent(c_best, self.history.list_current_best[-1], self.problem.minmax)
             self.history.list_current_best[-1] = local_better
-            global_better = self.get_better_agent(c_best, self.history.list_global_best[-1])
+            global_better = self.get_better_agent(c_best, self.history.list_global_best[-1], self.problem.minmax)
             self.history.list_global_best[-1] = global_better
             ## Handle current worst
-            local_worst = self.get_better_agent(c_worst, self.history.list_current_worst[-1], reverse=True)
+            local_worst = self.get_better_agent(c_worst, self.history.list_current_worst[-1], self.problem.minmax, reverse=True)
             self.history.list_current_worst[-1] = local_worst
-            global_worst = self.get_better_agent(c_worst, self.history.list_global_worst[-1], reverse=True)
+            global_worst = self.get_better_agent(c_worst, self.history.list_global_worst[-1], self.problem.minmax, reverse=True)
             self.history.list_global_worst[-1] = global_worst
             return sorted_pop, global_better
 
