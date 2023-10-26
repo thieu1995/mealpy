@@ -94,7 +94,7 @@ class OriginalCA(Optimizer):
             id1, id2 = self.generator.choice(list(range(0, size_new)), 2, replace=False)
             agent = self.get_better_agent(pop_full[id1], pop_full[id2], self.problem.minmax)
             pop_new.append(agent)
-        self.pop = self.get_sorted_population(pop_new)
+        self.pop = self.get_sorted_population(pop_new, self.problem.minmax)
         # Get accepted faithful
         accepted = self.pop[:self.dyn_accepted_num]
         # Update belief_space
