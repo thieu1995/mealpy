@@ -119,7 +119,7 @@ class OriginalALO(Optimizer):
         pop_new = self.update_target_for_population(pop_new)
         # Update antlion positions and fitnesses based on the ants (if an ant becomes fitter than an antlion
         # we assume it was caught by the antlion and the antlion update goes to its position to build the trap)
-        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size, self.problem.minmax)
         # Keep the elite in the population
         self.pop[-1] = self.g_best.copy()
 
@@ -128,9 +128,8 @@ class DevALO(OriginalALO):
     """
     The developed version: Ant Lion Optimizer (ALO)
 
-    Notes
-    ~~~~~
-    + Improved performance by removing the for loop when creating n random walks
+    Notes:
+        + Improved performance by removing the for loop when creating n random walks
 
     Examples
     ~~~~~~~~
@@ -172,15 +171,12 @@ class DevALO(OriginalALO):
             I = 1 + 100000 * (current_epoch / self.epoch)
         if current_epoch > self.epoch * 0.95:
             I = 1 + 1000000 * (current_epoch / self.epoch)
-
         # Decrease boundaries to converge towards antlion
         lb = self.problem.lb / I  # Equation (2.10) in the paper
         ub = self.problem.ub / I  # Equation (2.10) in the paper
-
         # Move the interval of [lb ub] around the antlion [lb+anlion ub+antlion]. Eq 2.8, 2.9
         lb = lb + solution if self.generator.random() < 0.5 else -lb + solution
         ub = ub + solution if self.generator.random() < 0.5 else -ub + solution
-
         # This function creates n random walks and normalize according to lb and ub vectors,
         ## Using matrix and vector for better performance
         X = np.array([np.cumsum(2 * (self.generator.random(self.pop_size) > 0.5) - 1) for _ in range(0, self.problem.n_dims)])
@@ -218,6 +214,6 @@ class DevALO(OriginalALO):
         pop_new = self.update_target_for_population(pop_new)
         # Update antlion positions and fitnesses based on the ants (if an ant becomes fitter than an antlion
         # we assume it was caught by the antlion and the antlion update goes to its position to build the trap)
-        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size, self.problem.minmax)
         # Keep the elite in the population
         self.pop[-1] = self.g_best.copy()
