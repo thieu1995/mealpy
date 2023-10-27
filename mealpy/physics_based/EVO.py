@@ -24,30 +24,28 @@ class OriginalEVO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.EVO import OriginalEVO
+    >>> from mealpy import FloatVar, EVO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalEVO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = EVO.OriginalEVO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Azizi, M., Aickelin, U., A. Khorshidi, H., & Baghalzadeh Shishehgarkhaneh, M. (2023). Energy valley optimizer: a novel
     metaheuristic algorithm for global and engineering optimization. Scientific Reports, 13(1), 226.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,7 +53,7 @@ class OriginalEVO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = True
 
@@ -68,44 +66,47 @@ class OriginalEVO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_list = np.array([agent[self.ID_POS] for agent in self.pop])
-            fit_list = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
-            dis = np.sqrt(np.sum((self.pop[idx][self.ID_POS] - pos_list)**2, axis=1))
+            pos_list = np.array([agent.solution for agent in self.pop])
+            fit_list = np.array([agent.target.fitness for agent in self.pop])
+            dis = np.sqrt(np.sum((self.pop[idx].solution - pos_list)**2, axis=1))
             idx_dis_sort = np.argsort(dis)
-            CnPtIdx = np.random.choice(list(set(range(2, self.pop_size)) - {idx}))
+            CnPtIdx = self.generator.choice(list(set(range(2, self.pop_size)) - {idx}))
             x_team = pos_list[idx_dis_sort[1:CnPtIdx], :]
             x_avg_team = np.mean(x_team, axis=0)
             x_avg_pop = np.mean(pos_list, axis=0)
             eb = np.mean(fit_list)
-            sl = (fit_list[idx] - self.g_best[self.ID_TAR][self.ID_FIT]) / (self.g_worst[self.ID_TAR][self.ID_FIT] - self.g_best[self.ID_TAR][self.ID_FIT] + self.EPSILON)
+            sl = (fit_list[idx] - self.g_best.target.fitness) / (self.g_worst.target.fitness - self.g_best.target.fitness + self.EPSILON)
 
-            pos_new1 = self.pop[idx][self.ID_POS].copy()
-            pos_new2 = self.pop[idx][self.ID_POS].copy()
-            if self.compare_agent([None, [eb]], self.pop[idx]):
-                if np.random.rand() > sl:
-                    a1_idx = np.random.randint(self.problem.n_dims)
-                    a2_idx = np.random.randint(0, self.problem.n_dims, size=a1_idx)
-                    pos_new1[a2_idx] = self.g_best[self.ID_POS][a2_idx]
-                    g1_idx = np.random.randint(self.problem.n_dims)
-                    g2_idx = np.random.randint(0, self.problem.n_dims, size=g1_idx)
+            pos_new1 = self.pop[idx].solution.copy()
+            pos_new2 = self.pop[idx].solution.copy()
+            if self.compare_fitness(eb, self.pop[idx].target.fitness, self.problem.minmax):
+                if self.generator.random() > sl:
+                    a1_idx = self.generator.integers(self.problem.n_dims)
+                    a2_idx = self.generator.integers(0, self.problem.n_dims, size=a1_idx)
+                    pos_new1[a2_idx] = self.g_best.solution[a2_idx]
+                    g1_idx = self.generator.integers(self.problem.n_dims)
+                    g2_idx = self.generator.integers(0, self.problem.n_dims, size=g1_idx)
                     pos_new2[g2_idx] = x_avg_team[g2_idx]
                 else:
-                    ir = np.random.uniform(0, 1, 2)
-                    jr = np.random.uniform(0, 1, self.problem.n_dims)
-                    pos_new1 += jr * (ir[0] * self.g_best[self.ID_POS] - ir[1] * x_avg_pop) / sl
-                    ir = np.random.uniform(0, 1, 2)
-                    jr = np.random.uniform(0, 1, self.problem.n_dims)
-                    pos_new2 += jr * (ir[0] * self.g_best[self.ID_POS] - ir[1] * x_avg_team)
-                pos_new1 = self.amend_position(pos_new1, self.problem.lb, self.problem.ub)
-                pos_new2 = self.amend_position(pos_new2, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new1, None])
-                pop_new.append([pos_new2, None])
+                    ir = self.generator.uniform(0, 1, 2)
+                    jr = self.generator.uniform(0, 1, self.problem.n_dims)
+                    pos_new1 += jr * (ir[0] * self.g_best.solution - ir[1] * x_avg_pop) / sl
+                    ir = self.generator.uniform(0, 1, 2)
+                    jr = self.generator.uniform(0, 1, self.problem.n_dims)
+                    pos_new2 += jr * (ir[0] * self.g_best.solution - ir[1] * x_avg_team)
+                pos_new1 = self.correct_solution(pos_new1)
+                pos_new2 = self.correct_solution(pos_new2)
+                agent1 = self.generate_empty_agent(pos_new1)
+                agent2 = self.generate_empty_agent(pos_new2)
+                pop_new.append(agent1)
+                pop_new.append(agent2)
             else:
-                pos_new = pos_new1 + np.random.randn() * sl * np.random.uniform(self.problem.lb, self.problem.ub, self.problem.n_dims)
-                pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                pos_new = pos_new1 + self.generator.random() * sl * self.generator.uniform(self.problem.lb, self.problem.ub, self.problem.n_dims)
+                pos_new = self.correct_solution(pos_new)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
         if self.mode not in self.AVAILABLE_MODES:
             for idx in range(0, len(pop_new)):
-                pop_new[idx][self.ID_TAR] = self.get_target_wrapper(pop_new[idx][self.ID_POS])
-        pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
+                pop_new[idx].target = self.get_target(pop_new[idx].solution)
+        pop_new = self.update_target_for_population(pop_new)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size, self.problem.minmax)
