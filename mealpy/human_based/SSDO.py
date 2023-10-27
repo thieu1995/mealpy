@@ -54,13 +54,12 @@ class OriginalSSDO(Optimizer):
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
         pos_local = solution.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=pos_local)
+        return Agent(solution=solution, velocity=velocity, local_solution=pos_local)
 
     def evolve(self, epoch):
         """
