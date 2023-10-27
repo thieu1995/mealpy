@@ -12,14 +12,11 @@ class OriginalWDO(Optimizer):
     """
     The original version of: Wind Driven Optimization (WDO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/abstract/document/6407788
-
     Notes
-    ~~~~~
-    + pop is the set of "air parcel" - "position"
-    + air parcel: is the set of gas atoms. Each atom represents a dimension in position and has its own velocity
-    + pressure represented by fitness value
+        + pop is the set of "air parcel" - "position"
+        + air parcel: is the set of gas atoms. Each atom represents a dimension in position and has its own velocity
+        + pressure represented by fitness value
+        + https://ieeexplore.ieee.org/abstract/document/6407788
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + RT (int): [2, 3, 4], RT coefficient, default = 3
@@ -30,30 +27,23 @@ class OriginalWDO(Optimizer):
 
     Examples
     ~~~~~~~~
+
     >>> import numpy as np
-    >>> from mealpy.physics_based.WDO import OriginalWDO
+    >>> from mealpy import FloatVar, WDO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
-    >>>     "log_to": None,
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> RT = 3
-    >>> g_c = 0.2
-    >>> alp = 0.4
-    >>> c_e = 0.4
-    >>> max_v = 0.3
-    >>> model = OriginalWDO(epoch, pop_size, RT, g_c, alp, c_e, max_v)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = WDO.OriginalWDO(epoch=1000, pop_size=50, RT = 3, g_c = 0.2, alp = 0.4, c_e = 0.4, max_v = 0.3)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -62,7 +52,8 @@ class OriginalWDO(Optimizer):
     propagation, 61(5), pp.2745-2757.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, RT=3, g_c=0.2, alp=0.4, c_e=0.4, max_v=0.3, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, RT: int = 3, g_c: float = 0.2,
+                 alp: float = 0.4, c_e: float = 0.4, max_v: float = 0.3, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -85,7 +76,7 @@ class OriginalWDO(Optimizer):
         self.sort_flag = False
 
     def initialize_variables(self):
-        self.dyn_list_velocity = self.max_v * np.random.uniform(self.problem.lb, self.problem.ub, (self.pop_size, self.problem.n_dims))
+        self.dyn_list_velocity = self.max_v * self.generator.uniform(self.problem.lb, self.problem.ub, (self.pop_size, self.problem.n_dims))
 
     def evolve(self, epoch):
         """
@@ -96,20 +87,20 @@ class OriginalWDO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            rand_dim = np.random.randint(0, self.problem.n_dims)
+            rand_dim = self.generator.integers(0, self.problem.n_dims)
             temp = self.dyn_list_velocity[idx][rand_dim] * np.ones(self.problem.n_dims)
-            vel = (1 - self.alp) * self.dyn_list_velocity[idx] - self.g_c * self.pop[idx][self.ID_POS] + \
-                  (1 - 1.0 / (idx + 1)) * self.RT * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + self.c_e * temp / (idx + 1)
+            vel = (1 - self.alp) * self.dyn_list_velocity[idx] - self.g_c * self.pop[idx].solution + \
+                  (1 - 1.0 / (idx + 1)) * self.RT * (self.g_best.solution - self.pop[idx].solution) + self.c_e * temp / (idx + 1)
             vel = np.clip(vel, -self.max_v, self.max_v)
-
             # Update air parcel positions, check the bound and calculate pressure (fitness)
             self.dyn_list_velocity[idx] = vel
-            pos = self.pop[idx][self.ID_POS] + vel
-            pos_new = self.amend_position(pos, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos = self.pop[idx].solution + vel
+            pos_new = self.correct_solution(pos)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(pop_new, self.pop)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
