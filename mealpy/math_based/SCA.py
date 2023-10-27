@@ -249,12 +249,11 @@ class QleSCA(DevSCA):
         self.sort_flag = False
         self.is_parallelizable = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         q_table = QTable(n_states=9, n_actions=9, generator=self.generator)
-        return Agent(solution=solution, target=target, q_table=q_table)
+        return Agent(solution=solution, q_table=q_table)
 
     def amend_solution(self, solution: np.ndarray) -> np.ndarray:
         rand_pos = self.generator.uniform(self.problem.lb, self.problem.ub)
