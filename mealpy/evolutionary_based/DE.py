@@ -467,14 +467,13 @@ class SAP_DE(Optimizer):
     def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         crossover_rate = self.generator.uniform(0, 1)
         mutation_rate = self.generator.uniform(0, 1)
         if self.branch == "ABS":
             pop_size = int(10 * self.problem.n_dims + self.generator.normal(0, 1))
         else:  # elif self.branch == "REL":
             pop_size = int(10 * self.problem.n_dims + self.generator.uniform(-0.5, 0.5))
-        return Agent(solution=solution, target=target, crossover=crossover_rate, mutation=mutation_rate, pop_size=pop_size)
+        return Agent(solution=solution, crossover=crossover_rate, mutation=mutation_rate, pop_size=pop_size)
 
     def edit_to_range__(self, var=None, lower=0, upper=1, func_value=None):
         while var <= lower or var >= upper:
