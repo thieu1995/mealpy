@@ -28,8 +28,8 @@ class OriginalABC(Optimizer):
     >>>
     >>> problem_dict = {
     >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
-    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
     >>> model = ABC.OriginalABC(epoch=1000, pop_size=50, n_limits = 50)
@@ -74,13 +74,12 @@ class OriginalABC(Optimizer):
             phi = self.generator.uniform(low=-1, high=1, size=self.problem.n_dims)
             pos_new = self.pop[idx].solution + phi * (self.pop[rdx].solution - self.pop[idx].solution)
             pos_new = self.correct_solution(pos_new)
-            target = self.get_target(pos_new)
-            if self.compare_target(target, self.pop[idx].target):
-                self.pop[idx].update(solution=pos_new, target=target)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
                 self.trials[idx] = 0
             else:
                 self.trials[idx] += 1
-
         # Onlooker bees phase
         # Calculate the probabilities of each employed bee
         employed_fits = np.array([agent.target.fitness for agent in self.pop])
@@ -94,13 +93,12 @@ class OriginalABC(Optimizer):
             phi = self.generator.uniform(low=-1, high=1, size=self.problem.n_dims)
             pos_new = self.pop[selected_bee].solution + phi * (self.pop[rdx].solution - self.pop[selected_bee].solution)
             pos_new = self.correct_solution(pos_new)
-            target = self.get_target(pos_new)
-            if self.compare_target(target, self.pop[selected_bee].target):
-                self.pop[selected_bee].update(solution=pos_new, target=target)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[selected_bee].target, self.problem.minmax):
+                self.pop[selected_bee] = agent
                 self.trials[selected_bee] = 0
             else:
                 self.trials[selected_bee] += 1
-
         # Scout bees phase
         # Check the number of trials for each employed bee and abandon the food source if the limit is exceeded
         abandoned = np.where(self.trials >= self.n_limits)[0]
