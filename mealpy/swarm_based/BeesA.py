@@ -12,10 +12,9 @@ class CleverBookBeesA(Optimizer):
     """
     The original version of: Bees Algorithm
 
-    Notes
-    ~~~~~
-    + This version is based on ABC in the book Clever Algorithms
-    + Improved the function search_neighborhood__
+    Notes:
+        + This version is based on ABC in the book Clever Algorithms
+        + Improved the function search_neighborhood__
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_elites (int): number of employed bees which provided for good location
@@ -28,36 +27,30 @@ class CleverBookBeesA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BeesA import CleverBookBeesA
+    >>> from mealpy import FloatVar, BeesA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> n_elites = 16
-    >>> n_others = 4
-    >>> patch_size = 5.0
-    >>> patch_reduction = 0.985
-    >>> n_sites = 3
-    >>> n_elite_sites = 1
-    >>> model = CleverBookBeesA(epoch, pop_size, n_elites, n_others, patch_size, patch_reduction, n_sites, n_elite_sites)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BeesA.CleverBookBeesA(epoch=1000, pop_size=50, n_elites = 16, n_others = 4,
+    >>>             patch_size = 5.0, patch_reduction = 0.985, n_sites = 3, n_elite_sites = 1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] D. T. Pham, Ghanbarzadeh A., Koc E., Otri S., Rahim S., and M.Zaidi. The bees algorithm - a novel tool
     for complex optimisation problems. In Proceedings of IPROMS 2006 Conference, pages 454–461, 2006.
     """
-    def __init__(self, epoch=10000, pop_size=100, n_elites=16, n_others=4, patch_size=5.0, patch_reduction=0.985, n_sites=3, n_elite_sites=1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, n_elites: int = 16, n_others: int = 4,
+                 patch_size: float = 5.0, patch_reduction: float = 0.985, n_sites: int = 3, n_elite_sites: int = 1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -71,7 +64,7 @@ class CleverBookBeesA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.n_elites = self.validator.check_int("n_elites", n_elites, [4, 20])
         self.n_others = self.validator.check_int("n_others", n_others, [2, 5])
         self.patch_size = self.validator.check_float("patch_size", patch_size, [2, 10])
@@ -87,17 +80,17 @@ class CleverBookBeesA(Optimizer):
         """
         pop_neigh = []
         for idx in range(0, neigh_size):
-            t1 = np.random.randint(0, len(parent[self.ID_POS]) - 1)
-            new_bee = parent[self.ID_POS].copy()
-            new_bee[t1] = (parent[self.ID_POS][t1] + np.random.uniform() * self.patch_size) if np.random.uniform() < 0.5 \
-                else (parent[self.ID_POS][t1] - np.random.uniform() * self.patch_size)
-            pos_new = self.amend_position(new_bee, self.problem.lb, self.problem.ub)
-            pop_neigh.append([pos_new, None])
+            t1 = self.generator.integers(0, len(parent.solution) - 1)
+            new_bee = parent.solution.copy()
+            new_bee[t1] = (parent.solution[t1] + self.generator.uniform() * self.patch_size) if self.generator.uniform() < 0.5 \
+                else (parent.solution[t1] - self.generator.uniform() * self.patch_size)
+            pos_new = self.correct_solution(new_bee)
+            agent = self.generate_empty_agent(pos_new)
+            pop_neigh.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_neigh[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_neigh = self.update_target_wrapper_population(pop_neigh)
-        _, current_best = self.get_global_best_solution(pop_neigh)
-        return current_best
+                pop_neigh[-1].target = self.get_target(pos_new)
+        pop_neigh = self.update_target_for_population(pop_neigh)
+        return self.get_best_agent(pop_neigh, self.problem.minmax)
 
     def evolve(self, epoch):
         """
@@ -115,12 +108,12 @@ class CleverBookBeesA(Optimizer):
                     neigh_size = self.n_others
                 agent = self.search_neighborhood__(self.pop[idx], neigh_size)
             else:
-                agent = self.create_solution(self.problem.lb, self.problem.ub)
+                agent = self.generate_agent()
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop[idx] = self.get_better_solution(agent, self.pop[idx])
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
 class OriginalBeesA(Optimizer):
@@ -142,39 +135,32 @@ class OriginalBeesA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BeesA import OriginalBeesA
+    >>> from mealpy import FloatVar, BeesA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> selected_site_ratio=0.5
-    >>> elite_site_ratio=0.4
-    >>> selected_site_bee_ratio=0.1
-    >>> elite_site_bee_ratio=2.0
-    >>> dance_radius=0.1
-    >>> dance_reduction=0.99
-    >>> model = OriginalBeesA(epoch, pop_size, selected_site_ratio, elite_site_ratio, selected_site_bee_ratio, elite_site_bee_ratio, dance_radius, dance_reduction)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BeesA.OriginalBeesA(epoch=1000, pop_size=50, selected_site_ratio=0.5, elite_site_ratio=0.4,
+    >>>         selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0, dance_radius=0.1, dance_reduction=0.99)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
-    [1] Pham, D.T., Ghanbarzadeh, A., Koç, E., Otri, S., Rahim, S. and Zaidi, M., 2006.
-    The bees algorithm—a novel tool for complex optimisation problems. In Intelligent
-    production machines and systems (pp. 454-459). Elsevier Science Ltd.
+    [1] Pham, D.T., Ghanbarzadeh, A., Koç, E., Otri, S., Rahim, S. and Zaidi, M., 2006. The bees algorithm—a novel tool
+    for complex optimisation problems. In Intelligent production machines and systems (pp. 454-459). Elsevier Science Ltd.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, selected_site_ratio=0.5, elite_site_ratio=0.4, 
-                 selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0, dance_radius=0.1, dance_reduction=0.99, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, selected_site_ratio: float = 0.5,
+                 elite_site_ratio: float = 0.4, selected_site_bee_ratio: float = 0.1, elite_site_bee_ratio: float = 2.0,
+                 dance_radius: float = 0.1, dance_reduction: float = 0.99, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -188,7 +174,7 @@ class OriginalBeesA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         # (Scout Bee Count or Population Size, Selected Sites Count)
         self.selected_site_ratio = self.validator.check_float("selected_site_ratio", selected_site_ratio, (0, 1.0))
         self.elite_site_ratio = self.validator.check_float("elite_site_ratio", elite_site_ratio, (0, 1.0))
@@ -207,9 +193,9 @@ class OriginalBeesA(Optimizer):
         self.sort_flag = True
 
     def perform_dance__(self, position, r):
-        j = np.random.choice(range(0, self.problem.n_dims))
-        position[j] = position[j] + r * np.random.uniform(-1, 1)
-        return self.amend_position(position, self.problem.lb, self.problem.ub)
+        jdx = self.generator.choice(range(0, self.problem.n_dims))
+        position[jdx] = position[jdx] + r * self.generator.uniform(-1, 1)
+        return self.correct_solution(position)
 
     def evolve(self, epoch):
         """
@@ -224,29 +210,31 @@ class OriginalBeesA(Optimizer):
             if idx < self.n_elite_bees:
                 pop_child = []
                 for j in range(0, self.n_elite_bees_local):
-                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
-                    pop_child.append([pos_new, None])
+                    pos_new = self.perform_dance__(self.pop[idx].solution, self.dyn_radius)
+                    agent = self.generate_empty_agent(pos_new)
+                    pop_child.append(agent)
                     if self.mode not in self.AVAILABLE_MODES:
-                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-                pop_child = self.update_target_wrapper_population(pop_child)
-                _, local_best = self.get_global_best_solution(pop_child)
-                if self.compare_agent(local_best, self.pop[idx]):
+                        pop_child[-1].target = self.get_target(pos_new)
+                pop_child = self.update_target_for_population(pop_child)
+                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     pop_new[idx] = local_best
             elif self.n_elite_bees <= idx < self.n_selected_bees:
                 # Selected Non-Elite Sites
                 pop_child = []
                 for j in range(0, self.n_selected_bees_local):
-                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
-                    pop_child.append([pos_new, None])
+                    pos_new = self.perform_dance__(self.pop[idx].solution, self.dyn_radius)
+                    agent = self.generate_empty_agent(pos_new)
+                    pop_child.append(agent)
                     if self.mode not in self.AVAILABLE_MODES:
-                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-                pop_child = self.update_target_wrapper_population(pop_child)
-                _, local_best = self.get_global_best_solution(pop_child)
-                if self.compare_agent(local_best, self.pop[idx]):
+                        pop_child[-1].target = self.get_target(pos_new)
+                pop_child = self.update_target_for_population(pop_child)
+                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     pop_new[idx] = local_best
             else:
                 # Non-Selected Sites
-                pop_new[idx] = self.create_solution(self.problem.lb, self.problem.ub)
+                pop_new[idx] = self.generate_agent()
         self.pop = pop_new
         # Damp Dance Radius
         self.dyn_radius = self.dance_reduction * self.dance_radius
@@ -263,26 +251,21 @@ class ProbBeesA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.BeesA import ProbBeesA
+    >>> from mealpy import FloatVar, BeesA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> recruited_bee_ratio = 0.1
-    >>> dance_radius = 0.1
-    >>> dance_reduction = 0.99
-    >>> model = ProbBeesA(epoch, pop_size, recruited_bee_ratio, dance_radius, dance_reduction)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = BeesA.ProbBeesA(epoch=1000, pop_size=50, recruited_bee_ratio = 0.1, dance_radius = 0.1, dance_reduction = 0.99)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -290,7 +273,8 @@ class ProbBeesA(Optimizer):
     function optimisation. Cogent Engineering, 2(1), p.1091540.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, recruited_bee_ratio=0.1, dance_radius=0.1, dance_reduction=0.99, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, recruited_bee_ratio: float = 0.1,
+                 dance_radius: float = 0.1, dance_reduction: float = 0.99, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -301,7 +285,7 @@ class ProbBeesA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.recruited_bee_ratio = self.validator.check_float("recruited_bee_ratio", recruited_bee_ratio, (0, 1.0))
         self.dance_radius = self.validator.check_float("dance_radius", dance_radius, (0, 1.0))
         self.dance_reduction = self.validator.check_float("dance_reduction", dance_reduction, (0, 1.0))
@@ -312,9 +296,9 @@ class ProbBeesA(Optimizer):
         self.recruited_bee_count = int(round(self.recruited_bee_ratio * self.pop_size))
 
     def perform_dance__(self, position, r):
-        j = np.random.choice(list(range(0, self.problem.n_dims)))
-        position[j] = position[j] + r * np.random.uniform(-1, 1)
-        return self.amend_position(position, self.problem.lb, self.problem.ub)
+        jdx = self.generator.choice(list(range(0, self.problem.n_dims)))
+        position[jdx] = position[jdx] + r * self.generator.uniform(-1, 1)
+        return self.correct_solution(position)
 
     def evolve(self, epoch):
         """
@@ -324,10 +308,9 @@ class ProbBeesA(Optimizer):
             epoch (int): The current iteration
         """
         # Calculate Scores
-        fit_list = np.array([solution[self.ID_TAR][self.ID_FIT] for solution in self.pop])
+        fit_list = np.array([agent.target.fitness for agent in self.pop])
         fit_list = 1.0 / fit_list
         d_fit = fit_list / np.mean(fit_list)
-
         for idx in range(0, self.pop_size):
             # Determine Rejection Probability based on Score
             if d_fit[idx] < 0.9:
@@ -338,9 +321,8 @@ class ProbBeesA(Optimizer):
                 reject_prob = 0.05
             else:
                 reject_prob = 0
-
             # Check for Acceptance/Rejection
-            if np.random.rand() >= reject_prob:  # Acceptance
+            if self.generator.random() >= reject_prob:  # Acceptance
                 # Calculate New Bees Count
                 bee_count = int(np.ceil(d_fit[idx] * self.recruited_bee_count))
                 if bee_count < 2: bee_count = 2
@@ -348,15 +330,16 @@ class ProbBeesA(Optimizer):
                 # Create New Bees(Solutions)
                 pop_child = []
                 for j in range(0, bee_count):
-                    pos_new = self.perform_dance__(self.pop[idx][self.ID_POS], self.dyn_radius)
-                    pop_child.append([pos_new, None])
+                    pos_new = self.perform_dance__(self.pop[idx].solution, self.dyn_radius)
+                    agent = self.generate_empty_agent(pos_new)
+                    pop_child.append(agent)
                     if self.mode not in self.AVAILABLE_MODES:
-                        pop_child[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-                pop_child = self.update_target_wrapper_population(pop_child)
-                _, local_best = self.get_global_best_solution(pop_child)
-                if self.compare_agent(local_best, self.pop[idx]):
+                        pop_child[-1].target = self.get_target(pos_new)
+                pop_child = self.update_target_for_population(pop_child)
+                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx] = local_best
             else:
-                self.pop[idx] = self.create_solution(self.problem.lb, self.problem.ub)
+                self.pop[idx] = self.generate_agent()
         # Damp Dance Radius
         self.dyn_radius = self.dance_reduction * self.dance_radius
