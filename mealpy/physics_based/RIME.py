@@ -35,7 +35,7 @@ class OriginalRIME(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = RIME.OriginalRIME(epoch=1000, pop_size=50, w = 5.0)
+    >>> model = RIME.OriginalRIME(epoch=1000, pop_size=50, sr = 5.0)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
