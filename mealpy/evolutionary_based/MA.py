@@ -75,14 +75,13 @@ class OriginalMA(Optimizer):
     def initialize_variables(self):
         self.bits_total = self.problem.n_dims * self.bits_per_param
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         bitstring = ''.join(["1" if self.generator.uniform() < 0.5 else "0" for _ in range(0, self.bits_total)])
-        return Agent(solution=solution, target=target, bitstring=bitstring)
+        return Agent(solution=solution, bitstring=bitstring)
 
-    def decode_(self, bitstring=None):
+    def decode__(self, bitstring: str = None) -> np.ndarray:
         """
         Decode the random bitstring into real number
 
@@ -125,7 +124,7 @@ class OriginalMA(Optimizer):
         for idx in range(0, self.max_local_gens):
             child = current
             bitstring_new = self.point_mutation__(child.bitstring)
-            pos_new = self.decode_(bitstring_new)
+            pos_new = self.decode__(bitstring_new)
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
             agent.update(solution=pos_new, bitstring=bitstring_new)
@@ -143,7 +142,7 @@ class OriginalMA(Optimizer):
             ancient = pop_copy[0]
         bitstring_new = self.crossover__(pop_copy[idx].bitstring, ancient.bitstring)
         bitstring_new = self.point_mutation__(bitstring_new)
-        pos_new = self.decode_(bitstring_new)
+        pos_new = self.decode__(bitstring_new)
         pos_new = self.correct_solution(pos_new)
         agent = self.generate_agent(pos_new)
         agent.bitstring = bitstring_new
@@ -168,7 +167,7 @@ class OriginalMA(Optimizer):
                 ancient = children[0]
             bitstring_new = self.crossover__(children[idx].bitstring, ancient.bitstring)
             bitstring_new = self.point_mutation__(bitstring_new)
-            pos_new = self.decode_(bitstring_new)
+            pos_new = self.decode__(bitstring_new)
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
             agent.update(bitstring=bitstring_new)
