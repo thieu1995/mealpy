@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-from copy import deepcopy
 from mealpy.optimizer import Optimizer
 
 
@@ -23,32 +22,28 @@ class OriginalSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.SA import OriginalSA
+    >>> from mealpy import FloatVar, SA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 2
-    >>> temp_init = 100
-    >>> step_size = 0.1
-    >>> model = OriginalSA(epoch, pop_size, temp_init, cooling_rate)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SA.OriginalSA(epoch=1000, pop_size=50, temp_init = 100, step_size = 0.1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Kirkpatrick, S., Gelatt Jr, C. D., & Vecchi, M. P. (1983). Optimization by simulated annealing. science, 220(4598), 671-680.
     """
 
-    def __init__(self, epoch=10000, pop_size=2, temp_init=100, step_size=0.1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 2, temp_init: float = 100, step_size: float = 0.1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -64,7 +59,7 @@ class OriginalSA(Optimizer):
         self.set_parameters(["epoch", "temp_init", "step_size"])
 
     def before_main_loop(self):
-        self.agent_current = deepcopy(self.g_best)
+        self.agent_current = self.g_best.copy()
 
     def evolve(self, epoch):
         """
@@ -74,21 +69,20 @@ class OriginalSA(Optimizer):
             epoch (int): The current iteration
         """
         # Perturb the current solution
-        pos_new = self.agent_current[self.ID_POS] + np.random.randn(self.problem.n_dims) * self.step_size
-        pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        tar_new = self.get_target_wrapper(pos_new)
+
+        pos_new = self.agent_current.solution + self.generator.standard_normal(self.problem.n_dims) * self.step_size
+        agent = self.generate_agent(pos_new)
         # Accept or reject the new solution
-        if self.compare_agent([pos_new, tar_new], self.agent_current):
-            self.agent_current = [pos_new, tar_new]
+        if self.compare_target(agent.target, self.agent_current.target, self.problem.minmax):
+            self.agent_current = agent
         else:
             # Calculate the energy difference
-            delta_energy = np.abs(self.agent_current[self.ID_TAR][self.ID_FIT] - tar_new[self.ID_FIT])
+            delta_energy = np.abs(self.agent_current.target.fitness - agent.target.fitness)
             # calculate probability acceptance criterion
             p_accept = np.exp(-delta_energy/ (self.temp_init / float(epoch + 1)))
-            print(p_accept)
-            if np.random.rand() < p_accept:
-                self.agent_current = [pos_new, tar_new]
-        self.pop = [deepcopy(self.g_best), deepcopy(self.agent_current)]
+            if self.generator.random() < p_accept:
+                self.agent_current = agent
+        self.pop = [self.g_best.copy(), self.agent_current.copy()]
 
 
 class GaussianSA(Optimizer):
@@ -107,29 +101,25 @@ class GaussianSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.SA import GaussianSA
+    >>> from mealpy import FloatVar, SA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 2
-    >>> temp_init = 100
-    >>> cooling_rate = 0.99
-    >>> scale = 0.1
-    >>> model = GaussianSA(epoch, pop_size, temp_init, cooling_rate, scale)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SA.GaussianSA(epoch=1000, pop_size=2, temp_init = 100, cooling_rate = 0.99, scale = 0.1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    def __init__(self, epoch=10000, pop_size=2, temp_init=100, cooling_rate=0.99, scale=0.1, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 2, temp_init: float = 100,
+                 cooling_rate: float = 0.99, scale: float = 0.1, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -149,7 +139,7 @@ class GaussianSA(Optimizer):
     def before_main_loop(self):
         # Initialize the system
         self.temp_current = self.temp_init
-        self.agent_current = deepcopy(self.g_best)
+        self.agent_current = self.g_best.copy()
 
     def evolve(self, epoch):
         """
@@ -159,21 +149,20 @@ class GaussianSA(Optimizer):
             epoch (int): The current iteration
         """
         # Perturb the current solution
-        pos_new = self.agent_current[self.ID_POS] + np.random.normal(scale=self.scale, size=self.problem.n_dims)
-        pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-        tar_new = self.get_target_wrapper(pos_new)
+        pos_new = self.agent_current.solution + self.generator.normal(scale=self.scale, size=self.problem.n_dims)
+        agent = self.generate_agent(pos_new)
         # Accept or reject the new solution
-        if self.compare_agent([pos_new, tar_new], self.agent_current):
-            self.agent_current = [pos_new, tar_new]
+        if self.compare_target(agent.target, self.agent_current.target, self.problem.minmax):
+            self.agent_current = agent
         else:
             # Calculate the energy difference
-            delta_energy = np.abs(self.agent_current[self.ID_TAR][self.ID_FIT] - tar_new[self.ID_FIT])
+            delta_energy = np.abs(self.agent_current.target.fitness - agent.target.fitness)
             p_accept = np.exp(-delta_energy/self.temp_current)
-            if np.random.rand() < p_accept:
-                self.agent_current = [pos_new, tar_new]
+            if self.generator.random() < p_accept:
+                self.agent_current = agent
         # Reduce the temperature
         self.temp_current *= self.cooling_rate
-        self.pop = [deepcopy(self.g_best), deepcopy(self.agent_current)]
+        self.pop = [self.g_best.copy(), self.agent_current.copy()]
 
 
 class SwarmSA(Optimizer):
@@ -192,30 +181,22 @@ class SwarmSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.SA import SwarmSA
+    >>> from mealpy import FloatVar, SA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> max_sub_iter = 5
-    >>> t0 = 1000
-    >>> t1 = 1
-    >>> move_count = 5
-    >>> mutation_rate = 0.1
-    >>> mutation_step_size = 0.1
-    >>> mutation_step_size_damp = 0.99
-    >>> model = SwarmSA(epoch, pop_size, max_sub_iter, t0, t1, move_count, mutation_rate, mutation_step_size, mutation_step_size_damp)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SA.SwarmSA(epoch=1000, pop_size=50, max_sub_iter = 5, t0 = 1000, t1 = 1,
+    >>>         move_count = 5, mutation_rate = 0.1, mutation_step_size = 0.1, mutation_step_size_damp = 0.99)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -223,8 +204,8 @@ class SwarmSA(Optimizer):
     annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, max_sub_iter=5, t0=1000, t1=1, move_count=5,
-                 mutation_rate=0.1, mutation_step_size=0.1, mutation_step_size_damp=0.99, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, max_sub_iter: int = 5, t0: int = 1000, t1: int = 1, move_count: int = 5,
+                 mutation_rate: float = 0.1, mutation_step_size: float = 0.1, mutation_step_size_damp: float = 0.99, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -239,7 +220,7 @@ class SwarmSA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.max_sub_iter = self.validator.check_int("max_sub_iter", max_sub_iter, [1, 100000])
         self.t0 = self.validator.check_int("t0", t0, [500, 2000])
         self.t1 = self.validator.check_int("t1", t1, [1, 100])
@@ -254,11 +235,11 @@ class SwarmSA(Optimizer):
 
     def mutate__(self, position, sigma):
         # Select Mutating Variables
-        pos_new = position + sigma * np.random.uniform(self.problem.lb, self.problem.ub)
-        pos_new = np.where(np.random.random(self.problem.n_dims) < self.mutation_rate, position, pos_new)
+        pos_new = position + sigma * self.generator.uniform(self.problem.lb, self.problem.ub)
+        pos_new = np.where(self.generator.random(self.problem.n_dims) < self.mutation_rate, position, pos_new)
         if np.all(pos_new == position):  # Select at least one variable to mutate
-            pos_new[np.random.randint(0, self.problem.n_dims)] = np.random.uniform()
-        return self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+            pos_new[self.generator.integers(0, self.problem.n_dims)] = self.generator.uniform()
+        return self.correct_solution(pos_new)
 
     def initialization(self):
         # Initial Temperature
@@ -266,7 +247,7 @@ class SwarmSA(Optimizer):
         self.t_damp = (self.t1 / self.t0) ** (1.0 / self.epoch)  # Calculate Temperature Damp Rate
         self.dyn_sigma = self.mutation_step_size  # Initial Value of Step Size
         if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
+            self.pop = self.generate_population(self.pop_size)
 
     def evolve(self, epoch):
         """
@@ -282,26 +263,25 @@ class SwarmSA(Optimizer):
             for idx in range(0, self.pop_size):
                 for j in range(0, self.move_count):
                     # Perform Mutation (Move)
-                    pos_new = self.mutate__(self.pop[idx][self.ID_POS], self.dyn_sigma)
-                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    pop_new.append([pos_new, None])
+                    pos_new = self.mutate__(self.pop[idx].solution, self.dyn_sigma)
+                    pos_new = self.correct_solution(pos_new)
+                    agent = self.generate_empty_agent(pos_new)
+                    pop_new.append(agent)
                     if self.mode not in self.AVAILABLE_MODES:
-                        pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            pop_new = self.update_target_wrapper_population(pop_new)
-
+                        pop_new[-1].target = self.get_target(pos_new)
+            pop_new = self.update_target_for_population(pop_new)
             # Columnize and Sort Newly Created Population
-            pop_new = self.get_sorted_strim_population(pop_new, self.pop_size)
-
+            pop_new = self.get_sorted_and_trimmed_population(pop_new, self.pop_size, self.problem.minmax)
             # Randomized Selection
             for idx in range(0, self.pop_size):
                 # Check if new solution is better than current
-                if self.compare_agent(pop_new[idx], self.pop[idx]):
+                if self.compare_target(pop_new[idx].target, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx] = pop_new[idx].copy()
                 else:
                     # Compute difference according to problem type
-                    delta = np.abs(pop_new[idx][self.ID_TAR][self.ID_FIT] - self.pop[idx][self.ID_TAR][self.ID_FIT])
+                    delta = np.abs(pop_new[idx].target.fitness - self.pop[idx].target.fitness)
                     p = np.exp(-delta / self.dyn_t)  # Compute Acceptance Probability
-                    if np.random.uniform() <= p:  # Accept / Reject
+                    if self.generator.uniform() <= p:  # Accept / Reject
                         self.pop[idx] = pop_new[idx].copy()
         # Update Temperature
         self.dyn_t = self.t_damp * self.dyn_t
