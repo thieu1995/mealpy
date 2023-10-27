@@ -67,9 +67,8 @@ class OriginalAGTO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        a = (np.cos(2*self.generator.random())+1) * (1 - (epoch+1)/self.epoch)
+        a = (np.cos(2*self.generator.random())+1) * (1 - epoch/self.epoch)
         c = a * (2 * self.generator.random() - 1)
-
         ## Exploration
         pop_new = []
         for idx in range(0, self.pop_size):
@@ -118,7 +117,7 @@ class OriginalAGTO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
 class MGTO(Optimizer):
@@ -166,10 +165,10 @@ class MGTO(Optimizer):
         self.set_parameters(["epoch", "pop_size", "pp"])
         self.sort_flag = False
 
-    def bounded_position(self, position=None, lb=None, ub=None):
-        condition = np.logical_and(lb <= position, position <= ub)
-        random_pos = self.generator.uniform(lb, ub)
-        return np.where(condition, position, random_pos)
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
+        random_pos = self.generator.uniform(self.problem.lb, self.problem.ub)
+        return np.where(condition, solution, random_pos)
 
     def evolve(self, epoch):
         """
@@ -219,7 +218,7 @@ class MGTO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
         _, self.g_best = self.update_global_best_agent(self.pop, save=False)
 
         pos_list = np.array([agent.solution for agent in self.pop])
@@ -227,8 +226,9 @@ class MGTO(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             if np.abs(C) >= 1:
-                g = self.generator.choice([-0.5, 2])
+                g = self.generator.choice([-0.5, 2.])
                 M = (np.abs(np.mean(pos_list, axis=0)) ** g) ** (1.0 / g)
+                # print(M)
                 p = self.generator.uniform(0, 1, self.problem.n_dims)
                 pos_new = L * M * (self.pop[idx].solution - self.g_best.solution) * (0.01 * np.tan(np.pi*( p - 0.5)))
             else:
@@ -243,4 +243,4 @@ class MGTO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
