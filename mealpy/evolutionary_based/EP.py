@@ -63,13 +63,12 @@ class OriginalEP(Optimizer):
         self.n_bout_size = int(self.bout_size * self.pop_size)
         self.distance = 0.05 * (self.problem.ub - self.problem.lb)
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         strategy = self.generator.uniform(0, self.distance, self.problem.n_dims)
         times_win = 0
-        return Agent(solution=solution, target=target, strategy=strategy, win=times_win)
+        return Agent(solution=solution, strategy=strategy, win=times_win)
 
     def evolve(self, epoch):
         """
