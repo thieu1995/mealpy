@@ -464,7 +464,7 @@ class SAP_DE(Optimizer):
         self.fixed_pop_size = self.pop_size
         self.sort_flag = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
         target = self.get_target(solution)
