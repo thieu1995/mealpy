@@ -69,13 +69,12 @@ class OriginalBA(Optimizer):
         self.alpha = self.gamma = 0.9
         self.sort_flag = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
         pulse_frequency = self.pf_min + (self.pf_max - self.pf_min) * self.generator.uniform()
-        return Agent(solution=solution, target=target, velocity=velocity, pulse_frequency=pulse_frequency)
+        return Agent(solution=solution, velocity=velocity, pulse_frequency=pulse_frequency)
 
     def evolve(self, epoch):
         """
@@ -172,14 +171,13 @@ class AdaptiveBA(Optimizer):
         self.set_parameters(["epoch", "pop_size", "loudness_min", "loudness_max", "pr_min", "pr_max", "pf_min", "pf_max"])
         self.sort_flag = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
         loudness = self.generator.uniform(self.loudness_min, self.loudness_max)
         pulse_rate = self.generator.uniform(self.pr_min, self.pr_max)
-        return Agent(solution=solution, target=target, velocity=velocity, loudness=loudness, pulse_rate=pulse_rate)
+        return Agent(solution=solution, velocity=velocity, loudness=loudness, pulse_rate=pulse_rate)
 
     def evolve(self, epoch):
         """
