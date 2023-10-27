@@ -97,4 +97,4 @@ class OriginalAO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
