@@ -89,14 +89,13 @@ class OriginalBFO(Optimizer):
         self.is_parallelizable = False
         self.sort_flag = False
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         cost = 0.0
         interaction = 0.0
         nutrients = 0.0
-        return Agent(solution=solution, target=target, cost=cost, interaction=interaction, nutrients=nutrients)
+        return Agent(solution=solution, cost=cost, interaction=interaction, nutrients=nutrients)
 
     def compute_cell_interaction__(self, cell, cells, d, w):
         sum_inter = 0.0
@@ -221,14 +220,18 @@ class ABFO(Optimizer):
         self.C_s = self.C_s * (self.problem.ub - self.problem.lb)
         self.C_e = self.C_e * (self.problem.ub - self.problem.lb)
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         nutrients = 0  # total nutrient gained by the bacterium in its whole searching process.(int number)
         local_solution = solution.copy()
-        local_target = target.copy()
-        return Agent(solution=solution, target=target, nutrients=nutrients, local_solution=local_solution, local_target=local_target)
+        return Agent(solution=solution, nutrients=nutrients, local_solution=local_solution)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def update_step_size__(self, pop=None, idx=None):
         total_fitness = np.sum([agent.target.fitness for agent in pop])
