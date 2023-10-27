@@ -17,48 +17,45 @@ class OriginalRIME(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/124610-rime-a-physics-based-optimization
 
     Notes (parameters):
-        1. w (float): Soft-rime parameters, default=5.0
+        1. sr (float): Soft-rime parameters, default=5.0
         2. The algorithm is straightforward and does not require any specialized knowledge or techniques.
         3. The algorithm may exhibit slow convergence and may not perform optimally.
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.RIME import OriginalRIME
+    >>> from mealpy import FloatVar, RIME
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> w = 5.0
-    >>> model = OriginalRIME(epoch, pop_size, w)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = RIME.OriginalRIME(epoch=1000, pop_size=50, w = 5.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Su, H., Zhao, D., Heidari, A. A., Liu, L., Zhang, X., Mafarja, M., & Chen, H. (2023). RIME: A physics-based optimization. Neurocomputing.
     """
-    def __init__(self, epoch=10000, pop_size=100, w=5., **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, sr: float = 5., **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
-            w (float): Soft-rime parameters, default=5.0
+            sr (float): Soft-rime parameters, default=5.0
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.w = self.validator.check_float("w", w, (0., 100.))
-        self.set_parameters(["epoch", "pop_size"])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.sr = self.validator.check_float("sr", sr, (0., 100.))
+        self.set_parameters(["epoch", "pop_size", "sr"])
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -68,27 +65,28 @@ class OriginalRIME(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        rime_factor = (np.random.rand() - 0.5)*2*np.cos(np.pi*(epoch+1)/(self.epoch/10)) * (1 - np.round((epoch+1)*self.w/self.epoch) / self.w)
+        rime_factor = (self.generator.random() - 0.5)*2*np.cos(np.pi*epoch/(self.epoch/10)) * (1 - np.round(epoch*self.sr/self.epoch) / self.sr)
         ee = np.sqrt((epoch+1)/self.epoch)
-        fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop]).reshape((1, -1))
+        fits = np.array([agent.target.fitness for agent in self.pop]).reshape((1, -1))
         fits_norm = fits / np.linalg.norm(fits, axis=1, keepdims=True)
         LB = self.problem.lb
         UB = self.problem.ub
         pop_new = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS].copy()
+            pos_new = self.pop[idx].solution.copy()
             for jdx in range(0, self.problem.n_dims):
                 # Soft-rime search strategy
-                if np.random.rand() < ee:
-                    pos_new[jdx] = self.g_best[self.ID_POS][jdx] + rime_factor*(LB[jdx] + np.random.rand() * (UB[jdx] - LB[jdx]))
+                if self.generator.random() < ee:
+                    pos_new[jdx] = self.g_best.solution[jdx] + rime_factor*(LB[jdx] + self.generator.random() * (UB[jdx] - LB[jdx]))
                 # Hard-rime puncture mechanism
-                if np.random.rand() < fits_norm[0, idx]:
-                    pos_new[jdx] = self.g_best[self.ID_POS][jdx]
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                if self.generator.random() < fits_norm[0, idx]:
+                    pos_new[jdx] = self.g_best.solution[jdx]
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
