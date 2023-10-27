@@ -21,24 +21,21 @@ class OriginalHGSO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.physics_based.HGSO import OriginalHGSO
+    >>> from mealpy import FloatVar, HGSO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> n_clusters = 3
-    >>> model = OriginalHGSO(epoch, pop_size, n_clusters)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = HGSO.OriginalHGSO(epoch=1000, pop_size=50, n_clusters = 3)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -46,7 +43,7 @@ class OriginalHGSO(Optimizer):
     optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, pp.646-667.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, n_clusters=2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, n_clusters: int = 2, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -70,15 +67,15 @@ class OriginalHGSO(Optimizer):
         self.l3 = 1E-2
 
     def initialize_variables(self):
-        self.H_j = self.l1 * np.random.uniform()
-        self.P_ij = self.l2 * np.random.uniform()
-        self.C_j = self.l3 * np.random.uniform()
+        self.H_j = self.l1 * self.generator.uniform()
+        self.P_ij = self.l2 * self.generator.uniform()
+        self.C_j = self.l3 * self.generator.uniform()
         self.pop_group, self.p_best = None, None
 
     def initialization(self):
         if self.pop is None:
-            self.pop = self.create_population(self.pop_size)
-        self.pop_group = self.create_pop_group(self.pop, self.n_clusters, self.n_elements)
+            self.pop = self.generate_population(self.pop_size)
+        self.pop_group = self.generate_group_population(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)  # multiple element
 
     def flatten_group__(self, group):
@@ -89,8 +86,8 @@ class OriginalHGSO(Optimizer):
 
     def get_best_solution_in_team__(self, group=None):
         list_best = []
-        for i in range(len(group)):
-            _, best_agent = self.get_global_best_solution(group[i])
+        for idx in range(len(group)):
+            best_agent = self.get_best_agent(group[idx])
             list_best.append(best_agent)
         return list_best
 
@@ -102,26 +99,24 @@ class OriginalHGSO(Optimizer):
             epoch (int): The current iteration
         """
         ## Loop based on the number of cluster in swarm (number of gases type)
-        for i in range(self.n_clusters):
+        for idx in range(self.n_clusters):
             ### Loop based on the number of individual in each gases type
             pop_new = []
-            for j in range(self.n_elements):
-                F = -1.0 if np.random.uniform() < 0.5 else 1.0
-
+            for jdx in range(self.n_elements):
+                F = -1.0 if self.generator.uniform() < 0.5 else 1.0
                 ##### Based on Eq. 8, 9, 10
                 self.H_j = self.H_j * np.exp(-self.C_j * (1.0 / np.exp(-epoch / self.epoch) - 1.0 / self.T0))
                 S_ij = self.K * self.H_j * self.P_ij
-                gama = self.beta * np.exp(- ((self.p_best[i][self.ID_TAR][self.ID_FIT] + self.epsilon) /
-                                             (self.pop_group[i][j][self.ID_TAR][self.ID_FIT] + self.epsilon)))
-                X_ij = self.pop_group[i][j][self.ID_POS] + F * np.random.uniform() * gama * \
-                       (self.p_best[i][self.ID_POS] - self.pop_group[i][j][self.ID_POS]) + \
-                       F * np.random.uniform() * self.alpha * (S_ij * self.g_best[self.ID_POS] - self.pop_group[i][j][self.ID_POS])
-                pos_new = self.amend_position(X_ij, self.problem.lb, self.problem.ub)
-                pop_new.append([pos_new, None])
+                gama = self.beta * np.exp(- ((self.p_best[idx].target.fitness + self.epsilon) / (self.pop_group[idx][jdx].target.fitness + self.epsilon)))
+                pos_new = self.pop_group[idx][jdx].solution + F * self.generator.uniform() * gama * (self.p_best[idx].solution - self.pop_group[idx][jdx].solution) + \
+                       F * self.generator.uniform() * self.alpha * (S_ij * self.g_best.solution - self.pop_group[idx][jdx].solution)
+                pos_new = self.correct_solution(pos_new)
+                agent = self.generate_empty_agent(pos_new)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
-                    pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop_group[i] = pop_new
+                    pop_new[-1].target = self.get_target(pos_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop_group[idx] = pop_new
         self.pop = self.flatten_group__(self.pop_group)
 
         ## Update Henry's coefficient using Eq.8
@@ -129,22 +124,23 @@ class OriginalHGSO(Optimizer):
         ## Update the solubility of each gas using Eq.9
         S_ij = self.K * self.H_j * self.P_ij
         ## Rank and select the number of worst agents using Eq. 11
-        N_w = int(self.pop_size * (np.random.uniform(0, 0.1) + 0.1))
+        N_w = int(self.pop_size * (self.generator.uniform(0, 0.1) + 0.1))
         ## Update the position of the worst agents using Eq. 12
-        sorted_id_pos = np.argsort([x[self.ID_TAR][self.ID_FIT] for x in self.pop])
+        sorted_id_pos = np.argsort([x.target.fitness for x in self.pop])
 
         pop_new = []
         pop_idx = []
         for item in range(N_w):
             id = sorted_id_pos[item]
-            X_new = np.random.uniform(self.problem.lb, self.problem.ub)
-            pos_new = self.amend_position(X_new, self.problem.lb, self.problem.ub)
+            pos_new = self.generator.uniform(self.problem.lb, self.problem.ub)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
             pop_idx.append(id)
-            pop_new.append([pos_new, None])
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                pop_new[-1][self.ID_TAR] = self.get_target_wrapper(pos_new)
-        pop_new = self.update_target_wrapper_population(pop_new)
+                pop_new[-1].target = self.get_target(pos_new)
+        pop_new = self.update_target_for_population(pop_new)
         for idx, id_selected in enumerate(pop_idx):
             self.pop[id_selected] = pop_new[idx].copy()
-        self.pop_group = self.create_pop_group(self.pop, self.n_clusters, self.n_elements)
+        self.pop_group = self.generate_group_population(self.pop, self.n_clusters, self.n_elements)
         self.p_best = self.get_best_solution_in_team__(self.pop_group)
