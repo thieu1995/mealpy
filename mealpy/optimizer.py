@@ -306,10 +306,9 @@ class Optimizer:
         Args:
             solution (np.ndarray): The solution
         """
-        if solution is None:
-            solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
-        return Agent(solution=solution, target=target)
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        return agent
 
     def generate_population(self, pop_size: int = None) -> List[Agent]:
         """
