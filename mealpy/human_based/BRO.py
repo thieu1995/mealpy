@@ -61,12 +61,11 @@ class DevBRO(Optimizer):
         self.problem.lb_updated = self.problem.lb.copy()
         self.problem.ub_updated = self.problem.ub.copy()
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         damage = 0
-        return Agent(solution=solution, target=target, damage=damage)
+        return Agent(solution=solution, damage=damage)
 
     def get_idx_min__(self, data):
         k_zero = np.count_nonzero(data == 0)
