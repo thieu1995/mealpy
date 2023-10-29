@@ -21,24 +21,21 @@ class OriginalMRFO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.MRFO import OriginalMRFO
+    >>> from mealpy import FloatVar, MRFO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> somersault_range = 2.0
-    >>> model = OriginalMRFO(epoch, pop_size, somersault_range)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = MRFO.OriginalMRFO(epoch=1000, pop_size=50, somersault_range = 2.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -46,7 +43,7 @@ class OriginalMRFO(Optimizer):
     optimizer for engineering applications. Engineering Applications of Artificial Intelligence, 87, p.103300.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, somersault_range=2.0, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, somersault_range: float = 2.0, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,7 +52,7 @@ class OriginalMRFO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.somersault_range = self.validator.check_float("somersault_range", somersault_range, [1.0, 5.0])
         self.set_parameters(["epoch", "pop_size", "somersault_range"])
         self.sort_flag = False
@@ -70,62 +67,64 @@ class OriginalMRFO(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             # Cyclone foraging (Eq. 5, 6, 7)
-            if np.random.rand() < 0.5:
-                r1 = np.random.uniform()
+            if self.generator.random() < 0.5:
+                r1 = self.generator.uniform()
                 beta = 2 * np.exp(r1 * (self.epoch - epoch) / self.epoch) * np.sin(2 * np.pi * r1)
 
-                if (epoch + 1) / self.epoch < np.random.rand():
-                    x_rand = np.random.uniform(self.problem.lb, self.problem.ub)
+                if (epoch + 1) / self.epoch < self.generator.random():
+                    x_rand = self.generator.uniform(self.problem.lb, self.problem.ub)
                     if idx == 0:
-                        x_t1 = x_rand + np.random.uniform() * (x_rand - self.pop[idx][self.ID_POS]) + \
-                               beta * (x_rand - self.pop[idx][self.ID_POS])
+                        x_t1 = x_rand + self.generator.uniform() * (x_rand - self.pop[idx].solution) + \
+                               beta * (x_rand - self.pop[idx].solution)
                     else:
-                        x_t1 = x_rand + np.random.uniform() * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                               beta * (x_rand - self.pop[idx][self.ID_POS])
+                        x_t1 = x_rand + self.generator.uniform() * (self.pop[idx - 1].solution - self.pop[idx].solution) + \
+                               beta * (x_rand - self.pop[idx].solution)
                 else:
                     if idx == 0:
-                        x_t1 = self.g_best[self.ID_POS] + np.random.uniform() * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                               beta * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                        x_t1 = self.g_best.solution + self.generator.uniform() * (self.g_best.solution - self.pop[idx].solution) + \
+                               beta * (self.g_best.solution - self.pop[idx].solution)
                     else:
-                        x_t1 = self.g_best[self.ID_POS] + np.random.uniform() * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                               beta * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                        x_t1 = self.g_best.solution + self.generator.uniform() * (self.pop[idx - 1].solution - self.pop[idx].solution) + \
+                               beta * (self.g_best.solution - self.pop[idx].solution)
             # Chain foraging (Eq. 1,2)
             else:
-                r = np.random.uniform()
+                r = self.generator.uniform()
                 alpha = 2 * r * np.sqrt(np.abs(np.log(r)))
                 if idx == 0:
-                    x_t1 = self.pop[idx][self.ID_POS] + r * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                           alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+                    x_t1 = self.pop[idx].solution + r * (self.g_best.solution - self.pop[idx].solution) + \
+                           alpha * (self.g_best.solution - self.pop[idx].solution)
                 else:
-                    x_t1 = self.pop[idx][self.ID_POS] + r * (self.pop[idx - 1][self.ID_POS] - self.pop[idx][self.ID_POS]) + \
-                           alpha * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                    x_t1 = self.pop[idx].solution + r * (self.pop[idx - 1].solution - self.pop[idx].solution) + \
+                           alpha * (self.g_best.solution - self.pop[idx].solution)
+            pos_new = self.correct_solution(x_t1)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        _, g_best = self.update_global_best_solution(self.pop, save=False)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        _, g_best = self.update_global_best_agent(self.pop, save=False)
         pop_child = []
         for idx in range(0, self.pop_size):
             # Somersault foraging   (Eq. 8)
-            x_t1 = self.pop[idx][self.ID_POS] + self.somersault_range * \
-                   (np.random.uniform() * g_best[self.ID_POS] - np.random.uniform() * self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(x_t1, self.problem.lb, self.problem.ub)
-            pop_child.append([pos_new, None])
+            x_t1 = self.pop[idx].solution + self.somersault_range * \
+                   (self.generator.uniform() * g_best.solution - self.generator.uniform() * self.pop[idx].solution)
+            pos_new = self.correct_solution(x_t1)
+            agent = self.generate_empty_agent(pos_new)
+            pop_child.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_child = self.update_target_wrapper_population(pop_child)
-            self.pop = self.greedy_selection_population(self.pop, pop_child)
+            pop_child = self.update_target_for_population(pop_child)
+            self.pop = self.greedy_selection_population(self.pop, pop_child, self.problem.minmax)
 
 
 class WMQIMRFO(Optimizer):
     """
-    The original version of: Wavelet Mutation and Quadratic Interpolation MRFO
+    The original version of: Wavelet Mutation and Quadratic Interpolation MRFO (WMQIMRFO)
 
     Links:
         1. https://doi.org/10.1016/j.knosys.2021.108071
@@ -137,24 +136,21 @@ class WMQIMRFO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.MRFO import WMQIMRFO
+    >>> from mealpy import FloatVar, MRFO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> somersault_range = 2.0
-    >>> model = OriginalMRFO(epoch, pop_size, somersault_range)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = MRFO.OriginalMRFO(epoch=1000, pop_size=50, somersault_range = 2.0, pm=0.5)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -162,7 +158,7 @@ class WMQIMRFO(Optimizer):
     complex CCG-Ball curves, Knowledge-Based Systems (2022), doi: https://doi.org/10.1016/j.knosys.2021.108071.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, somersault_range=2.0, pm=0.5, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, somersault_range: float = 2.0, pm: float = 0.5, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -172,7 +168,7 @@ class WMQIMRFO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.somersault_range = self.validator.check_float("somersault_range", somersault_range, [1.0, 5.0])
         self.pm = self.validator.check_float("pm", pm, (0.0, 1.0))
         self.set_parameters(["epoch", "pop_size", "somersault_range", "pm"])
@@ -187,77 +183,78 @@ class WMQIMRFO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            x_t = self.pop[idx][self.ID_POS]
-            x_t1 = self.pop[idx-1][self.ID_POS]
+            x_t = self.pop[idx].solution
+            x_t1 = self.pop[idx-1].solution
 
             ## Morlet wavelet mutation strategy
             ## Goal is to jump out of local optimum --> Performed in exploration stage
             s_constant = 2.0
-            a = s_constant * (1.0 / s_constant) ** (1.0 - (epoch + 1) / self.epoch)
-            theta = np.random.uniform(-2.5 * a, 2.5 * a)
+            a = s_constant * (1.0 / s_constant) ** (1.0 - epoch / self.epoch)
+            theta = self.generator.uniform(-2.5 * a, 2.5 * a)
             x = theta / a
             w = np.exp(-x ** 2 / 2) * np.cos(5 * x)
             xichma = 1.0 / np.sqrt(a) * w
 
-            if np.random.rand() < 0.5:  # Control parameter adjustment
-                coef = np.log(1 + (np.e - 1) * (epoch + 1) / self.epoch)  # Eq. 3.11
+            if self.generator.random() < 0.5:  # Control parameter adjustment
+                coef = np.log(1 + (np.e - 1.) * epoch / self.epoch)  # Eq. 3.11
 
-                r1 = np.random.uniform()
+                r1 = self.generator.uniform()
                 beta = 2 * np.exp(r1 * (self.epoch - epoch) / self.epoch) * np.sin(2 * np.pi * r1)
 
-                if coef < np.random.rand():     # Cyclone foraging
-                    x_rand = self.generate_position(self.problem.lb, self.problem.ub)
-
-                    if np.random.rand() < self.pm:      # Morlet wavelet mutation
+                if coef < self.generator.random():     # Cyclone foraging
+                    x_rand = self.problem.generate_solution()
+                    if self.generator.random() < self.pm:      # Morlet wavelet mutation
                         if idx == 0:
-                            pos_new = x_rand + np.random.rand() * (x_rand - x_t) + beta * (x_rand - x_t)
+                            pos_new = x_rand + self.generator.random() * (x_rand - x_t) + beta * (x_rand - x_t)
                         else:
-                            pos_new = x_rand + np.random.rand() * (x_t1 - x_t) + beta * (x_rand - x_t)
+                            pos_new = x_rand + self.generator.random() * (x_t1 - x_t) + beta * (x_rand - x_t)
                     else:
-                        conditions = np.random.uniform(0, 1, self.problem.n_dims) > 0.5
+                        conditions = self.generator.uniform(0, 1, self.problem.n_dims) > 0.5
                         if idx == 0:
-                            t1 = x_rand + np.random.rand(self.problem.n_dims) * (x_rand - x_t) + beta * (x_rand - x_t) + xichma * (self.problem.ub - x_t)
-                            t2 = x_rand + np.random.rand(self.problem.n_dims) * (x_rand - x_t) + beta * (x_rand - x_t) + xichma * (x_t - self.problem.lb)
+                            t1 = x_rand + self.generator.random(self.problem.n_dims) * (x_rand - x_t) + beta * (x_rand - x_t) + xichma * (self.problem.ub - x_t)
+                            t2 = x_rand + self.generator.random(self.problem.n_dims) * (x_rand - x_t) + beta * (x_rand - x_t) + xichma * (x_t - self.problem.lb)
                         else:
-                            t1 = x_rand + np.random.rand(self.problem.n_dims) * (x_t1 - x_t) + beta * (x_rand - x_t) + xichma * (self.problem.ub - x_t)
-                            t2 = x_rand + np.random.rand(self.problem.n_dims) * (x_t1 - x_t) + beta * (x_rand - x_t) + xichma * (x_t - self.problem.lb)
+                            t1 = x_rand + self.generator.random(self.problem.n_dims) * (x_t1 - x_t) + beta * (x_rand - x_t) + xichma * (self.problem.ub - x_t)
+                            t2 = x_rand + self.generator.random(self.problem.n_dims) * (x_t1 - x_t) + beta * (x_rand - x_t) + xichma * (x_t - self.problem.lb)
                         pos_new = np.where(conditions, t1, t2)
                 else:
                     if idx == 0:
-                        pos_new = self.g_best[self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - x_t) + beta * (self.g_best[self.ID_POS] - x_t)
+                        pos_new = self.g_best.solution + self.generator.random() * (self.g_best.solution - x_t) + beta * (self.g_best.solution - x_t)
                     else:
-                        pos_new = self.g_best[self.ID_POS] + np.random.rand() * (x_t1 - x_t) + beta * (self.g_best[self.ID_POS] - x_t)
+                        pos_new = self.g_best.solution + self.generator.random() * (x_t1 - x_t) + beta * (self.g_best.solution - x_t)
             else:   # Chain foraging (Eq. 1,2)
-                r = np.random.rand()
+                r = self.generator.random()
                 alpha = 2 * r * np.sqrt(np.abs(np.log(r)))
                 if idx == 0:
-                    pos_new = x_t + r * (self.g_best[self.ID_POS] - x_t) + alpha * (self.g_best[self.ID_POS] - x_t)
+                    pos_new = x_t + r * (self.g_best.solution - x_t) + alpha * (self.g_best.solution - x_t)
                 else:
-                    pos_new = x_t + r * (x_t1 - x_t) + alpha * (self.g_best[self.ID_POS] - x_t)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                    pos_new = x_t + r * (x_t1 - x_t) + alpha * (self.g_best.solution - x_t)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        _, g_best = self.update_global_best_solution(self.pop, save=False)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        _, g_best = self.update_global_best_agent(self.pop, save=False)
 
         # Somersault foraging   (Eq. 8)
         pop_child = []
         for idx in range(0, self.pop_size):
-            pos_new = self.pop[idx][self.ID_POS] + self.somersault_range * \
-                   (np.random.rand() * g_best[self.ID_POS] - np.random.rand() * self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_child.append([pos_new, None])
+            pos_new = self.pop[idx].solution + self.somersault_range * \
+                   (self.generator.random() * g_best.solution - self.generator.random() * self.pop[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_child.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_child = self.update_target_wrapper_population(pop_child)
-            self.pop = self.greedy_selection_population(self.pop, pop_child)
-        self.pop, g_best = self.update_global_best_solution(self.pop, save=False)
+            pop_child = self.update_target_for_population(pop_child)
+            self.pop = self.greedy_selection_population(self.pop, pop_child, self.problem.minmax)
+        self.pop, g_best = self.update_global_best_agent(self.pop, save=False)
 
         # Quadratic Interpolation
         pop_new = []
@@ -267,17 +264,17 @@ class WMQIMRFO(Optimizer):
                 idx2, idx3 = idx + 1, 0
             if idx == self.pop_size-1:
                 idx2, idx3 = 0, 1
-            f1, f2, f3 = self.pop[idx][self.ID_TAR][self.ID_FIT], self.pop[idx2][self.ID_TAR][self.ID_FIT], self.pop[idx3][self.ID_TAR][self.ID_FIT]
-            x1, x2, x3 = self.pop[idx][self.ID_POS], self.pop[idx2][self.ID_POS], self.pop[idx3][self.ID_POS]
+            f1, f2, f3 = self.pop[idx].target.fitness, self.pop[idx2].target.fitness, self.pop[idx3].target.fitness
+            x1, x2, x3 = self.pop[idx].solution, self.pop[idx2].solution, self.pop[idx3].solution
             a = f1 / ((x1 - x2) * (x1 - x3)) + f2 / ((x2 - x1) * (x2 - x3)) + f3 / ((x3 - x1) * (x3 - x2))
             gx = ((x3 ** 2 - x2 ** 2) * f1 + (x1 ** 2 - x3 ** 2) * f2 + (x2 ** 2 - x1 ** 2) * f3) / (2 * ((x3 - x2) * f1 + (x1 - x3) * f2 + (x2 - x1) * f3))
             pos_new = np.where(a > 0, gx, x1)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        _, g_best = self.update_global_best_solution(self.pop)
+            pop_new = self.update_global_best_agent(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
