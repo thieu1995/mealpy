@@ -24,30 +24,28 @@ class OriginalOOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.OOA import OriginalOOA
+    >>> from mealpy import FloatVar, OOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalOOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = OOA.OriginalOOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Trojovský, P., & Dehghani, M. Osprey Optimization Algorithm: A new bio-inspired metaheuristic algorithm
     for solving engineering optimization problems. Frontiers in Mechanical Engineering, 8, 136.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,17 +53,17 @@ class OriginalOOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def get_indexes_better__(self, pop, idx):
-        fits = np.array([agent[self.ID_TAR][self.ID_FIT] for agent in self.pop])
+        fits = np.array([agent.target.fitness for agent in self.pop])
         if self.problem.minmax == "min":
-            idxs = np.where(fits < pop[idx][self.ID_TAR][self.ID_FIT])
+            idxs = np.where(fits < pop[idx].target.fitness)
         else:
-            idxs = np.where(fits > pop[idx][self.ID_TAR][self.ID_FIT])
+            idxs = np.where(fits > pop[idx].target.fitness)
         return idxs[0]
 
     def evolve(self, epoch):
@@ -81,21 +79,21 @@ class OriginalOOA(Optimizer):
             if len(idxs) == 0:
                 sf = self.g_best
             else:
-                if np.random.rand() < 0.5:
+                if self.generator.random() < 0.5:
                     sf = self.g_best
                 else:
-                    kk = np.random.permutation(idxs)[0]
+                    kk = self.generator.permutation(idxs)[0]
                     sf = self.pop[kk]
-            r1 = np.random.randint(1, 3)
-            pos_new = self.pop[idx][self.ID_POS] + np.random.normal(0, 1) * (sf[self.ID_POS] - r1 * self.pop[idx][self.ID_POS])     # Eq. 5
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            r1 = self.generator.integers(1, 3)
+            pos_new = self.pop[idx].solution + self.generator.normal(0, 1) * (sf.solution - r1 * self.pop[idx].solution)     # Eq. 5
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
 
             # PHASE 2: CARRYING THE FISH TO THE SUITABLE POSITION (EXPLOITATION)
-            pos_new = self.pop[idx][self.ID_POS] + self.problem.lb + np.random.rand() * (self.problem.ub - self.problem.lb)     # Eq. 7
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            pos_new = self.pop[idx].solution + self.problem.lb + self.generator.random() * (self.problem.ub - self.problem.lb)     # Eq. 7
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
