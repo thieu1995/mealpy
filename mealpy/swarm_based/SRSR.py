@@ -40,16 +40,7 @@ class OriginalSRSR(Optimizer):
     [1] Bakhshipour, M., Ghadi, M.J. and Namdari, F., 2017. Swarm robotics search & rescue: A novel
     artificial intelligence-inspired optimization approach. Applied Soft Computing, 57, pp.708-726.
     """
-
-    ID_POS = 0
-    ID_TAR = 1
-    ID_MU = 2
-    ID_SIGMA = 3
-    ID_POS_NEW = 4
-    ID_FIT_NEW = 5
-    ID_FIT_MOVE = 6
-
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
