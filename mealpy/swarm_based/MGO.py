@@ -19,30 +19,28 @@ class OriginalMGO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.MGO import OriginalMGO
+    >>> from mealpy import FloatVar, MGO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalMGO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = MGO.OriginalMGO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Abdollahzadeh, B., Gharehchopogh, F. S., Khodadadi, N., & Mirjalili, S. (2022). Mountain gazelle optimizer: a new
     nature-inspired metaheuristic algorithm for global optimization problems. Advances in Engineering Software, 174, 103282.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -50,19 +48,19 @@ class OriginalMGO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = True
 
     def coefficient_vector__(self, n_dims, epoch, max_epoch):
-        a2 = -1 + epoch * ((-1) / max_epoch)
-        u = np.random.randn(n_dims)
-        v = np.random.randn(n_dims)
+        a2 = -1. + epoch * (-1. / max_epoch)
+        u = self.generator.standard_normal(n_dims)
+        v = self.generator.standard_normal(n_dims)
         cofi = np.zeros((4, n_dims))
-        cofi[0, :] = np.random.rand(n_dims)
-        cofi[1, :] = (a2 + 1) + np.random.rand()
-        cofi[2, :] = a2 * np.random.randn(n_dims)
-        cofi[3, :] = u * np.power(v, 2) * np.cos((np.random.rand() * 2) * u)
+        cofi[0, :] = self.generator.random(n_dims)
+        cofi[1, :] = (a2 + 1) + self.generator.random()
+        cofi[2, :] = a2 * self.generator.standard_normal(n_dims)
+        cofi[3, :] = u * np.power(v, 2) * np.cos((self.generator.random() * 2) * u)
         return cofi
 
     def evolve(self, epoch):
@@ -74,31 +72,36 @@ class OriginalMGO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            idxs_rand = np.random.permutation(self.pop_size)[:int(np.ceil(self.pop_size/3))]
-            pos_list = np.array([ self.pop[mm][self.ID_POS] for mm in idxs_rand ])
-            idx_rand = np.random.randint(int(np.ceil(self.pop_size / 3)), self.pop_size)
-            M = self.pop[idx_rand][self.ID_POS] * np.floor(np.random.normal()) + np.mean(pos_list, axis=0) * np.ceil(np.random.normal())
+            idxs_rand = self.generator.permutation(self.pop_size)[:int(np.ceil(self.pop_size/3))]
+            pos_list = np.array([ self.pop[mm].solution for mm in idxs_rand ])
+            idx_rand = self.generator.integers(int(np.ceil(self.pop_size / 3)), self.pop_size)
+            M = self.pop[idx_rand].solution * np.floor(self.generator.normal()) + np.mean(pos_list, axis=0) * np.ceil(self.generator.normal())
 
             # Calculate the vector of coefficients
             cofi = self.coefficient_vector__(self.problem.n_dims, epoch+1, self.epoch)
-            A = np.random.randn(self.problem.n_dims) * np.exp(2 - (epoch+1) * (2. / self.epoch))
-            D = (np.abs(self.pop[idx][self.ID_POS]) + np.abs(self.g_best[self.ID_POS]))*(2 * np.random.rand() - 1)
+            A = self.generator.standard_normal(self.problem.n_dims) * np.exp(2 - (epoch+1) * (2. / self.epoch))
+            D = (np.abs(self.pop[idx].solution) + np.abs(self.g_best.solution))*(2 * self.generator.random() - 1)
 
             # Update the location
-            x2 = self.g_best[self.ID_POS] - np.abs((np.random.randint(1, 3)*M - np.random.randint(1, 3)*self.pop[idx][self.ID_POS]) * A) * cofi[np.random.randint(0, 4), :]
-            x3 = M + cofi[np.random.randint(0, 4), :] + (np.random.randint(1, 3)*self.g_best[self.ID_POS] - np.random.randint(1, 3)*self.pop[np.random.randint(self.pop_size)][self.ID_POS])*cofi[np.random.randint(0, 4), :]
-            x4 = self.pop[idx][self.ID_POS] - D + (np.random.randint(1, 3)*self.g_best[self.ID_POS] - np.random.randint(1, 3)*M) * cofi[np.random.randint(0, 4), :]
+            x2 = self.g_best.solution - np.abs((self.generator.integers(1, 3)*M - self.generator.integers(1, 3)*self.pop[idx].solution) * A) * cofi[self.generator.integers(0, 4), :]
+            x3 = M + cofi[self.generator.integers(0, 4), :] + (self.generator.integers(1, 3)*self.g_best.solution - self.generator.integers(1, 3)*self.pop[self.generator.integers(self.pop_size)].solution)*cofi[self.generator.integers(0, 4), :]
+            x4 = self.pop[idx].solution - D + (self.generator.integers(1, 3)*self.g_best.solution - self.generator.integers(1, 3)*M) * cofi[self.generator.integers(0, 4), :]
 
-            x1 = self.generate_position(self.problem.lb, self.problem.ub)
-            x1 = self.amend_position(x1, self.problem.lb, self.problem.ub)
-            x2 = self.amend_position(x2, self.problem.lb, self.problem.ub)
-            x3 = self.amend_position(x3, self.problem.lb, self.problem.ub)
-            x4 = self.amend_position(x4, self.problem.lb, self.problem.ub)
+            x1 = self.problem.generate_solution()
+            x1 = self.correct_solution(x1)
+            x2 = self.correct_solution(x2)
+            x3 = self.correct_solution(x3)
+            x4 = self.correct_solution(x4)
 
-            pop_new += [[x1, None], [x2, None], [x3, None], [x4, None]]
+            agent1 = self.generate_empty_agent(x1)
+            agent2 = self.generate_empty_agent(x2)
+            agent3 = self.generate_empty_agent(x3)
+            agent4 = self.generate_empty_agent(x4)
+
+            pop_new += [agent1, agent2, agent3, agent4]
             if self.mode not in self.AVAILABLE_MODES:
                 for jdx in range(-4, 0):
-                    pop_new[jdx][self.ID_TAR] = self.get_target_wrapper(pop_new[jdx][self.ID_POS])
+                    pop_new[jdx].target = self.get_target(pop_new[jdx].solution)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-        self.pop = self.get_sorted_strim_population(self.pop + pop_new, self.pop_size)
+            pop_new = self.update_target_for_population(pop_new)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop + pop_new, self.pop_size, self.problem.minmax)
