@@ -19,30 +19,28 @@ class OriginalGWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GWO import OriginalGWO
+    >>> from mealpy import FloatVar, GWO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalGWO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GWO.OriginalGWO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Mirjalili, S., Mirjalili, S.M. and Lewis, A., 2014. Grey wolf optimizer. Advances in engineering software, 69, pp.46-61.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -50,7 +48,7 @@ class OriginalGWO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
@@ -62,29 +60,29 @@ class OriginalGWO(Optimizer):
             epoch (int): The current iteration
         """
         # linearly decreased from 2 to 0
-        a = 2 - 2 * epoch / (self.epoch - 1)
-        _, list_best, _ = self.get_special_solutions(self.pop, best=3)
-
+        a = 2 - 2. * epoch / self.epoch
+        _, list_best, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
-            A1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            C1 = 2 * np.random.rand(self.problem.n_dims)
-            C2 = 2 * np.random.rand(self.problem.n_dims)
-            C3 = 2 * np.random.rand(self.problem.n_dims)
-            X1 = list_best[0][self.ID_POS] - A1 * np.abs(C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS])
-            X2 = list_best[1][self.ID_POS] - A2 * np.abs(C2 * list_best[1][self.ID_POS] - self.pop[idx][self.ID_POS])
-            X3 = list_best[2][self.ID_POS] - A3 * np.abs(C3 * list_best[2][self.ID_POS] - self.pop[idx][self.ID_POS])
+            A1 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A2 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A3 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            C1 = 2 * self.generator.random(self.problem.n_dims)
+            C2 = 2 * self.generator.random(self.problem.n_dims)
+            C3 = 2 * self.generator.random(self.problem.n_dims)
+            X1 = list_best[0].solution - A1 * np.abs(C1 * list_best[0].solution - self.pop[idx].solution)
+            X2 = list_best[1].solution - A2 * np.abs(C2 * list_best[1].solution - self.pop[idx].solution)
+            X3 = list_best[2].solution - A3 * np.abs(C3 * list_best[2].solution - self.pop[idx].solution)
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
 class RW_GWO(Optimizer):
@@ -94,30 +92,28 @@ class RW_GWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GWO import RW_GWO
+    >>> from mealpy import FloatVar, GWO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = RW_GWO(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GWO.RW_GWO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Gupta, S. and Deep, K., 2019. A novel random walk grey wolf optimizer. Swarm and evolutionary computation, 44, pp.101-112.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -125,7 +121,7 @@ class RW_GWO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
@@ -137,48 +133,49 @@ class RW_GWO(Optimizer):
             epoch (int): The current iteration
         """
         # linearly decreased from 2 to 0, Eq. 5
-        b = 2 - 2 * epoch / (self.epoch - 1)
+        b = 2. - 2. * epoch / self.epoch
         # linearly decreased from 2 to 0
-        a = 2 - 2 * epoch / (self.epoch - 1)
-        _, leaders, _ = self.get_special_solutions(self.pop, best=3)
+        a = 2. - 2. * epoch / self.epoch
+        _, leaders, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
 
         ## Random walk here
         leaders_new = []
-        for i in range(0, len(leaders)):
-            pos_new = leaders[i][self.ID_POS] + a * np.random.standard_cauchy(self.problem.n_dims)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            leaders_new.append([pos_new, None])
+        for idx in range(0, len(leaders)):
+            pos_new = leaders[idx].solution + a * self.generator.standard_cauchy(self.problem.n_dims)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            leaders_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                leaders[i] = self.get_better_solution([pos_new, target], leaders[i])
+                agent.target = self.get_target(pos_new)
+                leaders[idx] = self.get_better_agent(agent, leaders[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            leaders_new = self.update_target_wrapper_population(leaders_new)
-            leaders = self.greedy_selection_population(leaders, leaders_new)
+            leaders_new = self.update_target_for_population(leaders_new)
+            leaders = self.greedy_selection_population(leaders, leaders_new, self.problem.minmax)
 
         ## Update other wolfs
         pop_new = []
         for idx in range(0, self.pop_size):
             # Eq. 3 and 4
-            miu1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            miu2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            miu3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            c1 = 2 * np.random.rand(self.problem.n_dims)
-            c2 = 2 * np.random.rand(self.problem.n_dims)
-            c3 = 2 * np.random.rand(self.problem.n_dims)
-            X1 = leaders[0][self.ID_POS] - miu1 * np.abs(c1 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            X2 = leaders[1][self.ID_POS] - miu2 * np.abs(c2 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-            X3 = leaders[2][self.ID_POS] - miu3 * np.abs(c3 * self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
+            miu1 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            miu2 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            miu3 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            c1 = 2 * self.generator.random(self.problem.n_dims)
+            c2 = 2 * self.generator.random(self.problem.n_dims)
+            c3 = 2 * self.generator.random(self.problem.n_dims)
+            X1 = leaders[0].solution - miu1 * np.abs(c1 * self.g_best.solution - self.pop[idx].solution)
+            X2 = leaders[1].solution - miu2 * np.abs(c2 * self.g_best.solution - self.pop[idx].solution)
+            X3 = leaders[2].solution - miu3 * np.abs(c3 * self.g_best.solution - self.pop[idx].solution)
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
-
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        self.pop = self.get_sorted_strim_population(self.pop + leaders, self.pop_size)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        self.pop = self.get_sorted_and_trimmed_population(self.pop + leaders, self.pop_size, self.problem.minmax)
 
 
 class GWO_WOA(OriginalGWO):
@@ -191,23 +188,21 @@ class GWO_WOA(OriginalGWO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GWO import GWO_WOA
+    >>> from mealpy import FloatVar, GWO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = GWO_WOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GWO.GWO_WOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -215,14 +210,14 @@ class GWO_WOA(OriginalGWO):
     robotic manipulator using a hybrid grey wolf–whale optimization algorithm. Journal of Vibration and Control, 28(15-16), 1992-2003.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
         """
         super().__init__(epoch, pop_size, **kwargs)
-        self.b = 1.0
+        self.bb = 1.0
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -233,34 +228,34 @@ class GWO_WOA(OriginalGWO):
             epoch (int): The current iteration
         """
         # linearly decreased from 2 to 0
-        a = 2 - (epoch + 1) / self.epoch
-        _, list_best, _ = self.get_special_solutions(self.pop, best=3)
-
+        a = 2. - epoch / self.epoch
+        _, list_best, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
-            A1 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A2 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A3 = a * (2 * np.random.rand(self.problem.n_dims) - 1)
-            C1 = 2 * np.random.rand(self.problem.n_dims)
-            C2 = 2 * np.random.rand(self.problem.n_dims)
-            C3 = 2 * np.random.rand(self.problem.n_dims)
-            if np.random.random() < 0.5:
-                da = np.random.random() * np.abs(C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS])
+            A1 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A2 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A3 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            C1 = 2 * self.generator.random(self.problem.n_dims)
+            C2 = 2 * self.generator.random(self.problem.n_dims)
+            C3 = 2 * self.generator.random(self.problem.n_dims)
+            if self.generator.random() < 0.5:
+                da = self.generator.random() * np.abs(C1 * list_best[0].solution - self.pop[idx].solution)
             else:
-                P, L = np.random.random(), np.random.uniform(-1, 1)
-                da = P * np.exp(self.b * L) * np.cos(2*np.pi*L) * np.abs(C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS])
-            X1 = list_best[0][self.ID_POS] - A1 * da
-            X2 = list_best[1][self.ID_POS] - A2 * np.abs(C2 * list_best[1][self.ID_POS] - self.pop[idx][self.ID_POS])
-            X3 = list_best[2][self.ID_POS] - A3 * np.abs(C3 * list_best[2][self.ID_POS] - self.pop[idx][self.ID_POS])
+                P, L = self.generator.random(), self.generator.uniform(-1, 1)
+                da = P * np.exp(self.bb * L) * np.cos(2*np.pi*L) * np.abs(C1 * list_best[0].solution - self.pop[idx].solution)
+            X1 = list_best[0].solution - A1 * da
+            X2 = list_best[1].solution - A2 * np.abs(C2 * list_best[1].solution - self.pop[idx].solution)
+            X3 = list_best[2].solution - A3 * np.abs(C3 * list_best[2].solution - self.pop[idx].solution)
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
 
 class IGWO(OriginalGWO):
@@ -269,7 +264,7 @@ class IGWO(OriginalGWO):
 
     Notes:
         1. Link: https://doi.org/10.1007/s00366-017-0567-1
-        2. Implemented by: Mohammadtaher Abbasi (https://github.com/mtabbasi)
+        2. Inspired by: Mohammadtaher Abbasi (https://github.com/mtabbasi)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + a_min (float): Lower bound of a, default = 0.02
@@ -278,25 +273,21 @@ class IGWO(OriginalGWO):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.GWO import IGWO
+    >>> from mealpy import FloatVar, GWO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> a_min = 0.02
-    >>> a_max = 2.2
-    >>> model = IGWO(epoch, pop_size, a_min, a_max)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = GWO.IGWO(epoch=1000, pop_size=50, a_min = 0.02, a_max = 2.2)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -304,7 +295,7 @@ class IGWO(OriginalGWO):
     Engineering with Computers. 34. 10.1007/s00366-017-0567-1.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, a_min=0.02, a_max=2.2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, a_min: float = 0.02, a_max: float = 2.2, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -326,41 +317,29 @@ class IGWO(OriginalGWO):
         Args:
             epoch (int): The current iteration
         """
-        _, list_best, _ = self.get_special_solutions(self.pop, best=3)
-
+        _, list_best, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
             # IGWO functions
-            a_alpha = self.a_max * np.exp(
-                (epoch / self.epoch) ** self.growth_alpha
-                * np.log(self.a_min / self.a_max)
-            )
-            a_delta = self.a_max * np.exp(
-                (epoch / self.epoch) ** self.growth_delta
-                * np.log(self.a_min / self.a_max)
-            )
+            a_alpha = self.a_max * np.exp((epoch / self.epoch) ** self.growth_alpha * np.log(self.a_min / self.a_max))
+            a_delta = self.a_max * np.exp((epoch / self.epoch) ** self.growth_delta * np.log(self.a_min / self.a_max))
             a_beta = (a_alpha + a_delta) * 0.5
-            A1 = a_alpha * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A2 = a_beta * (2 * np.random.rand(self.problem.n_dims) - 1)
-            A3 = a_delta * (2 * np.random.rand(self.problem.n_dims) - 1)
-            C1 = 2 * np.random.rand(self.problem.n_dims)
-            C2 = 2 * np.random.rand(self.problem.n_dims)
-            C3 = 2 * np.random.rand(self.problem.n_dims)
-            X1 = list_best[0][self.ID_POS] - A1 * np.abs(
-                C1 * list_best[0][self.ID_POS] - self.pop[idx][self.ID_POS]
-            )
-            X2 = list_best[1][self.ID_POS] - A2 * np.abs(
-                C2 * list_best[1][self.ID_POS] - self.pop[idx][self.ID_POS]
-            )
-            X3 = list_best[2][self.ID_POS] - A3 * np.abs(
-                C3 * list_best[2][self.ID_POS] - self.pop[idx][self.ID_POS]
-            )
+            A1 = a_alpha * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A2 = a_beta * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A3 = a_delta * (2 * self.generator.random(self.problem.n_dims) - 1)
+            C1 = 2 * self.generator.random(self.problem.n_dims)
+            C2 = 2 * self.generator.random(self.problem.n_dims)
+            C3 = 2 * self.generator.random(self.problem.n_dims)
+            X1 = list_best[0].solution - A1 * np.abs(C1 * list_best[0].solution - self.pop[idx].solution)
+            X2 = list_best[1].solution - A2 * np.abs(C2 * list_best[1].solution - self.pop[idx].solution)
+            X3 = list_best[2].solution - A3 * np.abs(C3 * list_best[2].solution - self.pop[idx].solution)
             pos_new = (X1 + X2 + X3) / 3.0
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution([pos_new, target], self.pop[idx])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
