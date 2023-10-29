@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 
 
 class OriginalESOA(Optimizer):
@@ -19,23 +20,21 @@ class OriginalESOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.ESOA import OriginalESOA
+    >>> from mealpy import FloatVar, ESOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalESOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = ESOA.OriginalESOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -43,31 +42,36 @@ class OriginalESOA(Optimizer):
     An Evolutionary Computation Approach for Model Free Optimization. Biomimetics, 7(4), 144.
     """
 
-    ID_WEI = 2
-    ID_LOC_X = 3
-    ID_LOC_Y = 4
-    ID_G = 5
-    ID_M = 6
-    ID_V = 7
-
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
-        self.support_parallel_modes = False
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
+        self.is_parallelizable = False
         self.sort_flag = False
 
-    def create_solution(self, lb=None, ub=None, pos=None):
-        if pos is None:
-            pos = self.generate_position(lb, ub)
-        position = self.amend_position(pos, lb, ub)
-        target = self.get_target_wrapper(position)
-        weights = np.random.uniform(-1, 1, len(lb))
-        g = (np.sum(weights * position) - target[self.ID_FIT]) * position
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        weights = self.generator.uniform(-1., 1., self.problem.n_dims)
         m = np.zeros(self.problem.n_dims)
         v = np.zeros(self.problem.n_dims)
-        return [position, target, weights, position.copy(), target.copy(), g, m, v]
+        return Agent(solution=solution, weights=weights, local_solution=solution.copy(), m=m, v=v)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        """
+            ID_WEI = 2
+            ID_LOC_X = 3
+            ID_LOC_Y = 4
+            ID_G = 5
+            ID_M = 6
+            ID_V = 7
+        """
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        agent.g = (np.sum(agent.weights * agent.solution) - agent.target.fitness) * agent.solution
+        return agent
 
     def initialize_variables(self):
         self.beta1 = 0.9
@@ -83,49 +87,49 @@ class OriginalESOA(Optimizer):
         hop = self.problem.ub - self.problem.lb
         for idx in range(0, self.pop_size):
             # Individual Direction
-            p_d = self.pop[idx][self.ID_LOC_X] - self.pop[idx][self.ID_POS]
-            p_d = p_d * (self.pop[idx][self.ID_LOC_Y][self.ID_FIT] - self.pop[idx][self.ID_TAR][self.ID_FIT])
+            p_d = self.pop[idx].local_solution - self.pop[idx].solution
+            p_d = p_d * (self.pop[idx].local_target.fitness - self.pop[idx].target.fitness)
             p_d = p_d / ((np.sum(p_d) + self.EPSILON)**2)
-            d_p = p_d + self.pop[idx][self.ID_G]
+            d_p = p_d + self.pop[idx].g
 
             # Group Direction
-            c_d = self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]
-            c_d = c_d * (self.g_best[self.ID_TAR][self.ID_FIT] - self.pop[idx][self.ID_TAR][self.ID_FIT])
+            c_d = self.g_best.solution - self.pop[idx].solution
+            c_d = c_d * (self.g_best.target.fitness - self.pop[idx].target.fitness)
             c_d = c_d / ((np.sum(c_d) + self.EPSILON)**2)
-            d_g = c_d + self.g_best[self.ID_G]
+            d_g = c_d + self.g_best.g
 
             # Gradient Estimation
-            r1 = np.random.random(self.problem.n_dims)
-            r2 = np.random.random(self.problem.n_dims)
-            g = (1 - r1 - r2) * self.pop[idx][self.ID_G] + r1 * d_p + r2 * d_g
+            r1 = self.generator.random(self.problem.n_dims)
+            r2 = self.generator.random(self.problem.n_dims)
+            g = (1 - r1 - r2) * self.pop[idx].g + r1 * d_p + r2 * d_g
             g = g / (np.sum(g) + self.EPSILON)
 
-            self.pop[idx][self.ID_M] = self.beta1 * self.pop[idx][self.ID_M] + (1 - self.beta1) * g
-            self.pop[idx][self.ID_V] = self.beta2 * self.pop[idx][self.ID_V] + (1 - self.beta2) * g**2
-            self.pop[idx][self.ID_WEI] -= self.pop[idx][self.ID_M] / (np.sqrt(self.pop[idx][self.ID_V]) + self.EPSILON)
+            self.pop[idx].m = self.beta1 * self.pop[idx].m + (1 - self.beta1) * g
+            self.pop[idx].v = self.beta2 * self.pop[idx].v + (1 - self.beta2) * g**2
+            self.pop[idx].weights -= self.pop[idx].m / (np.sqrt(self.pop[idx].v) + self.EPSILON)
 
             # Advice Forward
-            x_0 = self.pop[idx][self.ID_POS] + np.exp(-1.0 / (0.1 * self.epoch)) * 0.1 * hop * g
-            x_0 = self.amend_position(x_0, self.problem.lb, self.problem.ub)
-            y_0 = self.get_target_wrapper(x_0)
+            x_0 = self.pop[idx].solution + np.exp(-1.0 / (0.1 * self.epoch)) * 0.1 * hop * g
+            x_0 = self.correct_solution(x_0)
+            y_0 = self.get_target(x_0)
 
             # Random Search
-            r3 = np.random.uniform(-np.pi/2, np.pi/2, self.problem.n_dims)
-            x_n = self.pop[idx][self.ID_POS] + np.tan(r3) * hop / (1 + epoch) * 0.5
-            x_n = self.amend_position(x_n, self.problem.lb, self.problem.ub)
-            y_n = self.get_target_wrapper(x_n)
+            r3 = self.generator.uniform(-np.pi/2, np.pi/2, self.problem.n_dims)
+            x_n = self.pop[idx].solution + np.tan(r3) * hop / epoch * 0.5
+            x_n = self.correct_solution(x_n)
+            y_n = self.get_target(x_n)
 
             # Encircling Mechanism
-            d = self.pop[idx][self.ID_LOC_X] - self.pop[idx][self.ID_POS]
-            d_g = self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS]
-            r1 = np.random.random(self.problem.n_dims)
-            r2 = np.random.random(self.problem.n_dims)
-            x_m = (1 - r1 - r2) * self.pop[idx][self.ID_POS] + r1 * d + r2 * d_g
-            x_m = self.amend_position(x_m, self.problem.lb, self.problem.ub)
-            y_m = self.get_target_wrapper(x_m)
+            d = self.pop[idx].local_solution - self.pop[idx].solution
+            d_g = self.g_best.solution - self.pop[idx].solution
+            r1 = self.generator.random(self.problem.n_dims)
+            r2 = self.generator.random(self.problem.n_dims)
+            x_m = (1 - r1 - r2) * self.pop[idx].solution + r1 * d + r2 * d_g
+            x_m = self.correct_solution(x_m)
+            y_m = self.get_target(x_m)
 
             # Discriminant Condition
-            y_list_compare = [y_0[self.ID_FIT], y_n[self.ID_FIT], y_m[self.ID_FIT]]
+            y_list_compare = [y_0.fitness, y_n.fitness, y_m.fitness]
             y_list = [y_0, y_n, y_m]
             x_list = [x_0, x_n, x_m]
             if self.problem.minmax == "min":
@@ -137,14 +141,14 @@ class OriginalESOA(Optimizer):
                 x_best = x_list[id_best]
                 y_best = y_list[id_best]
 
-            if self.compare_agent([x_best, y_best], self.pop[idx]):
-                self.pop[idx][self.ID_POS] = x_best
-                self.pop[idx][self.ID_TAR] = y_best
-                if self.compare_agent([x_best, y_best], [self.pop[idx][self.ID_LOC_X], self.pop[idx][self.ID_LOC_Y]]):
-                    self.pop[idx][self.ID_LOC_X] = x_best
-                    self.pop[idx][self.ID_LOC_Y] = y_best
-                    self.pop[idx][self.ID_G] = (np.sum(self.pop[idx][self.ID_WEI] * self.pop[idx][self.ID_POS]) - self.pop[idx][self.ID_TAR][self.ID_FIT]) * self.pop[idx][self.ID_POS]
+            if self.compare_target(y_best, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx].solution = x_best
+                self.pop[idx].target = y_best
+                if self.compare_target(y_best, self.pop[idx].local_target, self.problem.minmax):
+                    self.pop[idx].local_solution = x_best
+                    self.pop[idx].local_target = y_best
+                    self.pop[idx].g = (np.sum(self.pop[idx].weights * self.pop[idx].solution) - self.pop[idx].target.fitness) * self.pop[idx].solution
             else:
-                if np.random.rand() < 0.3:
-                    self.pop[idx][self.ID_POS] = x_best
-                    self.pop[idx][self.ID_TAR] = y_best
+                if self.generator.random() < 0.3:
+                    self.pop[idx].solution = x_best
+                    self.pop[idx].target = y_best
