@@ -17,10 +17,6 @@ class OriginalMSA(Optimizer):
         1. https://www.mathworks.com/matlabcentral/fileexchange/59010-moth-search-ms-algorithm
         2. https://doi.org/10.1007/s12293-016-0212-3
 
-    Notes
-        + The matlab version of original paper is not good (especially convergence chart)
-        + The random number (gaussian distribution) is added in each updating equation
-
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5
         + partition (float): [0.3, 0.8], The proportional of first partition, default=0.5
@@ -29,26 +25,21 @@ class OriginalMSA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.MSA import OriginalMSA
+    >>> from mealpy import FloatVar, MSA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> n_best = 5
-    >>> partition = 0.5
-    >>> max_step_size = 1.0
-    >>> model = OriginalMSA(epoch, pop_size, n_best, partition, max_step_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = MSA.OriginalMSA(epoch=1000, pop_size=50, n_best = 5, partition = 0.5, max_step_size = 1.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -56,7 +47,7 @@ class OriginalMSA(Optimizer):
     global optimization problems. Memetic Computing, 10(2), pp.151-164.
     """
 
-    def __init__(self, epoch=10000, pop_size=100, n_best=5, partition=0.5, max_step_size=1.0, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, n_best: int = 5, partition: float = 0.5, max_step_size: float = 1.0, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -83,10 +74,10 @@ class OriginalMSA(Optimizer):
     def _levy_walk(self, iteration):
         beta = 1.5  # Eq. 2.23
         sigma = (gamma(1 + beta) * np.sin(np.pi * (beta - 1) / 2) / (gamma(beta / 2) * (beta - 1) * 2 ** ((beta - 2) / 2))) ** (1 / (beta - 1))
-        u = np.random.uniform(self.problem.lb, self.problem.ub) * sigma
-        v = np.random.uniform(self.problem.lb, self.problem.ub)
+        u = self.generator.uniform(self.problem.lb, self.problem.ub) * sigma
+        v = self.generator.uniform(self.problem.lb, self.problem.ub)
         step = u / np.abs(v) ** (1.0 / (beta - 1))  # Eq. 2.21
-        scale = self.max_step_size / (iteration + 1)
+        scale = self.max_step_size / iteration
         delta_x = scale * step
         return delta_x
 
@@ -97,29 +88,30 @@ class OriginalMSA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_best = self.pop[:self.n_best].copy()
+        pop_best = [agent.copy() for agent in self.pop[:self.n_best]]
         pop_new = []
         for idx in range(0, self.pop_size):
             # Migration operator
             if idx < self.n_moth1:
                 # scale = self.max_step_size / (epoch+1)       # Smaller step for local walk
-                pos_new = self.pop[idx][self.ID_POS] + np.random.normal() * self._levy_walk(epoch)
+                pos_new = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * self._levy_walk(epoch)
             else:
                 # Flying in a straight line
-                temp_case1 = self.pop[idx][self.ID_POS] + np.random.normal() * \
-                             self.golden_ratio * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                temp_case2 = self.pop[idx][self.ID_POS] + np.random.normal() * \
-                             (1.0 / self.golden_ratio) * (self.g_best[self.ID_POS] - self.pop[idx][self.ID_POS])
-                pos_new = np.where(np.random.uniform(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+                temp_case1 = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * \
+                             self.golden_ratio * (self.g_best.solution - self.pop[idx].solution)
+                temp_case2 = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * \
+                             (1.0 / self.golden_ratio) * (self.g_best.solution - self.pop[idx].solution)
+                pos_new = np.where(self.generator.random(self.problem.n_dims) < 0.5, temp_case2, temp_case1)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
-        self.pop, _ = self.get_global_best_solution(self.pop)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        self.pop = self.get_sorted_population(self.pop)
         # Replace the worst with the previous generation's elites.
-        for i in range(0, self.n_best):
-            self.pop[-1 - i] = pop_best[i].copy()
+        for idx in range(0, self.n_best):
+            self.pop[-1 - idx] = pop_best[idx].copy()
