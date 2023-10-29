@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-import numpy as np
 from mealpy.optimizer import Optimizer
 
 
@@ -24,30 +23,28 @@ class OriginalServalOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.ServalOA import OriginalServalOA
+    >>> from mealpy import FloatVar, ServalOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalServalOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = ServalOA.OriginalServalOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Dehghani, M., & Trojovský, P. (2022). Serval Optimization Algorithm: A New Bio-Inspired
     Approach for Solving Optimization Problems. Biomimetics, 7(4), 204.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,9 +52,9 @@ class OriginalServalOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -67,19 +64,19 @@ class OriginalServalOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        kk = np.random.permutation(self.pop_size)[0]
+        kk = self.generator.permutation(self.pop_size)[0]
         for idx in range(0, self.pop_size):
             # Phase 1: Prey Selection and Attacking (Exploration)
-            pos_new = self.pop[idx][self.ID_POS] + np.random.rand(self.problem.n_dims) * \
-                      (self.pop[kk][self.ID_POS] - np.random.randint(1, 3, self.problem.n_dims) * self.pop[idx][self.ID_POS])
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            pos_new = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * \
+                      (self.pop[kk].solution - self.generator.integers(1, 3, self.problem.n_dims) * self.pop[idx].solution)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
 
             # Phase 2: Chase Process (Exploitation)
-            pos_new = self.pop[idx][self.ID_POS] + np.random.randint(1, 3, self.problem.n_dims) * (self.problem.ub - self.problem.lb) / (epoch+1)   # Eq. 6
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            pos_new = self.pop[idx].solution + self.generator.integers(1, 3, self.problem.n_dims) * (self.problem.ub - self.problem.lb) / epoch   # Eq. 6
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
