@@ -17,51 +17,46 @@ class OriginalSHO(Optimizer):
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
-        + N_tried (int): default = 10
+        + n_trials (int): default = 10
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.SHO import OriginalSHO
+    >>> from mealpy import FloatVar, SHO
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> h_factor = 5.0
-    >>> N_tried = 10
-    >>> model = OriginalSHO(epoch, pop_size, h_factor, N_tried)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = SHO.OriginalSHO(epoch=1000, pop_size=50, h_factor = 5.0, n_trials = 10)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Dhiman, G. and Kumar, V., 2017. Spotted hyena optimizer: a novel bio-inspired based metaheuristic
     technique for engineering applications. Advances in Engineering Software, 114, pp.48-70.
     """
-
-    def __init__(self, epoch=10000, pop_size=100, h_factor=5., N_tried=10, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, h_factor: float = 5., n_trials: int = 10, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
             pop_size (int): number of population size, default = 100
             h_factor (float): default = 5, coefficient linearly decreased from 5.0 to 0
-            N_tried (int): default = 10,
+            n_trials (int): default = 10,
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.h_factor = self.validator.check_float("h_factor", h_factor, (0.5, 10.0))
-        self.N_tried = self.validator.check_int("N_tried", N_tried, (1, float("inf")))
-        self.set_parameters(["epoch", "pop_size", "h_factor", "N_tried"])
+        self.n_trials = self.validator.check_int("n_trials", n_trials, (1, float("inf")))
+        self.set_parameters(["epoch", "pop_size", "h_factor", "n_trials"])
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -73,38 +68,39 @@ class OriginalSHO(Optimizer):
         """
         pop_new = []
         for idx in range(0, self.pop_size):
-            h = self.h_factor - (epoch + 1.0) * (self.h_factor / self.epoch)
-            rd1 = np.random.uniform(0, 1, self.problem.n_dims)
-            rd2 = np.random.uniform(0, 1, self.problem.n_dims)
+            hh = self.h_factor - epoch * (self.h_factor / self.epoch)
+            rd1 = self.generator.uniform(0, 1, self.problem.n_dims)
+            rd2 = self.generator.uniform(0, 1, self.problem.n_dims)
             B = 2 * rd1
-            E = 2 * h * rd2 - h
+            E = 2 * hh * rd2 - hh
 
-            if np.random.rand() < 0.5:
-                D_h = np.abs(np.dot(B, self.g_best[self.ID_POS]) - self.pop[idx][self.ID_POS])
-                pos_new = self.g_best[self.ID_POS] - np.dot(E, D_h)
+            if self.generator.random() < 0.5:
+                D_h = np.abs(np.dot(B, self.g_best.solution) - self.pop[idx].solution)
+                pos_new = self.g_best.solution - np.dot(E, D_h)
             else:
                 N = 1
-                for i in range(0, self.N_tried):
-                    pos_temp = self.g_best[self.ID_POS] + np.random.normal(0, 1, self.problem.n_dims) * \
-                              np.random.uniform(self.problem.lb, self.problem.ub)
-                    pos_temp = self.amend_position(pos_temp, self.problem.lb, self.problem.ub)
-                    target = self.get_target_wrapper(pos_temp)
-                    if self.compare_agent([pos_temp, target], self.g_best):
+                for _ in range(0, self.n_trials):
+                    pos_temp = self.g_best.solution + self.generator.normal(0, 1, self.problem.n_dims) * \
+                              self.generator.uniform(self.problem.lb, self.problem.ub)
+                    pos_new = self.correct_solution(pos_temp)
+                    agent = self.generate_agent(pos_new)
+                    if self.compare_target(agent.target, self.g_best.target, self.problem.minmax):
                         N += 1
                         break
                     N += 1
                 circle_list = []
-                idx_list = np.random.choice(range(0, self.pop_size), N, replace=False)
+                idx_list = self.generator.choice(range(0, self.pop_size), N, replace=False)
                 for j in range(0, N):
-                    D_h = np.abs(np.dot(B, self.g_best[self.ID_POS]) - self.pop[idx_list[j]][self.ID_POS])
-                    p_k = self.g_best[self.ID_POS] - np.dot(E, D_h)
+                    D_h = np.abs(np.dot(B, self.g_best.solution) - self.pop[idx_list[j]].solution)
+                    p_k = self.g_best.solution - np.dot(E, D_h)
                     circle_list.append(p_k)
                 pos_new = np.mean(np.array(circle_list), axis=0)
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            pop_new.append([pos_new, None])
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                target = self.get_target_wrapper(pos_new)
-                self.pop[idx] = self.get_better_solution(self.pop[idx], [pos_new, target])
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
-            pop_new = self.update_target_wrapper_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
