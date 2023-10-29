@@ -23,29 +23,21 @@ class OriginalFFA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.FFA import OriginalFFA
+    >>> from mealpy import FloatVar, FFA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> gamma = 0.001
-    >>> beta_base = 2
-    >>> alpha = 0.2
-    >>> alpha_damp = 0.99
-    >>> delta = 0.05
-    >>> exponent = 2
-    >>> model = OriginalFFA(epoch, pop_size, gamma, beta_base, alpha, alpha_damp, delta, exponent)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = FFA.OriginalFFA(epoch=1000, pop_size=50, gamma = 0.001, beta_base = 2, alpha = 0.2, alpha_damp = 0.99, delta = 0.05, exponent = 2)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
@@ -55,7 +47,8 @@ class OriginalFFA(Optimizer):
     parameter selection. International Journal of Computer Applications, 69(3).
     """
 
-    def __init__(self, epoch=10000, pop_size=100, gamma=0.001, beta_base=2, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, gamma: float = 0.001, beta_base: float = 2,
+                 alpha: float = 0.2, alpha_damp: float = 0.99, delta: float = 0.05, exponent: int = 2, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -69,7 +62,7 @@ class OriginalFFA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.gamma = self.validator.check_float("gamma", gamma, (0, 1.0))
         self.beta_base = self.validator.check_float("beta_base", beta_base, (0, 3.0))
         self.alpha = self.validator.check_float("alpha", alpha, (0, 1.0))
@@ -77,7 +70,7 @@ class OriginalFFA(Optimizer):
         self.delta = self.validator.check_float("delta", delta, (0, 1.0))
         self.exponent = self.validator.check_int("exponent", exponent, [2, 4])
         self.set_parameters(["epoch", "pop_size", "gamma", "beta_base", "alpha", "alpha_damp", "delta", "exponent"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -97,23 +90,22 @@ class OriginalFFA(Optimizer):
             pop_child = []
             for j in range(idx + 1, self.pop_size):
                 # Move Towards Better Solutions
-                if self.compare_agent(self.pop[j], agent):
+                if self.compare_target(self.pop[j].target, agent.target, self.problem.minmax):
                     # Calculate Radius and Attraction Level
-                    rij = np.linalg.norm(agent[self.ID_POS] - self.pop[j][self.ID_POS]) / dmax
+                    rij = np.linalg.norm(agent.solution - self.pop[j].solution) / dmax
                     beta = self.beta_base * np.exp(-self.gamma * rij ** self.exponent)
                     # Mutation Vector
-                    mutation_vector = self.delta * np.random.uniform(0, 1, self.problem.n_dims)
-                    temp = np.matmul((self.pop[j][self.ID_POS] - agent[self.ID_POS]),
-                                     np.random.uniform(0, 1, (self.problem.n_dims, self.problem.n_dims)))
-                    pos_new = agent[self.ID_POS] + self.dyn_alpha * mutation_vector + beta * temp
-                    pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-                    target = self.get_target_wrapper(pos_new)
-                    pop_child.append([pos_new, target])
+                    mutation_vector = self.delta * self.generator.uniform(0, 1, self.problem.n_dims)
+                    temp = np.matmul((self.pop[j].solution - agent.solution), self.generator.uniform(0, 1, (self.problem.n_dims, self.problem.n_dims)))
+                    pos_new = agent.solution + self.dyn_alpha * mutation_vector + beta * temp
+                    pos_new = self.correct_solution(pos_new)
+                    agent = self.generate_agent(pos_new)
+                    pop_child.append(agent)
             if len(pop_child) < self.pop_size:
-                pop_child += self.create_population(self.pop_size - len(pop_child))
-            _, local_best = self.get_global_best_solution(pop_child)
+                pop_child += self.generate_population(self.pop_size - len(pop_child))
+            local_best = self.get_best_agent(pop_child, self.problem.minmax)
             # Compare to Previous Solution
-            if self.compare_agent(local_best, agent):
+            if self.compare_target(local_best.target, agent.target, self.problem.minmax):
                 self.pop[idx] = local_best
         self.pop.append(self.g_best)
         self.dyn_alpha = self.alpha_damp * self.alpha
