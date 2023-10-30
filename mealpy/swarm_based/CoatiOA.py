@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-import numpy as np
 from mealpy.optimizer import Optimizer
 
 
@@ -24,30 +23,28 @@ class OriginalCoatiOA(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy.swarm_based.CoatiOA import OriginalCoatiOA
+    >>> from mealpy import FloatVar, CoatiOA
     >>>
-    >>> def fitness_function(solution):
+    >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
     >>>
-    >>> problem_dict1 = {
-    >>>     "fit_func": fitness_function,
-    >>>     "lb": [-10, -15, -4, -2, -8],
-    >>>     "ub": [10, 15, 12, 8, 20],
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> epoch = 1000
-    >>> pop_size = 50
-    >>> model = OriginalCoatiOA(epoch, pop_size)
-    >>> best_position, best_fitness = model.solve(problem_dict1)
-    >>> print(f"Solution: {best_position}, Fitness: {best_fitness}")
+    >>> model = CoatiOA.OriginalCoatiOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 
     References
     ~~~~~~~~~~
     [1] Dehghani, M., Montazeri, Z., Trojovská, E., & Trojovský, P. (2023). Coati Optimization Algorithm: A new
     bio-inspired metaheuristic algorithm for solving optimization problems. Knowledge-Based Systems, 259, 110011.
     """
-    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -55,9 +52,9 @@ class OriginalCoatiOA(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
-        self.support_parallel_modes = False
+        self.is_parallelizable = False
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -70,29 +67,28 @@ class OriginalCoatiOA(Optimizer):
         # Phase1: Hunting and attacking strategy on iguana (Exploration Phase)
         size2 = int(self.pop_size/2)
         for idx in range(0, size2):
-
-            pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.g_best[self.ID_POS] - np.random.randint(1, 3) * self.pop[idx][self.ID_POS])  # Eq. 4
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            pos_new = self.pop[idx].solution + self.generator.random() * (self.g_best.solution - self.generator.integers(1, 3) * self.pop[idx].solution) # Eq. 4
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
 
         for idx in range(size2, self.pop_size):
-            iguana = self.create_solution(self.problem.lb, self.problem.ub)
-            if self.compare_agent(iguana, self.pop[idx]):
-                pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (iguana[self.ID_POS] - np.random.randint(1, 3) * self.pop[idx][self.ID_POS])  # Eq. 6
+            iguana = self.generate_agent()
+            if self.compare_target(iguana.target, self.pop[idx].target, self.problem.minmax):
+                pos_new = self.pop[idx].solution + self.generator.random() * (iguana.solution - self.generator.integers(1, 3) * self.pop[idx].solution)  # Eq. 6
             else:
-                pos_new = self.pop[idx][self.ID_POS] + np.random.rand() * (self.pop[idx][self.ID_POS] - iguana[self.ID_POS])  # Eq. 6
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+                pos_new = self.pop[idx].solution + self.generator.random() * (self.pop[idx].solution - iguana.solution)  # Eq. 6
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
 
         # Phase2: The process of escaping from predators (Exploitation Phase)
         for idx in range(0, self.pop_size):
-            LO, HI = self.problem.lb / (epoch+1), self.problem.ub / (epoch+1)
-            pos_new = self.pop[idx][self.ID_POS] + (1 - 2 * np.random.rand()) * (LO + np.random.rand() * (HI - LO))     # Eq. 8
-            pos_new = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
-            tar_new = self.get_target_wrapper(pos_new)
-            if self.compare_agent([pos_new, tar_new], self.pop[idx]):
-                self.pop[idx] = [pos_new, tar_new]
+            LO, HI = self.problem.lb / epoch, self.problem.ub / epoch
+            pos_new = self.pop[idx].solution + (1 - 2 * self.generator.random()) * (LO + self.generator.random() * (HI - LO))     # Eq. 8
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+            if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = agent
