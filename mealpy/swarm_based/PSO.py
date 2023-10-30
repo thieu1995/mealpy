@@ -66,14 +66,18 @@ class OriginalPSO(Optimizer):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.v_min, self.v_max)
         local_pos = solution.copy()
-        local_tar = target.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=local_pos, local_target=local_tar)
+        return Agent(solution=solution, velocity=velocity, local_solution=local_pos)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def amend_solution(self, solution: np.ndarray) -> np.ndarray:
         condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
@@ -159,14 +163,18 @@ class AIW_PSO(Optimizer):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.v_min, self.v_max)
         local_pos = solution.copy()
-        local_tar = target.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=local_pos, local_target=local_tar)
+        return Agent(solution=solution, velocity=velocity, local_solution=local_pos)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def amend_solution(self, solution: np.ndarray) -> np.ndarray:
         condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
@@ -260,14 +268,18 @@ class LDW_PSO(Optimizer):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.v_min = -self.v_max
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(self.v_min, self.v_max)
         local_pos = solution.copy()
-        local_tar = target.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=local_pos, local_target=local_tar)
+        return Agent(solution=solution, velocity=velocity, local_solution=local_pos)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def amend_solution(self, solution: np.ndarray) -> np.ndarray:
         condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
@@ -343,14 +355,18 @@ class P_PSO(Optimizer):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
         self.dyn_delta_list = self.generator.uniform(0, 2 * np.pi, self.pop_size)
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(-self.v_max, self.v_max)
         local_pos = solution.copy()
-        local_tar = target.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=local_pos, local_target=local_tar)
+        return Agent(solution=solution, velocity=velocity, local_solution=local_pos)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def evolve(self, epoch):
         """
@@ -643,14 +659,18 @@ class CL_PSO(Optimizer):
         self.v_min = -self.v_max
         self.flags = np.zeros(self.pop_size)
 
-    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
         if solution is None:
             solution = self.problem.generate_solution(encoded=True)
-        target = self.get_target(solution)
         velocity = self.generator.uniform(-self.v_max, self.v_max)
         local_pos = solution.copy()
-        local_tar = target.copy()
-        return Agent(solution=solution, target=target, velocity=velocity, local_solution=local_pos, local_target=local_tar)
+        return Agent(solution=solution, velocity=velocity, local_solution=local_pos)
+
+    def generate_agent(self, solution: np.ndarray = None) -> Agent:
+        agent = self.generate_empty_agent(solution)
+        agent.target = self.get_target(agent.solution)
+        agent.local_target = agent.target.copy()
+        return agent
 
     def evolve(self, epoch):
         """
