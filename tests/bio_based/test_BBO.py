@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import BBO
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, BBO, Optimizer
 import numpy as np
 import pytest
 
@@ -15,9 +14,8 @@ def problem():
     def fitness_function(solution):
         return np.sum(solution ** 2)
     prob = {
-        "fit_func": fitness_function,
-        "lb": [-10, -15, -4, -2, -8],
-        "ub": [10, 15, 12, 8, 20],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None,
     }
@@ -28,24 +26,24 @@ def test_OriginalBBO_results(problem):
     epoch = 10
     pop_size = 50
     p_m = 0.01
-    elites = 2
-    model = BBO.OriginalBBO(epoch, pop_size, p_m, elites)
-    best_position, best_fitness = model.solve(problem)
+    n_elites = 2
+    model = BBO.OriginalBBO(epoch, pop_size, p_m, n_elites)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
-def test_BaseBBO_results(problem):
+def test_DevBBO_results(problem):
     epoch = 10
     pop_size = 50
     p_m = 0.01
-    elites = 3
-    model = BBO.BaseBBO(epoch, pop_size, p_m, elites)
-    best_position, best_fitness = model.solve(problem)
+    n_elites = 3
+    model = BBO.DevBBO(epoch, pop_size, p_m, n_elites)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",
@@ -61,11 +59,11 @@ def test_BaseBBO_results(problem):
 def test_epoch_BBO(problem, epoch, system_code):
     pop_size = 50
     p_m = 0.01
-    elites = 2
-    algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
+    n_elites = 2
+    algorithms = [BBO.OriginalBBO, BBO.DevBBO]
     for algorithm in algorithms:
         with pytest.raises(Exception) as e:
-            algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, n_elites)
         assert e.type == ValueError
 
 
@@ -82,11 +80,11 @@ def test_epoch_BBO(problem, epoch, system_code):
 def test_pop_size_BBO(problem, pop_size, system_code):
     epoch = 10
     p_m = 0.01
-    elites = 2
-    algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
+    n_elites = 2
+    algorithms = [BBO.OriginalBBO, BBO.DevBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, n_elites)
         assert e.type == ValueError
 
 
@@ -105,15 +103,15 @@ def test_pop_size_BBO(problem, pop_size, system_code):
 def test_p_m_BBO(problem, p_m, system_code):
     epoch = 10
     pop_size = 50
-    elites = 2
-    algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
+    n_elites = 2
+    algorithms = [BBO.OriginalBBO, BBO.DevBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, n_elites)
         assert e.type == ValueError
 
 
-@pytest.mark.parametrize("problem, elites, system_code",
+@pytest.mark.parametrize("problem, n_elites, system_code",
                          [
                              (problem, None, 0),
                              (problem, "hello", 0),
@@ -125,12 +123,12 @@ def test_p_m_BBO(problem, p_m, system_code):
                              (problem, 100, 0),
                              (problem, 1.6, 0),
                          ])
-def test_elites_BBO(problem, elites, system_code):
+def test_n_elites_BBO(problem, n_elites, system_code):
     epoch = 10
     pop_size = 50
     p_m = 0.01
-    algorithms = [BBO.OriginalBBO, BBO.BaseBBO]
+    algorithms = [BBO.OriginalBBO, BBO.DevBBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            algorithm(epoch, pop_size, p_m, elites)
+            algorithm(epoch, pop_size, p_m, n_elites)
         assert e.type == ValueError
