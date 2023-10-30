@@ -4,11 +4,14 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+from typing import Union, List, Tuple, Dict
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
+from mealpy.utils.termination import Termination
 from mealpy.optimizer import Optimizer
+from mealpy.utils.agent import Agent
 from mealpy.utils.problem import Problem
 from mealpy.utils.validator import Validator
 from collections import abc
@@ -163,30 +166,50 @@ class Tuner:
     Examples
     --------
     >>> from opfunu.cec_based.cec2017 import F52017
-    >>> from mealpy.evolutionary_based import GA
-    >>> from mealpy.tuner import Tuner
+    >>> from mealpy import FloatVar, BBO, Tuner
+    >>>
     >>> f1 = F52017(30, f_bias=0)
+    >>>
     >>> p1 = {
-    >>>     "lb": f1.lb,
-    >>>     "ub": f1.ub,
+    >>>     "bounds": FloatVar(lb=f1.lb, ub=f1.ub),
+    >>>     "obj_func": f1.evaluate,
     >>>     "minmax": "min",
-    >>>     "fit_func": f1.evaluate,
     >>>     "name": "F5",
-    >>>     "log_to": None,
+    >>>     "log_to": "console",
+    >>> }
+    >>>
+    >>> paras_bbo_grid = {
+    >>>     "epoch": [10, 20, 30],
+    >>>     "pop_size": [30, 50, 100],
+    >>>     "n_elites": [2, 3, 4, 5],
+    >>>     "p_m": [0.01, 0.02, 0.05]
     >>> }
     >>> term = {
     >>>     "max_epoch": 200,
     >>>     "max_time": 20,
     >>>     "max_fe": 10000
     >>> }
-    >>> param_grid = {'epoch': [50, 100], 'pop_size': [10, 20], 'pc': [0.8, 0.85], 'pm': [0.01, 0.02]}
-    >>> ga_tuner = Tuner(GA.BaseGA(), param_grid)
-    >>> ga_tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=10, verbose=True)
-    >>> ga_tuner.resolve(mode="thread", n_workers=10, termination=term)
-    >>> ga_tuner.export_results(save_path="history/results", save_as="csv")
+    >>> if __name__ == "__main__":
+    >>>     model = BBO.OriginalBBO()
+    >>>     tuner = Tuner(model, paras_bbo_grid)
+    >>>     tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="thread", n_workers=6, verbose=True)
+    >>>
+    >>>     print(tuner.best_row)
+    >>>     print(tuner.best_score)
+    >>>     print(tuner.best_params)
+    >>>     print(type(tuner.best_params))
+    >>>
+    >>>     print(tuner.best_algorithm)
+    >>>     tuner.export_results(save_path="history/results", save_as="csv")
+    >>>     tuner.export_figures()
+    >>>
+    >>>     g_best = tuner.resolve(mode="thread", n_workers=4, termination=term)
+    >>>     print(g_best.solution, g_best.target.fitness)
+    >>>     print(tuner.algorithm.problem.get_name())
+    >>>     print(tuner.best_algorithm.get_name())
     """
 
-    def __init__(self, algorithm=None, param_grid=None, **kwargs):
+    def __init__(self, algorithm: Union[str, Optimizer] = None, param_grid: Union[Dict, List] = None, **kwargs: object) -> None:
         self.__set_keyword_arguments(kwargs)
         self.validator = Validator(log_to="console", log_file=None)
         self.algorithm = self.validator.check_is_instance("algorithm", algorithm, Optimizer)
@@ -313,8 +336,9 @@ class Tuner:
                     plt.close()
 
     def __run__(self, id_trial, mode="single", n_workers=None, termination=None):
-        _, best_fitness = self.algorithm.solve(self.problem, mode=mode, n_workers=n_workers, termination=termination)
-        return id_trial, best_fitness, self.algorithm.history.list_global_best_fit
+        g_best = self.algorithm.solve(self.problem, mode=mode, n_workers=n_workers, termination=termination)
+        self.problem = self.algorithm.problem
+        return id_trial, g_best, self.algorithm.history.list_global_best_fit
 
     def __generate_dict_from_list(self, my_list):
         keys = np.arange(1, len(my_list)+1)
@@ -326,7 +350,8 @@ class Tuner:
         result_dict = {**result_dict, **self.__generate_dict_from_list(loss_list)}
         return result_dict
 
-    def execute(self, problem=None, termination=None, n_trials=2, n_jobs=None, mode="single", n_workers=2, verbose=True):
+    def execute(self, problem: Union[Dict, Problem] = None, termination: Union[Dict, Termination] = None,
+                n_trials: int = 2, n_jobs: int = None, mode: str = "single", n_workers: int = 2, verbose: bool = True) -> None:
         """Execute Tuner utility
 
         Args:
@@ -342,11 +367,7 @@ class Tuner:
             TypeError: Raises TypeError if problem type is not dictionary or an instance Problem class
 
         """
-        if not isinstance(problem, Problem):
-            if type(problem) is dict:
-                self.problem = Problem(**problem)
-            else:
-                raise TypeError(f"Problem is not an instance of Problem class or a Python dict.")
+        self.problem = problem
         self.n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
         n_cpus = None
         if (n_jobs is not None) and (n_jobs >= 1):
@@ -357,7 +378,7 @@ class Tuner:
 
         list_params_grid = list(ParameterGrid(self.param_grid))
         trial_columns = [f"trial_{id_trial}" for id_trial in range(1, self.n_trials + 1)]
-        ascending = True if self.problem.minmax == "min" else False
+        ascending = True if self.problem["minmax"] == "min" else False
 
         best_fit_results = []
         loss_results = []
@@ -370,18 +391,18 @@ class Tuner:
             if n_cpus is not None:
                 with parallel.ProcessPoolExecutor(n_cpus) as executor:
                     list_results = executor.map(partial(self.__run__, n_workers=n_workers, mode=mode, termination=termination), trial_list)
-                    for (idx, best_fitness, loss_epoch) in list_results:
-                        best_fit_results[-1][trial_columns[idx]] = best_fitness
+                    for (idx, g_best, loss_epoch) in list_results:
+                        best_fit_results[-1][trial_columns[idx]] = g_best.target.fitness
                         loss_results.append(self.__generate_dict_result(params, idx, loss_epoch))
                         if verbose:
-                            print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx + 1}, best fitness: {best_fitness}")
+                            print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx + 1}, best fitness: {g_best.target.fitness}")
             else:
                 for idx in trial_list:
-                    idx, best_fitness, loss_epoch = self.__run__(idx, mode=mode, n_workers=n_workers, termination=termination)
-                    best_fit_results[-1][trial_columns[idx]] = best_fitness
+                    idx, g_best, loss_epoch = self.__run__(idx, mode=mode, n_workers=n_workers, termination=termination)
+                    best_fit_results[-1][trial_columns[idx]] = g_best.target.fitness
                     loss_results.append(self.__generate_dict_result(params, idx, loss_epoch))
                     if verbose:
-                        print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx+1}, best fitness: {best_fitness}")
+                        print(f"Algorithm: {self.algorithm.get_name()}, with params: {params}, trial: {idx+1}, best fitness: {g_best.target.fitness}")
 
         self.df_fit = pd.DataFrame(best_fit_results)
         self.df_fit["trial_mean"] = self.df_fit[trial_columns].mean(axis=1)
@@ -394,25 +415,26 @@ class Tuner:
         self._best_score = self._best_row["trial_mean"].values[0]
         self.df_loss = pd.DataFrame(loss_results)
 
-    def resolve(self, mode='single', starting_positions=None, n_workers=None, termination=None):
+    def resolve(self, mode: str = 'single', starting_solutions: Union[List, Tuple, np.ndarray] = None,
+                n_workers: int = None, termination: Union[Dict, Termination] = None) -> Agent:
         """
         Resolving the problem with the best parameters
 
         Args:
-            mode (str): Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
+            mode: Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
 
                 * 'process': The parallel mode with multiple cores run the tasks
                 * 'thread': The parallel mode with multiple threads run the tasks
                 * 'swarm': The sequential mode that no effect on updating phase of other agents
                 * 'single': The sequential mode that effect on updating phase of other agents, default
 
-            starting_positions(list, np.ndarray): List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
-            n_workers (int): The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
-            termination (dict, None): The termination dictionary or an instance of Termination class
+            starting_solutions: List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
+            n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
+            termination: The termination dictionary or an instance of Termination class
 
         Returns:
-            list: [position, fitness value]
+            g_best: Agent, the best agent found
         """
         self.algorithm.set_parameters(self.best_params)
         return self.algorithm.solve(problem=self.problem, mode=mode, n_workers=n_workers,
-                                    starting_positions=starting_positions, termination=termination)
+                                    starting_solutions=starting_solutions, termination=termination)

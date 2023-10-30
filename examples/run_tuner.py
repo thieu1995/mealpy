@@ -5,24 +5,23 @@
 # --------------------------------------------------%
 
 from opfunu.cec_based.cec2017 import F52017
-from mealpy.bio_based import BBO
-from mealpy.tuner import Tuner
+from mealpy import FloatVar, BBO, Tuner
+
 
 f1 = F52017(30, f_bias=0)
 
 p1 = {
-    "lb": f1.lb,
-    "ub": f1.ub,
+    "bounds": FloatVar(lb=f1.lb, ub=f1.ub),
+    "obj_func": f1.evaluate,
     "minmax": "min",
-    "fit_func": f1.evaluate,
     "name": "F5",
-    "log_to": None,
+    "log_to": "console",
 }
 
 paras_bbo_grid = {
     "epoch": [10],
     "pop_size": [10],
-    "elites": [2, 3, 4, 5],
+    "n_elites": [2, 3, 4, 5],
     "p_m": [0.01, 0.02, 0.05]
 }
 
@@ -33,9 +32,9 @@ term = {
 }
 
 if __name__ == "__main__":
-    model = BBO.BaseBBO()
+    model = BBO.OriginalBBO()
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=6, verbose=True)
+    tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, verbose=True)
 
     print(tuner.best_row)
     print(tuner.best_score)
@@ -46,7 +45,7 @@ if __name__ == "__main__":
     tuner.export_results()
     tuner.export_figures()
 
-    best_position, best_fitness = tuner.resolve(mode="thread", n_workers=4, termination=term)
-    print(best_position, best_fitness)
-    print(tuner.problem.get_name())
+    g_best = tuner.resolve(mode="thread", n_workers=4, termination=term)
+    print(g_best.solution, g_best.target.fitness)
+    print(tuner.algorithm.problem.get_name())
     print(tuner.best_algorithm.get_name())

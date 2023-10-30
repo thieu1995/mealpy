@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.swarm_based import WOA
-from mealpy.tuner import Tuner
+from mealpy import FloatVar, WOA, Tuner
 import numpy as np
 import pytest
 
@@ -18,13 +17,12 @@ def model():
 
 @pytest.fixture(scope="module")
 def problem():
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-10, -10, -10, -10, -10], ub=[10, 10, 10, 10, 10]),
         "minmax": "min",
         "log_to": None,
     }
@@ -48,13 +46,12 @@ def test_amend_position(model, problem):
                              ({"epoch": 10, "pop_size": 50}),
                          ])
 def test_para_grids(problem, para_grids, request):
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None,
     }
@@ -62,7 +59,7 @@ def test_para_grids(problem, para_grids, request):
     try:
         tuner = Tuner(model, para_grids)
         tuner.execute(problem)
-        pos, fit = tuner.resolve()
-        assert isinstance(pos, np.ndarray)
+        best = tuner.resolve()
+        assert isinstance(best.solution, np.ndarray)
     except TypeError:
         assert True
