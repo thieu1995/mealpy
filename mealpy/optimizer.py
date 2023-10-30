@@ -9,7 +9,6 @@ from typing import List, Union, Tuple, Dict
 from mealpy.utils.agent import Agent
 from mealpy.utils.problem import Problem
 from math import gamma
-from copy import deepcopy
 from mealpy.utils.history import History
 from mealpy.utils.target import Target
 from mealpy.utils.termination import Termination
@@ -28,16 +27,12 @@ class Optimizer:
     Notes
     ~~~~~
     + The function solve() is the most important method, trained the model
-    + The parallel (multithreading or multiprocessing) is used in method: generate_population(), update_target_wrapper_population()
+    + The parallel (multithreading or multiprocessing) is used in method: generate_population(), update_target_for_population()
     + The general format of:
         + population = [agent_1, agent_2, ..., agent_N]
-        + agent = global_best = solution = [position, target]
+        + agent = [solution, target]
         + target = [fitness value, objective_list]
         + objective_list = [obj_1, obj_2, ..., obj_M]
-    + Access to the:
-        + position of solution/agent: solution[0] or solution[self.ID_POS] or model.solution[model.ID_POS]
-        + fitness: solution[1][0] or solution[self.ID_TAR][self.ID_FIT] or model.solution[model.ID_TAR][model.ID_FIT]
-        + objective values: solution[1][1] or solution[self.ID_TAR][self.ID_OBJ] or model.solution[model.ID_TAR][model.ID_OBJ]
     """
 
     EPSILON = 10E-10
@@ -162,7 +157,7 @@ class Optimizer:
             self.problem = Problem(**problem)
         else:
             raise ValueError("problem needs to be a dict or an instance of Problem class.")
-        self.generator = np.random.default_rng(seed)
+        self.generator = self.generator.default_rng(seed)
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
@@ -675,14 +670,14 @@ class Optimizer:
             size (tuple, list): size of levy-flight steps, for example: (3, 2), 5, (4, )
             case (int): Should be one of these value [0, 1, -1].
 
-                * 0: return multiplier * s * np.random.uniform()
-                * 1: return multiplier * s * np.random.normal(0, 1)
+                * 0: return multiplier * s * self.generator.uniform()
+                * 1: return multiplier * s * self.generator.normal(0, 1)
                 * -1: return multiplier * s
 
         Returns:
             float, list, np.ndarray: The step size of Levy-flight trajectory
         """
-        # u and v are two random variables which follow np.random.normal distribution
+        # u and v are two random variables which follow self.generator.normal distribution
         # sigma_u : standard deviation of u
         sigma_u = np.power(gamma(1. + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2.) * beta * np.power(2., (beta - 1) / 2)), 1. / beta)
         # sigma_v : standard deviation of v
@@ -739,7 +734,7 @@ class Optimizer:
         Returns:
             list: position of 1st and 2nd child
         """
-        r = np.random.uniform()  # w1 = w2 when r =0.5
+        r = self.generator.uniform()  # w1 = w2 when r =0.5
         w1 = np.multiply(r, dad_pos) + np.multiply((1 - r), mom_pos)
         w2 = np.multiply(r, mom_pos) + np.multiply((1 - r), dad_pos)
         return w1, w2
@@ -754,32 +749,32 @@ class Optimizer:
     def improved_ms(self, pop=None, g_best=None):  ## m: mutation, s: search
         pop_len = int(len(pop) / 2)
         ## Sort the updated population based on fitness
-        pop = sorted(pop, key=lambda item: item[self.ID_TAR][self.ID_FIT])
+        pop = sorted(pop, key=lambda agent: agent.target.fitness)
         pop_s1, pop_s2 = pop[:pop_len], pop[pop_len:]
 
         ## Mutation scheme
         pop_new = []
-        for i in range(0, pop_len):
-            agent = deepcopy(pop_s1[i])
-            pos_new = pop_s1[i][self.ID_POS] * (1 + np.random.normal(0, 1, self.problem.n_dims))
-            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+        for idx in range(0, pop_len):
+            agent = pop_s1[idx].copy()
+            pos_new = pop_s1[idx].solution * (1 + self.generator.normal(0, 1, self.problem.n_dims))
+            agent.solution = self.correct_solution(pos_new)
             pop_new.append(agent)
-        pop_new = self.update_target_wrapper_population(pop_new)
-        pop_s1 = self.greedy_selection_population(pop_s1, pop_new)  ## Greedy method --> improved exploitation
+        pop_new = self.update_target_for_population(pop_new)
+        pop_s1 = self.greedy_selection_population(pop_s1, pop_new, self.problem.minmax)  ## Greedy method --> improved exploitation
 
         ## Search Mechanism
-        pos_s1_list = [item[self.ID_POS] for item in pop_s1]
+        pos_s1_list = [agent.solution for agent in pop_s1]
         pos_s1_mean = np.mean(pos_s1_list, axis=0)
         pop_new = []
-        for i in range(0, pop_len):
-            agent = deepcopy(pop_s2[i])
-            pos_new = (g_best[self.ID_POS] - pos_s1_mean) - np.random.random() * \
-                      (self.problem.lb + np.random.random() * (self.problem.ub - self.problem.lb))
-            agent[self.ID_POS] = self.amend_position(pos_new, self.problem.lb, self.problem.ub)
+        for idx in range(0, pop_len):
+            agent = pop_s2[idx].copy()
+            pos_new = (g_best.solution - pos_s1_mean) - self.generator.random() * \
+                      (self.problem.lb + self.generator.random() * (self.problem.ub - self.problem.lb))
+            agent.solution = self.correct_solution(pos_new)
             pop_new.append(agent)
         ## Keep the diversity of populatoin and still improved the exploration
-        pop_s2 = self.update_target_wrapper_population(pop_new)
-        pop_s2 = self.greedy_selection_population(pop_s2, pop_new)
+        pop_s2 = self.update_target_for_population(pop_new)
+        pop_s2 = self.greedy_selection_population(pop_s2, pop_new, self.problem.minmax)
 
         ## Construct a new population
         pop = pop_s1 + pop_s2
