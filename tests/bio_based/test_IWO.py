@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import IWO
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, IWO, Optimizer
 import numpy as np
 import pytest
 
@@ -16,9 +15,8 @@ def problem():
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
     }
     return problem
@@ -34,10 +32,10 @@ def test_OriginalIWO_results(problem):
     sigma_end = 0.01
 
     model = IWO.OriginalIWO(epoch, pop_size, seed_min, seed_max, exponent, sigma_start, sigma_end)
-    best_position, best_fitness = model.solve(problem)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",
