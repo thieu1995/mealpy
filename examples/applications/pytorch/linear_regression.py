@@ -69,9 +69,9 @@ dataset = {
 }
 
 bounds = [
-    StringVar(n_vars=1, valid_sets=["SGD", "Adam", "RMSprop", "Rprop", "Adamax", "Adagrad"], name="optimizer"),
-    FloatVar(n_vars=1, lb=0., ub=1.0, name="learning-rate"),
-    IntegerVar(n_vars=1, lb=10, ub=40, name="epoch")
+    StringVar(valid_sets=["SGD", "Adam", "RMSprop", "Rprop", "Adamax", "Adagrad"], name="optimizer"),
+    FloatVar(lb=0., ub=1.0, name="learning-rate"),
+    IntegerVar(lb=10, ub=40, name="epoch")
 ]
 
 ## training weight 0.3 and testing weight 0.7
@@ -79,6 +79,7 @@ problem = MyProblem(bounds=bounds, minmax="min", data=dataset, name="ml-problem"
 model = BBO.OriginalBBO(epoch=MAX_GEN, pop_size=POP_SIZE, pr=0.03)
 best_agent = model.solve(problem)
 
-print(best_agent.solution)
-print(best_agent.fitness)
-print(problem.decode_solution(best_agent.solution))
+print(f"Best agent: {best_agent}")
+print(f"Best solution: {best_agent.solution}")
+print(f"Best accuracy: {best_agent.target.fitness}")
+print(f"Best parameters: {model.problem.decode_solution(best_agent.solution)}")
