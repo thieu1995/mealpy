@@ -45,8 +45,6 @@ class OriginalCOA(Optimizer):
     for global optimization problems. In 2018 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
     """
 
-    ID_AGE = 2
-
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_coyotes: int = 5, **kwargs: object) -> None:
         """
         Args:
