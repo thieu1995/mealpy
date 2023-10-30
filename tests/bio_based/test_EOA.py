@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import EOA
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, EOA, Optimizer
 import numpy as np
 import pytest
 
@@ -16,9 +15,8 @@ def problem():
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -15, -4, -2, -8],
-        "ub": [10, 15, 12, 8, 20],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None,
     }
@@ -33,12 +31,12 @@ def test_BaseEOA_results(problem):
     n_best = 2
     alpha = 0.98
     beta = 0.9
-    gamma = 0.9
-    model = EOA.OriginalEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gamma)
-    best_position, best_fitness = model.solve(problem)
+    gama = 0.9
+    model = EOA.OriginalEOA(epoch, pop_size, p_c, p_m, n_best, alpha, beta, gama)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",
@@ -179,7 +177,7 @@ def test_beta_EOA(problem, beta, system_code):
         assert e.type == ValueError
 
 
-@pytest.mark.parametrize("problem, gamma, system_code",
+@pytest.mark.parametrize("problem, gama, system_code",
                          [
                              (problem, None, 0),
                              (problem, "hello", 0),
@@ -191,9 +189,9 @@ def test_beta_EOA(problem, beta, system_code):
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
-def test_gamma_EOA(problem, gamma, system_code):
+def test_gama_EOA(problem, gama, system_code):
     algorithms = [EOA.OriginalEOA]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
-            algorithm(10, 50, gamma=gamma)
+            algorithm(10, 50, gama=gama)
         assert e.type == ValueError
