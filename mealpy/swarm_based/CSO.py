@@ -53,11 +53,6 @@ class OriginalCSO(Optimizer):
     international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
     """
 
-    ID_POS = 0  # position of the cat
-    ID_TAR = 1  # fitness
-    ID_VEL = 2  # velocity
-    ID_FLAG = 3  # status
-
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mixture_ratio: float = 0.15, smp: int = 5,
                  spc: bool = False, cdc: float = 0.8, srd: float = 0.15, c1: float = 0.4,
                  w_min: float = 0.5, w_max: float = 0.9, selected_strategy: int = 1, **kwargs: object) -> None:

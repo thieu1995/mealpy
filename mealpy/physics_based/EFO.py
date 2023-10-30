@@ -73,11 +73,6 @@ class DevEFO(Optimizer):
             r_idx2 = self.generator.integers(int(self.pop_size * (1 - self.n_field)), self.pop_size)  # bottom
             r_idx3 = self.generator.integers(int((self.pop_size * self.p_field) + 1), int(self.pop_size * (1 - self.n_field)))  # middle
             if self.generator.random() < self.ps_rate:
-                # new = g_best + phi* r1 * (top - middle) + r2 (top - bottom)
-                # pos_new = g_best[self.ID_POS] + \
-                #            phi * self.generator.uniform() * (pop[r_idx1][self.ID_POS] - pop[r_idx3][self.ID_POS]) + \
-                #            self.generator.uniform() * (pop[r_idx1][self.ID_POS] - pop[r_idx2][self.ID_POS])
-                # new = top + phi * r1 * (g_best - bottom) + r2 * (g_best - middle)
                 pos_new = self.pop[r_idx1].solution + self.phi * self.generator.random() * (self.g_best.solution - self.pop[r_idx3].solution) \
                           + self.generator.random() * (self.g_best.solution - self.pop[r_idx2].solution)
             else:

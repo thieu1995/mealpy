@@ -341,7 +341,6 @@ class EnhancedAEO(Optimizer):
             d = 3 * self.generator.normal(0, 1)
             e = r3 * self.generator.integers(1, 3) - 1
             h = 2 * r3 - 1
-            # x_new = best[self.ID_POS] + d * (e * best[self.ID_POS] - h * agent_i[self.ID_POS])
             if self.generator.random() < 0.5:
                 beta = 1 - (1 - 0) * (epoch / self.epoch)  # Eq. 21
                 r_idx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))

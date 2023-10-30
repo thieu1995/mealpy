@@ -45,10 +45,6 @@ class OriginalSSpiderO(Optimizer):
     optimization algorithm: modifications, applications, and perspectives. Mathematical Problems in Engineering, 2018.
     """
 
-    ID_POS = 0
-    ID_TAR = 1
-    ID_WEI = 2
-
     def __init__(self, epoch: int = 10000, pop_size: int = 100, fp_min: float = 0.65, fp_max: float = 0.9, **kwargs: object) -> None:
         """
         Args:

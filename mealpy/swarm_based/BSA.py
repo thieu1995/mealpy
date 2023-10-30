@@ -49,11 +49,6 @@ class OriginalBSA(Optimizer):
     algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical Artificial Intelligence, 28(4), pp.673-687.
     """
 
-    ID_POS = 0
-    ID_TAR = 1
-    ID_LBP = 2  # local best position
-    ID_LBF = 3  # local best fitness
-
     def __init__(self, epoch: int = 10000, pop_size: int = 100, ff: int = 10, pff: float = 0.8,
                  c1: float = 1.5, c2: float = 1.5, a1: float = 1.0, a2: float = 1.0, fc: float = 0.5, **kwargs: object) -> None:
         """
