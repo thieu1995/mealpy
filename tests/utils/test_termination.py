@@ -4,7 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.utils.termination import Termination
+from mealpy import Termination
 import pytest
 
 
