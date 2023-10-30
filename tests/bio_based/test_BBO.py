@@ -11,10 +11,10 @@ import pytest
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
 def problem():
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
     prob = {
-        "obj_func": fitness_function,
+        "obj_func": objective_function,
         "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None,
