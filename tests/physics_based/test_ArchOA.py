@@ -4,21 +4,19 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.physics_based import ArchOA
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, ArchOA, Optimizer
 import numpy as np
 import pytest
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
 def problem():
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
     }
     return problem
@@ -29,7 +27,7 @@ def test_ArchOA_results(problem):
         ArchOA.OriginalArchOA(epoch=100, pop_size=50, c1=2, c2=6, c3=2, c4=0.5, acc_max=0.9, acc_min=0.1),
     ]
     for model in models:
-        best_position, best_fitness = model.solve(problem)
+        g_best = model.solve(problem)
         assert isinstance(model, Optimizer)
-        assert isinstance(best_position, np.ndarray)
-        assert len(best_position) == len(problem["lb"])
+        assert isinstance(g_best.solution, np.ndarray)
+        assert len(g_best.solution) == len(model.problem.lb)
