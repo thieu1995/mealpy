@@ -186,18 +186,19 @@ class OriginalEFO(DevEFO):
         Args:
             epoch (int): The current iteration
         """
-        r = self.r_force[epoch]
+        iter01 = epoch-1
+        r = self.r_force[iter01]
         x_new = np.zeros(self.problem.n_dims)  # temporary array to store generated particle
         for idx in range(0, self.problem.n_dims):
-            if self.ps[idx, epoch] > self.ps_rate:
-                x_new[idx] = self.pop[self.r_index3[idx, epoch]].solution[idx] + \
-                           self.phi * r * (self.pop[self.r_index1[idx, epoch]].solution[idx] - self.pop[self.r_index3[idx, epoch]].solution[idx]) + \
-                           r * (self.pop[self.r_index3[idx, epoch]].solution[idx] - self.pop[self.r_index2[idx, epoch]].solution[idx])
+            if self.ps[idx, iter01] > self.ps_rate:
+                x_new[idx] = self.pop[self.r_index3[idx, iter01]].solution[idx] + \
+                           self.phi * r * (self.pop[self.r_index1[idx, iter01]].solution[idx] - self.pop[self.r_index3[idx, iter01]].solution[idx]) + \
+                           r * (self.pop[self.r_index3[idx, iter01]].solution[idx] - self.pop[self.r_index2[idx, iter01]].solution[idx])
             else:
-                x_new[idx] = self.pop[self.r_index1[idx, epoch]].solution[idx]
+                x_new[idx] = self.pop[self.r_index1[idx, iter01]].solution[idx]
         # replacement of one electromagnet of generated particle with a random number (only for some generated particles) to bring diversity to the population
-        if self.rp[epoch] < self.r_rate:
-            x_new[self.RI] = self.problem.lb[self.RI] + (self.problem.ub[self.RI] - self.problem.lb[self.RI]) * self.randomization[epoch]
+        if self.rp[iter01] < self.r_rate:
+            x_new[self.RI] = self.problem.lb[self.RI] + (self.problem.ub[self.RI] - self.problem.lb[self.RI]) * self.randomization[iter01]
             RI = self.RI + 1
             if RI >= self.problem.n_dims:
                 self.RI = 0
