@@ -4,21 +4,19 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.swarm_based import BeesA
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, BeesA, Optimizer
 import numpy as np
 import pytest
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
 def problem():
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None
     }
@@ -27,13 +25,12 @@ def problem():
 
 def test_BeesA_results(problem):
     models = [
-
         BeesA.ProbBeesA(epoch=10, pop_size=10, recruited_bee_ratio=0.1, dance_radius=0.1, dance_reduction=0.99),
-        BeesA.OriginalBeesA(epoch=10, pop_size=10, selected_site_ratio=0.5, elite_site_ratio=0.4, selected_site_bee_ratio=0.1, elite_site_bee_ratio=2.0,
-                            dance_radius=0.1, dance_reduction=0.99, ),
+        BeesA.OriginalBeesA(epoch=10, pop_size=10, selected_site_ratio=0.5, elite_site_ratio=0.4, selected_site_bee_ratio=0.1,
+                            elite_site_bee_ratio=2.0, dance_radius=0.1, dance_reduction=0.99, ),
     ]
     for model in models:
-        best_position, best_fitness = model.solve(problem)
+        g_best = model.solve(problem)
         assert isinstance(model, Optimizer)
-        assert isinstance(best_position, np.ndarray)
-        assert len(best_position) == len(problem["lb"])
+        assert isinstance(g_best.solution, np.ndarray)
+        assert len(g_best.solution) == len(model.problem.lb)

@@ -4,21 +4,19 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.swarm_based import BSA
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, BSA, Optimizer
 import numpy as np
 import pytest
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
 def problem():
-    def fitness_function(solution):
+    def objective_function(solution):
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
         "log_to": None
     }
@@ -27,10 +25,10 @@ def problem():
 
 def test_BSA_results(problem):
     models = [
-        BSA.OriginalBSA(epoch=10, pop_size=50, ff=10, pff=0.8, c_couples=(1.5, 1.5), a_couples=(1.0, 1.0), fl=0.5)
+        BSA.OriginalBSA(epoch=10, pop_size=50, ff = 10, pff = 0.8, c1 = 1.5, c2 = 1.5, a1 = 1.0, a2 = 1.0, fc = 0.5)
     ]
     for model in models:
-        best_position, best_fitness = model.solve(problem)
+        g_best = model.solve(problem)
         assert isinstance(model, Optimizer)
-        assert isinstance(best_position, np.ndarray)
-        assert len(best_position) == len(problem["lb"])
+        assert isinstance(g_best.solution, np.ndarray)
+        assert len(g_best.solution) == len(model.problem.lb)
