@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import VCS
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, VCS, Optimizer
 import numpy as np
 import pytest
 
@@ -16,9 +15,8 @@ def problem():
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -10, -10, -10, -10], ub=[10, 10, 10, 10, 10]),
         "minmax": "min",
     }
     return problem
@@ -30,22 +28,22 @@ def test_OriginalVCS_results(problem):
     lamda = 0.5
     xichma = 0.3
     model = VCS.OriginalVCS(epoch, pop_size, lamda, xichma)
-    best_position, best_fitness = model.solve(problem)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
-def test_BaseVCS_results(problem):
+def test_DevVCS_results(problem):
     epoch = 10
     pop_size = 50
     lamda = 0.5
     xichma = 0.3
-    model = VCS.BaseVCS(epoch, pop_size, lamda, xichma)
-    best_position, best_fitness = model.solve(problem)
+    model = VCS.DevVCS(epoch, pop_size, lamda, xichma)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",
@@ -60,7 +58,7 @@ def test_BaseVCS_results(problem):
                          ])
 def test_epoch_VCS(problem, epoch, system_code):
     pop_size = 50
-    algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
+    algorithms = [VCS.OriginalVCS, VCS.DevVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size)
@@ -79,7 +77,7 @@ def test_epoch_VCS(problem, epoch, system_code):
                          ])
 def test_pop_size_VCS(problem, pop_size, system_code):
     epoch = 10
-    algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
+    algorithms = [VCS.OriginalVCS, VCS.DevVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size)
@@ -101,7 +99,7 @@ def test_pop_size_VCS(problem, pop_size, system_code):
 def test_lamda_VCS(problem, lamda, system_code):
     epoch = 10
     pop_size = 50
-    algorithms = [VCS.OriginalVCS, VCS.BaseVCS]
+    algorithms = [VCS.OriginalVCS, VCS.DevVCS]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size, lamda=lamda)

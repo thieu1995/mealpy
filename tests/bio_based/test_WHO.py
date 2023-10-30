@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import WHO
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, WHO, Optimizer
 import numpy as np
 import pytest
 
@@ -16,26 +15,20 @@ def problem():
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -10, -10, -10, -10], ub=[10, 10, 10, 10, 10]),
         "minmax": "min",
     }
     return problem
 
 
 def test_BaseWHO_results(problem):
-    epoch = 10
-    pop_size = 50
-    n_s = 3
-    n_e = 3
-    eta = 0.15
-    p_hi = 0.9
-    model = WHO.OriginalWHO(epoch, pop_size, n_s, n_e, eta, p_hi)
-    best_position, best_fitness = model.solve(problem)
+    model = WHO.OriginalWHO(epoch=10, pop_size=50, n_explore_step = 3, n_exploit_step = 3, eta = 0.15, p_hi = 0.9,
+                            local_alpha=0.9, local_beta=0.3, global_alpha=0.2, global_beta=0.8, delta_w=2.0, delta_c=2.0)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",

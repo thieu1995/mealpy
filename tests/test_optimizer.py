@@ -159,12 +159,12 @@ def test_get_special_fitness(model):
     fit_sum = 55 + 30 + 14 + 5 + 4 + 1
     minmax = model.problem.minmax
     if minmax == "min":
-        total_fit, best_fit, worst_fit = model.get_special_fitness(pop)
+        total_fit, best_fit, worst_fit = model.get_special_fitness(pop, minmax)
         assert total_fit == fit_sum
         assert best_fit == 1
         assert worst_fit == 55
     else:
-        total_fit, best_fit, worst_fit = model.get_special_fitness(pop)
+        total_fit, best_fit, worst_fit = model.get_special_fitness(pop, minmax)
         assert total_fit == fit_sum
         assert best_fit == 55
         assert worst_fit == 1
@@ -183,7 +183,7 @@ def test_greedy_selection_population(model):
         [np.array([0, 0, 1, 2, 4]), [21, [21]]],
         [np.array([0, 0, 0, 1, 3]), [10, [10]]],
     ]
-    pop_child = model.greedy_selection_population(pop_old, pop_new)
+    pop_child = model.greedy_selection_population(pop_old, pop_new, minmax=self.problem.minmax)
     list_better_fits_min = [46, 23, 14, 5]
     list_better_fits_max = [55, 30, 21, 10]
 

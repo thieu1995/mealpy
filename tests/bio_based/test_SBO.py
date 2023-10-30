@@ -4,8 +4,7 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy.bio_based import SBO
-from mealpy.optimizer import Optimizer
+from mealpy import FloatVar, SBO, Optimizer
 import numpy as np
 import pytest
 
@@ -16,9 +15,8 @@ def problem():
         return np.sum(solution ** 2)
 
     problem = {
-        "fit_func": fitness_function,
-        "lb": [-10, -10, -10, -10, -10],
-        "ub": [10, 10, 10, 10, 10],
+        "obj_func": fitness_function,
+        "bounds": FloatVar(lb=[-10, -10, -10, -10, -10], ub=[10, 10, 10, 10, 10]),
         "minmax": "min",
     }
     return problem
@@ -31,23 +29,23 @@ def test_OriginalSBO_results(problem):
     p_m = 0.05
     psw = 0.02
     model = SBO.OriginalSBO(epoch, pop_size, alpha, p_m, psw)
-    best_position, best_fitness = model.solve(problem)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
-def test_BaseSBO_results(problem):
+def test_DevSBO_results(problem):
     epoch = 10
     pop_size = 50
     alpha = 0.94
     p_m = 0.05
     psw = 0.02
-    model = SBO.BaseSBO(epoch, pop_size, alpha, p_m, psw)
-    best_position, best_fitness = model.solve(problem)
+    model = SBO.DevSBO(epoch, pop_size, alpha, p_m, psw)
+    g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
-    assert isinstance(best_position, np.ndarray)
-    assert len(best_position) == len(problem["lb"])
+    assert isinstance(g_best.solution, np.ndarray)
+    assert len(g_best.solution) == len(model.problem.lb)
 
 
 @pytest.mark.parametrize("problem, epoch, system_code",
@@ -62,7 +60,7 @@ def test_BaseSBO_results(problem):
                          ])
 def test_epoch_SBO(problem, epoch, system_code):
     pop_size = 50
-    algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
+    algorithms = [SBO.OriginalSBO, SBO.DevSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size)
@@ -81,7 +79,7 @@ def test_epoch_SBO(problem, epoch, system_code):
                          ])
 def test_pop_size_SBO(problem, pop_size, system_code):
     epoch = 10
-    algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
+    algorithms = [SBO.OriginalSBO, SBO.DevSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size)
@@ -100,7 +98,7 @@ def test_pop_size_SBO(problem, pop_size, system_code):
 def test_alpha_SBO(problem, alpha, system_code):
     epoch = 10
     pop_size = 50
-    algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
+    algorithms = [SBO.OriginalSBO, SBO.DevSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size, alpha=alpha)
@@ -122,7 +120,7 @@ def test_alpha_SBO(problem, alpha, system_code):
 def test_p_m_SBO(problem, p_m, system_code):
     epoch = 10
     pop_size = 50
-    algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
+    algorithms = [SBO.OriginalSBO, SBO.DevSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size, p_m=p_m)
@@ -144,7 +142,7 @@ def test_p_m_SBO(problem, p_m, system_code):
 def test_psw_SBO(problem, psw, system_code):
     epoch = 10
     pop_size = 50
-    algorithms = [SBO.OriginalSBO, SBO.BaseSBO]
+    algorithms = [SBO.OriginalSBO, SBO.DevSBO]
     for algorithm in algorithms:
         with pytest.raises(ValueError) as e:
             algorithm(epoch, pop_size, psw=psw)
