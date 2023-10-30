@@ -60,7 +60,7 @@ class OriginalCDO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        _, (b1, b2, b3), _ = self.get_special_agents(self.pop, n_best=3, n_worst=1)
+        _, (b1, b2, b3), _ = self.get_special_agents(self.pop, n_best=3, n_worst=1, minmax=self.problem.minmax)
         a = 3. - 3.*epoch/self.epoch
         a1 = np.log10((16000-1) * self.generator.random() + 16000)
         a2 = np.log10((270000-1) * self.generator.random() + 270000)

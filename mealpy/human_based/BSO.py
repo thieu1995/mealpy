@@ -75,7 +75,7 @@ class ImprovedBSO(Optimizer):
     def find_cluster__(self, pop_group):
         centers = []
         for idx in range(0, self.m_clusters):
-            local_best = self.get_best_agent(pop_group[idx])
+            local_best = self.get_best_agent(pop_group[idx], self.problem.minmax)
             centers.append(local_best.copy())
         return centers
 

@@ -128,7 +128,7 @@ class OriginalWHO(Optimizer):
                 if self.compare_target(tar_new, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx].update(solution=pos_new, target=tar_new)
 
-        _, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         g_best, g_worst = best[0], worst[0]
         pop_child = []
         for idx in range(0, self.pop_size):

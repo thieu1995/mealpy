@@ -70,7 +70,7 @@ class OriginalBBO(Optimizer):
         Args:
             epoch: The current iteration
         """
-        _, pop_elites, _ = self.get_special_agents(self.pop, n_best=self.n_elites)
+        _, pop_elites, _ = self.get_special_agents(self.pop, n_best=self.n_elites, minmax=self.problem.minmax)
         pop = []
         for idx in range(0, self.pop_size):
             # Probabilistic migration to the i-th position
@@ -149,7 +149,7 @@ class DevBBO(OriginalBBO):
         Args:
             epoch (int): The current iteration
         """
-        _, pop_elites, _ = self.get_special_agents(self.pop, n_best=self.n_elites)
+        _, pop_elites, _ = self.get_special_agents(self.pop, n_best=self.n_elites, minmax=self.problem.minmax)
         list_fitness = [agent.target.fitness for agent in self.pop]
         pop_new = []
         for idx in range(0, self.pop_size):

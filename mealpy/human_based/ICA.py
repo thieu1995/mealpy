@@ -170,7 +170,7 @@ class OriginalICA(Optimizer):
         # Find the weakest empire and weakest colony inside it
         idx_weakest_empire = np.argmax(cost_empires_list)
         if len(self.empires[idx_weakest_empire]) > 0:
-            colonies_sorted, _, _ = self.get_special_agents(self.empires[idx_weakest_empire])
+            colonies_sorted = self.get_sorted_population(self.empires[idx_weakest_empire], self.problem.minmax)
             self.empires[idx_empire].append(colonies_sorted.pop(-1))
         else:
             self.empires[idx_empire].append(self.pop_empires.pop(idx_weakest_empire))

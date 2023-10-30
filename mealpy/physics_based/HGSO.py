@@ -87,7 +87,7 @@ class OriginalHGSO(Optimizer):
     def get_best_solution_in_team__(self, group=None):
         list_best = []
         for idx in range(len(group)):
-            best_agent = self.get_best_agent(group[idx])
+            best_agent = self.get_best_agent(group[idx], self.problem.minmax)
             list_best.append(best_agent)
         return list_best
 

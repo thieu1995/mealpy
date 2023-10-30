@@ -86,7 +86,7 @@ class OriginalHCO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_op = self.update_target_for_population(pop_op)
             self.pop = self.greedy_selection_population(self.pop, pop_op, self.problem.minmax)
-        _, (best,), (worst,) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (best,), (worst,) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pfit = (worst.target.fitness - best.target.fitness) * self.wfp + best.target.fitness
         for idx in range(0, self.pop_size):
             if self.compare_fitness(pfit, self.pop[idx].target.fitness, self.problem.minmax):

@@ -575,7 +575,7 @@ class AugmentedAEO(Optimizer):
             pop_new = self.update_target_for_population(pop_new)
             self.pop[:-1] = self.greedy_selection_population(self.pop[:-1], pop_new, self.problem.minmax)
         ## find current best used in decomposition
-        best = self.get_best_agent(self.pop)
+        best = self.get_best_agent(self.pop, self.problem.minmax)
         ## Decomposition
         ### Eq. 10, 11, 12, 9   idx, pop, g_best, local_best
         pop_child = []

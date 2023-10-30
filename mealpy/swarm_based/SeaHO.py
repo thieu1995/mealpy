@@ -96,7 +96,7 @@ class OriginalSeaHO(Optimizer):
                 pop_child[-1].target = self.get_target(pos_new)
         if self.mode in self.AVAILABLE_MODES:
             pop_child = self.update_target_for_population(pop_child)
-        pop_child = self.get_sorted_population(pop_child)         # Sorted population
+        pop_child = self.get_sorted_population(pop_child, self.problem.minmax)         # Sorted population
 
         # The reproductive behavior of sea horses
         dads = pop_child[:int(self.pop_size/2)]

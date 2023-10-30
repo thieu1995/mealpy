@@ -88,7 +88,7 @@ class OriginalARO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, minmax=self.problem.minmax)
 
 
 class LARO(Optimizer):
@@ -171,7 +171,7 @@ class LARO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, minmax=self.problem.minmax)
         # Selective Opposition (SO) Strategy
         TS = 2 - (2 * epoch / self.epoch)
         for idx in range(0, self.pop_size):
@@ -189,7 +189,7 @@ class LARO(Optimizer):
                     pos_new = df_lb + df_ub - self.pop[idx].solution
                     pos_new = self.correct_solution(pos_new)
                     target = self.get_target(pos_new)
-                    if self.compare_target(target, self.pop[idx].target):
+                    if self.compare_target(target, self.pop[idx].target, self.problem.minmax):
                         self.pop[idx].update(solution=pos_new, target=target)
 
 
@@ -273,4 +273,4 @@ class IARO(Optimizer):
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
-            self.pop = self.greedy_selection_population(self.pop, pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, minmax=self.problem.minmax)

@@ -82,8 +82,8 @@ class OriginalFLA(Optimizer):
         self.n2 = self.pop_size - self.n1
         self.pop1 = self.pop[:self.n1].copy()
         self.pop2 = self.pop[self.n1:].copy()
-        self.best1 = self.get_best_agent(self.pop1)
-        self.best2 = self.get_best_agent(self.pop2)
+        self.best1 = self.get_best_agent(self.pop1, self.problem.minmax)
+        self.best2 = self.get_best_agent(self.pop2, self.problem.minmax)
         if self.compare_target(self.best1.target, self.best2.target, self.problem.minmax):
             self.fsss = self.best1.target.fitness
         else:

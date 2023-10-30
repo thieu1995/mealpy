@@ -100,7 +100,7 @@ class OriginalHGS(Optimizer):
         """
         ## Eq. (2.2)
         ### Find the current best and current worst
-        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pop = self.update_hunger_value__(self.pop, g_best, g_worst)
 
         ## Eq. (2.4)

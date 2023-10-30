@@ -111,7 +111,7 @@ class OriginalMSA(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
-        self.pop = self.get_sorted_population(self.pop)
+        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
         # Replace the worst with the previous generation's elites.
         for idx in range(0, self.n_best):
             self.pop[-1 - idx] = pop_best[idx].copy()

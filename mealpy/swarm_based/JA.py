@@ -56,7 +56,7 @@ class DevJA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * (g_best.solution - np.abs(self.pop[idx].solution)) + \
@@ -119,7 +119,7 @@ class OriginalJA(DevJA):
         Args:
             epoch (int): The current iteration
         """
-        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = self.pop[idx].solution + self.generator.uniform(0, 1, self.problem.n_dims) * \
@@ -184,7 +184,7 @@ class LevyJA(DevJA):
         Args:
             epoch (int): The current iteration
         """
-        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
             L1 = self.get_levy_flight_step(multiplier=1.0, beta=1.8, case=-1)

@@ -136,7 +136,7 @@ class Optimizer:
 
     def after_initialization(self) -> None:
         # The initial population is sorted or not depended on algorithm's strategy
-        pop_temp, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        pop_temp, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         self.g_best, self.g_worst = best[0], worst[0]
         if self.sort_flag: self.pop = pop_temp
         ## Store initial best and worst solutions
@@ -157,7 +157,7 @@ class Optimizer:
             self.problem = Problem(**problem)
         else:
             raise ValueError("problem needs to be a dict or an instance of Problem class.")
-        self.generator = self.generator.default_rng(seed)
+        self.generator = np.random.default_rng(seed)
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)

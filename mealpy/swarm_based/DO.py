@@ -67,7 +67,7 @@ class OriginalDO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        _, (self.g_best, ), (self.g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        _, (self.g_best, ), (self.g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
 
         r = (self.problem.ub - self.problem.lb) / 4 + ((self.problem.ub - self.problem.lb) * (2 * epoch / self.epoch))
         w = 0.9 - epoch * ((0.9 - 0.4) / self.epoch)

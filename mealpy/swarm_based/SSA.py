@@ -91,7 +91,7 @@ class DevSSA(Optimizer):
                     x_new = self.pop[idx].solution + self.generator.normal() * np.ones(self.problem.n_dims)
             else:
                 # Using equation (4) update the sparrow’s location;
-                _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+                _, (g_best, ), (g_worst, ) = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
                 if idx > int(self.pop_size / 2):
                     x_new = self.generator.normal() * np.exp((g_worst.solution - self.pop[idx].solution) / (idx + 1) ** 2)
                 else:
@@ -105,7 +105,7 @@ class DevSSA(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
-        self.pop, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        self.pop, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         g_best, g_worst = best[0], worst[0]
         pop2 = [agent.copy() for agent in self.pop[self.n2:]]
         child = []
@@ -197,7 +197,7 @@ class OriginalSSA(DevSSA):
                     x_new = self.pop[idx].solution + self.generator.normal() * np.ones(self.problem.n_dims)
             else:
                 # Using equation (4) update the sparrow’s location;
-                _, x_p, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+                _, x_p, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
                 g_best, g_worst = x_p[0], worst[0]
                 if idx > int(self.pop_size / 2):
                     x_new = self.generator.normal() * np.exp((g_worst.solution - self.pop[idx].solution) / (idx + 1) ** 2)
@@ -215,7 +215,7 @@ class OriginalSSA(DevSSA):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
-        self.pop, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1)
+        self.pop, best, worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         g_best, g_worst = best[0], worst[0]
         pop2 = [agent.copy() for agent in self.pop[self.n2:]]
         child = []

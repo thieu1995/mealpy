@@ -123,7 +123,7 @@ class OriginalPSS(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1].target = self.get_target(pos_new)
         self.pop = self.update_target_for_population(pop_new)
-        current_best = self.get_best_agent(pop_new)
+        current_best = self.get_best_agent(pop_new, self.problem.minmax)
         if self.compare_target(current_best.target, self.g_best.target, self.problem.minmax):
             self.new_solution = True
         else:

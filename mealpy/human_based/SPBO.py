@@ -59,7 +59,7 @@ class OriginalSPBO(Optimizer):
             epoch (int): The current iteration
         """
         for jdx in range(0, self.problem.n_dims):
-            idx_best = self.get_index_best(self.pop)
+            idx_best = self.get_index_best(self.pop, self.problem.minmax)
             mid = self.generator.integers(1, self.pop_size-1)
             x_mean = np.mean([agent.solution for agent in self.pop], axis=0)
             pop_new = []

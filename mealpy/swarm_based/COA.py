@@ -83,7 +83,7 @@ class OriginalCOA(Optimizer):
         # Execute the operations inside each pack
         for p in range(self.n_packs):
             # Get the coyotes that belong to each pack
-            self.pop_group[p] = self.get_sorted_population(self.pop_group[p])
+            self.pop_group[p] = self.get_sorted_population(self.pop_group[p], self.problem.minmax)
             # Detect alphas according to the costs (Eq. 5)
             # Compute the social tendency of the pack (Eq. 6)
             tendency = np.mean([agent.solution for agent in self.pop_group[p]])
@@ -118,7 +118,7 @@ class OriginalCOA(Optimizer):
             agent = self.generate_agent(pos_new)
 
             # Verify if the pup will survive
-            packs = self.get_sorted_population(self.pop_group[p])
+            packs = self.get_sorted_population(self.pop_group[p], self.problem.minmax)
             # Find index of element has fitness larger than new child. If existed an element like that, new child is good
             if self.compare_target(agent.target, packs[-1].target, self.problem.minmax):
                 if self.problem.minmax == "min":
