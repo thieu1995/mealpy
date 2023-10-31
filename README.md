@@ -8,7 +8,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-2.5.4-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-3.0.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -26,10 +26,6 @@ alt="MEALPY"/>
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.1016/j.sysarc.2023.102871)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-# MEALPY version 3.0.0 in the future.
-
-![MEALPY3-0-0](.github/img/mealpy-3.0.0.png)
-
 
 # Introduction 
 
@@ -40,7 +36,7 @@ stochastic search optimization, random search optimization). These algorithms be
 (PMA), which are the most popular algorithms in the field of approximate optimization.
 
 * **Free software:** GNU General Public License (GPL) V3 license
-* **Total algorithms**: 209 (129 original, 46 official variants, 34 developed variants)
+* **Total algorithms**: 215 (190 official (original, hybrid, variants), 25 developed)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** >=3.7x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
@@ -102,6 +98,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 - Test and Analyse the scalability and the robustness of algorithms.
 - Save results in various formats (csv, json, pickle, png, pdf, jpeg)
 - Export and import models can also be done with Mealpy.
+- **Solve any optimization problem**
 
 </details>
 
@@ -111,7 +108,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh
-$ pip install mealpy==2.5.4
+$ pip install mealpy==3.0.0
 ```
 
 * Install the alpha/beta version from PyPi
@@ -147,61 +144,83 @@ $ python
 
 
 ## Examples
+
+Before dive into some examples, let me ask you a question. What type of problem are you trying to solve? 
+Additionally, what would be the solution for your specific problem? 
+Based on the table below, you can select an appropriate type of decision variables to use.
+
+
+<div align="center">
+
+| Class          | Syntax                                               | Problem Types              |
+|----------------|------------------------------------------------------|----------------------------|
+| FloatVar       | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")` | Continuous Problem         |
+| IntegerVar     | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`    | LP, IP, NLP, QP, MIP       |
+| StringVar      | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")<br/>`   | ML, AI-optimize            |
+| BinaryVar      | `BinaryVar(n_vars=11, name="delta")`                        | Networks                   |
+| BoolVar        | `BoolVar(n_vars=11, name="delta")`                          | ML, AI-optimize            |
+| PermutationVar | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`   | Combinatorial Optimization |
+| MixedSetVar    | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")`      | MIP,  MILP                 |
+
+</div>
+
+
 Let's go through a basic and advanced example.
+
 
 ### Simple Benchmark Function
 
 ```python
-from mealpy.bio_based import SMA
+from mealpy import FloatVar, SMA
 import numpy as np
 
-def fitness_function(solution):
+def objective_function(solution):
     return np.sum(solution**2)
 
 problem = {
-    "fit_func": fitness_function,
-    "lb": [-100, ] * 30,
-    "ub": [100, ] * 30,
+    "obj_func": objective_function,
+    "bounds": FloatVar(lb=(-100., )*30, ub=(100., )*30),
     "minmax": "min",
     "log_to": None,
-    "save_population": False,
 }
 
 ## Run the algorithm
-model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-best_position, best_fitness = model.solve(problem)
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+g_best = model.solve(problem)
+print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 ```
 
-### Constrained Benchmark Function
-* [The Constrained Benchmark Function](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_constraint_functions.py)
 
+### Set Seed for Optimizer (So many people asking for this feature)
 
-### Multi-objective Benchmark Function
-* [Multi-objective benchmark functions](https://github.com/thieu1995/mealpy/tree/master/examples/applications/run_multi_objective_functions.py)
-
-
-### Large-Scale Optimization 
+You can set random seed number for each run of single optimizer.
 
 ```python
-from mealpy.evolutionary_based import SHADE
+model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+g_best = model.solve(problem=problem, seed=10)              # Default seed=None
+```
+
+
+### Large-Scale Optimization
+
+```python
+from mealpy import FloatVar, SHADE
 import numpy as np
 
-def fitness_function(solution):
+def objective_function(solution):
     return np.sum(solution**2)
 
 problem = {
-    "fit_func": fitness_function,
-    "lb": [-1000, ] * 10000,
-    "ub": [1000, ] * 10000,
+    "obj_func": objective_function,
+    "bounds": FloatVar(lb=(-1000., )*10000, ub=(1000.,)*10000),     # 10000 dimensions
     "minmax": "min",
     "log_to": "console",
 }
 
 ## Run the algorithm
-model = SHADE.OriginalSHADE(epoch=10000, pop_size=100)
-best_position, best_fitness = model.solve(problem)
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+optimizer = SHADE.OriginalSHADE(epoch=10000, pop_size=100)
+g_best = optimizer.solve(problem)
+print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 ```
 
 
@@ -214,81 +233,188 @@ optimization) in metaheuristics. Not all metaheuristics can be run in parallel.
 
 
 ```python
-from mealpy.bio_based import SMA
+from mealpy import FloatVar, SMA
 import numpy as np
 
-def fitness_function(solution):
+
+def objective_function(solution):
     return np.sum(solution**2)
 
 problem = {
-    "fit_func": fitness_function,
-    "lb": [-100, ] * 100,
-    "ub": [100, ] * 100,
+    "obj_func": objective_function,
+    "bounds": FloatVar(lb=(-100., )*100, ub=(100., )*100),
     "minmax": "min",
     "log_to": "console",
 }
 
-## Run distributed SMA algorithm using 10 threads 
-model = SMA.BaseSMA(epoch=10000, pop_size=100, pr=0.03)
-best_position, best_fitness = model.solve(problem, mode="thread", n_workers=10)        # Distributed to 10 threads  
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
-
+## Run distributed SMA algorithm using 10 threads
+optimizer = SMA.OriginalSMA(epoch=10000, pop_size=100, pr=0.03)
+optimizer.solve(problem, mode="thread", n_workers=10)        # Distributed to 10 threads
+print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
 
 ## Run distributed SMA algorithm using 8 CPUs (cores)
-best_position, best_fitness = model.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores  
-print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+optimizer.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores
+print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
 ```
 
 
+<details><summary><h3>Constrained Benchmark Function</h3></summary>
+
+```python
+from mealpy import FloatVar, SMA
+import numpy as np
+
+## Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
+def objective_function(solution):
+    def g1(x):
+        return 2*x[0] + 2*x[1] + x[9] + x[10] - 10
+    def g2(x):
+        return 2 * x[0] + 2 * x[2] + x[9] + x[10] - 10
+    def g3(x):
+        return 2 * x[1] + 2 * x[2] + x[10] + x[11] - 10
+    def g4(x):
+        return -8*x[0] + x[9]
+    def g5(x):
+        return -8*x[1] + x[10]
+    def g6(x):
+        return -8*x[2] + x[11]
+    def g7(x):
+        return -2*x[3] - x[4] + x[9]
+    def g8(x):
+        return -2*x[5] - x[6] + x[10]
+    def g9(x):
+        return -2*x[7] - x[8] + x[11]
+
+    def violate(value):
+        return 0 if value <= 0 else value
+
+    fx = 5 * np.sum(solution[:4]) - 5*np.sum(solution[:4]**2) - np.sum(solution[4:13])
+
+    ## Increase the punishment for g1 and g4 to boost the algorithm (You can choice any constraint instead of g1 and g4)
+    fx += violate(g1(solution))**2 + violate(g2(solution)) + violate(g3(solution)) + \
+            2*violate(g4(solution)) + violate(g5(solution)) + violate(g6(solution))+ \
+            violate(g7(solution)) + violate(g8(solution)) + violate(g9(solution))
+    return fx
+
+problem = {
+    "obj_func": objective_function,
+    "bounds": FloatVar(lb=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ub=[1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1]),
+    "minmax": "min",
+}
+
+## Run the algorithm
+optimizer = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+optimizer.solve(problem)
+print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
+```
+
+</details>
+
+
+
+<details><summary><h3>Multi-objective Benchmark Function</h3></summary>
+
+```python
+from mealpy import FloatVar, SMA 
+import numpy as np
+
+
+## Link: https://en.wikipedia.org/wiki/Test_functions_for_optimization
+def objective_function(solution):
+
+    def booth(x, y):
+        return (x + 2*y - 7)**2 + (2*x + y - 5)**2
+
+    def bukin(x, y):
+        return 100 * np.sqrt(np.abs(y - 0.01 * x**2)) + 0.01 * np.abs(x + 10)
+
+    def matyas(x, y):
+        return 0.26 * (x**2 + y**2) - 0.48 * x * y
+
+    return [booth(solution[0], solution[1]), bukin(solution[0], solution[1]), matyas(solution[0], solution[1])]
+
+
+problem = {
+    "obj_func": objective_function,
+    "bounds": FloatVar(lb=(-10, -10), ub=(10, 10)),
+    "minmax": "min",
+    "obj_weights": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
+}
+
+## Run the algorithm
+optimizer = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+optimizer.solve(problem)
+print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
+
+## You can access all of available figures via object "history" like this:
+optimizer.history.save_global_objectives_chart(filename="hello/goc")
+optimizer.history.save_local_objectives_chart(filename="hello/loc")
+optimizer.history.save_global_best_fitness_chart(filename="hello/gbfc")
+optimizer.history.save_local_best_fitness_chart(filename="hello/lbfc")
+optimizer.history.save_runtime_chart(filename="hello/rtc")
+optimizer.history.save_exploration_exploitation_chart(filename="hello/eec")
+optimizer.history.save_diversity_chart(filename="hello/dc")
+optimizer.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[2], filename="hello/tc")
+```
+
+</details>
 
 
 
 <details><summary><h3>Custom Problem </h3></summary>
 
 
-For our custom problem, we can create a class and inherit from the Problem class, named the child class the  
-'Squared' class. In the initialization method of the 'Squared' class, we have to set the *lb*, *ub*, and *minmax*  
-of the problem (lb: a list of lower bound values, ub: a list of upper bound values, and minmax: a string specifying 
-whether the problem is a 'min' or 'max' problem). 
+For our custom problem, we can create a class and inherit from the `Problem` class, named the child class the  
+'Squared' class. In the initialization method of the 'Squared' class, we have to set the `bounds`, and `minmax`  
+of the problem (bounds: a problem's type, and minmax: a string specifying whether the problem is a 'min' or 'max' problem). 
 
-Afterwards, we have to override the abstract method 'fit_func()', which takes a parameter 'solution' (the solution 
+Afterwards, we have to override the abstract method `obj_func()`, which takes a parameter 'solution' (the solution 
 to be evaluated) and returns the function value. The resulting code should look something like the code snippet 
 below. 'Name' is an additional parameter we want to include in this class, and you can include any other additional 
-parameters you need.
+parameters you need. But remember to set up all additional parameters before super() called.
 
 
 ```python
+from mealpy import Problem, FloatVar, BBO 
 import numpy as np
-from mealpy.bio_based import BBO
-from mealpy.utils.problem import Problem
 
 # Our custom problem class
 class Squared(Problem):
-    def __init__(self, lb=(-5, -5, -5, -5, -5, -5), ub=(5, 5, 5, 5, 5, 5), minmax="min", name="Squared", **kwargs):
-        super().__init__(lb, ub, minmax, **kwargs)
+    def __init__(self, bounds=None, minmax="min", name="Squared", data=None, **kwargs):
         self.name = name
+        self.data = data 
+        super().__init__(bounds, minmax, **kwargs)
 
-    def fit_func(self, solution):
+    def obj_func(self, solution):
         return np.sum(solution ** 2)
-```
 
-Now, we define an algorithm, and pass an instance of our *Squared* class as the problem argument. 
+    
+## Now, we define an algorithm, and pass an instance of our *Squared* class as the problem argument. 
+problem = Squared(bounds=FloatVar(lb=(-10., )*20, ub=(10., )*20), minmax="min", name="Squared", data="Amazing")
+model = BBO.OriginalBBO(epoch=10, pop_size=50)
+g_best = model.solve(problem)
 
-```python
-problem = Squared(lb=[-10] * 20, ub=[10] * 20, minmax="min")
-model = BBO.BaseBBO(epoch=10, pop_size=50)
-best_position, best_fitness = model.solve(problem)
-
-print(best_position)
-print(best_fitness)
+## Show some attributes
+print(g_best.solution)
+print(g_best.target.fitness)
+print(g_best.target.objectives)
+print(g_best)
 print(model.get_parameters())
 print(model.get_name())
-print(model.get_attributes()["solution"])
+print(model.get_attributes()["g_best"])
 print(model.problem.get_name())
 print(model.problem.n_dims)
+print(model.problem.bounds)
+print(model.problem.lb)
+print(model.problem.ub)
 ```
 
 </details>
+
+
+
+
+
 
 
 
@@ -300,55 +426,55 @@ print(model.problem.n_dims)
 We build a dedicated class, Tuner, that can help you tune your algorithm's parameters.
 
 ```python
-import numpy as np
-from mealpy.bio_based import BBO
-from mealpy.tuner import Tuner          # Remember this
+from opfunu.cec_based.cec2017 import F52017
+from mealpy import FloatVar, BBO, Tuner
 
+## You can define your own problem, here I took the F5 benchmark function in CEC-2017 as an example.
+f1 = F52017(30, f_bias=0)
 
-def fitness(solution):
-    return np.sum(solution**2)
-
-problem = {
-    "lb": [-100, ]*50,
-    "ub": [100, ]*50,
+p1 = {
+    "bounds": FloatVar(lb=f1.lb, ub=f1.ub),
+    "obj_func": f1.evaluate,
     "minmax": "min",
-    "fit_func": fitness,
-    "name": "Squared Problem",
-    "log_to": None,
+    "name": "F5",
+    "log_to": "console",
 }
 
 paras_bbo_grid = {
-    "epoch": [100],
-    "pop_size": [50],
-    "elites": [2, 3, 4, 5],
-    "p_m": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2]
+    "epoch": [10, 20, 30, 40],
+    "pop_size": [50, 100, 150],
+    "n_elites": [2, 3, 4, 5],
+    "p_m": [0.01, 0.02, 0.05]
 }
 
 term = {
-  "max_fe": 10000
+    "max_epoch": 200,
+    "max_time": 20,
+    "max_fe": 10000
 }
 
 if __name__ == "__main__":
-    model = BBO.BaseBBO()
-
+    model = BBO.OriginalBBO()
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=problem, termination=term, n_trials=5, n_jobs=5, mode="thread", n_workers=4, verbose=True)
+    tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="thread", n_workers=4, verbose=True)
     ## Solve this problem 5 times (n_trials) using 5 processes (n_jobs), each process will handle 1 trial. 
-    ## The mode to run the solver is thread (mode), we will calculate the fitness of 4 solutions (n_workers) at the same time 
+    ## The mode to run the solver is thread (mode), distributed to 4 threads 
 
+    print(tuner.best_row)
     print(tuner.best_score)
     print(tuner.best_params)
+    print(type(tuner.best_params))
     print(tuner.best_algorithm)
-    print(tuner.best_algorithm.get_name())
     
     ## Save results to csv file 
     tuner.export_results(save_path="history", file_name="tuning_best_fit.csv")
+    tuner.export_figures()
     
     ## Re-solve the best model on your problem 
-    best_position, best_fitness = tuner.resolve()
-
-    print(best_position, best_fitness)
-    print(tuner.problem.get_name())
+    g_best = tuner.resolve(mode="thread", n_workers=4, termination=term)
+    print(g_best.solution, g_best.target.fitness)
+    print(tuner.algorithm.problem.get_name())
+    print(tuner.best_algorithm.get_name())
 ```
 
 </details>
@@ -370,63 +496,57 @@ We also build a dedicated class, Multitask, that can help you run several scenar
 #### Using multiple algorithm to solve multiple problems with multiple trials
 
 ## Import libraries
-## For example, we want to solve F5, F10, F29 problem in CEC-2017
 from opfunu.cec_based.cec2017 import F52017, F102017, F292017
+from mealpy import FloatVar
+from mealpy import BBO, DE
+from mealpy import Multitask
 
-from mealpy.bio_based import BBO
-from mealpy.evolutionary_based import DE
-from mealpy.multitask import Multitask          # Remember this
-
-
-## You can define your own problems
-
+## Define your own problems
 f1 = F52017(30, f_bias=0)
 f2 = F102017(30, f_bias=0)
 f3 = F292017(30, f_bias=0)
 
 p1 = {
-    "lb": f1.lb.tolist(),
-    "ub": f1.ub.tolist(),
+    "bounds": FloatVar(lb=f1.lb, ub=f1.ub),
+    "obj_func": f1.evaluate,
     "minmax": "min",
-    "fit_func": f1.evaluate,
-    "name": "F5-CEC2017",
-    "log_to": None,
+    "name": "F5",
+    "log_to": "console",
 }
 
 p2 = {
-    "lb": f2.lb.tolist(),
-    "ub": f2.ub.tolist(),
+    "bounds": FloatVar(lb=f2.lb, ub=f2.ub),
+    "obj_func": f2.evaluate,
     "minmax": "min",
-    "fit_func": f2.evaluate,
-    "name": "F10-CEC2017",
-    "log_to": None,
+    "name": "F10",
+    "log_to": "console",
 }
 
 p3 = {
-    "lb": f3.lb.tolist(),
-    "ub": f3.ub.tolist(),
+    "bounds": FloatVar(lb=f3.lb, ub=f3.ub),
+    "obj_func": f3.evaluate,
     "minmax": "min",
-    "fit_func": f3.evaluate,
-    "name": "F29-CEC2017",
-    "log_to": None,
+    "name": "F29",
+    "log_to": "console",
 }
 
 ## Define models
-
-model1 = BBO.BaseBBO(epoch=10, pop_size=50)
-model2 = BBO.OriginalBBO(epoch=10, pop_size=50)
-model3 = DE.BaseDE(epoch=10, pop_size=50)
+model1 = BBO.DevBBO(epoch=10000, pop_size=50)
+model2 = BBO.OriginalBBO(epoch=10000, pop_size=50)
+model3 = DE.OriginalDE(epoch=10000, pop_size=50)
+model4 = DE.SAP_DE(epoch=10000, pop_size=50)
 
 ## Define termination if needed
 term = {
-    "max_fe": 10000
+    "max_fe": 3000
 }
 
 ## Define and run Multitask
 if __name__ == "__main__":
-    multitask = Multitask(algorithms=(model1, model2, model3), problems=(p1, p2, p3), terminations=(term, ), modes=("thread", ))
+    multitask = Multitask(algorithms=(model1, model2, model3, model4), problems=(p1, p2, p3), terminations=(term, ), modes=("thread", ), n_workers=4)
     # default modes = "single", default termination = epoch (as defined in problem dictionary)
-    multitask.execute(n_trials=5, n_jobs=5, save_path="history", save_as="csv", save_convergence=False, verbose=False)
+    multitask.execute(n_trials=5, n_jobs=None, save_path="history", save_as="csv", save_convergence=True, verbose=False)
+    # multitask.execute(n_trials=5, save_path="history", save_as="csv", save_convergence=True, verbose=False)
     
     ## Check the directory: history/, you will see list of .csv result files
 ```
@@ -478,7 +598,10 @@ Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applicatio
 ### Other Applications
 
 * Solving Knapsack Problem (Discrete
-  problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack-problem.py)
+  problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/knapsack_problem.ipynb)
+
+* Solving Product Planning Problem (Discrete
+  problems): [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/discrete-problems/product_planning.ipynb)
 
 * Optimize SVM (SVC)
   model: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/sklearn/svm_classification.py)
