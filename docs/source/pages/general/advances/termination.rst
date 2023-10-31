@@ -105,7 +105,7 @@ to improve your model. There are 4 termination types in the class Termination:
 
 .. code-block:: python
 
-   model3 = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+   model3 = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
    model3.solve(problem_dict1, termination=term_dict)
 
 .. toctree::

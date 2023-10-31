@@ -6,7 +6,7 @@ Introduction
 * MEALPY (MEta-heuristic ALgorithms in PYthon) is the largest Python module for the most cutting-edge nature-inspired meta-heuristic algorithms and is
 distributed under the GNU General Public License (GPL) V3 license.
 
-* Current version: 2.5.4, Total algorithms: 209 (129 original, 46 official variants, 34 developed variants)
+* Current version: 3.0.0, Total algorithms: 215 (190 official (original, hybrid, variants), 25 developed)
 
 * Different versions of mealpy in term of passing hyper-parameters. So please careful check your version before using this library (Check `All releases`_)
 	* mealpy < 1.0.5
@@ -15,7 +15,8 @@ distributed under the GNU General Public License (GPL) V3 license.
 	* mealpy == 2.2.0
 	* mealpy == 2.3.0
 	* 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
-	* mealpy >= 2.5.0
+	* mealpy >= 2.5.1 <= 2.5.4 (Define model 1 time, solve multiple problems)
+    * mealpy >= 3.0.0 (Everything is wrapped inside class and object)
 
 .. _All releases: https://pypi.org/project/mealpy/#history
 

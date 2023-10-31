@@ -3,24 +3,25 @@ Import All Models
 
 .. code-block:: python
 
-	from mealpy.bio_based import BBO, EOA, IWO, SBO, SMA, TPO, VCS, WHO
-	from mealpy.evolutionary_based import CRO, DE, EP, ES, FPA, GA, MA
-	from mealpy.human_based import BRO, BSO, CA, CHIO, FBIO, GSKA, ICA, LCO, QSA, SARO, SSDO, TLO
-	from mealpy.math_based import AOA, CEM, CGO, GBO, HC, PSS, SCA
-	from mealpy.music_based import HS
-	from mealpy.physics_based import ArchOA, ASO, EFO, EO, HGSO, MVO, NRO, SA, TWO, WDO
-	from mealpy.system_based import AEO, GCO, WCA
-	from mealpy.swarm_based import ABC, ACOR, ALO, AO, BA, BeesA, BES, BFO, BSA, COA, CSA, CSO, DO, EHO, FA, FFA, FOA, GOA, GWO, HGS
-	from mealpy.swarm_based import HHO, JA, MFO, MRFO, MSA, NMRA, PFA, PSO, SFO, SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, WOA
+	from mealpy import BBO, PSO, GA, ALO, AO, ARO, AVOA, BA, BBOA, BMO, EOA, IWO
+	from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
+	from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
+	from mealpy import HCO, ICA, LCO, WarSO, TOA, TLO, SSDO, SPBO, SARO, QSA, ArchOA, ASO, CDO, EFO, EO, EVO, FLA
+	from mealpy import HGSO, MVO, NRO, RIME, SA, WDO, TWO, ABC, ACOR, AGTO, BeesA, BES, BFO, ZOA, WOA, WaOA, TSO
+	from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
+	from mealpy import PFA, OOA, NGO, NMRA, MSA, MRFO, MPA, MGO, MFO, JA, HHO, HGS, HBA, GWO, GTO, GOA
+	from mealpy import GJO, FOX, FOA, FFO, FFA, FA, ESOA, EHO, DO, DMOA, CSO, CSA, CoatiOA, COA, BSA
+	from mealpy import StringVar, FloatVar, BoolVar, PermutationVar, MixedSetVar, IntegerVar, BinaryVar
+	from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
+	from mealpy import get_all_optimizers, get_optimizer_by_name
 	import numpy as np
 
-	def fitness_function(solution):
+	def objective_function(solution):
 	    return np.sum(solution ** 2)
 
 	problem = {
-	    "fit_func": fitness_function,
-	    "lb": [-3]*20,
-	    "ub": [5]*20,
+	    "obj_func": objective_function,
+	    "bounds": FloatVar(lb=[-3] * 20, ub=[5] * 20),
 	    "name": "Squared Problem",
 	    "log_to": "file",
 	    "log_file": "results.log"
@@ -889,7 +890,7 @@ Import All Models
 		print(model.get_parameters())
 		print(model.get_name())
 		print(model.problem.get_name())
-		print(model.get_attributes()["solution"])
+		print(model.get_attributes()["g_best"])
 
 
 .. toctree::

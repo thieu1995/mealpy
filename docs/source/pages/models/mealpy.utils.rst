@@ -1,10 +1,20 @@
 mealpy.utils package
 ====================
 
+
 .. toctree::
    :maxdepth: 4
 
    mealpy.utils.visualize
+
+
+mealpy.utils.agent module
+-------------------------
+
+.. automodule:: mealpy.utils.agent
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 mealpy.utils.history module
 ---------------------------
@@ -34,6 +44,22 @@ mealpy.utils.problem module
 ---------------------------
 
 .. automodule:: mealpy.utils.problem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.utils.space module
+-------------------------
+
+.. automodule:: mealpy.utils.space
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+mealpy.utils.target module
+--------------------------
+
+.. automodule:: mealpy.utils.target
    :members:
    :undoc-members:
    :show-inheritance:

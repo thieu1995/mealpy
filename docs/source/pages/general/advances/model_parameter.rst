@@ -25,12 +25,11 @@ can help you determine how to set valid parameters.
 
 .. code-block:: python
 
-   from mealpy.evolutionary_based import DE
+   from mealpy import DE, FloatVar
 
    problem = {
       "fit_func": F5,
-      "lb": [-10]*10,
-      "ub": [30]*10,
+      "bounds": FloatVar(lb=[-10,]*10, ub=[30,]*10),
       "minmax": "min",
    }
 
@@ -42,7 +41,7 @@ can help you determine how to set valid parameters.
       "strategy": 0,
    }
 
-   model = DE.BaseDE(**paras_de)
+   model = DE.OriginalDE(**paras_de)
    model.solve(problem)
 
 
@@ -52,12 +51,11 @@ This will definitely be helpful when using ParameterGrid/GridSearchCV from the s
 .. code-block:: python
 
 	from sklearn.model_selection import ParameterGrid
-	from mealpy.evolutionary_based import DE
+	from mealpy import DE, FloatVar
 
 	problem = {
 		"fit_func": F5,
-		"lb": [-10]*10,
-		"ub": [30]*10,
+		"bounds": FloatVar(lb=[-10,]*10, ub=[30,]*10),
 		"minmax": "min",
 	}
 
@@ -70,7 +68,7 @@ This will definitely be helpful when using ParameterGrid/GridSearchCV from the s
 	}
 
 	for paras_de in list(ParameterGrid(paras_de_grid)):
-		model = DE.BaseDE(**paras_de)
+		model = DE.OriginalDE(**paras_de)
 		model.solve(problem)
 
 

@@ -43,7 +43,7 @@ Drawing all available figures. There are 8 different figures for each algorithm.
 
 .. code-block:: python
 
-	model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
+	model = SMA.Original(epoch=100, pop_size=50, pr=0.03)
 	model.solve(problem)
 
 	## You can access them all via object "history" like this:
@@ -59,7 +59,7 @@ Drawing all available figures. There are 8 different figures for each algorithm.
 
 	model.history.save_diversity_chart(filename="hello/dc")
 
-	model.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[3], filename="hello/tc")
+	model.history.save_trajectory_chart(list_agent_idx=[3, 5, 6, 7,], selected_dimensions=[3, 4], filename="hello/tc")
 
 
 

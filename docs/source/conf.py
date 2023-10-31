@@ -26,7 +26,7 @@ copyright = '2021, Thieu'
 author = 'Thieu'
 
 # The full version, including alpha/beta/rc tags
-release = '2.4.1'
+release = '3.0.0'
 
 
 # -- General configuration ---------------------------------------------------

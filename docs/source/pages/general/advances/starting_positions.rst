@@ -1,11 +1,11 @@
-Starting Positions
+Starting Solutions
 ==================
 
 Not recommended to use this utility. But in case you need this:
 
 .. code-block:: python
 
-	from mealpy.human_based import TLO
+	from mealpy import TLO, FloatVar
 	import numpy as np
 
 
@@ -21,30 +21,28 @@ Not recommended to use this utility. But in case you need this:
 
 	fm_problem = {
 		"fit_func": frequency_modulated,
-		"lb": [-6.4, ] * 6,
-		"ub": [6.35, ] * 6,
+		"bounds": FloatVar(lb=[-6.4, ] * 6, ub=[6.35, ] * 6),
 		"minmax": "min",
 		"log_to": "console",
 	}
 
 	## This is an example I use to create starting positions
 	## Write your own function, remember the starting positions has to be: list of N vectors or 2D matrix of position vectors
-	def create_starting_positions(n_dims=None, pop_size=None, num=1):
+	def create_starting_solutions(n_dims=None, pop_size=None, num=1):
 		return np.ones((pop_size, n_dims)) * num + np.random.uniform(-1, 1)
 
 	## Define the model
-	model = TLO.BaseTLO(epoch=100, pop_size=50)
+	model = TLO.OriginalTLO(epoch=100, pop_size=50)
 
 	## Input your starting positions here
-	list_pos = create_starting_positions(6, 50, 2)
-	best_position, best_fitness = model.solve(fm_problem, starting_positions=list_pos)        ## Remember the keyword: starting_positions
-	print(f"Best solution: {model.solution}, Best fitness: {best_fitness}")
+	list_pos = create_starting_solutions(6, 50, 2)
+	best_agent = model.solve(fm_problem, starting_solutions=list_pos)        ## Remember the keyword: starting_solutions
+	print(f"Best solution: {model.g_best.solution}, Best fitness: {best_agent.target.fitness}")
 
 	## Training with other starting positions
-	list_pos2 = create_starting_positions(6, 50, -1)
-	best_position, best_fitness = model.solve(fm_problem, starting_positions=list_pos2)
-	print(f"Best solution: {model.solution}, Best fitness: {best_fitness}")
-
+	list_pos2 = create_starting_solutions(6, 50, -1)
+	best_agent = model.solve(fm_problem, starting_solutions=list_pos2)
+	print(f"Best solution: {model.g_best.solution}, Best fitness: {best_agent.target.fitness}")
 
 
 

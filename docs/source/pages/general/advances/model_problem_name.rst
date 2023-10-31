@@ -13,8 +13,7 @@ problem, especially in multitask problems.
 
    problem = {
       "fit_func": F5,
-      "lb": [-3, -5, 1, -10, ],
-      "ub": [5, 10, 100, 30, ],
+      "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "name": "Benchmark Function 5th"
    }

@@ -10,9 +10,8 @@ generation. However, if your problem is small enough, you can turn it on and vis
 .. code-block:: python
 
    problem_dict1 = {
-      "fit_func": F5,
-      "lb": [-3, -5, 1, -10, ],
-      "ub": [5, 10, 100, 30, ],
+      "obj_func": F5,
+      "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "log_to": "console",
       "save_population": True,              # Default = False
@@ -40,20 +39,19 @@ It is recommended to set the 'save_population' parameter to False (which is also
 .. code-block:: python
 
 	import numpy as np
-	from mealpy.swarm_based.PSO import OriginalPSO
+	from mealpy import PSO
 
-	def fitness_function(solution):
+	def objective_function(solution):
 	    return np.sum(solution**2)
 
 	problem_dict = {
-	    "fit_func": fitness_function,
-	    "lb": [-10, -15, -4, -2, -8],
-	    "ub": [10, 15, 12, 8, 20],
+	    "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
 	    "minmax": "min",
 	    "verbose": True,
 	    "save_population": False        # Then you can't draw the trajectory chart
 	}
-	model = OriginalPSO(epoch=1000, pop_size=50)
+	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
 	model.solve(problem=problem_dict)
 
 	print(model.history.list_global_best)

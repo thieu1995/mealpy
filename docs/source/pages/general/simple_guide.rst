@@ -26,7 +26,7 @@ Installation
 
 Install the `current PyPI release`_. ::
 
-   $ pip install mealpy==2.5.4
+   $ pip install mealpy==3.0.0
 
 .. _current PyPI release: https://pypi.python.org/pypi/mealpy
 
@@ -55,34 +55,32 @@ Getting started in 30s
 
 .. code-block:: python
 
-	from mealpy.evolutionary_based import GA
+	from mealpy import FloatVar, GA
 	import numpy as np
 
-	def fitness_func(solution):
+	def objective_func(solution):
 	    return np.sum(solution**2)
 
 	problem_dict = {
-	    "fit_func": fitness_func,
-	    "lb": [-100, ] * 30,
-	    "ub": [100, ] * 30,
+	    "obj_func": objective_func,
+	    "bounds": FloatVar(lb=[-100, ] * 30, ub=[100, ] * 30,)
 	    "minmax": "min",
 	}
 
-	ga_model = GA.BaseGA(epoch=100, pop_size=50, pc=0.85, pm=0.1)
-	best_position, best_fitness_value = ga_model.solve(problem_dict)
+	optimizer = GA.BaseGA(epoch=100, pop_size=50, pc=0.85, pm=0.1)
+	optimizer.solve(problem_dict)
 
-	print(best_position)
-	print(best_fitness_value)
+	print(optimizer.g_best.solution)
+	print(optimizer.g_best.target.fitness)
 
-You can see the error after each iteration which is found by GA:
+You can see the fitness after each iteration which is found by GA:
 
 ----------------------------
 Fitness Function Preparation
 ----------------------------
 
-Make sure that your designed fitness function takes a solution (a numpy vector) and returns the fitness value (a single real value or a list of real values).
-
-We have already included the *opfunu* library, which is a framework of benchmark functions for optimization problems. You can use it very easily by:
+Make sure that your designed `obj_func` function takes a solution (a numpy vector) and returns the objective value (a single real value or a list of real
+values). We have already included the `opfunu` library, which is a framework of benchmark functions for optimization problems. You can use it very easily by:
 
 
 .. code-block:: python
@@ -107,18 +105,17 @@ that takes a numpy vector (the solution) as input and returns a single objective
 	import numpy as np
 
 	## This is normal fitness function
-	def fitness_normal(solution=None):
+	def objective_normal(solution=None):
 		return np.sqrt(solution**2)         # Single value
 
 -------------------
 Problem Preparation
 -------------------
 
-You will need to define a problem dictionary with must has keywords ("fit_func", "lb", "ub", "minmax").
+You will need to define a problem dictionary with must has keywords ("obj_func", "bounds", "minmax").
 
-	* fit_func: Your fitness function
-	* lb: Lower bound of variables, it should be list of values
-	* ub: Upper bound of variables, it should be list of values
+	* obj_func: Your objective function
+	* bounds: The problem type, an instance of these classes: FloatVar, BoolVar, StringVar, IntegerVar, PermutationVar, BinaryVar, MixedSetVar
 	* minmax: The problem you are trying to solve is minimum or maximum, value can be "min" or "max"
 
 
@@ -126,9 +123,8 @@ You will need to define a problem dictionary with must has keywords ("fit_func",
 
 	## Design a problem dictionary for normal function
 	problem_normal = {
-	    "fit_func": fitness_normal,
-	    "lb": [-100, ] * 30,
-	    "ub": [100, ] * 30,
+	    "obj_func": objective_normal,
+	    "bounds": FloatVar(lb=[-100, ] * 30, ub=[100, ]*30)
 	    "minmax": "min",
 	}
 
@@ -148,24 +144,22 @@ To start learning, call the **solve()** function. There are four different train
 .. code-block:: python
 
 	## Need to import the algorithm that will be used
-	from mealpy.bio_based import SMA
-	from mealpy.evolutionary_based import GA
-	from mealpy.swarm_based import PSO
+	from mealpy import SMA, GA, PSO
 
-	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(problem_normal)   # default is: single
+	sma_model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+	g_best = sma_model.solve(problem_normal)   # default is: single
 
-	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="single")
+	sma_model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+	g_best = sma_model.solve(problem_normal, mode="single")
 
-	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="swarm")
+	sma_model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+	g_best = sma_model.solve(problem_normal, mode="swarm")
 
 	ga_model = GA.BaseGA(epoch=1000, pop_size=100, pc=0.9, pm=0.05)
-	best_position, best_fitness_value = ga_model.solve(problem_multi, mode="thread")
+	g_best = ga_model.solve(problem_multi, mode="thread")
 
 	pso_model = PSO.OriginalPSO(epoch=500, pop_size=80, c1=2.0, c2=1.8, w_min=0.3, w_max=0.8)
-	best_position, best_fitness_value = pso_model.solve(problem_constrained, mode="process")
+	g_best = pso_model.solve(problem_constrained, mode="process")
 
 
 
@@ -175,15 +169,15 @@ You can set the number of workers when using "Parallel" training.
 
 	from mealpy.bio_based import SMA
 
-	sma_model = SMA.BaseSMA(epoch=100, pop_size=50, pr=0.03)
-	best_position, best_fitness_value = sma_model.solve(problem_normal, mode="thread", n_workers=8)
+	sma_model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
+	g_best = sma_model.solve(problem_normal, mode="thread", n_workers=8)
 	# Using 8 threads to solve this problem
 
 
-The returned results are 2 values :
+The returned result is the best agent found. It holds attribute like:
 
-- best_position: the global best position it found on training process
-- best_fitness_value: the global best fitness value
+- `solution`: the global best position it found on solving process
+- `target` object: an instance of Target class, that holds `fitness` and `objectives`
 
 
 .. toctree::

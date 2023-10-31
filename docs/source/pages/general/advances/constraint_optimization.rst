@@ -10,11 +10,11 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 .. code-block:: python
 
 	import numpy as np
-	from mealpy.swarm_based import PSO
+	from mealpy import PSO, FloatVar
 
 	## This is how you design Constrained Benchmark Function (G01)
 	#### Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
-	def fitness_constrained(solution):
+	def objective_function(solution):
 		def g1(x):
 	        return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
 	    def g2(x):
@@ -47,9 +47,8 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 
 	## Design a problem dictionary for constrained objective function above
 	problem_constrained = {
-	  "fit_func": fitness_constrained,
-	  "lb": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	  "ub": [1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1],
+	  "obj_func": objective_function,
+	  "bounds": FloatVar(lb=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ub=[1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1]),
 	  "minmax": "min",
 	}
 
@@ -64,15 +63,15 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 .. code-block:: python
 
 	import numpy as np
-	from mealpy.swarm_based import PSO
+	from mealpy import PSO, FloatVar
 	from mealpy.utils.problem import Problem
 
 
 	## Define a custom child class of Problem class.
 	class COP(Problem):
 	    def __init__(self, lb, ub, minmax, name="COP", **kwargs):
-	        super().__init__(lb, ub, minmax, **kwargs)
 	        self.name = name
+	        super().__init__(lb, ub, minmax, **kwargs)
 
 		def g1(x):
 			return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
@@ -96,7 +95,7 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 		def violate(value):
 			return 0 if value <= 0 else value
 
-	    def fit_func(self, solution):
+	    def obj_func(self, solution):
 			## This is how you design Constrained Benchmark Function (G01)
 			#### Link: https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781119136507.app2
 
@@ -110,7 +109,8 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 		    return fx
 
 	## Create an instance of MOP class
-	problem_cop = COP(lb=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ub=[1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1], minmax="min")
+	bounds = FloatVar(lb=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ub=[1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1]),
+	problem_cop = COP(bounds=bounds, minmax="min")
 
 	## Define the model and solve the problem
 	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
