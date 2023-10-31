@@ -1,24 +1,25 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 13:34, 27/09/2023 ----------%                                                                               
+# Created by "Thieu" at 10:19, 31/10/2023 ----------%                                                                               
 #       Email: nguyenthieu2102@gmail.com            %                                                    
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import StringVar, Problem
+from mealpy import MixedSetVar, Problem
 
 
 ## 1. One variable
 bounds = [
-    StringVar(valid_sets=("auto", "hello", "case", "nano")),
+    MixedSetVar(valid_sets=(0.1, "auto", 1.4, "hello", True, "case", "nano", 0, 2)),
 ]
 
 ## 2. Multiple variables
 bounds = [
-    StringVar(valid_sets=(("auto", "backward", "forward"),
-                          ("leaf", "branch", "root"),
+    MixedSetVar(valid_sets=(("auto", 2, 3, "backward", "forward", True),
+                          (1, 0, 10, "leaf", "branch", "root", False),
                           (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
-                          ("random", "tournament", "roulette", "round-robin")), name="delta")
+                          ("random", 0, 2, 4, "tournament", "roulette", "round-robin")), name="delta"),
+    MixedSetVar(valid_sets=(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000), name="epoch")
 ]
 
 problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
