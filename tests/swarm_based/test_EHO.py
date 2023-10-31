@@ -4,9 +4,10 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy import FloatVar, EHO, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, EHO, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -25,7 +26,7 @@ def problem():
 
 def test_EHO_results(problem):
     models = [
-        EHO.OriginalEHO(epoch=10, pop_size=50, alpha = 0.5, beta = 0.5, n_clans = 5)
+        EHO.OriginalEHO(epoch=10, pop_size=50, alpha=0.5, beta=0.5, n_clans=5)
     ]
     for model in models:
         g_best = model.solve(problem)

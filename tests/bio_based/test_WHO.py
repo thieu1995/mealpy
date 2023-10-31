@@ -4,9 +4,10 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy import FloatVar, WHO, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, WHO, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -23,7 +24,7 @@ def problem():
 
 
 def test_BaseWHO_results(problem):
-    model = WHO.OriginalWHO(epoch=10, pop_size=50, n_explore_step = 3, n_exploit_step = 3, eta = 0.15, p_hi = 0.9,
+    model = WHO.OriginalWHO(epoch=10, pop_size=50, n_explore_step=3, n_exploit_step=3, eta=0.15, p_hi=0.9,
                             local_alpha=0.9, local_beta=0.3, global_alpha=0.2, global_beta=0.8, delta_w=2.0, delta_c=2.0)
     g_best = model.solve(problem)
     assert isinstance(model, Optimizer)

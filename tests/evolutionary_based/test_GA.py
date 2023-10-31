@@ -4,9 +4,10 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy import FloatVar, GA, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, GA, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -31,4 +32,3 @@ def test_GA_results(problem):
         assert isinstance(model, Optimizer)
         assert isinstance(g_best.solution, np.ndarray)
         assert len(g_best.solution) == len(model.problem.lb)
-

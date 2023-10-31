@@ -4,9 +4,10 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy import FloatVar, ABC, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, ABC, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -25,7 +26,7 @@ def problem():
 
 def test_ABC_results(problem):
     models = [
-        ABC.OriginalABC(epoch=10, pop_size=50, couple_bees=(16, 4), patch_variables=(5.0, 0.985), sites=(3, 1))
+        ABC.OriginalABC(epoch=10, pop_size=50, n_limits=50)
     ]
     for model in models:
         g_best = model.solve(problem)

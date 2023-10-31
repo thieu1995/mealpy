@@ -4,9 +4,10 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from mealpy import FloatVar, BSA, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, BSA, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -25,7 +26,7 @@ def problem():
 
 def test_BSA_results(problem):
     models = [
-        BSA.OriginalBSA(epoch=10, pop_size=50, ff = 10, pff = 0.8, c1 = 1.5, c2 = 1.5, a1 = 1.0, a2 = 1.0, fc = 0.5)
+        BSA.OriginalBSA(epoch=10, pop_size=50, ff=10, pff=0.8, c1=1.5, c2=1.5, a1=1.0, a2=1.0, fc=0.5)
     ]
     for model in models:
         g_best = model.solve(problem)
