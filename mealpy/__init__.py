@@ -9,13 +9,13 @@
 # >>> from mealpy import FloatVar, PSO
 # >>> import numpy as np
 # >>>
-# >>> def fitness_function(solution):
+# >>> def objective_function(solution):
 # >>>     return np.sum(solution ** 2)
 # >>>
 # >>> p1 = {
 # >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
 # >>>     "minmax": "min",
-# >>>     "fit_func": fitness_function,
+# >>>     "obj_func": objective_function,
 # >>>     "save_population": True,  # To be able to draw the trajectory figure
 # >>>     "log_to": "file",
 # >>>     "log_file": "mealpy.log",
@@ -24,10 +24,10 @@
 # >>>
 # >>> ## Run the algorithm
 # >>> model = PSO.C_PSO(epoch=5, pop_size=50, name="C-PSO")
-# >>> best_position, best_fitness = model.solve(problem)
-# >>> print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+# >>> g_best = model.solve(problem)
+# >>> print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 
-__version__ = "2.5.4"
+__version__ = "3.0.0"
 
 import sys, inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO)
@@ -46,7 +46,7 @@ from .utils.termination import Termination
 from .tuner import Tuner, ParameterGrid
 from .multitask import Multitask
 from .optimizer import Optimizer
-from .utils.space import (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar)
+from .utils.space import (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar, MixedSetVar)
 
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 

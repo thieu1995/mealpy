@@ -15,7 +15,7 @@ def readme():
 
 setup(
     name="mealpy",
-    version="2.5.4",
+    version="3.0.0",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MEALPY: An Open-source Library for Latest Meta-heuristic Algorithms in Python",
@@ -65,7 +65,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=["numpy>=1.16.5", "matplotlib>=3.3.0", "scipy>=1.7.1", "pandas>=1.2.0", "opfunu>=1.0.0"],
+    install_requires=["numpy>=1.17.5", "matplotlib>=3.3.0", "scipy>=1.7.1", "pandas>=1.2.0", "opfunu>=1.0.0"],
     extras_require={
         "dev": ["pytest>=7.0", "twine>=4.0.1"],
     },
