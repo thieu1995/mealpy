@@ -17,7 +17,7 @@ bounds = [
 bounds = [
     StringVar(valid_sets=(("auto", "backward", "forward"),
                           ("leaf", "branch", "root"),
-                          (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
+                          ("auto", "adaptive", "modified"),
                           ("random", "tournament", "roulette", "round-robin")), name="delta")
 ]
 
