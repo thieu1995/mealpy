@@ -52,10 +52,8 @@ class Problem:
 
     def set_seed(self, seed: int = None) -> None:
         self.seed = seed
-        bound_temp = []
-        for bound in self._bounds:
-            bound.seed = seed
-        self._bounds = bound_temp
+        for idx in range(len(self._bounds)):
+            self._bounds[idx].seed = seed
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
