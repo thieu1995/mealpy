@@ -261,7 +261,7 @@ class StringVar(BaseVar):
                 le = LabelEncoder().fit(valid_sets)
                 self.list_le = (le,)
                 self.lb = np.array([0, ])
-                self.ub = np.array([len(valid_sets), ])
+                self.ub = np.array([len(valid_sets) - self.eps, ])
             else:
                 self.n_vars = len(valid_sets)
                 if all(len(item) > 1 for item in valid_sets):
@@ -275,7 +275,7 @@ class StringVar(BaseVar):
                     self.lb = np.zeros(self.n_vars)
                     self.ub = np.array(ub)
                 else:
-                    raise ValueError(f"Invalid valid_sets. All string variables need to have at least 2 values.")
+                    raise ValueError(f"Invalid valid_sets. All variables need to have at least 2 values.")
         else:
             raise TypeError(f"Invalid valid_sets. It should be {self.SUPPORTED_ARRAY}.")
 
@@ -289,6 +289,16 @@ class StringVar(BaseVar):
     def correct(self, x):
         x = np.clip(x, self.lb, self.ub)
         return np.array(x, dtype=int)
+
+    def generate(self):
+        return [self.generator.choice(np.array(vl_set, dtype=str)) for vl_set in self.valid_sets]
+
+
+class MixedSetVar(StringVar):
+    def __init__(self, valid_sets=(("",),), name="mixed-set-var"):
+        super().__init__(valid_sets, name)
+        self.eps = 1e-4
+        self._set_bounds(valid_sets)
 
     def generate(self):
         return [self.generator.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
