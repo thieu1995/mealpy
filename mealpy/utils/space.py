@@ -318,7 +318,7 @@ class BoolVar(BaseVar):
         self.ub = (2 - self.eps) * np.ones(self.n_vars)
 
     def encode(self, x):
-        return np.array(x, dtype=int)
+        return np.array(x, dtype=float)
 
     def decode(self, x):
         x = self.correct(x)
