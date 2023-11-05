@@ -27,7 +27,7 @@ data = {
 }
 
 class JobShopProblem(Problem):
-    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
+    def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
         self.data = data
         super().__init__(bounds, minmax, **kwargs)
 
@@ -50,7 +50,7 @@ class JobShopProblem(Problem):
 
 
 bounds = PermutationVar(valid_set=list(range(0, n_jobs*n_machines)), name="per_var")
-problem = JobShopProblem(bounds=bounds, minmax="max", data=data)
+problem = JobShopProblem(bounds=bounds, minmax="min", data=data)
 
 model = WOA.OriginalWOA(epoch=100, pop_size=20)
 model.solve(problem)
