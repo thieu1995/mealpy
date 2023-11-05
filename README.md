@@ -222,71 +222,6 @@ model = BBO.OriginalBBO(epoch=100, pop_size=20)
 g_best = model.solve(problem)
 ```
 
-#### The benefit of using custom Problem class
-
-```python
-from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn import datasets, metrics
-
-from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, MixedSetVar, SMA, Problem
-
-
-# Load the data set; In this example, the breast cancer dataset is loaded.
-X, y = datasets.load_breast_cancer(return_X_y=True)
-
-# Create training and test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y)
-
-sc = StandardScaler()
-X_train_std = sc.fit_transform(X_train)
-X_test_std = sc.transform(X_test)
-
-data = {
-    "X_train": X_train_std,
-    "X_test": X_test_std,
-    "y_train": y_train,
-    "y_test": y_test
-}
-
-
-class SvmOptimizedProblem(Problem):
-    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
-        self.data = data
-        super().__init__(bounds, minmax, **kwargs)
-
-    def obj_func(self, x):
-        x_decoded = self.decode_solution(x)
-        C_paras, kernel_paras = x_decoded["C_paras"], x_decoded["kernel_paras"]
-        degree, gamma, probability = x_decoded["degree_pras"], x_decoded["gamma_paras"], x_decoded["probability_paras"]
-
-        svc = SVC(C=C_paras, kernel=kernel_paras, degree=degree, 
-                  gamma=gamma, probability=probability, random_state=1)
-        # Fit the model
-        svc.fit(self.data["X_train"], self.data["y_train"])
-        # Make the predictions
-        y_predict = svc.predict(self.data["X_test"])
-        # Measure the performance
-        return metrics.accuracy_score(self.data["y_test"], y_predict)
-
-my_bounds = [
-    FloatVar(lb=0.01, ub=1000., name="C_paras"),
-    StringVar(valid_sets=('linear', 'poly', 'rbf', 'sigmoid'), name="kernel_paras"),
-    IntegerVar(lb=1, ub=5, name="degree_paras"),
-    MixedSetVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
-    BoolVar(n_vars=1, name="probability_paras"),
-]
-problem = SvmOptimizedProblem(bounds=my_bounds, minmax="max", data=data)
-model = SMA.OriginalSMA(epoch=100, pop_size=20)
-model.solve(problem)
-
-print(f"Best agent: {model.g_best}")
-print(f"Best solution: {model.g_best.solution}")
-print(f"Best accuracy: {model.g_best.target.fitness}")
-print(f"Best parameters: {model.problem.decode_solution(model.g_best.solution)}")
-```
-
 
 ### Set Seed for Optimizer (So many people asking for this feature)
 
@@ -353,6 +288,140 @@ print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_b
 optimizer.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores
 print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
 ```
+
+
+
+## The benefit of using custom Problem class
+
+### Optimize Machine Learning model
+
+In this example, we use SMA optimize to optimize the hyper-parameters of SVC model.
+
+```python
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn import datasets, metrics
+
+from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, MixedSetVar, SMA, Problem
+
+
+# Load the data set; In this example, the breast cancer dataset is loaded.
+X, y = datasets.load_breast_cancer(return_X_y=True)
+
+# Create training and test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y)
+
+sc = StandardScaler()
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+
+data = {
+    "X_train": X_train_std,
+    "X_test": X_test_std,
+    "y_train": y_train,
+    "y_test": y_test
+}
+
+
+class SvmOptimizedProblem(Problem):
+    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        C_paras, kernel_paras = x_decoded["C_paras"], x_decoded["kernel_paras"]
+        degree, gamma, probability = x_decoded["degree_pras"], x_decoded["gamma_paras"], x_decoded["probability_paras"]
+
+        svc = SVC(C=C_paras, kernel=kernel_paras, degree=degree, 
+                  gamma=gamma, probability=probability, random_state=1)
+        # Fit the model
+        svc.fit(self.data["X_train"], self.data["y_train"])
+        # Make the predictions
+        y_predict = svc.predict(self.data["X_test"])
+        # Measure the performance
+        return metrics.accuracy_score(self.data["y_test"], y_predict)
+
+my_bounds = [
+    FloatVar(lb=0.01, ub=1000., name="C_paras"),
+    StringVar(valid_sets=('linear', 'poly', 'rbf', 'sigmoid'), name="kernel_paras"),
+    IntegerVar(lb=1, ub=5, name="degree_paras"),
+    MixedSetVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
+    BoolVar(n_vars=1, name="probability_paras"),
+]
+problem = SvmOptimizedProblem(bounds=my_bounds, minmax="max", data=data)
+model = SMA.OriginalSMA(epoch=100, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")
+print(f"Best solution: {model.g_best.solution}")
+print(f"Best accuracy: {model.g_best.target.fitness}")
+print(f"Best parameters: {model.problem.decode_solution(model.g_best.solution)}")
+```
+
+### Solving Combinatorial Problems
+
+In this example, we use WOA optimizer to solve Job Shop Scheduling problem.
+
+Note that this implementation assumes that the job times and machine times are provided as 2D lists, where job_times[i][j] represents the processing time of job i on machine j.
+
+Keep in mind that this is a simplified implementation, and you may need to modify it according to the specific requirements and constraints of your Job Shop Scheduling problem.
+
+
+```python
+import numpy as np
+from mealpy import PermutationVar, WOA, Problem
+
+
+job_times = [[2, 1, 3], [4, 2, 1], [3, 3, 2]]
+machine_times = [[3, 2, 1], [1, 4, 2], [2, 3, 2]]
+
+n_jobs = len(job_times)
+n_machines = len(machine_times)
+
+data = {
+    "job_times": job_times,
+    "machine_times": machine_times,
+    "n_jobs": n_jobs,
+    "n_machines": n_machines
+}
+
+class JobShopProblem(Problem):
+    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["per_var"]
+        makespan = np.zeros((self.data["n_jobs"], self.data["n_machines"]))
+        for gene in x:
+            job_idx = gene // self.data["n_machines"]
+            machine_idx = gene % self.data["n_machines"]
+            if job_idx == 0 and machine_idx == 0:
+                makespan[job_idx][machine_idx] = job_times[job_idx][machine_idx]
+            elif job_idx == 0:
+                makespan[job_idx][machine_idx] = makespan[job_idx][machine_idx - 1] + job_times[job_idx][machine_idx]
+            elif machine_idx == 0:
+                makespan[job_idx][machine_idx] = makespan[job_idx - 1][machine_idx] + job_times[job_idx][machine_idx]
+            else:
+                makespan[job_idx][machine_idx] = max(makespan[job_idx][machine_idx - 1], makespan[job_idx - 1][machine_idx]) + job_times[job_idx][machine_idx]
+        return np.max(makespan)
+
+
+bounds = PermutationVar(valid_set=list(range(0, n_jobs*n_machines)), name="per_var")
+problem = JobShopProblem(bounds=bounds, minmax="max", data=data)
+
+model = WOA.OriginalWOA(epoch=100, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)}")      # Decoded (Real) solution
+```
+
 
 
 <details><summary><h3>Constrained Benchmark Function</h3></summary>
