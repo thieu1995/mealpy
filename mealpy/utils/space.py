@@ -177,17 +177,17 @@ class FloatVar(BaseVar):
 class IntegerVar(BaseVar):
     def __init__(self, lb=-10, ub=10, name="integer"):
         super().__init__(name)
-        self.eps = 0.5
+        self.eps = 1e-4
         self._set_bounds(lb, ub)
 
     def _set_bounds(self, lb, ub):
         if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
-            lb, ub = int(lb), int(ub) + 1 - self.eps
-            self.lb, self.ub = np.array((lb, ), dtype=int), np.array((ub, ), dtype=int)
+            lb, ub = int(lb) - 0.5, int(ub) + 0.5 - self.eps
+            self.lb, self.ub = np.array((lb, ), dtype=float), np.array((ub, ), dtype=float)
             self.n_vars = 1
         elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
             if len(lb) == len(ub):
-                self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int) + (1 - self.eps)
+                self.lb, self.ub = np.array(lb, dtype=float) - 0.5, np.array(ub, dtype=float) + (0.5 - self.eps)
                 self.n_vars = len(lb)
             else:
                 raise ValueError(f"Invalid lb or ub. Length of lb should equal to length of ub.")
@@ -199,13 +199,14 @@ class IntegerVar(BaseVar):
 
     def decode(self, x):
         x = self.correct(x)
+        x = self.round(x)
         return np.array(x, dtype=int)
 
     def correct(self, x):
         return np.clip(x, self.lb, self.ub)
 
     def generate(self):
-        return self.generator.integers(self.lb, self.ub+self.eps)
+        return self.generator.integers(self.lb+0.5, self.ub+0.5+self.eps)
 
 
 class PermutationVar(BaseVar):

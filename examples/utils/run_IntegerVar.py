@@ -15,12 +15,13 @@ from mealpy import IntegerVar, Problem
 
 ## 2. Multiple variables
 bounds = [
-    IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")
+    IntegerVar(lb=(-1, )*20, ub=(1, )*20, name="delta")
 ]
 
 problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
 print(f"Problem: {problem}")
 print(f"Bounds: {problem.bounds}")
+print(problem.lb, problem.ub)
 
 ## Generate encoded solution (the real-value solution)
 x = problem.generate_solution()
