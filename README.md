@@ -195,6 +195,12 @@ print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}"
 
 **Define a custom Problem class**
 
+
+**Please note that, there is no more `generate_position`, `amend_solution`, and `fitness_function` in Problem class.**
+We take care everything under the DataType Class above. Just choose which one fit for your problem.
+**We recommend you define a custom class that inherit `Problem` class if your decision variable is not FloatVar**
+
+
 ```python
 from mealpy import Problem, FloatVar, BBO 
 import numpy as np
@@ -218,10 +224,6 @@ g_best = model.solve(problem)
 ```
 
 #### The benefit of using custom Problem class
-
-**Please note that, there is no more `generate_position`, `amend_solution`, and `fitness_function` in Problem class.**
-We take care everything under the DataType Class above. Just choose which one fit for your problem.
-**We recommend you define a custom class that inherit `Problem` class if your decision variable is not FloatVar**
 
 ```python
 from sklearn.svm import SVC
