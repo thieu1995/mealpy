@@ -375,3 +375,24 @@ class BoolVar(BaseVar):
 
     def generate(self):
         return self.generator.choice([True, False], self.n_vars, replace=True)
+
+
+class TransferBoolVar(BoolVar):
+
+    SUPPORTED_TF_FUNCS = ["vstf_01", "vstf_02", "vstf_03", "vstf_04", "sstf_01", "sstf_02", "sstf_03", "sstf_04"]
+
+    def __init__(self, n_vars=1, name="boolean", tf_func="vstf_01", lb=-8., ub=8.):
+        super().__init__(n_vars, name)
+        if tf_func in self.SUPPORTED_TF_FUNCS:
+            self.tf_name = tf_func
+            self.tf_func = getattr(transfer, tf_func)
+        else:
+            raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
+        self.lb = lb * np.ones(self.n_vars)
+        self.ub = ub * np.ones(self.n_vars)
+
+    def correct(self, x):
+        x = np.clip(x, self.lb, self.ub)
+        x = self.tf_func(x)
+        cons = self.generator.random(len(x))
+        return np.where(cons < x, 1, 0)
