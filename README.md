@@ -1,4 +1,4 @@
-
+from openpyxl.descriptors import Integer
 <p align="center">
 <img style="height:400px;" 
 src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy5-nobg.png" 
@@ -8,7 +8,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-3.0.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-3.0.1-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -90,7 +90,7 @@ Please include these citations if you plan to use this library:
 
 <details><summary><h2>Goals</h2></summary>
 
-Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
+Our goals are to implement all classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
 
 - Analyse parameters of meta-heuristic algorithms.
 - Perform Qualitative and Quantitative Analysis of algorithms.
@@ -108,7 +108,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh
-$ pip install mealpy==3.0.0
+$ pip install mealpy==3.0.1
 ```
 
 * Install the alpha/beta version from PyPi
@@ -152,23 +152,26 @@ Based on the table below, you can select an appropriate type of decision variabl
 
 <div align="center">
 
-| Class          | Syntax                                               | Problem Types              |
-|----------------|------------------------------------------------------|----------------------------|
-| FloatVar       | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")` | Continuous Problem         |
-| IntegerVar     | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`    | LP, IP, NLP, QP, MIP       |
-| StringVar      | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")<br/>`   | ML, AI-optimize            |
-| BinaryVar      | `BinaryVar(n_vars=11, name="delta")`                        | Networks                   |
-| BoolVar        | `BoolVar(n_vars=11, name="delta")`                          | ML, AI-optimize            |
-| PermutationVar | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`   | Combinatorial Optimization |
-| MixedSetVar    | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")`      | MIP,  MILP                 |
+| Class           | Syntax                                                                                                       | Problem Types               |
+|-----------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
+| FloatVar        | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                        | Continuous Problem          |
+| IntegerVar      | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                      | LP, IP, NLP, QP, MIP        |
+| StringVar       | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")`          | ML, AI-optimize             |
+| BinaryVar       | `BinaryVar(n_vars=11, name="delta")`                                                                         | Networks                    |
+| BoolVar         | `BoolVar(n_vars=11, name="delta")`                                                                           | ML, AI-optimize             |
+| PermutationVar  | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`                                               | Combinatorial Optimization  |
+| MixedSetVar     | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")` | MIP,  MILP                  |
+| TransferBoolVar | `TransferBoolVar(n_vars=11, name="delta", tf_func="sstf_02")`                                                | ML, AI-optimize, Feature    |
+|TransferBinaryVar| `TransferBinaryVar(n_vars=11, name="delta", tf_func="vstf_04")`                                              | Networks, Feature Selection |
 
 </div>
-
 
 Let's go through a basic and advanced example.
 
 
 ### Simple Benchmark Function
+
+**Using Problem dict**
 
 ```python
 from mealpy import FloatVar, SMA
@@ -190,6 +193,94 @@ g_best = model.solve(problem)
 print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 ```
 
+**Define a custom Problem class**
+
+```python
+from mealpy import Problem, FloatVar, BBO 
+import numpy as np
+
+# Our custom problem class
+class Squared(Problem):
+    def __init__(self, bounds=None, minmax="min", name="Squared", data=None, **kwargs):
+        self.name = name
+        self.data = data 
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, solution):
+        x = self.decode_solution(solution)["my_var"]
+        return np.sum(x ** 2)
+
+## Now, we define an algorithm, and pass an instance of our *Squared* class as the problem argument. 
+bound = FloatVar(lb=(-10., )*20, ub=(10., )*20, name="my_var")
+problem = Squared(bounds=bound, minmax="min", name="Squared", data="Amazing")
+model = BBO.OriginalBBO(epoch=100, pop_size=20)
+g_best = model.solve(problem)
+```
+
+#### The benefit of using custom Problem class
+
+**Please note that, there is no more `generate_position`, `amend_solution`, and `fitness_function` in Problem class.**
+We take care everything under the DataType Class above. Just choose which one fit for your problem.
+**We recommend you define a custom class that inherit `Problem` class if your decision variable is not FloatVar**
+
+```python
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn import datasets, metrics
+
+from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, MixedSetVar, SMA, Problem
+
+
+# Load the data set; In this example, the breast cancer dataset is loaded.
+X, y = datasets.load_breast_cancer(return_X_y=True)
+
+# Create training and test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y)
+
+sc = StandardScaler()
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+
+data = [X_train_std, X_test_std, y_train, y_test]
+
+
+class SvmOptimizedProblem(Problem):
+    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        C_paras, kernel_paras = x_decoded["C_paras"], x_decoded["kernel_paras"]
+        degree, gamma, probability = x_decoded["degree_pras"], x_decoded["gamma_paras"], x_decoded["probability_paras"]
+
+        svc = SVC(C=C_paras, kernel=kernel_paras, degree=degree, 
+                  gamma=gamma, probability=probability, random_state=1)
+        # Fit the model
+        svc.fit(X_train_std, y_train)
+        # Make the predictions
+        y_predict = svc.predict(X_test_std)
+        # Measure the performance
+        return metrics.accuracy_score(y_test, y_predict)
+
+my_bounds = [
+    FloatVar(lb=0.01, ub=1000., name="C_paras"),
+    StringVar(valid_sets=('linear', 'poly', 'rbf', 'sigmoid'), name="kernel_paras"),
+    IntegerVar(lb=1, ub=5, name="degree_paras"),
+    MixedSetVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
+    BoolVar(n_vars=1, name="probability_paras"),
+]
+problem = SvmOptimizedProblem(bounds=my_bounds, minmax="max", data=data)
+model = SMA.OriginalSMA(epoch=100, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")
+print(f"Best solution: {model.g_best.solution}")
+print(f"Best accuracy: {model.g_best.target.fitness}")
+print(f"Best parameters: {model.problem.decode_solution(model.g_best.solution)}")
+```
+
 
 ### Set Seed for Optimizer (So many people asking for this feature)
 
@@ -197,7 +288,7 @@ You can set random seed number for each run of single optimizer.
 
 ```python
 model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
-g_best = model.solve(problem=problem, seed=10)              # Default seed=None
+g_best = model.solve(problem=problem, seed=10)  # Default seed=None
 ```
 
 
