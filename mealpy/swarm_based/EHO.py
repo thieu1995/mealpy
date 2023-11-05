@@ -85,7 +85,7 @@ class OriginalEHO(Optimizer):
                 center = np.mean(np.array([agent.solution for agent in self.pop_group[clan_idx]]), axis=0)
                 pos_new = self.beta * center
             else:
-                pos_new = self.pop_group[clan_idx][pos_clan_idx].solution + self.alpha * np.random.uniform() * \
+                pos_new = self.pop_group[clan_idx][pos_clan_idx].solution + self.alpha * self.generator.random() * \
                           (self.pop_group[clan_idx][0].solution - self.pop_group[clan_idx][pos_clan_idx].solution)
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
