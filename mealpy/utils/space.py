@@ -215,23 +215,6 @@ class PermutationVar(BaseVar):
         else:
             raise TypeError(f"Invalid valid_set. It should be {self.SUPPORTED_ARRAY} and contains at least 2 variables")
 
-    @staticmethod
-    def min_max_scale(data, min_val, max_val):
-        """
-        Scale a NumPy array of values to a specified range [min_val, max_val].
-
-        Parameters:
-        - data (numpy.ndarray): The NumPy array of values to be scaled.
-        - min_val (float): The minimum value in the desired range.
-        - max_val (float): The maximum value in the desired range.
-
-        Returns:
-        - scaled_data (numpy.ndarray): The scaled NumPy array of values.
-        """
-        data_min, data_max = np.min(data), np.max(data)
-        scaled_data = (data - data_min) / (data_max - data_min) * (max_val - min_val) + min_val
-        return scaled_data
-
     def encode(self, x):
         return np.array(self.le.transform(x), dtype=float)
 
@@ -240,8 +223,7 @@ class PermutationVar(BaseVar):
         return self.le.inverse_transform(x)
 
     def correct(self, x):
-        x = np.clip(x, self.lb, self.ub)
-        return np.array(x, dtype=int)
+        return np.argsort(x)
 
     def generate(self):
         return self.generator.permutation(self.valid_set)
