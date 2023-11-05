@@ -244,7 +244,12 @@ sc = StandardScaler()
 X_train_std = sc.fit_transform(X_train)
 X_test_std = sc.transform(X_test)
 
-data = [X_train_std, X_test_std, y_train, y_test]
+data = {
+    "X_train": X_train_std,
+    "X_test": X_test_std,
+    "y_train": y_train,
+    "y_test": y_test
+}
 
 
 class SvmOptimizedProblem(Problem):
@@ -260,11 +265,11 @@ class SvmOptimizedProblem(Problem):
         svc = SVC(C=C_paras, kernel=kernel_paras, degree=degree, 
                   gamma=gamma, probability=probability, random_state=1)
         # Fit the model
-        svc.fit(X_train_std, y_train)
+        svc.fit(self.data["X_train"], self.data["y_train"])
         # Make the predictions
-        y_predict = svc.predict(X_test_std)
+        y_predict = svc.predict(self.data["X_test"])
         # Measure the performance
-        return metrics.accuracy_score(y_test, y_predict)
+        return metrics.accuracy_score(self.data["y_test"], y_predict)
 
 my_bounds = [
     FloatVar(lb=0.01, ub=1000., name="C_paras"),
