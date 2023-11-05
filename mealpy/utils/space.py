@@ -312,8 +312,7 @@ class BinaryVar(BaseVar):
         return np.array(x, dtype=int)
 
     def correct(self, x):
-        x = np.clip(x, self.lb, self.ub)
-        return np.array(x, dtype=int)
+        return np.clip(x, self.lb, self.ub)
 
     def generate(self):
         return self.generator.integers(0, 2, self.n_vars)
@@ -332,11 +331,11 @@ class BoolVar(BaseVar):
 
     def decode(self, x):
         x = self.correct(x)
+        x = np.array(x, dtype=int)
         return x == 1
 
     def correct(self, x):
-        x = np.clip(x, self.lb, self.ub)
-        return np.array(x, dtype=int)
+        return np.clip(x, self.lb, self.ub)
 
     def generate(self):
         return self.generator.choice([True, False], self.n_vars, replace=True)
