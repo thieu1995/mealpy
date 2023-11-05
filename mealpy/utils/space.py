@@ -7,6 +7,7 @@
 import numpy as np
 import numbers as nb
 from abc import ABC, abstractmethod
+from mealpy.utils import transfer
 
 
 class LabelEncoder:
@@ -316,6 +317,41 @@ class BinaryVar(BaseVar):
 
     def generate(self):
         return self.generator.integers(0, 2, self.n_vars)
+
+
+class TransferBinaryVar(BinaryVar):
+
+    SUPPORTED_TF_FUNCS = ["vstf_01", "vstf_02", "vstf_03", "vstf_04", "sstf_01", "sstf_02", "sstf_03", "sstf_04"]
+
+    def __init__(self, n_vars=1, name="tf-binary", tf_func="vstf_01", lb=-8., ub=8., all_zeros=True):
+        super().__init__(n_vars, name)
+        if tf_func in self.SUPPORTED_TF_FUNCS:
+            self.tf_name = tf_func
+            self.tf_func = getattr(transfer, tf_func)
+        else:
+            raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
+        self.lb = lb * np.ones(self.n_vars)
+        self.ub = ub * np.ones(self.n_vars)
+        self.all_zeros = all_zeros
+
+    def _get_correct_x(self, x):
+        if self.all_zeros:
+            return x
+        else:
+            if np.sum(x) == 0:
+                x[self.generator.integers(0, len(x))] = 1
+            return x
+
+    def correct(self, x):
+        x = np.clip(x, self.lb, self.ub)
+        x = self.tf_func(x)
+        cons = self.generator.random(len(x))
+        x = np.where(cons < x, 1, 0)
+        return self._get_correct_x(x)
+
+    def generate(self):
+        x = self.generator.integers(0, 2, self.n_vars)
+        return self._get_correct_x(x)
 
 
 class BoolVar(BaseVar):
