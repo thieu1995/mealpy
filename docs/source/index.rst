@@ -2,7 +2,7 @@ Welcome to MEALPY's documentation!
 ==================================
 
 
-.. image:: https://img.shields.io/badge/release-3.0.0-yellow.svg
+.. image:: https://img.shields.io/badge/release-3.0.1-yellow.svg
    :target: https://github.com/thieu1995/mealpy/releases
 
 .. image:: https://img.shields.io/pypi/wheel/gensim.svg
