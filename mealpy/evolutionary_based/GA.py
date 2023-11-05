@@ -297,7 +297,7 @@ class BaseGA(Optimizer):
             child1, child2 = self.selection_process__(list_fitness)
 
             ### Crossover
-            if np.random.uniform() < self.pc:
+            if self.generator.random() < self.pc:
                 child1, child2 = self.crossover_process__(child1, child2)
 
             ### Mutation
