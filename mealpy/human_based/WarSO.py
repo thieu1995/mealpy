@@ -32,7 +32,7 @@ class OriginalWarSO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = WarSO.OriginalWarSO(epoch=1000, pop_size=50)
+    >>> model = WarSO.OriginalWarSO(epoch=1000, pop_size=50, rr=0.1)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")

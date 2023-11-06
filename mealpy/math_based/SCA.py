@@ -223,7 +223,7 @@ class QleSCA(DevSCA):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = SCA.QleSCA(epoch=1000, pop_size=50)
+    >>> model = SCA.QleSCA(epoch=1000, pop_size=50, alpha=0.1, gama=0.9)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")

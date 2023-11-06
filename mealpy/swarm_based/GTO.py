@@ -35,7 +35,7 @@ class OriginalGTO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = GTO.OriginalGTO(epoch=1000, pop_size=50)
+    >>> model = GTO.OriginalGTO(epoch=1000, pop_size=50, A=0.4, H=2.0)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")

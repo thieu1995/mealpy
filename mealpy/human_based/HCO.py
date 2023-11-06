@@ -40,7 +40,7 @@ class OriginalHCO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = HCO.OriginalHCO(epoch=1000, pop_size=50)
+    >>> model = HCO.OriginalHCO(epoch=1000, pop_size=50, wfp=0.65, wfv=0.05, c1=1.4, c2=1.4)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")

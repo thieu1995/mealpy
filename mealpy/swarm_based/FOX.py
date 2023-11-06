@@ -38,7 +38,7 @@ class OriginalFOX(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = FOX.OriginalFOX(epoch=1000, pop_size=50)
+    >>> model = FOX.OriginalFOX(epoch=1000, pop_size=50, c1=0.18, c2=0.82)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
