@@ -557,6 +557,96 @@ print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.soluti
 
 
 
+
+**Location Optimization**
+
+
+Let's consider an example of location optimization in the context of a retail company that wants to open a certain 
+number of new stores in a region to maximize market coverage while minimizing operational costs.
+
+A company wants to open five new stores in a region with several potential locations. The objective is to 
+determine the optimal locations for these stores while considering factors such as population density and 
+transportation costs. The goal is to maximize market coverage by locating stores in areas with high demand while 
+minimizing the overall transportation costs required to serve customers.
+
+By applying location optimization techniques, the retail company can make informed decisions about where to open new 
+stores, considering factors such as population density and transportation costs. This approach allows the company to 
+maximize market coverage, make efficient use of resources, and ultimately improve customer service and profitability.
+
+Note that this example is a simplified illustration, and in real-world scenarios, location optimization problems can 
+involve more complex constraints, additional factors, and larger datasets. However, the general process remains 
+similar, involving data analysis, mathematical modeling, and optimization techniques to determine the optimal 
+locations for facilities.
+
+
+```python
+import numpy as np
+from mealpy import BinaryVar, WOA, Problem
+
+# Define the coordinates of potential store locations
+locations = np.array([
+    [2, 4],
+    [5, 6],
+    [9, 3],
+    [7, 8],
+    [1, 10],
+    [3, 2],
+    [5, 5],
+    [8, 2],
+    [7, 6],
+    [1, 9]
+])
+# Define the transportation costs matrix based on the Euclidean distance between locations
+distance_matrix = np.linalg.norm(locations[:, np.newaxis] - locations, axis=2)
+
+# Define the number of stores to open
+num_stores = 5
+
+# Define the maximum distance a customer should travel to reach a store
+max_distance = 10
+
+data = {
+    "num_stores": num_stores,
+    "max_distance": max_distance,
+    "penalty": 1e10
+}
+
+
+class LocationOptProblem(Problem):
+    def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
+        self.data = data
+        self.eps = 1e10
+        super().__init__(bounds, minmax, **kwargs)
+
+    # Define the fitness evaluation function
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["placement_var"]
+        total_coverage = np.sum(x)
+        total_dist = np.sum(x[:, np.newaxis] * distance_matrix)
+        if total_dist == 0:                 # Penalize solutions with fewer stores
+            return self.eps
+        if total_coverage < self.data["num_stores"]:    # Penalize solutions with fewer stores
+            return self.eps
+        return total_dist
+
+
+bounds = BinaryVar(n_vars=len(locations), name="placement_var")
+problem = LocationOptProblem(bounds=bounds, minmax="min", data=data)
+
+model = WOA.OriginalWOA(epoch=50, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)}")      # Decoded (Real) solution
+
+```
+
+
+
+
 **Employee Rostering Problem Using Woa Optimizer**
 
 The goal is to create an optimal schedule that assigns employees to shifts while satisfying various 
