@@ -796,6 +796,109 @@ print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.soluti
 ```
 
 
+**Production Optimization Problem**
+
+Let's consider a simplified example of production optimization in the context of a manufacturing company that 
+produces electronic devices, such as smartphones. The objective is to maximize production output while minimizing 
+production costs.
+
+This example uses binary representations for production configurations, assuming each task can be assigned to a 
+resource (1) or not (0). You may need to adapt the representation and operators to suit your specific production 
+optimization problem.
+
+
+```python
+import numpy as np
+from mealpy import BinaryVar, WOA, Problem
+
+# Define the problem parameters
+num_tasks = 10
+num_resources = 5
+
+# Example task processing times
+task_processing_times = np.array([2, 3, 4, 2, 3, 2, 3, 4, 2, 3])
+
+# Example resource capacity
+resource_capacity = np.array([10, 8, 6, 12, 15])
+
+# Example production costs and outputs
+production_costs = np.array([5, 6, 4, 7, 8, 9, 5, 6, 7, 8])
+production_outputs = np.array([20, 18, 16, 22, 25, 24, 20, 18, 19, 21])
+
+# Example maximum total production time
+max_total_time = 50
+
+# Example maximum defect rate
+max_defect_rate = 0.2
+
+# Penalty for invalid solution
+penalty = -1000
+
+data = {
+    "num_tasks": num_tasks,
+    "num_resources": num_resources,
+    "task_processing_times": task_processing_times,
+    "resource_capacity": resource_capacity,
+    "production_costs": production_costs,
+    "production_outputs": production_outputs,
+    "max_defect_rate": max_defect_rate,
+    "penalty": penalty
+}
+
+
+class SupplyChainProblem(Problem):
+    def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["placement_var"].reshape((self.data["num_tasks"], self.data["num_resources"]))
+
+        # If any row has all 0 value, it indicates that this task is not allocated to any resource
+        if np.any(np.all(x==0, axis=1)) or np.any(np.all(x==0, axis=0)):
+            return self.data["penalty"]
+
+        # Check violated constraints
+        violated_constraints = 0
+
+        # Calculate resource utilization
+        resource_utilization = np.sum(x, axis=0)
+        # Resource capacity constraint
+        if np.any(resource_utilization > self.data["resource_capacity"]):
+            violated_constraints += 1
+
+        # Time constraint
+        total_time = np.sum(np.dot(self.data["task_processing_times"].reshape(1, -1), x))
+        if total_time > max_total_time:
+            violated_constraints += 1
+
+        # Quality constraint
+        defect_rate = np.dot(self.data["production_costs"].reshape(1, -1), x) / np.dot(self.data["production_outputs"], x)
+        if np.any(defect_rate > max_defect_rate):
+            violated_constraints += 1
+
+        # Calculate the fitness value based on the objectives and constraints
+        profit = np.sum(np.dot(self.data["production_outputs"].reshape(1, -1), x)) - np.sum(np.dot(self.data["production_costs"].reshape(1, -1), x))
+        if violated_constraints > 0:
+            return profit + self.data["penalty"] * violated_constraints       # Penalize solutions with violated constraints
+        return profit
+
+
+bounds = BinaryVar(n_vars=num_tasks * num_resources, name="placement_var")
+problem = SupplyChainProblem(bounds=bounds, minmax="max", data=data)
+
+model = WOA.OriginalWOA(epoch=50, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)['placement_var'].reshape((num_tasks, num_resources))}")
+```
+
+
+
 
 **Employee Rostering Problem Using Woa Optimizer**
 
