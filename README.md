@@ -1,4 +1,3 @@
-
 <p align="center">
 <img style="height:400px;" 
 src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy5-nobg.png" 
@@ -8,7 +7,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-3.0.0-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-3.0.1-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -90,7 +89,7 @@ Please include these citations if you plan to use this library:
 
 <details><summary><h2>Goals</h2></summary>
 
-Our goals are to implement all of the classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
+Our goals are to implement all classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
 
 - Analyse parameters of meta-heuristic algorithms.
 - Perform Qualitative and Quantitative Analysis of algorithms.
@@ -108,7 +107,7 @@ Our goals are to implement all of the classical as well as the state-of-the-art 
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh
-$ pip install mealpy==3.0.0
+$ pip install mealpy==3.0.1
 ```
 
 * Install the alpha/beta version from PyPi
@@ -152,23 +151,26 @@ Based on the table below, you can select an appropriate type of decision variabl
 
 <div align="center">
 
-| Class          | Syntax                                               | Problem Types              |
-|----------------|------------------------------------------------------|----------------------------|
-| FloatVar       | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")` | Continuous Problem         |
-| IntegerVar     | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`    | LP, IP, NLP, QP, MIP       |
-| StringVar      | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")<br/>`   | ML, AI-optimize            |
-| BinaryVar      | `BinaryVar(n_vars=11, name="delta")`                        | Networks                   |
-| BoolVar        | `BoolVar(n_vars=11, name="delta")`                          | ML, AI-optimize            |
-| PermutationVar | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`   | Combinatorial Optimization |
-| MixedSetVar    | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")`      | MIP,  MILP                 |
+| Class           | Syntax                                                                                                       | Problem Types               |
+|-----------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
+| FloatVar        | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                        | Continuous Problem          |
+| IntegerVar      | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                      | LP, IP, NLP, QP, MIP        |
+| StringVar       | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")`          | ML, AI-optimize             |
+| BinaryVar       | `BinaryVar(n_vars=11, name="delta")`                                                                         | Networks                    |
+| BoolVar         | `BoolVar(n_vars=11, name="delta")`                                                                           | ML, AI-optimize             |
+| PermutationVar  | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`                                               | Combinatorial Optimization  |
+| MixedSetVar     | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")` | MIP,  MILP                  |
+| TransferBoolVar | `TransferBoolVar(n_vars=11, name="delta", tf_func="sstf_02")`                                                | ML, AI-optimize, Feature    |
+|TransferBinaryVar| `TransferBinaryVar(n_vars=11, name="delta", tf_func="vstf_04")`                                              | Networks, Feature Selection |
 
 </div>
-
 
 Let's go through a basic and advanced example.
 
 
 ### Simple Benchmark Function
+
+**Using Problem dict**
 
 ```python
 from mealpy import FloatVar, SMA
@@ -190,6 +192,36 @@ g_best = model.solve(problem)
 print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 ```
 
+**Define a custom Problem class**
+
+
+**Please note that, there is no more `generate_position`, `amend_solution`, and `fitness_function` in Problem class.**
+We take care everything under the DataType Class above. Just choose which one fit for your problem.
+**We recommend you define a custom class that inherit `Problem` class if your decision variable is not FloatVar**
+
+
+```python
+from mealpy import Problem, FloatVar, BBO 
+import numpy as np
+
+# Our custom problem class
+class Squared(Problem):
+    def __init__(self, bounds=None, minmax="min", name="Squared", data=None, **kwargs):
+        self.name = name
+        self.data = data 
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, solution):
+        x = self.decode_solution(solution)["my_var"]
+        return np.sum(x ** 2)
+
+## Now, we define an algorithm, and pass an instance of our *Squared* class as the problem argument. 
+bound = FloatVar(lb=(-10., )*20, ub=(10., )*20, name="my_var")
+problem = Squared(bounds=bound, minmax="min", name="Squared", data="Amazing")
+model = BBO.OriginalBBO(epoch=100, pop_size=20)
+g_best = model.solve(problem)
+```
+
 
 ### Set Seed for Optimizer (So many people asking for this feature)
 
@@ -197,7 +229,7 @@ You can set random seed number for each run of single optimizer.
 
 ```python
 model = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
-g_best = model.solve(problem=problem, seed=10)              # Default seed=None
+g_best = model.solve(problem=problem, seed=10)  # Default seed=None
 ```
 
 
@@ -255,6 +287,262 @@ print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_b
 ## Run distributed SMA algorithm using 8 CPUs (cores)
 optimizer.solve(problem, mode="process", n_workers=8)        # Distributed to 8 cores
 print(f"Best solution: {optimizer.g_best.solution}, Best fitness: {optimizer.g_best.target.fitness}")
+```
+
+
+
+## The benefit of using custom Problem class
+
+### Optimize Machine Learning model
+
+In this example, we use SMA optimize to optimize the hyper-parameters of SVC model.
+
+```python
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn import datasets, metrics
+
+from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, MixedSetVar, SMA, Problem
+
+
+# Load the data set; In this example, the breast cancer dataset is loaded.
+X, y = datasets.load_breast_cancer(return_X_y=True)
+
+# Create training and test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y)
+
+sc = StandardScaler()
+X_train_std = sc.fit_transform(X_train)
+X_test_std = sc.transform(X_test)
+
+data = {
+    "X_train": X_train_std,
+    "X_test": X_test_std,
+    "y_train": y_train,
+    "y_test": y_test
+}
+
+
+class SvmOptimizedProblem(Problem):
+    def __init__(self, bounds=None, minmax="max", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        C_paras, kernel_paras = x_decoded["C_paras"], x_decoded["kernel_paras"]
+        degree, gamma, probability = x_decoded["degree_pras"], x_decoded["gamma_paras"], x_decoded["probability_paras"]
+
+        svc = SVC(C=C_paras, kernel=kernel_paras, degree=degree, 
+                  gamma=gamma, probability=probability, random_state=1)
+        # Fit the model
+        svc.fit(self.data["X_train"], self.data["y_train"])
+        # Make the predictions
+        y_predict = svc.predict(self.data["X_test"])
+        # Measure the performance
+        return metrics.accuracy_score(self.data["y_test"], y_predict)
+
+my_bounds = [
+    FloatVar(lb=0.01, ub=1000., name="C_paras"),
+    StringVar(valid_sets=('linear', 'poly', 'rbf', 'sigmoid'), name="kernel_paras"),
+    IntegerVar(lb=1, ub=5, name="degree_paras"),
+    MixedSetVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
+    BoolVar(n_vars=1, name="probability_paras"),
+]
+problem = SvmOptimizedProblem(bounds=my_bounds, minmax="max", data=data)
+model = SMA.OriginalSMA(epoch=100, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")
+print(f"Best solution: {model.g_best.solution}")
+print(f"Best accuracy: {model.g_best.target.fitness}")
+print(f"Best parameters: {model.problem.decode_solution(model.g_best.solution)}")
+```
+
+### Solving Combinatorial Problems
+
+**Job Shop Scheduling problem using WOA optimizer**
+
+Note that this implementation assumes that the job times and machine times are provided as 2D lists, where job_times[i][j] represents the processing time of job i on machine j.
+
+Keep in mind that this is a simplified implementation, and you may need to modify it according to the specific requirements and constraints of your Job Shop Scheduling problem.
+
+
+```python
+import numpy as np
+from mealpy import PermutationVar, WOA, Problem
+
+
+job_times = [[2, 1, 3], [4, 2, 1], [3, 3, 2]]
+machine_times = [[3, 2, 1], [1, 4, 2], [2, 3, 2]]
+
+n_jobs = len(job_times)
+n_machines = len(machine_times)
+
+data = {
+    "job_times": job_times,
+    "machine_times": machine_times,
+    "n_jobs": n_jobs,
+    "n_machines": n_machines
+}
+
+class JobShopProblem(Problem):
+    def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["per_var"]
+        makespan = np.zeros((self.data["n_jobs"], self.data["n_machines"]))
+        for gene in x:
+            job_idx = gene // self.data["n_machines"]
+            machine_idx = gene % self.data["n_machines"]
+            if job_idx == 0 and machine_idx == 0:
+                makespan[job_idx][machine_idx] = job_times[job_idx][machine_idx]
+            elif job_idx == 0:
+                makespan[job_idx][machine_idx] = makespan[job_idx][machine_idx - 1] + job_times[job_idx][machine_idx]
+            elif machine_idx == 0:
+                makespan[job_idx][machine_idx] = makespan[job_idx - 1][machine_idx] + job_times[job_idx][machine_idx]
+            else:
+                makespan[job_idx][machine_idx] = max(makespan[job_idx][machine_idx - 1], makespan[job_idx - 1][machine_idx]) + job_times[job_idx][machine_idx]
+        return np.max(makespan)
+
+
+bounds = PermutationVar(valid_set=list(range(0, n_jobs*n_machines)), name="per_var")
+problem = JobShopProblem(bounds=bounds, minmax="min", data=data)
+
+model = WOA.OriginalWOA(epoch=100, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)}")      # Decoded (Real) solution
+```
+
+
+**Employee Rostering problem using WOA optimizer**
+
+The goal is to create an optimal schedule that assigns employees to shifts while satisfying various 
+constraints and objectives. Note that this implementation assumes that shift_requirements array 
+has dimensions (num_employees, num_shifts), and shift_costs is a 1D array of length num_shifts.
+
+Please keep in mind that this is a simplified implementation, and you may need to modify it according to the 
+specific requirements and constraints of your employee rostering problem. Additionally, you might want to 
+introduce additional mechanisms or constraints such as fairness, employee preferences, or shift 
+dependencies to enhance the model's effectiveness in real-world scenarios.
+
+For example, if you have 5 employees and 3 shifts, a chromosome could be represented as [2, 1, 0, 2, 0], 
+where employee 0 is assigned to shift 2, employee 1 is assigned to shift 1, 
+employee 2 is assigned to shift 0, and so on.
+
+```python
+import numpy as np
+from mealpy import IntegerVar, WOA, Problem
+
+
+shift_requirements = np.array([[2, 1, 3], [4, 2, 1], [3, 3, 2]])
+shift_costs = np.array([10, 8, 12])
+
+num_employees = shift_requirements.shape[0]
+num_shifts = shift_requirements.shape[1]
+
+data = {
+    "shift_requirements": shift_requirements,
+    "shift_costs": shift_costs,
+    "num_employees": num_employees,
+    "num_shifts": num_shifts
+}
+
+class EmployeeRosteringProblem(Problem):
+    def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["shift_var"]
+
+        shifts_covered = np.zeros(self.data["num_shifts"])
+        total_cost = 0
+        for idx in range(self.data["num_employees"]):
+            shift_idx = x[idx]
+            shifts_covered[shift_idx] += 1
+            total_cost += self.data["shift_costs"][shift_idx]
+        coverage_diff = self.data["shift_requirements"] - shifts_covered
+        coverage_penalty = np.sum(np.abs(coverage_diff))
+        return total_cost + coverage_penalty
+
+
+bounds = IntegerVar(lb=[0, ]*num_employees, ub=[num_shifts-1, ]*num_employees, name="shift_var")
+problem = EmployeeRosteringProblem(bounds=bounds, minmax="min", data=data)
+
+model = WOA.OriginalWOA(epoch=50, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)}")      # Decoded (Real) solution
+```
+
+**Maintenance Scheduling**
+
+In maintenance scheduling, the goal is to optimize the schedule for performing maintenance tasks on
+various assets or equipment. The objective is to minimize downtime and maximize the utilization of
+assets while considering various constraints such as resource availability, task dependencies, and time constraints.
+
+Each element in the solution represents whether a task is assigned to an asset (1) or not (0). The schedule 
+specifies when each task should start and which asset it is assigned to, aiming to minimize the total downtime.
+
+By using the Mealpy, you can find an efficient maintenance schedule that minimizes downtime,
+maximizes asset utilization, and satisfies various constraints, ultimately optimizing 
+the maintenance operations for improved reliability and productivity.
+
+```python
+
+import numpy as np
+from mealpy import BinaryVar, WOA, Problem
+
+
+num_tasks = 10
+num_assets = 5
+task_durations = np.random.randint(1, 10, size=(num_tasks, num_assets))
+
+data = {
+    "num_tasks": num_tasks,
+    "num_assets": num_assets,
+    "task_durations": task_durations,
+    "unassigned_penalty": -100         # Define a penalty value for no task is assigned to asset
+}
+
+
+class MaintenanceSchedulingProblem(Problem):
+    def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["task_var"]
+        downtime = -np.sum(x.reshape((self.data["num_tasks"], self.data["num_assets"])) * self.data["task_durations"])
+        if np.sum(x) == 0:
+            downtime += self.data["unassigned_penalty"]
+        return downtime
+
+
+bounds = BinaryVar(n_vars=num_tasks * num_assets, name="task_var")
+problem = MaintenanceSchedulingProblem(bounds=bounds, minmax="max", data=data)
+
+model = WOA.OriginalWOA(epoch=50, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution).reshape((num_tasks, num_assets))}")      # Decoded (Real) solution
 ```
 
 

@@ -15,7 +15,7 @@ def readme():
 
 setup(
     name="mealpy",
-    version="3.0.0",
+    version="3.0.1",
     author="Thieu",
     author_email="nguyenthieu2102@gmail.com",
     description="MEALPY: An Open-source Library for Latest Meta-heuristic Algorithms in Python",

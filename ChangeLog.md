@@ -11,6 +11,18 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * mealpy >= 3.0.0 (Everything is wrapped inside class and object)
 
 
+# Version 3.0.1
+
++ Add transfer function module (please read [this paper](https://www.sciencedirect.com/science/article/abs/pii/S2210650212000648) )
++ Add two new datatypes: `TransferBinaryVar` and `TransferBoolVar`.
++ Fix bug un-order variables in `PermutationVar` data type.
++ Update data type of encoded solution in `BoolVar` data type.
++ Update correct function in `BoolVar` and `BinaryVar`.
++ Fix bug reproduce results in `GA`, `WCA`, and `EHO` optimizers.
++ Fix bug higher probability of 0 value in `IntegerVar` data type.
+
+
+
 # Version 3.0.0
 
 **Based on our new proposed classes, solving continuous and discrete problems is never that easy.**

@@ -27,7 +27,7 @@
 # >>> g_best = model.solve(problem)
 # >>> print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 
 import sys, inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO)
@@ -46,7 +46,8 @@ from .utils.termination import Termination
 from .tuner import Tuner, ParameterGrid
 from .multitask import Multitask
 from .optimizer import Optimizer
-from .utils.space import (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar, MixedSetVar)
+from .utils.space import (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar,
+                          MixedSetVar, TransferBinaryVar, TransferBoolVar)
 
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 

@@ -15,7 +15,8 @@ from mealpy import HGSO, MVO, NRO, RIME, SA, WDO, TWO, ABC, ACOR, AGTO, BeesA, B
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
 from mealpy import PFA, OOA, NGO, NMRA, MSA, MRFO, MPA, MGO, MFO, JA, HHO, HGS, HBA, GWO, GTO, GOA
 from mealpy import GJO, FOX, FOA, FFO, FFA, FA, ESOA, EHO, DO, DMOA, CSO, CSA, CoatiOA, COA, BSA
-from mealpy import StringVar, FloatVar, BoolVar, PermutationVar, MixedSetVar, IntegerVar, BinaryVar
+from mealpy import (StringVar, FloatVar, BoolVar, PermutationVar, MixedSetVar, IntegerVar, BinaryVar,
+                    TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
 from mealpy import get_all_optimizers, get_optimizer_by_name
 
@@ -52,10 +53,13 @@ class SquaredProblem(Problem):
         super().__init__(bounds, minmax, **kwargs)
 
     def obj_func(self, solution):
-        return np.sum(solution ** 2)
+        x = self.decode_solution(solution)["variable"]
+        return np.sum(x ** 2)
+
 
 bounds = FloatVar(lb=(-15., )*100, ub=(20., )*100, name="variable")
 P1 = SquaredProblem(bounds=bounds, minmax="min")
+
 
 if __name__ == "__main__":
     model = BBO.OriginalBBO(epoch=10, pop_size=30)

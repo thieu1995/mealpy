@@ -7,6 +7,7 @@
 import numpy as np
 import numbers as nb
 from abc import ABC, abstractmethod
+from mealpy.utils import transfer
 
 
 class LabelEncoder:
@@ -134,37 +135,12 @@ class BaseVar(ABC):
     def generate(self):
         pass
 
-
-class IntegerVar(BaseVar):
-    def __init__(self, lb=-10, ub=10, name="integer"):
-        super().__init__(name)
-        self._set_bounds(lb, ub)
-
-    def _set_bounds(self, lb, ub):
-        if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
-            self.lb, self.ub = np.array((lb, ), dtype=int), np.array((ub, ), dtype=int)
-            self.n_vars = 1
-        elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
-            if len(lb) == len(ub):
-                self.lb, self.ub = np.array(lb, dtype=int), np.array(ub, dtype=int)
-                self.n_vars = len(lb)
-            else:
-                raise ValueError(f"Invalid lb or ub. Length of lb should equal to length of ub.")
-        else:
-            raise TypeError(f"Invalid lb or ub. It should be one of following: {self.SUPPORTED_ARRAY}")
-
-    def encode(self, x):
-        return np.array(x, dtype=float)
-
-    def decode(self, x):
-        x = self.correct(x)
-        return np.array(x, dtype=int)
-
-    def correct(self, x):
-        return np.clip(x, self.lb, self.ub)
-
-    def generate(self):
-        return self.generator.integers(self.lb, self.ub)
+    @staticmethod
+    def round(x):
+        frac = x - np.floor(x)
+        t1 = np.floor(x)
+        t2 = np.ceil(x)
+        return np.where(frac < 0.5, t1, t2)
 
 
 class FloatVar(BaseVar):
@@ -197,6 +173,41 @@ class FloatVar(BaseVar):
 
     def generate(self):
         return self.generator.uniform(self.lb, self.ub)
+
+
+class IntegerVar(BaseVar):
+    def __init__(self, lb=-10, ub=10, name="integer"):
+        super().__init__(name)
+        self.eps = 1e-4
+        self._set_bounds(lb, ub)
+
+    def _set_bounds(self, lb, ub):
+        if isinstance(lb, nb.Number) and isinstance(ub, nb.Number):
+            lb, ub = int(lb) - 0.5, int(ub) + 0.5 - self.eps
+            self.lb, self.ub = np.array((lb, ), dtype=float), np.array((ub, ), dtype=float)
+            self.n_vars = 1
+        elif type(lb) in self.SUPPORTED_ARRAY and type(ub) in self.SUPPORTED_ARRAY:
+            if len(lb) == len(ub):
+                self.lb, self.ub = np.array(lb, dtype=float) - 0.5, np.array(ub, dtype=float) + (0.5 - self.eps)
+                self.n_vars = len(lb)
+            else:
+                raise ValueError(f"Invalid lb or ub. Length of lb should equal to length of ub.")
+        else:
+            raise TypeError(f"Invalid lb or ub. It should be one of following: {self.SUPPORTED_ARRAY}")
+
+    def encode(self, x):
+        return np.array(x, dtype=float)
+
+    def decode(self, x):
+        x = self.correct(x)
+        x = self.round(x)
+        return np.array(x, dtype=int)
+
+    def correct(self, x):
+        return np.clip(x, self.lb, self.ub)
+
+    def generate(self):
+        return self.generator.integers(self.lb+0.5, self.ub+0.5+self.eps)
 
 
 class PermutationVar(BaseVar):
@@ -302,11 +313,45 @@ class BinaryVar(BaseVar):
         return np.array(x, dtype=int)
 
     def correct(self, x):
-        x = np.clip(x, self.lb, self.ub)
-        return np.array(x, dtype=int)
+        return np.clip(x, self.lb, self.ub)
 
     def generate(self):
         return self.generator.integers(0, 2, self.n_vars)
+
+
+class TransferBinaryVar(BinaryVar):
+
+    SUPPORTED_TF_FUNCS = ["vstf_01", "vstf_02", "vstf_03", "vstf_04", "sstf_01", "sstf_02", "sstf_03", "sstf_04"]
+
+    def __init__(self, n_vars=1, name="tf-binary", tf_func="vstf_01", lb=-8., ub=8., all_zeros=True):
+        super().__init__(n_vars, name)
+        if tf_func in self.SUPPORTED_TF_FUNCS:
+            self.tf_name = tf_func
+            self.tf_func = getattr(transfer, tf_func)
+        else:
+            raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
+        self.lb = lb * np.ones(self.n_vars)
+        self.ub = ub * np.ones(self.n_vars)
+        self.all_zeros = all_zeros
+
+    def _get_correct_x(self, x):
+        if self.all_zeros:
+            return x
+        else:
+            if np.sum(x) == 0:
+                x[self.generator.integers(0, len(x))] = 1
+            return x
+
+    def correct(self, x):
+        x = np.clip(x, self.lb, self.ub)
+        x = self.tf_func(x)
+        cons = self.generator.random(len(x))
+        x = np.where(cons < x, 1, 0)
+        return self._get_correct_x(x)
+
+    def generate(self):
+        x = self.generator.integers(0, 2, self.n_vars)
+        return self._get_correct_x(x)
 
 
 class BoolVar(BaseVar):
@@ -318,15 +363,36 @@ class BoolVar(BaseVar):
         self.ub = (2 - self.eps) * np.ones(self.n_vars)
 
     def encode(self, x):
-        return np.array(x, dtype=int)
+        return np.array(x, dtype=float)
 
     def decode(self, x):
         x = self.correct(x)
+        x = np.array(x, dtype=int)
         return x == 1
 
     def correct(self, x):
-        x = np.clip(x, self.lb, self.ub)
-        return np.array(x, dtype=int)
+        return np.clip(x, self.lb, self.ub)
 
     def generate(self):
         return self.generator.choice([True, False], self.n_vars, replace=True)
+
+
+class TransferBoolVar(BoolVar):
+
+    SUPPORTED_TF_FUNCS = ["vstf_01", "vstf_02", "vstf_03", "vstf_04", "sstf_01", "sstf_02", "sstf_03", "sstf_04"]
+
+    def __init__(self, n_vars=1, name="boolean", tf_func="vstf_01", lb=-8., ub=8.):
+        super().__init__(n_vars, name)
+        if tf_func in self.SUPPORTED_TF_FUNCS:
+            self.tf_name = tf_func
+            self.tf_func = getattr(transfer, tf_func)
+        else:
+            raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
+        self.lb = lb * np.ones(self.n_vars)
+        self.ub = ub * np.ones(self.n_vars)
+
+    def correct(self, x):
+        x = np.clip(x, self.lb, self.ub)
+        x = self.tf_func(x)
+        cons = self.generator.random(len(x))
+        return np.where(cons < x, 1, 0)

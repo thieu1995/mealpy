@@ -90,7 +90,7 @@ class OriginalWCA(Optimizer):
         idx_already_selected = []
         for i in range(0, self.nsr - 1):
             streams[i] = []
-            idx_list = np.random.choice(list(set(range(0, n_stream)) - set(idx_already_selected)), num_child_in_river_list[i], replace=False).tolist()
+            idx_list = self.generator.choice(list(set(range(0, n_stream)) - set(idx_already_selected)), num_child_in_river_list[i], replace=False).tolist()
             idx_already_selected += idx_list
             for idx in idx_list:
                 streams[i].append(self.pop_stream[idx])
