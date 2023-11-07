@@ -360,7 +360,10 @@ print(f"Best accuracy: {model.g_best.target.fitness}")
 print(f"Best parameters: {model.problem.decode_solution(model.g_best.solution)}")
 ```
 
+
+
 ### Solving Combinatorial Problems
+
 
 **Traveling Salesman Problem (TSP)**
 
@@ -370,7 +373,7 @@ typically represented as a permutation of the cities, where each city appears ex
 
 
 For example, let's consider a TSP instance with 5 cities labeled as A, B, C, D, and E. A possible solution could be 
-represented as the permutation [A, B, D, E, C], which indicates the order in which the cities are visited. This 
+represented as the permutation `[A, B, D, E, C]`, which indicates the order in which the cities are visited. This 
 solution suggests that the tour starts at city A, then moves to city B, then D, E, and finally C before returning to city A.
 
 
@@ -433,9 +436,11 @@ print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.soluti
 
 **Job Shop Scheduling Problem Using Woa Optimizer**
 
-Note that this implementation assumes that the job times and machine times are provided as 2D lists, where job_times[i][j] represents the processing time of job i on machine j.
+Note that this implementation assumes that the job times and machine times are provided as 2D lists, where 
+`job_times[i][j]` represents the processing time of job `i` on machine `j`.
 
-Keep in mind that this is a simplified implementation, and you may need to modify it according to the specific requirements and constraints of your Job Shop Scheduling problem.
+Keep in mind that this is a simplified implementation, and you may need to modify it according to the specific 
+ requirements and constraints of your Job Shop Scheduling problem.
 
 
 ```python
@@ -497,8 +502,8 @@ print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.soluti
 
 In this example, the graph is represented as a NumPy array where each element represents the cost or distance between two nodes.
 
-Note that this implementation assumes that the graph is represented by a symmetric matrix, where graph[i,j] 
-represents the distance between nodes i and j. If your graph representation is different, you may need to modify 
+Note that this implementation assumes that the graph is represented by a symmetric matrix, where `graph[i,j]` 
+represents the distance between nodes `i` and `j`. If your graph representation is different, you may need to modify 
 the code accordingly.
 
 Please keep in mind that this implementation is a basic example and may not be optimized for large-scale problems. 
@@ -644,6 +649,75 @@ print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.soluti
 
 ```
 
+
+**Supply Chain Optimization**
+
+Let's assume we have a supply chain network with 5 distribution centers (DC1, DC2, DC3, DC4, DC5) and 10 products 
+(P1, P2, P3, ..., P10). Our goal is to determine the optimal allocation of products to the distribution centers in 
+a way that minimizes the total transportation cost.
+
+Each solution represents an allocation of products to distribution centers. We can use a binary matrix with 
+dimensions `(10, 5)` where each element `(i, j)` represents whether product `i` is allocated to distribution center `j`. 
+For example, a chromosome `[1, 0, 1, 0, 1]` would mean that product `1` is allocated to `DC1`, `DC3`, `DC5`.
+
+We can add the maximum capacity of each distribution center, therefor we need penalty term to the fitness 
+evaluation function to penalize solutions that violate this constraint. The penalty can be based on the degree of 
+violation or a fixed penalty value.
+
+
+```python
+import numpy as np
+from mealpy import BinaryVar, WOA, Problem
+
+# Define the problem parameters
+num_products = 10
+num_distribution_centers = 5
+
+# Define the transportation cost matrix (randomly generated for the example)
+transportation_cost = np.random.randint(1, 10, size=(num_products, num_distribution_centers))
+
+data = {
+    "num_products": num_products,
+    "num_distribution_centers": num_distribution_centers,
+    "transportation_cost": transportation_cost,
+    "max_capacity": 4,      # Maximum capacity of each distribution center
+    "penalty": 1e10         # Define a penalty value for maximum capacity of each distribution center
+}
+
+
+class SupplyChainProblem(Problem):
+    def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
+        self.data = data
+        super().__init__(bounds, minmax, **kwargs)
+
+    def obj_func(self, x):
+        x_decoded = self.decode_solution(x)
+        x = x_decoded["placement_var"].reshape((self.data["num_products"], self.data["num_distribution_centers"]))
+
+        if np.any(np.all(x==0, axis=1)):    
+        # If any row has all 0 value, it indicates that this product is not allocated to any distribution center.
+            return 0
+
+        total_cost = np.sum(self.data["transportation_cost"] * x)
+        # Penalty for violating maximum capacity constraint
+        excess_capacity = np.maximum(np.sum(x, axis=0) - self.data["max_capacity"], 0)
+        penalty = np.sum(excess_capacity)
+        # Calculate fitness value as the inverse of the total cost plus the penalty
+        fitness = 1 / (total_cost + penalty)
+        return fitness
+
+
+bounds = BinaryVar(n_vars=num_products * num_distribution_centers, name="placement_var")
+problem = SupplyChainProblem(bounds=bounds, minmax="max", data=data)
+
+model = WOA.OriginalWOA(epoch=50, pop_size=20)
+model.solve(problem)
+
+print(f"Best agent: {model.g_best}")                    # Encoded solution
+print(f"Best solution: {model.g_best.solution}")        # Encoded solution
+print(f"Best fitness: {model.g_best.target.fitness}")
+print(f"Best real scheduling: {model.problem.decode_solution(model.g_best.solution)['placement_var'].reshape((num_products, num_distribution_centers))}")
+```
 
 
 
