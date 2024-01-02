@@ -28,7 +28,7 @@ can help you determine how to set valid parameters.
    from mealpy import DE, FloatVar
 
    problem = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-10,]*10, ub=[30,]*10),
       "minmax": "min",
    }
@@ -54,7 +54,7 @@ This will definitely be helpful when using ParameterGrid/GridSearchCV from the s
 	from mealpy import DE, FloatVar
 
 	problem = {
-		"fit_func": F5,
+		"obj_func": F5,
 		"bounds": FloatVar(lb=[-10,]*10, ub=[30,]*10),
 		"minmax": "min",
 	}

@@ -9,14 +9,14 @@ the log process.
 .. code-block:: python
 
    problem_dict1 = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       # Default = "console"
    }
 
    problem_dict1 = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "log_to": "console",
@@ -28,7 +28,7 @@ the log process.
 .. code-block:: python
 
    problem_dict2 = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "log_to": "file",
@@ -41,7 +41,7 @@ the log process.
 .. code-block:: python
 
    problem_dict3 = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "log_to": None,

@@ -12,7 +12,7 @@ problem, especially in multitask problems.
    from mealpy.swarm_based import PSO
 
    problem = {
-      "fit_func": F5,
+      "obj_func": F5,
       "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
       "minmax": "min",
       "name": "Benchmark Function 5th"

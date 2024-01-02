@@ -20,7 +20,7 @@ Not recommended to use this utility. But in case you need this:
 		return result
 
 	fm_problem = {
-		"fit_func": frequency_modulated,
+		"obj_func": frequency_modulated,
 		"bounds": FloatVar(lb=[-6.4, ] * 6, ub=[6.35, ] * 6),
 		"minmax": "min",
 		"log_to": "console",
