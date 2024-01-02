@@ -18,8 +18,7 @@
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
-from mealpy.swarm_based import GWO
-from mealpy.evolutionary_based import FPA
+from mealpy import FloatVar, FPA
 from permetrics.regression import RegressionMetric
 
 
@@ -61,12 +60,10 @@ class HybridMlp:
         self.n_inputs = self.X_train.shape[1]
         self.n_dims = (self.n_inputs * self.n_hidden_nodes) + self.n_hidden_nodes + (self.n_hidden_nodes * 1) + 1
         self.problem = {
-            "fit_func": self.fitness_function,
-            "lb": [-1, ] * self.n_dims,
-            "ub": [1, ] * self.n_dims,
+            "obj_func": self.fitness_function,
+            "bounds": FloatVar(lb=(-1.,)*self.n_dims, ub=(1.0,)*self.n_dims),
             "minmax": "min",
             "obj_weights": [0.3, 0.2, 0.5],  # [mae, mse, rmse]
-            "save_population": False,
         }
 
     def prediction(self, solution, data):
@@ -136,4 +133,3 @@ x_input = np.array([210, 220, 230])
 x_input = x_input.reshape((1, n_steps))
 yhat = model.prediction(model.solution, x_input)
 print(yhat)
-

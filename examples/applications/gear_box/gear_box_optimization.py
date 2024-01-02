@@ -1,8 +1,6 @@
 
 from tkinter import W
-from mealpy.swarm_based.WOA import OriginalWOA
-from mealpy.swarm_based.GOA import OriginalGOA
-from mealpy.swarm_based.GWO import OriginalGWO
+from mealpy import FloatVar, WOA, GOA, GWO
 import numpy as np
 
 """
@@ -85,12 +83,11 @@ if __name__ == "__main__":
     N_1 = 1500
     P = 7.5
 
-    problem_dict1 = {
-        "fit_func": gear_box,
-        "lb": [20, 10, 30, 18, 2.75],
-        "ub": [32, 30, 40, 25, 4],
-        "minmax": "min",
+    problem = {
+        "obj_func": gear_box,
+        "bounds": FloatVar(lb=[20, 10, 30, 18, 2.75], ub=[32, 30, 40, 25, 4]),
+        "minmax": "min"
     }
-    model1 = OriginalWOA(epoch=1000, pop_size=500)
-    best_position, best_fitness = model1.solve(problem_dict1)
-    print(f"Best solution: {best_position}, Best fitness: {best_fitness}")
+    model1 = WOA.OriginalWOA(epoch=1000, pop_size=500)
+    gbest = model1.solve(problem)
+    print(f"Best solution: {gbest.solution}, Best fitness: {gbest.target.fitness}")
