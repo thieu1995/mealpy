@@ -110,7 +110,7 @@ class Termination:
             self.message = "Stopping criterion with maximum number of function evaluations (FE) occurred. End program!"
             return True
         # Check maximum time
-        if self.max_time is not None and current_time >= self.max_time:
+        if self.max_time is not None and current_time - self.start_time >= self.max_time:
             self.message = "Stopping criterion with maximum running time/time bound (TB) (seconds) occurred. End program!"
             return True
         # Check early stopping
