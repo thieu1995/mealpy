@@ -163,10 +163,10 @@ class AdaptiveBA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.loudness_min = self.validator.check_float("loudness_min", loudness_min, [0.5, 1.5])
         self.loudness_max = self.validator.check_float("loudness_max", loudness_max, [1.5, 3.0])
-        self.pr_min = self.validator.check_float("pr_min", pr_min, (0, 1.0))
-        self.pr_max = self.validator.check_float("pr_max", pr_max, (0, 1.0))
-        self.pf_min = self.validator.check_float("pf_min", pf_min, [-10, 0])
-        self.pf_max = self.validator.check_float("pf_max", pf_max, [0, 10])
+        self.pr_min = self.validator.check_float("pr_min", pr_min, [-10., 10.])
+        self.pr_max = self.validator.check_float("pr_max", pr_max, [-10., 10.])
+        self.pf_min = self.validator.check_float("pf_min", pf_min, [-10., 10.])
+        self.pf_max = self.validator.check_float("pf_max", pf_max, [0., 10.])
         self.alpha = self.gamma = 0.9
         self.set_parameters(["epoch", "pop_size", "loudness_min", "loudness_max", "pr_min", "pr_max", "pf_min", "pf_max"])
         self.sort_flag = False
