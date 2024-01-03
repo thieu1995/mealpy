@@ -70,7 +70,6 @@ class OriginalMPA(Optimizer):
             epoch (int): The current iteration
         """
         CF = (1 - epoch/self.epoch)**(2 * epoch/self.epoch)
-        # RL = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=(self.pop_size, self.problem.n_dims), case=-1)
         RL = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=(self.pop_size, self.problem.n_dims), case=-1)
         RB = self.generator.standard_normal((self.pop_size, self.problem.n_dims))
         per1 = self.generator.permutation(self.pop_size)
@@ -78,11 +77,10 @@ class OriginalMPA(Optimizer):
         pop_new = []
         for idx in range(0, self.pop_size):
             R = self.generator.random(self.problem.n_dims)
-            t = self.epoch
-            if t < self.epoch / 3:     # Phase 1 (Eq.12)
+            if epoch < self.epoch / 3:     # Phase 1 (Eq.12)
                 step_size = RB[idx] * (self.g_best.solution - RB[idx] * self.pop[idx].solution)
                 pos_new = self.pop[idx].solution + self.P * R * step_size
-            elif self.epoch / 3 < t < 2*self.epoch / 3:     # Phase 2 (Eqs. 13 & 14)
+            elif self.epoch / 3 < epoch < 2*self.epoch / 3:     # Phase 2 (Eqs. 13 & 14)
                 if idx > self.pop_size / 2:
                     step_size = RB[idx] * (RB[idx] * self.g_best.solution - self.pop[idx].solution)
                     pos_new = self.g_best.solution + self.P * CF * step_size
