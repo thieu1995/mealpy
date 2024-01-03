@@ -17,8 +17,8 @@ class OriginalFOX(Optimizer):
         2. https://www.mathworks.com/matlabcentral/fileexchange/121592-fox-a-fox-inspired-optimization-algorithm
 
     Notes (parameters):
-        1. c1 (float): the probability of jumping (c1 in the paper), default = 0.18
-        2. c2 (float): the probability of jumping (c2 in the paper), default = 0.82
+        1. c1 (float): the coefficient of jumping (c1 in the paper), default = 0.18
+        2. c2 (float): the coefficient of jumping (c2 in the paper), default = 0.82
 
     Notes:
         1. The equation used to calculate the distance_S_travel value in the Matlab code seems to be lacking in meaning.
@@ -48,19 +48,12 @@ class OriginalFOX(Optimizer):
     [1] Mohammed, H., & Rashid, T. (2023). FOX: a FOX-inspired optimization algorithm. Applied Intelligence, 53(1), 1030-1050.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 0.18, c2: float = 0.82, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            c1 (float): the probability of jumping (c1 in the paper), default = 0.18
-            c2 (float): the probability of jumping (c2 in the paper), default = 0.82
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-        self.c1 = self.validator.check_float("c1", c1, (-100., 100.))      # c1 in the paper
-        self.c2 = self.validator.check_float("c2", c2, (-100., 100.))      # c2 in the paper
-        self.set_parameters(["epoch", "pop_size"])
+        self.c1 = self.validator.check_float("c1", c1, (-100., 100.))
+        self.c2 = self.validator.check_float("c2", c2, (-100., 100.))
+        self.set_parameters(["epoch", "pop_size", "c1", "c2"])
         self.sort_flag = False
 
     def initialize_variables(self):
@@ -90,8 +83,93 @@ class OriginalFOX(Optimizer):
                 if self.mint > tt:
                     self.mint = tt
             else:
+                pos_new = self.g_best.solution * self.generator.random(self.problem.n_dims) * (self.mint * aa)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = agent
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(pop_new)
+
+
+class DevFOX(Optimizer):
+    """
+    The developed version of: Fox Optimizer (FOX)
+
+    Notes (parameters):
+        1. c1 (float): the coefficient of jumping (c1 in the paper), default = 0.18
+        2. c2 (float): the coefficient of jumping (c2 in the paper), default = 0.82
+        3. pp (float): the probability of choosing the exploration and exploitation phase, default=0.5
+
+    Notes:
+        1. Set parameter pp = 0.18 if you want to same as Original version
+        2. The different between Dev and Original version is the equation: self.g_best.solution + self.generator.standard_normal(self.problem.n_dims) * (self.mint * aa)
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, FOX
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = FOX.DevFOX(epoch=1000, pop_size=50, c1=0.18, c2=0.82, pp=0.5)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mohammed, H., & Rashid, T. (2023). FOX: a FOX-inspired optimization algorithm. Applied Intelligence, 53(1), 1030-1050.
+    """
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 0.18, c2: float = 0.82,
+                 pp=0.5, **kwargs: object) -> None:
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.c1 = self.validator.check_float("c1", c1, (-100., 100.))
+        self.c2 = self.validator.check_float("c2", c2, (-100., 100.))
+        self.pp = self.validator.check_float("pp", pp, (0.0, 1.0))
+        self.set_parameters(["epoch", "pop_size", "c1", "c2", "pp"])
+        self.sort_flag = False
+
+    def initialize_variables(self):
+        self.mint = 10000000
+
+    def evolve(self, epoch):
+        """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
+        Args:
+            epoch (int): The current iteration
+        """
+        aa = 2 * (1 - (1.0 / self.epoch))
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            if self.generator.random() >= 0.5:
+                t1 = self.generator.random(self.problem.n_dims)
+                sps = self.g_best.solution / t1
+                dis = 0.5 * sps * t1
+                tt = np.mean(t1)
+                t = tt / 2
+                jump = 0.5 * 9.81 * t ** 2
+                if self.generator.random() > self.pp:
+                    pos_new = dis * jump * self.c1
+                else:
+                    pos_new = dis * jump * self.c2
+                if self.mint > tt:
+                    self.mint = tt
+            else:
                 pos_new = self.g_best.solution + self.generator.standard_normal(self.problem.n_dims) * (self.mint * aa)
-            pos_new =self.correct_solution(pos_new)
+            pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
