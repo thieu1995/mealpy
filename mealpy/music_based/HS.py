@@ -156,7 +156,9 @@ class OriginalHS(DevHS):
                     pos_new[jdx] = self.pop[random_index].solution[jdx]
                 # Pitch Adjustment
                 if self.generator.uniform() <= self.pa_r:
-                    delta = self.dyn_fw * self.generator.normal(self.problem.lb, self.problem.ub)  # Gaussian(Normal)
+                    mean = (self.problem.lb + self.problem.ub) / 2
+                    std_dev = abs(self.problem.ub - self.problem.lb) / 6  # This assumes a range of +/- 3 standard deviations
+                    delta = self.dyn_fw * self.generator.normal(mean, std_dev)      # Gaussian(Normal)
                     pos_new[jdx] = pos_new[jdx] + delta[jdx]
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
