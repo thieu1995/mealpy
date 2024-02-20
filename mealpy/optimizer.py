@@ -632,7 +632,7 @@ class Optimizer:
             list_fitness = np.array(list_fitness).flatten()
         if list_fitness.ptp() == 0:
             return int(self.generator.integers(0, len(list_fitness)))
-        if np.any(list_fitness) < 0:
+        if np.any(list_fitness < 0):
             list_fitness = list_fitness - np.min(list_fitness)
         final_fitness = list_fitness
         if self.problem.minmax == "min":
