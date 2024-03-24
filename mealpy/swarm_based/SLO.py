@@ -28,7 +28,7 @@ class OriginalSLO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
     >>>     "obj_func": objective_function
     >>> }
@@ -111,7 +111,7 @@ class ModifiedSLO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
     >>>     "obj_func": objective_function
     >>> }
@@ -224,7 +224,7 @@ class ImprovedSLO(ModifiedSLO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "minmax": "min",
     >>>     "obj_func": objective_function
     >>> }
