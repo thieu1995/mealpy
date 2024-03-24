@@ -13,7 +13,7 @@
 # >>>     return np.sum(solution ** 2)
 # >>>
 # >>> p1 = {
-# >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+# >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
 # >>>     "minmax": "min",
 # >>>     "obj_func": objective_function,
 # >>>     "save_population": True,  # To be able to draw the trajectory figure
