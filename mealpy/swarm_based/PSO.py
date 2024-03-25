@@ -27,7 +27,7 @@ class OriginalPSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -123,7 +123,7 @@ class AIW_PSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -226,7 +226,7 @@ class LDW_PSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -322,7 +322,7 @@ class P_PSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -411,7 +411,7 @@ class HPSO_TVAC(P_PSO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -496,7 +496,7 @@ class C_PSO(P_PSO):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }
@@ -616,7 +616,7 @@ class CL_PSO(Optimizer):
     >>>     return np.sum(solution**2)
     >>>
     >>> problem_dict = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
     >>>     "obj_func": objective_function,
     >>>     "minmax": "min",
     >>> }

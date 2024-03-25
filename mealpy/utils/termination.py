@@ -40,7 +40,7 @@ class Termination:
     >>>     return np.sum(solution**2)
     >>>
     >>> p1 = {
-    >>>     "bounds": FloatVar(n_vars=30, lb=(-10.,) * 30, ub=(10.,) * 30, name="C-params"),
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="C-params"),
     >>>     "minmax": "min",
     >>>     "obj_func": objective_function,
     >>>     "name": "Test Function"

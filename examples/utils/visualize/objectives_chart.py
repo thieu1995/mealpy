@@ -20,7 +20,7 @@ def fitness_function(solution):
 
 problem = {
     "fit_func": fitness_function,
-    "bounds": FloatVar(n_vars=8, lb=[-10, -5, -15, -20, -10, -15, -10, -30], ub=[10, 5, 15, 20, 50, 30, 100, 85]),
+    "bounds": FloatVar(lb=[-10, -5, -15, -20, -10, -15, -10, -30], ub=[10, 5, 15, 20, 50, 30, 100, 85]),
     "minmax": "min",
     "obj_weights": [0.2, 0.5, 0.3]
 }
