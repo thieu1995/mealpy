@@ -26,7 +26,7 @@ class MyProblem(Problem):
         self.data = data
         super().__init__(bounds, minmax, **kwargs)
 
-    def fit_func(self, x: np.ndarray):
+    def obj_func(self, x: np.ndarray):
         # Decode solution from real value to real-world solution
         x = self.decode_solution(x)
         opt, learning_rate, epoch = x["optimizer"], x["learning-rate"], x["epoch"]
