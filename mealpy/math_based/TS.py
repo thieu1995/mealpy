@@ -91,6 +91,11 @@ class OriginalTS(Optimizer):
             list_candidates.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
                 list_candidates[-1].target = self.get_target(pos_new)
+
+        # No available candidates, stay in the current x
+        if not list_candidates:
+            return
+
         list_candidates = self.update_target_for_population(list_candidates)
         best_candidate = self.get_best_agent(list_candidates, self.problem.minmax)
         self.x = best_candidate.solution
