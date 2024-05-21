@@ -19,8 +19,7 @@ Let's say we want to solve Travelling Salesman Problem (TSP),
 
 
 	class DOP(Problem):
-	    def __init__(self, bounds, minmax, name="DOP", CITY_POSITIONS=None, **kwargs):
-	        self.name = name
+	    def __init__(self, bounds, minmax, CITY_POSITIONS=None, **kwargs):
 	        self.CITY_POSITIONS = CITY_POSITIONS
 	        super().__init__(bounds, minmax, **kwargs)
 

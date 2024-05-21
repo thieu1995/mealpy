@@ -51,8 +51,7 @@ list of objective values, and set the objective weights corresponding to each va
 
 	## Define a custom child class of Problem class.
 	class MOP(Problem):
-	    def __init__(self, bounds=None, minmax="min", name="MOP", **kwargs):
-	        self.name = name
+	    def __init__(self, bounds=None, minmax="min", **kwargs):
 	        super().__init__(bounds, minmax, **kwargs)
 
 		def booth(x, y):

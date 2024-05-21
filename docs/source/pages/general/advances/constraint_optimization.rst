@@ -69,8 +69,7 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 
 	## Define a custom child class of Problem class.
 	class COP(Problem):
-	    def __init__(self, lb, ub, minmax, name="COP", **kwargs):
-	        self.name = name
+	    def __init__(self, lb, ub, minmax, **kwargs):
 	        super().__init__(lb, ub, minmax, **kwargs)
 
 		def g1(x):

@@ -12,8 +12,7 @@ additional data that may be needed.
 	from mealpy import PSO, FloatVar, Problem
 
 	class NeuralNetwork(Problem):
-	    def __init__(self, bounds=None, minmax, name="NeuralNetwork", dataset=None, additional=None, **kwargs):
-	        self.name = name
+	    def __init__(self, bounds=None, minmax, dataset=None, additional=None, **kwargs):
 			self.dataset = dataset
 			self.additional = additional
 	        super().__init__(bounds, minmax, **kwargs)
