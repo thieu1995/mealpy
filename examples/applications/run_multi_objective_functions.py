@@ -51,8 +51,7 @@ import numpy as np
 
 # Our custom problem class
 class Squared(Problem):
-    def __init__(self, bounds=None, minmax="min", name="Squared", data=None, **kwargs):
-        self.name = name
+    def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
         self.data = data
         super().__init__(bounds, minmax, **kwargs)
 

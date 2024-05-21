@@ -42,7 +42,7 @@ data = {
 
 }
 
-problem = MyProblem(bounds=PermutationVar(valid_set=(0, 1, 2, 3, 4), name="delta"),
+problem = MyProblem(bounds=PermutationVar(valid_set=(0, 1, 2, 3, 4), name="delta"), name="Wow",
                     minmax="min", data=data, log_to="console")
 
 model = ACOR.OriginalACOR(epoch=50, pop_size=20, sample_count = 25, intent_factor = 0.5, zeta = 1.0)
@@ -50,3 +50,5 @@ g_best = model.solve(problem)
 print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
 print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
 print(f"The real solution: {problem.decode_solution(g_best.solution)['delta']}")
+print(problem.get_name())
+print(model.problem.get_name())
