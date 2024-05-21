@@ -63,7 +63,7 @@ Getting started in 30s
 
 	problem_dict = {
 	    "obj_func": objective_func,
-	    "bounds": FloatVar(lb=[-100, ] * 30, ub=[100, ] * 30,)
+	    "bounds": FloatVar(lb=[-100, ] * 30, ub=[100, ] * 30,),
 	    "minmax": "min",
 	}
 
