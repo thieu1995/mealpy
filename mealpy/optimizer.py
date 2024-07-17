@@ -240,6 +240,10 @@ class Optimizer:
             pop_temp, self.g_best = self.update_global_best_agent(self.pop)
             if self.sort_flag: self.pop = pop_temp
 
+            #These are my own code to get the epoch number
+            print(self.g_best)
+            print(epoch)
+
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch, time_epoch)
             if self.check_termination("end", None, epoch):
