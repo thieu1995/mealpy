@@ -245,8 +245,8 @@ class Optimizer:
             if self.sort_flag: self.pop = pop_temp
 
             #These are my own code to get the epoch number
-            print(float(str(self.g_best).split(',')[2].split(':')[1]))
-            print(epoch)
+            #print(float(str(self.g_best).split(',')[2].split(':')[1]))
+            #print(epoch)
 
             if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 2:
                 self.dictionary[count] = (float(str(self.g_best).split(',')[2].split(':')[1]), epoch)
