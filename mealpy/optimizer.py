@@ -261,11 +261,11 @@ class Optimizer:
         return self.g_best, eopch_found
 
     def solve_multiple_times(self, problem, mode='single', n_workers=None, termination=None, starting_solutions=None, seed=None, trials=100):
-    for trial in range(trials):
-        g_best, epoch_found = self.solve_once(problem, mode, n_workers, termination, starting_solutions, seed)
-        if epoch_found is not None:
-            self.epoch_results.append(epoch_found)
-    return self.epoch_results
+        for trial in range(trials):
+            g_best, epoch_found = self.solve_once(problem, mode, n_workers, termination, starting_solutions, seed)
+            if epoch_found is not None:
+                self.epoch_results.append(epoch_found)
+        return self.epoch_results
 
     def track_optimize_step(self, pop: List[Agent] = None, epoch: int = None, runtime: float = None) -> None:
         """
