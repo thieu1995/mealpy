@@ -241,8 +241,7 @@ class Optimizer:
             if self.sort_flag: self.pop = pop_temp
 
             #These are my own code to get the epoch number
-            print(type(self.g_best))
-            print(str(self.g_best).split(',')[2])
+            print(int(str(self.g_best).split(',')[2].split(':')[1]))
             print(epoch)
 
             time_epoch = time.perf_counter() - time_epoch
