@@ -50,6 +50,9 @@ class Optimizer:
         self.__set_keyword_arguments(kwargs)
         self.validator = Validator(log_to="console", log_file=None)
 
+        # written by me
+        self.dictionary = {}
+
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag = False
         self.nfe_counter = -1  # The first one is tested in Problem class
@@ -230,6 +233,7 @@ class Optimizer:
         self.after_initialization()
 
         self.before_main_loop()
+        count = 0
         for epoch in range(1, self.epoch + 1):
             time_epoch = time.perf_counter()
 
@@ -244,6 +248,11 @@ class Optimizer:
             print(float(str(self.g_best).split(',')[2].split(':')[1]))
             print(epoch)
 
+            if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 2:
+                self.dictionary[count] = (float(str(self.g_best).split(',')[2].split(':')[1]), epoch)
+                count += 1
+                
+
             
 
             time_epoch = time.perf_counter() - time_epoch
@@ -251,7 +260,7 @@ class Optimizer:
             if self.check_termination("end", None, epoch):
                 break
         self.track_optimize_process()
-        return self.g_best
+        return self.g_best, self.dictionary
 
     def track_optimize_step(self, pop: List[Agent] = None, epoch: int = None, runtime: float = None) -> None:
         """
