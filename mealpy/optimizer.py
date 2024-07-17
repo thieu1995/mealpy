@@ -268,6 +268,7 @@ class Optimizer:
                 self.epoch_results.append(21)
             if epoch_found is not None:
                 self.epoch_results.append(epoch_found)
+            print(self.epoch_results)
         return self.epoch_results
 
     def track_optimize_step(self, pop: List[Agent] = None, epoch: int = None, runtime: float = None) -> None:
