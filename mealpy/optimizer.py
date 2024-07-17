@@ -242,7 +242,7 @@ class Optimizer:
 
             #These are my own code to get the epoch number
             print(type(self.g_best))
-            print(self.g_best.split(',')[2])
+            print(str(self.g_best).split(',')[2])
             print(epoch)
 
             time_epoch = time.perf_counter() - time_epoch
