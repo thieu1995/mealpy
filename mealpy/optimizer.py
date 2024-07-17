@@ -252,10 +252,8 @@ class Optimizer:
             #print(epoch)
 
             if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 5:
-                epoch_found_x5 = epoch
-                if count != 1 & float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
-                    eoch_found_x3 = epoch
-                    break
+                if epoch_found_x3 == None:
+                    epoch_found_x3 = epoch
             
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch, time_epoch)
