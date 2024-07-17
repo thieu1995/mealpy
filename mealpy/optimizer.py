@@ -235,7 +235,8 @@ class Optimizer:
         self.before_main_loop()
 
         #written by me
-        epoch_found = None
+        epoch_found_x3 = None
+        count = 1
         for epoch in range(1, self.epoch + 1):
             time_epoch = time.perf_counter()
 
@@ -250,16 +251,19 @@ class Optimizer:
             #print(float(str(self.g_best).split(',')[2].split(':')[1]))
             #print(epoch)
 
-            if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
-                epoch_found = epoch
-                break
+            if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 5:
+                epoch_found_x5 = epoch
+                if count != 1 & float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
+                    eoch_found_x3 = epoch
+                    break
             
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch, time_epoch)
+            count += 1
             if self.check_termination("end", None, epoch):
                 break
         self.track_optimize_process()
-        return self.g_best, epoch_found
+        return self.g_best, epoch_found_x3
 
     def solve_multiple_times(self, problem, mode='single', n_workers=None, termination=None, starting_solutions=None, seed=None, trials=100):
         for trial in range(trials):
