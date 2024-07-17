@@ -51,7 +51,7 @@ class Optimizer:
         self.validator = Validator(log_to="console", log_file=None)
 
         # written by me
-        self.dictionary = {}
+        self.epoch_results = []
 
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag = False
@@ -233,7 +233,9 @@ class Optimizer:
         self.after_initialization()
 
         self.before_main_loop()
-        count = 0
+
+        #written by me
+        epoch_found = None
         for epoch in range(1, self.epoch + 1):
             time_epoch = time.perf_counter()
 
@@ -249,18 +251,21 @@ class Optimizer:
             #print(epoch)
 
             if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
-                self.dictionary[count] = (float(str(self.g_best).split(',')[2].split(':')[1]), epoch)
-                count += 1
-                
-
+                epoch_found = epoch
             
-
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch, time_epoch)
             if self.check_termination("end", None, epoch):
                 break
         self.track_optimize_process()
-        return self.g_best, self.dictionary
+        return self.g_best, eopch_found
+
+    def solve_multiple_times(self, problem, mode='single', n_workers=None, termination=None, starting_solutions=None, seed=None, trials=100):
+    for trial in range(trials):
+        g_best, epoch_found = self.solve_once(problem, mode, n_workers, termination, starting_solutions, seed)
+        if epoch_found is not None:
+            self.epoch_results.append(epoch_found)
+    return self.epoch_results
 
     def track_optimize_step(self, pop: List[Agent] = None, epoch: int = None, runtime: float = None) -> None:
         """
