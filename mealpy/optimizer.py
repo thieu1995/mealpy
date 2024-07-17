@@ -248,7 +248,7 @@ class Optimizer:
             #print(float(str(self.g_best).split(',')[2].split(':')[1]))
             #print(epoch)
 
-            if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 2:
+            if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
                 self.dictionary[count] = (float(str(self.g_best).split(',')[2].split(':')[1]), epoch)
                 count += 1
                 
