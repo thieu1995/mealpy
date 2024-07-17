@@ -267,7 +267,7 @@ class Optimizer:
         for trial in range(trials):
             g_best, epoch_found = self.solve_once(problem, mode, n_workers, termination, starting_solutions, seed)
             if epoch_found is None:
-                self.epoch_results.append(21)
+                self.epoch_results.append(41)
             if epoch_found is not None:
                 self.epoch_results.append(epoch_found)
             print(self.epoch_results)
