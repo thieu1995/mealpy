@@ -258,7 +258,7 @@ class Optimizer:
             if self.check_termination("end", None, epoch):
                 break
         self.track_optimize_process()
-        return self.g_best, eopch_found
+        return self.g_best, epoch_found
 
     def solve_multiple_times(self, problem, mode='single', n_workers=None, termination=None, starting_solutions=None, seed=None, trials=100):
         for trial in range(trials):
