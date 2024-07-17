@@ -252,6 +252,7 @@ class Optimizer:
 
             if float(str(self.g_best).split(',')[2].split(':')[1]) < 26 * 3:
                 epoch_found = epoch
+                break
             
             time_epoch = time.perf_counter() - time_epoch
             self.track_optimize_step(self.pop, epoch, time_epoch)
@@ -263,6 +264,8 @@ class Optimizer:
     def solve_multiple_times(self, problem, mode='single', n_workers=None, termination=None, starting_solutions=None, seed=None, trials=100):
         for trial in range(trials):
             g_best, epoch_found = self.solve_once(problem, mode, n_workers, termination, starting_solutions, seed)
+            if epoch_found is None:
+                self.epoch_results.append(21)
             if epoch_found is not None:
                 self.epoch_results.append(epoch_found)
         return self.epoch_results
