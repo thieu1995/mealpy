@@ -655,16 +655,12 @@ class Optimizer:
             int: Index of selected solution
         """
         if type(list_fitness) in [list, tuple, np.ndarray]:
-            print(list_fitness, 'in [list, tuple, np.darray]')
             list_fitness = np.array(list_fitness).flatten()
         if np.ptp(list_fitness) == 0:
-            print(list_fitness, 'np.ptp(list_fitness)')
             return int(self.generator.integers(0, len(list_fitness)))
         if np.any(list_fitness < 0):
-            print(list_fitness, 'np.any(list_fitness < 0)')
             list_fitness = list_fitness - np.min(list_fitness)
         final_fitness = list_fitness
-        print(final_fitness)
         if self.problem.minmax == "min":
             final_fitness = np.max(list_fitness) - list_fitness
         prob = final_fitness / np.sum(final_fitness)
