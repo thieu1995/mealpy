@@ -251,7 +251,7 @@ class Optimizer:
             #print(float(str(self.g_best).split(',')[2].split(':')[1]))
             #print(epoch)
 
-            if float(str(self.g_best).split(',')[2].split(':')[1]) <= 72:
+            if float(str(self.g_best).split(',')[2].split(':')[1]) <= 0.164:
                 if epoch_found_x3 == None:
                     epoch_found_x3 = epoch
             
