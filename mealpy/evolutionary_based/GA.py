@@ -317,8 +317,7 @@ class BaseGA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-2].target = self.get_target(child1)
                 pop_new[-1].target = self.get_target(child2)
-                
-                print(self.get_target(child1))
+            
         if self.mode in self.AVAILABLE_MODES:
             
             pop_new = self.update_target_for_population(pop_new)
