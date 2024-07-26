@@ -295,22 +295,32 @@ class BaseGA(Optimizer):
         for i in range(0, int(self.pop_size/2)):
             ### Selection
             child1, child2 = self.selection_process__(list_fitness)
+            
+            print(child1)
+            print(repr(child1))
 
             ### Crossover
             if self.generator.random() < self.pc:
                 child1, child2 = self.crossover_process__(child1, child2)
-                print(child1)
-                print(repr(child1))
+
 
             ### Mutation
             child1 = self.mutation_process__(child1)
             child2 = self.mutation_process__(child2)
 
+            print(child1)
+            print(repr(child1))
+            
             child1 = self.correct_solution(child1)
             child2 = self.correct_solution(child2)
 
+            print(child1)
+            print(repr(child1))
+
             agent1 = self.generate_empty_agent(child1)
             agent2 = self.generate_empty_agent(child2)
+            print(agent1)
+            print(repr(agent1))
 
             pop_new.append(agent1)
             pop_new.append(agent2)
