@@ -317,12 +317,13 @@ class BaseGA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-2].target = self.get_target(child1)
                 pop_new[-1].target = self.get_target(child2)
-                print(pop_new)
-                print(repr(pop_new))
+                print(child1)
+                print(self.get_target(child1))
         if self.mode in self.AVAILABLE_MODES:
+            print((pop_new))
             pop_new = self.update_target_for_population(pop_new)
             print(pop_new)
-            print(repr(pop_new))
+            
         ### Survivor Selection
         self.pop = self.survivor_process__(self.pop, pop_new)
         print(self.pop)
