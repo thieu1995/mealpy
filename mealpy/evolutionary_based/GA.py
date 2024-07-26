@@ -299,6 +299,8 @@ class BaseGA(Optimizer):
             ### Crossover
             if self.generator.random() < self.pc:
                 child1, child2 = self.crossover_process__(child1, child2)
+                print(child1)
+                print(repr(child1)
 
             ### Mutation
             child1 = self.mutation_process__(child1)
