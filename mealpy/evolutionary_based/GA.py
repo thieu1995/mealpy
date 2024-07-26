@@ -296,9 +296,6 @@ class BaseGA(Optimizer):
             ### Selection
             child1, child2 = self.selection_process__(list_fitness)
             
-            print(child1)
-            print(repr(child1))
-
             ### Crossover
             if self.generator.random() < self.pc:
                 child1, child2 = self.crossover_process__(child1, child2)
@@ -308,19 +305,11 @@ class BaseGA(Optimizer):
             child1 = self.mutation_process__(child1)
             child2 = self.mutation_process__(child2)
 
-            print(child1)
-            print(repr(child1))
-            
             child1 = self.correct_solution(child1)
             child2 = self.correct_solution(child2)
 
-            print(child1)
-            print(repr(child1))
-
             agent1 = self.generate_empty_agent(child1)
             agent2 = self.generate_empty_agent(child2)
-            print(agent1)
-            print(repr(agent1))
 
             pop_new.append(agent1)
             pop_new.append(agent2)
@@ -328,10 +317,15 @@ class BaseGA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-2].target = self.get_target(child1)
                 pop_new[-1].target = self.get_target(child2)
+                print(pop_new)
+                print(repr(pop_new))
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
+            print(pop_new)
+            print(repr(pop_new))
         ### Survivor Selection
         self.pop = self.survivor_process__(self.pop, pop_new)
+        print(self.pop)
 
 
 class SingleGA(BaseGA):
