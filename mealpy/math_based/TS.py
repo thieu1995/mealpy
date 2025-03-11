@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 06:25, 17/06/2023 ----------%                                                                               
-#       Email: nguyenthieu2102@gmail.com            %                                                    
-#       Github: https://github.com/thieu1995        %                         
+# Created by "Thieu" at 06:25, 17/06/2023 ----------%
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
 import numpy as np
@@ -69,6 +69,7 @@ class OriginalTS(Optimizer):
     def before_main_loop(self):
         self.x = self.g_best.solution.copy()
         self.tabu_list = []
+        self.pop = []
 
     def evolve(self, epoch):
         """
@@ -96,5 +97,7 @@ class OriginalTS(Optimizer):
         self.x = best_candidate.solution
         # Update tabu list
         self.tabu_list.append(tuple(self.x))
+        self.pop.append(best_candidate)
         if len(self.tabu_list) > self.tabu_size:
             self.tabu_list.pop(0)
+            self.pop.pop(0)
