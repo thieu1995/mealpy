@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Created by "Thieu" at 21:34, 11/03/2023 ----------%
-#       Email: nguyenthieu2102@gmail.com            %                                                    
-#       Github: https://github.com/thieu1995        %                         
+#       Email: nguyenthieu2102@gmail.com            %
+#       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
 from mealpy.optimizer import Optimizer
@@ -65,7 +65,7 @@ class OriginalServalOA(Optimizer):
             epoch (int): The current iteration
         """
         kk = self.generator.permutation(self.pop_size)[0]
-        for idx in range(0, self.pop_size):
+        for idx in range(self.pop_size):
             # Phase 1: Prey Selection and Attacking (Exploration)
             pos_new = self.pop[idx].solution + self.generator.random(self.problem.n_dims) * \
                       (self.pop[kk].solution - self.generator.integers(1, 3, self.problem.n_dims) * self.pop[idx].solution)

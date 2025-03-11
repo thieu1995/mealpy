@@ -85,10 +85,10 @@ mealpy.human\_based.LCO module
 mealpy.human\_based.PO module
 -----------------------------
 
-.. automodule:: mealpy.human_based.PO
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: mealpy.human_based.PO
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:
 
 mealpy.human\_based.QSA module
 ------------------------------
