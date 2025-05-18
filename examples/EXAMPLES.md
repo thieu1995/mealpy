@@ -48,7 +48,7 @@
 
 * Please don't misunderstand between parameters (hyper-parameters) and variables.
 * Assumption that you have to find minimum of function F(x) = x1^3 + x2^2 + x3^4 with
-  (-1 <= x1 <= 4), (5 <= x2 <= 10) and (-7 <= x2 <= -4). Then
+  (-1 <= x1 <= 4), (5 <= x2 <= 10) and (-7 <= x3 <= -4). Then
 
     * Your solution is x = [x1, x2, x3], x1, x2, x3 here are the variables.
     * The number of dimension (problem size) = 3 (variables)
