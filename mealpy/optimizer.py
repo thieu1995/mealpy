@@ -159,7 +159,6 @@ class Optimizer:
             raise ValueError("problem needs to be a dict or an instance of Problem class.")
         self.generator = np.random.default_rng(seed)
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
-        self.logger.info(self.problem.msg)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
         self.pop, self.g_best, self.g_worst = None, None, None
 

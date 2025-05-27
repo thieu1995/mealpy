@@ -20,18 +20,52 @@ class Problem:
         self._bounds, self.lb, self.ub = None, None, None
         self.minmax = minmax
         self.seed = None
-        self.name, self.log_to, self.log_file = "P", "console", "history.txt"
-        self.n_objs, self.obj_weights = 1, None
+        self._n_objs, self._obj_weights = None, None
         self.n_dims, self.save_population = None, False
+        self.name, self.log_to, self.log_file = "P", "console", "history.txt"
         self.__set_keyword_arguments(kwargs)
         self.set_bounds(bounds)
-        self.__set_functions()
         self.logger = Logger(self.log_to, log_file=self.log_file).create_logger(name=f"{__name__}.{__class__.__name__}",
                                     format_str='%(asctime)s, %(levelname)s, %(name)s [line: %(lineno)d]: %(message)s')
 
     @property
     def bounds(self):
         return self._bounds
+
+    @property
+    def n_objs(self):
+        if self._n_objs is None:
+            x = self.generate_solution(encoded=True)
+            result = self.obj_func(x)
+            if isinstance(result, self.SUPPORTED_ARRAYS):
+                self._n_objs = len(np.asarray(result).ravel())
+            elif isinstance(result, numbers.Number):
+                self._n_objs = 1
+            else:
+                raise ValueError("`obj_func` must return a number, list, tuple or numpy array.")
+        return self._n_objs
+
+    @property
+    def obj_weights(self):
+        if self._obj_weights is None:
+            if self.n_objs > 1:
+                self.logger.warning(
+                    f"[Warning] Multi-objective problem detected (n_objs={self.n_objs}), "
+                    f"but `obj_weights` not provided. Defaulting to equal weights."
+                )
+            self._obj_weights = np.ones(self.n_objs)
+        return self._obj_weights
+
+    @obj_weights.setter
+    def obj_weights(self, value):
+        arr = np.asarray(value).ravel()
+        if len(arr) != self.n_objs:
+            raise ValueError(f"`obj_weights` length {len(arr)} does not match number of objectives {self.n_objs}.")
+        self._obj_weights = arr
+
+    def __set_keyword_arguments(self, kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def set_bounds(self, bounds):
         if isinstance(bounds, BaseVar):
@@ -49,41 +83,12 @@ class Problem:
             raise TypeError(f"Invalid bounds. It should be type of {self.SUPPORTED_ARRAYS} or an instance of {self.SUPPORTED_VARS}")
         self.lb = np.concatenate([bound.lb for bound in self._bounds])
         self.ub = np.concatenate([bound.ub for bound in self._bounds])
+        self.n_dims = len(self.lb)
 
     def set_seed(self, seed: int = None) -> None:
         self.seed = seed
         for idx in range(len(self._bounds)):
             self._bounds[idx].seed = seed
-
-    def __set_keyword_arguments(self, kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __set_functions(self):
-        tested_solution = self.generate_solution(encoded=True)
-        self.n_dims = len(tested_solution)
-        result = self.obj_func(tested_solution)
-        if type(result) in self.SUPPORTED_ARRAYS:
-            result = np.array(result).flatten()
-            self.n_objs = len(result)
-            if self.n_objs > 1:
-                if type(self.obj_weights) in self.SUPPORTED_ARRAYS:
-                    self.obj_weights = np.array(self.obj_weights).flatten()
-                    if self.n_objs != len(self.obj_weights):
-                        raise ValueError(f"{self.n_objs}-objective problem, but N weights = {len(self.obj_weights)}.")
-                    self.msg = f"Solving {self.n_objs}-objective optimization problem with weights: {self.obj_weights}."
-                else:
-                    raise ValueError(f"Solving {self.n_objs}-objective optimization, need to set obj_weights list with length: {self.n_objs}")
-            elif self.n_objs == 1:
-                self.obj_weights = np.ones(1)
-                self.msg = f"Solving single objective optimization problem."
-            else:
-                raise ValueError(f"obj_func needs to return a single value or a list of values")
-        elif isinstance(result, numbers.Number):
-            self.obj_weights = np.ones(1)
-            self.msg = f"Solving single objective optimization problem."
-        else:
-            raise ValueError(f"obj_func needs to return a single value or a list of values")
 
     def obj_func(self, x: np.ndarray) -> Union[List, Tuple, np.ndarray, int, float]:
         """Objective function
