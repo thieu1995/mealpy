@@ -6,7 +6,12 @@
 
 import numpy as np
 import operator
+from numbers import Number
 from mealpy.utils.logger import Logger
+
+SEQUENCE = (list, tuple, np.ndarray)
+DIGIT = (int, np.integer)
+REAL = (float, np.floating)
 
 
 def is_in_bound(value, bound):
@@ -45,7 +50,7 @@ class Validator:
             setattr(self, key, value)
 
     def check_int(self, name:str, value: int, bound=None):
-        if type(value) in [int, float]:
+        if isinstance(value, Number):
             if bound is None:
                 return int(value)
             elif is_in_bound(value, bound):
@@ -54,7 +59,7 @@ class Validator:
         raise ValueError(f"'{name}' is an integer {bound}.")
 
     def check_float(self, name: str, value: float, bound=None):
-        if type(value) in [int, float]:
+        if isinstance(value, Number):
             if bound is None:
                 return float(value)
             elif is_in_bound(value, bound):
@@ -77,8 +82,8 @@ class Validator:
         raise ValueError(f"'{name}' is a boolean {bound}.")
 
     def check_tuple_int(self, name: str, values: tuple, bounds=None):
-        if type(values) in [tuple, list] and len(values) > 1:
-            value_flag = [type(item) == int for item in values]
+        if isinstance(values, SEQUENCE) and len(values) > 1:
+            value_flag = [isinstance(item, DIGIT) for item in values]
             if np.all(value_flag):
                 if bounds is not None and len(bounds) == len(values):
                     value_flag = [is_in_bound(item, bound) for item, bound in zip(values, bounds)]
@@ -90,8 +95,8 @@ class Validator:
         raise ValueError(f"'{name}' are integer {bounds}.")
 
     def check_tuple_float(self, name: str, values: tuple, bounds=None):
-        if type(values) in [tuple, list] and len(values) > 1:
-            value_flag = [type(item) in [int, float] for item in values]
+        if isinstance(values, SEQUENCE) and len(values) > 1:
+            value_flag = [isinstance(item, Number) for item in values]
             if np.all(value_flag):
                 if bounds is not None and len(bounds) == len(values):
                     value_flag = [is_in_bound(item, bound) for item, bound in zip(values, bounds)]
