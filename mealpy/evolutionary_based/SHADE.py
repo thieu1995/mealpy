@@ -70,7 +70,7 @@ class OriginalSHADE(Optimizer):
         self.k_counter = 0
 
     ### Survivor Selection
-    def weighted_lehmer_mean__(self, list_objects, list_weights):
+    def weighted_lehmer_mean(self, list_objects, list_weights):
         up = list_weights * list_objects ** 2
         down = list_weights * list_objects
         return np.sum(up) / np.sum(down)
@@ -108,13 +108,12 @@ class OriginalSHADE(Optimizer):
             p = self.generator.uniform(2 / self.pop_size, 0.2)
             top = int(self.pop_size * p)
             x_best = pop_sorted[self.generator.integers(0, top)]
-            x_r1 = self.pop[self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))]
+            r1_idx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
             new_pop = self.pop + self.dyn_pop_archive
-            while True:
-                x_r2 = new_pop[self.generator.integers(0, len(new_pop))]
-                if np.any(x_r2.solution - x_r1.solution) and np.any(x_r2.solution - self.pop[idx].solution):
-                    break
-            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1.solution - x_r2.solution)
+            r2_idx = self.generator.choice(list(set(range(0, len(new_pop))) - {idx, r1_idx}))
+            x_r1 = self.pop[r1_idx].solution
+            x_r2 = new_pop[r2_idx].solution
+            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1 - x_r2)
             condition = self.generator.random(self.problem.n_dims) < cr
             pos_new = np.where(condition, x_new, self.pop[idx].solution)
             j_rand = self.generator.integers(0, self.problem.n_dims)
@@ -160,7 +159,7 @@ class OriginalSHADE(Optimizer):
             else:
                 list_weights = np.abs(list_fit_new - list_fit_old) / temp
             self.dyn_miu_cr[self.k_counter] = np.sum(list_weights * np.array(list_cr))
-            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
+            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.pop_size:
                 self.k_counter = 0
@@ -228,7 +227,7 @@ class L_SHADE(Optimizer):
         self.n_min = int(self.pop_size / 5)
 
     ### Survivor Selection
-    def weighted_lehmer_mean__(self, list_objects, list_weights):
+    def weighted_lehmer_mean(self, list_objects, list_weights):
         up = np.sum(list_weights * list_objects ** 2)
         down = np.sum(list_weights * list_objects)
         return up / down if down != 0 else 0.5
@@ -313,7 +312,7 @@ class L_SHADE(Optimizer):
             total_fit = np.sum(np.abs(list_fit_new - list_fit_old))
             list_weights = 0 if total_fit == 0 else np.abs(list_fit_new - list_fit_old) / total_fit
             self.dyn_miu_cr[self.k_counter] = np.sum(list_weights * np.array(list_cr))
-            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean__(np.array(list_f), list_weights)
+            self.dyn_miu_f[self.k_counter] = self.weighted_lehmer_mean(np.array(list_f), list_weights)
             self.k_counter += 1
             if self.k_counter >= self.dyn_pop_size:
                 self.k_counter = 0
