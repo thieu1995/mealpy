@@ -52,7 +52,7 @@ class Optimizer:
 
         if self.name is None: self.name = self.__class__.__name__
         self.sort_flag = False
-        self.nfe_counter = -1  # The first one is tested in Problem class
+        self.nfe_counter = 1  # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
         self.is_parallelizable = True
 
