@@ -34,7 +34,6 @@ class Problem:
 
     @property
     def n_objs(self):
-        print("Fuck")
         if self._n_objs is None:
             x = self.generate_solution(encoded=True)
             result = self.obj_func(x)
