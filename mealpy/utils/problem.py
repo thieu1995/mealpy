@@ -7,13 +7,13 @@
 import numbers
 import numpy as np
 from typing import Union, List, Tuple, Dict
-from mealpy.utils.space import BaseVar, IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar, MixedSetVar
+from mealpy.utils.space import BaseVar, IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, PermutationVar
 from mealpy.utils.logger import Logger
 from mealpy.utils.target import Target
 
 
 class Problem:
-    SUPPORTED_VARS = (IntegerVar, FloatVar, PermutationVar, StringVar, BinaryVar, BoolVar, MixedSetVar)
+    SUPPORTED_VARS = (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, PermutationVar)
     SUPPORTED_ARRAYS = (list, tuple, np.ndarray)
 
     def __init__(self, bounds: Union[List, Tuple, np.ndarray, BaseVar], minmax: str = "min", **kwargs) -> None:
