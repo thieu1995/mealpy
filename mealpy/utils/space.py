@@ -34,7 +34,19 @@ class LabelEncoder:
         y : list, tuple
             Labels to encode.
         """
-        self.unique_labels = sorted(set(y), key=lambda x: (isinstance(x, (int, float)), x))
+        def safe_key(val):
+            # Chuyển None -> 0, số -> 1, chuỗi -> 2, object khác -> 3
+            if val is None:
+                return (0, '')
+            elif isinstance(val, nb.Number):
+                return (1, val)
+            elif isinstance(val, str):
+                return (2, val)
+            else:
+                return (3, str(val))
+
+        # self.unique_labels = sorted(set(y), key=lambda x: (isinstance(x, (int, float)), x))
+        self.unique_labels = sorted(set(y), key=safe_key)
         self.label_to_index = {label: i for i, label in enumerate(self.unique_labels)}
         return self
 
@@ -210,36 +222,6 @@ class IntegerVar(BaseVar):
         return self.generator.integers(self.lb+0.5, self.ub+0.5+self.eps)
 
 
-class PermutationVar(BaseVar):
-    def __init__(self, valid_set=(1, 2), name="permutation"):
-        super().__init__(name)
-        self.eps = 1e-4
-        self._set_bounds(valid_set)
-
-    def _set_bounds(self, valid_set):
-        if type(valid_set) in self.SUPPORTED_ARRAY and len(valid_set) > 1:
-            self.valid_set = np.array(valid_set)
-            self.n_vars = len(valid_set)
-            self.le = LabelEncoder().fit(valid_set)
-            self.lb = np.zeros(self.n_vars)
-            self.ub = (self.n_vars - self.eps) * np.ones(self.n_vars)
-        else:
-            raise TypeError(f"Invalid valid_set. It should be {self.SUPPORTED_ARRAY} and contains at least 2 variables")
-
-    def encode(self, x):
-        return np.array(self.le.transform(x), dtype=float)
-
-    def decode(self, x):
-        x = self.correct(x)
-        return self.le.inverse_transform(x)
-
-    def correct(self, x):
-        return np.argsort(x)
-
-    def generate(self):
-        return self.generator.permutation(self.valid_set)
-
-
 class StringVar(BaseVar):
     def __init__(self, valid_sets=(("",),), name="string"):
         super().__init__(name)
@@ -285,6 +267,44 @@ class StringVar(BaseVar):
 
     def generate(self):
         return [self.generator.choice(np.array(vl_set, dtype=str)) for vl_set in self.valid_sets]
+
+
+class CategoricalVar(StringVar):
+    def __init__(self, valid_sets=(("",),), name="categorical"):
+        super().__init__(valid_sets, name)
+
+    def generate(self):
+        return [self.generator.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
+
+
+class PermutationVar(BaseVar):
+    def __init__(self, valid_set=(1, 2), name="permutation"):
+        super().__init__(name)
+        self.eps = 1e-4
+        self._set_bounds(valid_set)
+
+    def _set_bounds(self, valid_set):
+        if type(valid_set) in self.SUPPORTED_ARRAY and len(valid_set) > 1:
+            self.valid_set = np.array(valid_set)
+            self.n_vars = len(valid_set)
+            self.le = LabelEncoder().fit(valid_set)
+            self.lb = np.zeros(self.n_vars)
+            self.ub = (self.n_vars - self.eps) * np.ones(self.n_vars)
+        else:
+            raise TypeError(f"Invalid valid_set. It should be {self.SUPPORTED_ARRAY} and contains at least 2 variables")
+
+    def encode(self, x):
+        return np.array(self.le.transform(x), dtype=float)
+
+    def decode(self, x):
+        x = self.correct(x)
+        return self.le.inverse_transform(x)
+
+    def correct(self, x):
+        return np.argsort(x)
+
+    def generate(self):
+        return self.generator.permutation(self.valid_set)
 
 
 class MixedSetVar(StringVar):
