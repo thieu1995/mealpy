@@ -46,8 +46,8 @@ from .utils.termination import Termination
 from .tuner import Tuner, ParameterGrid
 from .multitask import Multitask
 from .optimizer import Optimizer
-from .utils.space import (IntegerVar, FloatVar, StringVar, CategoricalVar, TupleVar, SequenceVar, BinaryVar, BoolVar,
-                          PermutationVar, TransferBinaryVar, TransferBoolVar)
+from .utils.space import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
+                          SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
 
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 
