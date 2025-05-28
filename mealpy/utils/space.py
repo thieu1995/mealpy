@@ -235,7 +235,7 @@ class StringVar(BaseVar):
                 self.valid_sets = (tuple(valid_sets),)
                 le = LabelEncoder().fit(valid_sets)
                 self.list_le = (le,)
-                self.lb = np.array([0, ])
+                self.lb = np.array([0., ])
                 self.ub = np.array([len(valid_sets) - self.eps, ])
             else:
                 self.n_vars = len(valid_sets)
@@ -269,14 +269,6 @@ class StringVar(BaseVar):
         return [self.generator.choice(np.array(vl_set, dtype=str)) for vl_set in self.valid_sets]
 
 
-class CategoricalVar(StringVar):
-    def __init__(self, valid_sets=(("",),), name="categorical"):
-        super().__init__(valid_sets, name)
-
-    def generate(self):
-        return [self.generator.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
-
-
 class PermutationVar(BaseVar):
     def __init__(self, valid_set=(1, 2), name="permutation"):
         super().__init__(name)
@@ -305,16 +297,6 @@ class PermutationVar(BaseVar):
 
     def generate(self):
         return self.generator.permutation(self.valid_set)
-
-
-class MixedSetVar(StringVar):
-    def __init__(self, valid_sets=(("",),), name="mixed-set-var"):
-        super().__init__(valid_sets, name)
-        self.eps = 1e-4
-        self._set_bounds(valid_sets)
-
-    def generate(self):
-        return [self.generator.choice(np.array(vl_set, dtype=object)) for vl_set in self.valid_sets]
 
 
 class BinaryVar(BaseVar):
