@@ -1,32 +1,24 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 13:34, 27/09/2023 ----------%                                                                               
+# Created by "Thieu" at 09:53, 28/05/2025 ----------%                                                                               
 #       Email: nguyenthieu2102@gmail.com            %                                                    
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import StringVar, Problem
+from mealpy import CategoricalVar, Problem
 
 
 ## 1. One variable
 bounds = [
-    StringVar(valid_sets=("auto", "hello", "case", "nano")),
+    CategoricalVar(valid_sets=("auto", 0.5, 1, None)),
 ]
 
 ## 2. Multiple variables
 bounds = [
-    StringVar(valid_sets=(("auto", "backward", "forward"),
-                          ("leaf", "branch", "root"),
-                          ("auto", "adaptive", "modified"),
-                          ("random", "tournament", "roulette", "round-robin")), name="delta")
-]
-
-## 3. Multiple variables
-bounds = [
-    StringVar(valid_sets=(("auto", "backward", "forward"),
-                          ("haha", "branch", "nice"),
-                          ("auto", "None", "modified"),
-                          ("random", "damn", "roulette", "huhu")), name="delta")
+    CategoricalVar(valid_sets=((0.5, "backward", "forward"),
+                          ("0.2", "None", "root"),
+                          ("auto", None, "modified"),
+                          ("random", 1, "roulette", 0.5, "round-robin")), name="delta")
 ]
 
 problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
