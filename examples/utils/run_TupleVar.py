@@ -1,33 +1,20 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 09:53, 28/05/2025 ----------%                                                                               
+# Created by "Thieu" at 10:34, 28/05/2025 ----------%                                                                               
 #       Email: nguyenthieu2102@gmail.com            %                                                    
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import CategoricalVar, Problem
+from mealpy import TupleVar, Problem
 
 
 ## 1. One variable
+# bounds = [
+#     TupleVar(valid_sets=((1, ), (2, 3), (3, 5, 1))),
+# ]
+#
 bounds = [
-    CategoricalVar(valid_sets=("auto", 0.5, 1, None)),
-]
-
-## 2. Multiple variables
-bounds = [
-    CategoricalVar(valid_sets=((0.5, "backward", "forward"),
-                          ("0.2", "None", "root"),
-                          ("auto", None, "modified"),
-                          ("random", 1, "roulette", 0.5, "round-robin")), name="delta")
-]
-
-## 3. Multiple variables
-bounds = [
-    CategoricalVar(valid_sets=(("auto", 2, 3, "backward", "forward", True),
-                          (1, 0, 10, "leaf", "branch", "root", False),
-                          (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
-                          ("random", 0, 2, 4, "tournament", "roulette", "round-robin")), name="delta"),
-    CategoricalVar(valid_sets=(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000), name="epoch")
+    TupleVar(valid_sets=[(1, ), (2, 3), (3, 5, 1)]),
 ]
 
 

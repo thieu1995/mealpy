@@ -1,25 +1,28 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 10:19, 31/10/2023 ----------%                                                                               
+# Created by "Thieu" at 11:20, 28/05/2025 ----------%                                                                               
 #       Email: nguyenthieu2102@gmail.com            %                                                    
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import MixedSetVar, Problem
+from mealpy import SequenceVar, Problem
 
 
 ## 1. One variable
 bounds = [
-    MixedSetVar(valid_sets=(0.1, "auto", 1.4, "hello", True, "case", "nano", 0, 2)),
+    SequenceVar(valid_sets=((1, ), {2, 3}, [3, 5, 1]), return_type=list),
 ]
 
-## 2. Multiple variables
 bounds = [
-    MixedSetVar(valid_sets=(("auto", 2, 3, "backward", "forward", True),
-                          (1, 0, 10, "leaf", "branch", "root", False),
-                          (0.01, "auto", 0.1, "adaptive", 0.05, "modified"),
-                          ("random", 0, 2, 4, "tournament", "roulette", "round-robin")), name="delta"),
-    MixedSetVar(valid_sets=(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000), name="epoch")
+    SequenceVar(valid_sets=[(1, ), (2, 3), (3, 5, 1)], return_type=list),
+]
+
+bounds = [
+    SequenceVar(valid_sets=[[0, ], [8, 34], [36, 50, 1]], return_type=list),
+]
+
+bounds = [
+    SequenceVar(valid_sets=[{0, }, {8, 34}, {36, 50, 1}], return_type=set),
 ]
 
 problem = Problem(bounds, obj_func=lambda sol: np.sum(sol**2))
