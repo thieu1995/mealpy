@@ -147,7 +147,7 @@ class WMQIMRFO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = MRFO.OriginalMRFO(epoch=1000, pop_size=50, somersault_range = 2.0, pm=0.5)
+    >>> model = MRFO.WMQIMRFO(epoch=1000, pop_size=50, somersault_range = 2.0, pm=0.5)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
@@ -173,6 +173,7 @@ class WMQIMRFO(Optimizer):
         self.pm = self.validator.check_float("pm", pm, (0.0, 1.0))
         self.set_parameters(["epoch", "pop_size", "somersault_range", "pm"])
         self.sort_flag = False
+        self.eps = 1e-10  # A small value to avoid division by zero in some cases
 
     def evolve(self, epoch):
         """
@@ -266,8 +267,8 @@ class WMQIMRFO(Optimizer):
                 idx2, idx3 = 0, 1
             f1, f2, f3 = self.pop[idx].target.fitness, self.pop[idx2].target.fitness, self.pop[idx3].target.fitness
             x1, x2, x3 = self.pop[idx].solution, self.pop[idx2].solution, self.pop[idx3].solution
-            a = f1 / ((x1 - x2) * (x1 - x3)) + f2 / ((x2 - x1) * (x2 - x3)) + f3 / ((x3 - x1) * (x3 - x2))
-            gx = ((x3 ** 2 - x2 ** 2) * f1 + (x1 ** 2 - x3 ** 2) * f2 + (x2 ** 2 - x1 ** 2) * f3) / (2 * ((x3 - x2) * f1 + (x1 - x3) * f2 + (x2 - x1) * f3))
+            a = f1 / ((x1 - x2) * (x1 - x3) + self.eps) + f2 / ((x2 - x1) * (x2 - x3) + self.eps) + f3 / ((x3 - x1) * (x3 - x2) + self.eps)
+            gx = ((x3 ** 2 - x2 ** 2) * f1 + (x1 ** 2 - x3 ** 2) * f2 + (x2 ** 2 - x1 ** 2) * f3) / (2 * ((x3 - x2) * f1 + (x1 - x3) * f2 + (x2 - x1) * f3) + self.eps)
             pos_new = np.where(a > 0, gx, x1)
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
