@@ -255,13 +255,12 @@ class JADE(Optimizer):
             temp_cr.append(cr)
             top = int(self.pop_size * self.pt)
             x_best = pop_sorted[self.generator.integers(0, top)]
-            x_r1 = self.pop[self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))]
+            r1_idx = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
             new_pop = self.pop + self.dyn_pop_archive
-            while True:
-                x_r2 = new_pop[self.generator.integers(0, len(new_pop))]
-                if np.any(x_r2.solution - x_r1.solution) and np.any(x_r2.solution - self.pop[idx].solution):
-                    break
-            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1.solution - x_r2.solution)
+            r2_idx = self.generator.choice(list(set(range(0, len(new_pop))) - {idx, r1_idx}))
+            x_r1 = self.pop[r1_idx].solution
+            x_r2 = new_pop[r2_idx].solution
+            x_new = self.pop[idx].solution + f * (x_best.solution - self.pop[idx].solution) + f * (x_r1 - x_r2)
             pos_new = np.where(self.generator.random(self.problem.n_dims) < cr, x_new, self.pop[idx].solution)
             j_rand = self.generator.integers(0, self.problem.n_dims)
             pos_new[j_rand] = x_new[j_rand]
