@@ -372,7 +372,7 @@ class TransferBinaryVar(BinaryVar):
             self.tf_func = getattr(transfer, tf_func)
         else:
             raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
-        self.lb = lb * np.ones(self.n_vars)
+        self.lb = lb * np.zeros(self.n_vars)
         self.ub = ub * np.ones(self.n_vars)
         self.all_zeros = all_zeros
 
@@ -430,7 +430,7 @@ class TransferBoolVar(BoolVar):
             self.tf_func = getattr(transfer, tf_func)
         else:
             raise ValueError(f"Invalid transfer function! The supported TF funcs are: {self.SUPPORTED_TF_FUNCS}")
-        self.lb = lb * np.ones(self.n_vars)
+        self.lb = lb * np.zeros(self.n_vars)
         self.ub = ub * np.ones(self.n_vars)
 
     def correct(self, x):
