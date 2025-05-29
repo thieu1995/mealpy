@@ -29,7 +29,7 @@ class OriginalIWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy import FloatVar, EOA
+    >>> from mealpy import FloatVar, IWO
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,7 +40,7 @@ class OriginalIWO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = EOA.OriginalEOA(epoch=1000, pop_size=50, seed_min = 3, seed_max = 9, exponent = 3, sigma_start = 0.6, sigma_end = 0.01)
+    >>> model = IWO.OriginalIWO(epoch=1000, pop_size=50, seed_min = 3, seed_max = 9, exponent = 3, sigma_start = 0.6, sigma_end = 0.01)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
@@ -82,7 +82,7 @@ class OriginalIWO(Optimizer):
             epoch (int): The current iteration
         """
         # Update Standard Deviation
-        sigma = ((self.epoch - epoch) / (self.epoch - 1)) ** self.exponent * (self.sigma_start - self.sigma_end) + self.sigma_end
+        sigma = (1. - epoch/self.epoch) ** self.exponent * (self.sigma_start - self.sigma_end) + self.sigma_end
         pop, list_best, list_worst = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
         best, worst = list_best[0], list_worst[0]
         pop_new = []
