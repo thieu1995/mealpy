@@ -47,7 +47,7 @@ class Agent:
         if minmax == "min":
             return self if self.target.fitness < compared_agent.target.fitness else compared_agent
         else:
-            return compared_agent if self.target.fitness < compared_agent else self
+            return compared_agent if self.target.fitness < compared_agent.target.fitness else self
 
     def is_duplicate(self, compared_agent: 'Agent') -> bool:
         if np.all(self.solution - compared_agent.solution) == 0:
