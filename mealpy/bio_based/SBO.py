@@ -123,7 +123,7 @@ class OriginalSBO(DevSBO):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = SBO.DevSBO(epoch=1000, pop_size=50, alpha = 0.9, p_m=0.05, psw = 0.02)
+    >>> model = SBO.OriginalSBO(epoch=1000, pop_size=50, alpha = 0.9, p_m=0.05, psw = 0.02)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
