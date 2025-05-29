@@ -74,7 +74,7 @@ class DevSMA(Optimizer):
             else:
                 self.weights[idx] = 1 - self.generator.uniform(0, 1, self.problem.n_dims) * \
                                     np.log10((self.g_best.target.fitness - self.pop[idx].target.fitness) / ss + 1)
-        a = np.arctanh(-(epoch / self.epoch) + 1)  # Eq.(2.4)
+        a = np.arctanh(1 - epoch / self.epoch)  # Eq.(2.4)
         b = 1 - epoch / self.epoch
         pop_new = []
         for idx in range(0, self.pop_size):
