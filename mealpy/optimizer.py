@@ -628,9 +628,9 @@ class Optimizer:
         Returns:
             int: Index of selected solution
         """
-        if type(list_fitness) in [list, tuple, np.ndarray]:
-            list_fitness = np.array(list_fitness).flatten()
-        if list_fitness.ptp() == 0:
+        if isinstance(list_fitness, (list, tuple, np.ndarray)):
+            list_fitness = np.array(list_fitness).ravel()
+        if np.ptp(list_fitness) == 0:
             return int(self.generator.integers(0, len(list_fitness)))
         if np.any(list_fitness < 0):
             list_fitness = list_fitness - np.min(list_fitness)
