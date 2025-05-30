@@ -706,6 +706,7 @@ class CL_PSO(Optimizer):
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
                 agent.target = self.get_target(pos_new)
+                agent.local_target = agent.target.copy()
                 self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
                 if self.compare_target(agent.target, self.pop[idx].local_target, self.problem.minmax):
                     self.pop[idx].update(local_solution=agent.solution.copy(), local_target=agent.target.copy())
