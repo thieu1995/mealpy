@@ -81,9 +81,9 @@ class OriginalFA(Optimizer):
         fit_list = sorted(fit_list)
         pop_new = []
         for idx in range(0, self.pop_size):
-            si = self.max_sparks * (fit_list[-1] - self.pop[idx].target.fitness + self.EPSILON) / \
+            si = self.max_sparks * (fit_list[-1] - self.pop[idx].target.fitness) / \
                  (self.pop_size * fit_list[-1] - np.sum(fit_list) + self.EPSILON)
-            Ai = self.max_ea * (self.pop[idx].target.fitness - fit_list[0] + self.EPSILON) / \
+            Ai = self.max_ea * (self.pop[idx].target.fitness - fit_list[0]) / \
                  (np.sum(fit_list) - fit_list[0] + self.EPSILON)
             if si < self.p_a * self.max_sparks:
                 si_ = int(round(self.p_a * self.max_sparks) + 1)
