@@ -19,7 +19,7 @@ class OriginalNRO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy import FloatVar, MVO
+    >>> from mealpy import FloatVar, NRO
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -30,7 +30,7 @@ class OriginalNRO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = MVO.DevMVO(epoch=1000, pop_size=50)
+    >>> model = NRO.OriginalNRO(epoch=1000, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
@@ -168,8 +168,7 @@ class OriginalNRO(Optimizer):
             #### Else
             else:
                 ##### Based on Eq. 22
-                check_equal = (self.pop[i1].solution == self.pop[i2].solution)
-                if check_equal.all():
+                if np.allclose(self.pop[i1].solution, self.pop[i2].solution):
                     X_fu = self.pop[idx].solution + alpha * levy_b * (self.pop[idx].solution - self.g_best.solution)
                 ##### Based on Eq. 16, 17
                 else:
