@@ -26,7 +26,7 @@ Installation
 
 Install the `current PyPI release`_. ::
 
-   $ pip install mealpy==3.0.1
+   $ pip install mealpy==3.0.2
 
 .. _current PyPI release: https://pypi.python.org/pypi/mealpy
 
