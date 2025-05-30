@@ -78,8 +78,8 @@ class OriginalMGO(Optimizer):
             M = self.pop[idx_rand].solution * np.floor(self.generator.normal()) + np.mean(pos_list, axis=0) * np.ceil(self.generator.normal())
 
             # Calculate the vector of coefficients
-            cofi = self.coefficient_vector__(self.problem.n_dims, epoch+1, self.epoch)
-            A = self.generator.standard_normal(self.problem.n_dims) * np.exp(2 - (epoch+1) * (2. / self.epoch))
+            cofi = self.coefficient_vector__(self.problem.n_dims, epoch, self.epoch)
+            A = self.generator.standard_normal(self.problem.n_dims) * np.exp(2 - epoch * (2. / self.epoch))
             D = (np.abs(self.pop[idx].solution) + np.abs(self.g_best.solution))*(2 * self.generator.random() - 1)
 
             # Update the location
