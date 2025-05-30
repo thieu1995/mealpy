@@ -175,7 +175,7 @@ class OriginalGCO(DevGCO):
         fit_list = np.array([agent.target.fitness for agent in self.pop])
         fit_max = np.max(fit_list)
         fit_min = np.min(fit_list)
-        fit = (fit_list - fit_max) / (fit_min - fit_max)
+        fit = (fit_list - fit_max) / (fit_min - fit_max + self.EPSILON)
         if self.problem.minmax != 'min':
             fit = 1 - fit
         self.dyn_list_life_signal += 10 * fit
