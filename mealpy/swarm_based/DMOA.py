@@ -198,7 +198,7 @@ class DevDMOA(Optimizer):
             new_pos = self.correct_solution(new_pos)
             agent = self.generate_agent(new_pos)
             ## Sleeping mould
-            SM[idx] = (agent.target.fitness - self.pop[idx].target.fitness) / np.max([agent.target.fitness, self.pop[idx].target.fitness])
+            SM[idx] = (agent.target.fitness - self.pop[idx].target.fitness) / (np.max([agent.target.fitness, self.pop[idx].target.fitness]) + self.EPSILON)
             if self.compare_target(agent.target, self.pop[idx].target, self.problem.minmax):
                 self.pop[idx] = agent
             else:
