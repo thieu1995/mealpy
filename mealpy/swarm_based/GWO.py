@@ -180,7 +180,7 @@ class RW_GWO(Optimizer):
 
 class GWO_WOA(OriginalGWO):
     """
-    The original version of: Hybrid Grey Wolf - Whale Optimization Algorithm (GWO_WOA)
+    The original version of: Hybrid Grey Wolf - Whale Optimization Algorithm (GWO-WOA)
 
     Links:
         1. https://sci-hub.se/https://doi.org/10.1177/10775463211003402
