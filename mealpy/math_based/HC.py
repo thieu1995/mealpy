@@ -135,7 +135,7 @@ class SwarmHC(Optimizer):
         """
         ranks = np.array(list(range(1, self.pop_size + 1)))
         ranks = ranks / np.sum(ranks)
-        step_size = np.mean(self.problem.ub - self.problem.lb) * np.exp(-2 * (epoch + 1) / self.epoch)
+        step_size = np.mean(self.problem.ub - self.problem.lb) * np.exp(-2 * epoch / self.epoch)
         ss = step_size * ranks
         pop = []
         for idx in range(0, self.pop_size):
