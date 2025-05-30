@@ -242,7 +242,7 @@ class OriginalSSpiderO(Optimizer):
             if fit_best == fit_worst:
                 pop[idx].weight = self.generator.uniform(0.2, 0.8)
             else:
-                pop[idx].weight = 0.001 + (pop[idx].target.fitness - fit_worst) / (fit_best - fit_worst)
+                pop[idx].weight = 0.001 + (pop[idx].target.fitness - fit_worst) / (fit_best - fit_worst + self.EPSILON)
         return pop
 
     def evolve(self, epoch):
