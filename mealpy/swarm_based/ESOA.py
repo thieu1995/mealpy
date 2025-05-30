@@ -89,13 +89,13 @@ class OriginalESOA(Optimizer):
             # Individual Direction
             p_d = self.pop[idx].local_solution - self.pop[idx].solution
             p_d = p_d * (self.pop[idx].local_target.fitness - self.pop[idx].target.fitness)
-            p_d = p_d / ((np.sum(p_d) + self.EPSILON)**2)
+            p_d = p_d / (np.sum(p_d) **2 + self.EPSILON)
             d_p = p_d + self.pop[idx].g
 
             # Group Direction
             c_d = self.g_best.solution - self.pop[idx].solution
             c_d = c_d * (self.g_best.target.fitness - self.pop[idx].target.fitness)
-            c_d = c_d / ((np.sum(c_d) + self.EPSILON)**2)
+            c_d = c_d / (np.sum(c_d)**2 + self.EPSILON)
             d_g = c_d + self.g_best.g
 
             # Gradient Estimation
