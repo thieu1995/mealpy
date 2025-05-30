@@ -102,7 +102,7 @@ class OriginalFLA(Optimizer):
         xm1 = np.mean(pos1_list, axis=0)
         xm2 = np.mean(pos2_list, axis=0)
         xm = np.mean(pos_list, axis=0)
-        tf = np.sinh((epoch+1) / self.epoch)**self.C1
+        tf = np.sinh(epoch/ self.epoch)**self.C1
         pop_new = []
         if tf < 0.9:
             dof = np.exp(-(self.C2 * tf - self.generator.random()))**self.C2
@@ -112,7 +112,7 @@ class OriginalFLA(Optimizer):
                 nt12 = int(np.round((m2n - m1n)*self.generator.random() + m1n))
                 for idx in range(0, nt12):
                     dfg = self.generator.integers(1, 3)
-                    jj = -self.DD * (xm2 - xm1) / np.linalg.norm(self.best2.solution - self.pop1[idx].solution + self.EPSILON)
+                    jj = -self.DD * (xm2 - xm1) / (np.linalg.norm(self.best2.solution - self.pop1[idx].solution) + self.EPSILON)
                     pos_new = self.best2.solution + dfg*dof*self.generator.random(self.problem.n_dims)*(jj*self.best2.solution - self.pop1[idx].solution)
                     pos_new = self.correct_solution(pos_new)
                     agent = self.generate_empty_agent(pos_new)
@@ -134,7 +134,7 @@ class OriginalFLA(Optimizer):
                 nt12 = int(np.round((m2n - m1n) * self.generator.random() + m1n))
                 for idx in range(0, nt12):
                     dfg = self.generator.integers(1, 3)
-                    jj = -self.DD*(xm1-xm2) / np.linalg.norm(self.best1.solution - self.pop2[idx].solution + self.EPSILON)
+                    jj = -self.DD*(xm1-xm2) / (np.linalg.norm(self.best1.solution - self.pop2[idx].solution) + self.EPSILON)
                     pos_new = self.best1.solution + dfg * dof * self.generator.random(self.problem.n_dims) * (jj * self.best1.solution - self.pop2[idx].solution)
                     pos_new = self.correct_solution(pos_new)
                     agent = self.generate_empty_agent(pos_new)
@@ -161,7 +161,7 @@ class OriginalFLA(Optimizer):
                     else:
                         jj = -self.DD*(self.best1.solution - xm1) / tttt
                     drf = np.exp(-jj / tf)
-                    ms = np.exp(-self.best1.target.fitness / self.pop1[idx].target.fitness + self.EPSILON)
+                    ms = np.exp(-self.best1.target.fitness / (self.pop1[idx].target.fitness + self.EPSILON))
                     qeo = dfg * drf * self.generator.random(self.problem.n_dims)
                     pos_new = self.best1.solution + qeo*self.pop1[idx].solution + qeo *(ms * self.best1.solution - self.pop1[idx].solution)
                     pos_new = self.correct_solution(pos_new)
@@ -175,7 +175,7 @@ class OriginalFLA(Optimizer):
                     else:
                         jj = -self.DD * (self.best2.solution - xm2) / tttt
                     drf = np.exp(-jj / tf)
-                    ms = np.exp(-self.best2.target.fitness / self.pop2[idx].target.fitness + self.EPSILON)
+                    ms = np.exp(-self.best2.target.fitness / (self.pop2[idx].target.fitness + self.EPSILON))
                     qeo = dfg * drf * self.generator.random(self.problem.n_dims)
                     pos_new = self.best2.solution + qeo * self.pop2[idx].solution + qeo * (ms * self.best2.solution - self.pop2[idx].solution)
                     pos_new = self.correct_solution(pos_new)
@@ -190,7 +190,7 @@ class OriginalFLA(Optimizer):
                     else:
                         jj = -self.DD * (xm - xm1) / tttt
                     drf = np.exp(-jj / tf)
-                    ms = np.exp(-self.fsss / self.pop1[idx].target.fitness + self.EPSILON)
+                    ms = np.exp(-self.fsss / (self.pop1[idx].target.fitness + self.EPSILON))
                     qg = dfg * drf * self.generator.random(self.problem.n_dims)
                     pos_new = self.g_best.solution + qg * self.pop1[idx].solution + qg * (ms * self.best1.solution - self.pop1[idx].solution)
                     pos_new = self.correct_solution(pos_new)
@@ -204,7 +204,7 @@ class OriginalFLA(Optimizer):
                     else:
                         jj = -self.DD * (xm - xm2) / tttt
                     drf = np.exp(-jj / tf)
-                    ms = np.exp(-self.fsss / self.pop2[idx].target.fitness + self.EPSILON)
+                    ms = np.exp(-self.fsss / (self.pop2[idx].target.fitness + self.EPSILON))
                     qg = dfg * drf * self.generator.random(self.problem.n_dims)
                     pos_new = self.g_best.solution + qg * self.pop2[idx].solution + qg * (ms * self.g_best.solution - self.pop2[idx].solution)
                     pos_new = self.correct_solution(pos_new)
