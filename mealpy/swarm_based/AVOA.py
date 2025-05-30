@@ -65,7 +65,6 @@ class OriginalAVOA(Optimizer):
         self.gama = self.validator.check_float("gama", gama, (0, 5.0))
         self.set_parameters(["epoch", "pop_size", "p1", "p2", "p3", "alpha", "gama"])
         self.sort_flag = False
-        self.eps = 1e-10  # A small value to avoid division by zero in some cases
 
     def evolve(self, epoch):
         """
@@ -92,8 +91,8 @@ class OriginalAVOA(Optimizer):
                     best_x1 = best_list[0].solution
                     best_x2 = best_list[1].solution
                     if self.generator.random() < self.p2:
-                        A = best_x1 - ((best_x1 * self.pop[idx].solution) / (best_x1 - self.pop[idx].solution**2 + self.eps))*F
-                        B = best_x2 - ((best_x2 * self.pop[idx].solution) / (best_x2 - self.pop[idx].solution**2 + self.eps))*F
+                        A = best_x1 - ((best_x1 * self.pop[idx].solution) / (best_x1 - self.pop[idx].solution**2 + self.EPSILON))*F
+                        B = best_x2 - ((best_x2 * self.pop[idx].solution) / (best_x2 - self.pop[idx].solution**2 + self.EPSILON))*F
                         pos_new = (A + B) / 2
                     else:
                         pos_new = rand_pos - np.abs(rand_pos - self.pop[idx].solution) * F * \
