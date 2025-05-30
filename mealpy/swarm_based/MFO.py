@@ -66,7 +66,7 @@ class OriginalMFO(Optimizer):
         for idx in range(0, self.pop_size):
             #   D in Eq.(3.13)
             distance_to_flame = np.abs(pop_flames[idx].solution - self.pop[idx].solution)
-            t = (a - 1) * self.generator.uniform(0, 1, self.problem.n_dims) + 1
+            t = (a - 1) * self.generator.uniform() + 1
             b = 1
             # Update the position of the moth with respect to its corresponding flame, Eq.(3.12).
             temp_1 = distance_to_flame * np.exp(b * t) * np.cos(t * 2 * np.pi) + pop_flames[idx].solution
