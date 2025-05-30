@@ -89,3 +89,11 @@ mealpy.math\_based.SHIO module
    :members:
    :undoc-members:
    :show-inheritance:
+
+mealpy.math\_based.TS module
+------------------------------
+
+.. automodule:: mealpy.math_based.TS
+   :members:
+   :undoc-members:
+   :show-inheritance:
