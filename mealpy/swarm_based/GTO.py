@@ -104,7 +104,7 @@ class OriginalGTO(Optimizer):
         _, self.g_best = self.update_global_best_agent(self.pop, save=False)
 
         # Step 3: Attacking
-        H = self.generator.random() * (self.H - (epoch+1) * self.H / self.epoch)     #  Eq.(15)
+        H = self.generator.random() * self.H * (1 - epoch / self.epoch)     #  Eq.(15)
         pop_new = []
         for idx in range(0, self.pop_size):
             # the distance between the prey and the attacker, and can be calculated using (12):
@@ -221,7 +221,7 @@ class Matlab102GTO(Optimizer):
         self.pop, self.g_best = self.update_global_best_agent(self.pop, save=False)
 
         # Step 3: Attacking
-        H = self.generator.random() * (2.0 - (epoch+1) * 2.0 / self.epoch)     #  Eq.(15)
+        H = self.generator.random() * 2. * (1. - epoch / self.epoch)     #  Eq.(15)
         pop_new = []
         for idx in range(0, self.pop_size):
             # the distance between the prey and the attacker, and can be calculated using (12):
@@ -341,7 +341,7 @@ class Matlab101GTO(Optimizer):
         _, self.g_best = self.update_global_best_agent(self.pop, save=False)
 
         # Step 3: Attacking
-        H = self.generator.random() * (2.0 - epoch * 2.0 / self.epoch)     #  Eq.(15)
+        H = self.generator.random() * 2. * (1.0 - epoch / self.epoch)     #  Eq.(15)
         for idx in range(0, self.pop_size):
             pop_new = []
             for jdx in range(0, self.pop_size):
