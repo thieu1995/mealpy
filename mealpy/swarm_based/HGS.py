@@ -45,8 +45,6 @@ class OriginalHGS(Optimizer):
     deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, p.114864.
     """
 
-    ID_HUN = 2  # ID for Hunger value
-
     def __init__(self, epoch: int = 10000, pop_size: int = 100, PUP: float = 0.08, LH: float = 10000, **kwargs: object) -> None:
         """
         Args:
@@ -104,7 +102,7 @@ class OriginalHGS(Optimizer):
         pop = self.update_hunger_value__(self.pop, g_best, g_worst)
 
         ## Eq. (2.4)
-        shrink = 2 * (1 - (epoch + 1) / self.epoch)
+        shrink = 2 * (1 - epoch  / self.epoch)
         total_hunger = np.sum([pop[idx].hunger for idx in range(0, self.pop_size)])
 
         pop_new = []
