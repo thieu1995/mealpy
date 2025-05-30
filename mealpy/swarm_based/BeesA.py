@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class CleverBookBeesA(Optimizer):
     """
-    The original version of: Bees Algorithm
+    The original version of: Bees Algorithm (CB-BeesA)
 
     Notes:
         + This version is based on ABC in the book Clever Algorithms
@@ -242,7 +242,7 @@ class OriginalBeesA(Optimizer):
 
 class ProbBeesA(Optimizer):
     """
-    The original version of: Probabilistic Bees Algorithm (BeesA)
+    The original version of: Probabilistic Bees Algorithm (P-BeesA)
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
@@ -309,7 +309,7 @@ class ProbBeesA(Optimizer):
         """
         # Calculate Scores
         fit_list = np.array([agent.target.fitness for agent in self.pop])
-        fit_list = 1.0 / fit_list
+        fit_list = 1.0 / (fit_list + self.EPSILON)
         d_fit = fit_list / np.mean(fit_list)
         for idx in range(0, self.pop_size):
             # Determine Rejection Probability based on Score
