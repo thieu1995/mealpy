@@ -60,7 +60,7 @@ class DevSCA(Optimizer):
         for idx in range(0, self.pop_size):
             # Eq 3.4, r1 decreases linearly from a to 0
             a = 2.0
-            r1 = a - (epoch + 1) * (a / self.epoch)
+            r1 = a * (1. - epoch / self.epoch)
             # Update r2, r3, and r4 for Eq. (3.3), remove third loop here
             r2 = 2 * np.pi * self.generator.uniform(0, 1, self.problem.n_dims)
             r3 = 2 * self.generator.uniform(0, 1, self.problem.n_dims)
@@ -136,7 +136,7 @@ class OriginalSCA(DevSCA):
         for idx in range(0, self.pop_size):
             # Eq 3.4, r1 decreases linearly from a to 0
             a = 2.0
-            r1 = a - (epoch + 1) * (a / self.epoch)
+            r1 = a * (1. - epoch / self.epoch)
             pos_new = self.pop[idx].solution.copy()
             for jdx in range(self.problem.n_dims):  # j-th dimension
                 # Update r2, r3, and r4 for Eq. (3.3)
