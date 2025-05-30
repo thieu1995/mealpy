@@ -92,7 +92,7 @@ class DevGSKA(Optimizer):
             else:  # junior gaining and sharing
                 if self.generator.uniform() <= self.kr:
                     id1 = int(self.pb * self.pop_size)
-                    id2 = id1 + self.pop_size * (1 - 2 * self.pb)
+                    id2 = int(id1 + self.pop_size * (1 - 2 * self.pb))
                     rand_best = self.generator.choice(list(set(range(0, id1)) - {idx}))
                     rand_worst = self.generator.choice(list(set(range(id2, self.pop_size)) - {idx}))
                     rand_mid = self.generator.choice(list(set(range(id1, id2)) - {idx}))
@@ -211,7 +211,7 @@ class OriginalGSKA(Optimizer):
                 else:  # senior gaining and sharing
                     if self.generator.uniform() <= self.kr:
                         id1 = int(self.pb * self.pop_size)
-                        id2 = id1 + self.pop_size * (1 - 2 * self.pb)
+                        id2 = int(id1 + self.pop_size * (1 - 2 * self.pb))
                         rand_best = self.generator.choice(list(set(range(0, id1)) - {idx}))
                         rand_worst = self.generator.choice(list(set(range(id2, self.pop_size)) - {idx}))
                         rand_mid = self.generator.choice(list(set(range(id1, id2)) - {idx}))
