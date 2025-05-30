@@ -19,20 +19,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 9
           submodules: false
 
       - name: Use Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v3
         id: depcache
         with:
           path: deps
@@ -53,7 +53,7 @@ jobs:
           flake8 tests/
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: junit/pytest-results-${{ matrix.python-version }}.xml
@@ -68,7 +68,7 @@ jobs:
         if: matrix.python-version == 3.11
 
       - name: Upload distribution package
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: dist-package-${{ matrix.python-version }}
           path: dist
@@ -80,13 +80,13 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Download a distribution artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
         with:
           name: dist-package-3.11
           path: dist
 
       - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip_existing: true
           user: __token__
@@ -94,7 +94,7 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
