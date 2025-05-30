@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalSA(Optimizer):
     """
-    The original version of: Simulated Annealing (OriginalSA)
+    The original version of: Simulated Annealing (SA)
 
     Notes:
         + SA is single-based solution, so the pop_size parameter is not matter in this algorithm
@@ -79,7 +79,7 @@ class OriginalSA(Optimizer):
             # Calculate the energy difference
             delta_energy = np.abs(self.agent_current.target.fitness - agent.target.fitness)
             # calculate probability acceptance criterion
-            p_accept = np.exp(-delta_energy/ (self.temp_init / float(epoch + 1)))
+            p_accept = np.exp(-delta_energy/ (self.temp_init / epoch))
             if self.generator.random() < p_accept:
                 self.agent_current = agent
         self.pop = [self.g_best.copy(), self.agent_current.copy()]
