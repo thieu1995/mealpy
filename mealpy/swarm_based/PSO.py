@@ -451,7 +451,7 @@ class HPSO_TVAC(P_PSO):
         Args:
             epoch (int): The current iteration
         """
-        c_it = ((self.cf - self.ci) * ((epoch + 1) / self.epoch)) + self.ci
+        c_it = ((self.cf - self.ci) * (epoch / self.epoch)) + self.ci
         for idx in range(0, self.pop_size):
             idx_k = self.generator.integers(0, self.pop_size)
             w = self.generator.normal()
@@ -652,7 +652,7 @@ class CL_PSO(Optimizer):
         self.max_flag = self.validator.check_int("max_flag", max_flag, [2, 100])
         self.set_parameters(["epoch", "pop_size", "c_local", "w_min", "w_max", "max_flag"])
         self.sort_flag = False
-        self.is_parallelizable = False
+        self.is_parallelizable = True
     
     def initialize_variables(self):
         self.v_max = 0.5 * (self.problem.ub - self.problem.lb)
@@ -680,6 +680,7 @@ class CL_PSO(Optimizer):
             epoch (int): The current iteration
         """
         wk = self.w_max * (epoch / self.epoch) * (self.w_max - self.w_min)
+        pop_new = []
         for idx in range(0, self.pop_size):
             pci = 0.05 + 0.45 * (np.exp(10 * (idx + 1) / self.pop_size) - 1) / (np.exp(10) - 1)
             vec_new = self.pop[idx].velocity.copy()
@@ -699,14 +700,29 @@ class CL_PSO(Optimizer):
             vec_new = np.clip(vec_new, self.v_min, self.v_max)
             pos_new = self.pop[idx].solution + vec_new
             pos_new = self.correct_solution(pos_new)
-            self.pop[idx].velocity = vec_new
-            target = self.get_target(pos_new)
-            if self.compare_target(target, self.pop[idx].target, self.problem.minmax):
-                self.pop[idx].update(solution=pos_new.copy(), target=target.copy())
-            if self.compare_target(target, self.pop[idx].local_target, self.problem.minmax):
-                self.pop[idx].update(local_solution=pos_new.copy(), local_target=target.copy())
-                self.flags[idx] = 0
-            else:
-                self.flags[idx] += 1
-                if self.flags[idx] >= self.max_flag:
+
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                agent.target = self.get_target(pos_new)
+                self.pop[idx] = self.get_better_agent(self.pop[idx], agent, self.problem.minmax)
+                if self.compare_target(agent.target, self.pop[idx].local_target, self.problem.minmax):
+                    self.pop[idx].update(local_solution=agent.solution.copy(), local_target=agent.target.copy())
                     self.flags[idx] = 0
+                else:
+                    self.flags[idx] += 1
+                    if self.flags[idx] >= self.max_flag:
+                        self.flags[idx] = 0
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
+            pop_child = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+            for idx in range(0, self.pop_size):
+                if self.compare_target(pop_new[idx].target, self.pop[idx].local_target, self.problem.minmax):
+                    pop_child[idx].update(local_solution=pop_new[idx].solution.copy(), local_target=pop_new[idx].target.copy())
+                    self.flags[idx] = 0
+                else:
+                    self.flags[idx] += 1
+                    if self.flags[idx] >= self.max_flag:
+                        self.flags[idx] = 0
+            self.pop = pop_child
