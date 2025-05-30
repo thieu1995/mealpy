@@ -10,6 +10,28 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * mealpy >= 2.5.1 <= 2.5.4 (Define model 1 time, solve multiple problems)
   * mealpy >= 3.0.0 (Everything is wrapped inside class and object)
 
+# Version 3.0.2
+
++ Fix bug infinite loop in `JADE`, `OriginalSHADE`, and `L_SHADE` optimizers.
++ Fig bug check input conditions in `Validator` class.
++ Fig bug set up __init__ function in `Problem` class.
++ Fix bug in `get_roulette_wheel_selection_index()` function in `Optimizer` class.
++ Fix bug counting number of function evaluation in `Optimizer` class.
++ Fix bug divide by zero in `FLA`, `BeesA`, `DMOA`, `ESOA`, `FA`, `SSpiderO`, `GCO` , `MRFO`, and `AVOA`.
++ Fix bug compare `np.all` in `NRO`.
++ Fix bug random number verse random vector in `MFO`.
++ Fix bug epoch in `MGO`.
++ Fix bug parallelization in `CL-PSO`.
++ Fix bug compare fitness with Agent in `Agent` class.
++ Replace `MixSetVar` by `CategoricalVar` in `space` module.
++ Add `SequenceVar` to `space` module for handling tuple, list, and set variables.
++ Update `get_optimizer_by_class()` and `get_optimizer_by_name()` functions in `mealpy` module to support new classes.
++ Fix bug lower bound in `TransferBinaryVar` and `TransferBoolVar` classes.
++ Fix bug out of range for choice in `GSKA` optimizer.
++ Update example comment in `IWO`, `SBO`, `SMA`, `SA`, `GTO`, `GWO`, `HGS` optimizers.
++ Update docs and examples.
+
+
 
 # Version 3.0.1
 
@@ -20,7 +42,6 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Update correct function in `BoolVar` and `BinaryVar`.
 + Fix bug reproduce results in `GA`, `WCA`, and `EHO` optimizers.
 + Fix bug higher probability of 0 value in `IntegerVar` data type.
-
 
 
 # Version 3.0.0
