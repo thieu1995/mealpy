@@ -7,7 +7,7 @@ alt="MEALPY"/>
 ---
 
 
-[![GitHub release](https://img.shields.io/badge/release-3.0.1-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
+[![GitHub release](https://img.shields.io/badge/release-3.0.2-yellow.svg)](https://github.com/thieu1995/mealpy/releases)
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
@@ -107,7 +107,7 @@ Our goals are to implement all classical as well as the state-of-the-art nature-
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
 ```sh
-$ pip install mealpy==3.0.1
+$ pip install mealpy==3.0.2
 ```
 
 * Install the alpha/beta version from PyPi
@@ -151,17 +151,18 @@ Based on the table below, you can select an appropriate type of decision variabl
 
 <div align="center">
 
-| Class           | Syntax                                                                                                       | Problem Types               |
-|-----------------|--------------------------------------------------------------------------------------------------------------|-----------------------------|
-| FloatVar        | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                        | Continuous Problem          |
-| IntegerVar      | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                      | LP, IP, NLP, QP, MIP        |
-| StringVar       | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")`          | ML, AI-optimize             |
-| BinaryVar       | `BinaryVar(n_vars=11, name="delta")`                                                                         | Networks                    |
-| BoolVar         | `BoolVar(n_vars=11, name="delta")`                                                                           | ML, AI-optimize             |
-| PermutationVar  | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`                                               | Combinatorial Optimization  |
-| MixedSetVar     | `MixedSetVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")` | MIP,  MILP                  |
-| TransferBoolVar | `TransferBoolVar(n_vars=11, name="delta", tf_func="sstf_02")`                                                | ML, AI-optimize, Feature    |
-|TransferBinaryVar| `TransferBinaryVar(n_vars=11, name="delta", tf_func="vstf_04")`                                              | Networks, Feature Selection |
+| Class             | Syntax                                                                                                          | Problem Types               |
+|-------------------|-----------------------------------------------------------------------------------------------------------------|-----------------------------|
+| FloatVar          | `FloatVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                           | Continuous Problem          |
+| IntegerVar        | `IntegerVar(lb=(-10., )*7, ub=(10., )*7, name="delta")`                                                         | LP, IP, NLP, QP, MIP        |
+| StringVar         | `StringVar(valid_sets=(("auto", "backward", "forward"), ("leaf", "branch", "root")), name="delta")`             | ML, AI-optimize             |
+| BinaryVar         | `BinaryVar(n_vars=11, name="delta")`                                                                            | Networks                    |
+| BoolVar           | `BoolVar(n_vars=11, name="delta")`                                                                              | ML, AI-optimize             |
+| PermutationVar    | `PermutationVar(valid_set=(-10, -4, 10, 6, -2), name="delta")`                                                  | Combinatorial Optimization  |
+| CategoricalVar    | `CategoricalVar(valid_sets=(("auto", 2, 3, "backward", True), (0, "tournament", "round-robin")), name="delta")` | MIP,  MILP                  |
+| SequenceVar       | `SequenceVar(valid_sets=((1, ), {2, 3}, [3, 5, 1]), return_type=list, name='delta')`                            | Hyper-parameter tuning      |
+| TransferBoolVar   | `TransferBoolVar(n_vars=11, name="delta", tf_func="sstf_02")`                                                   | ML, AI-optimize, Feature    |
+| TransferBinaryVar | `TransferBinaryVar(n_vars=11, name="delta", tf_func="vstf_04")`                                                 | Networks, Feature Selection |
 
 </div>
 
@@ -302,7 +303,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn import datasets, metrics
 
-from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, MixedSetVar, SMA, Problem
+from mealpy import FloatVar, StringVar, IntegerVar, BoolVar, CategoricalVar, SMA, Problem
 
 
 # Load the data set; In this example, the breast cancer dataset is loaded.
@@ -346,7 +347,7 @@ my_bounds = [
     FloatVar(lb=0.01, ub=1000., name="C_paras"),
     StringVar(valid_sets=('linear', 'poly', 'rbf', 'sigmoid'), name="kernel_paras"),
     IntegerVar(lb=1, ub=5, name="degree_paras"),
-    MixedSetVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
+    CategoricalVar(valid_sets=('scale', 'auto', 0.01, 0.05, 0.1, 0.5, 1.0), name="gamma_paras"),
     BoolVar(n_vars=1, name="probability_paras"),
 ]
 problem = SvmOptimizedProblem(bounds=my_bounds, minmax="max", data=data)
@@ -1354,7 +1355,7 @@ from mealpy import Problem
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import (StringVar, FloatVar, BoolVar, PermutationVar, MixedSetVar, IntegerVar, BinaryVar,
+from mealpy import (StringVar, FloatVar, BoolVar, PermutationVar, CategoricalVar, IntegerVar, BinaryVar,
                     TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
 from mealpy import get_all_optimizers, get_optimizer_by_name
