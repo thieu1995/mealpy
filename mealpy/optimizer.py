@@ -174,7 +174,7 @@ class Optimizer:
                     self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(61, os.cpu_count() - 1)])
                 if self.mode == "thread":
                     self.n_workers = self.validator.check_int("n_workers", n_workers, [2, min(32, os.cpu_count() + 4)])
-                self.logging.info(f"The parallel mode '{self.mode}' is selected with {self.n_workers} workers.")
+                self.logger.info(f"The parallel mode '{self.mode}' is selected with {self.n_workers} workers.")
             else:
                 self.logger.warning(f"The parallel mode: {self.mode} is selected. But n_workers is not set. The default n_workers = 4 is used.")
                 self.n_workers = 4
