@@ -664,6 +664,15 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Swarm</th>
+         <td>*</td>
+         <td>*</td>
+         <td>ExGWO</td>
+         <td>2021</td>
+         <td>2</td>
+         <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
          <td>Social Spider Algorithm</td>
          <td>SSpiderA</td>
          <td>OriginalSSpiderA</td>
