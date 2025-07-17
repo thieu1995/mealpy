@@ -11,7 +11,6 @@ alt="MEALPY"/>
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
-![PyPI - Status](https://img.shields.io/pypi/status/mealpy.svg)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/mealpy.svg)
 [![Downloads](https://static.pepy.tech/badge/mealpy)](https://pepy.tech/project/mealpy)
 [![Tests & Publishes to PyPI](https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml/badge.svg)](https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml)
@@ -51,11 +50,6 @@ Our goals are to implement all classical as well as the state-of-the-art nature-
 - **Solve any optimization problem**
 
 </details>
-
-
-
-![MEALPY3-0-0](.github/img/mealpy-classification.png)
-
 
 
 # 📄 Citation Request
@@ -163,6 +157,8 @@ along with their syntax and common problem applications. This will guide you in 
 
 
 ## 📦 Optimizer Classification Table
+
+![MEALPY3-0-0](.github/img/mealpy-classification.png)
 
 * Meta-heuristic Categories: ([Based on this article](https://doi.org/10.1016/j.procs.2020.09.075))
     + Evolutionary-based: Algorithms inspired by Darwin's law of natural selection and evolutionary computing principles
