@@ -49,7 +49,7 @@ Our goals are to implement all classical as well as the state-of-the-art nature-
 - **Solve any optimization problem**
 
 
-# 📄 Citation Request
+## 📄 Citation Request
 
 Please include these citations if you plan to use this library:
 
@@ -89,7 +89,7 @@ Please include these citations if you plan to use this library:
 
 # ⚙️ Usage
 
-<details><summary><h2>Installation</h2></summary>
+<details><summary><h2>🛠️ Installation</h2></summary>
 
 * Install the stable (latest) version from [PyPI release](https://pypi.python.org/pypi/mealpy):
 ```bash
@@ -583,8 +583,8 @@ MEALPY includes specialized classes to streamline common optimization tasks.
 
 Explore additional advanced examples and dedicated projects showcasing MEALPY's capabilities.
 
-* Travelling Salesman Problem: https://github.com/thieu1995/MHA-TSP
-* Feature selection problem: https://github.com/thieu1995/MHA-FS
+* Travelling Salesman Problem: [link](https://github.com/thieu1995/MHA-TSP)
+* Feature selection problem: [link](https://github.com/thieu1995/MHA-FS)
 
 For more usage examples please look at [examples](/examples) folder.
 More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
