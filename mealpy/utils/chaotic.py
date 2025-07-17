@@ -7,7 +7,7 @@
 import numpy as np
 
 
-class ChaoticMaps:
+class ChaoticMap:
     """
     Implementation of 10 chaotic maps
     """
