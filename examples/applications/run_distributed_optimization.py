@@ -4,6 +4,17 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+"""
+### Distributed Optimization / Parallelization Optimization
+
+For a deeper understanding of parallelization and distributed optimization concepts in metaheuristics,
+we recommend reading the comprehensive article: [MEALPY: An open-source library for latest meta-heuristic algorithms in Python](https://doi.org/10.1016/j.sysarc.2023.102871)
+
+It's important to note that not all metaheuristics can be run in parallel. MEALPY provides built-in support for
+distributed execution where applicable, allowing you to leverage multiple threads or CPU cores to speed up computation.
+"""
+
+
 from mealpy import FloatVar, SMA
 import numpy as np
 

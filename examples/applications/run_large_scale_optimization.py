@@ -4,6 +4,14 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+"""
+### Large-Scale Optimization
+
+MEALPY is designed to handle optimization problems with a high number of dimensions.
+Here's an example demonstrating how to set up and run an optimization for a large-scale problem.
+"""
+
+
 from mealpy import FloatVar, SHADE
 import numpy as np
 

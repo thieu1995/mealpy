@@ -44,6 +44,7 @@ problem = {
     "obj_func": objective_function,
     "bounds": FloatVar(lb=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], ub=[1, 1, 1, 1, 1, 1, 1, 1, 1, 100, 100, 100, 1]),
     "minmax": "min",
+    "log_to": "console"
 }
 
 ## Run the algorithm

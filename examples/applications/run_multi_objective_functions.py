@@ -4,8 +4,8 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
-from mealpy import FloatVar, SMA
 import numpy as np
+from mealpy import FloatVar, SMA
 
 
 ## Link: https://en.wikipedia.org/wiki/Test_functions_for_optimization
@@ -27,6 +27,7 @@ problem = {
     "obj_func": objective_function,
     "bounds": FloatVar(lb=(-10, -10), ub=(10, 10)),
     "minmax": "min",
+    "log_to": "console",
     "obj_weights": [0.4, 0.1, 0.5]               # Define it or default value will be [1, 1, 1]
 }
 
@@ -44,16 +45,3 @@ optimizer.history.save_runtime_chart(filename="hello/rtc")
 optimizer.history.save_exploration_exploitation_chart(filename="hello/eec")
 optimizer.history.save_diversity_chart(filename="hello/dc")
 optimizer.history.save_trajectory_chart(list_agent_idx=[3, 5], selected_dimensions=[2], filename="hello/tc")
-
-
-from mealpy import Problem
-import numpy as np
-
-# Our custom problem class
-class Squared(Problem):
-    def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
-        self.data = data
-        super().__init__(bounds, minmax, **kwargs)
-
-    def obj_func(self, solution):
-        return np.sum(solution ** 2)
