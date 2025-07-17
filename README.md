@@ -252,19 +252,32 @@ print(model.problem.ub)
 ```
 
 
+We provide many examples for complicated applications that can use Mealpy to solve.
+
 
 ## Mealpy Applications
 
-We provide many examples for complicated applications that can use Mealpy to solve.
+MEALPY is a versatile library capable of solving a wide array of complex optimization problems across various domains. Below are examples showcasing its diverse applications.
+
+### General Optimization Problems
+
+These examples demonstrate MEALPY's use in common optimization scenarios.
 
 1. Large-Scale Optimization [example](/examples/applications/run_large_scale_optimization.py)
 2. Distributed Optimization / Parallelization Optimization [example](/examples/applications/run_distributed_optimization.py)
 3. Constrained Benchmark Function [example](/examples/applications/run_constraint_functions.py)
 4. Multi-objective Benchmark Function [example](/examples/applications/run_multi_objective_functions.py)
-5. Optimize Machine Learning Model (SVM) Hyperparameters [example](/examples/applications/sklearn/svm_hyperparameter_optimization.py)
-6. Optimize Linear Regression Model: [example](/examples/applications/pytorch/linear_regression.py)
 
-Especially Mealpy can solve combinatiral problems
+### Machine Learning & AI Optimization
+
+MEALPY can be effectively used to optimize various aspects of Machine Learning and AI models.
+
+1. Optimize Machine Learning Model (SVM) Hyperparameters [example](/examples/applications/sklearn/svm_hyperparameter_optimization.py)
+2. Optimize Linear Regression Model with Pytorch: [example](/examples/applications/pytorch/linear_regression.py)
+
+### Combinatorial Optimization Problems
+
+MEALPY excels at solving complex combinatorial problems, which involve finding an optimal object from a finite set of objects.
 
 1. Traveling Salesman Problem (TSP) [example](/examples/applications/discrete-problems/traveling_salesman_problem.py)
 2. Job Shop Scheduling Problem [example](/examples/applications/discrete-problems/job_shop_scheduling.py)
@@ -277,18 +290,12 @@ Especially Mealpy can solve combinatiral problems
 9. Maintenance Scheduling [example](/examples/applications/discrete-problems/maintenance_scheduling.py)
 10. Cloud task scheduling [example](/examples/applications/discrete-problems/cloud_task_scheduling.py)
 
-We build several dedicated class:
+### Advanced Integration Examples
 
-1. Tuner class (GridSearchCV/ParameterSearch, Hyper-parameter tuning)  [example](/examples/run_tuner.py)
-2. Multitask class (Multitask solver) [example](/examples/run_multitask.py)
+MEALPY's flexibility allows for integration into more specialized systems and workflows.
 
-For more usage examples please look at [examples](/examples) folder.
-More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
+#### MEALPY + Neural Networks (Replacing Gradient Descent)
 
-
-Some special applications:
-
-### Mealpy + Neural Network (Replace the Gradient Descent Optimizer)
 * Time-series Problem:
   * Traditional MLP [Link](/examples/applications/keras/traditional-mlp-time-series.py)
   * Hybrid code (Mealpy + MLP): [Link](/examples/applications/keras/mha-hybrid-mlp-time-series.py)
@@ -301,21 +308,32 @@ Some special applications:
 Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
 
 
+### Dedicated Utility Classes
+
+MEALPY includes specialized classes to streamline common optimization tasks.
+
+1. Tuner class (GridSearchCV/ParameterSearch, Hyper-parameter tuning)  [example](/examples/run_tuner.py)
+2. Multitask class (Multitask solver) [example](/examples/run_multitask.py)
+3. Visualization [Tutorials](/examples/utils/visualize/all_charts.py)
+
+### External Projects & More Examples
+
+Explore additional advanced examples and dedicated projects showcasing MEALPY's capabilities.
+
 * Travelling Salesman Problem: https://github.com/thieu1995/MHA-TSP
 * Feature selection problem: https://github.com/thieu1995/MHA-FS
 
+For more usage examples please look at [examples](/examples) folder.
+More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
 
 
+### Tutorial Videos & Resources
 
+All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
 
-<details><summary><h3>Get Visualize Figures</h3></summary>
+All code examples: [Link](/examples)
 
-* [Tutorials](/examples/utils/visualize/all_charts.py)
-
-<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
-</p>
-
-</details>
+All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages/visualization.html)
 
 
 
@@ -560,30 +578,6 @@ if __name__ == "__main__":
     model = COA.OriginalCOA(epoch=100, pop_size=50, n_coyotes=5)
     model = BSA.OriginalBSA(epoch=100, pop_size=50, ff=10, pff=0.8, c1=1.5, c2=1.5, a1=1.0, a2=1.0, fc=0.5)
 ```
-
-</details>
-
-
-
-
-
-<details><summary><h3>Get Visualize Figures</h3></summary>
-
-* [Tutorials](/examples/utils/visualize/all_charts.py)
-
-<p align="center"><img src="https://thieu1995.github.io/post/2022-04/19-mealpy-tutorials/mealpy2.png" alt="MEALPY"/>
-</p>
-
-</details>
-
-
-<details><summary><h3>Tutorial Videos</h3></summary>
-
-All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
-
-All code examples: [Link](https://github.com/thieu1995/mealpy/tree/master/examples)
-
-All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages/visualization.html)
 
 </details>
 
