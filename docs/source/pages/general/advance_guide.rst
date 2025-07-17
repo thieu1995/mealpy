@@ -3,6 +3,7 @@ Advance Guide
 =============
 
 .. include:: advances/termination.rst
+.. include:: advances/reproducibility.rst
 .. include:: advances/multi_objective_optimization.rst
 .. include:: advances/constraint_optimization.rst
 .. include:: advances/discrete_optimization.rst
