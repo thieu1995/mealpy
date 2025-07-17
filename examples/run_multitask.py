@@ -4,6 +4,15 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
+"""
+We also build a dedicated class, Multitask, that can help you run several scenarios. For example:
+
+1. Run 1 algorithm with 1 problem, and multiple trials
+2. Run 1 algorithm with multiple problems, and multiple trials
+3. Run multiple algorithms with 1 problem, and multiple trials
+4. Run multiple algorithms with multiple problems, and multiple trials
+"""
+
 #### Using multiple algorithm to solve multiple problems with multiple trials
 
 ## Import libraries
