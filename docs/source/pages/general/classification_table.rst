@@ -1,4 +1,6 @@
 
+Warning: This classification is old. Now we update all new optimizers at `this table`_.
+
 * Meta-heuristic Algorithm's Categories: (Based on `this article`_)
     + Evolutionary-based: inspired by Darwin's law of natural selection, evolutionary computing
     + Swarm-based: inspired by movement, interaction, and organization of birds, social insects, and other animals
@@ -10,7 +12,7 @@
     + Music-based: inspired by music instruments, such as harmony search
 
 .. _this article: https://doi.org/10.1016/j.procs.2020.09.075
-
+.. _this table: https://github.com/thieu1995/mealpy?tab=readme-ov-file#-optimizer-classification-table
 
 * Difficulty - Difficulty Level (Personal Opinion): Objective observation from author. Depend on the number of parameters, number of equations, the original ideas, time spend for coding, source lines of code (SLOC).
     + Easy: Few parameters, few equations, and very short SLOC (Source lines of code)
