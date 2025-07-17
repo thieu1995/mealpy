@@ -38,6 +38,22 @@ For detailed updates in each new version, please refer to the [ChangeLog](/Chang
 * **Dependencies:** numpy, scipy, pandas, matplotlib
 
 
+<details><summary><h2>Goals</h2></summary>
+
+Our goals are to implement all classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
+
+- Analyse parameters of meta-heuristic algorithms.
+- Perform Qualitative and Quantitative Analysis of algorithms.
+- Analyse rate of convergence of algorithms.
+- Test and Analyse the scalability and the robustness of algorithms.
+- Save results in various formats (csv, json, pickle, png, pdf, jpeg)
+- Export and import models can also be done with Mealpy.
+- **Solve any optimization problem**
+
+</details>
+
+
+
 ![MEALPY3-0-0](.github/img/mealpy-classification.png)
 
 
@@ -80,24 +96,7 @@ Please include these citations if you plan to use this library:
 ```
 
 
-# 📦 Usage 
-
-
-<details><summary><h2>Goals</h2></summary>
-
-Our goals are to implement all classical as well as the state-of-the-art nature-inspired algorithms, create a simple interface that helps researchers access optimization algorithms as quickly as possible, and share knowledge of the optimization field with everyone without a fee. What you can do with mealpy:
-
-- Analyse parameters of meta-heuristic algorithms.
-- Perform Qualitative and Quantitative Analysis of algorithms.
-- Analyse rate of convergence of algorithms.
-- Test and Analyse the scalability and the robustness of algorithms.
-- Save results in various formats (csv, json, pickle, png, pdf, jpeg)
-- Export and import models can also be done with Mealpy.
-- **Solve any optimization problem**
-
-</details>
-
-
+# 📦 Usage
 
 <details><summary><h2>Installation</h2></summary>
 
@@ -163,14 +162,12 @@ along with their syntax and common problem applications. This will guide you in 
 
 </div>
 
-Let's go through a basic and advanced example.
-
 
 ### Simple Benchmark Function
 
 MEALPY allows you to define your optimization problem in a couple of ways.
 
-#### Define Problem as a Dictionary
+#### 1. Define Problem as a Dictionary
 
 You can quickly define your problem using a Python dictionary. However, this approach is only valid for problems with float decision variables.
 
@@ -194,7 +191,7 @@ g_best = model.solve(problem)
 print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 ```
 
-#### Define a Custom Problem Class
+#### 2. Define a Custom Problem Class
 
 For more complex scenarios, especially when your decision variables are not exclusively `FloatVar`, 
 **we recommend defining a custom class that inherits from the Problem class.**
@@ -259,7 +256,7 @@ We provide many examples for complicated applications that can use Mealpy to sol
 
 MEALPY is a versatile library capable of solving a wide array of complex optimization problems across various domains. Below are examples showcasing its diverse applications.
 
-### General Optimization Problems
+### 1. General Optimization Problems
 
 These examples demonstrate MEALPY's use in common optimization scenarios.
 
@@ -268,14 +265,14 @@ These examples demonstrate MEALPY's use in common optimization scenarios.
 3. Constrained Benchmark Function [example](/examples/applications/run_constraint_functions.py)
 4. Multi-objective Benchmark Function [example](/examples/applications/run_multi_objective_functions.py)
 
-### Machine Learning & AI Optimization
+### 2. Machine Learning & AI Optimization
 
 MEALPY can be effectively used to optimize various aspects of Machine Learning and AI models.
 
 1. Optimize Machine Learning Model (SVM) Hyperparameters [example](/examples/applications/sklearn/svm_hyperparameter_optimization.py)
 2. Optimize Linear Regression Model with Pytorch: [example](/examples/applications/pytorch/linear_regression.py)
 
-### Combinatorial Optimization Problems
+### 3. Combinatorial Optimization Problems
 
 MEALPY excels at solving complex combinatorial problems, which involve finding an optimal object from a finite set of objects.
 
@@ -290,7 +287,7 @@ MEALPY excels at solving complex combinatorial problems, which involve finding a
 9. Maintenance Scheduling [example](/examples/applications/discrete-problems/maintenance_scheduling.py)
 10. Cloud task scheduling [example](/examples/applications/discrete-problems/cloud_task_scheduling.py)
 
-### Advanced Integration Examples
+### 4. Advanced Integration Examples
 
 MEALPY's flexibility allows for integration into more specialized systems and workflows.
 
@@ -303,12 +300,12 @@ MEALPY's flexibility allows for integration into more specialized systems and wo
   * Traditional MLP [Link](/examples/applications/keras/traditional-mlp-classification.py)
   * Hybrid code (Mealpy + MLP): [Link](/examples/applications/keras/mha-hybrid-mlp-classification.py)
 
-### Mealpy + Neural Network (Optimize Neural Network Hyper-parameter)
+#### MEALPY + Neural Network (Optimize Neural Network Hyper-parameter)
 
 Code: [Link](https://github.com/thieu1995/mealpy/blob/master/examples/applications/keras/mha-hyper-parameter-mlp-time-series.py)
 
 
-### Dedicated Utility Classes
+### 5. Dedicated Utility Classes
 
 MEALPY includes specialized classes to streamline common optimization tasks.
 
@@ -316,7 +313,7 @@ MEALPY includes specialized classes to streamline common optimization tasks.
 2. Multitask class (Multitask solver) [example](/examples/run_multitask.py)
 3. Visualization [Tutorials](/examples/utils/visualize/all_charts.py)
 
-### External Projects & More Examples
+### 6. External Projects & More Examples
 
 Explore additional advanced examples and dedicated projects showcasing MEALPY's capabilities.
 
@@ -327,7 +324,7 @@ For more usage examples please look at [examples](/examples) folder.
 More advanced examples can also be found in the [Mealpy-examples repository](https://github.com/thieu1995/mealpy_examples).
 
 
-### Tutorial Videos & Resources
+### 7. Tutorial Videos & Resources
 
 All tutorial videos: [Link](https://mealpy.readthedocs.io/en/latest/pages/general/video_tutorials.html)
 
