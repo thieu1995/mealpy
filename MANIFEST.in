@@ -1,7 +1,2 @@
-
-include README.md ChangeLog.md LICENSE
-
+include README.md LICENSE CODE_OF_CONDUCT.md ChangeLog.md CITATION.cff
 global-exclude *.py[cod]
-
-
-
