@@ -9,7 +9,7 @@ import os
 import re
 
 
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding='utf-8') as f:
     REQUIREMENTS = f.read().splitlines()
 
 
