@@ -78,9 +78,9 @@ data = {
 
 class LocationOptProblem(Problem):
     def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
+        super().__init__(bounds, minmax, **kwargs)
         self.data = data
         self.eps = 1e10
-        super().__init__(bounds, minmax, **kwargs)
 
     # Define the fitness evaluation function
     def obj_func(self, x):

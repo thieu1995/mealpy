@@ -36,8 +36,8 @@ data = {
 
 class MaintenanceSchedulingProblem(Problem):
     def __init__(self, bounds=None, minmax=None, data=None, **kwargs):
-        self.data = data
         super().__init__(bounds, minmax, **kwargs)
+        self.data = data
 
     def obj_func(self, x):
         x_decoded = self.decode_solution(x)

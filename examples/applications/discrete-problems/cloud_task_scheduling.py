@@ -10,8 +10,8 @@ from mealpy import PermutationVar, ACOR, Problem
 
 class MyProblem(Problem):
     def __init__(self, bounds, minmax="min", data=None, **kwargs):
-        self.data = data
         super().__init__(bounds, minmax, **kwargs)
+        self.data = data
 
     def obj_func(self, x):
         order = self.decode_solution(x)["delta"]

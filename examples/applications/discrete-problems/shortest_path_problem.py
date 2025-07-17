@@ -28,9 +28,9 @@ graph = np.array([
 
 class ShortestPathProblem(Problem):
     def __init__(self, bounds=None, minmax="min", data=None, **kwargs):
+        super().__init__(bounds, minmax, **kwargs)
         self.data = data
         self.eps = 1e10         # Penalty function for vertex with 0 connection
-        super().__init__(bounds, minmax, **kwargs)
 
     # Calculate the fitness of an individual
     def obj_func(self, x):
