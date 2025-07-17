@@ -30,7 +30,7 @@ population-based metaheuristics (PBMs), which are among the most popular algorit
 For detailed updates in each new version, please refer to the [ChangeLog](/ChangeLog.md) file.
 
 * **Free software:** MIT license
-* **Total algorithms**: 215 (190 official (original, hybrid, variants), 25 developed)
+* **Total algorithms**: 225 (200 official (original, hybrid, variants), 25 developed)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** >=3.8x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
@@ -706,6 +706,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>2020</td>
          <td>5</td>
          <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
+         <td>*</td>
+         <td>*</td>
+         <td>CG_GWO</td>
+         <td>2022</td>
+         <td>2</td>
+         <td>hard</td>
       </tr>
       <tr>
          <th>Swarm</th>
@@ -2466,7 +2475,6 @@ if __name__ == "__main__":
     model = HGS.OriginalHGS(epoch=100, pop_size=50, PUP=0.08, LH=10000)
     model = HBA.OriginalHBA(epoch=100, pop_size=50)
     model = GWO.OriginalGWO(epoch=100, pop_size=50)
-    model = GWO.GWO_WOA(epoch=100, pop_size=50)
     model = GWO.RW_GWO(epoch=100, pop_size=50)
     model = GTO.OriginalGTO(epoch=100, pop_size=50, A=0.4, H=2.0)
     model = GTO.Matlab101GTO(epoch=100, pop_size=50)
@@ -2492,7 +2500,17 @@ if __name__ == "__main__":
     model = BSA.OriginalBSA(epoch=100, pop_size=50, ff=10, pff=0.8, c1=1.5, c2=1.5, a1=1.0, a2=1.0, fc=0.5)
 
     ## Newly added algorithms in version 3.0.3
+    model = GWO.GWO_WOA(epoch=100, pop_size=50)
+    model = GWO.IGWO(epoch=1000, pop_size=50, a_min = 0.02, a_max = 2.2)
     model = GWO.ChaoticGWO(epoch=1000, pop_size=50, chaotic_name="chebyshev", initial_chaotic_value=0.7)
+    model = GWO.FuzzyGWO(epoch=1000, pop_size=50, fuzzy_name="increase")
+    model = GWO.IncrementalGWO(epoch=1000, pop_size=50, explore_factor=1.5)
+    model = GWO.ExGWO(epoch=1000, pop_size=50)
+    model = GWO.DS_GWO(epoch=1000, pop_size=50, explore_ratio=0.4, n_groups=5)
+    model = GWO.IOBL_GWO(epoch=1000, pop_size=50)
+    model = GWO.OGWO(epoch=1000, pop_size=50, miu_factor=2.0, jumping_rate=0.05)
+    model = GWO.ER_GWO(epoch=1000, pop_size=50, a_initial=2.0, a_final=0.0, miu_factor=1.0001)
+    model = GWO.CG_GWO(epoch=1000, pop_size=50)
 
 ```
 
@@ -2896,6 +2914,15 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
   * **RW_GWO**: Gupta, S., & Deep, K. (2019). A novel random walk grey wolf optimizer. Swarm and evolutionary computation, 44, 101-112.
   * **GWO_WOA**: Obadina, O. O., Thaha, M. A., Althoefer, K., & Shaheed, M. H. (2022). Dynamic characterization of a master–slave robotic manipulator using a hybrid grey wolf–whale optimization algorithm. Journal of Vibration and Control, 28(15-16), 1992-2003.
   * **IGWO**: Kaveh, A. & Zakian, P.. (2018). Improved GWO algorithm for optimal design of truss structures. Engineering with Computers. 34. 10.1007/s00366-017-0567-1.
+  * **ChaoticGWO**: Kohli, M., & Arora, S. (2018). Chaotic grey wolf optimization algorithm for constrained optimization problems. Journal of computational design and engineering, 5(4), 458-472.
+  * **FuzzyGWO**: Rodríguez, Luis, Oscar Castillo, José Soria, Patricia Melin, Fevrier Valdez, Claudia I. Gonzalez, Gabriela E. Martinez, and Jesus Soto. "A fuzzy hierarchical operator in the grey wolf optimizer algorithm." Applied Soft Computing 57 (2017): 315-328.
+  * **IncrementalGWO**: Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer to solve global optimization problems. Engineering with Computers, 37(1), 509-532.
+  * **ExGWO**: Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer to solve global optimization problems. Engineering with Computers, 37(1), 509-532.
+  * **DS_GWO**: Jiang, Jianhua, Ziying Zhao, Yutong Liu, Weihua Li, and Huan Wang. "DSGWO: An improved grey wolf optimizer with diversity enhanced strategy based on group-stage competition and balance mechanisms." Knowledge-Based Systems 250 (2022): 109100.
+  * **IOBL_GWO**: Bansal, J. C., & Singh, S. (2021). A better exploration strategy in Grey Wolf Optimizer. Journal of Ambient Intelligence and Humanized Computing, 12(1), 1099-1118.
+  * **OGWO**: Yu, X., Xu, W., & Li, C. (2021). Opposition-based learning grey wolf optimizer for global optimization. Knowledge-Based Systems, 226, 107139.
+  * **ER_GWO**: Long, W., Cai, S., Jiao, J. et al. An efficient and robust grey wolf optimizer algorithm for large-scale numerical optimization. Soft Comput 24, 997–1026 (2020).
+  * **CG_GWO**: Li, K., Li, S., Huang, Z. et al. Grey Wolf Optimization algorithm based on Cauchy-Gaussian mutation and improved search strategy. Sci Rep 12, 18961 (2022).
 
 * **GOA - Grasshopper Optimisation Algorithm** 
   * **OriginalGOA**: Saremi, S., Mirjalili, S., & Lewis, A. (2017). Grasshopper optimisation algorithm: theory and application. Advances in Engineering Software, 105, 30-47.
