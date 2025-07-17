@@ -579,31 +579,37 @@ if __name__ == "__main__":
 </details>
 
 
-# Documents
+# 📚 Documents
+
+## 📎 Official channels 
+
+* 🔗 [Official source code repository](https://github.com/thieu1995/mealpy)
+* 📘 [Official document](https://mealpy.readthedocs.io/)
+* 📦 [Download releases](https://pypi.org/project/mealpy/) 
+* 🐞 [Issue tracker](https://github.com/thieu1995/mealpy/issues) 
+* 📝 [Notable changes log](/ChangeLog.md)
+* 📝 [Examples with different meapy version:](/EXAMPLES.md)
+* 💬 [Official discussion group](https://t.me/+fRVCJGuGJg1mNDg1)
 
 
-## Official Channels (questions, problems)
+## 🌟 MEALPY ecosystem
 
-* Official source code repo: https://github.com/thieu1995/mealpy
-* Official document: https://mealpy.readthedocs.io/
-* Download releases: https://pypi.org/project/mealpy/
-* Issue tracker: https://github.com/thieu1995/mealpy/issues
-* Notable changes log: https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md
-* Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
-* Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
-
-* This project also related to our another projects which are optimization and machine learning. Check it here:
-    * https://github.com/thieu1995/opfunu
-    * https://github.com/thieu1995/metaheuristics
-    * https://github.com/mafese
-    * https://github.com/permetrics
-    * https://github.com/pfevaluator
-    * https://github.com/MetaCluster
-    * https://github.com/enoppy
-    * https://github.com/aiir-team
+* [Mealpy + Multi-Layer Perceptron](https://github.com/thieu1995/MetaPerceptron)
+* [Mealpy + Extreme Learning Machine](https://github.com/thieu1995/IntelELM)
+* [Mealpy + Random Vector Functional Link Neural Network](https://github.com/thieu1995/GrafoRVFL)
+* [Mealpy + KMeans clustering](https://github.com/thieu1995/MetaCluster)
+* [Mealpy + Cascade-Forward Neural Network](https://github.com/thieu1995/deforce)
+* [Mealpy + Higher Order Functional Link Neural Network](https://github.com/thieu1995/reflame)
+* [Mealpy + Radial Basis Function](https://github.com/thieu1995/EvoRBF)
+* [Mealpy + Adaptive Neuro Fuzzy Inference System](https://github.com/thieu1995/X-ANFIS)
+* [Mealpy + Wavelet Neural Network](https://github.com/thieu1995/WaveletML)
+* [Mealpy + Kolmogorov–Arnold Network](https://github.com/thieu1995/MetaKan)
+* [Mealpy + Feature Selection](https://github.com/thieu1995/mafese)
+* [Mealpy + Scikit-Learn](https://github.com/thieu1995/MetaSklearn)
+* [Mealpy + Immune Algorithm-Inspired Neural Network](https://github.com/thieu1995/IMAINET)
 
 
-## My Comments
+## 📦 Classification Table
 
 * Meta-heuristic Categories: (Based on this article: [link](https://doi.org/10.1016/j.procs.2020.09.075))
     + Evolutionary-based: Idea from Darwin's law of natural selection, evolutionary computing 
