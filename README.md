@@ -2138,24 +2138,44 @@ along with their syntax and common problem applications. This will guide you in 
          <td>4</td>
          <td>easy</td>
       </tr>
+   </tbody>
+</table>
+
+
+### ❌ Warning: Algorithms Suspected of Plagiarism
+
+During our implementation and classification of metaheuristic optimization algorithms, we identified a set of methods that raise 
+serious concerns regarding **scientific integrity and originality**. These algorithms are typically published under **different names**, 
+but they appear to share:
+
+- The **same core mathematical models**, equations, and update rules.
+- Only superficial changes in naming, metaphors, or biological analogies.
+- Publications authored by **the same or overlapping research groups**.
+- **Heavy criticism** on public academic forums such as [PubPeer](https://pubpeer.com), where many of these papers are flagged for **self-plagiarism**, **redundant publication**, or **lack of novelty**.
+- Some of these papers may be **withdrawn or retracted in the future**, as investigations unfold.
+
+For these reasons, we strongly advise the **exclusion** of the following algorithms from scientific benchmarking, 
+comparative studies, or any applications unless their originality is transparently validated.
+
+**I have personally implemented these algorithms, which is why I can confidently say that they are nearly identical 
+and likely cases of plagiarism. For this reason, I will no longer spend time coding such algorithms in the future. 
+This warning is intended to help others avoid using or relying on these methods in their work.**
+
+
+
+<table>
+   <thead>
       <tr>
-         <th>+++</th>
-         <td>+++</td>
-         <td>+++</td>
-         <td>+++</td>
-         <td>+++</td>
-         <td>+++</td>
-         <td>+++</td>
+         <th>Group</th>
+         <th>Name</th>
+         <th>Module</th>
+         <th>Class</th>
+         <th>Year</th>
+         <th>Paras</th>
+         <th>Difficulty</th>
       </tr>
-      <tr>
-         <th>WARNING</th>
-         <td>PLEASE CHECK PLAGIARISM BEFORE USING BELOW ALGORITHMS</td>
-         <td>*</td>
-         <td>*</td>
-         <td>*</td>
-         <td>*</td>
-         <td>*</td>
-      </tr>
+   </thead>
+   <tbody>
       <tr>
          <th>Swarm</th>
          <td>Coati Optimization Algorithm</td>
@@ -2257,6 +2277,16 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
    </tbody>
 </table>
+
+### ⚠️ Ethical Reminder
+
+Researchers and students are urged to **exercise caution** when referencing or applying the algorithms listed above. 
+Using unoriginal or unethical work can compromise the **scientific credibility** of any downstream research and introduce **misleading experimental results**.
+
+> 🔗 **Check [PubPeer1](https://pubpeer.com/publications/1F5DCE5BC42BF2D77A1B0C281A5295)** and [PubPeer2](https://pubpeer.com/publications/D47357D409AE273F9E03C7CBE30EB7) to 
+> find ongoing discussions and critiques from the academic community.
+
+---
 
 
 <details><summary><h3>💻 Define All Optimizers</h3></summary>
