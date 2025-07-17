@@ -50,8 +50,8 @@ Welcome to MEALPY's documentation!
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg
    :target: https://doi.org/10.1016/j.sysarc.2023.102871
 
-.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
-   :target: https://www.gnu.org/licenses/gpl-3.0
+.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+   :target: https://opensource.org/licenses/MIT
 
 ::
 

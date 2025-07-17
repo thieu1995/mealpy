@@ -18,7 +18,7 @@ alt="MEALPY"/>
 [![Chat](https://img.shields.io/badge/Chat-on%20Telegram-blue)](https://t.me/+fRVCJGuGJg1mNDg1)
 [![Documentation Status](https://readthedocs.org/projects/mealpy/badge/?version=latest)](https://mealpy.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg)](https://doi.org/10.1016/j.sysarc.2023.102871)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -29,7 +29,7 @@ stochastic search optimization, and random search optimization. All these method
 population-based metaheuristics (PBMs), which are among the most popular algorithms in the field of approximate optimization. 
 For detailed updates in each new version, please refer to the [ChangeLog](/ChangeLog.md) file.
 
-* **Free software:** GNU General Public License (GPL) V3 license
+* **Free software:** MIT license
 * **Total algorithms**: 215 (190 official (original, hybrid, variants), 25 developed)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** >=3.8x

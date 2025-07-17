@@ -71,7 +71,7 @@ Model References
 License
 =======
 
-The project is licensed under GNU General Public License (GPL) V3 license.
+The project is licensed under MIT license.
 
 
 .. toctree::

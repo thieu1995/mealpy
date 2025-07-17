@@ -3,7 +3,7 @@ Introduction
 ============
 
 **MEALPY** (MEta-heuristic ALgorithms in PYthon) is the most comprehensive Python library for cutting-edge, nature-inspired meta-heuristic algorithms.
-It is released under the **GNU General Public License (GPL) v3**.
+It is released under the **MIT** license.
 
 - **Current version:** 3.0.2
 - **Total algorithms:** 215
