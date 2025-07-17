@@ -19,24 +19,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4 # Nên dùng phiên bản mới nhất
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 9
           submodules: false
 
       - name: Use Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5 # Cập nhật lên v5 nếu có
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-
-      # Bước mới: Cập nhật Pip và các build tools cơ bản cho TẤT CẢ các phiên bản Python
-      - name: Upgrade pip and setuptools/wheel
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade setuptools wheel twine
 
       - uses: actions/cache@v3
         id: depcache
@@ -66,10 +60,13 @@ jobs:
           path: junit/pytest-results-${{ matrix.python-version }}.xml
         if: always()
 
-      # Loại bỏ điều kiện 'if' ở đây vì đã có bước upgrade chung ở trên
+      - name: Install distribution dependencies
+        run: pip install --upgrade twine setuptools wheel
+        if: matrix.python-version == 3.11
+
       - name: Create distribution package
         run: python setup.py sdist bdist_wheel
-        if: matrix.python-version == 3.11 # Giữ nguyên điều kiện này nếu bạn chỉ muốn tạo dist cho 3.11
+        if: matrix.python-version == 3.11
 
       - name: Upload distribution package
         uses: actions/upload-artifact@v4
@@ -89,7 +86,7 @@ jobs:
       - name: Download a distribution artifact
         uses: actions/download-artifact@v4
         with:
-          name: dist-package-3.11 # Đảm bảo tải đúng phiên bản được tạo
+          name: dist-package-3.11
           path: dist
 
       - name: Publish distribution 📦 to Test PyPI
