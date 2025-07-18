@@ -1410,6 +1410,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>easy</td>
       </tr>
       <tr>
+         <th>Physics</th>
+         <td>Electrical Storm Optimization</td>
+         <td>ESO</td>
+         <td>OriginalESO</td>
+         <td>2025</td>
+         <td>2</td>
+         <td>hard</td>
+      </tr>
+      <tr>
          <th>***</th>
          <td>***</td>
          <td>***</td>
@@ -2293,6 +2302,11 @@ Using unoriginal or unethical work can compromise the **scientific credibility**
 
 ```python
 
+from mealpy import (StringVar, FloatVar, BoolVar, PermutationVar, CategoricalVar, IntegerVar, BinaryVar,
+                    TransferBinaryVar, TransferBoolVar)
+from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
+from mealpy import get_all_optimizers, get_optimizer_by_name
+
 from mealpy import BBO, PSO, GA, ALO, AO, ARO, AVOA, BA, BBOA, BMO, EOA, IWO
 from mealpy import GJO, FOX, FOA, FFO, FFA, FA, ESOA, EHO, DO, DMOA, CSO, CSA, CoatiOA, COA, BSA
 from mealpy import HCO, ICA, LCO, WarSO, TOA, TLO, SSDO, SPBO, SARO, QSA, ArchOA, ASO, CDO, EFO, EO, EVO, FLA
@@ -2301,11 +2315,9 @@ from mealpy import PFA, OOA, NGO, NMRA, MSA, MRFO, MPA, MGO, MFO, JA, HHO, HGS, 
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import (StringVar, FloatVar, BoolVar, PermutationVar, CategoricalVar, IntegerVar, BinaryVar,
-                    TransferBinaryVar, TransferBoolVar)
-from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
-from mealpy import get_all_optimizers, get_optimizer_by_name
 
+## Newly added module in version 3.0.3
+from mealpy import ESO
 
 
 if __name__ == "__main__":
@@ -2541,6 +2553,8 @@ if __name__ == "__main__":
     model = GWO.OGWO(epoch=1000, pop_size=50, miu_factor=2.0, jumping_rate=0.05)
     model = GWO.ER_GWO(epoch=1000, pop_size=50, a_initial=2.0, a_final=0.0, miu_factor=1.0001)
     model = GWO.CG_GWO(epoch=1000, pop_size=50)
+    
+    model = ESO.OriginalESO(epoch=1000, pop_size=50)
 
 ```
 
@@ -2906,6 +2920,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
   * **OriginalEO**: Faramarzi, A., Heidarinejad, M., Stephens, B., & Mirjalili, S. (2019). Equilibrium optimizer: A novel optimization algorithm. Knowledge-Based Systems.
   * **ModifiedEO**: Gupta, S., Deep, K., & Mirjalili, S. (2020). An efficient equilibrium optimizer with mutation strategy for numerical optimization. Applied Soft Computing, 96, 106542.
   * **AdaptiveEO**: Wunnava, A., Naik, M. K., Panda, R., Jena, B., & Abraham, A. (2020). A novel interdependence based multilevel thresholding technique using adaptive equilibrium optimizer. Engineering Applications of Artificial Intelligence, 94, 103836.
+
+* **ESO - Electrical Storm Optimization** .
+  * **OriginalESO**: Soto Calvo, M., & Lee, H. S. (2025). Electrical Storm Optimization (ESO) Algorithm: Theoretical Foundations, Analysis, and Application to Engineering Problems. Machine Learning and Knowledge Extraction, 7(1), 24. https://doi.org/10.3390/make7010024
 
 ### F
 
