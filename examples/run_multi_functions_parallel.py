@@ -9,7 +9,7 @@ from functools import partial
 from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
-from mealpy.evolutionary_based.DE import BaseDE
+from mealpy.evolutionary_based.DE import OriginalDE
 
 
 PATH_RESULTS = "history/results/"
@@ -30,7 +30,7 @@ def find_minimum(function_name, n_dims):
         "log_to": "console",
         "name": function_name
     }
-    model = BaseDE(epoch=10, pop_size=50, wf=0.8, cr=0.9, name=model_name)
+    model = OriginalDE(epoch=10, pop_size=50, wf=0.8, cr=0.9, name=model_name)
     _, best_fitness = model.solve(problem)
     print(f"Finish function: {function_name}")
 
