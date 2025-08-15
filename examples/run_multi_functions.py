@@ -7,7 +7,7 @@
 from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
-from mealpy.evolutionary_based.DE import BaseDE
+from mealpy.evolutionary_based.DE import OriginalDE
 
 
 PATH_RESULTS = "history/results/"
@@ -39,7 +39,7 @@ for func_name in func_names:
         "minmax": "min",
         "log_to": "console",
     }
-    model = BaseDE(epoch, pop_size, wf, cr, fit_name=func_name)
+    model = OriginalDE(epoch, pop_size, wf, cr, fit_name=func_name)
     _, best_fitness = model.solve(problem)
 
     error_full[func_name] = model.history.list_global_best_fit

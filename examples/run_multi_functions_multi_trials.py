@@ -7,7 +7,7 @@
 from pathlib import Path
 from opfunu.cec_basic import cec2014_nobias
 from pandas import DataFrame
-from mealpy.evolutionary_based.DE import BaseDE
+from mealpy.evolutionary_based.DE import OriginalDE
 
 
 model_name = "DE"
@@ -41,7 +41,7 @@ for func_name in func_names:
             "log_to": "console",
             "name": func_name
         }
-        model = BaseDE(epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name)
+        model = OriginalDE(epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name)
         _, best_fitness = model.solve(problem)
 
         temp = f"trial_{id_trial}"
