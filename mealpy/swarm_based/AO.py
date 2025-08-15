@@ -74,7 +74,7 @@ class OriginalAO(Optimizer):
         QF = epoch ** ((2 * self.generator.random() - 1) / (1 - self.epoch) ** 2)  # Eq.(15)        Quality function
         pop_new = []
         for idx in range(0, self.pop_size):
-            x_mean = np.mean(np.array([agent.target.fitness for agent in self.pop]), axis=0)
+            x_mean = np.mean(np.array([agent.solution for agent in self.pop]), axis=0)
             levy_step = self.get_levy_flight_step(beta=1.5, multiplier=1.0, case=-1)
             if epoch <= (2 / 3) * self.epoch:  # Eq. 3, 4
                 if self.generator.random() < 0.5:
