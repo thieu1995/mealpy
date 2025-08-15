@@ -40,7 +40,7 @@ class DevSMO(Optimizer):
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> model = SMO.DevSMO(epoch=1000, pop_size=50)
+    >>> model = SMO.DevSMO(epoch=1000, pop_size=50, max_groups = 5, perturbation_rate = 0.7)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
