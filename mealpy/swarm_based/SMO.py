@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-import random
 from mealpy.optimizer import Optimizer
 
 
@@ -188,7 +187,7 @@ class DevSMO(Optimizer):
             if self.generator.random() < 0.5:
                 # Fission - divide groups
                 self.pop = self.merge_groups(self.groups)
-                random.shuffle(self.pop)
+                self.rng.shuffle(self.pop)
                 self.groups = self.split_fill_by_group(self.pop, self.num_groups)
             else:
                 # Fusion - combine all groups
