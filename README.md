@@ -2742,7 +2742,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * 📦 [Download releases](https://pypi.org/project/mealpy/) 
 * 🐞 [Issue tracker](https://github.com/thieu1995/mealpy/issues) 
 * 📝 [Notable changes log](/ChangeLog.md)
-* 📝 [Examples with different meapy version:](/EXAMPLES.md)
+* 📝 [Examples with different meapy version](/examples/EXAMPLES.md)
 * 💬 [Official discussion group](https://t.me/+fRVCJGuGJg1mNDg1)
 
 
