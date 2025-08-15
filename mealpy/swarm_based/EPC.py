@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class DevEPC(Optimizer):
     """
-    The developer version of: Emperor Penguins Colony (EPC)
+    The developed version of: Emperor Penguins Colony (EPC)
 
     Notes:
         + This algorithm is almost like a trash algorithm. Some comments are as follows:

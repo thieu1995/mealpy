@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from opfunu.cec_based.cec2017 import F292017
+from opfunu.cec_based.cec2017 import F292017, F12017, F22017
 
 from mealpy import BBO, PSO, GA, ALO, AO, ARO, AVOA, BA, BBOA, BMO, EOA, IWO
 from mealpy import FloatVar
@@ -17,7 +17,7 @@ from mealpy import Problem
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import ESO, EPC
+from mealpy import ESO, EPC, SMO
 from mealpy import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
                           SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
@@ -25,7 +25,7 @@ from mealpy import get_all_optimizers, get_optimizer_by_name
 
 
 ndim = 30
-f18 = F292017(ndim, f_bias=0)
+f18 = F22017(ndim, f_bias=0)
 
 
 def objective_function(solution):
@@ -63,7 +63,7 @@ class SquaredProblem(Problem):
 
 
 
-bounds = FloatVar(lb=(-15.,) * 30, ub=(20.,) * 30, name="variable")
+bounds = FloatVar(lb=(-100.,) * 50, ub=(200.,) * 50, name="variable")
 P1 = SquaredProblem(bounds=bounds, minmax="min")
 
 model = WarSO.OriginalWarSO(epoch=100, pop_size=50)
@@ -73,7 +73,8 @@ model = EP.OriginalEP(epoch=100, pop_size=50)
 model = ESO.OriginalESO(epoch=100, pop_size=20)
 model = AO.AAO(epoch=100, pop_size=50, sharpness=10.0, sigmoid_midpoint=0.5)
 model = EPC.DevEPC(epoch=100, pop_size=50, heat_damping_factor=0.95, mutation_factor=0.5, spiral_a=1.0, spiral_b=0.5)
-model.solve(P1)
+model = SMO.DevSMO(epoch=500, pop_size=50, max_groups = 5, perturbation_rate= 0.7)
+model.solve(problem_dict1)
 
 
 
