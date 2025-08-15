@@ -71,6 +71,7 @@ model = VCS.OriginalVCS(epoch=100, pop_size=50)
 model = EP.OriginalEP(epoch=100, pop_size=50)
 
 model = ESO.OriginalESO(epoch=100, pop_size=20)
+model = AO.AAO(epoch=100, pop_size=50, sharpness=10.0, sigmoid_midpoint=0.5)
 model.solve(P1)
 
 
