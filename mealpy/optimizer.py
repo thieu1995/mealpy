@@ -4,6 +4,7 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
+import random
 import numpy as np
 from typing import List, Union, Tuple, Dict
 from mealpy.utils.agent import Agent
@@ -55,6 +56,7 @@ class Optimizer:
         self.nfe_counter = 1  # The first one is tested in Problem class
         self.parameters, self.params_name_ordered = {}, None
         self.is_parallelizable = True
+        self.generator, self.rng = None, None     # random module for numpy and random (python)
 
     def __set_keyword_arguments(self, kwargs):
         for key, value in kwargs.items():
@@ -162,6 +164,7 @@ class Optimizer:
         else:
             raise ValueError("problem needs to be a dict or an instance of Problem class.")
         self.generator = np.random.default_rng(seed)
+        self.rng = random.Random(seed)  # local RNG for random module
         self.logger = Logger(self.problem.log_to, log_file=self.problem.log_file).create_logger(name=f"{self.__module__}.{self.__class__.__name__}")
         self.logger.info(self)
         self.history = History(log_to=self.problem.log_to, log_file=self.problem.log_file)
