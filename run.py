@@ -17,7 +17,7 @@ from mealpy import Problem
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import ESO
+from mealpy import ESO, EPC
 from mealpy import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
                           SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
@@ -72,6 +72,7 @@ model = EP.OriginalEP(epoch=100, pop_size=50)
 
 model = ESO.OriginalESO(epoch=100, pop_size=20)
 model = AO.AAO(epoch=100, pop_size=50, sharpness=10.0, sigmoid_midpoint=0.5)
+model = EPC.DevEPC(epoch=100, pop_size=50, heat_damping_factor=0.95, mutation_factor=0.5, spiral_a=1.0, spiral_b=0.5)
 model.solve(P1)
 
 
