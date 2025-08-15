@@ -17,7 +17,7 @@ from mealpy import Problem
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import ESO, EPC, SMO, SquirrelSA
+from mealpy import ESO, EPC, SMO, SquirrelSA, AFT
 from mealpy import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
                           SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
@@ -76,6 +76,7 @@ model = EPC.DevEPC(epoch=100, pop_size=50, heat_damping_factor=0.95, mutation_fa
 model = SMO.DevSMO(epoch=500, pop_size=50, max_groups = 5, perturbation_rate= 0.7)
 model = SquirrelSA.OriginalSquirrelSA(epoch=200, pop_size=50, n_food_sources=4, predator_prob=0.1,
                                       gliding_constant=1.9, scaling_factor=18, beta=1.5)
+model = AFT.OriginalAFT(epoch=300, pop_size=50)
 model.solve(problem_dict1)
 
 
