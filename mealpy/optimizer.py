@@ -124,7 +124,11 @@ class Optimizer:
             pass
         elif type(starting_solutions) in self.SUPPORTED_ARRAYS and len(starting_solutions) == self.pop_size:
             if type(starting_solutions[0]) in self.SUPPORTED_ARRAYS and len(starting_solutions[0]) == self.problem.n_dims:
-                self.pop = [self.generate_agent(solution) for solution in starting_solutions]
+                if self.mode in self.AVAILABLE_MODES:
+                    self.pop = [self.generate_empty_agent(solution) for solution in starting_solutions]
+                    self.pop = self.update_target_for_population(self.pop)
+                else:
+                    self.pop = [self.generate_agent(solution) for solution in starting_solutions]
             else:
                 raise ValueError("Invalid starting_solutions. It should be a list of positions or 2D matrix of positions only.")
         else:
