@@ -7,7 +7,6 @@
 from scipy.stats import cauchy, norm
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.agent import Agent
 
 
 class OriginalLSHADEcnEpSin(Optimizer):
