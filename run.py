@@ -17,7 +17,7 @@ from mealpy import Problem
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
 from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-from mealpy import ESO, EPC, SMO, SquirrelSA, AFT, CDDO, FDO, LSHADEcnEpSin
+from mealpy import ESO, EPC, SMO, SquirrelSA, AFT, CDDO, FDO, LSHADEcnEpSin, IMODE
 from mealpy import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
                           SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
 from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
@@ -81,6 +81,7 @@ model = CDDO.OriginalCDDO(epoch=1000, pop_size=50, pattern_size=10, creativity_r
 model = FDO.OriginalFDO(epoch=1000, pop_size=50, weight_factor=0.1)
 model = LSHADEcnEpSin.OriginalLSHADEcnEpSin(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5,
                                             freq = 0.5, memory_size = 5, ps = 0.5, pc = 0.4, pop_size_min = 10)
+model = IMODE.OriginalIMODE(epoch=1000, pop_size=50, memory_size=5, archive_size=30)
 model.solve(problem_dict1)
 
 

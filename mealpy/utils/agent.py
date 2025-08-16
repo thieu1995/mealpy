@@ -68,3 +68,25 @@ class Agent:
 
     def __repr__(self):     # represent
         return f"id: {self.id}, target: {self.target}, solution: {self.solution}"
+
+    def __eq__(self, other):
+        """ Check if two agents are equal based on their solutions with a tolerance."""
+        if not isinstance(other, Agent):
+            return False
+        return np.allclose(self.solution, other.solution, atol=1e-6)
+
+    # def __eq__(self, other):
+    #     """ Check if two agents are equal based on their solutions."""
+    #     if not isinstance(other, Agent):
+    #         return False
+    #     return np.array_equal(self.solution, other.solution)
+
+    def __hash__(self):
+        """ Generate a hash based on the solution of the agent.
+            This is useful for using agents in sets or as dictionary keys."""
+        return hash(tuple(np.round(self.solution, 6)))
+
+    # def __hash__(self):
+    #     """ Generate a hash based on the solution of the agent.
+    #         This is useful for using agents in sets or as dictionary keys."""
+    #     return hash(tuple(self.solution))
