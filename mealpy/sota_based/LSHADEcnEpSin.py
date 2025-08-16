@@ -17,10 +17,6 @@ class OriginalLSHADEcnEpSin(Optimizer):
     Links:
         1. https://doi.org/10.1109/CEC.2017.7969336
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (int): Depth weight, default = 10, depend on the problem
-        + beta (float): Multiplier weight, default = 0.2
-
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -102,18 +98,6 @@ class OriginalLSHADEcnEpSin(Optimizer):
     def before_main_loop(self):
         # Initialize archive with initial population
         self.archive = self.pop.copy()
-
-    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
-        if solution is None:
-            solution = self.problem.generate_solution(encoded=True)
-        velocity = self.generator.uniform(self.problem.lb, self.problem.ub)
-        mass = 0.0
-        return Agent(solution=solution, velocity=velocity, mass=mass)
-
-    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
-        condition = np.logical_and(self.problem.lb <= solution, solution <= self.problem.ub)
-        rand_pos = self.generator.uniform(self.problem.lb, self.problem.ub)
-        return np.where(condition, solution, rand_pos)
 
     def update_sinusoidal_probabilities(self, epoch):
         """Update probabilities for sinusoidal configurations"""
