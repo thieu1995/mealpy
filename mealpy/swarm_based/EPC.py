@@ -36,7 +36,8 @@ class DevEPC(Optimizer):
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> model = EPC.DevEPC(epoch=1000, pop_size=50)
+    >>> model = EPC.DevEPC(epoch=1000, pop_size=50, heat_damping_factor=0.95, mutation_factor=0.1,
+    >>>                     spiral_a=1.0, spiral_b=0.5)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
