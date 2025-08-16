@@ -11,7 +11,6 @@ alt="MEALPY"/>
 [![Wheel](https://img.shields.io/pypi/wheel/gensim.svg)](https://pypi.python.org/pypi/mealpy) 
 [![PyPI version](https://badge.fury.io/py/mealpy.svg)](https://badge.fury.io/py/mealpy)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mealpy.svg)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/mealpy.svg)
 [![Downloads](https://static.pepy.tech/badge/mealpy)](https://pepy.tech/project/mealpy)
 [![Tests & Publishes to PyPI](https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml/badge.svg)](https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml)
 ![GitHub Release Date](https://img.shields.io/github/release-date/thieu1995/mealpy.svg)

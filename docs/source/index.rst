@@ -16,9 +16,6 @@ Welcome to MEALPY's documentation!
 .. image:: https://img.shields.io/pypi/status/mealpy.svg
    :target: https://img.shields.io/pypi/status/mealpy.svg
 
-.. image:: https://img.shields.io/pypi/dm/mealpy.svg
-   :target: https://img.shields.io/pypi/dm/mealpy.svg
-
 .. image:: https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml/badge.svg
    :target: https://github.com/thieu1995/mealpy/actions/workflows/publish-package.yaml
 
