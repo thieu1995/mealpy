@@ -30,7 +30,7 @@ population-based metaheuristics (PBMs), which are among the most popular algorit
 For detailed updates in each new version, please refer to the [ChangeLog](/ChangeLog.md) file.
 
 * **Free software:** MIT license
-* **Total algorithms**: 225 (200 official (original, hybrid, variants), 25 developed)
+* **Total algorithms**: 233 (206 official (original, hybrid, variants), 27 developed)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** >=3.8x
 * **Dependencies:** numpy, scipy, pandas, matplotlib
@@ -601,6 +601,15 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Swarm</th>
+         <td>Spider Monkey Optimization</td>
+         <td>SMO</td>
+         <td>DevSMO</td>
+         <td>2014</td>
+         <td>4</td>
+         <td>hard</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
          <td>Grey Wolf Optimizer</td>
          <td>GWO</td>
          <td>OriginalGWO</td>
@@ -889,6 +898,24 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Swarm</th>
+         <td>Squirrel Search Algorithm</td>
+         <td>SquirrelSA</td>
+         <td>OriginalSquirrelSA</td>
+         <td>2019</td>
+         <td>7</td>
+         <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
+         <td>Fitness Dependent Optimizer</td>
+         <td>FDO</td>
+         <td>OriginalFDO</td>
+         <td>2019</td>
+         <td>3</td>
+         <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
          <td>Sea Lion Optimization</td>
          <td>SLO</td>
          <td>OriginalSLO</td>
@@ -913,6 +940,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>2022</td>
          <td>4</td>
          <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
+         <td>Emperor Penguins Colony/td>
+         <td>EPC</td>
+         <td>DevEPC</td>
+         <td>2019</td>
+         <td>6</td>
+         <td>hard</td>
       </tr>
       <tr>
          <th>Swarm</th>
@@ -1020,6 +1056,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>OriginalAO</td>
          <td>2021</td>
          <td>2</td>
+         <td>easy</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
+         <td>*</td>
+         <td>*</td>
+         <td>AAO</td>
+         <td>2024</td>
+         <td>4</td>
          <td>easy</td>
       </tr>
       <tr>
@@ -1699,6 +1744,24 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Human</th>
+         <td>Ali baba and the Forty Thieves</td>
+         <td>AFT</td>
+         <td>OriginalAFT</td>
+         <td>2022</td>
+         <td>2</td>
+         <td>easy</td>
+      </tr>
+      <tr>
+         <th>Human</th>
+         <td>Child Drawing Development Optimization</td>
+         <td>CDDO</td>
+         <td>OriginalCDDO</td>
+         <td>2022</td>
+         <td>4</td>
+         <td>easy</td>
+      </tr>
+      <tr>
+         <th>Human</th>
          <td>Dwarf Mongoose Optimization Algorithm</td>
          <td>DMOA</td>
          <td>OriginalDMOA</td>
@@ -2147,9 +2210,27 @@ along with their syntax and common problem applications. This will guide you in 
          <td>4</td>
          <td>easy</td>
       </tr>
+      <tr>
+         <th>SOTA</th>
+         <td>Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood</td>
+         <td>LSHADEcnEpSin</td>
+         <td>OriginalLSHADEcnEpSin</td>
+         <td>2017</td>
+         <td>9</td>
+         <td>hard</td>
+      </tr>
+      <tr>
+         <th>SOTA</th>
+         <td>Improved Multi-operator Differential Evolution Algorithm</td>
+         <td>IMODE</td>
+         <td>OriginalIMODE</td>
+         <td>2020</td>
+         <td>4</td>
+         <td>hard</td>
+      </tr>
    </tbody>
 </table>
-
+ ()
 
 ### ❌ Warning: Algorithms Suspected of Plagiarism
 
@@ -2317,7 +2398,7 @@ from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE,
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
 
 ## Newly added module in version 3.0.3
-from mealpy import ESO
+from mealpy import ESO, EPC, SMO, AFT, CDDO, SquirrelSA, FDO, LSHADEcnEpSin, IMODE
 
 
 if __name__ == "__main__":
@@ -2555,6 +2636,16 @@ if __name__ == "__main__":
     model = GWO.CG_GWO(epoch=1000, pop_size=50)
     
     model = ESO.OriginalESO(epoch=1000, pop_size=50)
+    model = AO.AAO(epoch=1000, pop_size=50, sharpness=10.0, sigmoid_midpoint=0.5)
+    model = EPC.DevEPC(epoch=1000, pop_size=50, heat_damping_factor=0.95, mutation_factor=0.1, spiral_a=1.0, spiral_b=0.5) 
+    model = SMO.DevSMO(epoch=1000, pop_size=50, max_groups = 5, perturbation_rate = 0.7)
+    model = SquirrelSA.OriginalSquirrelSA(epoch=1000, pop_size=50, n_food_sources=4, predator_prob=0.1, gliding_constant=1.9, scaling_factor=18, beta=1.5)
+    model = AFT.OriginalAFT(epoch=1000, pop_size=50)
+    model = CDDO.OriginalCDDO(epoch=1000, pop_size=50, pattern_size=10, creativity_rate=0.1)
+    model = FDO.OriginalFDO(epoch=1000, pop_size=50, weight_factor=0.1)
+    model = LSHADEcnEpSin.OriginalLSHADEcnEpSin(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5, freq = 0.5, memory_size = 5, ps = 0.5, pc = 0.4, pop_size_min = 10)
+    model = IMODE.OriginalIMODE(epoch=1000, pop_size=50, memory_size=5, archive_size=20)
+    
 
 ```
 
@@ -2796,6 +2887,7 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 * **AO - Aquila Optimizer**
   * **OriginalAO**: Abualigah, L., Yousri, D., Abd Elaziz, M., Ewees, A. A., Al-qaness, M. A., & Gandomi, A. H. (2021). Aquila Optimizer: A novel meta-heuristic optimization Algorithm. Computers & Industrial Engineering, 157, 107250.
+  * **AAO**: Al-Selwi, S. M., Hassan, M. F., Abdulkadir, S. J., Ragab, M. G., Alqushaibi, A., & Sumiea, E. H. (2024). Smart grid stability prediction using adaptive aquila optimizer and ensemble stacked bilstm. Results in Engineering, 24, 103261.
 
 * **AVOA - African Vultures Optimization Algorithm**
   * **OriginalAVOA**: Abdollahzadeh, B., Gharehchopogh, F. S., & Mirjalili, S. (2021). African vultures optimization algorithm: A new nature-inspired metaheuristic algorithm for global optimization problems. Computers & Industrial Engineering, 158, 107408.
@@ -2806,6 +2898,8 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **ARO - Artificial Rabbits Optimization**:
   * **OriginalARO**: Wang, L., Cao, Q., Zhang, Z., Mirjalili, S., & Zhao, W. (2022). Artificial rabbits optimization: A new bio-inspired meta-heuristic algorithm for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 114, 105082.
 
+* **AFT - Ali baba and the Forty Thieves**:
+  * **OriginalAFT**: Braik, M., Ryalat, M. H., & Al-Zoubi, H. (2022). A novel meta-heuristic algorithm for solving numerical optimization problems: Ali Baba and the forty thieves. Neural Computing and Applications, 34(1), 409-455.
 
 
 ### B
@@ -2876,6 +2970,10 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **CSA - Circle Search Algorithm**
   * **OriginalCSA**: Qais, M. H., Hasanien, H. M., Turky, R. A., Alghuwainem, S., Tostado-Véliz, M., & Jurado, F. (2022). Circle Search Algorithm: A Geometry-Based Metaheuristic Optimization Algorithm. Mathematics, 10(10), 1626.
 
+* **CDDO - Child Drawing Development Optimization**
+  * **OriginalCDDO**: Abdulhameed, S., Rashid, T.A. Child Drawing Development Optimization Algorithm Based on Child’s Cognitive Development. Arab J Sci Eng 47, 1337–1351 (2022). https://doi.org/10.1007/s13369-021-05928-6
+
+
 ### D
 
 * **DE - Differential Evolution** 
@@ -2924,6 +3022,10 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **ESO - Electrical Storm Optimization** .
   * **OriginalESO**: Soto Calvo, M., & Lee, H. S. (2025). Electrical Storm Optimization (ESO) Algorithm: Theoretical Foundations, Analysis, and Application to Engineering Problems. Machine Learning and Knowledge Extraction, 7(1), 24. https://doi.org/10.3390/make7010024
 
+* **EPC - Emperor Penguins Colony** .
+  * **DevEPC**: Harifi, S., Khalilian, M., Mohammadzadeh, J. and Ebrahimnejad, S., 2019. Emperor Penguins Colony: a new metaheuristic algorithm for optimization. Evolutionary intelligence, 12(2), pp.211-226.
+
+
 ### F
 
 * **FFA - Firefly Algorithm** 
@@ -2939,6 +3041,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
   * **OriginalFOA**: Pan, W. T. (2012). A new fruit fly optimization algorithm: taking the financial distress model as an example. Knowledge-Based Systems, 26, 69-74.
   * **BaseFOA**: The developed version
   * **WhaleFOA**: Fan, Y., Wang, P., Heidari, A. A., Wang, M., Zhao, X., Chen, H., & Li, C. (2020). Boosted hunting-based fruit fly optimization and advances in real-world problems. Expert Systems with Applications, 159, 113502.
+
+* **FDO - Fitness Dependent Optimizer**
+  * **OriginalFDO**: Abdullah, J. M., & Ahmed, T. (2019). Fitness dependent optimizer: inspired by the bee swarming reproductive process. IEEe Access, 7, 43473-43486.
 
 * **FBIO - Forensic-Based Investigation Optimization** 
   * **OriginalFBIO**: Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, p.106339.
@@ -3019,6 +3124,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **ICA - Imperialist Competitive Algorithm** 
   * **OriginalICA**: Atashpaz-Gargari, E., & Lucas, C. (2007, September). Imperialist competitive algorithm: an algorithm for optimization inspired by imperialistic competition. In 2007 IEEE congress on evolutionary computation (pp. 4661-4667). Ieee.
 
+* **IMODE - Improved Multi-operator Differential Evolution Algorithm**:
+  * **OriginalIMODE**: Sallam, K. M., Elsayed, S. M., Chakrabortty, R. K., & Ryan, M. J. (2020, July). Improved multi-operator differential evolution algorithm for solving unconstrained problems. In 2020 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
+
 * **INFO - weIghted meaN oF vectOrs**:
   * **OriginalINFO**: Ahmadianfar, I., Heidari, A. A., Gandomi, A. H., Chu, X., & Chen, H. (2021). RUN beyond the metaphor: An efficient     optimization algorithm based on Runge Kutta method. Expert Systems with Applications, 181, 115079.
 
@@ -3032,6 +3140,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 ### K
 
 ### L
+
+* **LSHADEcnEpSin - Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood** 
+  * **OriginalLSHADEcnEpSin**: Awad, N. H., Ali, M. Z., & Suganthan, P. N. (2017, June). Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood for solving CEC2017 benchmark problems. In 2017 IEEE congress on evolutionary computation (CEC) (pp. 372-379). IEEE.
 
 * **LCO - Life Choice-based Optimization** 
   * **OriginalLCO**: Khatri, A., Gaba, A., Rana, K. P. S., & Kumar, V. (2019). A novel life choice-based optimizer. Soft Computing, 1-21.
@@ -3115,6 +3226,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **SSpiderO - Social Spider Optimization** 
   * **OriginalSSpiderO**: Cuevas, E., Cienfuegos, M., ZaldíVar, D., & Pérez-Cisneros, M. (2013). A swarm optimization algorithm inspired in the behavior of the social-spider. Expert Systems with Applications, 40(16), 6374-6384.
 
+* **SMO - Spider Monkey Optimization** 
+  * **DevSMO**: Bansal, J. C., Sharma, H., Jadon, S. S., & Clerc, M. (2014). Spider monkey optimization algorithm for numerical optimization. Memetic computing, 6(1), 31-47.
+  
 * **SOS - Symbiotic Organisms Search**:
   * **OriginalSOS**: Cheng, M. Y., & Prayogo, D. (2014). Symbiotic organisms search: a new metaheuristic optimization algorithm. Computers & Structures, 139, 98-112.
 
@@ -3157,6 +3271,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **Seagull Optimization Algorithm**
   * **OriginalSOA**: Dhiman, G., & Kumar, V. (2019). Seagull optimization algorithm: Theory and its applications for large-scale industrial engineering problems. Knowledge-based systems, 165, 169-196.
   * **DevSOA**: The developed version
+
+* **Squirrel Search Algorithm**
+  * **OriginalSquirrelSA**: Jain, M., Singh, V., & Rani, A. (2019). A novel nature-inspired algorithm for optimization: Squirrel search algorithm. Swarm and evolutionary computation, 44, 148-175.
 
 * **SMA - Slime Mould Algorithm**
   * **OriginalSMA**: Li, S., Chen, H., Wang, M., Heidari, A. A., & Mirjalili, S. (2020). Slime mould algorithm: A new method for stochastic optimization. Future Generation Computer Systems.
