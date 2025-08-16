@@ -121,7 +121,7 @@ class AAO(Optimizer):
     >>>     "minmax": "min",
     >>> }
     >>>
-    >>> model = AO.AAO(epoch=1000, pop_size=50)
+    >>> model = AO.AAO(epoch=1000, pop_size=50, sharpness=10.0, sigmoid_midpoint=0.5)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
