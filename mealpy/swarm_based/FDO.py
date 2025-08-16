@@ -10,7 +10,7 @@ from mealpy.optimizer import Optimizer
 
 class OriginalFDO(Optimizer):
     """
-    The original version of: Fitness Dependent Optimizer (AFT)
+    The original version of: Fitness Dependent Optimizer (FDO)
 
     Notes:
         + https://doi.org/10.1109/ACCESS.2019.2907012
