@@ -62,7 +62,7 @@ class OriginalCDDO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.pattern_size = self.validator.check_int("pattern_size", pattern_size, [1, 1000])
         self.creativity_rate = self.validator.check_float("creativity_rate", creativity_rate, [0.0, 1.0])
-        self.set_parameters(["epoch", "pop_size"])
+        self.set_parameters(["epoch", "pop_size", "pattern_size", "creativity_rate"])
         self.sort_flag = False
 
     def before_main_loop(self):
