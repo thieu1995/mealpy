@@ -82,6 +82,8 @@ model = FDO.OriginalFDO(epoch=1000, pop_size=50, weight_factor=0.1)
 model = LSHADEcnEpSin.OriginalLSHADEcnEpSin(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5,
                                             freq = 0.5, memory_size = 5, ps = 0.5, pc = 0.4, pop_size_min = 10)
 model = IMODE.OriginalIMODE(epoch=1000, pop_size=50, memory_size=5, archive_size=30)
+model = GA.OriginalGA(epoch=epoch, pop_size=pop_size, pc=0.9, pm=0.4, selection="tournament", k_way=0.2,
+                      crossover="uniform", mutation="flip", mutation_multipoints=True)
 model.solve(problem_dict1)
 
 
