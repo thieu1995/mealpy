@@ -39,7 +39,7 @@ Official Links
 * Download releases: https://pypi.org/project/mealpy/
 * Issue tracker: https://github.com/thieu1995/mealpy/issues
 * Notable changes log: https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md
-* Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/EXAMPLES.md
+* Examples with different meapy version: https://github.com/thieu1995/mealpy/blob/master/examples/EXAMPLES.md
 * Official chat/support group: https://t.me/+fRVCJGuGJg1mNDg1
 
 * This project also related to our another projects which are "meta-heuristics" and "machine learning", check it here:
