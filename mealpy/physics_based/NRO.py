@@ -70,7 +70,7 @@ class OriginalNRO(Optimizer):
         """
         xichma_v = 1
         xichma_u = ((math.gamma(1 + 1.5) * math.sin(math.pi * 1.5 / 2)) / (math.gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (self.generator.normal(0, xichma_u ** 2)) / (np.sqrt(np.abs(self.generator.normal(0, xichma_v ** 2))) ** (1.0 / 1.5))
+        levy_b = (self.generator.normal(0, xichma_u)) / (np.sqrt(np.abs(self.generator.normal(0, xichma_v))) ** (1.0 / 1.5))
         # NFi phase
         Pb = self.generator.uniform()
         Pfi = self.generator.uniform()
