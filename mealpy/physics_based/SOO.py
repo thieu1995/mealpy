@@ -115,7 +115,7 @@ class OriginalSOO(Optimizer):
             avg3 = np.mean([agent.solution for agent in best3], axis=0)
 
             # Select 3 random indices different from current
-            r1, r2, r3 = self.generator.choice(list(set(range(self.pop_size)) - {idx}), size=3)
+            r1, r2, r3 = self.generator.choice(list(set(range(self.pop_size)) - {idx}), size=3, replace=False)
 
             # Generate new position based on oscillatory movement
             rf = self.generator.random()
