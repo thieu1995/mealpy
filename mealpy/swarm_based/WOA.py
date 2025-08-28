@@ -14,6 +14,7 @@ class OriginalWOA(Optimizer):
 
     Links:
         1. https://doi.org/10.1016/j.advengsoft.2016.01.008
+        2. https://mathworks.com/matlabcentral/fileexchange/55667-the-whale-optimization-algorithm
 
     Examples
     ~~~~~~~~
@@ -58,6 +59,89 @@ class OriginalWOA(Optimizer):
             epoch (int): The current iteration
         """
         a = 2 - 2 * epoch / self.epoch  # linearly decreased from 2 to 0
+        a2 = -1 + epoch * ((-1) / self.epoch)
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            r1, r2 = self.generator.random(size=2)
+            A = a * (2 * r1 - a)
+            C = 2 * r2
+            b = 1
+            l = (a2 - 1) * self.generator.random() + 1
+            p = self.generator.random()
+
+            pos_new = self.pop[idx].solution.copy()
+            for jdx in range(0, self.problem.n_dims):
+                if p < 0.5:
+                    if np.abs(A) >= 1:
+                        id_r = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                        D_X_rand = abs(C * self.pop[id_r].solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.pop[id_r].solution[jdx] - A * D_X_rand
+                    else:
+                        D_Leader = abs(C * self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.g_best.solution[jdx]- A * D_Leader
+                else:
+                    D1 = abs(self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                    pos_new[jdx] = D1 * np.exp(b * l) * np.cos(l * 2 * np.pi) + self.g_best.solution[jdx]
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx].target = self.get_target(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(pop_new)
+
+
+class DevWOA(Optimizer):
+    """
+    The developed version of: Whale Optimization Algorithm (WOA)
+
+    Notes:
+        + Hanlding simple vector instead of loop through whole dimensions
+        + Using greedy to update position
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, WOA
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = WOA.DevWOA(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
+
+    References
+    ~~~~~~~~~~
+    [1] Mirjalili, S. and Lewis, A., 2016. The whale optimization algorithm. Advances in engineering software, 95, pp.51-67.
+    """
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+        """
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        self.sort_flag = False
+
+    def evolve(self, epoch):
+        """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
+        Args:
+            epoch (int): The current iteration
+        """
+        a = 2 - 2 * epoch / self.epoch  # linearly decreased from 2 to 0
         pop_new = []
         for idx in range(0, self.pop_size):
             r = self.generator.random()
@@ -66,18 +150,23 @@ class OriginalWOA(Optimizer):
             l = self.generator.uniform(-1, 1)
             p = 0.5
             b = 1
-            if self.generator.uniform() < p:
-                if np.abs(A) < 1:
-                    D = np.abs(C * self.g_best.solution - self.pop[idx].solution)
-                    pos_new = self.g_best.solution - A * D
-                else:
-                    # x_rand = pop[self.generator.self.generator.randint(self.pop_size)]         # select random 1 position in pop
-                    x_rand = self.problem.generate_solution()
-                    D = np.abs(C * x_rand - self.pop[idx].solution)
-                    pos_new = x_rand - A * D
-            else:
-                D1 = np.abs(self.g_best.solution - self.pop[idx].solution)
-                pos_new = self.g_best.solution + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
+
+            # Get pos1
+            pos1 = self.g_best.solution - A * np.abs(C * self.g_best.solution - self.pop[idx].solution)
+
+            # Get pos2
+            id_r2 = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+            pos2 = self.pop[id_r2].solution - A * np.abs(C * self.pop[id_r2].solution - self.pop[idx].solution)
+
+            # Get pos3
+            D1 = np.abs(self.g_best.solution - self.pop[idx].solution)
+            pos3 = self.g_best.solution + np.exp(b * l) * np.cos(2 * np.pi * l) * D1
+
+            # Get final pos_new
+            pos_new = pos1 if np.abs(A) < 1 else pos2
+            pos_new = np.where(self.generator.random(size=self.problem.n_dims) < p, pos_new, pos3)
+
+            # Correct solution
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
             pop_new.append(agent)
