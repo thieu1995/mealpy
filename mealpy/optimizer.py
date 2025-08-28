@@ -699,8 +699,8 @@ class Optimizer:
         # sigma_v : standard deviation of v
         sigma_v = 1
         size = 1 if size is None else size
-        u = self.generator.normal(0, sigma_u ** 2, size)
-        v = self.generator.normal(0, sigma_v ** 2, size)
+        u = self.generator.normal(0, sigma_u, size)
+        v = self.generator.normal(0, sigma_v, size)
         s = u / np.power(np.abs(v), 1 / beta)
         if case == 0:
             step = multiplier * s * self.generator.uniform()
