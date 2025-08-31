@@ -32,7 +32,7 @@ For detailed updates in each new version, please refer to the [ChangeLog](/Chang
 * **Total algorithms**: 233 (206 official (original, hybrid, variants), 27 developed)
 * **Documentation:** https://mealpy.readthedocs.io/en/latest/
 * **Python versions:** >=3.8x
-* **Dependencies:** numpy, scipy, pandas, matplotlib
+* **Dependencies:** numpy, scipy, pandas, matplotlib, tqdm
 
 
 ## 📌 Goals

@@ -3,17 +3,26 @@ Import All Models
 
 .. code-block:: python
 
-	from mealpy import BBO, PSO, GA, ALO, AO, ARO, AVOA, BA, BBOA, BMO, EOA, IWO
-	from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
-	from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
-	from mealpy import HCO, ICA, LCO, WarSO, TOA, TLO, SSDO, SPBO, SARO, QSA, ArchOA, ASO, CDO, EFO, EO, EVO, FLA
-	from mealpy import HGSO, MVO, NRO, RIME, SA, WDO, TWO, ABC, ACOR, AGTO, BeesA, BES, BFO, ZOA, WOA, WaOA, TSO
-	from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
-	from mealpy import PFA, OOA, NGO, NMRA, MSA, MRFO, MPA, MGO, MFO, JA, HHO, HGS, HBA, GWO, GTO, GOA
-	from mealpy import GJO, FOX, FOA, FFO, FFA, FA, ESOA, EHO, DO, DMOA, CSO, CSA, CoatiOA, COA, BSA
-	from mealpy import StringVar, FloatVar, BoolVar, PermutationVar, MixedSetVar, IntegerVar, BinaryVar
+	from mealpy import BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO
+	from mealpy import CRO, DE, EP, ES, FPA, GA, MA, SHADE
+	from mealpy import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO,
+	                    TLO, TOA, WarSO, AFT, CDDO)
+	from mealpy import AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS
+	from mealpy import ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO, ESO, SOO
+    from mealpy import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, BFO, BSA, COA, CoatiOA, CSA, CSO,
+                        DMOA, DO, EHO, ESOA, FA, FFA, FFO, FOA, FOX, GJO, GOA, GTO, GWO, HBA, HGS, HHO, JA,
+                        MFO, MGO, MPA, MRFO, MSA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
+                        SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
+                        EPC, SMO, SquirrelSA, FDO)
+	from mealpy import AEO, GCO, WCA
+	from mealpy import HS
+	from mealpy import LSHADEcnEpSin, IMODE
+
+    from mealpy import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, CategoricalVar,
+                          SequenceVar, PermutationVar, TransferBinaryVar, TransferBoolVar)
+
 	from mealpy import Tuner, Multitask, Problem, Optimizer, Termination, ParameterGrid
-	from mealpy import get_all_optimizers, get_optimizer_by_name
+	from mealpy import get_all_optimizers, get_optimizer_by_class, get_optimizer_by_name
 	import numpy as np
 
 	def objective_function(solution):
