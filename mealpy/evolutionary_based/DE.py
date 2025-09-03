@@ -7,8 +7,6 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
-from copy import deepcopy
-
 from mealpy.utils.agent import Agent
 
 
@@ -284,7 +282,7 @@ class JADE(Optimizer):
             for idx, solution in enumerate(self.dyn_pop_archive):
                 if idx not in idx_list:
                     archive_pop_new.append(solution)
-            self.dyn_pop_archive = deepcopy(archive_pop_new)
+            self.dyn_pop_archive = archive_pop_new
         # Update miu_cr and miu_f
         if len(list_cr) == 0:
             self.dyn_miu_cr = (1 - self.ap) * self.dyn_miu_cr + self.ap * 0.5
