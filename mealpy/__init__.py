@@ -44,6 +44,7 @@ from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, B
                           EPC, SMO, SquirrelSA, FDO)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
+from .game_based import THRO
 from .sota_based import LSHADEcnEpSin, IMODE
 from .utils.problem import Problem
 from .utils.termination import Termination
