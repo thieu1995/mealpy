@@ -58,9 +58,6 @@ class OriginalTHRO(Optimizer):
         self.sort_flag = False
         self.is_parallelizable = False
 
-    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
-        return np.clip(solution, self.problem.lb, self.problem.ub)
-
     def before_main_loop(self):
         # Split to two groups: tianji and king (50%-50%)
         self.n_pop = self.pop_size // 2
