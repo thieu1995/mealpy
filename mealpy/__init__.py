@@ -31,7 +31,7 @@ __version__ = "3.0.3"
 
 import sys
 import inspect
-from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, SFOA)
+from .bio_based import (BBO, BBOA, BMO, EOA, IWO, LOA, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, SFOA)
 from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
                           AFT, CDDO)
@@ -42,6 +42,7 @@ from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, B
                           MFO, MGO, MPA, MRFO, MSA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
                           SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
                           EPC, SMO, SquirrelSA, FDO)
+from .bio_based.LOA import OriginalLOA
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
 from .sota_based import LSHADEcnEpSin, IMODE
