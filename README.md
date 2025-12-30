@@ -528,6 +528,15 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Swarm</th>
+         <td>MLFA-GD </td>
+         <td>MLFA_GD</td>
+         <td>MLFA_GD</td>
+         <td>2025</td>
+         <td>8</td>
+         <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
          <td>Fireworks Algorithm</td>
          <td>FA</td>
          <td>OriginalFA</td>
