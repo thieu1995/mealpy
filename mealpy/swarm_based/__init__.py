@@ -4,4 +4,3 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
-from .BWO import OriginalBWO
