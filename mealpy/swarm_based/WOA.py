@@ -3,9 +3,10 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
-
+ 
 import numpy as np
 from mealpy.optimizer import Optimizer
+
 
 
 class OriginalWOA(Optimizer):
@@ -286,7 +287,6 @@ class HI_WOA(Optimizer):
             pop_child = self.generate_population(self.n_changes)
             for idx_counter, idx in enumerate(idx_list):
                 self.pop[idx] = pop_child[idx_counter]
-
 
 class WOAmM(Optimizer):
     """
