@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Created by "Antigravity" at 2025
 
 import numpy as np
 import pytest
