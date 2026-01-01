@@ -9,6 +9,22 @@ mealpy/human_based/ILA.py
 examples/utils/history*
 examples/history*
 history*
+.DS_Store
+KOA Makale.pdf
+github_repo/
+*.mexw32
+*.mexw64
+cec2017_f15_f19_f20_KOA_vs_PSO_parallel.csv
+cec2017_quick_eval_parallel.py
+run_cec2017_koa_vs_pso.py
+run_cec2017_koa_vs_pso_parallel.py
+run_koa_repro.py
+koa_repro_results.csv
+koa_repro_seeds.csv
+tune_koa_f15_best_fast.py
+tune_koa_f15_best_parallel.py
+tuning_f15_stage*_fast.csv
+tuning_f15_stage*_final.csv
 
 *$.ipynd_checkpoint*
 
