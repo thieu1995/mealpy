@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-# Created by "tunayalc" at 10:30, 31/12/2024 ----------%
-#       Email: ytunahan7878@gmail.com               %
-#       Github: https://github.com/tunayalc         %
-# --------------------------------------------------%
-
 from mealpy import FloatVar, TSeedA, Optimizer
 import numpy as np
 import pytest

@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-# Created by "tunayalc" at 14:40, 31/12/2024 ----------%
-#       Email: ytunahan7878@gmail.com               %
-#       Github: https://github.com/tunayalc         %
-# --------------------------------------------------%
-#
 # Tree-Seed Algorithm (TSeedA) Example
 # Reference: Kiran, M. S. (2015). TSA: Tree-seed algorithm for continuous optimization.
 # Expert Systems with Applications, 42(19), 6686-6698. DOI: 10.1016/j.eswa.2015.04.055

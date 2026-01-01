@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-# Created by "tunayalc" at 10:30, 31/12/2024 ----------%
-#       Email: ytunahan7878@gmail.com               %
-#       Github: https://github.com/tunayalc         %
-# --------------------------------------------------%
-
 import numpy as np
 from mealpy.optimizer import Optimizer
 
