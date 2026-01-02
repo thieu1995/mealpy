@@ -825,6 +825,15 @@ along with their syntax and common problem applications. This will guide you in 
       </tr>
       <tr>
          <th>Swarm</th>
+         <td>White Shark Optimizer</td>
+         <td>WSO</td>
+         <td>OriginalWSO</td>
+         <td>2022</td>
+         <td>8</td>
+         <td>medium</td>
+      </tr>
+      <tr>
+         <th>Swarm</th>
          <td>Dragonfly Optimization</td>
          <td>DO</td>
          <td>OriginalDO</td>
