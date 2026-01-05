@@ -1859,6 +1859,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>easy</td>
       </tr>
       <tr>
+  	<th>Bio</th>
+  	<td>Secretary Bird Optimization Algorithm</td>
+  	<td>SBOA</td>
+  	<td>OriginalSBOA</td>
+  	<td>2024</td>
+  	<td>2</td>
+  	<td>easy</td>
+      </tr>
+      <tr>
          <th>Bio</th>
          <td>Earthworm Optimisation Algorithm</td>
          <td>EOA</td>
@@ -3243,6 +3252,8 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 * **SBO - Satin Bowerbird Optimizer** 
   * **OriginalSBO**: Moosavi, S. H. S., & Bardsiri, V. K. (2017). Satin bowerbird optimizer: a new optimization algorithm to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, 1-15.
   * **BaseSBO**: The developed version
+* **SBOA - Secretary Bird Optimization Algorithm** 
+  * **OriginalSBOA**: Fu, Y., Liu, D., Chen, J. et al. (2024). Secretary bird optimization algorithm: a new metaheuristic for solving global optimization problems. Artificial Intelligence Review, 57, 123. https://doi.org/10.1007/s10462-024-10729-y
 
 * **SHO - Spotted Hyena Optimizer**
   * **OriginalSHO**: Dhiman, G., & Kumar, V. (2017). Spotted hyena optimizer: a novel bio-inspired based metaheuristic technique for engineering applications. Advances in Engineering Software, 114, 48-70.
