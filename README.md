@@ -2363,6 +2363,15 @@ This warning is intended to help others avoid using or relying on these methods 
          <td>2</td>
          <td>easy</td>
       </tr>
+      <tr>
+         <th>Physics</th>
+         <td>General Relativity Search Algorithm</td>
+         <td>GRSA</td>
+         <td>OriginalGRSA</td>
+         <td>2015</td>
+         <td>2</td>
+         <td>medium</td>
+      </tr>
    </tbody>
 </table>
 
@@ -3406,3 +3415,4 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 ---
 
 Developed by: [Thieu](mailto:nguyenthieu2102@gmail.com?Subject=MEALPY_QUESTIONS) @ 2022
+
