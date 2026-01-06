@@ -2227,6 +2227,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>4</td>
          <td>hard</td>
       </tr>
+            <tr>
+         <th>Physics</th>
+         <td>General Relativity Search Algorithm</td>
+         <td>GRSA</td>
+         <td>OriginalGRSA</td>
+         <td>2015</td>
+         <td>2</td>
+         <td>medium</td>
+      </tr>
    </tbody>
 </table>
 
@@ -2362,15 +2371,6 @@ This warning is intended to help others avoid using or relying on these methods 
          <td>2021</td>
          <td>2</td>
          <td>easy</td>
-      </tr>
-      <tr>
-         <th>Physics</th>
-         <td>General Relativity Search Algorithm</td>
-         <td>GRSA</td>
-         <td>OriginalGRSA</td>
-         <td>2015</td>
-         <td>2</td>
-         <td>medium</td>
       </tr>
    </tbody>
 </table>
