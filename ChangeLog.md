@@ -12,6 +12,15 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 
 
+# Unreleased
+
+## New Features
+
+### Physics-Based Algorithms
+- Added **Kepler Optimization Algorithm (KOA)** module with `OriginalKOA` class.
+
+
+
 # Version 3.0.3
 
 ## General Updates
@@ -1563,4 +1572,3 @@ Type: Sequential has 2 training modes
 + Evolutionary_based
     * GA - Genetic Algorithm
     * DE - Differential Evolution
-
