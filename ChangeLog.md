@@ -12,6 +12,25 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 
 
+
+
+# Version 3.0.4
+
++ Add `tqdm` to mealpy when `log_to` != `console`.
++ Fix bug division by 0 in `levy` function.
++ Update `Agent` class to have fully complete functions.
++ Update `OriginalWOA` without greedy selection.
++ Add `DevWOA` for developed version of Whale
++ Add `Stellar Oscillation Optimizer (SOO)` to `physics-based` group
++ Add `Enzyme Action Optimizer (EAO)` to `bio-based` group.
++ Add `Starfish Optimization Algorithm (SFOA)` to `bio-based` group.
++ Add `Dream Optimization Algorithm (DOA)` to `human-based` group.
++ Add `Mirage Search Optimization (MSO)` to `physics-based` group.
++ Add `Tianji's Horse Racing Optimization (THRO)` to the new `game-based` group.
++ Add `Mantis Shrimp Optimization Algorithm (MShOA)` to the new `swarm-based` group.
+
+---
+
 # Version 3.0.3
 
 ## General Updates
