@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-# Implemented for MEALPY by Furkan Gunbaz (gunbaz)
-# This implementation reproduces the algorithm exactly as described in 
-# mathematics-13-01500-v2.pdf (MShOA), with no simplifications.
-# Email: furkan.gunbaz@gmail.com
-# Github: https://github.com/gunbaz
-# -------------------------------------------------
-#
+# Created by "Furkan Gunbaz (gunbaz) ---------------%
+#       Email: furkan.gunbaz@gmail.com              %
+#       Github: https://github.com/gunbaz           %
+# --------------------------------------------------%
+
 # IMPLEMENTATION NOTES:
 # This implementation follows the PTI (Polarization Type Indicator) mechanism 
 # from the original paper exactly as described in Algorithm 1 and Algorithm 2.
@@ -66,7 +64,8 @@ class OriginalMShOA(Optimizer):
 
     References
     ~~~~~~~~~~
-    [1] Sánchez Cortez, J.A., Peraza Vázquez, H., Peña Delgado, A.F., 2025. Mantis Shrimp Optimization Algorithm (MShOA): A Novel Bio-Inspired Optimization Algorithm Based on Mantis Shrimp Survival Tactics. Mathematics, 13(9), 1500. https://doi.org/10.3390/math13091500
+    [1] Sánchez Cortez, J.A., Peraza Vázquez, H., Peña Delgado, A.F., 2025. Mantis Shrimp Optimization Algorithm (MShOA): A Novel
+    Bio-Inspired Optimization Algorithm Based on Mantis Shrimp Survival Tactics. Mathematics, 13(9), 1500. https://doi.org/10.3390/math13091500
     
     Notes
     ~~~~~
@@ -113,7 +112,6 @@ class OriginalMShOA(Optimizer):
         PTI ∈ {1, 2, 3} for each agent using PTI_i = round(1 + 2 * rand_i)
         This produces distribution: ~25% for 1, ~50% for 2, ~25% for 3
         """
-        super().before_main_loop()
         # Initialize PTI according to paper: PTI_i = round(1 + 2 * rand_i)
         u = self.generator.random(self.pop_size)  # uniform(0, 1) for each agent
         pti_raw = 1 + 2 * u  # produces values in [1, 3)
@@ -283,21 +281,20 @@ class OriginalMShOA(Optimizer):
         # PTI_i = LPT_i if LAD_i < RAD_i else RPT_i
         # In case of equality, choose RPT (else branch)
         self.pti = np.where(lad < rad, lpt, rpt)
-        
+
         # Create new agents efficiently
         pop_new = []
         for idx in range(self.pop_size):
             pos_corrected = self.correct_solution(pos_new[idx])
             agent = self.generate_empty_agent(pos_corrected)
             pop_new.append(agent)
-        
         # Use standard Mealpy helper to update all targets
         pop_new = self.update_target_for_population(pop_new)
-        
+
         # Safety check: ensure no agent has None target
         for agent in pop_new:
             if agent.target is None:
                 agent.target = self.get_target(agent.solution)
-        
+
         # Perform greedy selection using standard Mealpy helper
         self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
