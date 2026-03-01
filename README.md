@@ -2227,6 +2227,15 @@ along with their syntax and common problem applications. This will guide you in 
          <td>4</td>
          <td>hard</td>
       </tr>
+            <tr>
+         <th>Physics</th>
+         <td>General Relativity Search Algorithm</td>
+         <td>GRSA</td>
+         <td>OriginalGRSA</td>
+         <td>2015</td>
+         <td>2</td>
+         <td>medium</td>
+      </tr>
    </tbody>
 </table>
 
@@ -3406,3 +3415,4 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 ---
 
 Developed by: [Thieu](mailto:nguyenthieu2102@gmail.com?Subject=MEALPY_QUESTIONS) @ 2022
+
