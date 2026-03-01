@@ -24,9 +24,7 @@ class OriginalSFOA(Optimizer):
         but it is evident that their implementations are often incorrect.
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [0.5, 3.0] -> better [0.5, 2.0], the greatest step size
-        + p_m (float): (0, 1.0) -> better [0.01, 0.2], mutation probability
-        + psw (float): (0, 1.0) -> better [0.01, 0.1], proportion of space width (z in the paper)
+        + gp (float): [0., 1] -> better [0.5, 0.7], the probablity for exploration
 
     Examples
     ~~~~~~~~
