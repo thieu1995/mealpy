@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# Created by "Mehmet Ali Topkara" at 09:00, 09/12/2025 --%
+#       Email: mehmetalitopkara080@gmail.com              %
+#       Github: https://github.com/MAliTopkara            %
+# --------------------------------------------------------%
 
 import numpy as np
 from math import cosh
