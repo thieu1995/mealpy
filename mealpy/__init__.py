@@ -32,18 +32,19 @@ __version__ = "3.0.3"
 import sys
 import inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, SFOA)
-from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA, SHADE)
+from .evolutionary_based import (BWO, CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
-                          AFT, CDDO)
+                          AFT, CDDO, DOA)
 from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS)
-from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO, ESO, SOO)
+from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO, ESO, SOO, MSO)
 from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, BFO, BSA, COA, CoatiOA, CSA, CSO,
                           DMOA, DO, EHO, ESOA, FA, FFA, FFO, FOA, FOX, GJA, GJO, GOA, GTO, GWO, HBA, HGS, HHO, JA,
-                          MFO, MGO, MPA, MRFO, MSA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
+                          MFO, MGO, MPA, MRFO, MSA, MShOA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
                           SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
                           EPC, SMO, SquirrelSA, FDO)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
+from .game_based import THRO
 from .sota_based import LSHADEcnEpSin, IMODE
 from .utils.problem import Problem
 from .utils.termination import Termination
