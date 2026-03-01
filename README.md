@@ -3184,6 +3184,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 ### O
 
+* **OSA - Owl Search Algorithm**
+  * **OriginalOSA**: Jain, M., Maurya, S., Rani, A., & Singh, V. (2018). Owl search algorithm: A novel nature-inspired heuristic paradigm for global optimization. Journal of Intelligent & Fuzzy Systems, 34, 1573–1582.
+
 ### P
 
 * **PSO - Particle Swarm Optimization** 
