@@ -60,9 +60,9 @@ class OriginalBWO(Optimizer):
         n = self.pop_size
         d = self.problem.n_dims
 
-        # Ensure lb/ub are vectors (Mealpy commonly stores arrays)
-        lb = np.asarray(self.problem.lb, dtype=float)
-        ub = np.asarray(self.problem.ub, dtype=float)
+        # Extract lb/ub vectors (they are already arrays)
+        lb = self.problem.lb
+        ub = self.problem.ub
 
         # Eq. (3): Bf = B0*(1 - T/(2*Tmax)), with B0 in (0,1) per individual
         B0 = self.generator.random(n)
