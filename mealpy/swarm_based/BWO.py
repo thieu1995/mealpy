@@ -5,10 +5,9 @@
 # Author: Enes Cabbar AKÇA (Github : enescabbarakca29)
 #
 # Reference:
-#  Zhong, C., Li, G., & Meng, Z. (2022).
-#  Beluga whale optimization: A novel nature-inspired metaheuristic algorithm.
-#  Knowledge-Based Systems, 251, 109215.
-#  https://doi.org/10.1016/j.knosys.2022.109215
+# Zhong, C., Li, G., & Meng, Z. (2022). Beluga whale optimization: A novel nature‑inspired metaheuristic algorithm.
+# Knowledge‑Based Systems, 251, 109215.
+# https://doi.org/10.1016/j.knosys.2022.109215
 #
 # Beluga Whale Optimization (BWO) - Paper-faithful (Eq. 3–10)
 #
@@ -24,7 +23,6 @@
 
 from __future__ import annotations
 
-import math
 import numpy as np
 from mealpy.optimizer import Optimizer
 
@@ -45,26 +43,12 @@ class OriginalBWO(Optimizer):
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
+        # validate and store parameters
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
+        # BWO does not sort population between iterations
         self.sort_flag = False
-
-    def _levy_flight(self, n_dims: int) -> np.ndarray:
-        """
-        Lévy flight step (Eq. 6–7) with beta=1.5
-        LF = 0.05 * (u*sigma) / |v|^(1/beta)
-        """
-        beta = 1.5
-        sigma = (
-            math.gamma(1 + beta) * math.sin(math.pi * beta / 2)
-            / (math.gamma((1 + beta) / 2) * beta * (2 ** ((beta - 1) / 2)))
-        ) ** (1 / beta)
-
-        u = self.generator.normal(0.0, sigma, size=n_dims)
-        v = self.generator.normal(0.0, 1.0, size=n_dims)
-        step = u / (np.abs(v) ** (1.0 / beta))
-        return 0.05 * step
 
     def evolve(self, epoch: int) -> None:
         """
@@ -117,13 +101,15 @@ class OriginalBWO(Optimizer):
                     diff = x_r[p1] - base
 
                     # even/odd w.r.t 1-indexed j (paper)
-                    trig = math.sin(2.0 * math.pi * r2) if ((j + 1) % 2 == 0) else math.cos(2.0 * math.pi * r2)
+                    trig = (np.sin if ((j + 1) % 2 == 0) else np.cos)(2.0 * np.pi * r2)
                     pos_new[j] = base + diff * (1.0 + r1) * trig
             else:
                 # ===================== Exploitation (Eq. 5) =====================
                 r3, r4 = self.generator.random(2)
                 C1 = 2.0 * r4 * (1.0 - epoch / self.epoch)
-                LF = self._levy_flight(d)
+                # Use built‑in Levy-flight function from Optimizer
+                # Beta=1.5 (Eq.6), multiplier=0.05 (scale), case=-1 returns multiplier * s only
+                LF = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=d, case=-1)
 
                 pos_new = r3 * x_best - r4 * x_i + C1 * LF * (x_r - x_i)
 
