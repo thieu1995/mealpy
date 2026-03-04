@@ -1,5 +1,15 @@
 #!/usr/bin/env python
-# Created by "OpenAI Assistant" for MEALPY contribution
+#
+# Beluga Whale Optimization (BWO)
+#
+# Author: Enes Cabbar AKÇA (Github : enescabbarakca29)
+#
+# Reference:
+#  Zhong, C., Li, G., & Meng, Z. (2022).
+#  Beluga whale optimization: A novel nature-inspired metaheuristic algorithm.
+#  Knowledge-Based Systems, 251, 109215.
+#  https://doi.org/10.1016/j.knosys.2022.109215
+#
 # Beluga Whale Optimization (BWO) - Paper-faithful (Eq. 3–10)
 #
 # Notes:
