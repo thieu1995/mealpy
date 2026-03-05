@@ -302,3 +302,5 @@ def get_optimizer_by_name(name: str, verbose: bool = False):
         for algo_name, optimizer in cls.items():
             print(f"Optimizer: {algo_name} - {optimizer} - {optimizer()}")
     return cls
+
+# trigger workflow
