@@ -368,7 +368,7 @@ class Optimizer:
         Returns:
             The valid solution based on optimizer's strategy
         """
-        return solution
+        return np.clip(solution, self.problem.lb, self.problem.ub)
 
     def correct_solution(self, solution: np.ndarray) -> np.ndarray:
         """
