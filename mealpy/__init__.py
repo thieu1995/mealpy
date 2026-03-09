@@ -32,7 +32,7 @@ __version__ = "3.0.3"
 import sys
 import inspect
 
-# Bio‑based algorithms
+# Bio-based algorithms
 from .bio_based import (
     BBO,
     BBOA,
@@ -64,7 +64,7 @@ from .evolutionary_based import (
     SHADE,
 )
 
-# Human‑based algorithms
+# Human-based algorithms
 from .human_based import (
     BRO,
     BSO,
@@ -88,7 +88,7 @@ from .human_based import (
     DOA,
 )
 
-# Math‑based algorithms
+# Math-based algorithms
 from .math_based import (
     AOA,
     CEM,
@@ -104,7 +104,7 @@ from .math_based import (
     TS,
 )
 
-# Physics‑based algorithms (including MSO)
+# Physics-based algorithms (including MSO)
 from .physics_based import (
     ArchOA,
     ASO,
@@ -125,7 +125,7 @@ from .physics_based import (
     MSO,
 )
 
-# Swarm‑based algorithms, including Beluga Whale Optimization (BWO)
+# Swarm-based algorithms, including Beluga Whale Optimization (BWO)
 from .swarm_based import (
     ABC,
     ACOR,
@@ -222,6 +222,7 @@ from .utils.space import (
 
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 
+
 def get_all_optimizers(verbose: bool = True):
     """
     Get all available optimizer classes in Mealpy library
@@ -245,6 +246,7 @@ def get_all_optimizers(verbose: bool = True):
             print(f"Optimizer: {name} - {optimizer} - {optimizer()}")
     return cls
 
+
 def get_optimizer_by_class(class_name: str, verbose: bool = False):
     """
     Get an optimizer class by its class name
@@ -267,6 +269,7 @@ def get_optimizer_by_class(class_name: str, verbose: bool = False):
             f"https://mealpy.readthedocs.io/en/latest/pages/support.html#classification-table"
         )
         return None
+
 
 def get_optimizer_by_name(name: str, verbose: bool = False):
     """
@@ -298,9 +301,7 @@ def get_optimizer_by_name(name: str, verbose: bool = False):
             return None
         # Remove base class
         cls.pop("Optimizer", None)
-        print("Found algorithm: {name}, the supported variants are:")
+        print(f"Found algorithm: {name}, the supported variants are:")
         for algo_name, optimizer in cls.items():
             print(f"Optimizer: {algo_name} - {optimizer} - {optimizer()}")
     return cls
-
-# trigger workflow
