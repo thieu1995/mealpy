@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 14:07, 20/03/2022 ----------%
-#       Email: nguyenthieu2102@gmail.com            %
-#       Github: https://github.com/thieu1995        %
+# Created by "halil" at 9:35, 03/01/2026 ----------%
+#       Email: halilakbas11@outlook.com            %
+#       Github: https://github.com/halilakbas11      %
 # --------------------------------------------------%
 
 import numpy as np
