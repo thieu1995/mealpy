@@ -65,9 +65,9 @@ class OriginalBBOA(Optimizer):
         ## Pedal marking behaviour
         pop_new = []
         for idx in range(0, self.pop_size):
-            if pp <= epoch/3:           # Gait while walking
+            if pp <= 1/3:           # Gait while walking
                 pos_new = self.pop[idx].solution + (-pp * self.generator.random(self.problem.n_dims) * self.pop[idx].solution)
-            elif epoch/3 < pp <= 2*epoch/3:     # Careful Stepping
+            elif 1/3 < pp <= 2/3:     # Careful Stepping
                 qq = pp * self.generator.random(self.problem.n_dims)
                 pos_new = self.pop[idx].solution + (qq * (self.g_best.solution - self.generator.integers(1, 3) * self.g_worst.solution))
             else:
