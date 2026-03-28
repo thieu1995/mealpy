@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.agent import Agent
+
 
 
 class OriginalDBO(Optimizer):
@@ -53,15 +53,7 @@ class OriginalDBO(Optimizer):
         79, 7305–7336.
     """
 
-    def __init__(
-        self,
-        epoch: int = 10000,
-        pop_size: int = 100,
-        alpha: float = 1.0,
-        k: float = 0.1,
-        b_const: float = 0.5,
-        **kwargs: object,
-    ) -> None:
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 1.0, k: float = 0.1, b_const: float = 0.5, **kwargs: object) -> None:
         """
         Args:
             epoch (int): maximum number of iterations, default = 10000
@@ -101,16 +93,6 @@ class OriginalDBO(Optimizer):
                 [agent.solution.copy() for agent in self.pop]
             )
 
-    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
-        """
-        Generate an empty agent (without target).
-
-        DBO does not require any additional attributes per agent,
-        therefore only the solution vector is stored.
-        """
-        if solution is None:
-            solution = self.problem.generate_solution(encoded=True)
-        return Agent(solution=solution)
 
     def evolve(self, epoch: int):
         """
@@ -120,22 +102,12 @@ class OriginalDBO(Optimizer):
         Args:
             epoch (int): The current iteration.
         """
-        # Make sure previous positions array is aligned with the population
-        if self._prev_positions is None or len(self._prev_positions) != self.pop_size:
-            self._prev_positions = np.array(
-                [agent.solution.copy() for agent in self.pop]
-            )
 
-        pop_array = np.array([agent.solution.copy() for agent in self.pop])
-        prev_array = self._prev_positions.copy()
+        pop_array = np.array([agent.solution for agent in self.pop])
 
         # Global best / worst positions (bestX and worstX in the paper)
-        g_best = self.g_best.solution.copy()
-        if self.problem.minmax == "min":
-            worst_agent = max(self.pop, key=lambda ag: ag.target.fitness)
-        else:
-            worst_agent = min(self.pop, key=lambda ag: ag.target.fitness)
-        g_worst = worst_agent.solution.copy()
+        g_best = self.g_best.solution
+        g_worst = self.get_worst_agent(self.pop, self.problem.minmax).solution
 
         n = self.pop_size
         idx = np.arange(n)
@@ -158,7 +130,7 @@ class OriginalDBO(Optimizer):
         # ===== 1) Ball-rolling dung beetles =====
         for i in idx_roll:
             x_t = pop_array[i]
-            x_t_1 = prev_array[i]
+            x_t_1 = self._prev_positions[i]
 
             # Rolling behavior: a simple approximation of the original equations
             step = self.alpha * self.k * x_t_1 + self.b_const * np.abs(x_t - g_worst)
@@ -232,13 +204,11 @@ class OriginalDBO(Optimizer):
         # Evaluate the new population (in parallel modes this is done inside)
         pop_new = self.update_target_for_population(pop_new)
 
+        # Update previous positions x(t−1) before merging
+        self._prev_positions = np.array([agent.solution.copy() for agent in self.pop])
+
         # Merge old and new populations, then sort and trim to pop_size
         self.pop = self.get_sorted_and_trimmed_population(
             self.pop + pop_new, self.pop_size, self.problem.minmax
-        )
-
-        # Update previous positions x(t−1) for the next iteration
-        self._prev_positions = np.array(
-            [agent.solution.copy() for agent in self.pop]
         )
 
