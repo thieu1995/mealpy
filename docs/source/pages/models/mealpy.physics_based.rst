@@ -66,14 +66,6 @@ mealpy.physics\_based.HGSO module
    :undoc-members:
    :show-inheritance:
 
-mealpy.physics\_based.KOA module
---------------------------------
-
-.. automodule:: mealpy.physics_based.KOA
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 mealpy.physics\_based.MVO module
 --------------------------------
 
