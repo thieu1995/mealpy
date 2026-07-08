@@ -148,5 +148,5 @@ class OriginalGJA(Optimizer):
                     worst_idx = np.argsort(fitness_values)[:n_worst]
                 for idx in worst_idx:
                     mem_idx = self.generator.integers(0, len(self.memory))
-                    new_pos = self.correct_solution(self.memory[mem_idx].solution.copy())
+                    new_pos = self.correct_solution(self.memory[mem_idx])
                     self.pop[idx] = self.generate_agent(new_pos)
