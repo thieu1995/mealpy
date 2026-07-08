@@ -29,7 +29,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Tianji's Horse Racing Optimization (THRO)` to the new `game-based` group.
 + Add `Mantis Shrimp Optimization Algorithm (MShOA)` to the new `swarm-based` group.
 + Re-Add `Black Widow Optimization (BWO)` to the `evolutionary-based` group.
-
++ Fix error in `OriginalBBOA` evolve function.
 
 ---
 
