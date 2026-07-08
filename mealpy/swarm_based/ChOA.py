@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# Created by "User" at 2024 ----------%
-#       Github: https://github.com/thieu1995        %
-# --------------------------------------------------%
+# Created by "https://github.com/fatmasenagul" at 2024
+# ---------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -12,7 +11,7 @@ class OriginalChOA(Optimizer):
     The original version of: Chimp Optimization Algorithm (ChOA)
 
     Links:
-        1. https://doi.org/10.1016/j.eswa.2019.113338
+        1. https://doi.org/10.1016/j.eswa.2020.113338
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + epoch (int): maximum number of iterations, default = 10000
