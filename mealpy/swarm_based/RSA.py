@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-# --------------------------------------------------%
-# Created by contributor for MEALPY
-# Reptile Search Algorithm (RSA)
-# --------------------------------------------------%
+# Created by "https://github.com/beratcalik" at 2025
+# -------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -22,8 +20,7 @@ class OriginalRSA(Optimizer):
         Expert Systems with Applications, 191, 116158.
     """
 
-    def __init__(self, epoch=10000, pop_size=100,
-                 alpha=0.1, beta=0.1, eps=1e-10, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=0.1, beta=0.1, eps=1e-10, **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
