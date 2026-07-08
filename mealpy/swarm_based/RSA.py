@@ -30,7 +30,7 @@ class OriginalRSA(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.alpha = self.validator.check_float("alpha", alpha, (0.0, 100.0))
         self.beta = self.validator.check_float("beta", beta, (0.0, 100.0))
-        self.set_parameters(["epoch", "pop_size", "alpha", "beta", "eps"])
+        self.set_parameters(["epoch", "pop_size", "alpha", "beta"])
         self.sort_flag = False
 
     def evolve(self, epoch):
