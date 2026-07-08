@@ -8,9 +8,9 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 
 
-class OriginalBWO(Optimizer):
+class OriginalBWOA(Optimizer):
     """
-    The original version of: Black Widow Optimization (BWO)
+    The original version of: Black Widow Optimization Algorithm (BWOA)
 
     Links:
         1. https://doi.org/10.1016/j.engappai.2019.103249
@@ -23,7 +23,7 @@ class OriginalBWO(Optimizer):
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy import FloatVar, BWO
+    >>> from mealpy import FloatVar, BWOA
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -34,7 +34,7 @@ class OriginalBWO(Optimizer):
     >>>     "obj_func": objective_function,
     >>> }
     >>>
-    >>> model = BWO.OriginalBWO(epoch=1000, pop_size=50, pp=0.6, cr=0.44, pm=0.4)
+    >>> model = BWOA.OriginalBWOA(epoch=1000, pop_size=50, pp=0.6, cr=0.44, pm=0.4)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")

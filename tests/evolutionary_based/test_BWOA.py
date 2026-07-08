@@ -7,7 +7,7 @@
 import numpy as np
 import pytest
 
-from mealpy import FloatVar, BWO, Optimizer
+from mealpy import FloatVar, BWOA, Optimizer
 
 
 @pytest.fixture(scope="module")
@@ -24,7 +24,7 @@ def problem():
 
 def test_BWO_results(problem):
     models = [
-        BWO.OriginalBWO(epoch=10, pop_size=50, pp=0.6, cr=0.44, pm=0.4),
+        BWOA.OriginalBWOA(epoch=10, pop_size=50, pp=0.6, cr=0.44, pm=0.4),
     ]
     for model in models:
         g_best = model.solve(problem)
