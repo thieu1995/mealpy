@@ -3,9 +3,10 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
-
+ 
 import numpy as np
 from mealpy.optimizer import Optimizer
+
 
 
 class OriginalWOA(Optimizer):
@@ -58,12 +59,17 @@ class OriginalWOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        a = 2 - 2 * epoch / self.epoch  # linearly decreased from 2 to 0
-        a2 = -1 + epoch * ((-1) / self.epoch)
+        if self.epoch > 1:
+            progress = (epoch - 1) / (self.epoch - 1)
+        else:
+            progress = 1.0
+        a = 2 - 2 * progress  # linearly decreased from 2 to 0
+        a2 = -1 - progress
         pop_new = []
         for idx in range(0, self.pop_size):
-            r1, r2 = self.generator.random(size=2)
-            A = a * (2 * r1 - a)
+            r1 = self.generator.random(self.problem.n_dims)
+            r2 = self.generator.random(self.problem.n_dims)
+            A = 2 * a * r1 - a
             C = 2 * r2
             b = 1
             l = (a2 - 1) * self.generator.random() + 1
@@ -72,13 +78,13 @@ class OriginalWOA(Optimizer):
             pos_new = self.pop[idx].solution.copy()
             for jdx in range(0, self.problem.n_dims):
                 if p < 0.5:
-                    if np.abs(A) >= 1:
+                    if np.abs(A[jdx]) >= 1:
                         id_r = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
-                        D_X_rand = abs(C * self.pop[id_r].solution[jdx] - self.pop[idx].solution[jdx])
-                        pos_new[jdx] = self.pop[id_r].solution[jdx] - A * D_X_rand
+                        D_X_rand = abs(C[jdx] * self.pop[id_r].solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.pop[id_r].solution[jdx] - A[jdx] * D_X_rand
                     else:
-                        D_Leader = abs(C * self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
-                        pos_new[jdx] = self.g_best.solution[jdx]- A * D_Leader
+                        D_Leader = abs(C[jdx] * self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.g_best.solution[jdx] - A[jdx] * D_Leader
                 else:
                     D1 = abs(self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
                     pos_new[jdx] = D1 * np.exp(b * l) * np.cos(l * 2 * np.pi) + self.g_best.solution[jdx]
@@ -86,7 +92,7 @@ class OriginalWOA(Optimizer):
             agent = self.generate_empty_agent(pos_new)
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
-                self.pop[idx].target = self.get_target(pos_new)
+                self.pop[idx].update(solution=pos_new, target=self.get_target(pos_new))
         if self.mode in self.AVAILABLE_MODES:
             self.pop = self.update_target_for_population(pop_new)
 
@@ -281,3 +287,437 @@ class HI_WOA(Optimizer):
             pop_child = self.generate_population(self.n_changes)
             for idx_counter, idx in enumerate(idx_list):
                 self.pop[idx] = pop_child[idx_counter]
+
+class WOAmM(Optimizer):
+    """
+    The WOAmM metaheuristic: Whale Optimization Algorithm with Modified Mutualism phase
+
+    References
+    ~~~~~~~~~~
+    [1] Chakraborty, S., Saha, A. K., Sharma, S., Mirjalili, S., & Chakraborty, R. (2021).
+    A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
+    https://doi.org/10.1016/j.cie.2020.107086
+    """
+
+    def __init__(
+        self,
+        epoch: int = 10000,
+        pop_size: int = 100,
+        mutualism_vector_rand: bool = False,
+        mutualism_snapshot: bool = False,
+        stagnation_epochs: int = 0,
+        restart_ratio: float = 0.2,
+        boundary_mode: str = "clip",
+        **kwargs: object,
+    ) -> None:
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+        """
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.mutualism_vector_rand = self.validator.check_bool("mutualism_vector_rand", mutualism_vector_rand)
+        self.mutualism_snapshot = self.validator.check_bool("mutualism_snapshot", mutualism_snapshot)
+        self.stagnation_epochs = self.validator.check_int("stagnation_epochs", stagnation_epochs, [0, 100000])
+        self.restart_ratio = self.validator.check_float("restart_ratio", restart_ratio, [0.0, 1.0])
+        self.boundary_mode = self.validator.check_str("boundary_mode", boundary_mode, ["clip", "reflect", "random"])
+        self.set_parameters([
+            "epoch",
+            "pop_size",
+            "mutualism_vector_rand",
+            "mutualism_snapshot",
+            "stagnation_epochs",
+            "restart_ratio",
+            "boundary_mode",
+        ])
+        self.is_parallelizable = False
+        self.sort_flag = False
+
+    def initialize_variables(self):
+        self._stall_count = 0
+        self._stall_best_fitness = None
+
+    def before_main_loop(self):
+        if self.g_best is not None and self.g_best.target is not None:
+            self._stall_best_fitness = self.g_best.target.fitness
+
+    def _restart_population(self):
+        ratio = min(max(self.restart_ratio, 0.0), 1.0)
+        if ratio <= 0:
+            return
+        n_restart = int(round(self.pop_size * ratio))
+        n_restart = min(max(n_restart, 0), self.pop_size - 1)
+        if n_restart <= 0:
+            return
+        _, indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+        worst_indices = indices[-n_restart:]
+        new_agents = self.generate_population(n_restart)
+        for idx, agent in zip(worst_indices, new_agents):
+            self.pop[idx] = agent
+
+    def _maybe_restart_on_stagnation(self):
+        if self.stagnation_epochs <= 0:
+            return
+        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        if self._stall_best_fitness is None or self.compare_fitness(
+            current_best.target.fitness, self._stall_best_fitness, self.problem.minmax
+        ):
+            self._stall_best_fitness = current_best.target.fitness
+            self._stall_count = 0
+            return
+        self._stall_count += 1
+        if self._stall_count >= self.stagnation_epochs:
+            self._stall_count = 0
+            self._restart_population()
+            current_best = self.get_best_agent(self.pop, self.problem.minmax)
+            self._stall_best_fitness = current_best.target.fitness
+
+    def _reflect_solution(self, solution: np.ndarray) -> np.ndarray:
+        lb = self.problem.lb
+        ub = self.problem.ub
+        x = solution.copy()
+        for idx in range(len(x)):
+            span = ub[idx] - lb[idx]
+            if span <= 0:
+                x[idx] = lb[idx]
+                continue
+            val = x[idx]
+            if val < lb[idx] or val > ub[idx]:
+                offset = (val - lb[idx]) % (2 * span)
+                if offset > span:
+                    offset = 2 * span - offset
+                x[idx] = lb[idx] + offset
+        return x
+
+    def _random_solution(self, solution: np.ndarray) -> np.ndarray:
+        lb = self.problem.lb
+        ub = self.problem.ub
+        x = solution.copy()
+        mask = (x < lb) | (x > ub)
+        if np.any(mask):
+            x[mask] = self.generator.uniform(lb[mask], ub[mask])
+        return x
+
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        if self.boundary_mode == "clip":
+            return solution
+        if self.boundary_mode == "random":
+            return self._random_solution(solution)
+        return self._reflect_solution(solution)
+
+    def evolve(self, epoch):
+        """
+        Execute one iteration of WOAmM: modified mutualism phase followed by standard WOA moves.
+
+        Args:
+            epoch (int): The current iteration
+        """
+        # Modified mutualism phase
+        base_pop = self.pop
+        new_pop = self.pop
+        if self.mutualism_snapshot:
+            base_pop = [agent.copy() for agent in self.pop]
+            new_pop = [agent.copy() for agent in self.pop]
+        for idx in range(0, self.pop_size):
+            id_candidates = list(set(range(0, self.pop_size)) - {idx})
+            id_m, id_n = self.generator.choice(id_candidates, size=2, replace=False)
+            # Paper: X_bf = best among Xi, Xm, Xn
+            # X_other = worse of Xm, Xn (NOT Xi, since Xi is always updated via Eq.15)
+            three_agents = [(idx, base_pop[idx].target),
+                           (id_m, base_pop[id_m].target),
+                           (id_n, base_pop[id_n].target)]
+            # Find best among all three for X_bf
+            if self.problem.minmax == "min":
+                id_best = min(three_agents, key=lambda x: x[1].fitness)[0]
+            else:
+                id_best = max(three_agents, key=lambda x: x[1].fitness)[0]
+            # X_other is the worse of Xm, Xn (never Xi)
+            if self.compare_target(base_pop[id_m].target, base_pop[id_n].target, self.problem.minmax):
+                id_other = id_n  # id_n is worse
+            else:
+                id_other = id_m  # id_m is worse
+            pos_i = base_pop[idx].solution
+            pos_other = base_pop[id_other].solution
+            pos_best = base_pop[id_best].solution
+            mutual_vector = (pos_i + pos_other) / 2
+            bf1, bf2 = self.generator.integers(1, 3, 2)
+            if self.mutualism_vector_rand:
+                rnd_i = self.generator.random(self.problem.n_dims)
+                rnd_j = self.generator.random(self.problem.n_dims)
+            else:
+                rnd_i = self.generator.random()
+                rnd_j = self.generator.random()
+            xi_new = pos_i + rnd_i * (pos_best - mutual_vector * bf1)
+            xj_new = pos_other + rnd_j * (pos_best - mutual_vector * bf2)
+            xi_new = self.correct_solution(xi_new)
+            xj_new = self.correct_solution(xj_new)
+            xi_target = self.get_target(xi_new)
+            xj_target = self.get_target(xj_new)
+            if self.compare_target(xi_target, new_pop[idx].target, self.problem.minmax):
+                new_pop[idx].update(solution=xi_new, target=xi_target)
+            if self.compare_target(xj_target, new_pop[id_other].target, self.problem.minmax):
+                new_pop[id_other].update(solution=xj_new, target=xj_target)
+        if self.mutualism_snapshot:
+            self.pop = new_pop
+
+        # Refresh global best before WOA movement (keep best-so-far)
+        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        self.g_best = self.get_better_agent(current_best, self.g_best, self.problem.minmax)
+
+        # Standard WOA phase (like OriginalWOA with vector A, C per dimension)
+        if self.epoch > 1:
+            progress = (epoch - 1) / (self.epoch - 1)
+        else:
+            progress = 1.0
+        a = 2 - 2 * progress
+        a2 = -1 - progress
+        b = 1
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Use vector A, C (per dimension) like OriginalWOA
+            r1 = self.generator.random(self.problem.n_dims)
+            r2 = self.generator.random(self.problem.n_dims)
+            A = 2 * a * r1 - a
+            C = 2 * r2
+            l = (a2 - 1) * self.generator.random() + 1
+            p = self.generator.random()
+
+            pos_new = self.pop[idx].solution.copy()
+            for jdx in range(0, self.problem.n_dims):
+                if p < 0.5:
+                    if np.abs(A[jdx]) >= 1:
+                        id_r = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                        D_X_rand = abs(C[jdx] * self.pop[id_r].solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.pop[id_r].solution[jdx] - A[jdx] * D_X_rand
+                    else:
+                        D_Leader = abs(C[jdx] * self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.g_best.solution[jdx] - A[jdx] * D_Leader
+                else:
+                    D1 = abs(self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                    pos_new[jdx] = D1 * np.exp(b * l) * np.cos(l * 2 * np.pi) + self.g_best.solution[jdx]
+
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx].update(solution=pos_new, target=self.get_target(pos_new))
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(pop_new)
+        self._maybe_restart_on_stagnation()
+
+
+class WOAmM_Paper(Optimizer):
+    """
+    WOAmM variant that follows the paper's population replacement behavior.
+    This version replaces the population after the WOA phase (no greedy selection).
+    """
+
+    def __init__(
+        self,
+        epoch: int = 10000,
+        pop_size: int = 100,
+        mutualism_vector_rand: bool = False,
+        mutualism_snapshot: bool = False,
+        stagnation_epochs: int = 0,
+        restart_ratio: float = 0.2,
+        boundary_mode: str = "clip",
+        **kwargs: object,
+    ) -> None:
+        """
+        Args:
+            epoch (int): maximum number of iterations, default = 10000
+            pop_size (int): number of population size, default = 100
+        """
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.mutualism_vector_rand = self.validator.check_bool("mutualism_vector_rand", mutualism_vector_rand)
+        self.mutualism_snapshot = self.validator.check_bool("mutualism_snapshot", mutualism_snapshot)
+        self.stagnation_epochs = self.validator.check_int("stagnation_epochs", stagnation_epochs, [0, 100000])
+        self.restart_ratio = self.validator.check_float("restart_ratio", restart_ratio, [0.0, 1.0])
+        self.boundary_mode = self.validator.check_str("boundary_mode", boundary_mode, ["clip", "reflect", "random"])
+        self.set_parameters([
+            "epoch",
+            "pop_size",
+            "mutualism_vector_rand",
+            "mutualism_snapshot",
+            "stagnation_epochs",
+            "restart_ratio",
+            "boundary_mode",
+        ])
+        self.is_parallelizable = False
+        self.sort_flag = False
+
+    def initialize_variables(self):
+        self._stall_count = 0
+        self._stall_best_fitness = None
+
+    def before_main_loop(self):
+        if self.g_best is not None and self.g_best.target is not None:
+            self._stall_best_fitness = self.g_best.target.fitness
+
+    def _restart_population(self):
+        ratio = min(max(self.restart_ratio, 0.0), 1.0)
+        if ratio <= 0:
+            return
+        n_restart = int(round(self.pop_size * ratio))
+        n_restart = min(max(n_restart, 0), self.pop_size - 1)
+        if n_restart <= 0:
+            return
+        _, indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+        worst_indices = indices[-n_restart:]
+        new_agents = self.generate_population(n_restart)
+        for idx, agent in zip(worst_indices, new_agents):
+            self.pop[idx] = agent
+
+    def _maybe_restart_on_stagnation(self):
+        if self.stagnation_epochs <= 0:
+            return
+        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        if self._stall_best_fitness is None or self.compare_fitness(
+            current_best.target.fitness, self._stall_best_fitness, self.problem.minmax
+        ):
+            self._stall_best_fitness = current_best.target.fitness
+            self._stall_count = 0
+            return
+        self._stall_count += 1
+        if self._stall_count >= self.stagnation_epochs:
+            self._stall_count = 0
+            self._restart_population()
+            current_best = self.get_best_agent(self.pop, self.problem.minmax)
+            self._stall_best_fitness = current_best.target.fitness
+
+    def _reflect_solution(self, solution: np.ndarray) -> np.ndarray:
+        lb = self.problem.lb
+        ub = self.problem.ub
+        x = solution.copy()
+        for idx in range(len(x)):
+            span = ub[idx] - lb[idx]
+            if span <= 0:
+                x[idx] = lb[idx]
+                continue
+            val = x[idx]
+            if val < lb[idx] or val > ub[idx]:
+                offset = (val - lb[idx]) % (2 * span)
+                if offset > span:
+                    offset = 2 * span - offset
+                x[idx] = lb[idx] + offset
+        return x
+
+    def _random_solution(self, solution: np.ndarray) -> np.ndarray:
+        lb = self.problem.lb
+        ub = self.problem.ub
+        x = solution.copy()
+        mask = (x < lb) | (x > ub)
+        if np.any(mask):
+            x[mask] = self.generator.uniform(lb[mask], ub[mask])
+        return x
+
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        if self.boundary_mode == "clip":
+            return solution
+        if self.boundary_mode == "random":
+            return self._random_solution(solution)
+        return self._reflect_solution(solution)
+
+    def evolve(self, epoch):
+        """
+        Execute one iteration of WOAmM (paper mode): mutualism phase then WOA update.
+
+        Args:
+            epoch (int): The current iteration
+        """
+        # Modified mutualism phase
+        base_pop = self.pop
+        new_pop = self.pop
+        if self.mutualism_snapshot:
+            base_pop = [agent.copy() for agent in self.pop]
+            new_pop = [agent.copy() for agent in self.pop]
+        for idx in range(0, self.pop_size):
+            id_candidates = list(set(range(0, self.pop_size)) - {idx})
+            id_m, id_n = self.generator.choice(id_candidates, size=2, replace=False)
+            # Paper: X_bf = best among Xi, Xm, Xn
+            # X_other = worse of Xm, Xn (NOT Xi, since Xi is always updated via Eq.15)
+            three_agents = [(idx, base_pop[idx].target),
+                           (id_m, base_pop[id_m].target),
+                           (id_n, base_pop[id_n].target)]
+            # Find best among all three for X_bf
+            if self.problem.minmax == "min":
+                id_best = min(three_agents, key=lambda x: x[1].fitness)[0]
+            else:
+                id_best = max(three_agents, key=lambda x: x[1].fitness)[0]
+            # X_other is the worse of Xm, Xn (never Xi)
+            if self.compare_target(base_pop[id_m].target, base_pop[id_n].target, self.problem.minmax):
+                id_other = id_n  # id_n is worse
+            else:
+                id_other = id_m  # id_m is worse
+            pos_i = base_pop[idx].solution
+            pos_other = base_pop[id_other].solution
+            pos_best = base_pop[id_best].solution
+            mutual_vector = (pos_i + pos_other) / 2
+            bf1, bf2 = self.generator.integers(1, 3, 2)
+            if self.mutualism_vector_rand:
+                rnd_i = self.generator.random(self.problem.n_dims)
+                rnd_j = self.generator.random(self.problem.n_dims)
+            else:
+                rnd_i = self.generator.random()
+                rnd_j = self.generator.random()
+            xi_new = pos_i + rnd_i * (pos_best - mutual_vector * bf1)
+            xj_new = pos_other + rnd_j * (pos_best - mutual_vector * bf2)
+            xi_new = self.correct_solution(xi_new)
+            xj_new = self.correct_solution(xj_new)
+            xi_target = self.get_target(xi_new)
+            xj_target = self.get_target(xj_new)
+            if self.compare_target(xi_target, new_pop[idx].target, self.problem.minmax):
+                new_pop[idx].update(solution=xi_new, target=xi_target)
+            if self.compare_target(xj_target, new_pop[id_other].target, self.problem.minmax):
+                new_pop[id_other].update(solution=xj_new, target=xj_target)
+        if self.mutualism_snapshot:
+            self.pop = new_pop
+
+        # Refresh global best before WOA movement (keep best-so-far)
+        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        self.g_best = self.get_better_agent(current_best, self.g_best, self.problem.minmax)
+
+        # Standard WOA phase (like OriginalWOA with vector A, C per dimension)
+        if self.epoch > 1:
+            progress = (epoch - 1) / (self.epoch - 1)
+        else:
+            progress = 1.0
+        a = 2 - 2 * progress
+        a2 = -1 - progress
+        b = 1
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            # Use vector A, C (per dimension) like OriginalWOA
+            r1 = self.generator.random(self.problem.n_dims)
+            r2 = self.generator.random(self.problem.n_dims)
+            A = 2 * a * r1 - a
+            C = 2 * r2
+            l = (a2 - 1) * self.generator.random() + 1
+            p = self.generator.random()
+
+            pos_new = self.pop[idx].solution.copy()
+            for jdx in range(0, self.problem.n_dims):
+                if p < 0.5:
+                    if np.abs(A[jdx]) >= 1:
+                        id_r = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                        D_X_rand = abs(C[jdx] * self.pop[id_r].solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.pop[id_r].solution[jdx] - A[jdx] * D_X_rand
+                    else:
+                        D_Leader = abs(C[jdx] * self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                        pos_new[jdx] = self.g_best.solution[jdx] - A[jdx] * D_Leader
+                else:
+                    D1 = abs(self.g_best.solution[jdx] - self.pop[idx].solution[jdx])
+                    pos_new[jdx] = D1 * np.exp(b * l) * np.cos(l * 2 * np.pi) + self.g_best.solution[jdx]
+
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx].update(solution=pos_new, target=self.get_target(pos_new))
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(pop_new)
+        self._maybe_restart_on_stagnation()
