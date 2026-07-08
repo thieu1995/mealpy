@@ -23,7 +23,7 @@ def problem():
 
 
 def test_KOA_results(problem):
-    model = KOA.OriginalKOA(epoch=25, pop_size=15, T=3, gamma=15, mu0=0.1)
+    model = KOA.OriginalKOA(epoch=25, pop_size=15, tc=3, lamda=15, mu0=0.1)
     g_best = model.solve(problem)
     assert isinstance(model, Optimizer)
     assert isinstance(g_best.solution, np.ndarray)
