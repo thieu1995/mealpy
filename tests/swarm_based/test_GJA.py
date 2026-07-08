@@ -1,31 +1,26 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 11:10, 17/03/2022 ----------%
-#       Email: nguyenthieu2102@gmail.com            %
-#       Github: https://github.com/thieu1995        %
-# --------------------------------------------------%
 
+from mealpy import FloatVar, GJA, Optimizer
 import numpy as np
 import pytest
 
-from mealpy import FloatVar, BWO, Optimizer
 
-
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
 def problem():
     def objective_function(solution):
-        return np.sum(solution ** 2)
+        return np.sum(solution**2)
 
-    return {
+    problem = {
         "obj_func": objective_function,
         "bounds": FloatVar(lb=[-10, -15, -4, -2, -8], ub=[10, 15, 12, 8, 20]),
         "minmax": "min",
+        "log_to": None,
     }
+    return problem
 
 
-def test_BWO_results(problem):
-    models = [
-        BWO.OriginalBWO(epoch=10, pop_size=50, pp=0.6, cr=0.44, pm=0.4),
-    ]
+def test_GJA_results(problem):
+    models = [GJA.OriginalGJA(epoch=10, pop_size=50)]
     for model in models:
         g_best = model.solve(problem)
         assert isinstance(model, Optimizer)

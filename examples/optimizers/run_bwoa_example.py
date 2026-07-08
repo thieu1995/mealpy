@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import FloatVar, BWO
+from mealpy import FloatVar, BWOA
 
 
 def objective_function(solution):
@@ -19,6 +19,6 @@ problem = {
     "name": "Sphere",
 }
 
-model = BWO.OriginalBWO(epoch=100, pop_size=50, pp=0.6, cr=0.44, pm=0.4)
+model = BWOA.OriginalBWOA(epoch=100, pop_size=50, pp=0.6, cr=0.44, pm=0.4)
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
