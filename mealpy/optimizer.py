@@ -655,7 +655,7 @@ class Optimizer:
         return rand_indices.item() if n_samples == 1 else rand_indices
 
     @staticmethod
-    def sample_indexes_exclude_list(generator, pop_size: int, exclude_list: list | np.ndarray, n_samples: int):
+    def sample_indexes_exclude_list(generator, pop_size: int, exclude_list: Union[list, np.ndarray], n_samples: int):
         """
         Randomly select 'n_samples' unique indices excluding 'exclude_list'  using Boolean Masking.
         Returns a scalar if n_samples == 1, otherwise returns a numpy array.
