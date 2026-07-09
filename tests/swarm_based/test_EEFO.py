@@ -3,6 +3,7 @@ import pytest
 from mealpy import FloatVar, Optimizer
 from mealpy.swarm_based.EEFO import OriginalEEFO
 
+
 @pytest.fixture(scope="module")
 def problem():
     def objective_function(solution):
@@ -15,6 +16,7 @@ def problem():
         "log_to": None
     }
     return problem
+
 
 def test_EEFO_results(problem):
     models = [
