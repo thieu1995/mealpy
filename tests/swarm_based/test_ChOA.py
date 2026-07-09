@@ -1,13 +1,14 @@
 import numpy as np
 import pytest
-from mealpy.swarm_based import ChOA
+
 from mealpy import FloatVar
+from mealpy.swarm_based import ChOA
 
 
 @pytest.fixture(scope="module")
 def problem():
     def objective_function(solution):
-        return np.sum(solution**2)
+        return np.sum(solution ** 2)
 
     return {
         "obj_func": objective_function,
@@ -18,11 +19,9 @@ def problem():
 
 
 def test_original_choa(problem):
-    # Senin yazdığın sınıfı çağırıyoruz
     model = ChOA.OriginalChOA(epoch=10, pop_size=20)
     g_best = model.solve(problem)
-    
-    # Kütüphanenin beklediği standart doğrulamalar (Assertions)
+
     assert g_best.target.fitness < 100
     assert isinstance(g_best.solution, np.ndarray)
     assert len(g_best.solution) == 3
