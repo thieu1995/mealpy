@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 14:52, 17/03/2023 ----------%
-#       Email: nguyenthieu2102@gmail.com            %
-#       Github: https://github.com/thieu1995        %
-# --------------------------------------------------%
+# Created by "Baran Akyıldız" on 01/01/2026
+# Github: https://github.com/akyilidizbaran
+# ----------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -13,7 +12,7 @@ class OriginalCEO(Optimizer):
     The original version of: Cosmic Evolution Optimization (CEO)
 
     Links:
-        1. https://doi.org/10.3390/math1302......
+        1. https://doi.org/10.3390/math13152499
 
     Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
         + w1 (float): [0.0, 1.0], Expansion weight, default=0.1
@@ -41,7 +40,8 @@ class OriginalCEO(Optimizer):
 
     References
     ~~~~~~~~~~
-    [1] Author names etc. Cosmic Evolution Optimization. Mathematics, 2024.
+    [1] Wang, Rui, Zhengxuan Jiang, and Guowen Ding. "Cosmic Evolution Optimization: A Novel Metaheuristic
+    Algorithm for Numerical Optimization and Engineering Design." Mathematics 13.15 (2025): 2499.
     """
 
     def __init__(self, epoch: int = 1000, pop_size: int = 50,
@@ -60,7 +60,6 @@ class OriginalCEO(Optimizer):
         self.w1 = self.validator.check_float("w1", w1, (0., 1.0))
         self.p_base = self.validator.check_float("p_base", p_base, (0., 1.0))
         self.alpha = self.validator.check_float("alpha", alpha, (0., 1.0))
-        
         # Internal parameter C (number of systems) fixed to 3 as per paper specs
         self.C = 3
         
@@ -74,23 +73,12 @@ class OriginalCEO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        # Ensure population is sorted so centers are truly the best
-        pop_temp = sorted(self.pop, key=lambda agent: agent.target.fitness)
-        if self.problem.minmax == "max":
-             pop_temp = pop_temp[::-1]
-        self.pop = pop_temp
-        
-        # Calculate time-dependent parameters
-        
         # Eq(3) Expansion speed: Vep(t)
         vep = self.w1 * (1 - 0.001 * (epoch / self.epoch)) * np.exp(-4 * epoch / self.epoch)
-        
         # Eq(13) alpha(t)
         alpha_t = self.alpha * (1 + 0.0005 * (epoch / self.epoch))
-        
         # Eq(15) Pglobal collision probability
         p_global = self.p_base * (1 - 0.0005 * (epoch / self.epoch)) * (1 - epoch / self.epoch)
-        
         # Eq(17) Resonance probability Preson
         p_reson = 0.1 * np.exp(-3 * epoch / self.epoch)
 
@@ -102,14 +90,13 @@ class OriginalCEO(Optimizer):
         kc = max(2, int(round(self.pop_size / self.C)))
         
         radii = []
-        for i in range(self.C):
-            center_pos = centers[i]
+        for idx in range(self.C):
+            center_pos = centers[idx]
             dists = np.linalg.norm([agent.solution - center_pos for agent in self.pop], axis=1)
             sorted_dists = np.sort(dists)
-            nearest_dists = sorted_dists[:kc] 
+            nearest_dists = sorted_dists[:kc]
             rc = np.mean(nearest_dists)
             radii.append(rc)
-            
         r_bar = np.mean(radii)
         
         # Use abs(f_best) for Eq(7)
@@ -122,11 +109,9 @@ class OriginalCEO(Optimizer):
             
             # --- Collision Strategy (Eq 16) ---
             if self.generator.random() < p_global:
-                eta = self.generator.normal(0, 1, self.problem.n_dims)
-                pos_new = xi + eta * r_bar
+                pos_new = xi + self.generator.normal(0, 1, self.problem.n_dims) * r_bar
             else:
                 # --- Trajectory Update (Eq 14) ---
-                
                 # Eq(4) Expansion step part: Vep(t) * randn * (ub - lb)
                 expansion = vep * self.generator.normal(0, 1, self.problem.n_dims) * (self.problem.ub - self.problem.lb)
                 
@@ -163,27 +148,22 @@ class OriginalCEO(Optimizer):
             # Check bounds and evaluate
             pos_new = self.correct_solution(pos_new)
             agent_new = self.generate_empty_agent(pos_new)
-            agent_new.target = self.get_target(pos_new)
-            
-            # Elite retention / Greedy Selection
-            agent_to_keep = agent
-            if self.compare_target(agent_new.target, agent.target, self.problem.minmax):
-                agent_to_keep = agent_new
+            pop_new.append(agent_new)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[idx].target = self.get_target(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
+
+        # Elite retention / Greedy Selection
+        for idx in range(self.pop_size):
+            if self.compare_target(pop_new[idx].target, self.pop[idx].target, self.problem.minmax):
+                self.pop[idx] = pop_new[idx]
             else:
                 # Resonance Strategy Eq(17-18)
                 if self.generator.random() < p_reson:
                     delta_x = 0.01 * self.generator.normal(0, 1, self.problem.n_dims) * (self.problem.ub - self.problem.lb)
-                    pos_reson = agent_new.solution + delta_x
+                    pos_reson = pop_new[idx].solution + delta_x
                     pos_reson = self.correct_solution(pos_reson)
-                    agent_reson = self.generate_empty_agent(pos_reson)
-                    agent_reson.target = self.get_target(pos_reson)
-                    
-                    # Eq(18)
-                    if self.compare_target(agent_reson.target, agent.target, self.problem.minmax):
-                        agent_to_keep = agent_reson
-                    else:
-                        agent_to_keep = agent
-            
-            pop_new.append(agent_to_keep)
-            
-        self.pop = pop_new
+                    agent_new = self.generate_agent(pos_reson)
+                    if self.compare_target(agent_new.target, self.pop[idx].target, self.problem.minmax):
+                        self.pop[idx] = agent_new
