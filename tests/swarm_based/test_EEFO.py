@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from mealpy import FloatVar, Optimizer
-from mealpy.swarm_based.EEFO import EEFO
+from mealpy.swarm_based.EEFO import OriginalEEFO
 
 @pytest.fixture(scope="module")
 def problem():
@@ -18,7 +18,7 @@ def problem():
 
 def test_EEFO_results(problem):
     models = [
-        EEFO(epoch=10, pop_size=20)
+        OriginalEEFO(epoch=10, pop_size=20)
     ]
     for model in models:
         g_best = model.solve(problem)
