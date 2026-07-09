@@ -642,6 +642,33 @@ class Optimizer:
             self.history.list_global_worst[-1] = global_worst
             return sorted_pop, global_better
 
+    @staticmethod
+    def sample_exclude_one(generator, pop_size: int, exclude_idx: int, n_samples: int):
+        """
+        Randomly select 'num_samples' unique indices excluding 'exclude_idx' using the highly optimized Offset Trick.
+        Returns a scalar if n_samples == 1, otherwise returns a numpy array.
+        """
+        # Select num_samples random indices from 0 to (pop_size - 2)
+        rand_indices = generator.choice(pop_size - 1, size=n_samples, replace=False)
+        # Shift indices that are greater than or equal to exclude_idx
+        rand_indices[rand_indices >= exclude_idx] += 1
+        return rand_indices.item() if n_samples == 1 else rand_indices
+
+    @staticmethod
+    def sample_exclude_list(generator, pop_size: int, exclude_list: list | np.ndarray, n_samples: int):
+        """
+        Randomly select 'num_samples' unique indices excluding 'exclude_list'  using Boolean Masking.
+        Returns a scalar if n_samples == 1, otherwise returns a numpy array.
+        """
+        # Create mask and find valid candidates
+        mask = np.ones(pop_size, dtype=bool)
+        mask[exclude_list] = False
+        valid_candidates = np.nonzero(mask)[0]
+        # Randomly choose from the valid candidates
+        result = generator.choice(valid_candidates, size=n_samples, replace=False)
+        # Return scalar if size is 1, else return the array
+        return result.item() if n_samples == 1 else result
+
     ## Selection techniques
     def get_index_roulette_wheel_selection(self, list_fitness: np.array):
         """
