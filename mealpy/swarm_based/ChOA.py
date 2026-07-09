@@ -63,7 +63,7 @@ class OriginalChOA(Optimizer):
         """
         # f decreases linearly from 2.5 to 0 over iterations, Eq. (3)
         f = 2.5 - 2.5 * (epoch / self.epoch)
-        
+
         # Get the four best chimps (Attacker, Barrier, Chaser, Driver)
         _, list_best, _ = self.get_special_agents(self.pop, n_best=4, minmax=self.problem.minmax)
         x_attacker = list_best[0].solution
@@ -107,16 +107,16 @@ class OriginalChOA(Optimizer):
 
             # Calculate new position as the average of all four leaders, Eq. (7)
             pos_new = (x1 + x2 + x3 + x4) / 4.0
-            
+
             # Correct and check boundaries
             pos_new = self.correct_solution(pos_new)
             agent = self.generate_empty_agent(pos_new)
             pop_new.append(agent)
-            
+
             if self.mode not in self.AVAILABLE_MODES:
                 agent.target = self.get_target(pos_new)
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
-                
+
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
