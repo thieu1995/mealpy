@@ -113,7 +113,7 @@ class OriginalEEFO(Optimizer):
             # Active when Energy Factor > 1
             if e_factor > 1:
                 # Select a random partner 'j' distinct from current agent 'i'
-                jdx = self.sample_exclude_one(self.generator, self.pop_size, idx, n_samples=1)
+                jdx = self.sample_indexes_exclude_one(self.generator, self.pop_size, idx, n_samples=1)
                 agent_j = self.pop[jdx]
 
                 # Eq. (7): Interaction based on fitness comparison

@@ -643,21 +643,21 @@ class Optimizer:
             return sorted_pop, global_better
 
     @staticmethod
-    def sample_exclude_one(generator, pop_size: int, exclude_idx: int, n_samples: int):
+    def sample_indexes_exclude_one(generator, pop_size: int, exclude_idx: int, n_samples: int):
         """
-        Randomly select 'num_samples' unique indices excluding 'exclude_idx' using the highly optimized Offset Trick.
+        Randomly select 'n_samples' unique indices excluding 'exclude_idx' using the highly optimized Offset Trick.
         Returns a scalar if n_samples == 1, otherwise returns a numpy array.
         """
-        # Select num_samples random indices from 0 to (pop_size - 2)
+        # Select n_samples random indices from 0 to (pop_size - 2)
         rand_indices = generator.choice(pop_size - 1, size=n_samples, replace=False)
         # Shift indices that are greater than or equal to exclude_idx
         rand_indices[rand_indices >= exclude_idx] += 1
         return rand_indices.item() if n_samples == 1 else rand_indices
 
     @staticmethod
-    def sample_exclude_list(generator, pop_size: int, exclude_list: list | np.ndarray, n_samples: int):
+    def sample_indexes_exclude_list(generator, pop_size: int, exclude_list: list | np.ndarray, n_samples: int):
         """
-        Randomly select 'num_samples' unique indices excluding 'exclude_list'  using Boolean Masking.
+        Randomly select 'n_samples' unique indices excluding 'exclude_list'  using Boolean Masking.
         Returns a scalar if n_samples == 1, otherwise returns a numpy array.
         """
         # Create mask and find valid candidates
