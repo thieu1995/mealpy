@@ -14,12 +14,11 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 
 
 
-# Version 3.0.4
+# Version 3.1.0
 
 + Add `tqdm` to mealpy when `log_to` != `console`.
 + Fix bug division by 0 in `levy` function.
 + Update `Agent` class to have fully complete functions.
-+ Update `OriginalWOA` without greedy selection.
 + Add `DevWOA` for developed version of Whale
 + Add `Stellar Oscillation Optimizer (SOO)` to `physics-based` group
 + Add `Enzyme Action Optimizer (EAO)` to `bio-based` group.
@@ -28,8 +27,20 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Mirage Search Optimization (MSO)` to `physics-based` group.
 + Add `Tianji's Horse Racing Optimization (THRO)` to the new `game-based` group.
 + Add `Mantis Shrimp Optimization Algorithm (MShOA)` to the new `swarm-based` group.
-+ Re-Add `Black Widow Optimization (BWO)` to the `evolutionary-based` group.
++ Re-Add `Black Widow Optimization Algorithm (BWOA)` to the `evolutionary-based` group.
 + Fix error in `OriginalBBOA` evolve function.
++ Add `Chimp Optimization Algorithm (ChOA)` to the `swarm-based` group.
++ Add `Reptile Search Algorithm (RSA)` to the `swarm-based` group.
++ Add `Gekko Japonicus Algorithm (GJA)` to the `swarm-based` group.
++ Add `Beluga Whale Optimization (BWO)` to the `swarm-based` group.
++ Add `Dung Beetle Optimization (DBO)` to the `swarm-based` group.
++ Add `Kepler Optimization Algorithm (KOA)` to the `physics-based` group.
++ Add `Whale Optimization Algorithm with Modified Mutualism (WOAmM)` to the `swarm-based` group.
++ Fix bug in `OriginalWOA` algorithm for calculating on multi-dimensions instead of single value.
++ Update `OriginalWOA` without greedy selection.
++ Add `Cosmic Evolution Optimization (CEO)` to the `physics-based` group.
++ Add `Electric Eel Foraging Optimization (EEFO)` to the `swarm-based` group.
++ Add `Artificial Protozoa Optimizer (APO)` to the `bio-based` group
 
 ---
 
