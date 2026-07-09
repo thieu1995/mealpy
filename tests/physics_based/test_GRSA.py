@@ -22,14 +22,7 @@ def problem():
 
 def test_GRSA_results(problem):
     models = [
-        GRSA.OriginalGRSA(
-            epoch=100,
-            pop_size=50,
-            w_max=0.9,
-            w_min=0.1,
-            k_g=0.5,
-            mutation_rate=0.1,
-        ),
+        GRSA.OriginalGRSA(epoch=100, pop_size=50, n_geometry=5, w_max=0.9, w_min=0.1, g_max=0.5, g_min=0.1),
     ]
     for model in models:
         g_best = model.solve(problem)
