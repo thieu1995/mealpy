@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import FloatVar, BWOA, APO, GRSA
+from mealpy import FloatVar, BWOA, APO, GRSA, KLA
 
 
 def objective_function(solution):
@@ -22,5 +22,6 @@ problem = {
 model = BWOA.OriginalBWOA(epoch=100, pop_size=50, pp=0.6, cr=0.44, pm=0.4)
 model = APO.OriginalAPO(epoch=100, pop_size=50, pf_max=0.1, n_pairs=2)
 model = GRSA.OriginalGRSA(epoch=100, pop_size=50, n_geometry=5, w_max=0.9, w_min=0.4, g_max=0.5, g_min=0.1)
+model = KLA.OriginalKLA(epoch=100, pop_size=50)
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
