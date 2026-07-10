@@ -3,4 +3,3 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
-from mealpy.physics_based.LSO import OriginalLSO, DevLSO

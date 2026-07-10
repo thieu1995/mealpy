@@ -31,19 +31,21 @@ __version__ = "3.0.3"
 
 import sys
 import inspect
-from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, SFOA)
-from .evolutionary_based import (CRO, DE, EP, ES, FPA, GA, MA, SHADE)
+from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, SFOA, APO)
+from .evolutionary_based import (BWOA, CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
-                          AFT, CDDO)
+                          AFT, CDDO, DOA)
 from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS)
-from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO, ESO, SOO,LSO)
+from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO,
+                            ESO, SOO, MSO, KOA, CEO, GRSA)
 from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, BFO, BSA, COA, CoatiOA, CSA, CSO,
                           DMOA, DO, EHO, ESOA, FA, FFA, FFO, FOA, FOX, GJO, GOA, GTO, GWO, HBA, HGS, HHO, JA,
-                          MFO, MGO, MPA, MRFO, MSA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
+                          MFO, MGO, MPA, MRFO, MSA, MShOA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
                           SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
-                          EPC, SMO, SquirrelSA, FDO)
+                          EPC, SMO, SquirrelSA, FDO, ChOA, RSA, GJA, BWO, DBO, EEFO)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
+from .game_based import THRO
 from .sota_based import LSHADEcnEpSin, IMODE
 from .utils.problem import Problem
 from .utils.termination import Termination
@@ -56,7 +58,7 @@ from .utils.space import (IntegerVar, FloatVar, StringVar, BinaryVar, BoolVar, C
 __EXCLUDE_MODULES = ["__builtins__", "current_module", "inspect", "sys"]
 
 
-def get_all_optimizers(verbose=True):
+def get_all_optimizers(verbose: bool = True):
     """
     Get all available optimizer classes in Mealpy library
 
@@ -72,14 +74,14 @@ def get_all_optimizers(verbose=True):
             for cls_name, cls_obj in inspect.getmembers(obj):
                 if inspect.isclass(cls_obj) and issubclass(cls_obj, Optimizer):
                     cls[cls_name] = cls_obj
-    del cls['Optimizer']
+    cls.pop("Optimizer", None)
     if verbose:
         for name, optimizer in cls.items():
             print(f"Optimizer: {name} - {optimizer} - {optimizer()}")
     return cls
 
 
-def get_optimizer_by_class(class_name, verbose=False):
+def get_optimizer_by_class(class_name: str, verbose: bool = False):
     """
     Get an optimizer class by its class name
 
@@ -95,11 +97,12 @@ def get_optimizer_by_class(class_name, verbose=False):
         return all_optimizers[class_name]
     except KeyError:
         print(f"Mealpy doesn't support optimizer named: {class_name}.\n"
-              f"Please see the supported Optimizer name from here: https://mealpy.readthedocs.io/en/latest/pages/support.html#classification-table")
+              f"Please see the supported Optimizer name from here:\n"
+              f"https://github.com/thieu1995/mealpy?tab=readme-ov-file#-optimizer-classification-table")
         return None
 
 
-def get_optimizer_by_name(name, verbose=False):
+def get_optimizer_by_name(name: str, verbose: bool = False):
     """
     Get an optimizer class by name
 
@@ -113,7 +116,7 @@ def get_optimizer_by_name(name, verbose=False):
     cls = {}
     flag = False
     for module_name, obj in inspect.getmembers(sys.modules[__name__]):
-        if inspect.ismodule(obj) and (name not in __EXCLUDE_MODULES) and (module_name == name):
+        if inspect.ismodule(obj) and (module_name == name) and (name not in __EXCLUDE_MODULES):
             flag = True
             for cls_name, cls_obj in inspect.getmembers(obj):
                 if inspect.isclass(cls_obj) and issubclass(cls_obj, Optimizer):
@@ -121,7 +124,8 @@ def get_optimizer_by_name(name, verbose=False):
     if verbose:
         if not flag:
             print(f"Mealpy doesn't support optimizer named: {name}.\n"
-                  f"Please see the supported Optimizer name from here: https://mealpy.readthedocs.io/en/latest/pages/support.html#classification-table")
+                  f"Please see the supported Optimizer name from here:\n"
+                  f"https://github.com/thieu1995/mealpy?tab=readme-ov-file#-optimizer-classification-table")
             return None
         del cls['Optimizer']
         print(f"Found algorithm: {name}, the supported variants are:")
