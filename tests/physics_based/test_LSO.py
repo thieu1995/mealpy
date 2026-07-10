@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# Created by "ayp" at 2024 ----------%
-#       Github: https://github.com/thieu1995        %
-# --------------------------------------------------%
-
 from mealpy import FloatVar, LSO, Optimizer
 import numpy as np
 import pytest

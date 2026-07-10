@@ -43,6 +43,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Artificial Protozoa Optimizer (APO)` to the `bio-based` group
 + Add `Artificial Protozoa Optimizer (APO)` to the `bio-based` group
 + Add `General Relativity Search Algorithm (GRSA)` to the `physics-based` group
++ Add `Light Spectrum Optimizer (LSO)` to the `physics-based` group
 
 ---
 
