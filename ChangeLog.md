@@ -45,6 +45,8 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `General Relativity Search Algorithm (GRSA)` to the `physics-based` group
 + Add `Light Spectrum Optimizer (LSO)` to the `physics-based` group
 + Add `Kirchhoff's Law Algorithm (KLA)` to the `physics-based` group
++ Add `Market Game Optimization Algorithm (MGOA)` to the `human-based` group
+
 ---
 
 # Version 3.0.3
