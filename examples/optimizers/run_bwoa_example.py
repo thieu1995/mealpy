@@ -5,7 +5,7 @@
 # --------------------------------------------------%
 
 import numpy as np
-from mealpy import FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO
+from mealpy import FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA
 
 
 def objective_function(solution):
@@ -31,6 +31,7 @@ model = OSA.OriginalOSA(epoch=1000, pop_size=50, alpha_max = 0.5, beta_max = 1.9
 model = DandelionO.OriginalDandelionO(epoch=1000, pop_size=50)
 model = DandelionO.DevDandelionO(epoch=1000, pop_size=50)
 model = RFO.OriginalRFO(epoch=1000, pop_size=50, phi_0=0.7, theta=0.5)
+model = CrayfishOA.OriginalCrayfishOA(epoch=1000, pop_size=50)
 
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
