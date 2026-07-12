@@ -49,8 +49,9 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Artificial Algae Algorithm (AAA)` to the `bio-based` group
 + Add `Narwhal Optimization Algorithm (NWOA)` and `Narwhal Optimization (NO)` to the swarm-based group
 + Add `Owl Search Algorithm (OSA)` to the `swarm-based` group
-+ Add `Owl Search Algorithm (OSA)` to the `swarm-based` group
 + Add `Dandelion Optimizer (DandelionO)` to the `swarm-based` group
++ Add `Red Fox Optimization (RFO)` to the `swarm-based` group
+
 
 ---
 
