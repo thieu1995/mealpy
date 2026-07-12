@@ -27,7 +27,7 @@ def test_OriginalAHO_results(problem):
     pop_size = 50
     model = AHO.OriginalAHO(epoch=epoch, pop_size=pop_size)
     g_best = model.solve(problem)
-    
+
     assert isinstance(model.get_parameters(), dict)
     assert isinstance(g_best.solution, np.ndarray)
     assert len(g_best.solution) == 30
@@ -40,7 +40,7 @@ def test_OriginalAHO_with_custom_params(problem):
     omega = 0.05
     model = AHO.OriginalAHO(epoch=epoch, pop_size=pop_size, theta=theta, omega=omega)
     g_best = model.solve(problem)
-    
+
     assert isinstance(g_best.solution, np.ndarray)
     assert model.theta == theta
     assert model.omega == omega
