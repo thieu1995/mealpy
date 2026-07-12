@@ -1,12 +1,10 @@
 import numpy as np
-
-from mealpy import FloatVar
-from mealpy.swarm_based.CCO import OriginalCCO
+from mealpy import FloatVar, CCO
 
 
 def test_cco_runs_and_returns_best():
     def obj(solution):
-        return np.sum(solution**2)
+        return np.sum(solution ** 2)
 
     problem = {
         "bounds": FloatVar(lb=(-5.0,) * 10, ub=(5.0,) * 10, name="x"),
@@ -14,7 +12,7 @@ def test_cco_runs_and_returns_best():
         "obj_func": obj,
     }
 
-    model = OriginalCCO(epoch=30, pop_size=20)
+    model = CCO.OriginalCCO(epoch=30, pop_size=20)
     best = model.solve(problem)
 
     assert best is not None
