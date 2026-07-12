@@ -449,7 +449,7 @@ class Optimizer:
         return [agent.copy() for agent in pop]
 
     @staticmethod
-    def get_sorted_population(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> List[Agent]:
+    def get_sorted_population(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[List[Agent], List], List[Agent]]:
         """
         Get sorted population based on type (minmax) of problem
 
@@ -470,42 +470,45 @@ class Optimizer:
         pop_new = [pop[idx] for idx in indices]
         if return_index:
             return pop_new, indices
-        else:
-            return pop_new
+        return pop_new
 
     @staticmethod
-    def get_best_agent(pop: List[Agent], minmax: str = "min") -> Agent:
+    def get_best_agent(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[Agent, int], Agent]:
         """
         Args:
             pop: The population of agents
             minmax: The type of problem
+            return_index: Return the index of the best agent
 
         Returns:
             The best agent
+            The index of best agent (Optional)
         """
-        pop = Optimizer.get_sorted_population(pop, minmax)
-        return pop[0].copy()
-
-    @staticmethod
-    def get_index_best(pop: List[Agent], minmax: str = "min") -> int:
-        fit_list = np.array([agent.target.fitness for agent in pop])
-        if minmax == "min":
-            return np.argmin(fit_list)
+        if return_index:
+            pop, indices = Optimizer.get_sorted_population(pop, minmax, return_index=True)
+            return pop[0].copy(), indices[0]
         else:
-            return np.argmax(fit_list)
+            pop = Optimizer.get_sorted_population(pop, minmax, return_index=False)
+            return pop[0].copy()
 
     @staticmethod
-    def get_worst_agent(pop: List[Agent], minmax: str = "min") -> Agent:
+    def get_worst_agent(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[Agent, int], Agent]:
         """
         Args:
             pop: The population of agents
             minmax: The type of problem
+            return_index: Return the index of the worst agent
 
         Returns:
             The worst agent
+            The index of worst agent (Optional)
         """
-        pop = Optimizer.get_sorted_population(pop, minmax)
-        return pop[-1].copy()
+        if return_index:
+            pop, indices = Optimizer.get_sorted_population(pop, minmax, return_index=True)
+            return pop[-1].copy(), indices[-1]
+        else:
+            pop = Optimizer.get_sorted_population(pop, minmax, return_index=False)
+            return pop[-1].copy()
 
     @staticmethod
     def get_special_agents(pop: List[Agent] = None, n_best: int = 3, n_worst: int = 3,
