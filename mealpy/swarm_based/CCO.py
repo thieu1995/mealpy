@@ -1,11 +1,18 @@
+#!/usr/bin/env python
+# Created by "Karahan Ballı" on 07/01/2026
+# Github: https://github.com/karahanballi
+# ---------------------------------------%
+# Updated by "Thieu" on 12/07/2026
+# Github: https://github.com/thieu1995
+# ---------------------------------------%
+
 import numpy as np
-from math import gamma
 from mealpy.optimizer import Optimizer
 
 
 class OriginalCCO(Optimizer):
     """
-    The original version of: Cuckoo-Catfish Optimizer (CCO)
+    The original version of: Cuckoo Catfish Optimizer (CCO)
 
     Notes:
         - Mealpy conventions:
@@ -50,26 +57,6 @@ class OriginalCCO(Optimizer):
         # Stagnation counter for catfish mechanism
         self.t_counter = 0
 
-    def _levy_flight(self, n, m, beta=1.5):
-        """
-        Generate Lévy flight steps using Mantegna's algorithm.
-
-        Args:
-            n (int): Number of step vectors
-            m (int): Dimension
-            beta (float): Lévy exponent
-
-        Returns:
-            np.ndarray: (n, m) Lévy steps
-        """
-        num = gamma(1.0 + beta) * np.sin(np.pi * beta / 2.0)
-        den = gamma((1.0 + beta) / 2.0) * beta * (2.0 ** ((beta - 1.0) / 2.0))
-        sigma_u = (num / den) ** (1.0 / beta)
-
-        u = self.generator.normal(0.0, sigma_u, (n, m))
-        v = self.generator.normal(0.0, 1.0, (n, m))
-        return 0.05 * u / (np.abs(v) ** (1.0 / beta))
-
     def evolve(self, epoch):
         """
         The main evolution step called by the Mealpy framework.
@@ -100,8 +87,8 @@ class OriginalCCO(Optimizer):
         x_spiral = r_spiral * np.cos(theta)
         y_spiral = r_spiral * np.sin(theta)
 
-        # Lévy steps
-        levy_steps = self._levy_flight(self.pop_size, self.problem.n_dims, beta=1.5)
+        # Levy steps
+        levy_steps = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=self.problem.n_dims, case=-1)
 
         new_pop = []
         for i in range(self.pop_size):
