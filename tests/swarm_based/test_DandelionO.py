@@ -1,14 +1,7 @@
-#!/usr/bin/env python
-# Created by "halil" at 9:35, 03/01/2026 ----------%
-#       Email: halilakbas11@outlook.com            %
-#       Github: https://github.com/halilakbas11      %
-# --------------------------------------------------%
-
 import numpy as np
 import pytest
 
-from mealpy import FloatVar, Optimizer
-from mealpy.swarm_based.DandelionO import OriginalDandelionO
+from mealpy import FloatVar, Optimizer, DandelionO
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -27,7 +20,8 @@ def problem():
 
 def test_OriginalDandelionO_results(problem):
     models = [
-        OriginalDandelionO(epoch=10, pop_size=50)
+        DandelionO.OriginalDandelionO(epoch=10, pop_size=50),
+        DandelionO.DevDandelionO(epoch=10, pop_size=20)
     ]
     for model in models:
         g_best = model.solve(problem)

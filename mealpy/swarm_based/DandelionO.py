@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# Created by "halil" at 9:35, 03/01/2026 ----------%
+# Created by "Halil" at 9:35, 03/01/2026 ----------%
 #       Email: halilakbas11@outlook.com            %
-#       Github: https://github.com/halilakbas11      %
-# --------------------------------------------------%
+#       Github: https://github.com/halilakbas11    %
+# -------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -10,27 +10,33 @@ from mealpy.optimizer import Optimizer
 
 class OriginalDandelionO(Optimizer):
     """
-    Dandelion Optimizer (DandelionO)
+    The original version: Dandelion Optimizer (DandelionO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2022.105075
-        2. https://www.mathworks.com/matlabcentral/fileexchange/114680-dandelion-optimizer
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size, default = 100
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + epoch (int): Maximum number of iterations, default = 10000
-        + pop_size (int): Population size, default = 100
+    Warnings
+    --------
+    * This version is implemented exactly as described in the paper and the author's original MATLAB code.
+    However, in the MATLAB code, the author omitted the 0.01 multiplier in the Levy function,
+    despite it being explicitly mentioned in the paper.
 
-    Notes:
-        1. The Levy flight step is calculated using the built-in method get_levy_flight_step() from the Optimizer class.
-        2. 'q' factor calculation strictly follows Eq. (12) using quadratic coefficients a, b, c.
-        3. Vectorized implementation allows for efficient execution without explicit loops.
-        4. This code is based on the original MATLAB code and the original paper[1].
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/114680-dandelion-optimizer
+
+    References
+    ----------
+    .. [1] Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired
+    metaheuristic algorithm for engineering applications. Engineering Applications of
+    Artificial Intelligence, 114, 105075. https://doi.org/10.1016/j.engappai.2022.105075
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy import FloatVar
-    >>> from mealpy.bio_based.DandelionO import OriginalDandelionO
+    >>> from mealpy import FloatVar, DandelionO
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -41,19 +47,12 @@ class OriginalDandelionO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = OriginalDO(epoch=1000, pop_size=50)
+    >>> model = DandelionO.OriginalDandelionO(epoch=1000, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shijie Zhao, Tianran Zhang, Shilin Ma, Miao Chen,
-    Dandelion Optimizer: A nature-inspired metaheuristic algorithm for engineering applications,
-    Engineering Applications of Artificial Intelligence,Volume 114,2022,105075,ISSN 0952-1976,
-    https://doi.org/10.1016/j.engappai.2022.105075.
-
     """
+
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
         Args:
@@ -62,14 +61,125 @@ class OriginalDandelionO(Optimizer):
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
-        self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 100000])
+        self.set_parameters(["epoch", "pop_size"])
+        self.sort_flag = True
+
+    def evolve(self, epoch):
+        """
+        The main evolution step.
+        """
+        # --- Parameters ---
+        # Eq. (8) Dynamic alpha parameter
+        alpha = self.generator.random() * ((epoch / self.epoch)**2 - 2.0 * epoch / self.epoch + 1)
+
+        # Eq. (11) Local search domain factor k
+        aa = 1.0 / (self.epoch ** 2 - 2 *self.epoch + 1)
+        bb = -2 * aa
+        cc = 1 - aa - bb
+        kk = 1 - self.generator.random() * (cc + aa*epoch**2 + bb * epoch)
+
+        # Current population positions
+        pop_pos = np.array([agent.solution for agent in self.pop])
+
+        if self.generator.standard_normal() < 1.5:
+            lamd = np.abs(self.generator.standard_normal(size=(self.pop_size, self.problem.n_dims)))
+            theta = (2 * self.generator.random(self.pop_size) - 1) * np.pi
+            row = 1 / np.exp(theta)
+            vx = row * np.cos(theta)
+            vy = row * np.sin(theta)
+            pop_pos_new = self.generator.random(size=(self.pop_size, self.problem.n_dims)) * (self.problem.ub - self.problem.lb) + self.problem.lb
+            # lognpdf equivalent (mu=0, sigma=1)
+            lognpdf_vals = np.exp(-0.5 * (np.log(lamd)) ** 2) / (lamd * np.sqrt(2 * np.pi))
+            # Eq. 5
+            pop_pos_new = pop_pos + np.dot(alpha * vx * vy, lognpdf_vals * (pop_pos_new - pop_pos))
+        else:
+            pop_pos_new = pop_pos * kk
+        ## Check bound
+        pop_pos = np.clip(pop_pos_new, self.problem.lb, self.problem.ub)
+
+        ## Decline stage
+        pop_mean = np.mean(pop_pos, axis=0)  # Shape: (Dim,)
+        beta_randn = self.generator.standard_normal(size=(self.pop_size, self.problem.n_dims))
+        dd2 = pop_pos - beta_randn * alpha * (pop_mean - beta_randn * alpha * pop_mean)        # Eq.(13)
+        # Check boundaries
+        pop_pos = np.clip(dd2, self.problem.lb, self.problem.ub)
+
+        ## Landing stage
+        levy_step = self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=(self.pop_size, self.problem.n_dims), case=-1)
+        pop_elite = np.tile(self.g_best.solution, (self.pop_size, 1))
+        pop_pos = pop_elite + levy_step * alpha * (pop_elite - pop_pos * (2 * epoch / self.epoch))
+
+        # Create new population agents
+        for idx in range(self.pop_size):
+            pos_new = self.amend_solution(pop_pos[idx])
+            self.pop[idx] = self.generate_empty_agent(pos_new)
+            # Update fitness in single mode
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx].target = self.get_target(pos_new)
+        # Update fitness in parallel modes
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(self.pop)
+
+
+class DevDandelionO(Optimizer):
+    """
+    The developed version: Dandelion Optimizer (DandelionO)
+
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size, default = 100
+
+    Warnings
+    --------
+    * This dev version was contributed by the user "Halil". Several parameters—such as alpha, a, b, and k—differ
+    from the original paper. Furthermore, the Levy function is applied to the entire population simultaneously,
+    whereas the paper specifies generating a Levy step for each individual. If you choose to use this version,
+    it must be clearly stated that it is not the original implementation.
+
+    References
+    ----------
+    .. [1] Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired
+    metaheuristic algorithm for engineering applications. Engineering Applications of
+    Artificial Intelligence, 114, 105075. https://doi.org/10.1016/j.engappai.2022.105075
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, DandelionO
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = DandelionO.DevDandelionO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
+    """
+
+    def __init__(self, epoch=10000, pop_size=100, **kwargs):
+        """
+        Args:
+            epoch (int): Maximum number of iterations, default = 10000
+            pop_size (int): Population size, default = 100
+        """
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 100000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = True
 
     def get_lognormal_distribution(self):
         """
         Calculate Log-normal distribution components based on Eq. (7).
-        Using standard normal distribution μ=0, σ=1 with numpy.
+        Using standard normal distribution mu=0, sigma=1 with numpy.
         """
         # Eq. (7) formula implementation using numpy
         # Generate random variable from standard normal distribution
@@ -81,8 +191,7 @@ class OriginalDandelionO(Optimizer):
         mu = 0.0
         # Avoid negative/zero values for log calculation
         y_abs = np.abs(y) + 1e-100
-        pdf = (1 / (y_abs * sigma * np.sqrt(2 * np.pi))) * \
-              np.exp(-((np.log(y_abs) - mu) ** 2) / (2 * sigma ** 2))
+        pdf = (1 / (y_abs * sigma * np.sqrt(2 * np.pi))) * np.exp(-((np.log(y_abs) - mu) ** 2) / (2 * sigma ** 2))
         return pdf
 
     def evolve(self, epoch):
@@ -142,9 +251,6 @@ class OriginalDandelionO(Optimizer):
 
         # --- 3. Landing Stage (Eq. 15) ---
         # Eq. (16) Levy flight step
-        # Using mealpy's built-in get_levy_flight_step from Optimizer class
-        # beta=1.5, multiplier=0.01 as per paper Eq. (16) (s=0.01)
-        # case=-1 returns the step vector directly
         levy_step = self.get_levy_flight_step(beta=1.5, multiplier=0.01, case=-1)
 
         # Eq. (18) Linear increasing function delta (approx 2*t/T)
@@ -162,11 +268,12 @@ class OriginalDandelionO(Optimizer):
         pop_new_pos = self.amend_solution(pop_new_pos)
 
         # Create new population agents
-        pop_new = []
-        for i in range(self.pop_size):
-            # Using generate_agent implicitly calculates the fitness/target
-            agent = self.generate_agent(pop_new_pos[i])
-            pop_new.append(agent)
-
-        # Update population
-        self.pop = pop_new
+        for idx in range(self.pop_size):
+            pos_new = self.amend_solution(pop_new_pos[idx])
+            self.pop[idx] = self.generate_empty_agent(pos_new)
+            # Update fitness in single mode
+            if self.mode not in self.AVAILABLE_MODES:
+                self.pop[idx].target = self.get_target(pos_new)
+        # Update fitness in parallel modes
+        if self.mode in self.AVAILABLE_MODES:
+            self.pop = self.update_target_for_population(self.pop)
