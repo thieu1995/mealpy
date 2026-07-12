@@ -14,22 +14,42 @@ class OriginalCCO(Optimizer):
     """
     The original version of: Cuckoo Catfish Optimizer (CCO)
 
-    Notes:
-        - Mealpy conventions:
-          + Uses ``self.generator`` for all stochasticity (reproducible via seed)
-          + Uses ``self.correct_solution`` for boundary handling
-          + Uses ``self.compare_target`` for min/max-safe selection
+    Hyperparameters
+    ---------------
+    + epoch (int): maximum number of iterations, default = 10000
+    + pop_size (int): number of population size, default = 100
+    + alpha (float): (0, 10.0), alpha parameter, default = 1.34 (as in Matlab code)
+    + beta (float): (0, 10.0), beta parameter, default = 0.3 (as in Matlab code)
 
-    References:
-        Wang, T. L., Gu, S. W., Liu, R. J., Chen, L. Q., Wang, Z., & Zeng, Z. Q. (2025).
-        Cuckoo Catfish Optimizer: A New Meta-Heuristic Optimization Algorithm.
-        Artificial Intelligence Review. DOI: 10.1007/s10462-025-11291-x
+    Warnings
+    --------
+    1. Excessive Complexity: This is the most complex and convoluted algorithm we have ever implemented. It is packed
+    with nested operators that seem entirely disconnected from the actual behavior of a Cuckoo Catfish.
+    2. Arbitrary Logic: We get the distinct impression that the authors simply fabricated the equations and
+    an excessive number of if-else conditions just to force the algorithm to perform well.
+    3. Lack of Conceptual Alignment: While the algorithm may appear mathematically sound, it lacks any real
+    connection to its stated inspiration, the Cuckoo Catfish. We would advise researchers, especially those new
+    to the field to avoid using such overly complex heuristics for development.
+    4. Computational Inefficiency: A major issue is that the actual computational complexity does not align
+    with the claims made in the paper. The excessive sorting processes within the population update loops
+    make the algorithm significantly slower than others.
+    5. Lack of Parallelizability: Furthermore, the algorithm is not inherently parallelizable,
+    as the population updates are strictly interdependent.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/176828-cuckoo-catfish-optimizer-a-new-meta-heuristic-optimization
+
+    References
+    ----------
+    .. [1] Wang, T. L., Gu, S. W., Liu, R. J., Chen, L. Q., Wang, Z., & Zeng, Z. Q. (2025).
+    Cuckoo catfish optimizer: a new meta-heuristic optimization algorithm.
+    Artificial Intelligence Review, 58(10), 326. https://doi.org/10.1007/s10462-025-11291-x
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
-    >>> from mealpy import FloatVar
-    >>> from mealpy.swarm_based.CCO import OriginalCCO
+    >>> from mealpy import FloatVar, CCO
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -40,12 +60,12 @@ class OriginalCCO(Optimizer):
     >>>     "obj_func": objective_function,
     >>> }
     >>>
-    >>> model = OriginalCCO(epoch=1000, pop_size=50, alpha=0.5, beta=1.0)
-    >>> best = model.solve(problem_dict)
-    >>> print(best.solution, best.target.fitness)
+    >>> model = CCO.OriginalCCO(epoch=1000, pop_size=50, alpha=0.5, beta=1.0)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
 
-    def __init__(self, epoch=10000, pop_size=100, alpha=0.5, beta=1.0, **kwargs):
+    def __init__(self, epoch=10000, pop_size=100, alpha=1.34, beta=0.3, **kwargs):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 1000000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 100000])
@@ -53,146 +73,192 @@ class OriginalCCO(Optimizer):
         self.beta = self.validator.check_float("beta", beta, (0, 10.0))
         self.set_parameters(["epoch", "pop_size", "alpha", "beta"])
         self.sort_flag = False
+        self.is_parallelizable = False
 
-        # Stagnation counter for catfish mechanism
-        self.t_counter = 0
+    def before_main_loop(self):
+        """
+        Initialize algorithm-specific variables based on the MATLAB initialization block.
+        """
+        self.x = np.zeros(self.pop_size)
+        self.y = np.zeros(self.pop_size)
+
+        # Reproducing MATLAB's theta, x, and y initialization
+        for i in range(self.pop_size):
+            # i+1 to match MATLAB's 1-based index calculation
+            theta = (1 - 10 * (i + 1) / self.pop_size) * np.pi
+            r = self.alpha * np.exp(self.beta * theta / 3)
+            self.x[i] = r * np.cos(theta)
+            self.y[i] = r * np.sin(theta)
+
+        self.s = 0
+        self.z = 0
+        self.tt = 0
+
+        # Calculate initial Dis and Lx
+        pop_pos = np.array([ag.solution for ag in self.pop])
+
+        # Dis = abs(mean(mean((PopPos-BestX)./(WorstX-BestX+eps))))
+        diff = self.g_worst.solution - self.g_best.solution + self.EPSILON
+        self.Dis = np.abs(np.mean((pop_pos - self.g_best.solution) / diff))
+        self.Lx = np.abs(self.generator.standard_normal()) * self.generator.random()
 
     def evolve(self, epoch):
         """
         The main evolution step called by the Mealpy framework.
         """
-        rng = self.generator
-        epoch_i = int(epoch)
-        epoch_safe = max(epoch_i, 1)  # prevent division by zero
-
-        pop_pos = np.asarray([agent.solution for agent in self.pop])
-        pop_fits = np.asarray([agent.target.fitness for agent in self.pop])
-        best_x = self.g_best.solution
-
         # Time-dependent parameters
-        C = 1.0 - (epoch_i / self.epoch)
-        T = (1.0 - np.sin((np.pi * epoch_i) / (2.0 * self.epoch))) ** (epoch_i / self.epoch)
+        C = 1.0 - (epoch / self.epoch)
+        T = (1.0 - np.sin((np.pi * epoch) / (2.0 * self.epoch))) ** (epoch / self.epoch)
 
         # Dynamic probability for catfish mechanism (die probability)
-        if self.t_counter < 15:
+        if self.tt < 15:
             die = 0.02 * T
         else:
             die = 0.02
             C = 0.8
 
-        # Spiral path vectors
-        indices = np.arange(1, self.pop_size + 1)
-        theta = (1.0 - 10.0 * indices / self.pop_size) * np.pi
-        r_spiral = self.alpha * np.exp(self.beta * theta / 3.0)
-        x_spiral = r_spiral * np.cos(theta)
-        y_spiral = r_spiral * np.sin(theta)
+        _, _, worsts = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
+        worst = worsts[0].solution
+        best = self.g_best.solution
 
-        # Levy steps
-        levy_steps = self.get_levy_flight_step(beta=1.5, multiplier=0.05, size=self.problem.n_dims, case=-1)
-
-        new_pop = []
-        for i in range(self.pop_size):
-            agent = self.pop[i]
-            pos_i = agent.solution.copy()
-
+        n_val = 1
+        rng = self.generator
+        for idx in range(self.pop_size):
+            pos_ii = self.pop[idx].solution
             # Stochastic switch
             Q = 0
-            if (epoch_i / self.epoch) < rng.random():
-                Q = 1
-
-            # Random distinct indices
-            rand_idx = rng.choice(self.pop_size, 3, replace=False)
-            pop_pos_rand = pop_pos[rand_idx]
-            pop_fit_rand = pop_fits[rand_idx]
-
-            # Random coefficient and distance metric
-            wRand = rng.random() * (2.0 - 2.0 * epoch_i / self.epoch)
-            Dis = rng.random() * (epoch_i / self.epoch) ** 2
-
-            # Random vectors
-            F = rng.random(self.problem.n_dims)
+            F = np.sign(0.5 - rng.random())
+            E = n_val * T + rng.random()
             R1 = rng.random(self.problem.n_dims)
+            R4 = rng.random(self.problem.n_dims)
+            r1 = rng.random()
+            r2 = rng.random()
+            S = np.sin(np.pi * R4 * C)
+            kk = rng.permutation(self.pop_size)
 
-            # E, j parameters
-            E = 0.3 if (epoch_i / self.epoch) > rng.random() else 0.9
-            j_val = 1.0 if (epoch_i / self.epoch) < rng.random() else 2.0
+            if rng.random() > C:
+                diff = worst - best + self.EPSILON
+                J_i = np.abs(np.mean((pos_ii - best) / diff))
 
-            if rng.random() < 0.5:
-                U = 2.0 * rng.random(self.problem.n_dims)
-                V = 0.0
-            else:
-                U = 0.0
-                V = 2.0 * rng.random(self.problem.n_dims)
-
-            if Q == 1:
-                # Strategy A: Levy-based exploration around best
-                step = levy_steps[i] * (best_x - pos_i)
-                new_pos = best_x + step * C * (1.0 - 2.0 * rng.random(self.problem.n_dims))
-            else:
-                if rng.random() < 0.5:
-                    # Catfish disturbance / local randomization
-                    if rng.random() < die:
-                        new_pos = rng.uniform(self.problem.lb, self.problem.ub, self.problem.n_dims)
+                if rng.random() > C:
+                    Cy = 1 / (np.pi * (1 + C ** 2))
+                    if J_i > self.Dis:
+                        pos_new = best + F * S * (best - pos_ii)
                     else:
-                        mean_pos = np.mean(pop_pos, axis=0)
-                        step = wRand * (mean_pos - pos_i) + (1.0 - wRand) * (best_x - pos_i)
-                        new_pos = pos_i + C * step * (2.0 * rng.random(self.problem.n_dims) - 1.0)
+                        if self.Dis * self.Lx < J_i:
+                            pos_new = best * (1 + (T ** 5) * Cy * E) + F * (S * (best - pos_ii))
+                        else:
+                            pos_new = best * (1 + (T ** 5) * rng.normal(0, C ** 2)) + F * S * (best - pos_ii)
                 else:
-                    if rng.random() < rng.random():
-                        # Strategy C: Chaotic local search
-                        if j_val < Dis:
-                            mean_pos = np.mean(pop_pos, axis=0)
-                            V2 = 2.0 * (rng.random() * (mean_pos - pos_i) + rng.random() * (best_x - pos_i))
+                    if rng.random() > C:
+                        if (idx + 1) % 2 == 1:
+                            r3 = rng.random()
+                            step = best - E * pos_ii
+                            pos_new = ((C / epoch) * (r1 * best - r3 * pos_ii) +
+                                       (T ** 2) * self.get_levy_flight_step(1.5, multiplier=0.05, size=self.problem.n_dims, case=-1) * np.abs(step))
                         else:
-                            V2 = 2.0 * (rng.random() * (pop_pos_rand[1] - pop_pos_rand[2]) +
-                                        rng.random() * (pop_pos_rand[0] - pos_i))
-
-                        # Compare with first sampled peer (keeps shapes consistent)
-                        r = 0
-                        fit_i = agent.target.fitness
-                        step_base = pos_i if fit_i <= pop_fit_rand[r] else pop_pos_rand[r]
-                        target_base = pop_pos_rand[r] if fit_i <= pop_fit_rand[r] else pos_i
-
-                        step = step_base - E * target_base
-                        factor = y_spiral[i] if ((i + 1) % 2 == 1) else x_spiral[i]
-                        new_pos = (step_base + (T ** 2) * factor *
-                                   (R1 * (best_x - step_base) + (1.0 - R1) * np.abs(step))
-                                   + F * R1 * step / 2.0
-                                   + V2 * j_val / epoch_safe)
+                            R2 = rng.random(self.problem.n_dims)
+                            R3 = rng.random(self.problem.n_dims)
+                            step = pos_ii - E * best
+                            DE = C * F
+                            pos_new = 0.5 * (best + self.pop[kk[0]].solution) + DE * (2 * R1 * step - (R2 / 2) * (DE * R3 - 1))
                     else:
-                        # Strategy D: Top-k guided update (top3 + mean)
-                        if self.problem.minmax == "min":
-                            sorted_indices = np.argsort(pop_fits)
+                        if rng.random() < rng.random():
+                            if J_i < self.Dis:
+                                mean_pop = np.mean([ag.solution for ag in self.pop], axis=0)
+                                V = 2 * (rng.random() * (mean_pop - pos_ii) + rng.random() * (best - pos_ii))
+                            else:
+                                V = 2 * (rng.random() * (self.pop[kk[1]].solution - self.pop[kk[2]].solution) + rng.random() * (self.pop[kk[0]].solution - pos_ii))
+
+                            if self.compare_target(self.pop[idx].target, self.pop[kk[idx]].target):
+                                step = pos_ii - E * self.pop[kk[idx]].solution
+                                if (idx + 1) % 2 == 1:
+                                    pos_new = (pos_ii + (T ** 2) * self.y[idx] * (1 - R1) * np.abs(step)) + F * R1 * step / 2 + V * J_i / epoch
+                                else:
+                                    pos_new = (pos_ii + (T ** 2) * self.x[idx] * (1 - R1) * np.abs(step)) + F * R1 * step / 2 + V * J_i / epoch
+                            else:
+                                step = self.pop[kk[idx]].solution - E * pos_ii
+                                if (idx + 1) % 2 == 1:
+                                    pos_new = (self.pop[kk[idx]].solution + (T ** 2) * self.y[idx] * (1 - R1) * np.abs(step)) + F * R1 * step / 2 + V * J_i / epoch
+                                else:
+                                    pos_new = (self.pop[kk[idx]].solution + (T ** 2) * self.x[idx] * (1 - R1) * np.abs(step)) + F * R1 * step / 2 + V * J_i / epoch
+
+                            self.s += 1
+                            if self.s > 10:
+                                rp1, rp2 = rng.choice(self.pop_size, 2, replace=False)
+                                lesp1 = r1 * self.pop[rp1].solution + (1 - r1) * self.pop[rp2].solution
+                                pos_new = np.round(lesp1) + F * r1 * R1 / (epoch ** 4) * pos_new
+                                self.s = 0
                         else:
-                            sorted_indices = np.argsort(-pop_fits)
+                            pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+                            A2 = rng.integers(4)
+                            if A2 == 3:
+                                Q = 1
+                            A1 = rng.integers(4)
+                            mean_pop = np.mean([ag.solution for ag in self.pop], axis=0)
+                            D = np.array([pop_sorted[0].solution, pop_sorted[1].solution, pop_sorted[2].solution, mean_pop])
+                            B = D[A1]
+                            Rt1 = rng.choice(np.arange(1, 361), self.problem.n_dims, replace=True) * np.pi / 360
+                            Rt2 = rng.choice(np.arange(1, 361), self.problem.n_dims, replace=True) * np.pi / 360
+                            w = 1 - ((np.exp(epoch / self.epoch) - 1) / (np.exp(1) - 1)) ** 2
 
-                        top3 = pop_pos[sorted_indices[:3]]
-                        mean_pos = np.mean(pop_pos, axis=0)
-                        D = np.vstack((top3, mean_pos))
-                        B = D[rng.integers(0, 4)]
+                            rand_val = rng.random()
+                            if rand_val < 0.33:
+                                pos_new = B + 2 * w * F * np.cos(Rt1) * np.sin(Rt2) * (B - pos_ii)
+                            elif rand_val < 0.66:
+                                pos_new = B + 2 * w * F * np.sin(Rt1) * np.cos(Rt2) * (B - pos_ii)
+                            else:
+                                pos_new = B + 2 * w * F * np.cos(Rt2) * (B - pos_ii)
 
-                        Rt1 = rng.permutation(360)[:self.problem.n_dims] * np.pi / 360.0
-                        Rt2 = rng.permutation(360)[:self.problem.n_dims] * np.pi / 360.0
-                        w = 1.0 - ((np.exp(epoch_i / self.epoch) - 1.0) / (np.exp(1.0) - 1.0)) ** 2
-
-                        rand_trig = rng.random()
-                        if rand_trig < 0.33:
-                            new_pos = B + 2.0 * w * F * np.cos(Rt1) * np.sin(Rt2) * (B - pos_i)
-                        elif rand_trig < 0.66:
-                            new_pos = B + 2.0 * w * F * np.sin(Rt1) * np.cos(Rt2) * (B - pos_i)
-                        else:
-                            new_pos = B + 2.0 * w * F * np.cos(Rt1) * np.cos(Rt2) * (B - pos_i)
-
-            # Mealpy boundary handling + evaluation
-            new_pos = self.correct_solution(new_pos)
-            new_agent = self.generate_agent(new_pos)
-
-            # Greedy selection (min/max safe)
-            if self.compare_target(new_agent.target, agent.target, self.problem.minmax):
-                new_pop.append(new_agent)
-                self.t_counter = 0
+                            self.z += 1
+                            if self.z > 5:
+                                rp3 = rng.choice(self.pop_size)
+                                pos_new = best * (1.0 - (1.0 - 1.0 / (self.pop[rp3].solution + self.EPSILON)) * R1)
+                                self.z = 0
             else:
-                new_pop.append(agent)
-                self.t_counter += 1
+                if rng.random() > C:
+                    if rng.random() > C:
+                        pos_new = self.pop[kk[2]].solution + np.abs(rng.normal()) * (best - pos_ii + self.pop[kk[0]].solution - self.pop[kk[1]].solution)
+                    else:
+                        Z2 = rng.random(self.problem.n_dims) < rng.random()
+                        pos_new = Z2 * (self.pop[kk[2]].solution + np.abs(rng.normal()) * (self.pop[kk[0]].solution - self.pop[kk[1]].solution)) + (~Z2) * pos_ii
+                else:
+                    Z1 = int(rng.random() < rng.random())
+                    pos_new = pos_ii + (Z1 * np.abs(rng.normal()) * ((best + self.pop[kk[0]].solution) / 2 - self.pop[kk[1]].solution) +
+                                        rng.random() / 2 * (self.pop[kk[2]].solution - self.pop[kk[3]].solution))
 
-        self.pop = new_pop
+                if rng.random() > C or self.tt > 0.8 * self.pop_size:
+                    mask = rng.random(self.problem.n_dims) < (0.2 * C + 0.2)
+                    pos_new = np.where(mask, pos_new, pos_ii)
+
+            # Die condition block
+            if rng.random() < die:
+                if rng.random() > C:
+                    pos_new = rng.random() * (self.problem.ub - self.problem.lb) + self.problem.lb
+                else:
+                    term1 = self.get_levy_flight_step(beta=1.5, multiplier=0.05, case=-1) * int(r1 > r2)
+                    term2 = np.abs(rng.normal()) * int(r1 <= r2)
+                    best_vec = best * (term1 + term2)
+                    Upc = np.max(best_vec)
+                    Lowc = np.min(best_vec)
+                    pos_new = np.ones(self.problem.n_dims) * (rng.random() * (Upc - Lowc) + Lowc)
+
+            # Boundary control
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_agent(pos_new)
+
+            # Replacement logic
+            if self.compare_target(agent.target, self.pop[idx].target):
+                self.pop[idx] = agent
+                # Q=1 logic: Replace the current worst in population
+                if Q == 1:
+                    _, worst_idx = self.get_worst_agent(self.pop, self.problem.minmax, return_index=True)
+                    self.pop[worst_idx] = agent.copy()
+                self.tt = 0
+            else:
+                self.tt += 1
+
+            # Update Best and worst sequentially
+            _, bests, worsts = self.get_special_agents(self.pop, n_best=1, n_worst=1, minmax=self.problem.minmax)
+            best = bests[0].solution
+            worst = worsts[0].solution

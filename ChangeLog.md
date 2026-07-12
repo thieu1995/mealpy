@@ -52,9 +52,9 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Dandelion Optimizer (DandelionO)` to the `swarm-based` group
 + Add `Red Fox Optimization (RFO)` to the `swarm-based` group
 + Add `Crayfish Optimization Algorithm (CrayfishOA)` to the `swarm-based` group
-+ Add `Red Fox Optimization (RFO)` to the `swarm-based` group
-+ Add `Red Fox Optimization (RFO)` to the `swarm-based` group
-+ Add `Red Fox Optimization (RFO)` to the `swarm-based` group
++ Add `Cuckoo Catfish Optimizer (CCO)` to the `swarm-based` group
++ Add `Wave Optics Optimizer (WOO)` to the `physics-based` group
++ Add `Archerfish Hunting Optimizer (AHO)` to the `swarm-based` group
 + Add `Red Fox Optimization (RFO)` to the `swarm-based` group
 
 ---
