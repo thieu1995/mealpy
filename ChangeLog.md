@@ -48,7 +48,9 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Market Game Optimization Algorithm (MGOA)` to the `human-based` group
 + Add `Artificial Algae Algorithm (AAA)` to the `bio-based` group
 + Add `Narwhal Optimization Algorithm (NWOA)` and `Narwhal Optimization (NO)` to the swarm-based group
-
++ Add `Owl Search Algorithm (OSA)` to the `swarm-based` group
++ Add `Owl Search Algorithm (OSA)` to the `swarm-based` group
++ Add `Dandelion Optimizer (DandelionO)` to the `swarm-based` group
 
 ---
 
