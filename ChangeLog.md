@@ -47,6 +47,8 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Kirchhoff's Law Algorithm (KLA)` to the `physics-based` group
 + Add `Market Game Optimization Algorithm (MGOA)` to the `human-based` group
 + Add `Artificial Algae Algorithm (AAA)` to the `bio-based` group
++ Add `Narwhal Optimization Algorithm (NWOA)` and `Narwhal Optimization (NO)` to the swarm-based group
+
 
 ---
 
