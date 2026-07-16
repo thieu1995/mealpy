@@ -2,7 +2,6 @@ run.py
 mealpy/swarm_based/ChOA.py
 mealpy/swarm_based/DSO.py
 mealpy/swarm_based/OPA.py
-mealpy/swarm_based/WSO.py
 mealpy/swarm_based/FHO.py
 mealpy/human_based/PO.py
 mealpy/human_based/ILA.py
