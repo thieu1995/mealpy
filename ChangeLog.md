@@ -56,6 +56,8 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Wave Optics Optimizer (WOO)` to the `physics-based` group
 + Add `Archerfish Hunting Optimizer (AHO)` to the `swarm-based` group
 + Add `Red Fox Optimization (RFO)` to the `swarm-based` group
++ Update `levy-flight` in `Moth Search Algorithm (MSA)`
+
 
 ---
 
