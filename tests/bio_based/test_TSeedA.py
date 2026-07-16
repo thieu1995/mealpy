@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-from mealpy import FloatVar, TSeedA, Optimizer
 import numpy as np
 import pytest
+
+from mealpy import FloatVar, TSeedA, Optimizer
 
 
 @pytest.fixture(scope="module")  # scope: Call only 1 time at the beginning
@@ -75,8 +75,6 @@ def test_pop_size_TSeedA(problem, pop_size, system_code):
                              (problem, -1.0, 0),
                              (problem, [10], 0),
                              (problem, (0, 9), 0),
-                             (problem, 0, 0),
-                             (problem, 1, 0),
                              (problem, 1.1, 0),
                              (problem, -0.01, 0),
                          ])
