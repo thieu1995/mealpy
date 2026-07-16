@@ -57,6 +57,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Archerfish Hunting Optimizer (AHO)` to the `swarm-based` group
 + Add `Red Fox Optimization (RFO)` to the `swarm-based` group
 + Update `levy-flight` in `Moth Search Algorithm (MSA)`
++ Add `Tree Seed Algorithm (TSeedA)` in `bio-based` group
 
 
 ---
