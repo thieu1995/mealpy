@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# Created by "Thieu" at 13:00, 05/01/2026 ----------%
-#       Email: nguyenthieu2102@gmail.com            %
-#       Github: https://github.com/thieu1995        %
+# Created by "ozgurk33" on 05/01/2026
+# Github: https://github.com/ozgurk33
+# --------------------------------------------------%
+# Updated by "Thieu" on 16/07/2026
+# Github: https://github.com/thieu1995
 # --------------------------------------------------%
 
 import numpy as np
@@ -12,12 +14,23 @@ class OriginalSBOA(Optimizer):
     """
     The original version of: Secretary Bird Optimization Algorithm (SBOA)
 
-    Links:
-        1. https://doi.org/10.1007/s10462-024-10729-y
-        2. https://www.mathworks.com/matlabcentral/fileexchange/164456-secretary-bird-optimization-algorithm-sboa
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size (number of trees), default = 100
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s10462-024-10729-y
+    2. https://www.mathworks.com/matlabcentral/fileexchange/164456-secretary-bird-optimization-algorithm-sboa
+
+    References
+    ----------
+    .. [1] Fu, Y., Liu, D., Chen, J., & He, L. (2024). Secretary bird optimization algorithm: a new
+    metaheuristic for solving global optimization problems. Artificial Intelligence Review, 57(5), 123.
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, SBOA
     >>>
@@ -34,12 +47,6 @@ class OriginalSBOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Fu, Y., Liu, D., Chen, J. et al. Secretary bird optimization algorithm: a new metaheuristic 
-    for solving global optimization problems. Artif Intell Rev 57, 123 (2024). 
-    https://doi.org/10.1007/s10462-024-10729-y
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -54,27 +61,6 @@ class OriginalSBOA(Optimizer):
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
 
-    def get_levy_flight_step(self, beta=1.5, multiplier=1.0, size=None):
-        """
-        Get Levy flight step
-        
-        Args:
-            beta (float): Levy exponent, default = 1.5
-            multiplier (float): Multiplier factor, default = 1.0
-            size (int): Size of levy step, default = None
-            
-        Returns:
-            numpy.ndarray: Levy flight step
-        """
-        if size is None:
-            size = self.problem.n_dims
-        sigma = (np.math.gamma(1 + beta) * np.sin(np.pi * beta / 2) / 
-                 (np.math.gamma((1 + beta) / 2) * beta * 2 ** ((beta - 1) / 2))) ** (1 / beta)
-        u = self.generator.normal(0, sigma, size)
-        v = self.generator.normal(0, 1, size)
-        step = multiplier * u / (np.abs(v) ** (1 / beta))
-        return step
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -82,34 +68,27 @@ class OriginalSBOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        t = epoch
-        T = self.epoch
-        
         # Calculate Convergence Factor (Eq. 9)
-        CF = (1 - t/T) ** (2 * t/T)
+        CF = (1.0 - epoch/self.epoch) ** (2.0 * epoch/self.epoch)
 
         pop_new = []
-        
         # Hunting Strategies (Exploration Phase)
         for idx in range(0, self.pop_size):
-            if t < T / 3:
+            if epoch < self.epoch / 3:
                 # Stage 1: Secretary bird search prey (Eq. 4-5)
-                idxs = self.generator.choice(list(range(0, self.pop_size)), 2, replace=True)
-                x_rand1 = self.pop[idxs[0]].solution
-                x_rand2 = self.pop[idxs[1]].solution
+                r1, r2 = self.sample_indexes_exclude_one(self.generator, self.pop_size, idx, n_samples=2, replace=True)
                 R1 = self.generator.random(self.problem.n_dims)
-                pos_new = self.pop[idx].solution + (x_rand1 - x_rand2) * R1
-                
-            elif t < 2 * T / 3:
+                pos_new = self.pop[idx].solution + (self.pop[r1].solution - self.pop[r2].solution) * R1
+
+            elif epoch < 2 * self.epoch / 3:
                 # Stage 2: Secretary bird approaching prey (Eq. 7-8)
                 RB = self.generator.normal(0, 1, self.problem.n_dims)
-                term = np.exp((t/T)**4)
+                term = np.exp((epoch / self.epoch)**4)
                 pos_new = self.g_best.solution + term * (RB - 0.5) * (self.g_best.solution - self.pop[idx].solution)
                 
             else:
                 # Stage 3: Secretary bird attacks prey (Eq. 9-10)
-                levy_step = self.get_levy_flight_step(beta=1.5, multiplier=1.0)
-                RL = 0.5 * levy_step
+                RL = self.get_levy_flight_step(beta=1.5, multiplier=0.5, size=self.problem.n_dims, case=-1)
                 pos_new = self.g_best.solution + CF * self.pop[idx].solution * RL
             
             pos_new = self.correct_solution(pos_new)
@@ -118,8 +97,7 @@ class OriginalSBOA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 agent.target = self.get_target(pos_new)
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
-        
-        # Update population after exploration
+        # Update population in parallel mode
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
@@ -134,7 +112,7 @@ class OriginalSBOA(Optimizer):
             if r < 0.5:
                 # C1: Secretary birds use their environment to hide (Eq. 14)
                 RB = self.generator.random(self.problem.n_dims)
-                factor = (1 - t/T) ** 2
+                factor = (1 - epoch/self.epoch) ** 2
                 pos_new = self.g_best.solution + factor * (2 * RB - 1) * self.pop[idx].solution
             else:
                 # C2: Secretary birds fly or run away (Eq. 14, 16)

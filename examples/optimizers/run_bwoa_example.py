@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
-                    CCO, AHO, MSA, TSeedA)
+                    CCO, AHO, MSA, TSeedA, SBOA)
 
 
 def objective_function(solution):
@@ -38,6 +38,7 @@ model = CCO.OriginalCCO(epoch=1000, pop_size=50, alpha=0.5, beta=1.0)
 model = AHO.OriginalAHO(epoch=100000, pop_size=50, theta=0.26, omega=0.01)
 model = MSA.OriginalMSA(epoch=1000, pop_size=50, n_best = 5, partition = 0.5, max_step_size = 1.0)
 model = TSeedA.OriginalTSeedA(epoch=1000, pop_size=50, st=0.1)
+model = SBOA.OriginalSBOA(epoch=1000, pop_size=50)
 
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
