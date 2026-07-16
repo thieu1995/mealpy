@@ -61,7 +61,7 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Secretary Bird Optimization Algorithm (SBOA)` in `bio-based` group
 + Add `Chameleon Swarm Algorithm (ChameleonSA) and its improved version IChameleonSA` in the `swarm-based` group
 + Add `White Shark Optimizer (WSO)` in the `swarm-based` group
-
++ Add `Multiple Learning FA based on Gender Difference (MLFA-GD)` in `FFA` class of the `swarm-based` group
 
 ---
 
