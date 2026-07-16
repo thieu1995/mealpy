@@ -112,7 +112,7 @@ class OriginalDandelionO(Optimizer):
 
         # Create new population agents
         for idx in range(self.pop_size):
-            pos_new = self.amend_solution(pop_pos[idx])
+            pos_new = self.correct_solution(pop_pos[idx])
             self.pop[idx] = self.generate_empty_agent(pos_new)
             # Update fitness in single mode
             if self.mode not in self.AVAILABLE_MODES:
@@ -263,13 +263,8 @@ class DevDandelionO(Optimizer):
         pop_new_pos = elite_pos + levy_step * alpha * (elite_pos - pop_descend * delta)
 
         # --- Final Update ---
-        # Check boundaries
-        pop_new_pos = np.clip(pop_new_pos, self.problem.lb, self.problem.ub)
-        pop_new_pos = self.amend_solution(pop_new_pos)
-
-        # Create new population agents
         for idx in range(self.pop_size):
-            pos_new = self.amend_solution(pop_new_pos[idx])
+            pos_new = self.correct_solution(pop_new_pos[idx])
             self.pop[idx] = self.generate_empty_agent(pos_new)
             # Update fitness in single mode
             if self.mode not in self.AVAILABLE_MODES:
