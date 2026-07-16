@@ -44,7 +44,7 @@ from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, B
                           MFO, MGO, MPA, MRFO, MSA, MShOA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
                           SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
                           EPC, SMO, SquirrelSA, FDO, ChOA, RSA, GJA, BWO, DBO, EEFO, NWOA, OSA, DandelionO, RFO,
-                          CrayfishOA, CCO, AHO)
+                          CrayfishOA, CCO, AHO, ChameleonSA)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
 from .game_based import THRO
