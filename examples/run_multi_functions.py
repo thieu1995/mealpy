@@ -5,9 +5,9 @@
 # --------------------------------------------------%
 
 from pathlib import Path
-from opfunu.cec_basic import cec2014_nobias
+from opfunu.cec_based import cec2005
 from pandas import DataFrame
-from mealpy.evolutionary_based.DE import OriginalDE
+from mealpy import FloatVar, DE
 
 
 PATH_RESULTS = "history/results/"
@@ -15,8 +15,9 @@ Path(PATH_RESULTS).mkdir(parents=True, exist_ok=True)
 
 ## Setting parameters
 model_name = "DE"
-lb1 = [-100, ] * 30
-ub1 = [100, ] * 30
+ndims = 30
+lb1 = [-100, ] * ndims
+ub1 = [100, ] * ndims
 epoch = 10
 pop_size = 50
 wf = 0.8
@@ -31,21 +32,22 @@ best_fit_columns = []
 
 error_full = {}
 error_columns = []
-for func_name in func_names:
+for fname in func_names:
+    func_name = f"{fname}2005"
+    FF = getattr(cec2005, func_name)(ndims, f_bias=0)
     problem = {
-        "fit_func": getattr(cec2014_nobias, func_name),
-        "lb": lb1,
-        "ub": ub1,
+        "obj_func": FF.evaluate,
+        "bounds": FloatVar(lb=FF.lb, ub=FF.ub),
         "minmax": "min",
         "log_to": "console",
     }
-    model = OriginalDE(epoch, pop_size, wf, cr, fit_name=func_name)
-    _, best_fitness = model.solve(problem)
+    model = DE.OriginalDE(epoch, pop_size, wf, cr)
+    best_agent = model.solve(problem)
 
     error_full[func_name] = model.history.list_global_best_fit
     error_columns.append(func_name)
 
-    best_fit_full[func_name] = [best_fitness]
+    best_fit_full[func_name] = [best_agent.target.fitness]
     best_fit_columns.append(func_name)
 
 df_err = DataFrame(error_full, columns=error_columns)
