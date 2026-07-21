@@ -229,16 +229,17 @@ class DevMShOA(Optimizer):
     Note
     ~~~~
     1. This version is implemented by "Gunbaz" with the help of AI-generated code.
-    2. This implementation uses PTI-based strategy selection exactly as described in Algorithm 1 and Algorithm 2.
-    All equations match the paper exactly:
-       - Algorithm 1: PTI update mechanism (Eq. 5, 6, 7)
-       - Strategy 1: Foraging equation (Eq. 12)
-       - Strategy 2: Attack/Strike equation (Eq. 14)
-       - Strategy 3: Defense/Burrow equation (Eq. 15)
+
+    2. This implementation uses PTI-based strategy selection exactly as described in Algorithm 1 and Algorithm 2. All equations match the paper exactly:
+        - Algorithm 1: PTI update mechanism (Eq. 5, 6, 7)
+        - Strategy 1: Foraging equation (Eq. 12)
+        - Strategy 2: Attack/Strike equation (Eq. 14)
+        - Strategy 3: Defense/Burrow equation (Eq. 15)
+
     3. Each agent has a PTI (Polarization Type Indicator) value ∈ {1, 2, 3} that determines strategy:
-       - PTI = 1: Foraging/Navigation (vertical linear polarized light detection) → Strategy 1
-       - PTI = 2: Attack/Strike (horizontal linear polarized light detection) → Strategy 2
-       - PTI = 3: Defense/Burrow (circular polarized light detection) → Strategy 3
+        - PTI = 1: Foraging/Navigation (vertical linear polarized light detection) → Strategy 1
+        - PTI = 2: Attack/Strike (horizontal linear polarized light detection) → Strategy 2
+        - PTI = 3: Defense/Burrow (circular polarized light detection) → Strategy 3
 
     Links
     -----
