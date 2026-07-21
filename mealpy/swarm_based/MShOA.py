@@ -1,20 +1,11 @@
 #!/usr/bin/env python
-# Created by "Furkan Gunbaz (gunbaz) ---------------%
-#       Email: furkan.gunbaz@gmail.com              %
-#       Github: https://github.com/gunbaz           %
+# Created by "Furkan Gunbaz (gunbaz)
+# Email: furkan.gunbaz@gmail.com
+# Github: https://github.com/gunbaz
 # --------------------------------------------------%
-
-# IMPLEMENTATION NOTES:
-# This implementation follows the PTI (Polarization Type Indicator) mechanism 
-# from the original paper exactly as described in Algorithm 1 and Algorithm 2.
-# Key features:
-# 1. PTI Update (Algorithm 1): LPA, RPA, LPT, RPT, LAD, RAD calculations (Eq. 5, 6, 7)
-# 2. Strategy 1 - Foraging: Langevin/Brownian equation (Eq. 12)
-# 3. Strategy 2 - Attack/Strike: Circular motion equation (Eq. 14)
-# 4. Strategy 3 - Defense/Burrow: Defense/Shelter split with k parameter (Eq. 15)
-#
-# CRITICAL: LPA is calculated from intra-iteration change (X_i(t) vs X'_i(t)),
-# not inter-iteration change. PTI update happens AFTER strategy application.
+# Updated by "Thieu" on 21/07/2026
+# Github: https://github.com/thieu1995
+# --------------------------------------------------%
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -23,25 +14,31 @@ from mealpy.optimizer import Optimizer
 class OriginalMShOA(Optimizer):
     """
     The original version of: Mantis Shrimp Optimization Algorithm (MShOA)
-    
-    This implementation reproduces the algorithm exactly as described in 
-    mathematics-13-01500-v2.pdf, with no simplifications.
-    
-    Each agent has a PTI (Polarization Type Indicator) value ∈ {1, 2, 3} that determines strategy:
-    - PTI = 1: Foraging/Navigation (vertical linear polarized light detection) → Strategy 1
-    - PTI = 2: Attack/Strike (horizontal linear polarized light detection) → Strategy 2
-    - PTI = 3: Defense/Burrow (circular polarized light detection) → Strategy 3
-    
-    The PTI vector is initialized randomly and updated each iteration according to Algorithm 1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + polarization_rate (float): [DEPRECATED] Kept for backward compatibility, not used
-        + strike_factor (float): [DEPRECATED] Not used in original equation (Equation 14 uses circular motion)
-        + k_value (float): [0.0, 1.0], upper bound for k parameter in defense/shelter phase (Strategy 3, Eq. 15). 
-                          k is sampled from U(0, k_value). Default = 0.3 (matches paper value).
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Links:
-        1. https://doi.org/10.3390/math13091500
+    Warnings
+    --------
+    1. Mathematical formulas and notations in the paper are ambiguous, making direct implementation is hard.
+    2. This Python code was translated directly from the author's MATLAB implementation.
+    3. Use this algorithm with caution due to the questionable quality of the paper.
+    4. The main point of this algorithm is changing the position of global best solution instead of current position.
+
+    Links
+    -----
+    1. https://doi.org/10.3390/math13091500
+    2. https://www.mathworks.com/matlabcentral/fileexchange/180937-mantis-shrimp-optimization-algorithm-mshoa
+
+    References
+    ~~~~~~~~~~
+    1. Sánchez Cortez, J.A., Peraza Vázquez, H., Peña Delgado, A.F., 2025.
+       Mantis Shrimp Optimization Algorithm (MShOA): A Novel Bio-Inspired Optimization Algorithm Based on
+       Mantis Shrimp Survival Tactics. Mathematics, 13(9), 1500.
 
     Examples
     ~~~~~~~~
@@ -57,46 +54,236 @@ class OriginalMShOA(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = MShOA.OriginalMShOA(epoch=1000, pop_size=50, polarization_rate=0.5, strike_factor=1.5, k_value=0.3)
+    >>> model = MShOA.OriginalMShOA(epoch=1000, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
+    """
+
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        self.sort_flag = False
+        self.polarization = None
+
+    def initialize_variables(self):
+        # 1: Foraging, 2: Attack, 3: Burrow/Defense
+        self.polarization = self.generator.integers(1, 4, self.pop_size)
+
+    def amend_solution(self, solution: np.ndarray) -> np.ndarray:
+        # Boundary control
+        flag4ub = solution > self.problem.ub
+        flag4lb = solution < self.problem.lb
+        out_of_bounds = flag4ub | flag4lb
+        # Replace elements that violate bounds with random values
+        pos_new = self.problem.lb + self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb)
+        return np.where(out_of_bounds, pos_new, solution)
+
+    def get_polarization(self, prev_pop, current_pop):
+        """
+        Calculate the polarization array for the agents based on their positions and the new positions.
+        """
+        fi = 10
+        a = 45 - fi
+        b = 45 + fi
+        c = 135 - fi
+        d = 135 + fi
+
+        prev_pos = np.array([agent.solution for agent in prev_pop])
+        curr_pos = np.array([agent.solution for agent in current_pop])
+
+        # MATLAB randi(SearchAgents_no) -> 1 to SearchAgents_no
+        k1 = self.generator.integers(1, self.pop_size + 1)
+        k2 = k1 + self.generator.integers(1, self.pop_size)
+
+        # circshift in python (shift along rows/axis=0)
+        prev_pos = np.roll(prev_pos, k1, axis=0)
+        curr_pos = np.roll(curr_pos, k2, axis=0)
+
+        dif_1 = np.zeros(self.pop_size)
+        idx_ang1 = np.zeros(self.pop_size, dtype=int)
+        dif_2 = np.zeros(self.pop_size)
+        idx_ang2 = np.zeros(self.pop_size, dtype=int)
+
+        for i in range(self.pop_size):
+            norm_pos = np.linalg.norm(prev_pos[i, :]) + 1e-10
+            norm_x = np.linalg.norm(curr_pos[i, :]) + 1e-10
+            v1 = prev_pos[i, :] / norm_pos
+            v2 = curr_pos[i, :] / norm_x
+
+            # Calculate angle in degrees, clip to avoid NaN from floating point inaccuracies
+            angulo = np.degrees(np.arccos(np.clip(np.dot(v1, v2), -1.0, 1.0)))
+
+            if angulo > 90:
+                lin_h = 180 - angulo
+                lin_v = angulo - 90
+                pol_c = 135 - angulo if angulo <= 135 else angulo - 135
+                if c <= angulo <= d:
+                    pol_c = 0
+            else:
+                lin_h = angulo - 0
+                lin_v = 90 - angulo
+                pol_c = 45 - angulo if angulo <= 45 else angulo - 45
+                if a <= angulo <= b:
+                    pol_c = 0
+
+            ref = np.array([lin_h, lin_v, pol_c])
+            dif_1[i] = np.min(ref)
+            # Adding 1 to match MATLAB 1-based indexing (1, 2, or 3)
+            idx_ang1[i] = np.argmin(ref) + 1
+
+        for i in range(self.pop_size):
+            angulo = self.generator.integers(1, 91)
+
+            if angulo > 90:
+                lin_h = 180 - angulo
+                lin_v = angulo - 90
+                pol_c = 135 - angulo if angulo <= 135 else angulo - 135
+                if c <= angulo <= d:
+                    pol_c = 0
+            else:
+                lin_h = angulo - 0
+                lin_v = 90 - angulo
+                pol_c = 45 - angulo if angulo <= 45 else angulo - 45
+                if a <= angulo <= b:
+                    pol_c = 0
+
+            ref = np.array([lin_h, lin_v, pol_c])
+            dif_2[i] = np.min(ref)
+            idx_ang2[i] = np.argmin(ref) + 1
+
+        polarization = np.zeros(self.pop_size, dtype=int)
+        for i in range(self.pop_size):
+            eyes = min(dif_1[i], dif_2[i])
+            if eyes == dif_1[i]:
+                light_pol = idx_ang1[i]
+            elif eyes == dif_2[i]:
+                light_pol = idx_ang2[i]
+            else:
+                light_pol = 1  # Fallback
+            polarization[i] = light_pol
+
+        return polarization
+
+    def evolve(self, epoch):
+        """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
+        Args:
+            epoch (int): The current iteration
+        """
+        pop_new = []
+        for idx in range(self.pop_size):
+            if self.polarization[idx] == 1:
+                # Strategy 1: Foraging
+                r = self.generator.integers(0, self.pop_size)
+                while idx == r:
+                    r = self.generator.integers(0, self.pop_size)
+                D = -1 + 2 * self.generator.random()
+                pos_new = (self.g_best.solution - self.pop[idx].solution) + D * (self.pop[r].solution - self.g_best.solution)
+
+            elif self.polarization[idx] == 2:
+                # Strategy 2: Attack
+                angle_t = 180 + (360 - 180) * self.generator.random()
+                pos_new = self.g_best.solution * np.cos(np.radians(angle_t))
+
+            else:
+                # Strategy 3: Burrow, Defense, or Shelter
+                k = 0.3 * self.generator.random()
+                bin_val = self.generator.choice([-1, 1])
+                pos_new = self.g_best.solution + self.generator.random() * bin_val * k * self.g_best.solution
+                if bin_val == 1:
+                    angle_t = 180 + (360 - 180) * self.generator.random()
+                    pos_new = pos_new * np.cos(np.radians(angle_t))
+
+            # Boundary control
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1].target = self.get_target(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
+
+        # Update Polarization
+        self.polarization = self.get_polarization(self.pop, pop_new)
+        self.pop = pop_new
+
+
+class DevMShOA(Optimizer):
+    """
+    Our developed version of: Mantis Shrimp Optimization Algorithm (MShOA)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    k_value : float
+        Upper bound for k parameter in defense/shelter phase (Strategy 3, Equation 15).
+        k is sampled from U(0, k_value), in range (0.0, 10000.0). Default is 0.3.
+
+    Note
+    ~~~~
+    1. This version is implemented by "Gunbaz" with the help of AI-generated code.
+    2. This implementation uses PTI-based strategy selection exactly as described in Algorithm 1 and Algorithm 2.
+    All equations match the paper exactly:
+       - Algorithm 1: PTI update mechanism (Eq. 5, 6, 7)
+       - Strategy 1: Foraging equation (Eq. 12)
+       - Strategy 2: Attack/Strike equation (Eq. 14)
+       - Strategy 3: Defense/Burrow equation (Eq. 15)
+    3. Each agent has a PTI (Polarization Type Indicator) value ∈ {1, 2, 3} that determines strategy:
+       - PTI = 1: Foraging/Navigation (vertical linear polarized light detection) → Strategy 1
+       - PTI = 2: Attack/Strike (horizontal linear polarized light detection) → Strategy 2
+       - PTI = 3: Defense/Burrow (circular polarized light detection) → Strategy 3
+
+    Links
+    -----
+    1. https://doi.org/10.3390/math13091500
+    2. https://www.mathworks.com/matlabcentral/fileexchange/180937-mantis-shrimp-optimization-algorithm-mshoa
 
     References
     ~~~~~~~~~~
-    [1] Sánchez Cortez, J.A., Peraza Vázquez, H., Peña Delgado, A.F., 2025. Mantis Shrimp Optimization Algorithm (MShOA): A Novel
-    Bio-Inspired Optimization Algorithm Based on Mantis Shrimp Survival Tactics. Mathematics, 13(9), 1500. https://doi.org/10.3390/math13091500
-    
-    Notes
-    ~~~~~
-    This implementation uses PTI-based strategy selection exactly as described in Algorithm 1 and Algorithm 2.
-    All equations match the paper exactly:
-    - Algorithm 1: PTI update mechanism (Eq. 5, 6, 7)
-    - Strategy 1: Foraging equation (Eq. 12)
-    - Strategy 2: Attack/Strike equation (Eq. 14)
-    - Strategy 3: Defense/Burrow equation (Eq. 15)
+    1. Sánchez Cortez, J.A., Peraza Vázquez, H., Peña Delgado, A.F., 2025.
+       Mantis Shrimp Optimization Algorithm (MShOA): A Novel Bio-Inspired Optimization Algorithm Based on
+       Mantis Shrimp Survival Tactics. Mathematics, 13(9), 1500.
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, MShOA
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = MShOA.DevMShOA(epoch=1000, pop_size=50, k_value=0.3)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    def __init__(self, epoch: int = 10000, pop_size: int = 100, polarization_rate: float = 0.5,
-                 strike_factor: float = 1.5, k_value: float = 0.3, **kwargs: object) -> None:
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, k_value: float = 0.3, **kwargs: object) -> None:
         """
         Args:
             epoch: maximum number of iterations, default = 10000
             pop_size: number of population size, default = 100
-            polarization_rate: [DEPRECATED - kept for backward compatibility] 
-                              PTI mechanism now handles strategy selection automatically
-            strike_factor: [DEPRECATED] Not used in original equation (Equation 14 uses circular motion)
             k_value: Upper bound for k parameter in defense/shelter phase (Strategy 3, Equation 15). 
                     k is sampled from U(0, k_value). Default = 0.3 (matches paper value).
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-        # Keep polarization_rate for backward compatibility but it's not used
-        self.polarization_rate = self.validator.check_float("polarization_rate", polarization_rate, (0.0, 1.0))
-        self.strike_factor = self.validator.check_float("strike_factor", strike_factor, (0.0, 5.0))
-        self.k_value = self.validator.check_float("k_value", k_value, (0.0, 1.0))
-        self.set_parameters(["epoch", "pop_size", "polarization_rate", "strike_factor", "k_value"])
+        self.k_value = self.validator.check_float("k_value", k_value, (0.0, 10000.))
+        self.set_parameters(["epoch", "pop_size", "k_value"])
         self.sort_flag = False
         
         # PTI (Polarization Type Indicator) vector: one value per agent ∈ {1, 2, 3}
@@ -288,13 +475,10 @@ class OriginalMShOA(Optimizer):
             pos_corrected = self.correct_solution(pos_new[idx])
             agent = self.generate_empty_agent(pos_corrected)
             pop_new.append(agent)
-        # Use standard Mealpy helper to update all targets
-        pop_new = self.update_target_for_population(pop_new)
-
-        # Safety check: ensure no agent has None target
-        for agent in pop_new:
-            if agent.target is None:
-                agent.target = self.get_target(agent.solution)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1].target = self.get_target(pos_corrected)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
 
         # Perform greedy selection using standard Mealpy helper
-        self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        self.pop = pop_new

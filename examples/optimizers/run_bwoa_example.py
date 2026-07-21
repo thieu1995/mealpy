@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
-                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA)
+                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA)
 
 
 def objective_function(solution):
@@ -43,7 +43,10 @@ model = ChameleonSA.OriginalChameleonSA(epoch=1000, pop_size=50, pp=0.2, p1=0.5,
 model = ChameleonSA.IChameleonSA(epoch=1000, pop_size=50, r_chaos=0.5, k_spiral=10., p1=5.0, p2=3.0)
 model = WSO.OriginalWSO(epoch=1000, pop_size=50, tau=4.2, p_min=0.5, p_max=2.0, f_min=0.1, f_max=0.8, a0=6, a1=100, a2=0.001)
 model = FFA.MLFA_GD(epoch=1000, pop_size=50, m_females=3, beta0=1.0, gama=1.0, alpha=0.2, k_rw=10)
+model = ACOR.OriginalACOR(epoch=1000, pop_size=50, sample_count = 25, intent_factor = 0.5, zeta = 1.0)
+model = MShOA.OriginalMShOA(epoch=1000, pop_size=50)
+model = MShOA.DevMShOA(epoch=1000, pop_size=50, k_value=0.3)
 
-
+t1 = np.array([32, 424])
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
