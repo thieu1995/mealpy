@@ -12,16 +12,30 @@ class OriginalTHRO(Optimizer):
     """
     The original version of: Tianji's Horse Racing Optimization (THRO)
 
-    Links:
-        + https://www.mathworks.com/matlabcentral/fileexchange/181341-tianji-s-horse-racing-optimization-thro
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size (number of trees), default = 100
 
-    Notes:
-        + This algorithm has many drawbacks, especially in training, where such cases almost never occur.
-        As a result, scenarios 3, 4, and 5 will practically never happen, since the situation where
-        two solutions have exactly the same fitness value is very rare in practice.
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/181341-tianji-s-horse-racing-optimization-thro
+    2. https://doi.org/10.1007/s10462-025-11269-9
+
+    Danger
+    ------
+    1. This algorithm has several drawbacks, especially during training, where such cases rarely occur.
+    2. As a result, scenarios 3, 4, and 5 are highly unlikely to happen, since identical fitness values
+       between two solutions are extremely rare in practice
+
+    References
+    ----------
+    1. Wang, L., Du, H., Zhang, Z., Hu, G., Mirjalili, S., Khodadadi, N., Hussien, A.G., Liao, Y. and Zhao, W., 2025.
+       Tianji’s horse racing optimization (THRO): a new metaheuristic inspired by ancient wisdom and its
+       engineering optimization applications. Artificial Intelligence Review, 58(9), p.282.
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, THRO
     >>>
@@ -38,12 +52,6 @@ class OriginalTHRO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, L., Du, H., Zhang, Z., Hu, G., Mirjalili, S., Khodadadi, N., Hussien, A.G., Liao, Y. and Zhao, W., 2025.
-    Tianji’s horse racing optimization (THRO): a new metaheuristic inspired by ancient wisdom and its
-    engineering optimization applications. Artificial Intelligence Review, 58(9), p.282.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
