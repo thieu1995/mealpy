@@ -27,7 +27,7 @@
 # >>> g_best = model.solve(problem)
 # >>> print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
 
-__version__ = "3.0.3"
+__version__ = "3.1.0"
 
 import sys
 import inspect
@@ -44,7 +44,7 @@ from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, B
                           MFO, MGO, MPA, MRFO, MSA, MShOA, NGO, NMRA, OOA, PFA, POA, PSO, SCSO, SeaHO, ServalOA, SFO,
                           SHO, SLO, SRSR, SSA, SSO, SSpiderA, SSpiderO, STO, TDO, TSO, WaOA, WOA, ZOA,
                           EPC, SMO, SquirrelSA, FDO, ChOA, RSA, GJA, BWO, DBO, EEFO, NWOA, OSA, DandelionO, RFO,
-                          CrayfishOA, CCO, AHO, ChameleonSA, WSO)
+                          CrayfishOA, CCO, AHO, ChameleonSA, WSO, FHO)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
 from .game_based import THRO

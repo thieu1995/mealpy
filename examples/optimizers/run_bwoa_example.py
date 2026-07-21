@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
-                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA)
+                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA, FHO)
 
 
 def objective_function(solution):
@@ -46,6 +46,7 @@ model = FFA.MLFA_GD(epoch=1000, pop_size=50, m_females=3, beta0=1.0, gama=1.0, a
 model = ACOR.OriginalACOR(epoch=1000, pop_size=50, sample_count = 25, intent_factor = 0.5, zeta = 1.0)
 model = MShOA.OriginalMShOA(epoch=1000, pop_size=50)
 model = MShOA.DevMShOA(epoch=1000, pop_size=50, k_value=0.3)
+model = FHO.OriginalFHO(epoch=1000, pop_size=10)
 
 t1 = np.array([32, 424])
 g_best = model.solve(problem, seed=10)
