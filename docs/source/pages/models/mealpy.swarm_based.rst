@@ -449,10 +449,10 @@ mealpy.swarm\_based.OOA module
    :show-inheritance:
    :undoc-members:
 
-mealpy.swarm\_based.OPA module
-------------------------------
+mealpy.swarm\_based.ORCA module
+-------------------------------
 
-.. automodule:: mealpy.swarm_based.OPA
+.. automodule:: mealpy.swarm_based.ORCA
    :members:
    :show-inheritance:
    :undoc-members:
