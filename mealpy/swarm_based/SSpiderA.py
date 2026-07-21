@@ -10,20 +10,33 @@ from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
 
 
-class OriginalSSpiderA(Optimizer):
+class DevSSpiderA(Optimizer):
     """
-    The developed version of: Social Spider Algorithm (OriginalSSpiderA)
+    Our developed version of: Social Spider Algorithm (DevSSpiderA)
 
-    Notes:
-        + The version of the algorithm available on the GitHub repository has a slow convergence rate.
-        + Changes the idea of intensity, which one has better intensity, others will move toward to it
-        + https://doi.org/10.1016/j.asoc.2015.02.014
-        + https://github.com/James-Yu/SocialSpiderAlgorithm  (Modified this version)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    r_a : float
+        The rate of vibration attenuation when propagating over the spider web, in range (0.0, 5.0). Default is 1.0.
+    p_c : float
+        Controls the probability of the spiders changing their dimension mask in the random walk step, in range (0.0, 1.0). Default is 0.7.
+    p_m : float
+        The probability of each value in a dimension mask to be one, in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + r_a (float): the rate of vibration attenuation when propagating over the spider web, default=1.0
-        + p_c (float): controls the probability of the spiders changing their dimension mask in the random walk step, default=0.7
-        + p_m (float): the probability of each value in a dimension mask to be one, default=0.1
+    Note
+    ----
+    The version of the algorithm available on the GitHub repository has a slow convergence rate.
+    Changes the idea of intensity, which one has better intensity, others will move toward to it
+    https://github.com/James-Yu/SocialSpiderAlgorithm  (Modified this version)
+
+    References
+    ~~~~~~~~~~
+    1. James, J.Q. and Li, V.O., 2015. A social spider algorithm for global optimization.
+       Applied soft computing, 30, pp.614-627. https://doi.org/10.1016/j.asoc.2015.02.014
 
     Examples
     ~~~~~~~~
@@ -39,15 +52,12 @@ class OriginalSSpiderA(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = SSpiderA.OriginalSSpiderA(epoch=1000, pop_size=50, r_a = 1.0, p_c = 0.7, p_m = 0.1)
+    >>> model = SSpiderA.DevSSpiderA(epoch=1000, pop_size=50, r_a = 1.0, p_c = 0.7, p_m = 0.1)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] James, J.Q. and Li, V.O., 2015. A social spider algorithm for global optimization. Applied soft computing, 30, pp.614-627.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r_a: float = 1.0, p_c: float = 0.7, p_m: float = 0.1, **kwargs: object) -> None:
         """
         Args:

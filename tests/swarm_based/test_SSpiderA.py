@@ -25,7 +25,7 @@ def problem():
 
 def test_SSpiderA_results(problem):
     models = [
-        SSpiderA.OriginalSSpiderA(epoch=10, pop_size=50, r_a=1, p_c=0.7, p_m=0.1)
+        SSpiderA.DevSSpiderA(epoch=10, pop_size=50, r_a=1, p_c=0.7, p_m=0.1)
     ]
     for model in models:
         g_best = model.solve(problem)
