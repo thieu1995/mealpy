@@ -890,7 +890,7 @@ Import All Models
 		model = SSA.OriginalSSA(**paras_ssa)
 		model = SSA.DevSSA(**paras_ssa)
 		model = SSO.OriginalSSO(**paras_sso)
-		model = SSpiderA.OriginalSSpiderA(**paras_sspidera)
+		model = SSpiderA.DevSSpiderA(**paras_sspidera)
 		model = SSpiderO.OriginalSSpiderO(**paras_sspidero)
 		model = WOA.OriginalWOA(**paras_woa)
 		model = WOA.HI_WOA(**paras_hi_woa)

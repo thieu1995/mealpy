@@ -2,7 +2,6 @@
 All Optimizers
 ==============
 
-
 Subpackages
 -----------
 
@@ -11,46 +10,37 @@ Subpackages
 
    mealpy.bio_based
    mealpy.evolutionary_based
+   mealpy.game_based
    mealpy.human_based
    mealpy.math_based
    mealpy.music_based
    mealpy.physics_based
+   mealpy.sota_based
    mealpy.swarm_based
    mealpy.system_based
    mealpy.utils
 
 
-mealpy.optimizer
-----------------
+mealpy.optimizer module
+-----------------------
 
 .. automodule:: mealpy.optimizer
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-mealpy.tuner
-------------
+mealpy.tuner module
+-------------------
 
 .. automodule:: mealpy.tuner
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-mealpy.multitask
-----------------
+mealpy.multitask module
+-----------------------
 
 .. automodule:: mealpy.multitask
    :members:
-   :undoc-members:
    :show-inheritance:
-
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
+   :undoc-members:

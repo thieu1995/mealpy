@@ -49,14 +49,16 @@ Welcome to MEALPY's documentation!
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
 
-::
+
+.. epigraph::
 
    "Knowledge is power, sharing it is the premise of progress in life.
-   It seems like a burden to someone, but it is the only way to achieve immortality.
-                                                   `Nguyen Van Thieu`_
+   It seems like a burden to someone, but it is the only way to achieve immortality."
 
+   -- `Nguyen Van Thieu`_
 
 .. _Nguyen Van Thieu: https://www.thieu1995.github.io/
+
 
 MEALPY is a Python library that contains the largest number of the cutting-edge population-based *meta-heuristic algorithms* — a field that provides a fast and
 efficient way to find the (approximation) global optimal point of mathematical optimization problems.
@@ -85,26 +87,24 @@ Features
    :maxdepth: 4
    :caption: Quick Start:
 
-   pages/quick_start.rst
+   pages/general/introduction.rst
+   pages/general/simple_guide.rst
+   pages/general/advance_guide.rst
+   pages/general/video_tutorials.rst
 
 
 .. toctree::
    :maxdepth: 4
    :caption: Models API:
 
-   pages/models.rst
+   pages/models/mealpy.rst
+   pages/general/visualization.rst
+   pages/general/build_new_optimizer.rst
+   pages/general/tuner.rst
+   pages/general/multitask.rst
 
 .. toctree::
    :maxdepth: 4
    :caption: Support:
 
    pages/support.rst
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

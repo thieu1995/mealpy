@@ -24,18 +24,18 @@ Installation
 
 **User Installation**
 
-Install the `current PyPI release`_. ::
+Install the `current PyPI release`_. .. code-block:: bash
 
-   $ pip install mealpy==3.0.3
+    $ pip install mealpy==3.0.3
 
 .. _current PyPI release: https://pypi.python.org/pypi/mealpy
 
-Or install the development version from GitHub::
+Or install the development version from GitHub .. code-block:: bash
 
    $ pip install git+https://github.com/thieu1995/mealpy
 
 
-Check the version of MEALPY::
+Check the version of MEALPY .. code-block:: bash
 
    $ import mealpy
    $ mealpy.__version__
@@ -48,7 +48,7 @@ Getting started in 30s
 ----------------------
 
 **Tutorial**
-	* Import libraries
+    * Import libraries
 	* Define your fitness function
 	* Define a problem dictionary
 	* Training and get the results
@@ -178,13 +178,3 @@ The returned result is the best agent found. It holds attribute like:
 
 - `solution`: the global best position it found on solving process
 - `target` object: an instance of Target class, that holds `fitness` and `objectives`
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4

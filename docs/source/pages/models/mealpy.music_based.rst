@@ -6,5 +6,5 @@ mealpy.music\_based.HS module
 
 .. automodule:: mealpy.music_based.HS
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

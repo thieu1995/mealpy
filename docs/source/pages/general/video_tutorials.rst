@@ -28,7 +28,7 @@ Mealpy Tutorial Full
    <a href="https://www.youtube.com/watch?v=HWc-yNcyPLw" target="_blank">Full Video</a>
 
 
-::
+.. code-block:: text
 
 	0:00 - Intro
 	0:19 - Download and install Miniconda on Windows 11
