@@ -26,8 +26,8 @@ class OriginalSBOA(Optimizer):
 
     References
     ----------
-    .. [1] Fu, Y., Liu, D., Chen, J., & He, L. (2024). Secretary bird optimization algorithm: a new
-    metaheuristic for solving global optimization problems. Artificial Intelligence Review, 57(5), 123.
+    1. Fu, Y., Liu, D., Chen, J., & He, L. (2024). Secretary bird optimization algorithm: a new
+       metaheuristic for solving global optimization problems. Artificial Intelligence Review, 57(5), 123.
 
     Examples
     --------
