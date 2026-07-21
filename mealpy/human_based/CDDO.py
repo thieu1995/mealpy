@@ -11,21 +11,33 @@ class OriginalCDDO(Optimizer):
     """
     The original version of: Child Drawing Development Optimization (CCDO)
 
-    Notes:
-        + This source code was converted from the original Matlab implementation in the paper into Python.
-        The Matlab code itself has many issues, for example, parameters are defined but never used.
-        Several variables are declared, such as p1, p2, p3. Parameters like child skill rate and child level
-        rate are initialized as hyperparameters at the beginning, but inside the loop they are randomly generated,
-        which is inconsistent with the paper.
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size (number of trees), default = 100
+    + pattern_size (int): size of the pattern matrix, default = 10, range [1, 1000]
+    + creativity_rate (float): creativity rate, default = 0.1, range [0, 1]
 
-        + Moreover, the biggest flaw of this algorithm lies in the if–else condition during the update process.
-        There is a high chance that neither condition will be executed, because the golden ratio is not necessarily
-        within the interval [1.5, 2], as it is computed based on a random position. In addition, when comparing
-        the position with a random integer T (hand pressure), it is unclear why this is done. It is highly likely
-        that the algorithm will only execute that single condition.
+    Danger
+    ------
+    1. This source code was converted from the original Matlab implementation in the paper into Python.
+       The Matlab code itself has many issues, for example, parameters are defined but never used.
+       Several variables are declared, such as p1, p2, p3. Parameters like child skill rate and
+       child level rate are initialized as hyperparameters at the beginning, but inside the loop
+       they are randomly generated, which is far from the paper.
+    2. Moreover, the biggest flaw of this algorithm lies in the if–else condition during the update process.
+       There is a high chance that neither condition will be executed, because the golden ratio is not necessarily
+       within the interval [1.5, 2], as it is computed based on a random position. In addition, when comparing
+       the position with a random integer T (hand pressure), it is unclear why this is done. It is highly likely
+       that the algorithm will only execute that single condition.
+
+    References
+    ----------
+    1. Abdulhameed, S., Rashid, T.A. Child Drawing Development Optimization Algorithm Based on
+       Child’s Cognitive Development. Arab J Sci Eng 47, 1337–1351 (2022). https://doi.org/10.1007/s13369-021-05928-6
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, CDDO
     >>>
@@ -42,12 +54,8 @@ class OriginalCDDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdulhameed, S., Rashid, T.A. Child Drawing Development Optimization Algorithm Based on
-    Child’s Cognitive Development. Arab J Sci Eng 47, 1337–1351 (2022). https://doi.org/10.1007/s13369-021-05928-6
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pattern_size=10,
                  creativity_rate=0.1, **kwargs: object) -> None:
         """
