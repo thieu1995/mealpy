@@ -11,8 +11,17 @@ class OriginalSOS(Optimizer):
     """
     The original version: Symbiotic Organisms Search (SOS)
 
-    Links:
-        1. https://doi.org/10.1016/j.compstruc.2014.03.007
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Cheng, M. Y., & Prayogo, D. (2014). Symbiotic organisms search: a new metaheuristic
+       optimization algorithm. Computers & Structures, 139, 98-112. https://doi.org/10.1016/j.compstruc.2014.03.007
 
     Examples
     ~~~~~~~~
@@ -32,11 +41,6 @@ class OriginalSOS(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Cheng, M. Y., & Prayogo, D. (2014). Symbiotic organisms search: a new metaheuristic
-    optimization algorithm. Computers & Structures, 139, 98-112.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):

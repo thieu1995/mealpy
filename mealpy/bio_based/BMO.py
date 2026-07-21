@@ -12,11 +12,20 @@ class OriginalBMO(Optimizer):
     """
     The original version: Barnacles Mating Optimizer (BMO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/document/8441097
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pl : int
+        Barnacle's threshold, in range [1, pop_size - 1]. Default is 5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pl (int): [1, pop_size - 1], barnacle’s threshold
+    References
+    ~~~~~~~~~~
+    1. Wang, G.G., Deb, S. and Coelho, L.D.S., 2018. Earthworm optimisation algorithm: a bio-inspired
+       metaheuristic algorithm for global optimisation problems. International journal of
+       bio-inspired computation, 12(1), pp.1-22. https://doi.org/10.1109/SNPD.2018.8441097
 
     Examples
     ~~~~~~~~
@@ -36,11 +45,6 @@ class OriginalBMO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, G.G., Deb, S. and Coelho, L.D.S., 2018. Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm
-    for global optimisation problems. International journal of bio-inspired computation, 12(1), pp.1-22.
     """
 
     def __init__(self, epoch=10000, pop_size=100, pl=5, **kwargs):

@@ -12,11 +12,30 @@ class OriginalEAO(Optimizer):
     """
     The original version of: Enzyme Action Optimizer (EAO)
 
-    Notes:
-        + This algorithm used 3 fitness calculations for each update enzyme. Therefor, it is slower 3 times than other algorithms.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    ec : float
+        Enzyme Concentration, in range [0.0, 100.0]. Default is 0.1.
 
-    Links:
-        1. https://mathworks.com/matlabcentral/fileexchange/170296-enzyme-action-optimizer-a-novel-bio-inspired-optimization
+    Note
+    ----
+    This algorithm used 3 fitness calculations for each update enzyme.
+    Therefor, it is slower 3 times than other algorithms.
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s11227-025-07052-w
+    2. https://mathworks.com/matlabcentral/fileexchange/170296-enzyme-action-optimizer-a-novel-bio-inspired-optimization
+
+    References
+    ~~~~~~~~~~
+    1. Rodan, A., Al-Tamimi, A. K., Al-Alnemer, L., Mirjalili, S., & Tiňo, P. (2025).
+       Enzyme action optimizer: a novel bio-inspired optimization algorithm.
+       The Journal of Supercomputing, 81(5), 686.
 
     Examples
     ~~~~~~~~
@@ -36,22 +55,9 @@ class OriginalEAO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rodan, A., Al-Tamimi, A. K., Al-Alnemer, L., Mirjalili, S., & Tiňo, P. (2025).
-    Enzyme action optimizer: a novel bio-inspired optimization algorithm. The Journal of Supercomputing, 81(5), 686.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, ec: float = 0.1, **kwargs: object) -> None:
-        """
-        Initialize the algorithm components.
-
-        Args:
-            epoch: Maximum number of iterations, default = 10000
-            pop_size: Number of population size, default = 100
-            ec: Enzyme Concentration, default=0.1
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

@@ -11,13 +11,24 @@ class OriginalAAA(Optimizer):
     """
     The original version of: Artificial Algae Algorithm (AAA)
 
-    Links:
-        1. https://doi.org/10.1016/j.asoc.2015.03.003
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+    s_force : float
+        Shear force parameter (delta, in the paper), in range (-1000.0, 1000.0). Default is 2.0.
+    e_loss : float
+        Energy loss parameter, in range (0.0, 1.0). Default is 0.3.
+    ap : float
+        Adaptation parameter (Ap in the paper), in range (0.0, 1.0). Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + s_force (float): (-1000., 1000.0), shear force parameter (delta, in the paper); used as 2 in the paper's experiments
-        + e_loss (float): (0, 1.0), energy loss parameter (e in the paper); used as 0.3 in the paper's experiments
-        + ap (float): (0, 1.0), adaptation parameter (Ap in the paper); used as 0.5 (benchmarks) or 1 (design problem)
+    References
+    ~~~~~~~~~~
+    1. Uymaz, S. A., Tezel, G., and Yel, E. (2015).
+       Artificial algae algorithm (AAA) for nonlinear global optimization.
+       Applied Soft Computing, 31, 153-171. https://doi.org/10.1016/j.asoc.2015.03.003
 
     Examples
     ~~~~~~~~
@@ -37,11 +48,6 @@ class OriginalAAA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Uymaz, S. A., Tezel, G., and Yel, E. (2015). Artificial algae algorithm (AAA) for nonlinear global optimization.
-    Applied Soft Computing, 31, 153-171.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 50, s_force: float = 2.0,

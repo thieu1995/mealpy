@@ -10,18 +10,22 @@ from mealpy.optimizer import Optimizer
 
 class DevSOA(Optimizer):
     """
-    The developed version: Seagull Optimization Algorithm (SOA)
+    Our developed version: Seagull Optimization Algorithm (SOA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0950705118305768
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int, optional
+        Number of population size, in range [5, 10000]. Default is 100.
+    fc : float, optional
+        Frequency of employing variable A (A linear decreased from fc to 0), in range [1.0, 10.0]. Default is 2.
 
-    Notes:
-        1. The original one will not work because their operators always make the solution out of bound.
-        2. I added the normal random number in Eq. 14 to make its work
-        3. Besides, I will check keep the better one and remove the worst
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fc (float): [1.0, 10.0] -> better [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
+    Notes
+    -----
+    1. The original one will not work because their operators always make the solution out of bound.
+    2. I added the normal random number in Eq. 14 to make its work
+    3. Besides, I will check keep the better one and remove the worst
 
     Examples
     ~~~~~~~~
@@ -87,11 +91,20 @@ class OriginalSOA(Optimizer):
     """
     The original version: Seagull Optimization Algorithm (SOA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0950705118305768
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int, optional
+        Number of population size, in range [5, 10000]. Default is 100.
+    fc : float, optional
+        Frequency of employing variable A (A linear decreased from fc to 0), in range [1.0, 10.0]. Default is 2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fc (float): [1.0, 10.0] -> better [1, 5], freequency of employing variable A (A linear decreased from fc to 0), default = 2
+    References
+    ~~~~~~~~~~
+    1. Dhiman, G., & Kumar, V. (2019). Seagull optimization algorithm: Theory and its applications
+       for large-scale industrial engineering problems. Knowledge-based systems, 165, 169-196.
+       https://doi.org/10.1016/j.knosys.2018.11.024
 
     Examples
     ~~~~~~~~
@@ -111,11 +124,6 @@ class OriginalSOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Dhiman, G., & Kumar, V. (2019). Seagull optimization algorithm: Theory and its applications
-    for large-scale industrial engineering problems. Knowledge-based systems, 165, 169-196.
     """
 
     def __init__(self, epoch=10000, pop_size=100, fc=2, **kwargs):

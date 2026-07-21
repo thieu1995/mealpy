@@ -12,15 +12,26 @@ class DevVCS(Optimizer):
     """
     The developed version: Virus Colony Search (VCS)
 
-    Links:
-        1. https://doi.org/10.1016/j.advengsoft.2015.11.004
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int, optional
+        Number of population size, in range [5, 10000]. Default is 100.
+    lamda : float, optional
+        Percentage of the number of the best will keep, in range (0.0, 1.0). Default is 0.5.
+    sigma : float, optional
+        Weight factor, in range (0.0, 5.0). Default is 1.5.
 
-    Notes:
-        + In Immune response process, updates the whole position instead of updating each variable in position
+    Note
+    ----
+    In Immune response process, updates the whole position instead of updating each variable in position
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): (0, 1.0) -> better [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + sigma (float): (0, 5.0) -> better [0.1, 2.0], Weight factor
+    References
+    ~~~~~~~~~~
+    1. Li, M.D., Zhao, H., Weng, X.W. and Han, T., 2016. A novel nature-inspired algorithm
+       for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
+       https://doi.org/10.1016/j.advengsoft.2015.11.004
 
     Examples
     ~~~~~~~~
@@ -141,12 +152,22 @@ class OriginalVCS(DevVCS):
     """
     The original version of: Virus Colony Search (VCS)
 
-    Links:
-        1. https://doi.org/10.1016/j.advengsoft.2015.11.004
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int, optional
+        Number of population size, in range [5, 10000]. Default is 100.
+    lamda : float, optional
+        Percentage of the number of the best will keep, in range (0.0, 1.0). Default is 0.5.
+    sigma : float, optional
+        Weight factor, in range (0.0, 5.0). Default is 1.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): (0, 1.0) -> better [0.2, 0.5], Percentage of the number of the best will keep, default = 0.5
-        + sigma (float): (0, 5.0) -> better [0.1, 2.0], Weight factor
+    References
+    ~~~~~~~~~~
+    1. Li, M.D., Zhao, H., Weng, X.W. and Han, T., 2016. A novel nature-inspired algorithm
+       for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
+       https://doi.org/10.1016/j.advengsoft.2015.11.004
 
     Examples
     ~~~~~~~~
@@ -166,11 +187,6 @@ class OriginalVCS(DevVCS):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Li, M.D., Zhao, H., Weng, X.W. and Han, T., 2016. A novel nature-inspired algorithm
-    for optimization: Virus colony search. Advances in Engineering Software, 92, pp.65-88.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, lamda: float = 0.5, sigma: float = 1.5, **kwargs: object) -> None:

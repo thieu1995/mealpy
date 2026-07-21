@@ -12,19 +12,33 @@ class OriginalIWO(Optimizer):
     """
     The original version of: Invasive Weed Optimization (IWO)
 
-    Links:
-        1. https://pdfs.semanticscholar.org/734c/66e3757620d3d4016410057ee92f72a9853d.pdf
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    seed_min : int
+        Number of Seeds (min), in range [1, 3]. Default is 2.
+    seed_max : int
+        Number of seeds (max), in range [4, int(pop_size/2)]. Default is 10.
+    exponent : int
+        Variance Reduction Exponent, in range [2, 4]. Default is 2.
+    sigma_start : float
+        The initial value of standard deviation, in range [0.5, 5.0]. Default is 1.0.
+    sigma_end : float
+        The final value of standard deviation, in range (0.0, 0.5). Default is 0.01.
 
-    Notes:
-        Better to use normal distribution instead of uniform distribution,
-        updating population by sorting both parent population and child population
+    Notes
+    -----
+    Better to use normal distribution instead of uniform distribution, updating population by sorting
+    both parent population and child population
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + seed_min (int): [1, 3], Number of Seeds (min)
-        + seed_max (int): [4, pop_size/2], Number of Seeds (max)
-        + exponent (int): [2, 4], Variance Reduction Exponent
-        + sigma_start (float): [0.5, 5.0], The initial value of Standard Deviation
-        + sigma_end (float): (0, 0.5), The final value of Standard Deviation
+    References
+    ~~~~~~~~~~
+    1. Mehrabian, A.R. and Lucas, C., 2006.
+       A novel numerical optimization algorithm inspired from weed colonization.
+       Ecological informatics, 1(4), pp.355-366. https://doi.org/10.1016/j.ecoinf.2006.07.003
 
     Examples
     ~~~~~~~~
@@ -44,25 +58,10 @@ class OriginalIWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mehrabian, A.R. and Lucas, C., 2006. A novel numerical optimization algorithm inspired from weed colonization.
-    Ecological informatics, 1(4), pp.355-366.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, seed_min: int = 2, seed_max: int = 10,
                  exponent: int = 2, sigma_start: float = 1.0, sigma_end: float = 0.01, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            seed_min (int): Number of Seeds (min)
-            seed_max (int): Number of seeds (max)
-            exponent (int): Variance Reduction Exponent
-            sigma_start (float): The initial value of standard deviation
-            sigma_end (float): The final value of standard deviation
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

@@ -10,23 +10,42 @@ from mealpy.optimizer import Optimizer
 
 class OriginalEOA(Optimizer):
     """
-    The developed version: Earthworm Optimisation Algorithm (EOA)
+    Our developed version: Earthworm Optimisation Algorithm (EOA)
 
-    Links:
-        1. http://doi.org/10.1504/IJBIC.2015.10004283
-        2. https://www.mathworks.com/matlabcentral/fileexchange/53479-earthworm-optimization-algorithm-ewa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    p_c : float
+        Crossover probability, in range (0.0, 1.0). Default is 0.9.
+    p_m : float
+        Initial mutation probability, in range (0.0, 1.0). Default is 0.01.
+    n_best : int
+        How many of the best earthworm to keep from one generation to the next, in range [2, int(pop_size / 2)]. Default is 2.
+    alpha : float
+        Similarity factor, in range (0.0, 1.0). Default is 0.98.
+    beta : float
+        The initial proportional factor, in range (0.0, 1.0). Default is 0.9.
+    gama : float
+        A constant that is similar to cooling factor of a cooling schedule in the simulated annealing, in range (0.0, 1.0). Default is 0.9.
 
-    Notes:
-        The original version from matlab code above will not work well, even with small dimensions.
-        I change updating process, change cauchy process using x_mean, use global best solution
+    Note
+    ----
+    The original version from matlab code above will not work well, even with small dimensions.
+    I change updating process, change cauchy process using x_mean, use global best solution
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_c (float): (0, 1) -> better [0.5, 0.95], crossover probability
-        + p_m (float): (0, 1) -> better [0.01, 0.2], initial mutation probability
-        + n_best (int): (2, pop_size/2) -> better [2, 5], how many of the best earthworm to keep from one generation to the next
-        + alpha (float): (0, 1) -> better [0.8, 0.99], similarity factor
-        + beta (float): (0, 1) -> better [0.8, 1.0], the initial proportional factor
-        + gama (float): (0, 1) -> better [0.8, 0.99], a constant that is similar to cooling factor of a cooling schedule in the simulated annealing.
+    Links
+    -----
+    1. http://doi.org/10.1504/IJBIC.2015.10004283
+    2. https://www.mathworks.com/matlabcentral/fileexchange/53479-earthworm-optimization-algorithm-ewa
+
+    References
+    ~~~~~~~~~~
+    1. Wang, G.G., Deb, S. and Coelho, L.D.S., 2018.
+       Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm for global optimisation problems.
+       International journal of bio-inspired computation, 12(1), pp.1-22.
 
     Examples
     ~~~~~~~~
@@ -46,11 +65,6 @@ class OriginalEOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, G.G., Deb, S. and Coelho, L.D.S., 2018. Earthworm optimisation algorithm: a bio-inspired metaheuristic algorithm
-    for global optimisation problems. International journal of bio-inspired computation, 12(1), pp.1-22.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_c: float = 0.9, p_m: float = 0.01, n_best: int = 2,

@@ -10,14 +10,21 @@ from mealpy.optimizer import Optimizer
 
 class DevSMA(Optimizer):
     """
-    The developed version: Slime Mould Algorithm (SMA)
+    Our developed version: Slime Mould Algorithm (SMA)
 
-    Notes:
-        + Selected 2 unique and random solution to create new solution (not to create variable)
-        + Check bound and compare old position with new position to get the best one
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    p_t : float
+        Probability threshold (z in the paper), in range (0.0, 1.0). Default is 0.03.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_t (float): (0, 1.0) -> better [0.01, 0.1], probability threshold (z in the paper)
+    Note
+    ----
+    + Selected 2 unique and random solution to create new solution (not to create variable)
+    + Check bound and compare old position with new position to get the best one
 
     Examples
     ~~~~~~~~
@@ -40,18 +47,13 @@ class DevSMA(Optimizer):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_t: float = 0.03, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            p_t (float): probability threshold (z in the paper), default = 0.03
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.p_t = self.validator.check_float("p_t", p_t, (0, 1.0))
         self.set_parameters(["epoch", "pop_size", "p_t"])
         self.sort_flag = True
+        self.weights = None
 
     def initialize_variables(self):
         self.weights = np.zeros((self.pop_size, self.problem.n_dims))
@@ -107,12 +109,24 @@ class OriginalSMA(DevSMA):
     """
     The original version of: Slime Mould Algorithm (SMA)
 
-    Links:
-        1. https://doi.org/10.1016/j.future.2020.03.055
-        2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int, optional
+        Number of population size, in range [5, 10000]. Default is 100.
+    p_t : float, optional
+        Probability threshold (z in the paper), in range (0.0, 1.0). Default is 0.03.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_t (float): (0, 1.0) -> better [0.01, 0.1], probability threshold (z in the paper)
+    Links
+    -----
+    1. https://doi.org/10.1016/j.future.2020.03.055
+    2. https://www.researchgate.net/publication/340431861_Slime_mould_algorithm_A_new_method_for_stochastic_optimization
+
+    References
+    ~~~~~~~~~~
+    1. Li, S., Chen, H., Wang, M., Heidari, A.A. and Mirjalili, S., 2020. Slime mould algorithm: A new
+       method for stochastic optimization. Future Generation Computer Systems, 111, pp.300-323.
 
     Examples
     ~~~~~~~~
@@ -132,20 +146,9 @@ class OriginalSMA(DevSMA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Li, S., Chen, H., Wang, M., Heidari, A.A. and Mirjalili, S., 2020. Slime mould algorithm: A new method for
-    stochastic optimization. Future Generation Computer Systems, 111, pp.300-323.
     """
 
     def __init__(self, epoch=10000, pop_size=100, p_t=0.03, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 1000
-            pop_size (int): number of population size, default = 100
-            p_t (float): probability threshold (z in the paper), default = 0.03
-        """
         super().__init__(epoch, pop_size, p_t, **kwargs)
 
     def evolve(self, epoch):

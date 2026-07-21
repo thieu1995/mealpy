@@ -12,12 +12,29 @@ class OriginalBCO(Optimizer):
     """
     The original version of: Bacterial Colony Optimization (BCO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/abstract/document/4475427
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_min : float
+        Minimum chemotaxis step size, in range (0.0, 1.0). Default is 0.01.
+    c_max : float
+        Maximum chemotaxis step size, in range (c_min, 10.0). Default is 0.2.
+    n_chemotaxis : int
+        Nonlinear parameter for chemotaxis step, in range (1, 5). Default is 1.
+    max_swim_steps : int
+        Maximum swimming steps, in range (2, 10). Default is 4.
+    energy_threshold : float
+        Energy threshold for reproduction/elimination, in range (0.0, 1.0). Default is 0.5.
+    migration_prob : float
+        Migration probability, in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_m (float): (0, 1) -> better [0.01, 0.2], Mutation probability
-        + n_elites (int): (2, pop_size/2) -> better [2, 5], Number of elites will be keep for next generation
+    References
+    ~~~~~~~~~~
+    1. Niu, B., & Wang, H. (2012). Bacterial colony optimization.
+       Discrete dynamics in nature and society, 2012(1), 698057. https://doi.org/10.1155/2012/698057
 
     Examples
     ~~~~~~~~
@@ -37,28 +54,11 @@ class OriginalBCO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Niu, B., & Wang, H. (2012). Bacterial colony optimization. Discrete dynamics in nature and society, 2012(1), 698057.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_min: float = 0.01, c_max: float = 0.2,
                  n_chemotaxis: int = 1, max_swim_steps: int = 4, energy_threshold: float = 0.5,
                  migration_prob: float = 0.1, **kwargs: object) -> None:
-        """
-        Initialize the algorithm components.
-
-        Args:
-            epoch: Maximum number of iterations, default = 10000
-            pop_size: Number of population size, default = 100
-            c_min: Minimum chemotaxis step size
-            c_max: Maximum chemotaxis step size
-            n_chemotaxis: Nonlinear parameter for chemotaxis step
-            max_swim_steps: Maximum swimming steps
-            energy_threshold: Energy threshold for reproduction/elimination
-            migration_prob: Migration probability
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

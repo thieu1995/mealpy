@@ -11,11 +11,14 @@ class OriginalTSeedA(Optimizer):
     """
     The original version: Tree-Seed Algorithm (TSeedA)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size (number of trees), default = 100
-    + st (float): Search tendency parameter in range (0, 1), default = 0.1
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations. Default is 10000.
+    pop_size : int, optional
+        Population size (number of trees). Default is 100.
+    st : float, optional
+        Search tendency parameter, in range (0.0, 1.0). Default is 0.1.
 
     Danger
     ------
@@ -34,7 +37,7 @@ class OriginalTSeedA(Optimizer):
     References
     ----------
     1. Kiran, M. S. (2015). TSA: Tree-seed algorithm for continuous optimization.
-       Expert Systems with Applications, 42(19), 6686-6698. DOI: 10.1016/j.eswa.2015.04.055
+       Expert Systems with Applications, 42(19), 6686-6698. https://doi.org/10.1016/j.eswa.2015.04.055
 
     Examples
     --------

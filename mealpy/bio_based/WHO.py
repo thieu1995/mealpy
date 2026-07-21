@@ -12,20 +12,34 @@ class OriginalWHO(Optimizer):
     """
     The original version of: Wildebeest Herd Optimization (WHO)
 
-    Links:
-        1. https://doi.org/10.3233/JIFS-190495
+    Parameters
+    ----------
+    n_explore_step : int
+        Number of exploration step, in range [2, 10].
+    n_exploit_step : int
+        Number of exploitation step, in range [2, 10].
+    eta : float
+        Learning rate, in range (0.0, 1.0).
+    p_hi : float
+        The probability of wildebeest move to another position based on herd instinct, in range (0.0, 1.0).
+    local_alpha : float
+        Control local movement (alpha 1), in range (0.0, 3.0).
+    local_beta : float
+        Control local movement (beta 1), in range (0.0, 3.0).
+    global_alpha : float
+        Control global movement (alpha 2), in range (0.0, 3.0).
+    global_beta : float
+        Control global movement (beta 2), in range (0.0, 3.0).
+    delta_w : float
+        Dist to worst, in range (0.5, 5.0).
+    delta_c : float
+        Dist to best, in range (0.5, 5.0).
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_explore_step (int): [2, 10] -> better [2, 4], number of exploration step
-        + n_exploit_step (int): [2, 10] -> better [2, 4], number of exploitation step
-        + eta (float): (0, 1.0) -> better [0.05, 0.5], learning rate
-        + p_hi (float): (0, 1.0) -> better [0.7, 0.95], the probability of wildebeest move to another position based on herd instinct
-        + local_alpha (float): (0, 3.0) -> better [0.5, 0.9], control local movement (alpha 1)
-        + local_beta (float): (0, 3.0) -> better [0.1, 0.5], control local movement (beta 1)
-        + global_alpha (float): (0, 3.0) -> better [0.1, 0.5], control global movement (alpha 2)
-        + global_beta (float): (0, 3.0), control global movement (beta 2)
-        + delta_w (float): (0.5, 5.0) -> better [1.0, 2.0], dist to worst
-        + delta_c (float): (0.5, 5.0) -> better [1.0, 2.0], dist to best
+    References
+    ~~~~~~~~~~
+    1. Amali, D. and Dinakaran, M., 2019. Wildebeest herd optimization: a new global optimization algorithm
+       inspired by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, 37(6), pp.8063-8076.
+       https://doi.org/10.3233/JIFS-190495
 
     Examples
     ~~~~~~~~
@@ -46,11 +60,6 @@ class OriginalWHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Amali, D. and Dinakaran, M., 2019. Wildebeest herd optimization: a new global optimization algorithm inspired
-    by wildebeest herding behaviour. Journal of Intelligent & Fuzzy Systems, 37(6), pp.8063-8076.
     """
 
     def __init__(self, epoch=10000, pop_size=100, n_explore_step=3, n_exploit_step=3, eta=0.15, p_hi=0.9,

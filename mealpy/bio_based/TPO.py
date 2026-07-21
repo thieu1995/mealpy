@@ -12,20 +12,35 @@ class DevTPO(Optimizer):
     """
     The original version: Tree Physiology Optimization (TPO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/63982-tree-physiology-optimization-tpo-algorithm-for-stochastic-test-function-optimization
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    alpha : float
+        Absorption constant for tree root elongation, in range [-10.0, 10.0]. Default is 0.3.
+    beta : float
+        Diversification factor of tree shoot, in range [-100.0, 100.0]. Default is 50.0.
+    theta : float
+        Factor to reduce randomization, Theta = Power law to reduce randomization as iteration increases, in range (0.0, 1.0). Default is 0.9.
 
-    Notes:
-        1. The paper is difficult to read and understand, and the provided MATLAB code is also challenging to understand.
-        2. Based on my idea:
-            + pop_size = number of branhes, the population size should be equal to the number of branches.
-            + The number of leaves should be calculated as int(sqrt(pop_size) + 1), so we don't need to specify the n_leafs parameter, which will also reduce computation time.
-            + When using this algorithm, especially when setting stopping conditions, be careful and set it to the FE type.
+    Note
+    ----
+    1. The paper is difficult to read and understand, and the provided MATLAB code is also challenging to understand.
+    2. Based on my idea:
+        + pop_size = number of branhes, the population size should be equal to the number of branches.
+        + The number of leaves should be calculated as int(sqrt(pop_size) + 1), so we don't need to specify the n_leafs parameter, which will also reduce computation time.
+        + When using this algorithm, especially when setting stopping conditions, be careful and set it to the FE type.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [-10, 10.] -> better [0.2, 0.5], Absorption constant for tree root elongation, default = 0.5
-        + beta (float): [-100, 100.] -> better [10, 50], Diversification facor of tree shoot, default=50.
-        + theta (float): (0, 1.0] -> better [0.5, 0.9], Factor to reduce randomization, Theta = Power law to reduce randomization as iteration increases, default=0.9
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/63982-tree-physiology-optimization-tpo-algorithm-for-stochastic-test-function-optimization
+
+    References
+    ~~~~~~~~~~
+    1. Halim, A. H., & Ismail, I. (2017). Tree physiology optimization in benchmark function and
+       traveling salesman problem. Journal of Intelligent Systems, 28(5), 849-871.
 
     Examples
     ~~~~~~~~
@@ -45,11 +60,6 @@ class DevTPO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Halim, A. H., & Ismail, I. (2017). Tree physiology optimization in benchmark function and
-    traveling salesman problem. Journal of Intelligent Systems, 28(5), 849-871.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.3, beta: float = 50.0, theta: float = 0.9, **kwargs: object) -> None:

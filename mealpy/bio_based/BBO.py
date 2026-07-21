@@ -12,12 +12,21 @@ class OriginalBBO(Optimizer):
     """
     The original version of: Biogeography-Based Optimization (BBO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/abstract/document/4475427
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size. Default is 100.
+    p_m : float
+        Mutation probability, in range (0.0, 1.0), better [0.01, 0.2].
+    n_elites : int
+        Number of elites will be keep for next generation, in range (2, pop_size/2), better [2, 5].
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_m (float): (0, 1) -> better [0.01, 0.2], Mutation probability
-        + n_elites (int): (2, pop_size/2) -> better [2, 5], Number of elites will be keep for next generation
+    References
+    ~~~~~~~~~~
+    1. Simon, D., 2008. Biogeography-based optimization.
+       IEEE transactions on evolutionary computation, 12(6), pp.702-713. https://doi.org/10.1109/TEVC.2008.919004
 
     Examples
     ~~~~~~~~
@@ -37,22 +46,9 @@ class OriginalBBO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Simon, D., 2008. Biogeography-based optimization. IEEE transactions on evolutionary computation, 12(6), pp.702-713.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_m: float = 0.01, n_elites: int = 2, **kwargs: object) -> None:
-        """
-        Initialize the algorithm components.
-
-        Args:
-            epoch: Maximum number of iterations, default = 10000
-            pop_size: Number of population size, default = 100
-            p_m: Mutation probability, default=0.01
-            n_elites: Number of elites will be keep for next generation, default=2
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -104,11 +100,18 @@ class OriginalBBO(Optimizer):
 
 class DevBBO(OriginalBBO):
     """
-    The developed version: Biogeography-Based Optimization (BBO)
+    Our developed version: Biogeography-Based Optimization (BBO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_m (float): (0, 1) -> better [0.01, 0.2], Mutation probability
-        + n_elites (int): (2, pop_size/2) -> better [2, 5], Number of elites will be keep for next generation
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size. Default is 100.
+    p_m : float
+        Mutation probability, in range (0.0, 1.0), better [0.01, 0.2].
+    n_elites : int
+        Number of elites will be keep for next generation, in range (2, pop_size/2), better [2, 5].
 
     Examples
     ~~~~~~~~
@@ -131,15 +134,6 @@ class DevBBO(OriginalBBO):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_m: float = 0.01, n_elites: int = 2, **kwargs: object) -> None:
-        """
-        Initialize the algorithm components.
-
-        Args:
-            epoch: Maximum number of iterations, default = 10000
-            pop_size: Number of population size, default = 100
-            p_m: Mutation probability, default=0.01
-            n_elites: Number of elites will be keep for next generation, default=2
-        """
         super().__init__(epoch, pop_size, p_m, n_elites, **kwargs)
 
     def evolve(self, epoch: int) -> None:

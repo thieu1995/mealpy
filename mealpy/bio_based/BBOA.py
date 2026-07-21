@@ -12,8 +12,22 @@ class OriginalBBOA(Optimizer):
     """
     The original version of: Brown-Bear Optimization Algorithm (BBOA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/125490-brown-bear-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size. Default is 100.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/125490-brown-bear-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Prakash, T., Singh, P. P., Singh, V. P., & Singh, S. N. (2023).
+       A Novel Brown-bear Optimization Algorithm for Solving Economic Dispatch Problem.
+       In Advanced Control & Optimization Paradigms for Energy System Operation and Management (pp. 137-164). River Publishers.
 
     Examples
     ~~~~~~~~
@@ -33,20 +47,9 @@ class OriginalBBOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Prakash, T., Singh, P. P., Singh, V. P., & Singh, S. N. (2023). A Novel Brown-bear Optimization
-    Algorithm for Solving Economic Dispatch Problem. In Advanced Control & Optimization Paradigms for
-    Energy System Operation and Management (pp. 137-164). River Publishers.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

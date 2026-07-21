@@ -10,19 +10,32 @@ from mealpy.optimizer import Optimizer
 
 class DevSBO(Optimizer):
     """
-    The developed version: Satin Bowerbird Optimizer (SBO)
+    Our developed version: Satin Bowerbird Optimizer (SBO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2017.01.006
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    alpha : float
+        The greatest step size, in range [0.5, 3.0]. Default is 0.94.
+    p_m : float
+        Mutation probability, in range (0.0, 1.0). Default is 0.05.
+    psw : float
+        Proportion of space width (z in the paper), in range (0.0, 1.0). Default is 0.02.
 
-    Notes:
-        The original version can't handle negative fitness value.
-        I remove all third loop for faster training, remove equation (1, 2) in the paper, calculate probability by roulette-wheel.
+    Note
+    ----
+    The original version can't handle negative fitness value. I remove all third loop for faster training,
+    remove equation (1, 2) in the paper, calculate probability by roulette-wheel.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [0.5, 3.0] -> better [0.5, 2.0], the greatest step size
-        + p_m (float): (0, 1.0) -> better [0.01, 0.2], mutation probability
-        + psw (float): (0, 1.0) -> better [0.01, 0.1], proportion of space width (z in the paper)
+    References
+    ~~~~~~~~~~
+    1. Moosavi, Seyyed Hamid Samareh, and Vahid Khatibi Bardsiri. "Satin bowerbird optimizer: A new
+       optimization algorithm to optimize ANFIS for software development effort estimation."
+       Engineering Applications of Artificial Intelligence 60 (2017): 1-15.
+       https://doi.org/10.1016/j.engappai.2017.01.006
 
     Examples
     ~~~~~~~~
@@ -100,14 +113,29 @@ class OriginalSBO(DevSBO):
     """
     The original version of: Satin Bowerbird Optimizer (SBO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2017.01.006
-        2. https://www.mathworks.com/matlabcentral/fileexchange/62009-satin-bowerbird-optimizer-sbo-2017
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    alpha : float
+        The greatest step size. Default is 0.94.
+    p_m : float
+        Mutation probability. Default is 0.05.
+    psw : float
+        Proportion of space width (z in the paper). Default is 0.02.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [0.5, 3.0] -> better [0.5, 0.99], the greatest step size
-        + p_m (float): (0, 1.0) -> better [0.01, 0.2], mutation probability
-        + psw (float): (0, 1.0) -> better [0.01, 0.1], proportion of space width (z in the paper)
+    Links
+    -----
+    1. https://doi.org/10.1016/j.engappai.2017.01.006
+    2. https://www.mathworks.com/matlabcentral/fileexchange/62009-satin-bowerbird-optimizer-sbo-2017
+
+    References
+    ~~~~~~~~~~
+    1. Moosavi, S.H.S. and Bardsiri, V.K., 2017. Satin bowerbird optimizer: A new optimization
+       algorithm to optimize ANFIS for software development effort estimation.
+       Engineering Applications of Artificial Intelligence, 60, pp.1-15.
 
     Examples
     ~~~~~~~~
@@ -127,11 +155,6 @@ class OriginalSBO(DevSBO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Moosavi, S.H.S. and Bardsiri, V.K., 2017. Satin bowerbird optimizer: A new optimization algorithm
-    to optimize ANFIS for software development effort estimation. Engineering Applications of Artificial Intelligence, 60, pp.1-15.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.94, p_m: float = 0.05, psw: float = 0.02, **kwargs: object) -> None:
@@ -158,7 +181,7 @@ class OriginalSBO(DevSBO):
         r = self.generator.uniform()
         c = np.cumsum(fitness_list)
         f = np.where(r < c)[0][0]
-        return f
+        return int(f)
 
     def evolve(self, epoch):
         """

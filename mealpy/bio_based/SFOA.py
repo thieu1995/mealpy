@@ -12,19 +12,33 @@ class OriginalSFOA(Optimizer):
     """
     The original version: Starfish Optimization Algorithm (SFOA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/173735-starfish-optimization-algorithm-sfoa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    gp : float
+        The exploration of starfish, in range [0.0, 1.0]. Default is 0.5.
 
-    Notes:
-        This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
-        However, it does not present any remarkable equations. Moreover, the provided MATLAB code does not
-        include the standard CEC benchmark functions, but only simplified versions of them.
-        Users should carefully consider this when validating the algorithm.
-        Many new algorithms claim to be superior to other state-of-the-art methods,
-        but it is evident that their implementations are often incorrect.
+    Links
+    -----
+    1. https://doi.org/10.1007/s00521-024-10694-1
+    2. https://www.mathworks.com/matlabcentral/fileexchange/173735-starfish-optimization-algorithm-sfoa
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + gp (float): [0., 1] -> better [0.5, 0.7], the probablity for exploration
+    Notes
+    -----
+    This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
+    However, it does not present any remarkable equations. Moreover, the provided MATLAB code does not
+    include the standard CEC benchmark functions, but only simplified versions of them.
+    Users should carefully consider this when validating the algorithm. Many new algorithms claim to
+    be superior to other state-of-the-art methods, but it is evident that their implementations are often incorrect.
+
+    References
+    ~~~~~~~~~~
+    1. Zhong, C., Li, G., Meng, Z., Li, H., Yildiz, A. R., & Mirjalili, S. (2025).
+       Starfish optimization algorithm (SFOA): a bio-inspired metaheuristic algorithm for global
+       optimization compared with 100 optimizers. Neural Computing and Applications, 37(5), 3641-3683.
 
     Examples
     ~~~~~~~~
@@ -44,10 +58,6 @@ class OriginalSFOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    [1] Zhong, C., Li, G., Meng, Z., Li, H., Yildiz, A. R., & Mirjalili, S. (2025).
-    Starfish optimization algorithm (SFOA): a bio-inspired metaheuristic algorithm for global
-    optimization compared with 100 optimizers. Neural Computing and Applications, 37(5), 3641-3683.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, gp: float = 0.5, **kwargs: object) -> None:

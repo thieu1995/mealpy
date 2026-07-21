@@ -12,15 +12,30 @@ class OriginalTSA(Optimizer):
     """
     The original version: Tunicate Swarm Algorithm (TSA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0952197620300385?via%3Dihub
-        2. https://www.mathworks.com/matlabcentral/fileexchange/75182-tunicate-swarm-algorithm-tsa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
-    Notes:
-        1. This algorithm has some limitations
-        2. The paper has several wrong equations in algorithm
-        3. The implementation in Matlab code has some difference to the paper
-        4. This algorithm shares some similarities with the Barnacles Mating Optimizer (BMO)
+
+    .. attention::
+       1. This algorithm has some limitations
+       2. The paper has several wrong equations in algorithm
+       3. The implementation in Matlab code has some difference to the paper
+       4. This algorithm shares some similarities with the Barnacles Mating Optimizer (BMO)
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.engappai.2020.103541
+    2. https://www.mathworks.com/matlabcentral/fileexchange/75182-tunicate-swarm-algorithm-tsa
+
+    References
+    ~~~~~~~~~~
+    1. Kaur, S., Awasthi, L. K., Sangal, A. L., & Dhiman, G. (2020).
+       Tunicate Swarm Algorithm: A new bio-inspired based metaheuristic paradigm for global optimization.
+       Engineering Applications of Artificial Intelligence, 90, 103541.
 
     Examples
     ~~~~~~~~
@@ -40,11 +55,6 @@ class OriginalTSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kaur, S., Awasthi, L. K., Sangal, A. L., & Dhiman, G. (2020). Tunicate Swarm Algorithm: A new bio-inspired
-    based metaheuristic paradigm for global optimization. Engineering Applications of Artificial Intelligence, 90, 103541.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):

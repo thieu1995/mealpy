@@ -12,15 +12,27 @@ class OriginalAPO(Optimizer):
     """
     The original version of: Artificial Protozoa Optimizer (APO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2024.111737
-        2. https://www.mathworks.com/matlabcentral/fileexchange/162656-artificial-protozoa-optimizer
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations. Default is 10000.
+    pop_size : int, optional
+        Population size. Default is 100.
+    pf_max : float, optional
+        Proportion fraction maximum, in range (0.0, 1.0), better [0.1, 0.3].
+    n_pairs : int, optional
+        Number of neighbor pairs, in range [1, floor(pop_size/2)], better [2, 5].
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + epoch (int): Maximum number of iterations, default = 10000
-        + pop_size (int): Population size, default = 100
-        + pf_max (float): (0, 1) -> better [0.1, 0.3], proportion fraction maximum
-        + n_pairs (int): [1, floor(pop_size/2)] -> better [2, 5], Number of neighbor pairs
+    Links
+    -----
+    1. https://doi.org/10.1016/j.knosys.2024.111737
+    2. https://www.mathworks.com/matlabcentral/fileexchange/162656-artificial-protozoa-optimizer
+
+    References
+    ~~~~~~~~~~
+    1. Wang, X., Snášel, V., Mirjalili, S., Pan, J. S., Kong, L., & Shehadeh, H. A. (2024).
+       Artificial Protozoa Optimizer (APO): A novel bio-inspired metaheuristic algorithm
+       for engineering optimization. Knowledge-based systems, 295, 111737.
 
     Examples
     ~~~~~~~~
@@ -40,12 +52,6 @@ class OriginalAPO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, X., Snášel, V., Mirjalili, S., Pan, J. S., Kong, L., & Shehadeh, H. A. (2024).
-    Artificial Protozoa Optimizer (APO): A novel bio-inspired metaheuristic algorithm
-    for engineering optimization. Knowledge-based systems, 295, 111737.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pf_max: float = 0.1, n_pairs: int = 2, **kwargs: object) -> None:
