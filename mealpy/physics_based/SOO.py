@@ -12,26 +12,38 @@ class OriginalSOO(Optimizer):
     """
     The original version of: Stellar Oscillation Optimizer (SOO)
 
-    Notes:
-        + The MATLAB code in the link below by the author is completely different from the pseudocode in
-        the original paper. I don’t understand how the author could write such an incorrect implementation
-        and still obtain good results. There are only two possibilities: either the author fabricated the
-        results in the paper, or the paper itself is fundamentally flawed.
+    Hyperparameters
+    ---------------
+    + epoch (int): Maximum number of iterations, default = 10000
+    + pop_size (int): Population size (number of trees), default = 100
 
-        + For example, you can see equation number 8 — it involves taking the average of two new positions.
-        However, in the code, it is incorrectly implemented as position 1 plus half of position 2.
-        Even more concerning is that the pseudocode in the paper is completely different from the actual code.
-        The MATLAB coding quality is really poor. In the pseudocode, it states that the fitness should be
-        calculated and the global best as well as the top 3 best should be updated — yet this is entirely missing in the code.
+    Danger
+    ------
+    1. The MATLAB code in the link below by the author is completely different from the pseudocode in
+       the original paper. I don’t understand how the first author could write such an incorrect
+       implementation and still obtain good results. There are only two possibilities: either the author
+       fabricated the results in the paper, or the paper itself is fundamentally flawed.
+    2. For example, you can see equation number 8 — it involves taking the average of two new positions.
+       However, in the code, it is incorrectly implemented as position 1 plus half of position 2.
+       Even more concerning is that the pseudocode in the paper is completely different from the actual code.
+       The MATLAB coding quality is really poor. In the pseudocode, it states that the fitness
+       should be calculated and the global best as well as the top 3 best should be updated,
+       yet this is entirely missing in the code.
+    3. Therefore, I do not recommend users to use this algorithm, as it lacks integrity between
+       the results in the paper and the actual experimental implementation.
 
-        + Therefore, I do not recommend users to use this algorithm, as it lacks integrity between the
-        results in the paper and the actual experimental implementation.
+    Links
+    -----
+    1. https://mathworks.com/matlabcentral/fileexchange/161921-stellar-oscillation-optimizer-meta-heuristic-optimimization
+    2. https://doi.org/10.1007/s10586-024-04976-5
 
-    Links:
-        1. https://mathworks.com/matlabcentral/fileexchange/161921-stellar-oscillation-optimizer-meta-heuristic-optimimization
+    References
+    ----------
+    1. Rodan, A., Al-Tamimi, A. K., Al-Alnemer, L., & Mirjalili, S. (2025). Stellar oscillation
+       optimizer: a nature-inspired metaheuristic optimization algorithm. Cluster Computing, 28(6), 362.
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, SOO
     >>>
@@ -48,11 +60,6 @@ class OriginalSOO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rodan, A., Al-Tamimi, A. K., Al-Alnemer, L., & Mirjalili, S. (2025).
-    Stellar oscillation optimizer: a nature-inspired metaheuristic optimization algorithm. Cluster Computing, 28(6), 362.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
