@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# Created by "Ahmet Tunahan Yalcin" at 21:45, 28/02/2026
+# Created by "Ahmet Tunahan Yalcin" on 28/02/2026
 # Email: ytunahan7878@gmail.com
 # Github: https://github.com/tunayalc
-# -----------------------------------------------------%
+# ----------------------------------------------%
 
 from mealpy.optimizer import Optimizer
 
@@ -17,8 +17,8 @@ class OriginalTSeedA(Optimizer):
     + pop_size (int): Population size (number of trees), default = 100
     + st (float): Search tendency parameter in range (0, 1), default = 0.1
 
-    Warnings
-    --------
+    Danger
+    ------
     1. Lack of Mathematical Novelty: The search equations (Eq. 3 and Eq. 4)
        are functionally equivalent to basic difference-based mutation operators
        found in classical Differential Evolution (DE) and Particle Swarm Optimization (PSO).
@@ -33,8 +33,8 @@ class OriginalTSeedA(Optimizer):
 
     References
     ----------
-    .. [1] Kiran, M. S. (2015). TSA: Tree-seed algorithm for continuous optimization.
-    Expert Systems with Applications, 42(19), 6686-6698. DOI: 10.1016/j.eswa.2015.04.055
+    1. Kiran, M. S. (2015). TSA: Tree-seed algorithm for continuous optimization.
+       Expert Systems with Applications, 42(19), 6686-6698. DOI: 10.1016/j.eswa.2015.04.055
 
     Examples
     --------
