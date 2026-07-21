@@ -6,29 +6,33 @@
 # Updated By: Thieu on 11/07/2026
 # Github: https://github.com/thieu1995
 # -------------------------------------------------------------------------------
+
 """
 Provides context and a disclaimer regarding the 'Narwhal Optimization Algorithm'.
 
-    There are two distinct papers proposing algorithms under the same name.
-    Both have been published in journals with low academic impact; therefore,
-    the mathematical soundness and experimental results are highly questionable.
-    Users are strongly advised to exercise extreme caution and perform rigorous
-    validation before applying these to critical optimization tasks.
+.. danger::
+   There are two distinct papers proposing algorithms under the same name.
+   Both have been published in journals with low academic impact; therefore,
+   the mathematical soundness and experimental results are highly questionable.
+   Users are strongly advised to exercise extreme caution and perform rigorous
+   validation before applying these to critical optimization tasks.
 
-    The two identified versions are:
-    1. 'Narwhal Optimizer: A Novel Nature-Inspired Metaheuristic Algorithm' (May 2024)
-       - Acronym: NO
-       - Note: Lacks significant or novel update operators.
-       - DOI: https://doi.org/10.34028/iajit/21/3/6
-    2. 'Narwhal Optimizer: A Nature-Inspired Optimization Algorithm for Solving
-       Complex Optimization Problems' (September 2025)
-       - Acronym: NWOA
-       - Note: Performance results reported in the paper may not be replicable or statistically valid.
-       - DOI: https://doi.org/10.32604/cmc.2025.066797
+The two identified versions are:
 
-    Warning:
-    Neither implementation offers a robust contribution to the metaheuristic field.
-    It is recommended to utilize established, peer-reviewed optimization frameworks instead.
+1. 'Narwhal Optimizer: A Novel Nature-Inspired Metaheuristic Algorithm' (May 2024)
+    - Acronym: NO
+    - Note: Lacks significant or novel update operators.
+    - DOI: https://doi.org/10.34028/iajit/21/3/6
+
+2. 'Narwhal Optimizer: A Nature-Inspired Optimization Algorithm for Solving Complex Optimization Problems' (September 2025)
+    - Acronym: NWOA
+    - Note: Performance results reported in the paper may not be replicable or statistically valid.
+    - DOI: https://doi.org/10.32604/cmc.2025.066797
+
+Danger
+------
+   Neither implementation offers a robust contribution to the metaheuristic field.
+   It is recommended to utilize established, peer-reviewed optimization frameworks instead.
 """
 
 import numpy as np
@@ -39,13 +43,27 @@ class OriginalNWOA(Optimizer):
     """
     The original version of: Narwhal Optimization Algorithm (NWOA)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + amplitude (float): Wave amplitude, default = 1.0
-        + delta_decay (float): Decay constant, default = 0.01
-        + lamda_decay (float): Energy decay rate, default = 0.001
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    amplitude : float
+        Wave amplitude, in range [-100.0, 100.0]. Default is 1.0.
+    delta_decay : float
+        Decay constant, in range (0.0, 1.0). Default is 0.01.
+    lamda_decay : float
+        Energy decay rate, in range (0.0, 1.0). Default is 0.001.
+
+    References
+    ----------
+    1. Masadeh, R., Almomani, O., Zaqebah, A., Masadeh, S., Alshqurat, K., Sharieh, A., & Alsharman, N. (2025).
+       Narwhal Optimizer: A Nature-Inspired Optimization Algorithm for Solving Complex Optimization Problems.
+       Computers, Materials & Continua, 85(2). https://doi.org/10.32604/cmc.2025.066797
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, NWOA
     >>>
@@ -62,12 +80,6 @@ class OriginalNWOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Masadeh, R., Almomani, O., Zaqebah, A., Masadeh, S., Alshqurat, K., Sharieh, A., & Alsharman, N. (2025).
-        Narwhal Optimizer: A Nature-Inspired Optimization Algorithm for Solving Complex Optimization Problems.
-        Computers, Materials & Continua, 85(2). https://doi.org/10.32604/cmc.2025.066797
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, amplitude: float = 1.0, delta_decay: float = 0.01,
@@ -203,12 +215,24 @@ class OriginalNO(Optimizer):
     """
     The original version of: Narwhal Optimization (NO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): Signal intensity control factor. Default=2.0
-        + sigma0 (float): Initial standard deviation for signal propagation. Default=2.0
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    alpha : float
+        Signal intensity control factor, in range [-100.0, 100.0]. Default is 2.0.
+    sigma0 : float
+        Initial standard deviation for signal propagation, in range [-100.0, 100.0]. Default is 2.0.
+
+    References
+    ----------
+    1. Medjahed, Seyyid Ahmed, and Fatima Boukhatem. "Narwhal Optimizer: A Novel Nature-Inspired
+       Metaheuristic Algorithm". Int. Arab J. Inf. Technol. 21.3 (2024): 418-426. https://doi.org/10.34028/iajit/21/3/6
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, NWOA
     >>>
@@ -225,12 +249,6 @@ class OriginalNO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Medjahed, Seyyid Ahmed, and Fatima Boukhatem. "Narwhal Optimizer: A Novel Nature-Inspired
-    Metaheuristic Algorithm." Int. Arab J. Inf. Technol. 21.3 (2024): 418-426.
-    https://doi.org/10.34028/iajit/21/3/6
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha=2.0, sigma0=2.0, **kwargs: object) -> None:

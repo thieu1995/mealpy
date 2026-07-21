@@ -12,15 +12,28 @@ class OriginalBES(Optimizer):
     """
     The original version of: Bald Eagle Search (BES)
 
-    Links:
-        1. https://doi.org/10.1007/s10462-019-09732-5
+    Parameters
+    ----------
+    epoch : int, optional
+        Maximum number of iterations. Default is 10000.
+    pop_size : int, optional
+        Number of population size. Default is 100.
+    a_factor : int, optional
+        Determines the corner between point search in the central point, in range [5, 10]. Default is 10.
+    R_factor : float, optional
+        Determines the number of search cycles, in range [0.5, 2.0]. Default is 1.5.
+    alpha : float, optional
+        Parameter for controlling the changes in position, in range [1.5, 2.0]. Default is 2.0.
+    c1 : float, optional
+        Increases the movement intensity of bald eagles towards the best and centre points, in range [1.0, 2.0]. Default is 2.0.
+    c2 : float, optional
+        Increases the movement intensity of bald eagles towards the best and centre points. Default is 2.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + a_factor (int): default: 10, determining the corner between point search in the central point, in [5, 10]
-        + R_factor (float): default: 1.5, determining the number of search cycles, in [0.5, 2]
-        + alpha (float): default: 2, parameter for controlling the changes in position, in [1.5, 2]
-        + c1 (float): default: 2, in [1, 2]
-        + c2 (float): c1 and c2 increase the movement intensity of bald eagles towards the best and centre points
+    References
+    ~~~~~~~~~~
+    1. Alsattar, H.A., Zaidan, A.A. and Zaidan, B.B., 2020. Novel meta-heuristic bald eagle
+       search optimisation algorithm. Artificial Intelligence Review, 53(3), pp.2237-2264.
+       https://doi.org/10.1007/s10462-019-09732-5
 
     Examples
     ~~~~~~~~
@@ -40,11 +53,6 @@ class OriginalBES(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Alsattar, H.A., Zaidan, A.A. and Zaidan, B.B., 2020. Novel meta-heuristic bald eagle
-    search optimisation algorithm. Artificial Intelligence Review, 53(3), pp.2237-2264.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, a_factor: int = 10, R_factor: float = 1.5,
@@ -56,7 +64,7 @@ class OriginalBES(Optimizer):
             a_factor (int): default: 10, determining the corner between point search in the central point, in [5, 10]
             R_factor (float): default: 1.5, determining the number of search cycles, in [0.5, 2]
             alpha (float): default: 2, parameter for controlling the changes in position, in [1.5, 2]
-            c1 (float): default: 2, in [1, 2]
+            c1 (float): default: 2, in range [1, 2]
             c2 (float): c1 and c2 increase the movement intensity of bald eagles towards the best and centre points
         """
         super().__init__(**kwargs)

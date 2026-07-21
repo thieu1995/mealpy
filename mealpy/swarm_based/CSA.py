@@ -12,11 +12,20 @@ class OriginalCSA(Optimizer):
     """
     The original version of: Cuckoo Search Algorithm (CSA)
 
-    Links:
-        1. https://doi.org/10.1109/NABIC.2009.5393690
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    p_a : float
+        Good range [0.1, 0.7], probability a, default=0.3
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_a (float): [0.1, 0.7], probability a, default=0.3
+    References
+    ~~~~~~~~~~
+    1. Yang, X.S. and Deb, S., 2009, December. Cuckoo search via Lévy flights. In 2009 World
+       congress on nature & biologically inspired computing (NaBIC) (pp. 210-214). Ieee.
+       https://doi.org/10.1109/NABIC.2009.5393690
 
     Examples
     ~~~~~~~~
@@ -36,11 +45,6 @@ class OriginalCSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yang, X.S. and Deb, S., 2009, December. Cuckoo search via Lévy flights. In 2009 World
-    congress on nature & biologically inspired computing (NaBIC) (pp. 210-214). Ieee.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_a: float = 0.3, **kwargs: object) -> None:

@@ -10,18 +10,41 @@ class OriginalRSA(Optimizer):
     """
     The original version of: Reptile Search Algorithm (RSA)
 
-    Links:
-        https://doi.org/10.1016/j.eswa.2021.116158
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): current range from (0., 100.)
-        + beta (float): current range from (0., 100.)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    alpha : float, optional
+        Current range from (0.0, 100.0).
+    beta : float, optional
+        Current range from (0.0, 100.0).
 
     References
     ~~~~~~~~~~
-    [1] Abualigah, L., Abd Elaziz, M., Sumari, P., Geem, Z. W., & Gandomi, A. H. (2022).
+    1. Abualigah, L., Abd Elaziz, M., Sumari, P., Geem, Z. W., & Gandomi, A. H. (2022).
         Reptile Search Algorithm (RSA): A nature-inspired meta-heuristic optimizer.
-        Expert Systems with Applications, 191, 116158.
+        Expert Systems with Applications, 191, 116158. https://doi.org/10.1016/j.eswa.2021.116158
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, RSA
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = RSA.OriginalRSA(epoch=1000, pop_size=50, alpha=0.1, beta=0.1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch=10000, pop_size=100, alpha=0.1, beta=0.1, **kwargs):

@@ -12,9 +12,21 @@ class OriginalWOA(Optimizer):
     """
     The original version of: Whale Optimization Algorithm (WOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.advengsoft.2016.01.008
-        2. https://mathworks.com/matlabcentral/fileexchange/55667-the-whale-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.advengsoft.2016.01.008
+    2. https://mathworks.com/matlabcentral/fileexchange/55667-the-whale-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S. and Lewis, A., 2016. The whale optimization algorithm. Advances in engineering software, 95, pp.51-67.
 
     Examples
     ~~~~~~~~
@@ -34,17 +46,9 @@ class OriginalWOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S. and Lewis, A., 2016. The whale optimization algorithm. Advances in engineering software, 95, pp.51-67.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -94,11 +98,12 @@ class OriginalWOA(Optimizer):
 
 class DevWOA(Optimizer):
     """
-    The developed version of: Whale Optimization Algorithm (WOA)
+    Our developed version of: Whale Optimization Algorithm (WOA)
 
-    Notes:
-        + Hanlding simple vector instead of loop through whole dimensions
-        + Using greedy to update position
+    Note
+    ----
+    + Hanlding simple vector instead of loop through whole dimensions
+    + Using greedy to update position
 
     Examples
     ~~~~~~~~
@@ -118,17 +123,9 @@ class DevWOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S. and Lewis, A., 2016. The whale optimization algorithm. Advances in engineering software, 95, pp.51-67.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -181,11 +178,20 @@ class HI_WOA(Optimizer):
     """
     The original version of: Hybrid Improved Whale Optimization Algorithm (HI-WOA)
 
-    Links:
-        1. https://ieenp.explore.ieee.org/document/8900003
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    feedback_max : int
+        Maximum iterations of each feedback, in range [2, 2 + int(epoch/2)]. Default is 10.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + feedback_max (int): maximum iterations of each feedback, default = 10
+    References
+    ~~~~~~~~~~
+    1. Tang, C., Sun, W., Wu, W. and Xue, M., 2019, July. A hybrid improved whale optimization algorithm.
+       In 2019 IEEE 15th International Conference on Control and Automation (ICCA) (pp. 362-367). IEEE.
+       https://doi.org/10.1109/ICCA.2019.8900003
 
     Examples
     ~~~~~~~~
@@ -205,12 +211,8 @@ class HI_WOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Tang, C., Sun, W., Wu, W. and Xue, M., 2019, July. A hybrid improved whale optimization algorithm.
-    In 2019 IEEE 15th International Conference on Control and Automation (ICCA) (pp. 362-367). IEEE.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, feedback_max: int = 10, **kwargs: object) -> None:
         """
         Args:
@@ -284,11 +286,45 @@ class OriginalWOAmM(Optimizer):
     """
     The original version of: Whale Optimization Algorithm with Modified Mutualism (WOAmM)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Population size, in range [5, 10000]. Default is 100.
+    mut_rand : bool
+        Whether mutualism random coefficients are generated per dimension. Default is False.
+    patience : int
+        Number of stagnant epochs before restarting worst agents. Set 0 to disable, in range [0, 100000]. Default is 0.
+    restart_rate : float
+        Ratio of worst agents to restart when stagnation occurs, in range [0.0, 1.0]. Default is 0.2.
+    bound : str
+        Boundary handling method. Supported: "clip", "reflect", "random". Default is "clip".
+
     References
     ~~~~~~~~~~
-    [1] Chakraborty, S., Saha, A. K., Sharma, S., Mirjalili, S., & Chakraborty, R. (2021).
-    A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
-    https://doi.org/10.1016/j.cie.2020.107086
+    1. Chakraborty, S., Saha, A. K., Sharma, S., Mirjalili, S., & Chakraborty, R. (2021).
+       A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
+       https://doi.org/10.1016/j.cie.2020.107086
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, WOA
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = WOA.OriginalWOAmM(epoch=1000, pop_size=50, mut_rand=True, patience=2, restart_rate=0.3, bound="clip")
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mut_rand: bool = False, patience: int = 0,
@@ -305,12 +341,10 @@ class OriginalWOAmM(Optimizer):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-
         self.mut_rand = self.validator.check_bool("mut_rand", mut_rand)
         self.patience = self.validator.check_int("patience", patience, [0, 100000])
         self.restart_rate = self.validator.check_float("restart_rate", restart_rate, [0.0, 1.0])
         self.bound = self.validator.check_str("bound", bound, ["clip", "reflect", "random"])
-
         self.set_parameters(["epoch", "pop_size", "mut_rand", "patience", "restart_rate", "bound"])
         self.is_parallelizable = False
         self.sort_flag = False
@@ -469,14 +503,32 @@ class OriginalWOAmM(Optimizer):
 
 class DevWOAmM(OriginalWOAmM):
     """
-    The developed version of: Whale Optimization Algorithm with Modified Mutualism (WOAmM)
+    Our developed version of: Whale Optimization Algorithm with Modified Mutualism (WOAmM)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Population size, in range [5, 10000]. Default is 100.
+    mut_rand : bool
+        Whether mutualism random coefficients are generated per dimension. Default is False.
+    patience : int
+        Number of stagnant epochs before restarting worst agents. Set 0 to disable, in range [0, 100000]. Default is 0.
+    restart_rate : float
+        Ratio of worst agents to restart when stagnation occurs, in range [0.0, 1.0]. Default is 0.2.
+    bound : str
+        Boundary handling method. Supported: "clip", "reflect", "random". Default is "clip".
+
+    Note
+    ----
     This version replaces the population after the WOA phase (no greedy selection).
 
     References
     ~~~~~~~~~~
-    [1] Chakraborty, S., Saha, A. K., Sharma, S., Mirjalili, S., & Chakraborty, R. (2021).
-    A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
-    https://doi.org/10.1016/j.cie.2020.107086
+    1. Chakraborty, S., Saha, A. K., Sharma, S., Mirjalili, S., & Chakraborty, R. (2021).
+       A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
+       https://doi.org/10.1016/j.cie.2020.107086
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mut_rand: bool = False, patience: int = 0,

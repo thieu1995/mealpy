@@ -9,15 +9,25 @@ from mealpy.optimizer import Optimizer
 
 class OriginalEEFO(Optimizer):
     """
-    Electric Eel Foraging Optimization (EEFO)
+    The original version of: Electric Eel Foraging Optimization (EEFO)
 
-    Links:
-        1. https://doi.org/10.1016/j.eswa.2023.122200
-        2. https://www.mathworks.com/matlabcentral/fileexchange/153461-electric-eel-foraging-optimization-eefo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + epoch (int): Maximum number of iterations, default = 10000
-        + pop_size (int): Population size, default = 100
+    Links
+    -----
+    1. https://doi.org/10.1016/j.eswa.2023.122200
+    2. https://www.mathworks.com/matlabcentral/fileexchange/153461-electric-eel-foraging-optimization-eefo
+
+    References
+    ~~~~~~~~~~
+    1. Zhao, W., Wang, L., Zhang, Z., Fan, H., Zhang, J., Mirjalili, S., Khodadadi, N. and Cao, Q., 2024.
+       Electric eel foraging optimization: A new bio-inspired optimizer for engineering applications.
+       Expert systems with applications, 238, p.122200.
 
     Examples
     ~~~~~~~~
@@ -37,12 +47,6 @@ class OriginalEEFO(Optimizer):
     >>> model = EEFO.OriginalEEFO(epoch=1000, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhao, W., Wang, L., Zhang, Z., Fan, H., Zhang, J., Mirjalili, S., Khodadadi, N. and Cao, Q., 2024.
-    Electric eel foraging optimization: A new bio-inspired optimizer for engineering applications.
-    Expert systems with applications, 238, p.122200.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):

@@ -12,14 +12,25 @@ class OriginalACOR(Optimizer):
     """
     The original version of: Ant Colony Optimization Continuous (ACOR)
 
-    Notes:
-        + Use Gaussian Distribution (np.random.normal() function) instead of random number (np.random.rand())
-        + Amend solution when they went out of space
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    n_limits : int
+        Limit of trials before abandoning a food source, default=25.
+    sample_count : int
+        Valid range [2, 10000], Number of Newly Generated Samples, default = 25.
+    intent_factor : float
+        Good range [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5.
+    zeta : float
+        Good range [1, 2, 3], Deviation-Distance Ratio, default = 1.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + sample_count (int): [2, 10000], Number of Newly Generated Samples, default = 25
-        + intent_factor (float): [0.2, 1.0], Intensification Factor (Selection Pressure), (q in the paper), default = 0.5
-        + zeta (float): [1, 2, 3], Deviation-Distance Ratio, default = 1.0
+    References
+    ~~~~~~~~~~
+    1. Socha, K. and Dorigo, M., 2008. Ant colony optimization for continuous domains.
+       European journal of operational research, 185(3), pp.1155-1173. https://doi.org/10.1016/j.ejor.2006.06.046
 
     Examples
     ~~~~~~~~
@@ -39,11 +50,6 @@ class OriginalACOR(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Socha, K. and Dorigo, M., 2008. Ant colony optimization for continuous domains.
-    European journal of operational research, 185(3), pp.1155-1173.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, sample_count: int = 25,
@@ -75,7 +81,7 @@ class OriginalACOR(Optimizer):
         # Calculate Selection Probabilities
         pop_rank = np.array([idx for idx in range(1, self.pop_size + 1)])
         qn = self.intent_factor * self.pop_size
-        matrix_w = 1 / (np.sqrt(2 * np.pi) * qn) * np.exp(-0.5 * ((pop_rank - 1) / qn) ** 2)
+        matrix_w = 1.0 / (np.sqrt(2 * np.pi) * qn) * np.exp(-0.5 * ((pop_rank - 1) / qn) ** 2)
         matrix_p = matrix_w / np.sum(matrix_w)  # Normalize to find the probability.
         # Means and Standard Deviations
         matrix_pos = np.array([agent.solution for agent in self.pop])
@@ -92,7 +98,7 @@ class OriginalACOR(Optimizer):
         for idx in range(0, self.sample_count):
             child = np.zeros(self.problem.n_dims)
             for jdx in range(0, self.problem.n_dims):
-                rdx = self.get_index_roulette_wheel_selection(matrix_p)
+                rdx = self.generator.choice(self.pop_size, p=matrix_p)
                 child[jdx] = self.pop[rdx].solution[jdx] + self.generator.normal() * matrix_sigma[rdx, jdx]  # (1)
             pos_new = self.correct_solution(child)      # (2)
             agent = self.generate_empty_agent(pos_new)

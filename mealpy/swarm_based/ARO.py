@@ -12,9 +12,23 @@ class OriginalARO(Optimizer):
     """
     The original version of: Artificial Rabbits Optimization (ARO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2022.105082
-        2. https://www.mathworks.com/matlabcentral/fileexchange/110250-artificial-rabbits-optimization-aro
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.engappai.2022.105082
+    2. https://www.mathworks.com/matlabcentral/fileexchange/110250-artificial-rabbits-optimization-aro
+
+    References
+    ----------
+    1. Wang, L., Cao, Q., Zhang, Z., Mirjalili, S., & Zhao, W. (2022). Artificial rabbits optimization: A new
+       bio-inspired meta-heuristic algorithm for solving engineering optimization problems.
+       Engineering Applications of Artificial Intelligence, 114, 105082.
 
     Examples
     ~~~~~~~~
@@ -34,19 +48,9 @@ class OriginalARO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, L., Cao, Q., Zhang, Z., Mirjalili, S., & Zhao, W. (2022). Artificial rabbits optimization: A new bio-inspired
-    meta-heuristic algorithm for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 114, 105082.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -93,10 +97,20 @@ class OriginalARO(Optimizer):
 
 class LARO(Optimizer):
     """
-    The improved version of:  Lévy flight, and the selective opposition version of the artificial rabbit algorithm (LARO)
+    The original version of:  Lévy flight Artificial Rabbit Algorithm (LARO)
 
-    Links:
-        1. https://doi.org/10.3390/sym14112282
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ----------
+    1. Wang, Y., Huang, L., Zhong, J., & Hu, G. (2022). LARO: Opposition-based learning boosted
+       artificial rabbits-inspired optimization algorithm with Lévy flight. Symmetry, 14(11), 2282.
+       https://doi.org/10.3390/sym14112282
 
     Examples
     ~~~~~~~~
@@ -116,19 +130,9 @@ class LARO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, Y., Huang, L., Zhong, J., & Hu, G. (2022). LARO: Opposition-based learning boosted
-    artificial rabbits-inspired optimization algorithm with Lévy flight. Symmetry, 14(11), 2282.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -195,11 +199,14 @@ class LARO(Optimizer):
 
 class IARO(Optimizer):
     """
-    The improved version of: Improved Artificial Rabbits Optimization (IARO)
+    Our improved version of ARO: Improved Artificial Rabbits Optimization (IARO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2022.105082
-        2. https://www.mathworks.com/matlabcentral/fileexchange/110250-artificial-rabbits-optimization-aro
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
     Examples
     ~~~~~~~~
@@ -219,19 +226,9 @@ class IARO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, L., Cao, Q., Zhang, Z., Mirjalili, S., & Zhao, W. (2022). Artificial rabbits optimization: A new bio-inspired
-    meta-heuristic algorithm for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 114, 105082.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

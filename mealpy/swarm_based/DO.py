@@ -12,8 +12,18 @@ class OriginalDO(Optimizer):
     """
     The original version of: Dragonfly Optimization (DO)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s00521-015-1920-1
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ----------
+    1. Mirjalili, S., 2016. Dragonfly algorithm: a new meta-heuristic optimization technique for
+       solving single-objective, discrete, and multi-objective problems. Neural computing and
+       applications, 27(4), pp.1053-1073.  https://doi.org/10.1007/s00521-015-1920-1
 
     Examples
     ~~~~~~~~
@@ -33,11 +43,6 @@ class OriginalDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S., 2016. Dragonfly algorithm: a new meta-heuristic optimization technique for solving single-objective,
-    discrete, and multi-objective problems. Neural computing and applications, 27(4), pp.1053-1073.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

@@ -10,7 +10,19 @@ from mealpy.optimizer import Optimizer
 
 class DevJA(Optimizer):
     """
-    The developed version: Jaya Algorithm (JA)
+    Our developed version: Jaya Algorithm (JA)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Rao, R., 2016. Jaya: A simple and new optimization algorithm for solving constrained and unconstrained
+       optimization problems. International Journal of Industrial Engineering Computations, 7(1), pp.19-34.
 
     Examples
     ~~~~~~~~
@@ -30,19 +42,9 @@ class DevJA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rao, R., 2016. Jaya: A simple and new optimization algorithm for solving constrained and
-    unconstrained optimization problems. International Journal of Industrial Engineering Computations, 7(1), pp.19-34.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -76,8 +78,18 @@ class OriginalJA(DevJA):
     """
     The original version of: Jaya Algorithm (JA)
 
-    Links:
-        1. https://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Rao, R., 2016. Jaya: A simple and new optimization algorithm for solving constrained and
+       unconstrained optimization problems. International Journal of Industrial
+       Engineering Computations, 7(1), pp.19-34. https://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf
 
     Examples
     ~~~~~~~~
@@ -97,11 +109,6 @@ class OriginalJA(DevJA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rao, R., 2016. Jaya: A simple and new optimization algorithm for solving constrained and
-    unconstrained optimization problems. International Journal of Industrial Engineering Computations, 7(1), pp.19-34.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -139,10 +146,23 @@ class LevyJA(DevJA):
     """
     The original version of: Levy-flight Jaya Algorithm (LJA)
 
-    Notes
-        + All third loops in this version also are removed
-        + The beta value of Levy-flight equal to 1.8 as the best value in the paper.
-        + https://doi.org/10.1016/j.eswa.2020.113902
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Note
+    ----
+    + All third loops in this version also are removed
+    + The beta value of Levy-flight equal to 1.8 as the best value in the paper.
+
+    References
+    ~~~~~~~~~~
+    1. Iacca, G., dos Santos Junior, V.C. and de Melo, V.V., 2021. An improved Jaya optimization
+       algorithm with Lévy flight. Expert Systems with Applications, 165, p.113902.
+       https://doi.org/10.1016/j.eswa.2020.113902
 
     Examples
     ~~~~~~~~
@@ -162,11 +182,6 @@ class LevyJA(DevJA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Iacca, G., dos Santos Junior, V.C. and de Melo, V.V., 2021. An improved Jaya optimization
-    algorithm with Lévy flight. Expert Systems with Applications, 165, p.113902.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

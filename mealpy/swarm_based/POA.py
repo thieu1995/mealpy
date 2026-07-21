@@ -12,15 +12,36 @@ class OriginalPOA(Optimizer):
     """
     The original version of: Pelican Optimization Algorithm (POA)
 
-    Links:
-        1. https://www.mdpi.com/1424-8220/22/3/855
-        2. https://www.mathworks.com/matlabcentral/fileexchange/106680-pelican-optimization-algorithm-a-novel-nature-inspired
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. This is somewhat concerning, as there appears to be a high degree of similarity between the source code for this algorithm and the Northern Goshawk Optimization (NGO)
-        2. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
-        3. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-        4. The article may share some similarities with previous work by the same authors, further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    .. caution::
+       1. This is somewhat concerning, as there appears to be a high degree of similarity between the
+          source code for this algorithm and the Northern Goshawk Optimization (NGO)
+       2. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+          Coati Optimization Algorithm (CoatiOA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+          Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+          Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+          Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+       3. It may be useful to compare the Matlab code of this algorithm with those of the
+          similar algorithms to ensure its accuracy and completeness.
+       4. The article may share some similarities with previous work by the same authors, further investigation
+          may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    Links
+    -----
+    1. https://www.mdpi.com/1424-8220/22/3/855
+    2. https://www.mathworks.com/matlabcentral/fileexchange/106680-pelican-optimization-algorithm-a-novel-nature-inspired
+
+    References
+    ~~~~~~~~~~
+    1. Trojovský, P., & Dehghani, M. (2022). Pelican optimization algorithm: A novel nature-inspired
+       algorithm for engineering applications. Sensors, 22(3), 855.
 
     Examples
     ~~~~~~~~
@@ -40,11 +61,6 @@ class OriginalPOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Trojovský, P., & Dehghani, M. (2022). Pelican optimization algorithm: A novel nature-inspired
-    algorithm for engineering applications. Sensors, 22(3), 855.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

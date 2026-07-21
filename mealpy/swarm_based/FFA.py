@@ -12,23 +12,30 @@ class OriginalFFA(Optimizer):
     """
     The original version of: Firefly Algorithm (FFA)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size, default = 100
-    + gamma (float): Light Absorption Coefficient, default = 0.001
-    + beta_base (float): Attraction Coefficient Base Value, default = 2
-    + alpha (float): Mutation Coefficient, default = 0.2
-    + alpha_damp (float): Mutation Coefficient Damp Rate, default = 0.99
-    + delta (float): Mutation Step Size, default = 0.05
-    + exponent (int): Exponent (m in the paper), default = 2
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    gamma : float
+        Light Absorption Coefficient, in range (0.0, 1.0). Default is 0.001.
+    beta_base : float
+        Attraction Coefficient Base Value, in range (0.0, 3.0). Default is 2.0.
+    alpha : float
+        Mutation Coefficient, in range (0.0, 1.0). Default is 0.2.
+    alpha_damp : float
+        Mutation Coefficient Damp Rate, in range (0.0, 1.0). Default is 0.99.
+    delta : float
+        Mutation Step Size, in range (0.0, 1.0). Default is 0.05.
+    exponent : int
+        Exponent (m in the paper), in range [2, 4]. Default is 2.
 
     References
     ----------
-    .. [1] Gandomi, A.H., Yang, X.S. and Alavi, A.H., 2011. Mixed variable structural optimization
-    using firefly algorithm. Computers & Structures, 89(23-24), pp.2325-2336.
-    .. [2] Arora, S. and Singh, S., 2013. The firefly optimization algorithm: convergence analysis and
-    parameter selection. International Journal of Computer Applications, 69(3).
+    1. Yang, Xin-She. "Firefly algorithms for multimodal optimization." International symposium on
+       stochastic algorithms. Berlin, Heidelberg: Springer Berlin Heidelberg, 2009.
+       https://doi.org/10.1007/978-3-642-04944-6_14
 
     Examples
     --------
@@ -141,14 +148,11 @@ class MLFA_GD(Optimizer):
     3. Formula Inconsistency (Eq. 8): The male update omits the random perturbation
        noise inherently needed in FA, risking premature stagnation in local optima.
 
-    Note: Practical implementations must apply distance scaling and bounded mutations
-    to make this algorithm functionally viable.
-
     References
     ----------
-    .. [1] Zhang, Wenning, Chongyang Jiao, and Qinglei Zhou. "Firefly algorithm with multiple learning
-    ability based on gender difference." Scientific Reports 15.1 (2025): 28400.
-    https://doi.org/10.1038/s41598-025-09523-9
+    1. Zhang, Wenning, Chongyang Jiao, and Qinglei Zhou. "Firefly algorithm with multiple
+       learning ability based on gender difference." Scientific Reports 15.1 (2025): 28400.
+       https://doi.org/10.1038/s41598-025-09523-9
 
     Examples
     --------

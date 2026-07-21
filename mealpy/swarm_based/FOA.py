@@ -13,8 +13,17 @@ class OriginalFOA(Optimizer):
     """
     The original version of: Fruit-fly Optimization Algorithm (FOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2011.07.001
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Pan, W.T., 2012. A new fruit fly optimization algorithm: taking the financial distress model
+       as an example. Knowledge-Based Systems, 26, pp.69-74. https://doi.org/10.1016/j.knosys.2011.07.001
 
     Examples
     ~~~~~~~~
@@ -34,11 +43,6 @@ class OriginalFOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Pan, W.T., 2012. A new fruit fly optimization algorithm: taking the financial distress model
-    as an example. Knowledge-Based Systems, 26, pp.69-74.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -86,12 +90,20 @@ class OriginalFOA(Optimizer):
 
 class DevFOA(OriginalFOA):
     """
-    The developed version: Fruit-fly Optimization Algorithm (FOA)
+    Our developed version: Fruit-fly Optimization Algorithm (FOA)
 
-    Notes:
-        + The fitness function (small function) is changed by taking the distance each 2 adjacent dimensions
-        + Update the position if only new generated solution is better
-        + The updated position is created by norm distance * gaussian random number
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+
+    .. note:
+       + The fitness function (small function) is changed by taking the distance each 2 adjacent dimensions
+       + Update the position if only new generated solution is better
+       + The updated position is created by norm distance * gaussian random number
 
     Examples
     ~~~~~~~~
@@ -148,8 +160,18 @@ class WhaleFOA(OriginalFOA):
     """
     The original version of: Whale Fruit-fly Optimization Algorithm (WFOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.eswa.2020.113502
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Fan, Y., Wang, P., Heidari, A.A., Wang, M., Zhao, X., Chen, H. and Li, C., 2020.
+       Boosted hunting-based fruit fly optimization and advances in real-world problems.
+       Expert Systems with Applications, 159, p.113502. https://doi.org/10.1016/j.eswa.2020.113502
 
     Examples
     ~~~~~~~~
@@ -169,11 +191,6 @@ class WhaleFOA(OriginalFOA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Fan, Y., Wang, P., Heidari, A.A., Wang, M., Zhao, X., Chen, H. and Li, C., 2020. Boosted hunting-based
-    fruit fly optimization and advances in real-world problems. Expert Systems with Applications, 159, p.113502.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

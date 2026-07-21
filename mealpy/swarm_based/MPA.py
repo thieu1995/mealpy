@@ -12,14 +12,28 @@ class OriginalMPA(Optimizer):
     """
     The developed version: Marine Predators Algorithm (MPA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0957417420302025
-        2. https://www.mathworks.com/matlabcentral/fileexchange/74578-marine-predators-algorithm-mpa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. To use the original paper, set the training mode = "swarm"
-        2. They update the whole population at the same time before update the fitness
-        3. Two variables that they consider it as constants which are FADS = 0.2 and P = 0.5
+    Note
+    ----
+    1. To use the original paper, set the training mode = "swarm"
+    2. They update the whole population at the same time before update the fitness
+    3. Two variables that they consider it as constants which are FADS = 0.2 and P = 0.5
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.eswa.2020.113377
+    2. https://www.mathworks.com/matlabcentral/fileexchange/74578-marine-predators-algorithm-mpa
+
+    References
+    ~~~~~~~~~~
+    1. Faramarzi, A., Heidarinejad, M., Mirjalili, S., & Gandomi, A. H. (2020).
+       Marine Predators Algorithm: A nature-inspired metaheuristic. Expert systems with applications, 152, 113377.
 
     Examples
     ~~~~~~~~
@@ -39,11 +53,6 @@ class OriginalMPA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Faramarzi, A., Heidarinejad, M., Mirjalili, S., & Gandomi, A. H. (2020).
-    Marine Predators Algorithm: A nature-inspired metaheuristic. Expert systems with applications, 152, 113377.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

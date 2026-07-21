@@ -14,9 +14,21 @@ class OriginalGWO(Optimizer):
     """
     The original version of: Grey Wolf Optimizer (GWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.advengsoft.2013.12.007
-        2. https://www.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo?s_tid=FX_rc3_behav
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.advengsoft.2013.12.007
+    2. https://www.mathworks.com/matlabcentral/fileexchange/44974-grey-wolf-optimizer-gwo?s_tid=FX_rc3_behav
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S., Mirjalili, S.M. and Lewis, A., 2014. Grey wolf optimizer. Advances in engineering software, 69, pp.46-61.
 
     Examples
     ~~~~~~~~
@@ -36,10 +48,6 @@ class OriginalGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S., Mirjalili, S.M. and Lewis, A., 2014. Grey wolf optimizer. Advances in engineering software, 69, pp.46-61.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -91,6 +99,18 @@ class RW_GWO(Optimizer):
     """
     The original version of: Random Walk Grey Wolf Optimizer (RW-GWO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Gupta, S. and Deep, K., 2019. A novel random walk grey wolf optimizer.
+       Swarm and evolutionary computation, 44, pp.101-112. https://doi.org/10.1016/j.swevo.2018.01.001
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -109,10 +129,6 @@ class RW_GWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Gupta, S. and Deep, K., 2019. A novel random walk grey wolf optimizer. Swarm and evolutionary computation, 44, pp.101-112.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -184,8 +200,18 @@ class GWO_WOA(OriginalGWO):
     """
     The original version of: Hybrid Grey Wolf - Whale Optimization Algorithm (GWO-WOA)
 
-    Links:
-        1. https://sci-hub.se/https://doi.org/10.1177/10775463211003402
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Obadina, O. O., Thaha, M. A., Althoefer, K., & Shaheed, M. H. (2022). Dynamic characterization
+       of a master–slave robotic manipulator using a hybrid grey wolf–whale optimization algorithm.
+       Journal of Vibration and Control, 28(15-16), 1992-2003. https://doi.org/10.1177/10775463211003402
 
     Examples
     ~~~~~~~~
@@ -205,11 +231,6 @@ class GWO_WOA(OriginalGWO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Obadina, O. O., Thaha, M. A., Althoefer, K., & Shaheed, M. H. (2022). Dynamic characterization of a master–slave
-    robotic manipulator using a hybrid grey wolf–whale optimization algorithm. Journal of Vibration and Control, 28(15-16), 1992-2003.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -264,13 +285,21 @@ class IGWO(OriginalGWO):
     """
     The original version of: Improved Grey Wolf Optimization (IGWO)
 
-    Notes:
-        1. Link: https://doi.org/10.1007/s00366-017-0567-1
-        2. Inspired by: Mohammadtaher Abbasi (https://github.com/mtabbasi)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    a_min : float
+        Lower bound of a, in range (0.0, 1.6). Default is 0.02.
+    a_max : float
+        Upper bound of a, in range [1.0, 4.0]. Default is 2.2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + a_min (float): Lower bound of a, default = 0.02
-        + a_max (float): Upper bound of a, default = 2.2
+    References
+    ~~~~~~~~~~
+    1. Kaveh, A., & Zakian, P. (2018). Improved GWO algorithm for optimal design of truss structures.
+       Engineering with Computers, 34(4), 685-707. https://doi.org/10.1007/s00366-017-0567-1
 
     Examples
     ~~~~~~~~
@@ -290,11 +319,6 @@ class IGWO(OriginalGWO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kaveh, A. & Zakian, P.. (2018). Improved GWO algorithm for optimal design of truss structures.
-    Engineering with Computers. 34. 10.1007/s00366-017-0567-1.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, a_min: float = 0.02, a_max: float = 2.2, **kwargs: object) -> None:
@@ -351,8 +375,22 @@ class ChaoticGWO(Optimizer):
     """
     The original version of: Chaotic-based Grey Wolf Optimizer (Chaotic-GWO or C-GWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.jcde.2017.02.005
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    chaotic_name : str
+        Name of the chaotic map to use (e.g., 'bernoulli', 'logistic', 'chebyshev', 'circle',
+        'cubic', 'icmic', 'piecewise', 'singer', 'sinusoidal', 'tent'). Default is 'chebyshev'.
+    initial_chaotic_value : float
+        Initial value for the chaotic map, in range [0.0, 1.0]. Default is 0.7.
+
+    References
+    ~~~~~~~~~~
+    1. Kohli, M., & Arora, S. (2018). Chaotic grey wolf optimization algorithm for constrained optimization problems.
+       Journal of computational design and engineering, 5(4), 458-472. https://doi.org/10.1016/j.jcde.2017.02.005
 
     Examples
     ~~~~~~~~
@@ -372,10 +410,6 @@ class ChaoticGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kohli, M., & Arora, S. (2018). Chaotic grey wolf optimization algorithm for constrained optimization problems. Journal of computational design and engineering, 5(4), 458-472.
     """
 
     CHAOTIC_MAPS = {
@@ -456,8 +490,20 @@ class FuzzyGWO(Optimizer):
     """
     The original version of: Fuzzy Hierarchical Operator - Grey Wolf Optimizer (FHO-GWO or FuzzyGWO or F-GWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.asoc.2017.03.048
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    fuzzy_name : str
+        Type of fuzzy operator to use (e.g., 'increase', 'decrease'). Default is 'increase'.
+
+    References
+    ~~~~~~~~~~
+    1. Rodríguez, Luis, Oscar Castillo, José Soria, Patricia Melin, Fevrier Valdez, Claudia I. Gonzalez,
+       Gabriela E. Martinez, and Jesus Soto. "A fuzzy hierarchical operator in the grey wolf
+       optimizer algorithm." Applied Soft Computing 57 (2017): 315-328. https://doi.org/10.1016/j.asoc.2017.03.048
 
     Examples
     ~~~~~~~~
@@ -477,10 +523,6 @@ class FuzzyGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rodríguez, Luis, Oscar Castillo, José Soria, Patricia Melin, Fevrier Valdez, Claudia I. Gonzalez, Gabriela E. Martinez, and Jesus Soto. "A fuzzy hierarchical operator in the grey wolf optimizer algorithm." Applied Soft Computing 57 (2017): 315-328.
     """
 
     FUZZY_OPERATORS = ["increase", "decrease"]
@@ -544,12 +586,25 @@ class IncrementalGWO(Optimizer):
     """
     The original version of: Incremental model-based Grey Wolf Optimizer (IncrementalGWO)
 
-    Notes:
-        + When calling the solve() function, you need to set the mode to "swarm" to use this algorithm as original version.
-        + They update the position of whole population before calculating the fitness of each agent.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    explore_factor : float
+        Factor to control exploration, in range [0.0, 5.0]. Default is 1.5.
 
-    Links:
-        1. https://doi.org/10.1007/s00366-019-00837-7
+    Note
+    ----
+    + When calling the solve() function, you need to set the mode to "swarm" to use this algorithm as original version.
+    + They update the position of whole population before calculating the fitness of each agent.
+
+    References
+    ~~~~~~~~~~
+    1. Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer
+       to solve global optimization problems. Engineering with Computers, 37(1), 509-532.
+       https://doi.org/10.1007/s00366-019-00837-7
 
     Examples
     ~~~~~~~~
@@ -569,10 +624,6 @@ class IncrementalGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer to solve global optimization problems. Engineering with Computers, 37(1), 509-532.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
@@ -628,12 +679,23 @@ class ExGWO(Optimizer):
     """
     The original version of: Expanded Grey Wolf Optimizer (Ex-GWO)
 
-    Notes:
-        + When calling the solve() function, you need to set the mode to "swarm" to use this algorithm as original version.
-        + They update the position of whole population before calculating the fitness of each agent.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Links:
-        1. https://doi.org/10.1007/s00366-019-00837-7
+    Note
+    ----
+    + When calling the solve() function, you need to set the mode to "swarm" to use this algorithm as original version.
+    + They update the position of whole population before calculating the fitness of each agent.
+
+    References
+    ~~~~~~~~~~
+    1. Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer to
+       solve global optimization problems. Engineering with Computers, 37(1), 509-532.
+       https://doi.org/10.1007/s00366-019-00837-7
 
     Examples
     ~~~~~~~~
@@ -653,10 +715,6 @@ class ExGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Seyyedabbasi, A., & Kiani, F. (2021). I-GWO and Ex-GWO: improved algorithms of the Grey Wolf Optimizer to solve global optimization problems. Engineering with Computers, 37(1), 509-532.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -714,12 +772,28 @@ class DS_GWO(Optimizer):
     """
     The original version of: Diversity enhanced Strategy based Grey Wolf Optimizer (DS-GWO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    explore_ratio : float
+        Ratio to control exploration, in range [0.0, 1.0]. Default is 0.4.
+    n_groups : int
+        Number of groups for group-stage competition, in range [5, 100]. Default is 5.
+
+    Note
+    ----
     This implementation includes:
         1. Group-stage competition mechanism
         2. Exploration-exploitation balance mechanism
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2022.109100
+    References
+    ~~~~~~~~~~
+    1. Jiang, Jianhua, Ziying Zhao, Yutong Liu, Weihua Li, and Huan Wang. "DSGWO: An improved grey wolf optimizer
+       with diversity enhanced strategy based on group-stage competition and balance mechanisms."
+       Knowledge-Based Systems 250 (2022): 109100. https://doi.org/10.1016/j.knosys.2022.109100
 
     Examples
     ~~~~~~~~
@@ -739,10 +813,6 @@ class DS_GWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Jiang, Jianhua, Ziying Zhao, Yutong Liu, Weihua Li, and Huan Wang. "DSGWO: An improved grey wolf optimizer with diversity enhanced strategy based on group-stage competition and balance mechanisms." Knowledge-Based Systems 250 (2022): 109100.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
@@ -828,13 +898,24 @@ class IOBL_GWO(Optimizer):
     """
     The original version of: Improved Opposite-based Learning Grey Wolf Optimizer (IOBL-GWO)
 
-    Notes:
-        + In the paper, they called it "Improved Grey Wolf Optimizer (IGWO)", but there are many improved versions of GWO.
-        + So based on their proposed equations, we called it as "Improved Opposite-based Learning Grey Wolf Optimizer (IOBL-GWO)".
-        + This algorithm is heavily (4x - 6X slower than original) because of multiple times of calculating the fitness of agent in each population.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Links:
-        1. https://doi.org/10.1007/s12652-020-02153-1
+    Note
+    ----
+    + In the paper, they called it "Improved Grey Wolf Optimizer (IGWO)", but there are many improved versions of GWO.
+    + So based on their proposed equations, we called it as "Improved Opposite-based Learning Grey Wolf Optimizer (IOBL-GWO)".
+    + This algorithm is heavily (4x - 6X slower than original) because of multiple times of calculating the fitness of agent in each population.
+
+    References
+    ~~~~~~~~~~
+    1. Bansal, J. C., & Singh, S. (2021). A better exploration strategy in Grey Wolf Optimizer.
+       Journal of Ambient Intelligence and Humanized Computing, 12(1), 1099-1118.
+       https://doi.org/10.1007/s12652-020-02153-1
 
     Examples
     ~~~~~~~~
@@ -854,10 +935,6 @@ class IOBL_GWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Bansal, J. C., & Singh, S. (2021). A better exploration strategy in Grey Wolf Optimizer. Journal of Ambient Intelligence and Humanized Computing, 12(1), 1099-1118.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -942,8 +1019,21 @@ class OGWO(Optimizer):
     """
     The original version of: Opposition-based learning Grey Wolf Optimizer (OGWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2021.107139
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    miu_factor : float
+        Nonlinear coefficient for equation (11), in range [0.0, 10.0]. Default is 2.0.
+    jumping_rate : float
+        Jumping rate for OBL (Opposition-Based Learning), in range [0.0, 1.0]. Default is 0.05.
+
+    References
+    ~~~~~~~~~~
+    1. Yu, X., Xu, W., & Li, C. (2021). Opposition-based learning grey wolf optimizer for global
+       optimization. Knowledge-Based Systems, 226, 107139. https://doi.org/10.1016/j.knosys.2021.107139
 
     Examples
     ~~~~~~~~
@@ -963,10 +1053,6 @@ class OGWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yu, X., Xu, W., & Li, C. (2021). Opposition-based learning grey wolf optimizer for global optimization. Knowledge-Based Systems, 226, 107139.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
@@ -1050,12 +1136,28 @@ class ER_GWO(Optimizer):
     """
     The original version of: Efficient and Robust Grey Wolf Optimizer (ER-GWO)
 
-    Notes:
-        + Slow convergence speed due to the (miu_factor)^(iteration) ==> Big number
-        + Three more parameters than original GWO, increase the complexity of the algorithm.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    a_initial : float
+        Initial value of coefficient a, in range [0.0, 10.0]. Default is 2.0.
+    a_final : float
+        Final value of coefficient a, in range [0.0, a_initial]. Default is 0.0.
+    miu_factor : float
+        Nonlinear coefficient for equation (8), in range [1.0001, 1.01]. Default is 1.0001.
 
-    Links:
-        1. https://doi.org/10.1007/s00500-019-03939-y
+
+    .. caution::
+       + Slow convergence speed due to the (miu_factor)^(iteration) ==> Big number
+       + Three more parameters than original GWO, increase the complexity of the algorithm.
+
+    References
+    ~~~~~~~~~~
+    1. Long, W., Cai, S., Jiao, J. et al. An efficient and robust grey wolf optimizer algorithm for large-scale
+       numerical optimization. Soft Comput 24, 997–1026 (2020). https://doi.org/10.1007/s00500-019-03939-y
 
     Examples
     ~~~~~~~~
@@ -1075,10 +1177,6 @@ class ER_GWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Long, W., Cai, S., Jiao, J. et al. An efficient and robust grey wolf optimizer algorithm for large-scale numerical optimization. Soft Comput 24, 997–1026 (2020).
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
@@ -1146,12 +1244,22 @@ class CG_GWO(Optimizer):
     """
     The original version of: Cauchy‑Gaussian mutation and improved search strategy GWO (CG‑GWO)
 
-    Notes:
-        + This algorithm can't be parallelized because of the 'single' update mode.
-        + Meaning that the updating of the pack is based on order and sequence of the wolves.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Links:
-        1. https://doi.org/10.1038/s41598-022-23713-9
+
+    .. caution::
+       + This algorithm can't be parallelized because of the 'single' update mode.
+       + Meaning that the updating of the pack is based on order and sequence of the wolves.
+
+    References
+    ~~~~~~~~~~
+    1. Li, K., Li, S., Huang, Z. et al. Grey Wolf Optimization algorithm based on Cauchy-Gaussian mutation and
+       improved search strategy. Sci Rep 12, 18961 (2022). https://doi.org/10.1038/s41598-022-23713-9
 
     Examples
     ~~~~~~~~
@@ -1171,10 +1279,6 @@ class CG_GWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Li, K., Li, S., Huang, Z. et al. Grey Wolf Optimization algorithm based on Cauchy-Gaussian mutation and improved search strategy. Sci Rep 12, 18961 (2022).
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

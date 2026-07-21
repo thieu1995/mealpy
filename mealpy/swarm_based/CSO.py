@@ -13,20 +13,40 @@ class OriginalCSO(Optimizer):
     """
     The original version of: Cat Swarm Optimization (CSO)
 
-    Links:
-        1. https://link.springer.com/chapter/10.1007/978-3-540-36668-3_94
-        2. https://www.hindawi.com/journals/cin/2020/4854895/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    mixture_ratio : float
+        Ratio for joining seeking mode with tracing mode. Default is 0.15.
+    smp : int
+        Seeking memory pool (e.g., clones). Larger is better but time-consuming. Default is 5.
+    spc : bool
+        Self-position considering flag. Default is False.
+    cdc : float
+        Counts of dimension to change. Larger provides more diversity but slow convergence. Default is 0.8.
+    srd : float
+        Seeking range of the selected dimension. Smaller is better but slow convergence. Default is 0.15.
+    c1 : float
+        Cognitive parameter, same as in PSO. Default is 0.4.
+    w_min : float
+        Minimum inertia weight, same as in PSO. Default is 0.5.
+    w_max : float
+        Maximum inertia weight, same as in PSO. Default is 0.9.
+    selected_strategy : int
+        Strategy selection: 0 for best fitness, 1 for tournament, 2 for roulette wheel, otherwise random (decreases by quality). Default is 1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + mixture_ratio (float): joining seeking mode with tracing mode, default=0.15
-        + smp (int): seeking memory pool, default=5 clones (larger is better but time-consuming)
-        + spc (bool): self-position considering, default=False
-        + cdc (float): counts of dimension to change (larger is more diversity but slow convergence), default=0.8
-        + srd (float): seeking range of the selected dimension (smaller is better but slow convergence), default=0.15
-        + c1 (float): same in PSO, default=0.4
-        + w_min (float): same in PSO
-        + w_max (float): same in PSO
-        + selected_strategy (int):  0: best fitness, 1: tournament, 2: roulette wheel, else: random (decrease by quality)
+    Links
+    -----
+    1. https://link.springer.com/chapter/10.1007/978-3-540-36668-3_94
+    2. https://www.hindawi.com/journals/cin/2020/4854895/
+
+    References
+    ~~~~~~~~~~
+    1. Chu, S.C., Tsai, P.W. and Pan, J.S., 2006, August. Cat swarm optimization. In Pacific Rim
+       international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
 
     Examples
     ~~~~~~~~
@@ -46,11 +66,6 @@ class OriginalCSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Chu, S.C., Tsai, P.W. and Pan, J.S., 2006, August. Cat swarm optimization. In Pacific Rim
-    international conference on artificial intelligence (pp. 854-858). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mixture_ratio: float = 0.15, smp: int = 5,

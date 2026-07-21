@@ -13,12 +13,24 @@ class OriginalCOA(Optimizer):
     """
     The original version of: Coyote Optimization Algorithm (COA)
 
-    Links:
-        1. https://ieeexplore.ieee.org/document/8477769
-        2. https://github.com/jkpir/COA/blob/master/COA.py  (Old version Mealpy < 1.2.2)
+    Links
+    -----
+    1. https://doi.org/10.1109/CEC.2018.8477769
+    2. https://github.com/jkpir/COA/blob/master/COA.py  (Old version Mealpy < 1.2.2)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_coyotes (int): [3, 15], number of coyotes per group, default=5
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    n_coyotes : int
+        Good range [3, 15], number of coyotes per group, default=5
+
+    References
+    ~~~~~~~~~~
+    1. Pierezan, J. and Coelho, L.D.S., 2018, July. Coyote optimization algorithm: a new metaheuristic for
+       global optimization problems. In 2018 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
 
     Examples
     ~~~~~~~~
@@ -38,11 +50,6 @@ class OriginalCOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Pierezan, J. and Coelho, L.D.S., 2018, July. Coyote optimization algorithm: a new metaheuristic
-    for global optimization problems. In 2018 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_coyotes: int = 5, **kwargs: object) -> None:

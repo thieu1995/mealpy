@@ -19,8 +19,8 @@ class OriginalCrayfishOA(Optimizer):
 
     References
     ----------
-    .. [1] Jia, H., Rao, H., Wen, C., & Mirjalili, S. (2023). Crayfish optimization algorithm.
-    Artificial Intelligence Review, 56(Suppl 2), 1919-1979. https://doi.org/10.1007/s10462-023-10567-4
+    1. Jia, H., Rao, H., Wen, C., & Mirjalili, S. (2023). Crayfish optimization algorithm.
+       Artificial Intelligence Review, 56(Suppl 2), 1919-1979. https://doi.org/10.1007/s10462-023-10567-4
 
     Examples
     --------

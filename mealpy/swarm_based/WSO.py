@@ -12,28 +12,39 @@ class OriginalWSO(Optimizer):
     """
     The original version: White Shark Optimizer (WSO)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size, default = 100
-    + tau (float): Acceleration coefficient (4.125) used to derive the constriction factor `mu`.
-    + p_min (float): Initial (0.5)
-    + p_max (float): Subordinate (1.5) velocities to control the effect of global and local best positions
-    + f_min (float): Minimum (0.07)
-    + f_max (float): maximum (0.75) frequencies of the undulating motion.
-    + a0, a1 (float): Constants (6.25, 100.0) managing exploration vs. exploitation via the movement force parameter `mv` (hearing/smell strength).
-    + a2 (float): Constant (0.0005) controlling the sight/smell strength when following the best shark in the school (`s_s`).
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Population size, in range [5, 100000]. Default is 100.
+    tau : float
+        Acceleration coefficient used to derive the constriction factor `mu`, in range [0.0, 100.0]. Default is 4.125.
+    p_min : float
+        Initial velocities to control the effect of global and local best positions, in range [0.0, 10.0]. Default is 0.5.
+    p_max : float
+        Subordinate velocities to control the effect of global and local best positions, in range [0.0, 100.0]. Default is 1.5.
+    f_min : float
+        Minimum frequencies of the undulating motion, in range (0.0, 10.0). Default is 0.07.
+    f_max : float
+        Maximum frequencies of the undulating motion, in range (0.0, 10.0). Default is 0.75.
+    a0 : float
+        Constant managing exploration vs. exploitation via the movement force parameter `mv` (hearing/smell strength), in range (0.0, 1000.0). Default is 6.25.
+    a1 : float
+        Constant managing exploration vs. exploitation via the movement force parameter `mv` (hearing/smell strength), in range (0.0, 1000.0). Default is 100.0.
+    a2 : float
+        Constant controlling the sight/smell strength when following the best shark in the school (`s_s`), in range (0.0, 1000.0). Default is 0.0005.
 
     Warnings
     --------
     1. Discrepancies have been spotted between the MATLAB code and the pseudocode presented in
-    the algorithm's paper. Users should exercise caution when using this algorithm.
+       the algorithm's paper. Users should exercise caution when using this algorithm.
     2. This version accurately implements the equations from the paper, allowing users to
-    validate both the algorithm's performance and the published results.
+       validate both the algorithm's performance and the published results.
     3. A drawback of this algorithm is the introduction of too many meaningless parameters. Replacing them
-    with simpler operators could potentially improve performance while eliminating the need for parameter tuning
+       with simpler operators could potentially improve performance while eliminating the need for parameter tuning
     4. Many parameters are fixed in the paper, but this heavily depends on your specific problem. Therefore,
-    users are advised to read the paper carefully to understand the functional meaning of these hyperparameters.
+       users are advised to read the paper carefully to understand the functional meaning of these hyperparameters.
 
     Links
     -----
@@ -42,9 +53,9 @@ class OriginalWSO(Optimizer):
 
     References
     ----------
-    .. [1] Braik, M., Hammouri, A., Atwan, J., Al-Betar, M. A., & Awadallah, M. A. (2022).
-    White Shark Optimizer: A novel bio-inspired meta-heuristic algorithm for global optimization
-    problems. Knowledge-Based Systems, 243, 108457.
+    1. Braik, M., Hammouri, A., Atwan, J., Al-Betar, M. A., & Awadallah, M. A. (2022).
+       White Shark Optimizer: A novel bio-inspired meta-heuristic algorithm for global optimization
+       problems. Knowledge-Based Systems, 243, 108457.
 
     Examples
     --------

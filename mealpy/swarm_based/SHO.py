@@ -12,12 +12,22 @@ class OriginalSHO(Optimizer):
     """
     The original version of: Spotted Hyena Optimizer (SHO)
 
-    Links:
-        1. https://doi.org/10.1016/j.advengsoft.2017.05.014
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    h_factor : float
+        Coefficient linearly decreased from 5.0 to 0, in range (0.5, 10.0). Default is 5.0.
+    n_trials : int
+        In range [1, 1000000]. Default is 10.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + h_factor (float): default = 5, coefficient linearly decreased from 5 to 0
-        + n_trials (int): default = 10
+    References
+    ~~~~~~~~~~
+    1. Dhiman, G. and Kumar, V., 2017. Spotted hyena optimizer: a novel bio-inspired based
+       metaheuristic technique for engineering applications.
+       Advances in Engineering Software, 114, pp.48-70. https://doi.org/10.1016/j.advengsoft.2017.05.014
 
     Examples
     ~~~~~~~~
@@ -37,12 +47,8 @@ class OriginalSHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Dhiman, G. and Kumar, V., 2017. Spotted hyena optimizer: a novel bio-inspired based metaheuristic
-    technique for engineering applications. Advances in Engineering Software, 114, pp.48-70.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, h_factor: float = 5., n_trials: int = 10, **kwargs: object) -> None:
         """
         Args:
@@ -55,7 +61,7 @@ class OriginalSHO(Optimizer):
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.h_factor = self.validator.check_float("h_factor", h_factor, (0.5, 10.0))
-        self.n_trials = self.validator.check_int("n_trials", n_trials, (1, float("inf")))
+        self.n_trials = self.validator.check_int("n_trials", n_trials, [1, 1000000])
         self.set_parameters(["epoch", "pop_size", "h_factor", "n_trials"])
         self.sort_flag = False
 

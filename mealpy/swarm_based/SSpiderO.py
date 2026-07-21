@@ -13,12 +13,22 @@ class OriginalSSpiderO(Optimizer):
     """
     The original version of: Social Spider Optimization (SSpiderO)
 
-    Links:
-        1. https://www.hindawi.com/journals/mpe/2018/6843923/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    fp_min : float
+        Female Percent min, in range (0.0, 1.0). Default is 0.65.
+    fp_max : float
+        Female Percent max, in range (0.0, 1.0). Default is 0.9.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + fp_min (float): Female Percent min, default = 0.65
-        + fp_max (float): Female Percent max, default = 0.9
+    References
+    ~~~~~~~~~~
+    1. Luque-Chang, A., Cuevas, E., Fausto, F., Zaldivar, D. and Pérez, M., 2018.
+       Social spider optimization algorithm: modifications, applications, and perspectives.
+       Mathematical Problems in Engineering, 2018. https://doi.org/10.1155/2018/6843923
 
     Examples
     ~~~~~~~~
@@ -38,11 +48,6 @@ class OriginalSSpiderO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Luque-Chang, A., Cuevas, E., Fausto, F., Zaldivar, D. and Pérez, M., 2018. Social spider
-    optimization algorithm: modifications, applications, and perspectives. Mathematical Problems in Engineering, 2018.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, fp_min: float = 0.65, fp_max: float = 0.9, **kwargs: object) -> None:

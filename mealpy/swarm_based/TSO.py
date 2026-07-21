@@ -12,10 +12,24 @@ class OriginalTSO(Optimizer):
     """
     The original version of: Tuna Swarm Optimization (TSO)
 
-    Notes:
-        1. Two variables that authors consider it as a constants (aa = 0.7 and zz = 0.05)
-        2. https://www.hindawi.com/journals/cin/2021/9210050/
-        3. https://www.mathworks.com/matlabcentral/fileexchange/101734-tuna-swarm-optimization
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Note
+    ----
+    1. Two variables that authors consider it as a constants (aa = 0.7 and zz = 0.05)
+    2. https://www.hindawi.com/journals/cin/2021/9210050/
+    3. https://www.mathworks.com/matlabcentral/fileexchange/101734-tuna-swarm-optimization
+
+    References
+    ~~~~~~~~~~
+    1. Xie, L., Han, T., Zhou, H., Zhang, Z. R., Han, B., & Tang, A. (2021).
+       Tuna swarm optimization: a novel swarm-based metaheuristic algorithm for global optimization.
+       Computational intelligence and Neuroscience, 2021.
 
     Examples
     ~~~~~~~~
@@ -35,18 +49,9 @@ class OriginalTSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Xie, L., Han, T., Zhou, H., Zhang, Z. R., Han, B., & Tang, A. (2021). Tuna swarm optimization: a novel swarm-based
-    metaheuristic algorithm for global optimization. Computational intelligence and Neuroscience, 2021.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

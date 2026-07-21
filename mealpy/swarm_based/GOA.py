@@ -12,13 +12,26 @@ class OriginalGOA(Optimizer):
     """
     The original version of: Grasshopper Optimization Algorithm (GOA)
 
-    Links:
-        1. https://dx.doi.org/10.1016/j.advengsoft.2017.01.004
-        2. https://www.mathworks.com/matlabcentral/fileexchange/61421-grasshopper-optimisation-algorithm-goa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_min : float
+        Coefficient c min, in range [0.00001, 0.2]. Default is 0.00004.
+    c_max : float
+        Coefficient c max, in range [0.2, 5.0]. Default is 2.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c_min (float): coefficient c min, default = 0.00004
-        + c_max (float): coefficient c max, default = 2.0
+    Links
+    -----
+    1. https://dx.doi.org/10.1016/j.advengsoft.2017.01.004
+    2. https://www.mathworks.com/matlabcentral/fileexchange/61421-grasshopper-optimisation-algorithm-goa
+
+    References
+    ~~~~~~~~~~
+    1. Saremi, S., Mirjalili, S. and Lewis, A., 2017. Grasshopper optimisation algorithm: theory
+       and application. Advances in Engineering Software, 105, pp.30-47.
 
     Examples
     ~~~~~~~~
@@ -38,11 +51,6 @@ class OriginalGOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Saremi, S., Mirjalili, S. and Lewis, A., 2017. Grasshopper optimisation algorithm:
-    theory and application. Advances in Engineering Software, 105, pp.30-47.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_min: float = 0.00004, c_max: float = 2.0, **kwargs: object) -> None:

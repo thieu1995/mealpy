@@ -13,12 +13,22 @@ class OriginalHGS(Optimizer):
     """
     The original version of: Hunger Games Search (HGS)
 
-    Links:
-        https://aliasgharheidari.com/HGS.html
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    PUP : float
+        The probability of updating position (L in the paper), in range (0, 1.0). Default is 0.08.
+    LH : float
+        Largest hunger / threshold, in range [1, 20000]. Default is 10000.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + PUP (float): [0.01, 0.2], The probability of updating position (L in the paper), default = 0.08
-        + LH (float): [1000, 20000], Largest hunger / threshold, default = 10000
+    References
+    ~~~~~~~~~~
+    1. Yang, Y., Chen, H., Heidari, A.A. and Gandomi, A.H., 2021. Hunger games search: Visions,
+       conception, implementation, deep analysis, perspectives, and towards performance shifts.
+       Expert Systems with Applications, 177, p.114864. https://doi.org/10.1016/j.eswa.2021.114864
 
     Examples
     ~~~~~~~~
@@ -38,21 +48,9 @@ class OriginalHGS(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yang, Y., Chen, H., Heidari, A.A. and Gandomi, A.H., 2021. Hunger games search: Visions, conception, implementation,
-    deep analysis, perspectives, and towards performance shifts. Expert Systems with Applications, 177, p.114864.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, PUP: float = 0.08, LH: float = 10000, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            PUP (float): The probability of updating position (L in the paper), default = 0.08
-            LH (float): Largest hunger / threshold, default = 10000
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

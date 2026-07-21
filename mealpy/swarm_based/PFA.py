@@ -12,8 +12,17 @@ class OriginalPFA(Optimizer):
     """
     The original version of: Pathfinder Algorithm (PFA)
 
-    Links:
-        1. https://doi.org/10.1016/j.asoc.2019.03.012
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Yapici, H. and Cetinkaya, N., 2019. A new meta-heuristic optimizer: Pathfinder algorithm.
+       Applied soft computing, 78, pp.545-568. https://doi.org/10.1016/j.asoc.2019.03.012
 
     Examples
     ~~~~~~~~
@@ -33,18 +42,8 @@ class OriginalPFA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yapici, H. and Cetinkaya, N., 2019. A new meta-heuristic optimizer: Pathfinder algorithm.
-    Applied soft computing, 78, pp.545-568.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

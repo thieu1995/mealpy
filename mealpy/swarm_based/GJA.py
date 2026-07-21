@@ -12,25 +12,42 @@ class OriginalGJA(Optimizer):
     """
     The original version of: Gekko Japonicus Algorithm (GJA)
 
-    Links:
-        1. https://doi.org/10.1007/s42235-025-00805-6
-        2. https://github.com/zhy1109/Gekko-japonicusalgorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size (number of trees). Default is 100.
+    beta_start : float
+        Starting value for the beta parameter, in range [1.0, 1.5]. Default is 1.2.
+    beta_end : float
+        Ending value for the beta parameter, in range [0.1, 0.5]. Default is 0.3.
+    alpha_ratio : float
+        Ratio to calculate alpha from beta, in range [0.4, 0.8]. Default is 0.6.
 
+    Note
+    ----
     The algorithm draws inspiration from the predation strategies and survival behaviors
-    of the Gekko japonicus (Japanese gecko). It simulates various biological behaviors including:
-        - Hybrid locomotion patterns (Levy flight + Gaussian perturbation)
-        - Directional olfactory guidance
-        - Implicit group advantage tendencies
-        - Tail autotomy mechanism for escaping local optima
-        - Historical memory injection for maintaining diversity
+       of the Gekko japonicus (Japanese gecko). It simulates various biological behaviors including:
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + beta_start (float): [1.0, 1.5], starting value for beta parameter, default=1.2
-        + beta_end (float): [0.1, 0.5], ending value for beta parameter, default=0.3
-        + alpha_ratio (float): [0.4, 0.8], ratio to calculate alpha from beta, default=0.6
+       1. Hybrid locomotion patterns (Levy flight + Gaussian perturbation)
+       2. Directional olfactory guidance
+       3. Implicit group advantage tendencies
+       4. Tail autotomy mechanism for escaping local optima
+       5. Historical memory injection for maintaining diversity
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s42235-025-00805-6
+    2. https://github.com/zhy1109/Gekko-japonicusalgorithm
+
+    References
+    ----------
+    1. Zhang, K., Zhao, H., Li, X., Fu, C. and Jin, J., 2025. Gekko Japonicus Algorithm: A Novel
+       Nature-inspired Algorithm for Engineering Problems and Path Planning. Journal of Bionic Engineering.
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, GJA
     >>>
@@ -47,11 +64,6 @@ class OriginalGJA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhang, K., Zhao, H., Li, X., Fu, C. and Jin, J., 2025. Gekko Japonicus Algorithm: A Novel
-        Nature-inspired Algorithm for Engineering Problems and Path Planning. Journal of Bionic Engineering.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, beta_start: float = 1.2,

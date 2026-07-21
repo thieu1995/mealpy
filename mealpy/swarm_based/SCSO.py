@@ -12,9 +12,22 @@ class OriginalSCSO(Optimizer):
     """
     The original version of: Sand Cat Swarm Optimization (SCSO)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s00366-022-01604-x
-        2. https://www.mathworks.com/matlabcentral/fileexchange/110185-sand-cat-swarm-optimization
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://link.springer.com/article/10.1007/s00366-022-01604-x
+    2. https://www.mathworks.com/matlabcentral/fileexchange/110185-sand-cat-swarm-optimization
+
+    References
+    ~~~~~~~~~~
+    1. Seyyedabbasi, A., & Kiani, F. (2022). Sand Cat swarm optimization: a nature-inspired algorithm to
+       solve global optimization problems. Engineering with Computers, 1-25.
 
     Examples
     ~~~~~~~~
@@ -34,11 +47,6 @@ class OriginalSCSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Seyyedabbasi, A., & Kiani, F. (2022). Sand Cat swarm optimization: a nature-inspired algorithm to
-    solve global optimization problems. Engineering with Computers, 1-25.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

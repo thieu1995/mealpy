@@ -12,11 +12,19 @@ class OriginalNMRA(Optimizer):
     """
     The original version of: Naked Mole-Rat Algorithm (NMRA)
 
-    Links:
-        1. https://www.doi.org10.1007/s00521-019-04464-7
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pb : float
+        Probability of breeding, in range (0.0, 1.0). Default is 0.75.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
+    References
+    ~~~~~~~~~~
+    1. Salgotra, R. and Singh, U., 2019. The naked mole-rat algorithm. Neural Computing and
+       Applications, 31(12), pp.8837-8857. https://www.doi.org10.1007/s00521-019-04464-7
 
     Examples
     ~~~~~~~~
@@ -36,18 +44,9 @@ class OriginalNMRA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Salgotra, R. and Singh, U., 2019. The naked mole-rat algorithm. Neural Computing and Applications, 31(12), pp.8837-8857.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pb: float = 0.75, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            pb (float): probability of breeding, default = 0.75
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -86,16 +85,24 @@ class OriginalNMRA(Optimizer):
 
 class ImprovedNMRA(Optimizer):
     """
-    The developed version of: Improved Naked Mole-Rat Algorithm (I-NMRA)
+    Our improved version of: Improved Naked Mole-Rat Algorithm (I-NMRA)
 
-    Notes:
-        + Use mutation probability idea
-        + Use crossover operator
-        + Use Levy-flight technique
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pb : float
+        Breeding probability, in range (0.0, 1.0). Default is 0.75.
+    pm : float
+        Probability of mutation, in range (0.0, 1.0). Default is 0.01.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pb (float): [0.5, 0.95], probability of breeding, default = 0.75
-        + pm (float): [0.01, 0.1], probability of mutation, default = 0.01
+    Note
+    ----
+    + Use mutation probability idea
+    + Use crossover operator
+    + Use Levy-flight technique
 
     Examples
     ~~~~~~~~

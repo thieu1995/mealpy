@@ -12,9 +12,23 @@ class OriginalMGO(Optimizer):
     """
     The original version of: Mountain Gazelle Optimizer (MGO)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0965997822001831
-        2. https://www.mathworks.com/matlabcentral/fileexchange/118680-mountain-gazelle-optimizer
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://www.sciencedirect.com/science/article/abs/pii/S0965997822001831
+    2. https://www.mathworks.com/matlabcentral/fileexchange/118680-mountain-gazelle-optimizer
+
+    References
+    ~~~~~~~~~~
+    1. Abdollahzadeh, B., Gharehchopogh, F. S., Khodadadi, N., & Mirjalili, S. (2022).
+       Mountain gazelle optimizer: a new nature-inspired metaheuristic algorithm for
+       global optimization problems. Advances in Engineering Software, 174, 103282.
 
     Examples
     ~~~~~~~~
@@ -34,11 +48,6 @@ class OriginalMGO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdollahzadeh, B., Gharehchopogh, F. S., Khodadadi, N., & Mirjalili, S. (2022). Mountain gazelle optimizer: a new
-    nature-inspired metaheuristic algorithm for global optimization problems. Advances in Engineering Software, 174, 103282.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

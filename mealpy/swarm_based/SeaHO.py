@@ -12,9 +12,22 @@ class OriginalSeaHO(Optimizer):
     """
     The original version of: Sea-Horse Optimization (SeaHO)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s10489-022-03994-3
-        2. https://www.mathworks.com/matlabcentral/fileexchange/115945-sea-horse-optimizer
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://link.springer.com/article/10.1007/s10489-022-03994-3
+    2. https://www.mathworks.com/matlabcentral/fileexchange/115945-sea-horse-optimizer
+
+    References
+    ~~~~~~~~~~
+    1. Zhao, S., Zhang, T., Ma, S., & Wang, M. (2022). Sea-horse optimizer: a novel nature-inspired
+       meta-heuristic for global optimization problems. Applied Intelligence, 1-28.
 
     Examples
     ~~~~~~~~
@@ -34,11 +47,6 @@ class OriginalSeaHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhao, S., Zhang, T., Ma, S., & Wang, M. (2022). Sea-horse optimizer: a novel nature-inspired
-    meta-heuristic for global optimization problems. Applied Intelligence, 1-28.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

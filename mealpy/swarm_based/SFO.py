@@ -12,13 +12,24 @@ class OriginalSFO(Optimizer):
     """
     The original version of: SailFish Optimizer (SFO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2019.01.001
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, SailFish pop size, in range [5, 10000]. Default is 100.
+    pp : float
+        The rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1, in range (0.0, 1.0). Default is 0.1.
+    AP : float
+        Coefficient for decreasing the value of Power Attack linearly from AP to 0, in range (0.0, 100.0). Default is 4.0.
+    epsilon : float
+        Should be 0.0001, 0.001, in range (0.0, 0.1). Default is 0.0001.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
-        + AP (float): coefficient for decreasing the value of Attack Power linearly from AP to 0
-        + epsilon (float): should be 0.0001, 0.001
+    References
+    ~~~~~~~~~~
+    1. Shadravan, S., Naji, H.R. and Bardsiri, V.K., 2019. The Sailfish Optimizer: A novel nature-inspired
+       metaheuristic algorithm for solving constrained engineering optimization problems.
+       Engineering Applications of Artificial Intelligence, 80, pp.20-34. https://doi.org/10.1016/j.engappai.2019.01.001
 
     Examples
     ~~~~~~~~
@@ -38,11 +49,6 @@ class OriginalSFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shadravan, S., Naji, H.R. and Bardsiri, V.K., 2019. The Sailfish Optimizer: A novel nature-inspired metaheuristic
-    algorithm for solving constrained engineering optimization problems. Engineering Applications of Artificial Intelligence, 80, pp.20-34.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.1, AP: float = 4.0, epsilon: float = 0.0001, **kwargs: object) -> None:

@@ -12,11 +12,20 @@ class OriginalABC(Optimizer):
     """
     The original version of: Artificial Bee Colony (ABC)
 
-    Links:
-        1. https://www.sciencedirect.com/topics/computer-science/artificial-bee-colony
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    n_limits : int
+        Limit of trials before abandoning a food source, default=25.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_limits (int): Limit of trials before abandoning a food source, default=25
+    References
+    ----------
+    1. Karaboga, Dervis, and Bahriye Basturk. "A powerful and efficient algorithm for numerical
+       function optimization: artificial bee colony (ABC) algorithm." Journal of global
+       optimization 39.3 (2007): 459-471. https://doi.org/10.1007/s10898-007-9149-x
 
     Examples
     ~~~~~~~~
@@ -36,11 +45,6 @@ class OriginalABC(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] B. Basturk, D. Karaboga, An artificial bee colony (ABC) algorithm for numeric function optimization,
-    in: IEEE Swarm Intelligence Symposium 2006, May 12–14, Indianapolis, IN, USA, 2006.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_limits: int = 25, **kwargs: object) -> None:
         """

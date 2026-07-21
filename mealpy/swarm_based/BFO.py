@@ -13,23 +13,44 @@ class OriginalBFO(Optimizer):
     """
     The original version of: Bacterial Foraging Optimization (BFO)
 
-    Notes:
-        + Ned and Nre parameters are replaced by epoch (generation)
-        + The Nc parameter will also decrease to reduce the computation time.
-        + Cost in this version equal to Fitness value in the paper.
-        + https://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    Ci : float
+        Step size, in range [0.01, 0.3]. Default is 0.01.
+    Ped : float
+        Probability of elimination, in range [0.1, 0.5]. Default is 0.25.
+    Ned : int
+        Number of elimination-dispersal steps. Default is 5.
+    Nre : int
+        Number of reproduction steps. Default is 50.
+    Nc : int
+        Number of chemotactic steps (reduced to Original Nc/2), in range [3, 10]. Default is 5.
+    Ns : int
+        Swim length, in range [2, 10]. Default is 4.
+    d_attract : float
+        Coefficient to calculate attract force. Default is 0.1.
+    w_attract : float
+        Coefficient to calculate attract force. Default is 0.2.
+    h_repels : float
+        Coefficient to calculate repel force. Default is 0.1.
+    w_repels : float
+        Coefficient to calculate repel force. Default is 10.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + Ci (float): [0.01, 0.3], step size, default=0.01
-        + Ped (float): [0.1, 0.5], probability of elimination, default=0.25
-        + Ned (int): elim_disp_steps (Removed), Ned=5,
-        + Nre (int): reproduction_steps (Removed), Nre=50,
-        + Nc (int): [3, 10], chem_steps (Reduce), Nc = Original Nc/2, default = 5
-        + Ns (int): [2, 10], swim length, default=4
-        + d_attract (float): coefficient to calculate attract force, default = 0.1
-        + w_attract (float): coefficient to calculate attract force, default = 0.2
-        + h_repels (float): coefficient to calculate repel force, default = 0.1
-        + w_repels (float): coefficient to calculate repel force, default = 10
+
+    .. attention::
+       + Ned and Nre parameters are replaced by epoch (generation)
+       + The Nc parameter will also decrease to reduce the computation time.
+       + Cost in this version equal to Fitness value in the paper.
+       + https://www.cleveralgorithms.com/nature-inspired/swarm/bfoa.html
+
+    References
+    ~~~~~~~~~~
+    1. Passino, K.M., 2002. Biomimicry of bacterial foraging for distributed optimization and control.
+       IEEE control systems magazine, 22(3), pp.52-67. https://doi.org/10.1109/MCS.2002.1004010
 
     Examples
     ~~~~~~~~
@@ -49,11 +70,6 @@ class OriginalBFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Passino, K.M., 2002. Biomimicry of bacterial foraging for distributed optimization and control.
-    IEEE control systems magazine, 22(3), pp.52-67.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ci: float = 0.01, Ped: float = 0.25, Nc: int = 5, Ns: int = 4,
@@ -155,14 +171,31 @@ class ABFO(Optimizer):
     """
     The original version of: Adaptive Bacterial Foraging Optimization (ABFO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    C_s : float
+        Step size start. Default is 0.1.
+    C_e : float
+        Step size end. Default is 0.001.
+    Ped : float
+        Probability of elimination. Default is 0.01.
+    Ns : int
+        Swim length. Default is 4.
+    N_adapt : int
+        Dead threshold value. Default is 2.
+    N_split : int
+        Split threshold value. Default is 40.
 
-        + C_s (float): step size start, default=0.1
-        + C_e (float): step size end, default=0.001
-        + Ped (float): Probability eliminate, default=0.01
-        + Ns (int): swim_length, default=4
-        + N_adapt (int): Dead threshold value default=2
-        + N_split (int): Split threshold value, default=40
+    References
+    ~~~~~~~~~~
+    1. Nguyen, T., Nguyen, B.M. and Nguyen, G., 2019, April. Building resource auto-scaler with functional-link
+       neural network and adaptive bacterial foraging optimization. In International Conference on
+       Theory and Applications of Models of Computation (pp. 501-517). Springer, Cham.
+       https://doi.org/10.1007/978-3-030-14812-6_31
 
     Examples
     ~~~~~~~~
@@ -182,12 +215,6 @@ class ABFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Nguyen, T., Nguyen, B.M. and Nguyen, G., 2019, April. Building resource auto-scaler with functional-link
-    neural network and adaptive bacterial foraging optimization. In International Conference on
-    Theory and Applications of Models of Computation (pp. 501-517). Springer, Cham.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, C_s: float = 0.1, C_e: float = 0.001,
@@ -263,13 +290,13 @@ class ABFO(Optimizer):
                         self.pop[idx].update(local_solution=pos_new.copy(), local_target=agent.target.copy())
                 else:
                     self.pop[idx].nutrients -= 1
-            if self.pop[idx].nutrients > max(self.N_split, self.N_split + (len(self.pop) - self.pop_size) / self.N_adapt):
+            if self.pop[idx].nutrients > max(self.N_split, int(self.N_split + (len(self.pop) - self.pop_size) / self.N_adapt)):
                 tt = self.generator.normal(0, 1, self.problem.n_dims)
                 pos_new = tt * self.pop[idx].solution + (1 - tt) * (self.g_best.solution - self.pop[idx].solution)
                 pos_new = self.correct_solution(pos_new)
                 agent = self.generate_agent(pos_new)
                 self.pop.append(agent)
-            nut_min = min(self.N_adapt, self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt)
+            nut_min = min(self.N_adapt, int(self.N_adapt + (len(self.pop) - self.pop_size) / self.N_adapt))
             if self.pop[idx].nutrients < nut_min or self.generator.random() < self.p_eliminate:
                 self.pop[idx] = self.generate_agent()
         ## Make sure the population does not have duplicates.

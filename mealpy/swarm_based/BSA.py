@@ -13,16 +13,37 @@ class OriginalBSA(Optimizer):
     """
     The original version of: Bird Swarm Algorithm (BSA)
 
-    Links:
-        1. https://doi.org/10.1080/0952813X.2015.1042530
-        2. https://www.mathworks.com/matlabcentral/fileexchange/51256-bird-swarm-algorithm-bsa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    ff : int
+        Flight frequency. Default is 10.
+    pff : float
+        The probability of foraging for food. Default is 0.8.
+    c1 : float
+        Cognitive accelerated coefficient same as PSO. Default is 1.5.
+    c2 : float
+        Social accelerated coefficient same as PSO. Default is 1.5.
+    a1 : float
+        The indirect effect on the birds' vigilance behaviours. Default is 1.0.
+    a2 : float
+        The direct effect on the birds' vigilance behaviours. Default is 1.0.
+    fc : float
+        The followed coefficient. Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + ff (int): (5, 20), flight frequency - default = 10
-        + pff (float): the probability of foraging for food - default = 0.8
-        + c_couples (list, tuple): [c1, c2] -> (2.0, 2.0), Cognitive accelerated coefficient, Social accelerated coefficient same as PSO
-        + a_couples (list, tuple): [a1, a2] -> (1.5, 1.5), The indirect and direct effect on the birds' vigilance behaviours.
-        + fc (float): (0.1, 1.0), The followed coefficient - default = 0.5
+    Links
+    -----
+    1. https://doi.org/10.1080/0952813X.2015.1042530
+    2. https://www.mathworks.com/matlabcentral/fileexchange/51256-bird-swarm-algorithm-bsa
+
+    References
+    ~~~~~~~~~~
+    1. Meng, X.B., Gao, X.Z., Lu, L., Liu, Y. and Zhang, H., 2016. A new bio-inspired
+       optimisation algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical
+       Artificial Intelligence, 28(4), pp.673-687.
 
     Examples
     ~~~~~~~~
@@ -42,11 +63,6 @@ class OriginalBSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Meng, X.B., Gao, X.Z., Lu, L., Liu, Y. and Zhang, H., 2016. A new bio-inspired optimisation
-    algorithm: Bird Swarm Algorithm. Journal of Experimental & Theoretical Artificial Intelligence, 28(4), pp.673-687.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, ff: int = 10, pff: float = 0.8,

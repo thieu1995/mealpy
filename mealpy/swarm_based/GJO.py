@@ -12,9 +12,22 @@ class OriginalGJO(Optimizer):
     """
     The original version of: Golden jackal optimization (GJO)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S095741742200358X
-        2. https://www.mathworks.com/matlabcentral/fileexchange/108889-golden-jackal-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://www.sciencedirect.com/science/article/abs/pii/S095741742200358X
+    2. https://www.mathworks.com/matlabcentral/fileexchange/108889-golden-jackal-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Chopra, N., & Ansari, M. M. (2022). Golden jackal optimization: A novel nature-inspired
+       optimizer for engineering applications. Expert Systems with Applications, 198, 116924.
 
     Examples
     ~~~~~~~~
@@ -34,11 +47,6 @@ class OriginalGJO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Chopra, N., & Ansari, M. M. (2022). Golden jackal optimization: A novel nature-inspired
-    optimizer for engineering applications. Expert Systems with Applications, 198, 116924.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

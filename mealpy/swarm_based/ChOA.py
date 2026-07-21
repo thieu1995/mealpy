@@ -10,12 +10,17 @@ class OriginalChOA(Optimizer):
     """
     The original version of: Chimp Optimization Algorithm (ChOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.eswa.2020.113338
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + epoch (int): maximum number of iterations, default = 10000
-        + pop_size (int): number of population size, default = 100
+    References
+    ----------
+    1. Khishe, M. and Mosavi, M.R., 2020. Chimp optimization algorithm.
+       Expert systems with applications, 149, p.113338. https://doi.org/10.1016/j.eswa.2020.113338
 
     Examples
     ~~~~~~~~
@@ -35,11 +40,6 @@ class OriginalChOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Khishe, M. and Mosavi, M.R., 2020. Chimp optimization algorithm.
-    Expert systems with applications, 149, p.113338.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

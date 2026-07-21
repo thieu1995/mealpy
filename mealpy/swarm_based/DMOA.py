@@ -12,14 +12,32 @@ class OriginalDMOA(Optimizer):
     """
     The original version of: Dwarf Mongoose Optimization Algorithm (DMOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.cma.2022.114570
-        2. https://www.mathworks.com/matlabcentral/fileexchange/105125-dwarf-mongoose-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    n_baby_sitter : int
+        Number of baby sitters, in range [2, 10]. Default is 3.
+    peep : float
+        Peep parameter, in range [1.0, 10.0]. Default is 2.0.
 
-    Notes:
-        1. The Matlab code differs slightly from the original paper
-        2. There are some parameters and equations in the Matlab code that don't seem to have any meaningful purpose.
-        3. The algorithm seems to be weak on solving several problems.
+
+    .. note::
+       1. The Matlab code differs slightly from the original paper
+       2. There are some parameters and equations in the Matlab code that don't seem to have any meaningful purpose.
+       3. The algorithm seems to be weak on solving several problems.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.cma.2022.114570
+    2. https://www.mathworks.com/matlabcentral/fileexchange/105125-dwarf-mongoose-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Agushaka, J. O., Ezugwu, A. E., & Abualigah, L. (2022). Dwarf mongoose optimization algorithm.
+       Computer methods in applied mechanics and engineering, 391, 114570.
 
     Examples
     ~~~~~~~~
@@ -39,11 +57,6 @@ class OriginalDMOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Agushaka, J. O., Ezugwu, A. E., & Abualigah, L. (2022). Dwarf mongoose optimization algorithm.
-    Computer methods in applied mechanics and engineering, 391, 114570.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_baby_sitter: int = 3, peep: float = 2, **kwargs: object) -> None:
@@ -121,12 +134,21 @@ class OriginalDMOA(Optimizer):
 
 class DevDMOA(Optimizer):
     """
-    The developed version of: Dwarf Mongoose Optimization Algorithm (DMOA)
+    Our developed version: Dwarf Mongoose Optimization Algorithm (DMOA)
 
-    Notes:
-        1. Removed the parameter n_baby_sitter
-        2. Changed in section # Next Mongoose position
-        3. Removed the meaningless variable tau
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    peep : float
+        Peep parameter, in range [1.0, 10.0]. Default is 2.0.
+
+    .. note::
+       1. Removed the parameter n_baby_sitter
+       2. Changed in section # Next Mongoose position
+       3. Removed the meaningless variable tau
 
     Examples
     ~~~~~~~~

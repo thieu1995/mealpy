@@ -12,12 +12,18 @@ class OriginalFDO(Optimizer):
     """
     The original version of: Fitness Dependent Optimizer (FDO)
 
-    Notes:
-        + https://doi.org/10.1109/ACCESS.2019.2907012
-        + Inspired by the bee swarming reproductive process, this algorithm optimizes solutions based on their fitness values.
-        + This algorithm mainly relies on Lévy flight techniques. Thanks to this method of generating random numbers
-        according to the Lévy distribution, it is able to converge. However, in the design of the fitness weight
-        condition, it is almost impossible for an update to occur when the fitness weight equals 1. This is the main drawback.
+    Warnings
+    --------
+    1. Inspired by the bee swarming reproductive process, this algorithm optimizes solutions based on
+       their fitness values by relying primarily on Lévy flight techniques. Owing to random number generation
+       following the Lévy distribution, the algorithm demonstrates strong convergence capabilities.
+    2. However, a major drawback lies in its fitness weight design, where an update is virtually
+       impossible when the fitness weight equals 1
+
+    References
+    ----------
+    [1] Abdullah, J. M., & Ahmed, T. (2019). Fitness dependent optimizer: inspired by the bee
+       swarming reproductive process. IEEe Access, 7, 43473-43486. https://doi.org/10.1109/ACCESS.2019.2907012
 
     Examples
     ~~~~~~~~
@@ -37,11 +43,6 @@ class OriginalFDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdullah, J. M., & Ahmed, T. (2019).
-    Fitness dependent optimizer: inspired by the bee swarming reproductive process. IEEe Access, 7, 43473-43486.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, weight_factor=0.1, **kwargs: object) -> None:
         """

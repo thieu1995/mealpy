@@ -12,11 +12,20 @@ class OriginalMRFO(Optimizer):
     """
     The original version of: Manta Ray Foraging Optimization (MRFO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2019.103300
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    somersault_range : float
+        Somersault factor that decides the somersault range of manta rays, in range [1.0, 5.0]. Default is 2.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + somersault_range (float): [1.5, 3], somersault factor that decides the somersault range of manta rays, default=2
+    References
+    ~~~~~~~~~~
+    1. Zhao, W., Zhang, Z. and Wang, L., 2020. Manta ray foraging optimization: An effective
+       bio-inspired optimizer for engineering applications. Engineering Applications of
+       Artificial Intelligence, 87, p.103300.  https://doi.org/10.1016/j.engappai.2019.103300
 
     Examples
     ~~~~~~~~
@@ -36,11 +45,6 @@ class OriginalMRFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhao, W., Zhang, Z. and Wang, L., 2020. Manta ray foraging optimization: An effective bio-inspired
-    optimizer for engineering applications. Engineering Applications of Artificial Intelligence, 87, p.103300.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, somersault_range: float = 2.0, **kwargs: object) -> None:
@@ -126,12 +130,21 @@ class WMQIMRFO(Optimizer):
     """
     The original version of: Wavelet Mutation and Quadratic Interpolation MRFO (WMQIMRFO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2021.108071
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    somersault_range : float, optional
+        Somersault factor that decides the somersault range of manta rays, in range [1.0, 5.0]. Default is 2.0.
+    pm : float, optional
+        Probability mutation, in range (0.0, 1.0). Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + somersault_range (float): [1.5, 3], somersault factor that decides the somersault range of manta rays, default=2
-        + pm (float): (0.0, 1.0), probability mutation, default = 0.5
+    References
+    ~~~~~~~~~~
+    1. G. Hu, M. Li, X. Wang et al., An enhanced manta ray foraging optimization algorithm for shape optimization of
+       complex CCG-Ball curves, Knowledge-Based Systems (2022). https://doi.org/10.1016/j.knosys.2021.108071.
 
     Examples
     ~~~~~~~~
@@ -151,11 +164,6 @@ class WMQIMRFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] G. Hu, M. Li, X. Wang et al., An enhanced manta ray foraging optimization algorithm for shape optimization of
-    complex CCG-Ball curves, Knowledge-Based Systems (2022), doi: https://doi.org/10.1016/j.knosys.2021.108071.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, somersault_range: float = 2.0, pm: float = 0.5, **kwargs: object) -> None:

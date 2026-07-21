@@ -12,15 +12,21 @@ class OriginalRFO(Optimizer):
     """
     The original version of: Red Fox Optimization (RFO)
 
-    Hyperparameters
-    ----------------
-    + phi_0 (float): Fox observation angle set at the beginning, default = 0.785 (pi/4)
-    + theta (float): Weather conditions parameter, default = 0.5
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    phi_0 : float
+        Fox observation angle set at the beginning. Default is 0.785 (pi/4).
+    theta : float
+        Weather conditions parameter. Default is 0.5.
 
     References
     ----------
-    .. [1] Połap, Dawid, and Marcin Woźniak. "Red fox optimization algorithm."
-    Expert Systems with Applications 166 (2021): 114107. https://doi.org/10.1016/j.eswa.2020.114107
+    1. Połap, Dawid, and Marcin Woźniak. "Red fox optimization algorithm."
+       Expert Systems with Applications 166 (2021): 114107. https://doi.org/10.1016/j.eswa.2020.114107
 
     Examples
     ~~~~~~~~

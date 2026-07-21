@@ -19,19 +19,19 @@ class OriginalDandelionO(Optimizer):
 
     Warnings
     --------
-    * This version is implemented exactly as described in the paper and the author's original MATLAB code.
-    However, in the MATLAB code, the author omitted the 0.01 multiplier in the Levy function,
-    despite it being explicitly mentioned in the paper.
+    1. This version is implemented exactly as described in the paper and the author's original MATLAB code.
+    2. However, in the MATLAB code, the author omitted the 0.01 multiplier in the Levy function,
+       despite it being explicitly mentioned in the paper.
 
     Links
     -----
     1. https://www.mathworks.com/matlabcentral/fileexchange/114680-dandelion-optimizer
+    2. https://doi.org/10.1016/j.engappai.2022.105075
 
     References
     ----------
-    .. [1] Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired
-    metaheuristic algorithm for engineering applications. Engineering Applications of
-    Artificial Intelligence, 114, 105075. https://doi.org/10.1016/j.engappai.2022.105075
+    1. Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired metaheuristic
+       algorithm for engineering applications. Engineering Applications of Artificial Intelligence, 114, 105075.
 
     Examples
     ~~~~~~~~
@@ -131,18 +131,19 @@ class DevDandelionO(Optimizer):
     + epoch (int): Maximum number of iterations, default = 10000
     + pop_size (int): Population size, default = 100
 
-    Warnings
-    --------
-    * This dev version was contributed by the user "Halil". Several parameters—such as alpha, a, b, and k—differ
-    from the original paper. Furthermore, the Levy function is applied to the entire population simultaneously,
-    whereas the paper specifies generating a Levy step for each individual. If you choose to use this version,
-    it must be clearly stated that it is not the original implementation.
+    Danger
+    ------
+    1. This dev version was contributed by the user "Halil". Several parameters—such as alpha, a, b,
+       and k, differ from the original paper.
+    2. Furthermore, the Levy function is applied to the entire population simultaneously, whereas the paper
+       specifies generating a Levy step for each individual. If you choose to use this version,
+       it must be clearly stated that it is not the original implementation.
 
     References
     ----------
-    .. [1] Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired
-    metaheuristic algorithm for engineering applications. Engineering Applications of
-    Artificial Intelligence, 114, 105075. https://doi.org/10.1016/j.engappai.2022.105075
+    1. Zhao, S., Zhang, T., Ma, S., & Chen, M. (2022). Dandelion Optimizer: A nature-inspired
+       metaheuristic algorithm for engineering applications. Engineering Applications of
+       Artificial Intelligence, 114, 105075. https://doi.org/10.1016/j.engappai.2022.105075
 
     Examples
     ~~~~~~~~

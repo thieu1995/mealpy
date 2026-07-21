@@ -12,8 +12,18 @@ class OriginalAO(Optimizer):
     """
     The original version of: Aquila Optimization (AO)
 
-    Links:
-        1. https://doi.org/10.1016/j.cie.2021.107250
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Abualigah, L., Yousri, D., Abd Elaziz, M., Ewees, A.A., Al-Qaness, M.A. and Gandomi, A.H., 2021.
+       Aquila optimizer: a novel meta-heuristic optimization algorithm. Computers & Industrial
+       Engineering, 157, p.107250. https://doi.org/10.1016/j.cie.2021.107250
 
     Examples
     ~~~~~~~~
@@ -33,11 +43,6 @@ class OriginalAO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abualigah, L., Yousri, D., Abd Elaziz, M., Ewees, A.A., Al-Qaness, M.A. and Gandomi, A.H., 2021.
-    Aquila optimizer: a novel meta-heuristic optimization algorithm. Computers & Industrial Engineering, 157, p.107250.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
@@ -104,8 +109,24 @@ class AAO(Optimizer):
     """
     The original version of: Adaptive Aquila Optimizer (AAO)
 
-    Links:
-        1. https://doi.org/10.1016/j.rineng.2024.103261
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    sharpness : float
+        Variable that controls the sharpness of the transition between exploration and exploitation.
+        Default is 10.0, valid range: [0.1, 10000.0].
+    sigmoid_midpoint : float
+        Variable that controls the midpoint of the sigmoid function as it determines when the
+        transition should be applied, default is 0.5, valid range: [0.0, 1.0].
+
+    References
+    ~~~~~~~~~~
+    1. Al-Selwi, S. M., Hassan, M. F., Abdulkadir, S. J., Ragab, M. G., Alqushaibi, A., & Sumiea, E. H. (2024).
+       Smart grid stability prediction using adaptive aquila optimizer and ensemble stacked bilstm.
+       Results in Engineering, 24, 103261. https://doi.org/10.1016/j.rineng.2024.103261
 
     Examples
     ~~~~~~~~
@@ -125,25 +146,13 @@ class AAO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Al-Selwi, S. M., Hassan, M. F., Abdulkadir, S. J., Ragab, M. G., Alqushaibi, A., & Sumiea, E. H. (2024).
-    Smart grid stability prediction using adaptive aquila optimizer and ensemble stacked bilstm. Results in Engineering, 24, 103261.
     """
 
     def __init__(self, epoch=10000, pop_size=100, sharpness=10.0, sigmoid_midpoint=0.5, **kwargs):
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            sharpness (float): is a positive variable that controls the sharpness of the transition between exploration and exploitation, default is 10.0, Valid range: [0.1, 10000.0].
-            sigmoid_midpoint (float): a variable that controls the midpoint of the sigmoid function as it determines when the transition should be applied, default is 0.5, Valid range: [0.0, 1.0].
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-        self.sharpness = self.validator.check_float("sharpness", sharpness, [0.1, 10000.0])
+        self.sharpness = self.validator.check_float("sharpness", sharpness, [0, 10000.])
         self.sigmoid_midpoint = self.validator.check_float("sigmoid_midpoint", sigmoid_midpoint, [0.0, 1.0])
         self.set_parameters(["epoch", "pop_size", "sharpness", "sigmoid_midpoint"])
         self.sort_flag = False
@@ -178,7 +187,7 @@ class AAO(Optimizer):
             # Dynamically balance the exploration and exploitation phases
             sigmoid_factor = 1 / (1 + np.exp(-self.sharpness * (epoch / self.epoch - self.sigmoid_midpoint)))
 
-            if np.random.rand() <= (1 - sigmoid_factor):
+            if self.generator.random() <= (1 - sigmoid_factor):
                 if self.generator.random() < 0.5:
                     pos_new = (self.g_best.solution * (1 - epoch / self.epoch) +
                                self.generator.random() * (x_mean - self.g_best.solution))  # Eq. (3) and Eq. (4)

@@ -13,10 +13,24 @@ class OriginalPSO(Optimizer):
     """
     The original version of: Particle Swarm Optimization (PSO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (float): [1, 3], local coefficient, default = 2.05
-        + c2 (float): [1, 3], global coefficient, default = 2.05
-        + w (float): (0., 1.0), Weight min of bird, default = 0.4
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Local coefficient, in range (0.0, 5.0). Default is 2.05.
+    c2 : float
+        Global coefficient, in range (0.0, 5.0). Default is 2.05.
+    w : float
+        Weight min of bird, in range (0.0, 1.0). Default is 0.4.
+
+    References
+    ~~~~~~~~~~
+    1. Kennedy, J. and Eberhart, R., 1995, November. Particle swarm optimization. In Proceedings of
+       ICNN'95-international conference on neural networks (Vol. 4, pp. 1942-1948). IEEE.
+       https://doi.org/10.1109/ICNN.1995.488968
 
     Examples
     ~~~~~~~~
@@ -36,11 +50,6 @@ class OriginalPSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kennedy, J. and Eberhart, R., 1995, November. Particle swarm optimization. In Proceedings of
-    ICNN'95-international conference on neural networks (Vol. 4, pp. 1942-1948). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05, w: float = 0.4, **kwargs: object) -> None:
@@ -109,10 +118,25 @@ class AIW_PSO(Optimizer):
     """
     The original version of: Adaptive Inertia Weight Particle Swarm Optimization (AIW-PSO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (float): [1, 3], local coefficient, default = 2.05
-        + c2 (float): [1, 3], global coefficient, default = 2.05
-        + alpha (float): [0., 1.0], The positive constant, default = 0.4
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Local coefficient, in range (0.0, 5.0). Default is 2.05.
+    c2 : float
+        Global coefficient, in range (0.0, 5.0). Default is 2.05.
+    alpha : float
+        The positive constant, in range [0.0, 1.0]. Default is 0.4.
+
+    References
+    ~~~~~~~~~~
+    1. Qin, Z., Yu, F., Shi, Z., Wang, Y. (2006). Adaptive Inertia Weight Particle Swarm Optimization.
+       In: Rutkowski, L., Tadeusiewicz, R., Zadeh, L.A., Żurada, J.M. (eds) Artificial Intelligence and
+       Soft Computing – ICAISC 2006. ICAISC 2006. Lecture Notes in Computer Science(), vol 4029. S
+       pringer, Berlin, Heidelberg. https://doi.org/10.1007/11785231_48
 
     Examples
     ~~~~~~~~
@@ -132,12 +156,6 @@ class AIW_PSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Qin, Z., Yu, F., Shi, Z., Wang, Y. (2006). Adaptive Inertia Weight Particle Swarm Optimization. In: Rutkowski, L.,
-    Tadeusiewicz, R., Zadeh, L.A., Żurada, J.M. (eds) Artificial Intelligence and Soft Computing – ICAISC 2006. ICAISC 2006.
-    Lecture Notes in Computer Science(), vol 4029. Springer, Berlin, Heidelberg. https://doi.org/10.1007/11785231_48
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05, alpha: float = 0.4, **kwargs: object) -> None:
@@ -211,11 +229,26 @@ class LDW_PSO(Optimizer):
     """
     The original version of: Linearly Decreasing inertia Weight Particle Swarm Optimization (LDW-PSO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (float): [1, 3], local coefficient, default = 2.05
-        + c2 (float): [1, 3], global coefficient, default = 2.05
-        + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
-        + w_max (float): [0.8, 2.0], Weight max of bird, default = 0.9
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Local coefficient, in range (0.0, 5.0). Default is 2.05.
+    c2 : float
+        Global coefficient, in range (0.0, 5.0). Default is 2.05.
+    w_min : float
+        Weight min of bird, in range (0.0, 0.5). Default is 0.4.
+    w_max : float
+        Weight max of bird, in range [0.5, 2.0]. Default is 0.9.
+
+    References
+    ~~~~~~~~~~
+    1. Shi, Yuhui, and Russell Eberhart. "A modified particle swarm optimizer." In 1998 IEEE international
+       conference on evolutionary computation proceedings. IEEE world congress on computational
+       intelligence (Cat. No. 98TH8360), pp. 69-73. IEEE, 1998. https://doi.org/10.1109/ICEC.1998.699146
 
     Examples
     ~~~~~~~~
@@ -235,11 +268,6 @@ class LDW_PSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shi, Yuhui, and Russell Eberhart. "A modified particle swarm optimizer." In 1998 IEEE international conference on
-    evolutionary computation proceedings. IEEE world congress on computational intelligence (Cat. No. 98TH8360), pp. 69-73. IEEE, 1998.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05,
@@ -313,6 +341,19 @@ class P_PSO(Optimizer):
     """
     The original version of: Phasor Particle Swarm Optimization (P-PSO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Ghasemi, M., Akbari, E., Rahimnejad, A., Razavi, S.E., Ghavidel, S. and Li, L., 2019.
+       Phasor particle swarm optimization: a simple and efficient variant of PSO.
+       Soft Computing, 23(19), pp.9701-9718. https://doi.org/10.1007/s00500-018-3536-8
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -331,11 +372,6 @@ class P_PSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ghasemi, M., Akbari, E., Rahimnejad, A., Razavi, S.E., Ghavidel, S. and Li, L., 2019.
-    Phasor particle swarm optimization: a simple and efficient variant of PSO. Soft Computing, 23(19), pp.9701-9718.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -398,9 +434,22 @@ class HPSO_TVAC(P_PSO):
     """
     The original version of: Hierarchical PSO Time-Varying Acceleration (HPSO-TVAC)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + ci (float): [0.3, 1.0], c initial, default = 0.5
-        + cf (float): [0.0, 0.3], c final, default = 0.1
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    ci : float
+        c initial, in range [0.3, 1.0]. Default is 0.5.
+    cf : float
+        c final, in range [0.0, 0.3]. Default is 0.1.
+
+    References
+    ~~~~~~~~~~
+    1. Ghasemi, M., Aghaei, J. and Hadipour, M., 2017. New self-organising hierarchical PSO with
+       jumping time-varying acceleration coefficients. Electronics Letters, 53(20), pp.1360-1362.
+       https://doi.org/10.1049/el.2017.2112
 
     Examples
     ~~~~~~~~
@@ -420,11 +469,6 @@ class HPSO_TVAC(P_PSO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ghasemi, M., Aghaei, J. and Hadipour, M., 2017. New self-organising hierarchical PSO with
-    jumping time-varying acceleration coefficients. Electronics Letters, 53(20), pp.1360-1362.
     """
 
     def __init__(self, epoch=10000, pop_size=100, ci=0.5, cf=0.1, **kwargs):
@@ -481,11 +525,25 @@ class C_PSO(P_PSO):
     """
     The original version of: Chaos Particle Swarm Optimization (C-PSO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (float): [1.0, 3.0] local coefficient, default = 2.05
-        + c2 (float): [1.0, 3.0] global coefficient, default = 2.05
-        + w_min (float): [0.1, 0.4], Weight min of bird, default = 0.4
-        + w_max (float): [0.4, 2.0], Weight max of bird, default = 0.9
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Local coefficient, in range (0.0, 5.0). Default is 2.05.
+    c2 : float
+        Global coefficient, in range (0.0, 5.0). Default is 2.05.
+    w_min : float
+        Weight min of bird, in range (0.0, 0.5). Default is 0.4.
+    w_max : float
+        Weight max of bird, in range [0.5, 2.0]. Default is 0.9.
+
+    References
+    ~~~~~~~~~~
+    1. Liu, B., Wang, L., Jin, Y.H., Tang, F. and Huang, D.X., 2005. Improved particle swarm optimization combined
+       with chaos. Chaos, Solitons & Fractals, 25(5), pp.1261-1271. https://doi.org/10.1016/j.chaos.2004.11.095
 
     Examples
     ~~~~~~~~
@@ -505,11 +563,6 @@ class C_PSO(P_PSO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Liu, B., Wang, L., Jin, Y.H., Tang, F. and Huang, D.X., 2005. Improved particle swarm optimization
-    combined with chaos. Chaos, Solitons & Fractals, 25(5), pp.1261-1271.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05,
@@ -601,11 +654,26 @@ class CL_PSO(Optimizer):
     """
     The original version of: Comprehensive Learning Particle Swarm Optimization (CL-PSO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c_local (float): [1.0, 3.0], local coefficient, default = 1.2
-        + w_min (float): [0.1, 0.5], Weight min of bird, default = 0.4
-        + w_max (float): [0.7, 2.0], Weight max of bird, default = 0.9
-        + max_flag (int): [5, 20], Number of times, default = 7
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_local : float
+        Local coefficient, in range (0.0, 5.0). Default is 1.2.
+    w_min : float
+        Weight min of bird, in range (0.0, 0.5). Default is 0.4.
+    w_max : float
+        Weight max of bird, in range [0.5, 2.0]. Default is 0.9.
+    max_flag : int
+        Number of times, in range [2, 100]. Default is 7.
+
+    References
+    ~~~~~~~~~~
+    1. Liang, J.J., Qin, A.K., Suganthan, P.N. and Baskar, S., 2006.
+       Comprehensive learning particle swarm optimizer for global optimization of multimodal functions.
+       IEEE transactions on evolutionary computation, 10(3), pp.281-295. https://doi.org/10.1109/TEVC.2005.857610
 
     Examples
     ~~~~~~~~
@@ -625,11 +693,6 @@ class CL_PSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Liang, J.J., Qin, A.K., Suganthan, P.N. and Baskar, S., 2006. Comprehensive learning particle swarm optimizer
-    for global optimization of multimodal functions. IEEE transactions on evolutionary computation, 10(3), pp.281-295.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_local: float = 1.2,

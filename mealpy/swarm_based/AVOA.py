@@ -12,16 +12,33 @@ class OriginalAVOA(Optimizer):
     """
     The original version of: African Vultures Optimization Algorithm (AVOA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0360835221003120
-        2. https://www.mathworks.com/matlabcentral/fileexchange/94820-african-vultures-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    p1 : float
+        The probability of status transition, default 0.6
+    p2 : float
+        The probability of status transition, default 0.4
+    p3 : float
+        The probability of status transition, default 0.6
+    alpha : float
+        The probability of 1st best, default = 0.8.
+    gama : float
+        The factor in the paper (not much affect to algorithm), default = 2.5
 
-    Notes (parameters):
-        + p1 (float): probability of status transition, default 0.6
-        + p2 (float): probability of status transition, default 0.4
-        + p3 (float): probability of status transition, default 0.6
-        + alpha (float): probability of 1st best, default = 0.8
-        + gama (float): a factor in the paper (not much affect to algorithm), default = 2.5
+    Links
+    -----
+    1. https://doi.org/10.1016/j.cie.2021.107408
+    2. https://www.mathworks.com/matlabcentral/fileexchange/94820-african-vultures-optimization-algorithm
+
+    References
+    ----------
+    1. Abdollahzadeh, B., Gharehchopogh, F. S., & Mirjalili, S. (2021). African vultures optimization
+       algorithm: A new nature-inspired metaheuristic algorithm for global optimization problems.
+       Computers & Industrial Engineering, 158, 107408.
 
     Examples
     ~~~~~~~~
@@ -41,11 +58,6 @@ class OriginalAVOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdollahzadeh, B., Gharehchopogh, F. S., & Mirjalili, S. (2021). African vultures optimization algorithm: A new
-    nature-inspired metaheuristic algorithm for global optimization problems. Computers & Industrial Engineering, 158, 107408.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p1: float = 0.6, p2: float = 0.4,

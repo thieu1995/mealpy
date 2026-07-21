@@ -11,14 +11,36 @@ class OriginalCoatiOA(Optimizer):
     """
     The original version of: Coati Optimization Algorithm (CoatiOA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/pii/S0950705122011042
-        2. https://www.mathworks.com/matlabcentral/fileexchange/116965-coa-coati-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
-        2. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-        3. The article may share some similarities with previous work by the same authors, further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+    Links
+    -----
+    1. https://www.sciencedirect.com/science/article/pii/S0950705122011042
+    2. https://www.mathworks.com/matlabcentral/fileexchange/116965-coa-coati-optimization-algorithm
+
+    Danger
+    ------
+    1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+       Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+       Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+       Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA),
+       Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA),
+       Cat and mouse based optimizer (CMBO)
+    2. It may be useful to compare the Matlab code of this algorithm with those of the similar
+       algorithms to ensure its accuracy and completeness.
+    3. The article may share some similarities with previous work by the same authors,
+       further investigation may be warranted to verify the benchmark results
+       reported in the papers and ensure their reliability and accuracy.
+
+    References
+    ~~~~~~~~~~
+    1. Dehghani, M., Montazeri, Z., Trojovská, E., & Trojovský, P. (2023). Coati Optimization Algorithm: A new
+       bio-inspired metaheuristic algorithm for solving optimization problems. Knowledge-Based Systems, 259, 110011.
 
     Examples
     ~~~~~~~~
@@ -38,11 +60,6 @@ class OriginalCoatiOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Dehghani, M., Montazeri, Z., Trojovská, E., & Trojovský, P. (2023). Coati Optimization Algorithm: A new
-    bio-inspired metaheuristic algorithm for solving optimization problems. Knowledge-Based Systems, 259, 110011.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

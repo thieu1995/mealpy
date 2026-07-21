@@ -14,13 +14,19 @@ class OriginalAHO(Optimizer):
     """
     The original version of: Archerfish Hunting Optimizer (AHO)
 
-    Hyperparameters
-    ---------------
-    + theta (float): [0, pi], The swapping angle between exploration and exploitation (Default: pi/12)
-    + omega (float): [0, 100.], The attractiveness rate (Default: 0.01)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    theta : float
+        Good range [0, pi], The swapping angle between exploration and exploitation, default: pi/12.
+    omega : float
+        Good range [0, 100.], The attractiveness rate, default: 0.01.
 
-    Warnings
-    --------
+    Danger
+    ------
     1. Empirical evaluations have exposed several critical flaws in its fundamental design:
     2. Architectural Inefficiency: Unlike standard metaheuristic algorithms that
        operate with O(N) population loops, AHO explicitly employs deeply nested
@@ -39,9 +45,9 @@ class OriginalAHO(Optimizer):
 
     References
     ----------
-    .. [1] Zitouni, F., Harous, S., Belkeram, A., & Hammou, L. E. B. (2022).
-    The archerfish hunting optimizer: A novel metaheuristic algorithm for global optimization.
-    Arabian Journal for Science and Engineering, 47(2), 2513-2553. https://doi.org/10.1007/s13369-021-06208-z
+    1. Zitouni, F., Harous, S., Belkeram, A., & Hammou, L. E. B. (2022).
+       The archerfish hunting optimizer: A novel metaheuristic algorithm for global optimization.
+       Arabian Journal for Science and Engineering, 47(2), 2513-2553. https://doi.org/10.1007/s13369-021-06208-z
 
     Examples
     --------
@@ -92,7 +98,6 @@ class OriginalAHO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_new = []
         for idx in range(self.pop_size):
             # Generate perceiving angle theta_0 (Equation 6)
             b = self.generator.integers(0, 2)  # Bernoulli distribution (0 or 1)

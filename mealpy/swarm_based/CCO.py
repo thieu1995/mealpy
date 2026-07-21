@@ -14,55 +14,61 @@ class OriginalCCO(Optimizer):
     """
     The original version of: Cuckoo Catfish Optimizer (CCO)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): maximum number of iterations, default = 10000
-    + pop_size (int): number of population size, default = 100
-    + alpha (float): (0, 10.0), alpha parameter, default = 1.34 (as in Matlab code)
-    + beta (float): (0, 10.0), beta parameter, default = 0.3 (as in Matlab code)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    alpha : float
+        Good range (0, 10.0), alpha parameter, default = 1.34 (as in Matlab code).
+    beta : float
+        Good range (0, 10.0), beta parameter, default = 0.3 (as in Matlab code).
 
-    Warnings
-    --------
-    1. Excessive Complexity: This is the most complex and convoluted algorithm we have ever implemented. It is packed
-    with nested operators that seem entirely disconnected from the actual behavior of a Cuckoo Catfish.
+    Danger
+    ------
+    1. Excessive Complexity: This is the most complex and convoluted algorithm we have ever implemented.
+       It is packed with nested operators that seem entirely disconnected from the actual behavior of a Cuckoo Catfish.
     2. Arbitrary Logic: We get the distinct impression that the authors simply fabricated the equations and
-    an excessive number of if-else conditions just to force the algorithm to perform well.
+       an excessive number of if-else conditions just to force the algorithm to perform well.
     3. Lack of Conceptual Alignment: While the algorithm may appear mathematically sound, it lacks any real
-    connection to its stated inspiration, the Cuckoo Catfish. We would advise researchers, especially those new
-    to the field to avoid using such overly complex heuristics for development.
-    4. Computational Inefficiency: A major issue is that the actual computational complexity does not align
-    with the claims made in the paper. The excessive sorting processes within the population update loops
-    make the algorithm significantly slower than others.
+       connection to its stated inspiration, the Cuckoo Catfish. We would advise researchers, especially
+       those new to the field to avoid using such overly complex heuristics for development.
+    4. Computational Inefficiency: A major issue is that the actual computational complexity does not
+       align with the claims made in the paper. The excessive sorting processes within the
+       population update loops make the algorithm significantly slower than others.
     5. Lack of Parallelizability: Furthermore, the algorithm is not inherently parallelizable,
-    as the population updates are strictly interdependent.
+       as the population updates are strictly interdependent.
 
     Links
     -----
     1. https://www.mathworks.com/matlabcentral/fileexchange/176828-cuckoo-catfish-optimizer-a-new-meta-heuristic-optimization
+    2. https://doi.org/10.1007/s10462-025-11291-x
 
     References
     ----------
-    .. [1] Wang, T. L., Gu, S. W., Liu, R. J., Chen, L. Q., Wang, Z., & Zeng, Z. Q. (2025).
-    Cuckoo catfish optimizer: a new meta-heuristic optimization algorithm.
-    Artificial Intelligence Review, 58(10), 326. https://doi.org/10.1007/s10462-025-11291-x
+    1. Wang, T. L., Gu, S. W., Liu, R. J., Chen, L. Q., Wang, Z., & Zeng, Z. Q. (2025).
+       Cuckoo catfish optimizer: a new meta-heuristic optimization algorithm. Artificial Intelligence Review, 58(10), 326.
 
     Examples
     --------
-    >>> import numpy as np
-    >>> from mealpy import FloatVar, CCO
-    >>>
-    >>> def objective_function(solution):
-    >>>     return np.sum(solution**2)
-    >>>
-    >>> problem_dict = {
-    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="x"),
-    >>>     "minmax": "min",
-    >>>     "obj_func": objective_function,
-    >>> }
-    >>>
-    >>> model = CCO.OriginalCCO(epoch=1000, pop_size=50, alpha=0.5, beta=1.0)
-    >>> g_best = model.solve(problem_dict)
-    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    ::
+
+        import numpy as np
+        from mealpy import FloatVar, CCO
+
+        def objective_function(solution):
+            return np.sum(solution**2)
+
+        problem_dict = {
+            "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="x"),
+            "minmax": "min",
+            "obj_func": objective_function,
+        }
+
+        model = CCO.OriginalCCO(epoch=1000, pop_size=50, alpha=0.5, beta=1.0)
+        g_best = model.solve(problem_dict)
+        print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
 
     def __init__(self, epoch=10000, pop_size=100, alpha=1.34, beta=0.3, **kwargs):

@@ -12,14 +12,28 @@ class OriginalDBO(Optimizer):
     """
     The original version of: Dung Beetle Optimizer (DBO)
 
-    Links:
-        1. https://doi.org/10.1007/s11227-022-04959-6
-        2. https://github.com/Lancephil/Dung-Beetle-Optimizer
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    kk : float
+        Deflection coefficient in rolling behavior, in range [0.0, 2.0]. Default is 0.1.
+    bb : float
+        Attraction toward worst position, in range [0.0, 1.0]. Default is 0.3.
+    ss : float
+        Attraction factor toward local best position, in range [0.0, 1.0]. Default is 0.3.
 
-    Hyper-parameters should be fine-tuned in approximate ranges to obtain faster convergence toward the global optimum:
-        + kk (float): [0.0, 2.0], deflection coefficient in rolling behavior, default = 0.1
-        + bb (float): [0.0, 1.0], attraction toward worst position, default = 0.3
-        + ss (float): [0.0, 1.0], attraction factor toward local best position, default = 0.3
+    Links
+    -----
+    1. https://doi.org/10.1007/s11227-022-04959-6
+    2. https://github.com/Lancephil/Dung-Beetle-Optimizer
+
+    References
+    ~~~~~~~~~~
+    1. Xue, J., & Shen, B. (2022). Dung beetle optimizer: A new meta-heuristic
+       algorithm for global optimization. The Journal of Supercomputing, 79, 7305–7336.
 
     Examples
     ~~~~~~~~
@@ -39,11 +53,6 @@ class OriginalDBO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Xue, J., & Shen, B. (2022). Dung beetle optimizer: A new meta-heuristic
-        algorithm for global optimization. The Journal of Supercomputing, 79, 7305–7336.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, kk: float = 0.1, bb: float = 0.3, ss: float = 0.5, **kwargs: object) -> None:

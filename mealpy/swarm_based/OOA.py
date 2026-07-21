@@ -12,14 +12,34 @@ class OriginalOOA(Optimizer):
     """
     The original version of: Osprey Optimization Algorithm (OOA)
 
-    Links:
-        1. https://www.frontiersin.org/articles/10.3389/fmech.2022.1126450/full
-        2. https://www.mathworks.com/matlabcentral/fileexchange/124555-osprey-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
-        2. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-        3. The article may share some similarities with previous work by the same authors, further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    .. caution::
+       1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+          Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+          Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+          Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+          Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+       2. It may be useful to compare the Matlab code of this algorithm with those of the similar
+          algorithms to ensure its accuracy and completeness.
+       3. The article may share some similarities with previous work by the same authors, further investigation
+          may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    Links
+    -----
+    1. https://www.frontiersin.org/articles/10.3389/fmech.2022.1126450/full
+    2. https://www.mathworks.com/matlabcentral/fileexchange/124555-osprey-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Trojovský, P., & Dehghani, M. Osprey Optimization Algorithm: A new bio-inspired metaheuristic algorithm
+       for solving engineering optimization problems. Frontiers in Mechanical Engineering, 8, 136.
 
     Examples
     ~~~~~~~~
@@ -39,11 +59,6 @@ class OriginalOOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Trojovský, P., & Dehghani, M. Osprey Optimization Algorithm: A new bio-inspired metaheuristic algorithm
-    for solving engineering optimization problems. Frontiers in Mechanical Engineering, 8, 136.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

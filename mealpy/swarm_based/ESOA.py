@@ -13,9 +13,23 @@ class OriginalESOA(Optimizer):
     """
     The original version of: Egret Swarm Optimization Algorithm (ESOA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/115595-egret-swarm-optimization-algorithm-esoa
-        2. https://www.mdpi.com/2313-7673/7/4/144
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/115595-egret-swarm-optimization-algorithm-esoa
+    2. https://www.mdpi.com/2313-7673/7/4/144
+
+    References
+    ~~~~~~~~~~
+    1. Chen, Z., Francis, A., Li, S., Liao, B., Xiao, D., Ha, T. T., ... & Cao, X. (2022).
+       Egret Swarm Optimization Algorithm: An Evolutionary Computation Approach for Model
+       Free Optimization. Biomimetics, 7(4), 144.
 
     Examples
     ~~~~~~~~
@@ -35,11 +49,6 @@ class OriginalESOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Chen, Z., Francis, A., Li, S., Liao, B., Xiao, D., Ha, T. T., ... & Cao, X. (2022). Egret Swarm Optimization Algorithm:
-    An Evolutionary Computation Approach for Model Free Optimization. Biomimetics, 7(4), 144.
     """
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):

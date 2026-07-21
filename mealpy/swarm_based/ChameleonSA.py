@@ -14,28 +14,38 @@ class OriginalChameleonSA(Optimizer):
     """
     The original version of: Chameleon Swarm Algorithm (ChameleonSA)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size, default = 100
-    + pp (float): [0, 1] Probability of the chameleon perceiving prey, default=0.1
-    + p1 (float): [0, 5.0] Exploration control parameter 1 (From PSO), default=0.25
-    + p2 (float): [0, 5.0] Exploration control parameter 2 (From PSO), (default=1.50)
-    + c1 (float): [0, 5.0] Personal best influence (From PSO), default=1.75
-    + c2 (float): [0, 5.0] Global best influence (From PSO), default=1.75
-    + gama (float): [0, 2] Constant controlling the exploration rate decay over iterations, default=1.0
-    + alpha (float): [0, 10] Constant defining the steepness of the exploration decay curve, default=3.5
-    + rho (float): [0, 2] Positive number, default=1.0.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    pp : float
+        Valid range [0, 1] Probability of the chameleon perceiving prey, default=0.1
+    p1 : float
+        Valid range [0, 5.0] Exploration control parameter 1 (From PSO), default=0.25.
+    p2 : float
+        Valid range [0, 5.0] Exploration control parameter 2 (From PSO), default=1.50.
+    c1 : float
+        Valid range [0, 5.0] Personal best influence (From PSO), default=1.75.
+    c2 : float
+        Valid range [0, 5.0] Global best influence (From PSO), default=1.75.
+    gama : float
+        Valid range [0, 2] Constant controlling the exploration rate decay over iterations, default=1.0.
+    alpha : float
+        Valid range [0, 10] Constant defining the steepness of the exploration decay curve, default=3.5.
+    rho : float
+        Valid range [0, 2] Positive number, default=1.0.
 
-    Warnings
-    --------
-    1. This algorithm essentially relies on the update operators of the PSO algorithm. It has too many
-    parameters, and the results are nowhere near as good as those presented in the paper
-    2. Please note that the official MATLAB code deviates from the paper, using undocumented
-    modifications to artificially boost performance.
-    3. This pure implementation is provided specifically so users can independently evaluate
-    the algorithm's true performance based solely on the published mathematical model,
-    allowing you to verify whether the paper's claims and results are legitimate.
+
+    .. caution::
+       1. This algorithm essentially relies on the update operators of the PSO algorithm. It has too many
+          parameters, and the results are nowhere near as good as those presented in the paper.
+       2. Please note that the official MATLAB code deviates from the paper, using undocumented
+          modifications to artificially boost performance.
+       3. This pure implementation is provided specifically so users can independently evaluate
+          the algorithm's true performance based solely on the published mathematical model,
+          allowing you to verify whether the paper's claims and results are legitimate.
 
     Links
     -----
@@ -44,8 +54,8 @@ class OriginalChameleonSA(Optimizer):
 
     References
     ----------
-    .. [1] Braik, M. S. (2021). Chameleon Swarm Algorithm: A bio-inspired optimizer for solving
-    engineering design problems. Expert Systems with Applications, 174, 114685.
+    1. Braik, M. S. (2021). Chameleon Swarm Algorithm: A bio-inspired optimizer for solving
+       engineering design problems. Expert Systems with Applications, 174, 114685.
 
     Examples
     ~~~~~~~~
@@ -152,28 +162,36 @@ class IChameleonSA(Optimizer):
     """
     The original version of: Improved Chameleon Swarm Algorithm (ICSA)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size, default = 100
-    + beta (float): Lévy flight constant (Eq. 13), default = 1.5
-    + r_chaos (float): Control parameter for logistic mapping (Eq. 10), default = 0.3
-    + k_spiral (int): Variation coefficient for spiral search (Eq. 11), default = 5
-    + p1 (float): [0, 10.] Personal best influence (From PSO), default=2.0
-    + p2 (float): [0, 10.] Global best influence (From PSO), default=2.0
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    beta : float
+        Lévy flight constant (Eq. 13), default = 1.5.
+    r_chaos : float
+        Control parameter for logistic mapping (Eq. 10), default = 0.3
+    k_spiral : int
+        Variation coefficient for spiral search (Eq. 11), default = 5
+    p1 : float
+        Valid range [0, 10.] Personal best influence (From PSO), default=2.0.
+    p2 : float
+        Valid range [0, 10.] Global best influence (From PSO), default=2.0.
 
     Warnings
     --------
     1. Despite being claimed as an improved version, this algorithm still requires too many
-    parameters and relies on standard PSO update operators
+       parameters and relies on standard PSO update operators.
     2. Additionally, its NFE per iteration is 3x times higher than typical algorithms,
-    so users should be mindful of the execution time.
+       so users should be mindful of the execution time.
 
     References
     ----------
-    .. [1] Chen, Yaodan, Li Cao, and Yinggao Yue. "Hybrid Multi-Objective Chameleon Optimization Algorithm
-    Based on Multi-Strategy Fusion and Its Applications." Biomimetics 9.10 (2024): 583.
-    https://doi.org/10.3390/biomimetics9100583
+    1. Chen, Yaodan, Li Cao, and Yinggao Yue. "Hybrid Multi-Objective Chameleon Optimization Algorithm
+       Based on Multi-Strategy Fusion and Its Applications." Biomimetics 9.10 (2024): 583.
+       https://doi.org/10.3390/biomimetics9100583
 
     Examples
     ~~~~~~~~

@@ -12,13 +12,24 @@ class OriginalEHO(Optimizer):
     """
     The original version of: Elephant Herding Optimization (EHO)
 
-    Links:
-        1. https://doi.org/10.1109/ISCBI.2015.8
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    alpha : float
+        A factor that determines the influence of the best in each clan, in range [0.3, 0.8]. Default is 0.5.
+    beta : float
+        A factor that determines the influence of the x_center, in range [0.3, 0.8]. Default is 0.5.
+    n_clans : int
+        The number of clans, in range [3, 10]. Default is 5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [0.3, 0.8], a factor that determines the influence of the best in each clan, default=0.5
-        + beta (float): [0.3, 0.8], a factor that determines the influence of the x_center, default=0.5
-        + n_clans (int): [3, 10], the number of clans, default=5
+    References
+    ~~~~~~~~~~
+    1. Wang, G.G., Deb, S. and Coelho, L.D.S., 2015, December. Elephant herding optimization.
+       In 2015 3rd international symposium on computational and business intelligence (ISCBI) (pp. 1-5). IEEE.
+       https://doi.org/10.1109/ISCBI.2015.8
 
     Examples
     ~~~~~~~~
@@ -38,11 +49,6 @@ class OriginalEHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, G.G., Deb, S. and Coelho, L.D.S., 2015, December. Elephant herding optimization.
-    In 2015 3rd international symposium on computational and business intelligence (ISCBI) (pp. 1-5). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.5, beta: float = 0.5, n_clans: int = 5, **kwargs: object) -> None:

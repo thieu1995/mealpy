@@ -13,14 +13,30 @@ class OriginalBA(Optimizer):
     """
     The original version of: Bat-inspired Algorithm (BA)
 
-    Notes
-    ~~~~~
-    + The value of A and r parameters are constant
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    loudness : float
+        The range is (0.0, 1.0), loudness, default = 0.8.
+    pulse_rate : float
+        Good range (0.15, 0.85), pulse rate / emission rate, default = 0.95.
+    pf_min : float
+        The pulse frequency min, default=0.1. Range in [0, 3.0]
+    pf_max : float
+        The pulse frequency max, default = 10. Range in [5., 20.]
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + loudness (float): (1.0, 2.0), loudness, default = 0.8
-        + pulse_rate (float): (0.15, 0.85), pulse rate / emission rate, default = 0.95
-        + pulse_frequency (list, tuple): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
+
+    .. note::
+       The value of A and r parameters are constant
+
+    References
+    ----------
+    1. Yang, X.S., 2010. A new metaheuristic bat-inspired algorithm. In Nature inspired cooperative
+       strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
+       https://doi.org/10.1007/978-3-642-12538-6_6
 
     Examples
     ~~~~~~~~
@@ -40,11 +56,6 @@ class OriginalBA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yang, X.S., 2010. A new metaheuristic bat-inspired algorithm. In Nature inspired cooperative
-    strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, loudness: float = 0.8,
@@ -106,19 +117,30 @@ class OriginalBA(Optimizer):
 
 class AdaptiveBA(Optimizer):
     """
-    The original version of: Adaptive Bat-inspired Algorithm (ABA)
+    Our adaptive version of BA: Adaptive Bat-inspired Algorithm (ABA)
 
-    Notes
-    ~~~~~
-    + The value of A and r are changing after each iteration
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    loudness_min : float
+        A_min - loudness, default=1.0. Good range [0.5, 1.5].
+    loudness_max : float
+        The range is [1.5, 3.0], A_max - loudness, default=2.0
+    pr_min : float
+        Pulse rate / emission rate min, default = 0.15.
+    pr_max : float
+        Pulse rate / emission rate min, default = 0.85.
+    pf_min : float
+        The pulse frequency min, default=0.
+    pf_max : float
+        The pulse frequency max, default = 10.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + loudness_min (float): A_min - loudness, default=1.0
-        + loudness_max (float): A_max - loudness, default=2.0
-        + pr_min (float): pulse rate / emission rate min, default = 0.15
-        + pr_max (float): pulse rate / emission rate max, default = 0.85
-        + pf_min (float): pulse frequency min, default = 0
-        + pf_max (float): pulse frequency max, default = 10
+
+    .. note::
+       The value of A and r are changing after each iteration
 
     Examples
     ~~~~~~~~
@@ -138,26 +160,10 @@ class AdaptiveBA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yang, X.S., 2010. A new metaheuristic bat-inspired algorithm. In Nature inspired cooperative
-    strategies for optimization (NICSO 2010) (pp. 65-74). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: object = 100, loudness_min: float = 1.0, loudness_max: float = 2.0,
-                 pr_min: float = 0.15, pr_max: float = 0.85, pf_min: float = -10., pf_max: float = 10., **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            loudness_min (float): A_min - loudness, default=1.0
-            loudness_max (float): A_max - loudness, default=2.0
-            pr_min (float): pulse rate / emission rate min, default = 0.15
-            pr_max (float): pulse rate / emission rate max, default = 0.85
-            pf_min (float): pulse frequency min, default = 0
-            pf_max (float): pulse frequency max, default = 10
-        """
+                 pr_min: float = 0.15, pr_max: float = 0.85, pf_min: float = 0., pf_max: float = 10., **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -213,19 +219,28 @@ class AdaptiveBA(Optimizer):
 
 class DevBA(Optimizer):
     """
-    The original version of: Developed Bat-inspired Algorithm (DBA)
+    Our developed version: Developed Bat-inspired Algorithm (DBA)
 
-    Notes
-    ~~~~~
-    + A (loudness) parameter is removed
-    + Flow is changed:
-        + 1st: the exploration phase is proceed (using frequency)
-        + 2nd: If new position has better fitness, replace the old position
-        + 3rd: Otherwise, proceed exploitation phase (using finding around the best position so far)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    pulse_rate : float
+        Good range [0.7, 1.0], pulse rate / emission rate, default = 0.95
+    pf_min : float
+        The pulse frequency min, default = 0.
+    pf_max : float
+        The pulse frequency, default = 10.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pulse_rate (float): [0.7, 1.0], pulse rate / emission rate, default = 0.95
-        + pulse_frequency (tuple, list): (pf_min, pf_max) -> ([0, 3], [5, 20]), pulse frequency, default = (0, 10)
+
+    .. note::
+       + A (loudness) parameter is removed.
+       + Flow is changed:
+            * 1st the exploration phase is proceed (using frequency)
+            * 2nd: If new position has better fitness, replace the old position
+            * 3rd: Otherwise, proceed exploitation phase (using finding around the best position so far)
 
     Examples
     ~~~~~~~~

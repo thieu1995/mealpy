@@ -12,9 +12,20 @@ class OriginalOSA(Optimizer):
     """
     The original version: Owl Search Algorithm (OSA)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 100000]. Default is 100.
+    alpha_max : float
+        Maximum value of alpha, in range (0.0, 10.0). Default is 0.5.
+    beta_max : float
+        Maximum value of beta, in range (0.0, 10.0). Default is 1.9.
+
     Warnings
     --------
-    There are two MATLAB versions of this algorithm available; however, neither is from the original authors,
+    There are two MATLAB versions of this algorithm available. However, neither is from the original authors,
     and their implementations do not accurately reflect the original paper. This algorithm was published
     in a low-tier journal, lacks any unique update operators, and does not provide pseudocode,
     which explains why it hasn't gained traction since its publication in 2018.
@@ -24,16 +35,11 @@ class OriginalOSA(Optimizer):
     1. https://www.mathworks.com/matlabcentral/fileexchange/181126-owl-search-algorithm-osa
     2. https://www.mathworks.com/matlabcentral/fileexchange/162356-owl-search-algorithm-osa
 
-    Hyperparameters
-    ----------------
-    + alpha_max (float): (0, 1.0), alpha max step size, default=0.5
-    + beta_max (float): (0, 2.0), beta max step size, default=1.9
-
     References
     ----------
-    .. [1] Jain, M., Maurya, S., Rani, A., & Singh, V. (2018). Owl search algorithm: a novel nature-inspired
-    heuristic paradigm for global optimization. Journal of Intelligent & Fuzzy Systems, 34(3), 1573-1582.
-    https://doi.org/10.3233/JIFS-169452
+    1. Jain, M., Maurya, S., Rani, A., & Singh, V. (2018). Owl search algorithm: a novel nature-inspired
+       heuristic paradigm for global optimization. Journal of Intelligent & Fuzzy Systems, 34(3), 1573-1582.
+       https://doi.org/10.3233/JIFS-169452
 
     Examples
     ~~~~~~~~

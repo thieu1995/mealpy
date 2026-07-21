@@ -10,24 +10,38 @@ from mealpy.optimizer import Optimizer
 
 class DevSMO(Optimizer):
     """
-    The developed version of: Spider Monkey Optimization (SMO)
+    Our developed version of: Spider Monkey Optimization (SMO)
 
-    Notes:
-        + The original paper is truly difficult to read and unclear. The operators are somewhat more understandable,
-        but the pseudo-code they provide is inaccurate. In addition, the design of the two parameters —
-        `local_leader_limit` and `global_leader_limit` — is essentially meaningless. After each iteration,
-        the population can be split and separated continuously, making it very unlikely for the if conditions
-        involving these two values to ever be triggered. As a result, the operators in the two phases
-        local_leader_decision and global_leader_decision will rarely be applied.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    max_groups : int
+        Maximum number of groups for spider monkeys, in range [2, 100]. Default is 5.
+    perturbation_rate : float
+        Perturbation rate for spider monkeys, in range [0.0, 1.0]. Default is 0.7.
 
-        + In summary, this algorithm has many issues, and the original MATLAB source code is also unavailable.
-        I cannot guarantee its correctness, so I will refer to it as DevSMO.
+    Danger
+    ------
+    1. The original paper is truly difficult to read and unclear. The operators are somewhat more
+       understandable, but the pseudocode they provide is inaccurate. In addition, the design
+       of the two parameters - `local_leader_limit` and `global_leader_limit`, is essentially meaningless.
+       After each iteration, the population can be split and separated continuously, making it very
+       unlikely for the if conditions involving these two values to ever be triggered.
+       As a result, the operators in the two phases local_leader_decision and global_leader_decision will rarely be applied.
+    2. In summary, this algorithm has many issues, and the original MATLAB source code is also unavailable.
+       I cannot guarantee its correctness, so I will refer to it as DevSMO.
 
-    Links:
-        1. https://doi.org/10.1007/s12293-013-0128-0
+    References
+    ----------
+    [1] Bansal, J. C., Sharma, H., Jadon, S. S., & Clerc, M. (2014).
+       Spider monkey optimization algorithm for numerical optimization. Memetic computing, 6(1), 31-47.
+       https://doi.org/10.1007/s12293-013-0128-0
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, SMO
     >>>
@@ -44,11 +58,6 @@ class DevSMO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Bansal, J. C., Sharma, H., Jadon, S. S., & Clerc, M. (2014).
-    Spider monkey optimization algorithm for numerical optimization. Memetic computing, 6(1), 31-47.
     """
 
     def __init__(self, epoch=10000, pop_size=100, max_groups: int = 5, perturbation_rate: float = 0.7, **kwargs):
@@ -214,8 +223,6 @@ class DevSMO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-
-
         self.local_leader_phase()
         self.global_leader_phase()
         self.update_leaders()

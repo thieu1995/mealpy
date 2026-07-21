@@ -11,17 +11,35 @@ class OriginalServalOA(Optimizer):
     """
     The original version of: Serval Optimization Algorithm (ServalOA)
 
-    Links:
-        1. https://www.mdpi.com/2313-7673/7/4/204
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        0. It's concerning that the author seems to be reusing the same algorithms with minor variations.
-        1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Pelican Optimization Algorithm (POA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
-        3. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-        4. The article may share some similarities with previous work by the same authors, further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+    Danger
+    ------
+    1. It's concerning that the author seems to be reusing the same algorithms with minor variations.
+    2. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+       Coati Optimization Algorithm (CoatiOA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+       Pelican Optimization Algorithm (POA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+       Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA),
+       Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA),
+       Cat and mouse based optimizer (CMBO)
+    3. It may be useful to compare the Matlab code of this algorithm with those of the
+       similar algorithms to ensure its accuracy and completeness.
+    4. The article may share some similarities with previous work by the same authors,
+       further investigation may be warranted to verify the benchmark results reported
+       in the papers and ensure their reliability and accuracy.
+
+    References
+    ----------
+    1. Dehghani, M., & Trojovský, P. (2022). Serval Optimization Algorithm: A New Bio-Inspired
+       Approach for Solving Optimization Problems. Biomimetics, 7(4), 204. https://www.mdpi.com/2313-7673/7/4/204
 
     Examples
-    ~~~~~~~~
+    --------
     >>> import numpy as np
     >>> from mealpy import FloatVar, ServalOA
     >>>
@@ -38,12 +56,8 @@ class OriginalServalOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Dehghani, M., & Trojovský, P. (2022). Serval Optimization Algorithm: A New Bio-Inspired
-    Approach for Solving Optimization Problems. Biomimetics, 7(4), 204.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:

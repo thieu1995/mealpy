@@ -12,8 +12,27 @@ class OriginalSquirrelSA(Optimizer):
     """
     The original version of: Squirrel Search Algorithm (SquirrelSA)
 
-    Notes:
-        + https://doi.org/10.1016/j.swevo.2018.02.013
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    n_food_sources : int
+        Number of food sources (1 hickory + 3 acorn trees), in range [1, 10]. Default is 4.
+    predator_prob : float
+        Predator presence probability (P_dp), in range [0.0, 1.0]. Default is 0.1.
+    gliding_constant : float
+        Gliding constant (G_c) for exploration/exploitation balance, in range [0.0, 10.0]. Default is 1.9.
+    scaling_factor : float
+        Scaling factor for gliding distance, in range [1, 100]. Default is 18.
+    beta : float
+        Beta parameter for Levy flight, in range [0.0, 10.0]. Default is 1.5.
+
+    References
+    ~~~~~~~~~~
+    1. Jain, M., Singh, V., & Rani, A. (2019). A novel nature-inspired algorithm for optimization: Squirrel search algorithm.
+       Swarm and evolutionary computation, 44, 148-175. https://doi.org/10.1016/j.swevo.2018.02.013
 
     Examples
     ~~~~~~~~
@@ -34,12 +53,8 @@ class OriginalSquirrelSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Jain, M., Singh, V., & Rani, A. (2019). A novel nature-inspired algorithm for optimization: Squirrel search algorithm.
-    Swarm and evolutionary computation, 44, 148-175.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_food_sources=4, predator_prob=0.1,
                  gliding_constant=1.9, scaling_factor=18, beta=1.5, **kwargs: object) -> None:
         """

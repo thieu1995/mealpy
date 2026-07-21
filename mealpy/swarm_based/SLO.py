@@ -14,10 +14,20 @@ class OriginalSLO(Optimizer):
     """
     The original version of: Sea Lion Optimization Algorithm (SLO)
 
-    Notes:
-        + There are some unclear equations and parameters in the original paper
-        + https://www.researchgate.net/publication/333516932_Sea_Lion_Optimization_Algorithm
-        + https://doi.org/10.14569/IJACSA.2019.0100548
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+
+    .. caution::
+       + There are some unclear equations and parameters in the original paper https://doi.org/10.14569/IJACSA.2019.0100548
+
+    References
+    ~~~~~~~~~~
+    1. Masadeh, R., Mahafzah, B.A. and Sharieh, A., 2019. Sea lion optimization algorithm. Sea, 10(5), p.388.
 
     Examples
     ~~~~~~~~
@@ -37,10 +47,6 @@ class OriginalSLO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Masadeh, R., Mahafzah, B.A. and Sharieh, A., 2019. Sea lion optimization algorithm. Sea, 10(5), p.388.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -95,12 +101,20 @@ class OriginalSLO(Optimizer):
 
 class ModifiedSLO(Optimizer):
     """
-    The original version of: Modified Sea Lion Optimization (M-SLO)
+    Our modified version: Modified Sea Lion Optimization (M-SLO)
 
-    Notes:
-        + Local best idea in PSO is inspired
-        + Levy-flight technique is used
-        + Shrink encircling idea is used
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Note
+    ----
+    + Local best idea in PSO is inspired
+    + Levy-flight technique is used
+    + Shrink encircling idea is used
 
     Examples
     ~~~~~~~~
@@ -121,6 +135,7 @@ class ModifiedSLO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -154,18 +169,6 @@ class ModifiedSLO(Optimizer):
             agent.update(solution=t1, target=target, local_solution=t2, local_target=local_target)
         return agent
 
-    def shrink_encircling_levy__(self, current_pos, epoch, dist, c, beta=1):
-        up = gamma(1 + beta) * np.sin(np.pi * beta / 2)
-        down = (gamma((1. + beta) / 2.) * beta * np.power(2., (beta - 1.) / 2.))
-        xich_ma_1 = np.power(up / down, 1 / beta)
-        xich_ma_2 = 1.
-        a = self.generator.normal(0, xich_ma_1, 1)
-        b = self.generator.normal(0, xich_ma_2, 1)
-        LB = 0.01 * a / (np.power(np.abs(b), 1 / beta)) * dist * c
-        D = self.generator.uniform(self.problem.lb, self.problem.ub)
-        levy = LB * D
-        return (current_pos - np.sqrt(epoch + 1) * np.sign(self.generator.random() - 0.5)) * levy
-
     def evolve(self, epoch):
         """
         The main operations (equations) of algorithm. Inherit from Optimizer class
@@ -188,7 +191,8 @@ class ModifiedSLO(Optimizer):
             else:
                 if self.generator.uniform() < pa:
                     dist1 = self.generator.uniform() * np.abs(2 * self.g_best.solution - self.pop[idx].solution)
-                    pos_new = self.shrink_encircling_levy__(self.pop[idx].solution, epoch, dist1, c)
+                    levy_step = self.get_levy_flight_step(beta=1.0, multiplier=0.01, size=self.problem.n_dims, case=-1) * dist1 * c
+                    pos_new = (self.pop[idx].solution - np.sqrt(epoch) * np.sign(self.generator.random() - 0.5)) * levy_step * self.generator.uniform(self.problem.lb, self.problem.ub)
                 else:
                     rand_SL = self.pop[self.generator.integers(0, self.pop_size)].local_solution
                     rand_SL = 2 * self.g_best.solution - rand_SL
@@ -211,9 +215,22 @@ class ImprovedSLO(ModifiedSLO):
     """
     The original version: Improved Sea Lion Optimization (ImprovedSLO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (float): Local coefficient same as PSO, default = 1.2
-        + c2 (float): Global coefficient same as PSO, default = 1.2
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Local coefficient same as PSO, in range (0.0, 5.0). Default is 1.2.
+    c2 : float
+        Global coefficient same as PSO, in range (0.0, 5.0). Default is 1.2.
+
+    References
+    ~~~~~~~~~~
+    1. Nguyen, Binh Minh, Trung Tran, Thieu Nguyen, and Giang Nguyen. "An improved sea lion optimization
+       for workload elasticity prediction with neural networks." International Journal of Computational
+       Intelligence Systems 15, no. 1 (2022): 90. https://doi.org/10.1007/s44196-022-00156-8
 
     Examples
     ~~~~~~~~
@@ -233,12 +250,8 @@ class ImprovedSLO(ModifiedSLO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Nguyen, Binh Minh, Trung Tran, Thieu Nguyen, and Giang Nguyen. "An improved sea lion optimization for workload elasticity
-    prediction with neural networks." International Journal of Computational Intelligence Systems 15, no. 1 (2022): 90.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 1.2, c2: float = 1.2, **kwargs: object) -> None:
         """
         Args:

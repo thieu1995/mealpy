@@ -12,14 +12,29 @@ class OriginalAGTO(Optimizer):
     """
     The original version of: Artificial Gorilla Troops Optimization (AGTO)
 
-    Links:
-        1. https://doi.org/10.1002/int.22535
-        2. https://www.mathworks.com/matlabcentral/fileexchange/95953-artificial-gorilla-troops-optimizer
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    p1 : float
+        The probability of transition in exploration phase (p in the paper), default = 0.03.
+    p2 : float
+        The probability of transition in exploitation phase (w in the paper), default = 0.8.
+    beta : float
+        Coefficient in updating equation, should be in [-5.0, 5.0], default = 3.0.
 
-    Notes (parameters):
-        1. p1 (float): the probability of transition in exploration phase (p in the paper), default = 0.03
-        2. p2 (float): the probability of transition in exploitation phase (w in the paper), default = 0.8
-        3. beta (float): coefficient in updating equation, should be in [-5.0, 5.0], default = 3.0
+    Links
+    -----
+    1. https://doi.org/10.1002/int.22535
+    2. https://www.mathworks.com/matlabcentral/fileexchange/95953-artificial-gorilla-troops-optimizer
+
+    References
+    ~~~~~~~~~~
+    1. Abdollahzadeh, B., Soleimanian Gharehchopogh, F., & Mirjalili, S. (2021). Artificial gorilla
+       troops optimizer: a new nature‐inspired metaheuristic algorithm for global optimization problems.
+       International Journal of Intelligent Systems, 36(10), 5887-5958.
 
     Examples
     ~~~~~~~~
@@ -39,18 +54,8 @@ class OriginalAGTO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdollahzadeh, B., Soleimanian Gharehchopogh, F., & Mirjalili, S. (2021). Artificial gorilla troops optimizer: a new
-    nature‐inspired metaheuristic algorithm for global optimization problems. International Journal of Intelligent Systems, 36(10), 5887-5958.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p1: float = 0.03, p2: float = 0.8, beta: float = 3.0, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -124,8 +129,20 @@ class MGTO(Optimizer):
     """
     The original version of: Modified Gorilla Troops Optimization (mGTO)
 
-    Notes (parameters):
-        1. pp (float): the probability of transition in exploration phase (p in the paper), default = 0.03
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    pp : float
+        The probability of transition in exploration phase (p in the paper), default = 0.03
+
+    References
+    ~~~~~~~~~~
+    1. Mostafa, R. R., Gaheen, M. A., Abd ElAziz, M., Al-Betar, M. A., & Ewees, A. A. (2023).
+       An improved gorilla troops optimizer for global optimization problems and feature selection.
+       Knowledge-Based Systems, 110462. https://doi.org/10.1016/j.knosys.2023.110462
 
     Examples
     ~~~~~~~~
@@ -145,12 +162,8 @@ class MGTO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mostafa, R. R., Gaheen, M. A., Abd ElAziz, M., Al-Betar, M. A., & Ewees, A. A. (2023). An improved gorilla
-    troops optimizer for global optimization problems and feature selection. Knowledge-Based Systems, 110462.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.03, **kwargs: object) -> None:
         """
         Args:

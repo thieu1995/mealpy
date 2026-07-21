@@ -12,15 +12,35 @@ class OriginalZOA(Optimizer):
     """
     The original version of: Zebra Optimization Algorithm (ZOA)
 
-    Links:
-        1. https://ieeexplore.ieee.org/document/9768820
-        2. https://www.mathworks.com/matlabcentral/fileexchange/122942-zebra-optimization-algorithm-zoa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-		1. It's concerning that the author seems to be reusing the same algorithms with minor variations.
-        2. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO), Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO).
-        3. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-        4. The article may share some similarities with previous work by the same authors, further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    .. caution::
+       1. It's concerning that the author seems to be reusing the same algorithms with minor variations.
+       2. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+          Pelican optimization algorithm (POA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+          Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+          Three-periods optimization algorithm (TPOA), Teamwork optimization algorithm (TOA), Northern goshawk optimization (NGO),
+          Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO).
+       3. It may be useful to compare the Matlab code of this algorithm with those of the similar
+          algorithms to ensure its accuracy and completeness.
+       4. The article may share some similarities with previous work by the same authors, further investigation may be
+          warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+
+    Links
+    -----
+    1. https://doi.org/10.1109/ACCESS.2022.3172789
+    2. https://www.mathworks.com/matlabcentral/fileexchange/122942-zebra-optimization-algorithm-zoa
+
+    References
+    ~~~~~~~~~~
+    1. Trojovská, E., Dehghani, M., & Trojovský, P. (2022). Zebra optimization algorithm: A new bio-inspired
+       optimization algorithm for solving optimization algorithm. IEEE Access, 10, 49445-49473.
 
     Examples
     ~~~~~~~~
@@ -40,18 +60,9 @@ class OriginalZOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Trojovská, E., Dehghani, M., & Trojovský, P. (2022). Zebra optimization algorithm: A new bio-inspired
-    optimization algorithm for solving optimization algorithm. IEEE Access, 10, 49445-49473.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

@@ -12,14 +12,23 @@ class DevSSA(Optimizer):
     """
     The developed version: Sparrow Search Algorithm (SSA)
 
-    Notes:
-        + First, the population is sorted to find g-best and g-worst
-        + In Eq. 4, the self.generator.normal() gaussian distribution is used instead of A+ and L
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    ST : float
+        ST in [0.5, 1.0], safety threshold value, in range (0.0, 1.0). Default is 0.8.
+    PD : float
+        Number of producers (percentage), in range (0.0, 1.0). Default is 0.2.
+    SD : float
+        Number of sparrows who perceive the danger, in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
-        + PD (float): number of producers (percentage), default = 0.2
-        + SD (float): number of sparrows who perceive the danger, default = 0.1
+    Note
+    ----
+    + First, the population is sorted to find g-best and g-worst
+    + In Eq. 4, the self.generator.normal() gaussian distribution is used instead of A+ and L
 
     Examples
     ~~~~~~~~
@@ -39,12 +48,8 @@ class DevSSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Xue, J. and Shen, B., 2020. A novel swarm intelligence optimization approach:
-    sparrow search algorithm. Systems Science & Control Engineering, 8(1), pp.22-34.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, ST: float = 0.8, PD: float = 0.2, SD: float = 0.1, **kwargs: object) -> None:
         """
         Args:
@@ -132,14 +137,27 @@ class OriginalSSA(DevSSA):
     """
     The original version of: Sparrow Search Algorithm (SSA)
 
-    Notes:
-        + The paper contains some unclear equations and symbol
-        + https://doi.org/10.1080/21642583.2019.1708830
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    ST : float
+        Safety threshold value, in range [0.5, 1.0]. Default is 0.8.
+    PD : float
+        Number of producers (percentage). Default is 0.2.
+    SD : float
+        Number of sparrows who perceive the danger. Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + ST (float): ST in [0.5, 1.0], safety threshold value, default = 0.8
-        + PD (float): number of producers (percentage), default = 0.2
-        + SD (float): number of sparrows who perceive the danger, default = 0.1
+    Note
+    ----
+    The paper contains some unclear equations and symbol https://doi.org/10.1080/21642583.2019.1708830
+
+    References
+    ~~~~~~~~~~
+    1. Xue, J. and Shen, B., 2020. A novel swarm intelligence optimization approach:
+       sparrow search algorithm. Systems Science & Control Engineering, 8(1), pp.22-34.
 
     Examples
     ~~~~~~~~
@@ -159,12 +177,8 @@ class OriginalSSA(DevSSA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Xue, J. and Shen, B., 2020. A novel swarm intelligence optimization approach:
-    sparrow search algorithm. Systems Science & Control Engineering, 8(1), pp.22-34.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, ST: float = 0.8, PD: float = 0.2, SD: float = 0.1, **kwargs: object) -> None:
         """
         Args:

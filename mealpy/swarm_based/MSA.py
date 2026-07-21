@@ -12,11 +12,18 @@ class OriginalMSA(Optimizer):
     """
     The original version: Moth Search Algorithm (MSA)
 
-    Hyperparameters
-    ---------------
-    + n_best (int): [3, 10], how many of the best moths to keep from one generation to the next, default=5
-    + partition (float): [0.3, 0.8], The proportional of first partition, default=0.5
-    + max_step_size (float): [0.5, 2.0], Max step size used in Levy-flight technique, default=1.0
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size. Default is 100.
+    n_best : int
+        How many of the best moths to keep from one generation to the next, in range [3, 10]. Default is 5.
+    partition : float
+        The proportional of first partition, in range [0.3, 0.8]. Default is 0.5.
+    max_step_size : float
+        Max step size used in Levy-flight technique, in range [0.5, 2.0]. Default is 1.0.
 
     Links
     -----
@@ -25,8 +32,8 @@ class OriginalMSA(Optimizer):
 
     References
     ----------
-    .. [1] Wang, G.G., 2018. Moth search algorithm: a bio-inspired metaheuristic algorithm for
-    global optimization problems. Memetic Computing, 10(2), pp.151-164.
+    1. Wang, G.G., 2018. Moth search algorithm: a bio-inspired metaheuristic algorithm for
+       global optimization problems. Memetic Computing, 10(2), pp.151-164.
 
     Examples
     --------

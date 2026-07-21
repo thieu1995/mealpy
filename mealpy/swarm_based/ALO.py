@@ -12,9 +12,21 @@ class OriginalALO(Optimizer):
     """
     The original version of: Ant Lion Optimizer (ALO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/49920-ant-lion-optimizer-alo
-        2. https://dx.doi.org/10.1016/j.advengsoft.2015.01.010
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/49920-ant-lion-optimizer-alo
+    2. https://dx.doi.org/10.1016/j.advengsoft.2015.01.010
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S., 2015. The ant lion optimizer. Advances in engineering software, 83, pp.80-98.
 
     Examples
     ~~~~~~~~
@@ -34,18 +46,9 @@ class OriginalALO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S., 2015. The ant lion optimizer. Advances in engineering software, 83, pp.80-98.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -126,10 +129,18 @@ class OriginalALO(Optimizer):
 
 class DevALO(OriginalALO):
     """
-    The developed version: Ant Lion Optimizer (ALO)
+    Our developed version: Ant Lion Optimizer (ALO)
 
-    Notes:
-        + Improved performance by removing the for loop when creating n random walks
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+
+    .. note::
+       Improved performance by removing the for loop when creating n random walks
 
     Examples
     ~~~~~~~~
@@ -152,11 +163,6 @@ class DevALO(OriginalALO):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(epoch, pop_size, **kwargs)
 
     def random_walk_antlion__(self, solution, current_epoch):

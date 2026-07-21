@@ -10,19 +10,36 @@ from mealpy.optimizer import Optimizer
 
 class CleverBookBeesA(Optimizer):
     """
-    The original version of: Bees Algorithm (CB-BeesA)
+    The original version of BeesA in clever book: Bees Algorithm (CB-BeesA)
 
-    Notes:
-        + This version is based on ABC in the book Clever Algorithms
-        + Improved the function search_neighborhood__
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    n_elites : int
+        Number of employed bees which provided for good location.
+    n_others : int
+        Number of employed bees which provided for other location.
+    patch_size : float
+        Calculated as patch_variables = patch_variables * patch_reduction.
+    patch_reduction : float
+        The reduction factor.
+    n_sites : int
+        Number of sites for 3 bees (employed bees, onlookers and scouts).
+    n_elite_sites : int
+        Number of elite sites (1 good partition).
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_elites (int): number of employed bees which provided for good location
-        + n_others (int): number of employed bees which provided for other location
-        + patch_size (float): patch_variables = patch_variables * patch_reduction
-        + patch_reduction (float): the reduction factor
-        + n_sites (int): 3 bees (employed bees, onlookers and scouts),
-        + n_elite_sites (int): 1 good partition
+
+    .. note::
+       + This version is based on ABC in the book Clever Algorithms
+       + Improved the function search_neighborhood__
+
+    References
+    ~~~~~~~~~~
+    1. D. T. Pham, Ghanbarzadeh A., Koc E., Otri S., Rahim S., and M.Zaidi. The bees algorithm - a novel tool
+       for complex optimisation problems. In Proceedings of IPROMS 2006 Conference, pages 454–461, 2006.
 
     Examples
     ~~~~~~~~
@@ -43,12 +60,8 @@ class CleverBookBeesA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] D. T. Pham, Ghanbarzadeh A., Koc E., Otri S., Rahim S., and M.Zaidi. The bees algorithm - a novel tool
-    for complex optimisation problems. In Proceedings of IPROMS 2006 Conference, pages 454–461, 2006.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_elites: int = 16, n_others: int = 4,
                  patch_size: float = 5.0, patch_reduction: float = 0.985, n_sites: int = 3, n_elite_sites: int = 1, **kwargs: object) -> None:
         """
@@ -120,17 +133,35 @@ class OriginalBeesA(Optimizer):
     """
     The original version of: Bees Algorithm (BeesA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/pii/B978008045157250081X
-        2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    selected_site_ratio : float
+        Ratio of the selected sites. Default is 0.5.
+    elite_site_ratio : float
+        Ratio of the elite sites. Default is 0.4.
+    selected_site_bee_ratio : float
+        Ratio of bees assigned to the selected sites. Default is 0.1.
+    elite_site_bee_ratio : float
+        Ratio of bees assigned to the elite sites. Default is 2.0.
+    dance_radius : float
+        Initial radius of the bees' dance (search space). Default is 0.1.
+    dance_reduction : float
+        Reduction factor for the dance radius over iterations. Default is 0.99.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + selected_site_ratio (float): default = 0.5
-        + elite_site_ratio (float): default = 0.4
-        + selected_site_bee_ratio (float): default = 0.1
-        + elite_site_bee_ratio (float): default = 2.0
-        + dance_radius (float): default = 0.1
-        + dance_reduction (float): default = 0.99
+    Links
+    -----
+    1. https://www.sciencedirect.com/science/article/pii/B978008045157250081X
+    2. https://www.tandfonline.com/doi/full/10.1080/23311916.2015.1091540
+
+    References
+    ~~~~~~~~~~
+    1. Pham, D.T., Ghanbarzadeh, A., Koç, E., Otri, S., Rahim, S. and Zaidi, M., 2006.
+       The bees algorithm—a novel tool for complex optimisation problems. In Intelligent production
+       machines and systems (pp. 454-459). Elsevier Science Ltd.
 
     Examples
     ~~~~~~~~
@@ -151,27 +182,11 @@ class OriginalBeesA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Pham, D.T., Ghanbarzadeh, A., Koç, E., Otri, S., Rahim, S. and Zaidi, M., 2006. The bees algorithm—a novel tool
-    for complex optimisation problems. In Intelligent production machines and systems (pp. 454-459). Elsevier Science Ltd.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, selected_site_ratio: float = 0.5,
                  elite_site_ratio: float = 0.4, selected_site_bee_ratio: float = 0.1, elite_site_bee_ratio: float = 2.0,
                  dance_radius: float = 0.1, dance_reduction: float = 0.99, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            selected_site_ratio (float): 
-            elite_site_ratio (float):
-            selected_site_bee_ratio (float): 
-            elite_site_bee_ratio (float): 
-            dance_radius (float): 
-            dance_reduction (float): 
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -244,9 +259,23 @@ class ProbBeesA(Optimizer):
     """
     The original version of: Probabilistic Bees Algorithm (P-BeesA)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + recruited_bee_ratio (float): percent of bees recruited, default = 0.1
-        + dance_factor (tuple, list): (radius, reduction) - Bees Dance Radius, default=(0.1, 0.99)
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    recruited_bee_ratio : float
+        Percent of bees recruited. Default is 0.1.
+    dance_radius : float
+        Bees dance radius. Default is 0.1.
+    dance_reduction : float
+        Bees dance radius reduction rate. Default is 0.99.
+
+    References
+    ~~~~~~~~~~
+    1. Pham, D.T. and Castellani, M., 2015. A comparative study of the Bees Algorithm as a tool for
+       function optimisation. Cogent Engineering, 2(1), p.1091540. https://doi.org/10.1080/23311916.2015.1091540
 
     Examples
     ~~~~~~~~
@@ -266,11 +295,6 @@ class ProbBeesA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Pham, D.T. and Castellani, M., 2015. A comparative study of the Bees Algorithm as a tool for
-    function optimisation. Cogent Engineering, 2(1), p.1091540.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, recruited_bee_ratio: float = 0.1,

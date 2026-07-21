@@ -12,17 +12,31 @@ class OriginalFOX(Optimizer):
     """
     The original version of: Fox Optimizer (FOX)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s10489-022-03533-0
-        2. https://www.mathworks.com/matlabcentral/fileexchange/121592-fox-a-fox-inspired-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    c1 : float
+        The coefficient of jumping (c1 in the paper). Default is 0.18.
+    c2 : float
+        The coefficient of jumping (c2 in the paper). Default is 0.82.
 
-    Notes (parameters):
-        1. c1 (float): the coefficient of jumping (c1 in the paper), default = 0.18
-        2. c2 (float): the coefficient of jumping (c2 in the paper), default = 0.82
+    Note
+    ----
+    1. The equation used to calculate the distance_S_travel value in the Matlab code seems to be lacking in meaning.
+    2. The if-else conditions used with p > 0.18 seem to lack a clear justification. The authors seem to
+       have simply chosen the best value based on their experiments without explaining the rationale behind it.
 
-    Notes:
-        1. The equation used to calculate the distance_S_travel value in the Matlab code seems to be lacking in meaning.
-        2. The if-else conditions used with p > 0.18 seem to lack a clear justification. The authors seem to have simply chosen the best value based on their experiments without explaining the rationale behind it.
+    Links
+    -----
+    1. https://link.springer.com/article/10.1007/s10489-022-03533-0
+    2. https://www.mathworks.com/matlabcentral/fileexchange/121592-fox-a-fox-inspired-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Mohammed, H., & Rashid, T. (2023). FOX: a FOX-inspired optimization algorithm. Applied Intelligence, 53(1), 1030-1050.
 
     Examples
     ~~~~~~~~
@@ -42,10 +56,6 @@ class OriginalFOX(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mohammed, H., & Rashid, T. (2023). FOX: a FOX-inspired optimization algorithm. Applied Intelligence, 53(1), 1030-1050.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 0.18, c2: float = 0.82, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -96,16 +106,26 @@ class OriginalFOX(Optimizer):
 
 class DevFOX(Optimizer):
     """
-    The developed version of: Fox Optimizer (FOX)
+    Our developed version of: Fox Optimizer (FOX)
 
-    Notes (parameters):
-        1. c1 (float): the coefficient of jumping (c1 in the paper), default = 0.18
-        2. c2 (float): the coefficient of jumping (c2 in the paper), default = 0.82
-        3. pp (float): the probability of choosing the exploration and exploitation phase, default=0.5
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+    c1 : float
+        The coefficient of jumping (c1 in the paper). Default is 0.18.
+    c2 : float
+        The coefficient of jumping (c2 in the paper). Default is 0.82.
+    pp : float
+        The probability of choosing the exploration and exploitation phase. Default is 0.5.
 
-    Notes:
-        1. Set parameter pp = 0.18 if you want to same as Original version
-        2. The different between Dev and Original version is the equation: self.g_best.solution + self.generator.standard_normal(self.problem.n_dims) * (self.mint * aa)
+    Note
+    ----
+    1. Set parameter pp = 0.18 if you want to same as Original version
+    2. The different between Dev and Original version is the equation:
+       self.g_best.solution + self.generator.standard_normal(self.problem.n_dims) * (self.mint * aa)
 
     Examples
     ~~~~~~~~
@@ -125,10 +145,6 @@ class DevFOX(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mohammed, H., & Rashid, T. (2023). FOX: a FOX-inspired optimization algorithm. Applied Intelligence, 53(1), 1030-1050.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 0.18, c2: float = 0.82,
                  pp=0.5, **kwargs: object) -> None:

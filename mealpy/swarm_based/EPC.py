@@ -10,17 +10,43 @@ from mealpy.optimizer import Optimizer
 
 class DevEPC(Optimizer):
     """
-    The developed version of: Emperor Penguins Colony (EPC)
+    Our developed version of: Emperor Penguins Colony (EPC)
 
-    Notes:
-        + This algorithm is almost like a trash algorithm. Some comments are as follows:
-        + The code is incorrect and incomplete. It updates coefficients either increasing or decreasing, but the paper does not clearly provide any formulas describing how these increases or decreases are calculated.
-        + Most of the formulas are wrong and meaningless, with no clear explanation of what the symbols represent. In particular, formulas 12 to 18 are problematic. There is no connection between the position update process in the algorithm and the parameters.
-        + This algorithm can only be applied to 2-dimensional problems and cannot be extended to problems with more than 2 dimensions. The entire experimental section of the paper is also limited to 2-dimensional functions.
-        + In the code, I simplified the position update process for penguins and modified the algorithm to work on n-dimensional problems. The parameter update rules were also devised by me. Therefore, I named it DevEPC.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    heat_damping_factor : float
+        Damping factor for heat radiation, in range [0.0, 1.0]. Default is 0.95.
+    mutation_factor : float
+        Mutation factor for random movement, in range [0.0, 1.0]. Default is 0.5.
+    spiral_a : float
+        Constant for logarithmic spiral movement, in range [0.0, 100.0]. Default is 1.0.
+    spiral_b : float
+        Constant for logarithmic spiral movement, in range [0.0, 100.0]. Default is 0.5.
 
-    Links:
-        1. https://doi.org/10.1007/s12065-019-00212-x
+
+    .. error::
+       + This algorithm is almost like a trash algorithm. Some comments are as follows:
+       + The pseudocode is incorrect and incomplete. It updates coefficients either increasing or decreasing,
+         but the paper does not clearly provide any formulas describing how these increases or decreases are calculated.
+       + Most of the formulas are wrong and meaningless, with no clear explanation of what the
+         symbols represent. In particular, formulas 12 to 18 are problematic. There is no connection
+         between the position update process in the algorithm and the parameters.
+       + This algorithm can only be applied to 2-dimensional problems and cannot be extended to
+         problems with more than 2 dimensions. The entire experimental section of the paper
+         is also limited to 2-dimensional functions.
+       + In the code, I simplified the position update process for penguins and modified the
+         algorithm to work on n-dimensional problems. The parameter update rules were also
+         devised by me. Therefore, I named it DevEPC.
+
+    References
+    ~~~~~~~~~~
+    1. Harifi, S., Khalilian, M., Mohammadzadeh, J. and Ebrahimnejad, S., 2019. Emperor Penguins Colony: a new
+       metaheuristic algorithm for optimization. Evolutionary intelligence, 12(2), pp.211-226.
+       https://doi.org/10.1007/s12065-019-00212-x
 
     Examples
     ~~~~~~~~
@@ -41,11 +67,6 @@ class DevEPC(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Harifi, S., Khalilian, M., Mohammadzadeh, J. and Ebrahimnejad, S., 2019.
-    Emperor Penguins Colony: a new metaheuristic algorithm for optimization. Evolutionary intelligence, 12(2), pp.211-226.
     """
 
     def __init__(self, epoch=10000, pop_size=100, heat_damping_factor: float = 0.95,

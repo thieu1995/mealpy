@@ -11,17 +11,36 @@ class OriginalBWO(Optimizer):
     """
     The original version of: Beluga Whale Optimization (BWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2022.109215
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + epoch (int): maximum number of iterations, default = 10000
-        + pop_size (int): number of population size, default = 100
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
     References
     ~~~~~~~~~~
-    [1] Zhong, Changting, Gang Li, and Zeng Meng. "Beluga whale optimization: A novel nature-inspired
-    metaheuristic algorithm." Knowledge-based systems 251 (2022): 109215.
+    1. Zhong, Changting, Gang Li, and Zeng Meng. "Beluga whale optimization: A novel nature-inspired metaheuristic
+       algorithm." Knowledge-based systems 251 (2022): 109215. https://doi.org/10.1016/j.knosys.2022.109215
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, BWO
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = BWO.OriginalBWO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

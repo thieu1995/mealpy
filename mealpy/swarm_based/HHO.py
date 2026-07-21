@@ -12,8 +12,18 @@ class OriginalHHO(Optimizer):
     """
     The original version of: Harris Hawks Optimization (HHO)
 
-    Links:
-        1. https://doi.org/10.1016/j.future.2019.02.028
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Heidari, A.A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M. and Chen, H., 2019.
+       Harris hawks optimization: Algorithm and applications.
+       Future generation computer systems, 97, pp.849-872. https://doi.org/10.1016/j.future.2019.02.028
 
     Examples
     ~~~~~~~~
@@ -33,19 +43,9 @@ class OriginalHHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Heidari, A.A., Mirjalili, S., Faris, H., Aljarah, I., Mafarja, M. and Chen, H., 2019.
-    Harris hawks optimization: Algorithm and applications. Future generation computer systems, 97, pp.849-872.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

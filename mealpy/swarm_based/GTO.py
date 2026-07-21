@@ -12,14 +12,27 @@ class OriginalGTO(Optimizer):
     """
     The original version of: Giant Trevally Optimizer (GTO)
 
-    Notes:
-        1. This version is implemented exactly as described in the paper.
-        2. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
-        3. https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9955508
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    A : float
+        A position-change-controlling parameter (recommended range from 0.3 to 0.4), in range [-10.0, 10.0]. Default is 0.4.
+    H : float
+        Initial value for specifies the jumping slope function, in range [1.0, 10.0]. Default is 2.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + A (float): a position-change-controlling parameter with a range from 0.3 to 0.4, default=0.4
-        + H (float): initial value for specifies the jumping slope function, default=2.0
+    Note
+    ----
+    1. There is a minor difference between Matlab code and the paper. So, this version is implemented exactly as described in the paper.
+    2. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
+    3. https://doi.org/10.1109/ACCESS.2022.3223388
+
+    References
+    ~~~~~~~~~~
+    1. Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
+       Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
 
     Examples
     ~~~~~~~~
@@ -39,11 +52,6 @@ class OriginalGTO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
-    Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, A: float = 0.4, H: float = 2.0, **kwargs: object) -> None:
         """
@@ -129,15 +137,30 @@ class Matlab102GTO(Optimizer):
     """
     The conversion of Matlab code (version 1.0.2 - 27/04/2023) to Python code of: Giant Trevally Optimizer (GTO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
-        2. https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9955508
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. The authors sent me an email asking to update the algorithm. In this version, they removed 2 for loops in the epoch (generations) based on my comments,
-        so the computation time will reduce to 3*pop_size from 2*pop_size^2 + pop_size. However, this will also lead to a reduction in performance results.
-        My question: Are the results in the paper valid?
-        2. I have decided to implement the original version of the algorithm exactly as described in the paper (OriginalGTO).
+
+    .. attention::
+       1. The author sent me an email asking to update the algorithm. In this version, they removed 2 for
+          loops in the epoch (generations) based on my comments on their Matlab code is wrong, so the
+          computation time will reduce to 3*pop_size from 2*pop_size^2 + pop_size. However, this will
+          also lead to a reduction in performance results. My question: Are the results in the paper valid?
+       2. I have decided to implement the original version of the algorithm exactly as described in the paper (OriginalGTO).
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
+    2. https://doi.org/10.1109/ACCESS.2022.3223388
+
+    References
+    ~~~~~~~~~~
+    1. Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
+       Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
 
     Examples
     ~~~~~~~~
@@ -157,18 +180,9 @@ class Matlab102GTO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
-    Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -248,15 +262,29 @@ class Matlab101GTO(Optimizer):
     """
     The conversion of Matlab code (version 1.0.1 - 29/11/2022) to Python code of: Giant Trevally Optimizer (GTO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
-        2. https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9955508
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
 
-    Notes:
-        1. This algorithm costs a huge amount of computational resources in each epoch.
-        Therefore, be careful when using the maximum number of generations as a stopping condition.
-        2. Other algorithms update around K*pop_size times in each epoch, this algorithm updates around 2*pop_size^2 + pop_size times
-        3. This version is used by the authors to compared with other algorithms in their paper.
+
+    .. attention::
+       1. This algorithm costs a huge amount of computational resources in each epoch.
+          Therefore, be careful when using the maximum number of generations as a stopping condition.
+       2. Other algorithms update around K*pop_size times in each epoch, this algorithm updates around 2*pop_size^2 + pop_size times
+       3. This version is used by the authors to compared with other algorithms in their paper.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/121358-giant-trevally-optimizer-gto
+    2. https://doi.org/10.1109/ACCESS.2022.3223388
+
+    References
+    ~~~~~~~~~~
+    1. Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
+       Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
 
     Examples
     ~~~~~~~~
@@ -276,18 +304,9 @@ class Matlab101GTO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Sadeeq, H. T., & Abdulazeez, A. M. (2022). Giant Trevally Optimizer (GTO): A Novel Metaheuristic
-    Algorithm for Global Optimization and Challenging Engineering Problems. IEEE Access, 10, 121615-121640.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
