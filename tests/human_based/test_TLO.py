@@ -25,7 +25,7 @@ def problem():
 
 def test_TLO_results(problem):
     models = [
-        TLO.DevTLO(epoch=10, pop_size=50),
+        TLO.ETLBO(epoch=10, pop_size=50, elite_size=3),
         TLO.OriginalTLO(epoch=10, pop_size=50),
         TLO.ImprovedTLO(epoch=10, pop_size=50, n_teachers=5),
     ]

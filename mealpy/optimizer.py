@@ -462,7 +462,6 @@ class Optimizer:
             Sorted population (1st agent is the best, last agent is the worst
             Sorted index (Optional)
         """
-
         list_fits = [agent.target.fitness for agent in pop]
         indices = np.argsort(list_fits).tolist()
         if minmax == "max":
@@ -511,31 +510,38 @@ class Optimizer:
             return pop[-1].copy()
 
     @staticmethod
-    def get_special_agents(pop: List[Agent] = None, n_best: int = 3, n_worst: int = 3,
-                           minmax: str = "min") -> Tuple[List[Agent], Union[List[Agent], None], Union[List[Agent], None]]:
+    def get_special_agents(pop: List['Agent'] = None, n_best: int = 3, n_worst: int = 3, minmax: str = "min",
+                           return_index: bool = False) -> Tuple[List['Agent'], Union[List['Agent'], List[int], None], Union[List['Agent'], List[int], None]]:
         """
-        Get special agents include sorted population, n1 best agents, n2 worst agents
+        Get special agents including sorted population, n1 best agents (or indices), n2 worst agents (or indices).
 
         Args:
-            pop: The population
-            n_best: Top n1 best agents, default n1=3, good level reduction
-            n_worst: Top n2 worst agents, default n2=3, worst level reduction
-            minmax: The problem type
+            pop: The original population.
+            n_best: Top n1 best agents, default n1=3, good level reduction.
+            n_worst: Top n2 worst agents, default n2=3, worst level reduction.
+            minmax: The problem type.
+            return_index: Return the original index instead of the Agent object.
 
         Returns:
-            The sorted_population, n1 best agents and n2 worst agents
+            The sorted_population, n1 best agents (or indices), and n2 worst agents (or indices).
         """
-        pop = Optimizer.get_sorted_population(pop, minmax)
-        if n_best is None:
-            if n_worst is None:
-                return pop, None, None
+
+        sorted_pop, indexes = Optimizer.get_sorted_population(pop, minmax, return_index=return_index)
+        best_res = None
+        if n_best is not None:
+            if return_index:
+                best_res = indexes[:n_best]
             else:
-                return pop, None, [agent.copy() for agent in pop[::-1][:n_worst]]
-        else:
-            if n_worst is None:
-                return pop, [agent.copy() for agent in pop[:n_best]], None
+                best_res = [agent.copy() for agent in sorted_pop[:n_best]]
+
+        worst_res = None
+        if n_worst is not None:
+            if return_index:
+                worst_res = indexes[::-1][:n_worst]
             else:
-                return pop, [agent.copy() for agent in pop[:n_best]], [agent.copy() for agent in pop[::-1][:n_worst]]
+                worst_res = [agent.copy() for agent in sorted_pop[::-1][:n_worst]]
+        return sorted_pop, best_res, worst_res
+
 
     @staticmethod
     def get_special_fitness(pop: List[Agent] = None, minmax: str = "min") -> Tuple[Union[float, np.ndarray], float, float]:

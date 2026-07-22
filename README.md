@@ -2509,7 +2509,7 @@ if __name__ == "__main__":
     model = TOA.OriginalTOA(epoch=100, pop_size=50)
     model = TLO.OriginalTLO(epoch=100, pop_size=50)
     model = TLO.ImprovedTLO(epoch=100, pop_size=50, n_teachers=5)
-    model = TLO.DevTLO(epoch=100, pop_size=50)
+    model = TLO.ETLBO(epoch=100, pop_size=50, elite_size=4)
     model = SSDO.OriginalSSDO(epoch=100, pop_size=50)
     model = SPBO.OriginalSPBO(epoch=100, pop_size=50)
     model = SPBO.DevSPBO(epoch=100, pop_size=50)

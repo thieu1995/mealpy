@@ -9,16 +9,22 @@ from functools import reduce
 from mealpy.optimizer import Optimizer
 
 
-class DevTLO(Optimizer):
+class ETLBO(Optimizer):
     """
-    The developed version: Teaching Learning-based Optimization (TLO)
+    The original version of: Elitist Teaching Learning-based Optimization (ETLBO)
 
-    Links:
-       1. https://doi.org/10.5267/j.ijiec.2012.03.007
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
-    Notes:
-        + Use numpy np.array to make operations faster
-        + The global best solution is used
+    References
+    ~~~~~~~~~~
+    1. Rao, R. and Patel, V., 2012. An elitist teaching-learning-based optimization algorithm for solving
+       complex constrained optimization problems. international journal of industrial engineering computations, 3(4), pp.535-560.
+       https://doi.org/10.5267/j.ijiec.2012.03.007
 
     Examples
     ~~~~~~~~
@@ -34,27 +40,18 @@ class DevTLO(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = TLO.DevTLO(epoch=1000, pop_size=50)
+    >>> model = TLO.ETLBO(epoch=1000, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rao, R. and Patel, V., 2012. An elitist teaching-learning-based optimization algorithm for solving
-    complex constrained optimization problems. international journal of industrial engineering computations, 3(4), pp.535-560.
     """
 
-    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, elite_size: int = 4, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-        self.set_parameters(["epoch", "pop_size"])
+        self.elite_size = self.validator.check_int("elite_size", elite_size, [4, 10000])
+        self.set_parameters(["epoch", "pop_size", "elite_size"])
         self.sort_flag = False
 
     def evolve(self, epoch):
@@ -64,50 +61,81 @@ class DevTLO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
+        # 1. Elitism: Keep the elite solutions
+        _, elites, _ = self.get_special_agents(self.pop, n_best=self.elite_size, n_worst=1, minmax=self.problem.minmax, return_index=False)
+
+        # 2. Teacher Phase
+        mean_result = np.mean([agent.solution for agent in self.pop], axis=0)
+        teacher = self.get_best_agent(self.pop, self.problem.minmax)
         pop_new = []
-        for idx in range(0, self.pop_size):
-            ## Teaching Phrase
-            TF = self.generator.integers(1, 3)  # 1 or 2 (never 3)
-            list_pos = np.array([agent.solution for agent in self.pop])
-            DIFF_MEAN = self.generator.random(self.problem.n_dims) * (self.g_best.solution - TF * np.mean(list_pos, axis=0))
-            pos_new = self.pop[idx].solution + DIFF_MEAN
-            pos_new = self.correct_solution(pos_new)
+        for idx in range(self.pop_size):
+            T_F = np.round(1 + self.generator.random() * 1)  # T_F is either 1 or 2
+            r_i = self.generator.random(self.problem.n_dims)
+            # Calculate Difference_Mean
+            new_solution = self.pop[idx].solution + r_i * (teacher.solution - T_F * mean_result)
+            pos_new = self.correct_solution(new_solution)
             agent = self.generate_empty_agent(pos_new)
             pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
                 agent.target = self.get_target(pos_new)
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+        # Update fitness in parallel
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
-        pop_child = []
-        for idx in range(0, self.pop_size):
-            ## Learning Phrase
-            pos_new = self.pop[idx].solution.copy().astype(float)
-            id_partner = self.generator.choice(np.setxor1d(np.array(range(self.pop_size)), np.array([idx])))
-            if self.compare_target(self.pop[idx].target, self.pop[id_partner].target, self.problem.minmax):
-                pos_new += self.generator.random(self.problem.n_dims) * (self.pop[idx].solution - self.pop[id_partner].solution)
+
+        # 3. Learner Phase
+        pop_new = []
+        for idx in range(self.pop_size):
+            qdx = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=1)
+            r_i = self.generator.random(self.problem.n_dims)
+            if self.compare_target(self.pop[idx].target, self.pop[qdx].target, self.problem.minmax):
+                new_solution = self.pop[idx].solution + r_i * (self.pop[idx].solution - self.pop[qdx].solution)
             else:
-                pos_new += self.generator.random(self.problem.n_dims) * (self.pop[id_partner].solution - self.pop[idx].solution)
-            pos_new = self.correct_solution(pos_new)
+                new_solution = self.pop[idx].solution + r_i * (self.pop[qdx].solution - self.pop[idx].solution)
+            pos_new = self.correct_solution(new_solution)
             agent = self.generate_empty_agent(pos_new)
-            pop_child.append(agent)
+            pop_new.append(agent)
             if self.mode not in self.AVAILABLE_MODES:
                 agent.target = self.get_target(pos_new)
                 self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+        # Update fitness in parallel
         if self.mode in self.AVAILABLE_MODES:
-            pop_child = self.update_target_for_population(pop_child)
-            self.pop = self.greedy_selection_population(self.pop, pop_child, self.problem.minmax)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+
+        # 4. Replace worst solutions with elite solutions
+        if self.elite_size > 0:
+            _, _, worst_idx = self.get_special_agents(self.pop, n_best=1, n_worst=self.elite_size, minmax=self.problem.minmax, return_index=True)
+            for idx, wdx in worst_idx:
+                self.pop[wdx] = elites[idx].copy()
+
+        # 5. Modify duplicate solutions (Mutation to maintain diversity)
+        pos_list = np.array([agent.solution for agent in self.pop])
+        _, unique_indices = np.unique(pos_list, axis=0, return_index=True)
+        duplicate_indices = np.setdiff1d(np.arange(self.pop_size), unique_indices)
+        for idx in duplicate_indices:
+            # Randomly mutate duplicate solutions within bounds
+            pos_new = self.problem.lb + self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb)
+            self.pop[idx] = self.generate_agent(pos_new)
 
 
-class OriginalTLO(DevTLO):
+class OriginalTLO(Optimizer):
     """
     The original version of: Teaching Learning-based Optimization (TLO)
 
-    Notes:
-        + Third loops are removed
-        + This version is inspired from above link
-        + https://github.com/andaviaco/tblo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Rao, R.V., Savsani, V.J. and Vakharia, D.P., 2011. Teaching–learning-based optimization: a novel method
+       for constrained mechanical design optimization problems. Computer-aided design, 43(3), pp.303-315.
+       https://doi.org/10.1016/j.cad.2010.12.015
 
     Examples
     ~~~~~~~~
@@ -127,20 +155,13 @@ class OriginalTLO(DevTLO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rao, R.V., Savsani, V.J. and Vakharia, D.P., 2011. Teaching–learning-based optimization: a novel method
-    for constrained mechanical design optimization problems. Computer-aided design, 43(3), pp.303-315.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
-        super().__init__(epoch, pop_size, **kwargs)
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.set_parameters(["epoch", "pop_size"])
         self.is_parallelizable = False
         self.sort_flag = False
 
@@ -176,15 +197,24 @@ class OriginalTLO(DevTLO):
                 self.pop[idx] = agent
 
 
-class ImprovedTLO(DevTLO):
+class ImprovedTLO(OriginalTLO):
     """
     The original version of: Improved Teaching-Learning-based Optimization (ImprovedTLO)
 
-    Links:
-       1. https://doi.org/10.1016/j.scient.2012.12.005
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    n_teachers : int
+        Number of teachers in class, in range [2, int(np.sqrt(pop_size) - 1)]. Default is 5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_teachers (int): [3, 10], number of teachers in class, default=5
+    References
+    ~~~~~~~~~~
+    1. Rao, R.V. and Patel, V., 2013. An improved teaching-learning-based optimization algorithm
+       for solving unconstrained optimization problems. Scientia Iranica, 20(3), pp.710-720.
+       https://doi.org/10.1016/j.scient.2012.12.005
 
     Examples
     ~~~~~~~~
@@ -204,11 +234,6 @@ class ImprovedTLO(DevTLO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rao, R.V. and Patel, V., 2013. An improved teaching-learning-based optimization algorithm
-    for solving unconstrained optimization problems. Scientia Iranica, 20(3), pp.710-720.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_teachers: int = 5, **kwargs: object) -> None:
