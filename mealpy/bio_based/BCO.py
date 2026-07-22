@@ -146,7 +146,7 @@ class OriginalBCO(Optimizer):
 
         # 3. Reproduction and Elimination (Every 10 epochs)
         if epoch % 10 == 0:
-            self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+            self.pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
             half_pop = self.pop_size // 2
 
             # The healthier half reproduces, replacing the unhealthier half

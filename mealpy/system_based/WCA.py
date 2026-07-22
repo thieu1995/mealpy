@@ -79,7 +79,7 @@ class OriginalWCA(Optimizer):
     def initialization(self):
         if self.pop is None:
             self.pop = self.generate_population(self.pop_size)
-        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         self.g_best = self.pop[0]
         self.ecc = self.dmax  # Evaporation condition constant - variable
         n_stream = self.pop_size - self.nsr
@@ -126,7 +126,7 @@ class OriginalWCA(Optimizer):
                     stream_new[-1].target = self.get_target(pos_new)
             stream_new = self.update_target_for_population(stream_new)
             self.streams[idx] = stream_new
-            stream_best = self.get_best_agent(stream_new, self.problem.minmax)
+            stream_best, _ = self.get_best_agent(stream_new, self.problem.minmax)
             if self.compare_target(stream_best.target, self.pop_best[idx].target, self.problem.minmax):
                 self.pop_best[idx] = stream_best.copy()
             # Update river
@@ -140,7 +140,7 @@ class OriginalWCA(Optimizer):
             distance = np.sqrt(np.sum((self.g_best.solution - self.pop_best[idx].solution) ** 2))
             if distance < self.ecc or self.generator.random() < 0.1:
                 child = self.generate_agent()
-                pop_current_best = self.get_sorted_population(self.streams[idx] + [child], self.problem.minmax)
+                pop_current_best, _ = self.get_sorted_population(self.streams[idx] + [child], self.problem.minmax)
                 self.pop_best[idx] = pop_current_best.pop(0)
                 self.streams[idx] = pop_current_best
         self.pop = self.pop_best.copy()

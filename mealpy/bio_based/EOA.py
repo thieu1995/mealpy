@@ -145,7 +145,7 @@ class OriginalEOA(Optimizer):
         # ---------------------------------------------------------
         # Cauchy Mutation (CM)
         # Update and sort
-        self.pop = self.get_sorted_population(pop_new, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(pop_new, self.problem.minmax)
         self.pop, best, _ = self.get_special_agents(pop_new, n_best=1, n_worst=1, minmax=self.problem.minmax)
         pop_mean = np.mean([agent.solution for agent in self.pop], axis=0)
         pop_new = [self.pop[idx].copy() for idx in range(self.n_best)]

@@ -285,7 +285,7 @@ class CMA_ES(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_new[-1].target = self.get_target(pos_new)
         pop_new = self.update_target_for_population(pop_new)
-        self.pop = self.get_sorted_population(pop_new, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(pop_new, self.problem.minmax)
         # Update MEan
         self.pop = self.update_step__(self.pop, self.C)
         self.x_step = np.zeros(self.problem.n_dims)
@@ -377,7 +377,7 @@ class Simple_CMA_ES(Optimizer):
             epoch (int): The current iteration
         """
         pos_list = np.array([agent.solution for agent in self.pop]).T
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         pos_topk = np.array([agent.solution for agent in pop_sorted[:self.mu]]).T
         # Covariance of top k but using mean of entire population
         centered = pos_list - pos_topk.mean(1, keepdims=True)

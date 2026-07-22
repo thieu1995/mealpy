@@ -269,7 +269,7 @@ class HI_WOA(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
         ## Feedback Mechanism
-        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        current_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         if current_best.target.fitness == self.g_best.target.fitness:
             self.dyn_feedback_count += 1
         else:
@@ -360,7 +360,7 @@ class OriginalWOAmM(Optimizer):
     def restart_population(self):
         n_restart = int(round(self.pop_size * self.restart_rate))
         n_restart = np.clip(n_restart, 0, self.pop_size - 1)
-        _, indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+        _, indices = self.get_sorted_population(self.pop, self.problem.minmax)
         worst_ids = indices[-n_restart:]
         new_agents = self.generate_population(n_restart)
         for idx, agent in zip(worst_ids, new_agents):
@@ -369,7 +369,7 @@ class OriginalWOAmM(Optimizer):
     def restart_on_stagnation(self):
         if self.patience <= 0:
             return
-        best = self.get_best_agent(self.pop, self.problem.minmax)
+        best, _ = self.get_best_agent(self.pop, self.problem.minmax)
 
         if self._stall_fit is None or self.compare_fitness(best.target.fitness, self._stall_fit, self.problem.minmax):
             self._stall_fit = best.target.fitness
@@ -380,7 +380,7 @@ class OriginalWOAmM(Optimizer):
         if self._stall_count >= self.patience:
             self._stall_count = 0
             self.restart_population()
-            best = self.get_best_agent(self.pop, self.problem.minmax)
+            best, _ = self.get_best_agent(self.pop, self.problem.minmax)
             self._stall_fit = best.target.fitness
 
     def reflect_solution(self, solution: np.ndarray) -> np.ndarray:
@@ -462,7 +462,7 @@ class OriginalWOAmM(Optimizer):
         self.pop = new_pop
 
         # Refresh global best before WOA movement (keep best-so-far)
-        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        current_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         self.g_best = self.get_better_agent(current_best, self.g_best, self.problem.minmax)
 
         # Standard WOA phase (like OriginalWOA with vector A, C per dimension)
@@ -595,7 +595,7 @@ class DevWOAmM(OriginalWOAmM):
         self.pop = new_pop
 
         # Refresh global best before WOA movement (keep best-so-far)
-        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        current_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         self.g_best = self.get_better_agent(current_best, self.g_best, self.problem.minmax)
 
         # Standard WOA phase (like OriginalWOA with vector A, C per dimension)

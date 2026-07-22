@@ -112,7 +112,7 @@ class OriginalRUN(Optimizer):
                 xb, xw = self.pop[id_min_x].solution, self.pop[idx].solution
             ## Search Mechanism (SM) of RUN based on Runge Kutta Method
             SM = self.runge_kutta__(xb, xw, delta_x)
-            local_best = self.get_best_agent(self.pop, self.problem.minmax)
+            local_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
             L = self.generator.choice(range(0, 2), self.problem.n_dims)
             xc = L * self.pop[idx].solution + (1 - L) * self.pop[a].solution        # Eq. 17.3
             xm = L * self.g_best.solution + (1 - L) * local_best.solution           # Eq. 17.4

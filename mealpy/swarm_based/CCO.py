@@ -196,7 +196,7 @@ class OriginalCCO(Optimizer):
                                 pos_new = np.round(lesp1) + F * r1 * R1 / (epoch ** 4) * pos_new
                                 self.s = 0
                         else:
-                            pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+                            pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
                             A2 = rng.integers(4)
                             if A2 == 3:
                                 Q = 1
@@ -258,7 +258,7 @@ class OriginalCCO(Optimizer):
                 self.pop[idx] = agent
                 # Q=1 logic: Replace the current worst in population
                 if Q == 1:
-                    _, worst_idx = self.get_worst_agent(self.pop, self.problem.minmax, return_index=True)
+                    _, worst_idx = self.get_worst_agent(self.pop, self.problem.minmax)
                     self.pop[worst_idx] = agent.copy()
                 self.tt = 0
             else:

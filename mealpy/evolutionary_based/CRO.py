@@ -323,7 +323,7 @@ class OCRO(OriginalCRO):
         if self.G1 >= self.gamma_min:
             self.G1 -= self.gama
         self.reset_count += 1
-        local_best = self.get_best_agent(self.pop, self.problem.minmax)
+        local_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         if self.compare_target(local_best.target, self.g_best.target, self.problem.minmax):
             self.reset_count = 0
         if self.reset_count == self.restart_count:

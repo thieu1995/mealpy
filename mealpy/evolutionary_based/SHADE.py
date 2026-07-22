@@ -94,7 +94,7 @@ class OriginalSHADE(Optimizer):
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
         pop_old = [agent.copy() for agent in self.pop]
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         pop = []
         for idx in range(0, self.pop_size):
             ## Calculate adaptive parameter cr and f
@@ -257,7 +257,7 @@ class L_SHADE(Optimizer):
         list_f_new = np.ones(self.pop_size)
         list_cr_new = np.ones(self.pop_size)
         pop_old = [agent.copy() for agent in self.pop]
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         pop = []
         for idx in range(0, self.pop_size):
             ## Calculate adaptive parameter cr and f

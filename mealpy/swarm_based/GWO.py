@@ -880,7 +880,7 @@ class DS_GWO(Optimizer):
             # Get group members
             group_population = self.pop[start_idx:end_idx]
             # Find best wolf in group
-            group_sorted = self.get_sorted_population(group_population, minmax=self.problem.minmax)
+            group_sorted, _ = self.get_sorted_population(group_population, minmax=self.problem.minmax)
             self.delta_candidates.append(group_sorted[0].copy())
 
         # Set alpha wolf (best among all delta candidates)
@@ -1003,7 +1003,7 @@ class IOBL_GWO(Optimizer):
 
         # Apply Opposition-Based Learning (OBL) for leading wolves
         _, list_best, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
-        pop_sorted, indices = self.get_sorted_population(self.pop, minmax=self.problem.minmax, return_index=True)
+        pop_sorted, indices = self.get_sorted_population(self.pop, minmax=self.problem.minmax)
         obl_alpha = self.generate_agent(solution=self.problem.lb + self.problem.ub - pop_sorted[0].solution)
         obl_beta = self.generate_agent(solution=self.problem.lb + self.problem.ub - pop_sorted[1].solution)
         obl_delta = self.generate_agent(solution=self.problem.lb + self.problem.ub - pop_sorted[2].solution)

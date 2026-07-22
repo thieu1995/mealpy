@@ -62,7 +62,7 @@ class OriginalMFO(Optimizer):
         num_flame = round(self.pop_size - epoch * ((self.pop_size - 1) / self.epoch))
         # a linearly decreases from -1 to -2 to calculate t in Eq. (3.12)
         a = -1. + epoch * (-1. / self.epoch)
-        pop_flames = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_flames, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         g_best = pop_flames[0].copy()
         pop_new = []
         for idx in range(0, self.pop_size):

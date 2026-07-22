@@ -96,7 +96,7 @@ class OriginalICA(Optimizer):
     def initialization(self):
         if self.pop is None:
             self.pop = self.generate_population(self.pop_size)
-        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         self.g_best = self.pop[0].copy()
         # Initialization
         self.n_revoluted_variables = int(round(self.revolution_rate * self.problem.n_dims))
@@ -180,7 +180,7 @@ class OriginalICA(Optimizer):
         # Find the weakest empire and weakest colony inside it
         idx_weakest_empire = np.argmax(cost_empires_list)
         if len(self.empires[idx_weakest_empire]) > 0:
-            colonies_sorted = self.get_sorted_population(self.empires[idx_weakest_empire], self.problem.minmax)
+            colonies_sorted, _ = self.get_sorted_population(self.empires[idx_weakest_empire], self.problem.minmax)
             self.empires[idx_empire].append(colonies_sorted.pop(-1))
         else:
             self.empires[idx_empire].append(self.pop_empires.pop(idx_weakest_empire))

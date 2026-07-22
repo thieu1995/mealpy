@@ -259,7 +259,7 @@ class OriginalIMODE(Optimizer):
         f_values, cr_values = self._generate_parameters()
 
         # Sort population by fitness
-        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         cr_values = np.sort(cr_values)
 
         # Mutation

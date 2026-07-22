@@ -249,7 +249,7 @@ class JADE(Optimizer):
         list_cr = list()
         temp_f = list()
         temp_cr = list()
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         pop = []
         for idx in range(0, self.pop_size):
             ## Calculate adaptive parameter cr and f
@@ -559,6 +559,6 @@ class SAP_DE(Optimizer):
         if m_new <= self.pop_size:
             self.pop = pop[:m_new]
         else:
-            pop_sorted = self.get_sorted_population(pop, self.problem.minmax)
+            pop_sorted, _ = self.get_sorted_population(pop, self.problem.minmax)
             self.pop = pop + pop_sorted[:m_new - self.pop_size]
         self.pop_size = len(self.pop)

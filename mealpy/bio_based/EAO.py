@@ -102,4 +102,4 @@ class OriginalEAO(Optimizer):
             agentB = self.generate_agent(posB)
 
             pop_new = [self.pop[idx], agent1, agentA, agentB]
-            self.pop[idx] = self.get_best_agent(pop_new, minmax=self.problem.minmax)
+            self.pop[idx], _ = self.get_best_agent(pop_new, minmax=self.problem.minmax)

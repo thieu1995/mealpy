@@ -108,7 +108,7 @@ class DevSMO(Optimizer):
         # Split groups
         self.groups = self.split_fill_by_group(self.pop, self.num_groups)
         # Get local leaders
-        self.local_leaders = [self.get_sorted_population(group, self.problem.minmax, return_index=False)[0] for group in self.groups]
+        self.local_leaders = [self.get_sorted_population(group, self.problem.minmax)[0][0] for group in self.groups]
 
     def local_leader_phase(self):
         """Local Leader Phase - all monkeys update based on local leader"""
@@ -163,7 +163,7 @@ class DevSMO(Optimizer):
 
     def local_leader_decision_phase(self):
         """Local Leader Decision Phase - handle stagnated local leaders"""
-        local_leaders_new = [self.get_sorted_population(group, self.problem.minmax, return_index=False)[0] for group in self.groups]
+        local_leaders_new = [self.get_sorted_population(group, self.problem.minmax)[0][0] for group in self.groups]
         for group_idx, group in enumerate(self.groups):
             # Update local limit count
             if self.compare_target(self.local_leaders[group_idx].target, local_leaders_new[group_idx].target, self.problem.minmax):
@@ -203,12 +203,12 @@ class DevSMO(Optimizer):
                 self.pop = self.merge_groups(self.groups)
             # Update local leaders after fission/fusion
             self.local_limit_counts = [0] * self.num_groups
-            self.local_leaders = [self.get_sorted_population(group, self.problem.minmax, return_index=False)[0] for group in self.groups]
+            self.local_leaders = [self.get_sorted_population(group, self.problem.minmax)[0][0] for group in self.groups]
 
     def update_leaders(self):
         self.pop = self.merge_groups(self.groups)
         # Update global leader
-        g_best_current = self.get_sorted_population(self.pop, self.problem.minmax, return_index=False)[0]
+        g_best_current = self.get_sorted_population(self.pop, self.problem.minmax)[0][0]
         if self.compare_target(g_best_current.target, self.g_best.target, self.problem.minmax):
             self.g_best = g_best_current
             # Update global limit count

@@ -133,12 +133,12 @@ class OriginalCSO(Optimizer):
         candidate_cats = self.update_target_for_population(candidate_cats)
 
         if self.selected_strategy == 0:  # Best fitness-self
-            cat = self.get_best_agent(candidate_cats, self.problem.minmax)
+            cat, _ = self.get_best_agent(candidate_cats, self.problem.minmax)
         elif self.selected_strategy == 1:  # Tournament
             k_way = 4
             idx = self.generator.choice(range(0, self.smp), k_way, replace=False)
             cats_k_way = [candidate_cats[_] for _ in idx]
-            cat = self.get_best_agent(cats_k_way, self.problem.minmax)
+            cat, _ = self.get_best_agent(cats_k_way, self.problem.minmax)
         elif self.selected_strategy == 2:  ### Roul-wheel selection
             list_fitness = [candidate_cats[u].target.fitness for u in range(0, len(candidate_cats))]
             idx = self.get_index_roulette_wheel_selection(list_fitness)

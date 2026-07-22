@@ -76,14 +76,14 @@ class OriginalFLA(Optimizer):
         self.sort_flag = False
 
     def before_main_loop(self):
-        self.xss = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.xss, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         self.g_best = self.xss[0].copy()
         self.n1 = int(np.round(self.pop_size/2))
         self.n2 = self.pop_size - self.n1
         self.pop1 = self.pop[:self.n1].copy()
         self.pop2 = self.pop[self.n1:].copy()
-        self.best1 = self.get_best_agent(self.pop1, self.problem.minmax)
-        self.best2 = self.get_best_agent(self.pop2, self.problem.minmax)
+        self.best1, _ = self.get_best_agent(self.pop1, self.problem.minmax)
+        self.best2, _ = self.get_best_agent(self.pop2, self.problem.minmax)
         if self.compare_target(self.best1.target, self.best2.target, self.problem.minmax):
             self.fsss = self.best1.target.fitness
         else:
@@ -220,8 +220,8 @@ class OriginalFLA(Optimizer):
                 self.pop[idx] = pop_new[idx]
         self.pop1 = self.pop[:self.n1].copy()
         self.pop2 = self.pop[self.n1:].copy()
-        self.best1 = self.get_best_agent(self.pop1, self.problem.minmax)
-        self.best2 = self.get_best_agent(self.pop2, self.problem.minmax)
+        self.best1, _ = self.get_best_agent(self.pop1, self.problem.minmax)
+        self.best2, _ = self.get_best_agent(self.pop2, self.problem.minmax)
         if self.compare_target(self.best1.target, self.best2.target, self.problem.minmax):
             self.fsss = self.best1.target.fitness
         else:

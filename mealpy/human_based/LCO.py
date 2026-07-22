@@ -261,7 +261,7 @@ class ImprovedLCO(Optimizer):
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
 
         ## Sort the updated population based on fitness
-        pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         local_best = pop[0].copy()
         pop_s1 = [agent.copy() for agent in pop[:self.pop_len]]
         pop_s2 = [agent.copy() for agent in pop[self.pop_len:]]

@@ -93,7 +93,7 @@ class DevTPO(Optimizer):
         self.pop = []                       # The best leaf in each branches
         for idx in range(self.pop_size):
             leafs = self.generate_population(self.n_leafs)
-            best = self.get_best_agent(leafs, self.problem.minmax)
+            best, _ = self.get_best_agent(leafs, self.problem.minmax)
             self.pop.append(best)
             self.pop_total.append(leafs)
 
@@ -124,5 +124,5 @@ class DevTPO(Optimizer):
                 self.pop_total[idx] = self.greedy_selection_population(pop_new, self.pop_total[idx], self.problem.minmax)
         self._theta = self._theta * self.theta
         for idx in range(0, self.pop_size):
-            best = self.get_best_agent(self.pop_total[idx], self.problem.minmax)
+            best, _ = self.get_best_agent(self.pop_total[idx], self.problem.minmax)
             self.pop[idx] = best

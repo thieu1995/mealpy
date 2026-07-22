@@ -96,7 +96,7 @@ class OriginalEP(Optimizer):
                 child[-1].target = self.get_target(pos_new)
         child = self.update_target_for_population(child)
         # Update the global best
-        children = self.get_sorted_population(child, self.problem.minmax)
+        children, _ = self.get_sorted_population(child, self.problem.minmax)
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)
@@ -176,7 +176,7 @@ class LevyEP(OriginalEP):
                 child[-1].target = self.get_target(pos_new)
         child = self.update_target_for_population(child)
         # Update the global best
-        children = self.get_sorted_population(child, self.problem.minmax)
+        children, _ = self.get_sorted_population(child, self.problem.minmax)
         pop = children + self.pop
         for i in range(0, len(pop)):
             ## Tournament winner (Tried with bout_size times)

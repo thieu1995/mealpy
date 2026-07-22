@@ -119,7 +119,8 @@ class DevQSA(Optimizer):
                     pop[idx] = agent
                 else:
                     case = 1
-        return self.get_sorted_population(pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(pop, self.problem.minmax)
+        return pop_sorted
 
     def update_business_2__(self, pop=None):
         A1, A2, A3 = pop[0].solution, pop[1].solution, pop[2].solution
@@ -236,7 +237,7 @@ class OppoQSA(DevQSA):
         self.sort_flag = True
 
     def opposition_based__(self, pop = None, g_best = None):
-        pop = self.get_sorted_population(pop, self.problem.minmax)
+        pop, _ = self.get_sorted_population(pop, self.problem.minmax)
         pop_new = []
         for idx in range(0, self.pop_size):
             pos_new = self.generate_opposition_solution(pop[idx], g_best)

@@ -116,7 +116,7 @@ class OriginalWHO(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     local_list[-1].target = self.get_target(pos_new)
             local_list = self.update_target_for_population(local_list)
-            best_local = self.get_best_agent(local_list, self.problem.minmax)
+            best_local, _ = self.get_best_agent(local_list, self.problem.minmax)
             temp = self.local_alpha * best_local.solution + self.local_beta * (self.pop[idx].solution - best_local.solution)
             pos_new = self.correct_solution(temp)
             agent = self.generate_empty_agent(pos_new)

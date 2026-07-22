@@ -73,7 +73,7 @@ class OriginalWarSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_sorted, indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+        pop_sorted, indices = self.get_sorted_population(self.pop, self.problem.minmax)
         self.wl = self.wl[indices]
         self.wg = self.wg[indices]
         com = self.generator.permutation(self.pop_size)

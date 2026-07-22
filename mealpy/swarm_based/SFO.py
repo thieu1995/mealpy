@@ -74,7 +74,7 @@ class OriginalSFO(Optimizer):
         if self.pop is None:
             self.pop = self.generate_population(self.pop_size)      # pop = sailfish
         self.s_pop = self.generate_population(self.s_size)
-        self.s_gbest = self.get_best_agent(self.s_pop, self.problem.minmax)          # s_pop = sardines
+        self.s_gbest, _ = self.get_best_agent(self.s_pop, self.problem.minmax)          # s_pop = sardines
 
     def evolve(self, epoch):
         """
@@ -145,7 +145,7 @@ class OriginalSFO(Optimizer):
             self.s_pop = self.s_pop + [self.generate_agent()]
         else:
             self.s_pop = self.s_pop + self.generate_population(self.s_size - len(self.s_pop))
-        self.s_gbest = self.get_best_agent(self.s_pop, self.problem.minmax)
+        self.s_gbest, _ = self.get_best_agent(self.s_pop, self.problem.minmax)
 
 
 class ImprovedSFO(Optimizer):
@@ -198,7 +198,7 @@ class ImprovedSFO(Optimizer):
         if self.pop is None:
             self.pop = self.generate_population(self.pop_size)
         self.s_pop = self.generate_population(self.s_size)
-        self.s_gbest = self.get_best_agent(self.s_pop, self.problem.minmax)
+        self.s_gbest, _ = self.get_best_agent(self.s_pop, self.problem.minmax)
 
     def evolve(self, epoch):
         """
@@ -259,4 +259,4 @@ class ImprovedSFO(Optimizer):
                 break  #### This simple keyword helped reducing ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
         self.s_pop = self.s_pop + self.generate_population(self.s_size - len(self.s_pop))
-        self.s_gbest = self.get_best_agent(self.s_pop, self.problem.minmax)
+        self.s_gbest, _ = self.get_best_agent(self.s_pop, self.problem.minmax)

@@ -449,65 +449,52 @@ class Optimizer:
         return [agent.copy() for agent in pop]
 
     @staticmethod
-    def get_sorted_population(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[List[Agent], List], List[Agent]]:
+    def get_sorted_population(pop: List[Agent], minmax: str = "min") -> Tuple[List[Agent], List]:
         """
         Get sorted population based on type (minmax) of problem
 
         Args:
             pop: The population
             minmax: The type of the problem
-            return_index: Return the sorted index or not
 
         Returns:
-            Sorted population (1st agent is the best, last agent is the worst
-            Sorted index (Optional)
+            Sorted population (1st agent is the best, last agent is the worst)
+            Sorted index
         """
         list_fits = [agent.target.fitness for agent in pop]
         indices = np.argsort(list_fits).tolist()
         if minmax == "max":
             indices = indices[::-1]
         pop_new = [pop[idx] for idx in indices]
-        if return_index:
-            return pop_new, indices
-        return pop_new
+        return pop_new, indices
 
     @staticmethod
-    def get_best_agent(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[Agent, int], Agent]:
+    def get_best_agent(pop: List[Agent], minmax: str = "min") -> Tuple[Agent, int]:
         """
         Args:
             pop: The population of agents
             minmax: The type of problem
-            return_index: Return the index of the best agent
 
         Returns:
             The best agent
-            The index of best agent (Optional)
+            The index of best agent
         """
-        if return_index:
-            pop, indices = Optimizer.get_sorted_population(pop, minmax, return_index=True)
-            return pop[0].copy(), indices[0]
-        else:
-            pop = Optimizer.get_sorted_population(pop, minmax, return_index=False)
-            return pop[0].copy()
+        pop, indices = Optimizer.get_sorted_population(pop, minmax)
+        return pop[0].copy(), indices[0]
 
     @staticmethod
-    def get_worst_agent(pop: List[Agent], minmax: str = "min", return_index: bool = False) -> Union[Tuple[Agent, int], Agent]:
+    def get_worst_agent(pop: List[Agent], minmax: str = "min") -> Tuple[Agent, int]:
         """
         Args:
             pop: The population of agents
             minmax: The type of problem
-            return_index: Return the index of the worst agent
 
         Returns:
             The worst agent
             The index of worst agent (Optional)
         """
-        if return_index:
-            pop, indices = Optimizer.get_sorted_population(pop, minmax, return_index=True)
-            return pop[-1].copy(), indices[-1]
-        else:
-            pop = Optimizer.get_sorted_population(pop, minmax, return_index=False)
-            return pop[-1].copy()
+        pop, indices = Optimizer.get_sorted_population(pop, minmax)
+        return pop[-1].copy(), indices[-1]
 
     @staticmethod
     def get_special_agents(pop: List['Agent'] = None, n_best: int = 3, n_worst: int = 3, minmax: str = "min",
@@ -526,7 +513,7 @@ class Optimizer:
             The sorted_population, n1 best agents (or indices), and n2 worst agents (or indices).
         """
 
-        sorted_pop, indexes = Optimizer.get_sorted_population(pop, minmax, return_index=return_index)
+        sorted_pop, indexes = Optimizer.get_sorted_population(pop, minmax)
         best_res = None
         if n_best is not None:
             if return_index:
@@ -556,7 +543,7 @@ class Optimizer:
             The total fitness, the best fitness, and the worst fitness
         """
         total_fitness = np.sum([agent.target.fitness for agent in pop])
-        pop = Optimizer.get_sorted_population(pop, minmax)
+        pop, _ = Optimizer.get_sorted_population(pop, minmax)
         return total_fitness, pop[0].target.fitness, pop[-1].target.fitness
 
     @staticmethod
@@ -611,7 +598,7 @@ class Optimizer:
         Returns:
             The sorted and trimmed population with pop_size size
         """
-        pop = Optimizer.get_sorted_population(pop, minmax)
+        pop, _ = Optimizer.get_sorted_population(pop, minmax)
         return pop[:pop_size]
 
     def update_global_best_agent(self, pop: List[Agent], save: bool = True) -> Union[List, Tuple]:
@@ -626,7 +613,7 @@ class Optimizer:
         Returns:
             list: Sorted population and the global best solution
         """
-        sorted_pop = self.get_sorted_population(pop, self.problem.minmax)
+        sorted_pop, _ = self.get_sorted_population(pop, self.problem.minmax)
         c_best, c_worst = sorted_pop[0], sorted_pop[-1]
         if save:
             ## Save current best

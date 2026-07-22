@@ -106,7 +106,7 @@ class OriginalRFO(Optimizer):
 
         # Phase 3: Reproduction and leaving the herd
         # Sort population again before reproduction phase
-        self.pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        self.pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
 
         # Select two best individuals to represent the alpha couple
         x_alpha_1 = self.pop[0].solution

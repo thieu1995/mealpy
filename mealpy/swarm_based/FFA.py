@@ -113,7 +113,7 @@ class OriginalFFA(Optimizer):
                     pop_child.append(agent)
             if len(pop_child) < self.pop_size:
                 pop_child += self.generate_population(self.pop_size - len(pop_child))
-            local_best = self.get_best_agent(pop_child, self.problem.minmax)
+            local_best, _ = self.get_best_agent(pop_child, self.problem.minmax)
             # Compare to Previous Solution
             if self.compare_target(local_best.target, agent.target, self.problem.minmax):
                 self.pop[idx] = local_best
@@ -269,7 +269,7 @@ class MLFA_GD(Optimizer):
 
         ## Regroup the pop to match mealpy pipeline
         self.pop = males + females
-        self.g_best = self.get_best_agent(self.pop + [self.g_best], self.problem.minmax, return_index=False)
+        self.g_best, _ = self.get_best_agent(self.pop + [self.g_best], self.problem.minmax)
 
         # --- RANDOM WALK FOR THE GLOBAL BEST ---
         eps = (self.epoch - epoch + 1) / self.epoch

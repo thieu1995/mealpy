@@ -206,7 +206,7 @@ class AIW_PSO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        current_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         for idx in range(0, self.pop_size):
             denom = np.abs(self.pop[idx].local_solution - current_best.solution)
             denom = np.where(denom==0, 1e-6, denom)

@@ -108,7 +108,7 @@ class OriginalBWOA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         pop1 = [agent.copy() for agent in pop_sorted[:self.n_parents]]
 
         pop2 = []
@@ -128,7 +128,7 @@ class OriginalBWOA(Optimizer):
             n_keep = self.generator.binomial(len(children), 1 - self.cr)
             if n_keep < 1:
                 n_keep = 1
-            children = self.get_sorted_population(children, self.problem.minmax)
+            children, _ = self.get_sorted_population(children, self.problem.minmax)
             pop2.append(female)
             pop2.extend(children[:n_keep])
 

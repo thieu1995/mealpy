@@ -144,7 +144,7 @@ class OriginalMA(Optimizer):
                 list_local[-1].target = self.get_target(pos_new)
         list_local = self.update_target_for_population(list_local)
         list_local.append(child)
-        best = self.get_best_agent(list_local, self.problem.minmax)
+        best, _ = self.get_best_agent(list_local, self.problem.minmax)
         return best
 
     def create_child__(self, idx, pop_copy):

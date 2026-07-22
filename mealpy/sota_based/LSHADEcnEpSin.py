@@ -160,7 +160,7 @@ class OriginalLSHADEcnEpSin(Optimizer):
     def current_to_pbest_mutation(self, idx, F, p=0.1):
         """Current-to-pbest/1 mutation strategy"""
         # Select pbest from top p*NP individuals
-        pop_sorted = self.get_sorted_population(self.pop, self.problem.minmax)
+        pop_sorted, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         p_size = max(1, int(p * self.NP))
         pbest_idx = self.generator.choice(range(p_size))
 
@@ -256,7 +256,7 @@ class OriginalLSHADEcnEpSin(Optimizer):
         new_NP = max(self.NP_min, new_NP)
         if new_NP < self.NP:
             # Sort population by fitness and keep the best individuals
-            _, indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+            _, indices = self.get_sorted_population(self.pop, self.problem.minmax)
             tt = indices[:new_NP]
             self.generator.shuffle(tt)
             self.pop = [self.pop[idx] for idx in tt]

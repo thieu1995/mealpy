@@ -71,7 +71,7 @@ class OriginalFHO(Optimizer):
         m = self.pop_size - n  # Number of Preys (PR)
 
         # Sort candidates to determine Fire Hawks (best) and Preys (rest)
-        _, sorted_indices = self.get_sorted_population(self.pop, self.problem.minmax, return_index=True)
+        _, sorted_indices = self.get_sorted_population(self.pop, self.problem.minmax)
         pos_list = np.array([agent.solution for agent in self.pop])
         FH = pos_list[sorted_indices[:n]]
         PR = pos_list[sorted_indices[n:]]

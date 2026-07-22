@@ -105,6 +105,6 @@ class OriginalEHO(Optimizer):
         self.pop_group = self.generate_group_population(self.pop, self.n_clans, self.n_individuals)
         # Separating operator
         for idx in range(0, self.n_clans):
-            self.pop_group[idx] = self.get_sorted_population(self.pop_group[idx], self.problem.minmax)
+            self.pop_group[idx], _ = self.get_sorted_population(self.pop_group[idx], self.problem.minmax)
             self.pop_group[idx][-1] = self.generate_agent()
         self.pop = [agent for pack in self.pop_group for agent in pack]

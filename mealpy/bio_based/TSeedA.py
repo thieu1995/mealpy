@@ -110,6 +110,6 @@ class OriginalTSeedA(Optimizer):
                 pop_new = self.update_target_for_population(pop_new)
 
             # Update the current tree by the best seed
-            best = self.get_best_agent(pop_new, self.problem.minmax, return_index=False)
+            best, _ = self.get_best_agent(pop_new, self.problem.minmax)
             if self.compare_target(best.target, self.pop[idx].target, self.problem.minmax):
                 self.pop[idx] = best

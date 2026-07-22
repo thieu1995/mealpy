@@ -102,5 +102,5 @@ class OriginalCGO(Optimizer):
             agent3 = self.generate_agent(seed3)
             agent4 = self.generate_agent(seed4)
             ## Lots of grammar errors in this section, so confused to understand which strategy they are using
-            best_seed = self.get_best_agent([agent1, agent2, agent3, agent4], self.problem.minmax)
+            best_seed, _ = self.get_best_agent([agent1, agent2, agent3, agent4], self.problem.minmax)
             self.pop[idx] = self.get_better_agent(best_seed, self.pop[idx], self.problem.minmax)

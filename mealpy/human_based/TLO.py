@@ -19,6 +19,8 @@ class ETLBO(Optimizer):
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
     pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
+    elite_size : int
+        Number of elite solutions, in range [1, pop_size/2]. Default is 4.
 
     References
     ~~~~~~~~~~
@@ -50,7 +52,7 @@ class ETLBO(Optimizer):
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
-        self.elite_size = self.validator.check_int("elite_size", elite_size, [4, 10000])
+        self.elite_size = self.validator.check_int("elite_size", elite_size, [1, self.pop_size//2])
         self.set_parameters(["epoch", "pop_size", "elite_size"])
         self.sort_flag = False
 
@@ -66,7 +68,7 @@ class ETLBO(Optimizer):
 
         # 2. Teacher Phase
         mean_result = np.mean([agent.solution for agent in self.pop], axis=0)
-        teacher = self.get_best_agent(self.pop, self.problem.minmax)
+        teacher, _ = self.get_best_agent(self.pop, self.problem.minmax)
         pop_new = []
         for idx in range(self.pop_size):
             T_F = np.round(1 + self.generator.random() * 1)  # T_F is either 1 or 2
@@ -107,7 +109,7 @@ class ETLBO(Optimizer):
         # 4. Replace worst solutions with elite solutions
         if self.elite_size > 0:
             _, _, worst_idx = self.get_special_agents(self.pop, n_best=1, n_worst=self.elite_size, minmax=self.problem.minmax, return_index=True)
-            for idx, wdx in worst_idx:
+            for idx, wdx in enumerate(worst_idx):
                 self.pop[wdx] = elites[idx].copy()
 
         # 5. Modify duplicate solutions (Mutation to maintain diversity)
@@ -253,7 +255,7 @@ class ImprovedTLO(OriginalTLO):
     def initialization(self):
         if self.pop is None:
             self.pop = self.generate_population(self.pop_size)
-        sorted_pop = self.get_sorted_population(self.pop, self.problem.minmax)
+        sorted_pop, _ = self.get_sorted_population(self.pop, self.problem.minmax)
         self.g_best = sorted_pop[0].copy()
         self.teachers = sorted_pop[:self.n_teachers].copy()
         sorted_pop = sorted_pop[self.n_teachers:]
@@ -324,7 +326,7 @@ class ImprovedTLO(OriginalTLO):
             self.teams[id_teach] = pop_new
         for id_teach, teacher in enumerate(self.teachers):
             team = self.teams[id_teach] + [teacher]
-            team = self.get_sorted_population(team, self.problem.minmax)
+            team, _ = self.get_sorted_population(team, self.problem.minmax)
             self.teachers[id_teach] = team[0].copy()
             self.teams[id_teach] = team[1:]
         self.pop = self.teachers + reduce(lambda x, y: x + y, self.teams)

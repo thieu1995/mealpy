@@ -72,7 +72,7 @@ class OriginalCrayfishOA(Optimizer):
         # Define Parameters for the current epoch
         C = 2.0 - (epoch / self.epoch)  # Eq.(7)
         temp = self.generator.random() * 15 + 20  # Eq.(3)
-        current_best = self.get_best_agent(self.pop, self.problem.minmax)
+        current_best, _ = self.get_best_agent(self.pop, self.problem.minmax)
         xf = (self.g_best.solution + current_best.solution) / 2.0  # Eq.(5)
         Xfood = self.g_best.solution.copy()
 

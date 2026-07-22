@@ -89,8 +89,8 @@ class OriginalTHRO(Optimizer):
         self.pop_king = self.pop[self.n_pop:].copy()
         
         # Sort populations by fitness
-        self.pop_tianji = self.get_sorted_population(self.pop_tianji, self.problem.minmax)
-        self.pop_king = self.get_sorted_population(self.pop_king, self.problem.minmax)
+        self.pop_tianji, _ = self.get_sorted_population(self.pop_tianji, self.problem.minmax)
+        self.pop_king, _ = self.get_sorted_population(self.pop_king, self.problem.minmax)
 
         # Generate binary matrices T_B and K_B
         t_b = np.zeros((self.n_pop, self.problem.n_dims))
@@ -288,8 +288,8 @@ class OriginalTHRO(Optimizer):
         self.update_global_best_agent(self.pop_tianji + self.pop_king, save=False)
 
         # Training phase
-        best_tianji = self.get_best_agent(self.pop_tianji, self.problem.minmax)
-        best_king = self.get_best_agent(self.pop_king, self.problem.minmax)
+        best_tianji, _ = self.get_best_agent(self.pop_tianji, self.problem.minmax)
+        best_king, _ = self.get_best_agent(self.pop_king, self.problem.minmax)
 
         for idx in range(self.n_pop):
             # Training for Tianji's population

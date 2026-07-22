@@ -162,7 +162,7 @@ class SwarmHC(Optimizer):
                 if self.mode not in self.AVAILABLE_MODES:
                     pop_neighbours[-1].target = self.get_target(pos_new)
             pop_neighbours = self.update_target_for_population(pop_neighbours)
-            best_local = self.get_best_agent(pop_neighbours, self.problem.minmax)
+            best_local, _ = self.get_best_agent(pop_neighbours, self.problem.minmax)
             pop.append(best_local)
             if self.mode not in self.AVAILABLE_MODES:
                 self.pop[idx] = self.get_better_agent(best_local, self.pop[idx], self.problem.minmax)

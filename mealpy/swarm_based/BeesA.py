@@ -103,7 +103,8 @@ class CleverBookBeesA(Optimizer):
             if self.mode not in self.AVAILABLE_MODES:
                 pop_neigh[-1].target = self.get_target(pos_new)
         pop_neigh = self.update_target_for_population(pop_neigh)
-        return self.get_best_agent(pop_neigh, self.problem.minmax)
+        best, _ = self.get_best_agent(pop_neigh, self.problem.minmax)
+        return best
 
     def evolve(self, epoch):
         """
@@ -231,7 +232,7 @@ class OriginalBeesA(Optimizer):
                     if self.mode not in self.AVAILABLE_MODES:
                         pop_child[-1].target = self.get_target(pos_new)
                 pop_child = self.update_target_for_population(pop_child)
-                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                local_best, _ = self.get_best_agent(pop_child, self.problem.minmax)
                 if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     pop_new[idx] = local_best
             elif self.n_elite_bees <= idx < self.n_selected_bees:
@@ -244,7 +245,7 @@ class OriginalBeesA(Optimizer):
                     if self.mode not in self.AVAILABLE_MODES:
                         pop_child[-1].target = self.get_target(pos_new)
                 pop_child = self.update_target_for_population(pop_child)
-                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                local_best, _ = self.get_best_agent(pop_child, self.problem.minmax)
                 if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     pop_new[idx] = local_best
             else:
@@ -360,7 +361,7 @@ class ProbBeesA(Optimizer):
                     if self.mode not in self.AVAILABLE_MODES:
                         pop_child[-1].target = self.get_target(pos_new)
                 pop_child = self.update_target_for_population(pop_child)
-                local_best = self.get_best_agent(pop_child, self.problem.minmax)
+                local_best, _ = self.get_best_agent(pop_child, self.problem.minmax)
                 if self.compare_target(local_best.target, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx] = local_best
             else:

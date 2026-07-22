@@ -90,7 +90,7 @@ class OriginalDOA(Optimizer):
                 group_start = int((m / 5) * self.pop_size)
                 group_end = int(((m + 1) / 5) * self.pop_size)
                 # Update the best solution for current group
-                pbest = self.get_best_agent(self.pop[group_start:group_end], self.problem.minmax)
+                pbest, _ = self.get_best_agent(self.pop[group_start:group_end], self.problem.minmax)
 
                 # Memory strategy and forgetting/supplementation
                 for idx in range(group_start, group_end):

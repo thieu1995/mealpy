@@ -147,6 +147,6 @@ class OriginalASO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
-        current_best = self.get_best_agent(pop_new, self.problem.minmax)
+        current_best, _ = self.get_best_agent(pop_new, self.problem.minmax)
         if self.compare_target(self.g_best.target, current_best.target, self.problem.minmax):
             self.pop[self.generator.integers(0, self.pop_size)] = self.g_best.copy()
