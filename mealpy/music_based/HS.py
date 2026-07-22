@@ -10,18 +10,22 @@ from mealpy.optimizer import Optimizer
 
 class DevHS(Optimizer):
     """
-    The developed version: Harmony Search (HS)
+    Our developed version: Harmony Search (HS)
 
-    Links:
-        1. https://doi.org/10.1177/003754970107600201
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 750.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_r : float
+        Harmony Memory Consideration Rate, in range [0.1, 0.5]. Default is 0.15.
+    pa_r : float
+        Pitch Adjustment Rate, in range [0.3, 0.8]. Default is 0.5.
 
-    Notes:
-        - Used the global best in the harmony memories
-        - Removed all third for loops
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
-        + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
+    Note
+    ----
+    We used the global best in the harmony memories and we removed all third for loops
 
     Examples
     ~~~~~~~~
@@ -97,12 +101,22 @@ class OriginalHS(DevHS):
     """
     The original version of: Harmony Search (HS)
 
-    Links:
-        1. https://doi.org/10.1177/003754970107600201
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 750.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_r : float
+        Harmony Memory Consideration Rate, in range [0.1, 0.5]. Default is 0.15.
+    pa_r : float
+        Pitch Adjustment Rate, in range [0.3, 0.8]. Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c_r (float): [0.1, 0.5], Harmony Memory Consideration Rate), default = 0.15
-        + pa_r (float): [0.3, 0.8], Pitch Adjustment Rate, default=0.5
+    References
+    ~~~~~~~~~~
+    1. Geem, Z.W., Kim, J.H. and Loganathan, G.V., 2001.
+       A new heuristic optimization algorithm: harmony search. simulation, 76(2), pp.60-68.
+       https://doi.org/10.1177/003754970107600201
 
     Examples
     ~~~~~~~~
@@ -122,11 +136,6 @@ class OriginalHS(DevHS):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Geem, Z.W., Kim, J.H. and Loganathan, G.V., 2001. A new heuristic
-    optimization algorithm: harmony search. simulation, 76(2), pp.60-68.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_r: float = 0.95, pa_r: float = 0.05, **kwargs: object) -> None:
