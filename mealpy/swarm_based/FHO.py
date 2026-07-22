@@ -111,7 +111,7 @@ class OriginalFHO(Optimizer):
 
             # Select an alternative Fire Hawk
             available_fh = [jdx for jdx in range(n) if jdx != l]
-            jdx = np.random.choice(available_fh) if available_fh else l
+            jdx = self.generator.choice(available_fh) if available_fh else l
 
             # Eq. 8: Update position outside the territory
             new_PR[idx] = PR_temp + (r5 * FH[jdx] - r6 * SP_global)
