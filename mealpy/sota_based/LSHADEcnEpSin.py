@@ -13,8 +13,33 @@ class OriginalLSHADEcnEpSin(Optimizer):
     """
     The original version of: Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood (LSHADEcnEpSin)
 
-    Links:
-        1. https://doi.org/10.1109/CEC.2017.7969336
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    miu_f : float
+        Initial value for F, in range (0.1, 1.0). Default is 0.5.
+    miu_cr : float
+        Initial value for CR, in range (0.1, 1.0). Default is 0.5.
+    freq : float
+        Initial frequency for sinusoidal adaptation, in range (0.1, 2.0). Default is 0.5.
+    memory_size : int
+        Memory size for F and CR, in range [1, 100]. Default is 5.
+    ps : float
+        Proportion for neighborhood, in range (0.1, 1.0). Default is 0.5.
+    pc : float
+        Probability for covariance matrix crossover, in range (0.1, 1.0). Default is 0.4.
+    pop_size_min : int
+        Minimum population size, in range [4, 1000]. Default is 10.
+
+    References
+    ~~~~~~~~~~
+    1. Awad, N. H., Ali, M. Z., & Suganthan, P. N. (2017, June).
+       Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood for solving CEC2017 benchmark problems.
+       In 2017 IEEE congress on evolutionary computation (CEC) (pp. 372-379). IEEE.
+       https://doi.org/10.1109/CEC.2017.7969336
 
     Examples
     ~~~~~~~~
@@ -35,12 +60,6 @@ class OriginalLSHADEcnEpSin(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Awad, N. H., Ali, M. Z., & Suganthan, P. N. (2017, June). Ensemble sinusoidal differential
-    covariance matrix adaptation with Euclidean neighborhood for solving CEC2017 benchmark problems.
-    In 2017 IEEE congress on evolutionary computation (CEC) (pp. 372-379). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5,

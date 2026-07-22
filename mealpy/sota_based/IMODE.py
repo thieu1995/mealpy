@@ -13,9 +13,23 @@ class OriginalIMODE(Optimizer):
     """
     The original version of: Improved Multi-operator Differential Evolution Algorithm (IMODE)
 
-    Links:
-        1. https://doi.org/10.1109/CEC48606.2020.9185577
-        2. This version is conversion from the original MATLAB code available at CEC competition github.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    memory_size : int
+        Memory size for F and CR, in range [2, 100]. Default is 5.
+    archive_size : int
+        Size of the solution archive for diversity, in range [5, 100]. Default is 20.
+
+    References
+    ~~~~~~~~~~
+    1. Sallam, K. M., Elsayed, S. M., Chakrabortty, R. K., & Ryan, M. J. (2020, July).
+       Improved multi-operator differential evolution algorithm for solving unconstrained problems.
+       In 2020 IEEE congress on evolutionary computation (CEC) (pp. 1-8). IEEE.
+       https://doi.org/10.1109/CEC48606.2020.9185577
 
     Examples
     ~~~~~~~~
@@ -35,12 +49,6 @@ class OriginalIMODE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Sallam, K. M., Elsayed, S. M., Chakrabortty, R. K., & Ryan, M. J. (2020, July). Improved multi-operator
-    differential evolution algorithm for solving unconstrained problems. In 2020 IEEE congress on
-    evolutionary computation (CEC) (pp. 1-8). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, memory_size: int = 5,
