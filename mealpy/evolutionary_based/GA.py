@@ -12,19 +12,36 @@ class BaseGA(Optimizer):
     """
     The original version of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
-        2. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
-        3. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pc : float
+        Cross-over probability, in range (0.0, 1.0). Default is 0.95.
+    pm : float
+        Mutation probability, in range (0.0, 1.0). Default is 0.025.
+    selection : str, optional
+        Selection method, in ["tournament", "random", "roulette"]. Default is "tournament".
+    k_way : float, optional
+        Set it when use "tournament" selection, in range (0.0, 1.0). Default is 0.2.
+    crossover : str, optional
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation_multipoints : bool, optional
+        Effect on mutation process. Default is True.
+    mutation : str, optional
+        Mutation method, can be ["flip", "swap"] for multipoints and ["flip", "swap", "scramble", "inversion"] for one-point. Default is "flip".
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation_multipoints (bool): Optional, True or False, effect on mutation process, default = True
-        + mutation (str): Optional, can be ["flip", "swap"] for multipoints and can be ["flip", "swap", "scramble", "inversion"] for one-point
+    Links
+    -----
+    1. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
+    2. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
+
+    References
+    ~~~~~~~~~~
+    1. Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
+       https://doi.org/10.1007/BF00175354
 
     Examples
     ~~~~~~~~
@@ -56,10 +73,6 @@ class BaseGA(Optimizer):
     >>> model6 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection="random", mutation="inversion")
     >>>
     >>> model7 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation="flip")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025, **kwargs: object) -> None:
@@ -325,18 +338,24 @@ class SingleGA(BaseGA):
     """
     The developed single-point mutation of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
-        2. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
-        3. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation (str): Optional, can be ["flip", "swap", "scramble", "inversion"] for one-point
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pc : float
+        Cross-over probability, in range [0.7, 0.95]. Default is 0.95.
+    pm : float
+        Mutation probability, in range [0.01, 0.2]. Default is 0.025.
+    selection : str
+        Selection method, in ["roulette", "tournament", "random"]. Default is "tournament".
+    crossover : str
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation : str
+        Mutation method, in ["flip", "swap", "scramble", "inversion"] for one-point.
+    k_way : float
+        Set it when use "tournament" selection. Default is 0.2.
 
     Examples
     ~~~~~~~~
@@ -368,10 +387,6 @@ class SingleGA(BaseGA):
     >>> model6 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="inversion")
     >>>
     >>> model7 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.8, selection: str = "roulette",
@@ -436,21 +451,35 @@ class EliteSingleGA(SingleGA):
     """
     The developed elite single-point mutation of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://www.baeldung.com/cs/elitism-in-evolutionary-algorithms
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Population size, which equals elite_group (elite_best + elite_worst) + non_elite_group. Default is 100.
+    pc : float
+        Cross-over probability, in range [0.7, 0.95]. Default is 0.95.
+    pm : float
+        Mutation probability, in range [0.01, 0.2]. Default is 0.025.
+    selection : str
+        Selection method, in ["roulette", "tournament", "random"]. Default is "tournament".
+    crossover : str
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation : str
+        Mutation method, in ["flip", "swap", "scramble", "inversion"] for one-point.
+    k_way : float
+        Set it when use "tournament" selection. Default is 0.2.
+    elite_best : float or int
+        Percentage of the best in elite group (float), or the number of best elite (int). Default is 0.1.
+    elite_worst : float or int
+        Percentage of the worst in elite group (float), or the number of worst elite (int). Default is 0.3.
+    strategy : int
+        Selection strategy, can be 0 or 1. If 0, the selection selects parents from (elite_worst + non_elite_group).
+        Else, the selection will select dad from elite_worst and mom from non_elite_group.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation (str): Optional, can be ["flip", "swap", "scramble", "inversion"] for one-point
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
-        + elite_best (float/int): Optional, can be float (percentage of the best in elite group), or int (the number of best elite), default = 0.1
-        + elite_worst (float/int): Opttional, can be float (percentage of the worst in elite group), or int (the number of worst elite), default = 0.3
-        + strategy (int): Optional, can be 0 or 1. If = 0, the selection is select parents from (elite_worst + non_elite_group).
-            Else, the selection will select dad from elite_worst and mom from non_elite_group.
-        + pop_size = elite_group (elite_best + elite_worst) + non_elite_group
+    Note
+    ----
+    This implementation is inspired from this article https://www.baeldung.com/cs/elitism-in-evolutionary-algorithms
 
     Examples
     ~~~~~~~~
@@ -483,10 +512,6 @@ class EliteSingleGA(SingleGA):
     >>> model6 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="inversion")
     >>>
     >>> model7 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.8, selection="roulette",
@@ -559,18 +584,29 @@ class MultiGA(BaseGA):
     """
     The developed multipoints-mutation version of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
-        2. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
-        3. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pc : float
+        Cross-over probability, in range [0.7, 0.95]. Default is 0.95.
+    pm : float
+        Mutation probability, in range [0.01, 0.2]. Default is 0.025.
+    selection : str
+        Selection method, in ["roulette", "tournament", "random"]. Default is "tournament".
+    crossover : str
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation : str
+        Mutation method, in ["flip", "swap"] for multipoints.
+    k_way : float
+        Set it when use "tournament" selection. Default is 0.2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation (str): Optional, can be ["flip", "swap"] for multipoints
+    Links
+    -----
+    1. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
+    2. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
 
     Examples
     ~~~~~~~~
@@ -602,10 +638,6 @@ class MultiGA(BaseGA):
     >>> model6 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, selection="random", mutation="swap")
     >>>
     >>> model7 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025,
@@ -656,21 +688,35 @@ class EliteMultiGA(MultiGA):
     """
     The developed elite multipoints-mutation version of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://www.baeldung.com/cs/elitism-in-evolutionary-algorithms
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Population size, which equals elite_group (elite_best + elite_worst) + non_elite_group. Default is 100.
+    pc : float
+        Cross-over probability, in range [0.7, 0.95]. Default is 0.95.
+    pm : float
+        Mutation probability, in range [0.01, 0.2]. Default is 0.025.
+    selection : str
+        Selection method, in ["roulette", "tournament", "random"]. Default is "tournament".
+    k_way : float
+        Set it when use "tournament" selection. Default is 0.2.
+    crossover : str
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation : str
+        Mutation method, in ["flip", "swap"] for multipoints.
+    elite_best : float or int
+        Percentage of the best in elite group (float), or the number of best elite (int). Default is 0.1.
+    elite_worst : float or int
+        Percentage of the worst in elite group (float), or the number of worst elite (int). Default is 0.3.
+    strategy : int
+        Selection strategy, can be 0 or 1. If 0, the selection selects parents from (elite_worst + non_elite_group).
+        Else, the selection will select dad from elite_worst and mom from non_elite_group.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation (str): Optional, can be ["flip", "swap"] for multipoints
-        + elite_best (float/int): Optional, can be float (percentage of the best in elite group), or int (the number of best elite), default = 0.1
-        + elite_worst (float/int): Opttional, can be float (percentage of the worst in elite group), or int (the number of worst elite), default = 0.3
-        + strategy (int): Optional, can be 0 or 1. If = 0, the selection is select parents from (elite_worst + non_elite_group).
-            Else, the selection will select dad from elite_worst and mom from non_elite_group.
-        + pop_size = elite_group (elite_best + elite_worst) + non_elite_group
+    Note
+    ----
+    This implementation is inspired from this article https://www.baeldung.com/cs/elitism-in-evolutionary-algorithms
 
     Examples
     ~~~~~~~~
@@ -690,10 +736,6 @@ class EliteMultiGA(MultiGA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.8, selection="roulette",
@@ -766,19 +808,31 @@ class OriginalGA(Optimizer):
     """
     The fully tuned version of: Genetic Algorithm (GA)
 
-    Links:
-        1. https://blog.sicara.com/getting-started-genetic-algorithms-python-tutorial-81ffa1dd72f9
-        2. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
-        3. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pc : float
+        Cross-over probability, in range [0.7, 0.95]. Default is 0.95.
+    pm : float
+        Mutation probability, in range [0.01, 0.2]. Default is 0.025.
+    selection : str
+        Selection method, in ["roulette", "tournament", "random"]. Default is "tournament".
+    crossover : str
+        Crossover method, in ["one_point", "multi_points", "uniform", "arithmetic"]. Default is "uniform".
+    mutation : str
+        Mutation method, can be ["flip", "swap"] for multipoints and ["flip", "swap", "scramble", "inversion"] for one-point.
+    k_way : float
+        Set it when use "tournament" selection. Default is 0.2.
+    mutation_multipoints : bool
+        Effect on mutation process. Default is True.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.95
-        + pm (float): [0.01, 0.2], mutation probability, default = 0.025
-        + selection (str): Optional, can be ["roulette", "tournament", "random"], default = "tournament"
-        + k_way (float): Optional, set it when use "tournament" selection, default = 0.2
-        + crossover (str): Optional, can be ["one_point", "multi_points", "uniform", "arithmetic"], default = "uniform"
-        + mutation_multipoints (bool): Optional, True or False, effect on mutation process, default = True
-        + mutation (str): Optional, can be ["flip", "swap"] for multipoints and can be ["flip", "swap", "scramble", "inversion"] for one-point
+    Links
+    -----
+    1. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
+    2. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
 
     Examples
     ~~~~~~~~
@@ -810,10 +864,6 @@ class OriginalGA(Optimizer):
     >>> model6 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, selection="random", mutation="inversion")
     >>>
     >>> model7 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation="flip")
-
-    References
-    ~~~~~~~~~~
-    [1] Whitley, D., 1994. A genetic algorithm tutorial. Statistics and computing, 4(2), pp.65-85.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025,

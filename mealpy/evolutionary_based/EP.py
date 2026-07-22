@@ -13,12 +13,24 @@ class OriginalEP(Optimizer):
     """
     The original version of: Evolutionary Programming (EP)
 
-    Links:
-        1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
-        2. https://github.com/clever-algorithms/CleverAlgorithms
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+    bout_size : float
+        Percentage of child agents implement tournament selection, in range (0.0, 1.0). Default is 0.05.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
+    Links
+    -----
+    1. https://cleveralgorithms.com/nature-inspired/evolution/evolutionary_programming.html
+    2. https://github.com/clever-algorithms/CleverAlgorithms
+
+    References
+    ~~~~~~~~~~
+    1. Yao, X., Liu, Y. and Lin, G., 1999. Evolutionary programming made faster.
+       IEEE Transactions on Evolutionary computation, 3(2), pp.82-102.
 
     Examples
     ~~~~~~~~
@@ -38,11 +50,6 @@ class OriginalEP(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yao, X., Liu, Y. and Lin, G., 1999. Evolutionary programming made faster.
-    IEEE Transactions on Evolutionary computation, 3(2), pp.82-102.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, bout_size: float = 0.05, **kwargs: object) -> None:
@@ -107,11 +114,18 @@ class LevyEP(OriginalEP):
     """
     The developed Levy-flight version: Evolutionary Programming (LevyEP)
 
-    Notes:
-        + Levy-flight is applied to EP, flow and some equations is changed.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+    bout_size : float
+        Percentage of child agents implement tournament selection, in range (0.0, 1.0). Default is 0.05.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + bout_size (float): [0.05, 0.2], percentage of child agents implement tournament selection
+    Note
+    ----
+    Levy-flight is applied to EP, flow and some equations is changed.
 
     Examples
     ~~~~~~~~

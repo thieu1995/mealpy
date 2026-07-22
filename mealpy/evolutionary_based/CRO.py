@@ -12,19 +12,36 @@ class OriginalCRO(Optimizer):
     """
     The original version of: Coral Reefs Optimization (CRO)
 
-    Links:
-        1. https://downloads.hindawi.com/journals/tswj/2014/739768.pdf
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    po : float
+        The rate between free/occupied at the beginning, in range (0.0, 1.0). Default is 0.4.
+    Fb : float
+        BroadcastSpawner/ExistingCorals rate, in range (0.0, 1.0). Default is 0.9.
+    Fa : float
+        Fraction of corals duplicates its self and tries to settle in a different part of the reef, in range (0.0, 1.0). Default is 0.1.
+    Fd : float
+        Fraction of the worse health corals in reef will be applied depredation, in range (0.0, 1.0). Default is 0.1.
+    Pd : float
+        The maximum of probability of depredation, in range (0.0, 1.0). Default is 0.5.
+    GCR : float
+        Probability for mutation process, in range (0.0, 1.0). Default is 0.1.
+    gamma_min : float
+        Factor for mutation process, in range (0.0, 0.15). Default is 0.02.
+    gamma_max : float
+        Factor for mutation process, in range (0.15, 1.0). Default is 0.2.
+    n_trials : int
+        Number of attempts for a larva to set in the reef, in range [2, int(pop_size / 2)]. Default is 3.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + po (float): [0.2, 0.5], the rate between free/occupied at the beginning
-        + Fb (float): [0.6, 0.9], BroadcastSpawner/ExistingCorals rate
-        + Fa (float): [0.05, 0.3], fraction of corals duplicates its self and tries to settle in a different part of the reef
-        + Fd (float): [0.05, 0.5], fraction of the worse health corals in reef will be applied depredation
-        + Pd (float): [0.1, 0.7], Probability of depredation
-        + GCR (float): [0.05, 0.2], probability for mutation process
-        + gamma_min (float): [0.01, 0.1] factor for mutation process
-        + gamma_max (float): [0.1, 0.5] factor for mutation process
-        + n_trials (int): [2, 10], number of attempts for a larvar to set in the reef.
+    References
+    ~~~~~~~~~~
+    1. Salcedo-Sanz, S., Del Ser, J., Landa-Torres, I., Gil-López, S. and Portilla-Figueras, J.A., 2014.
+       The coral reefs optimization algorithm: a novel metaheuristic for efficiently solving optimization problems.
+       The Scientific World Journal, 2014. https://doi.org/10.1155/2014/739768
 
     Examples
     ~~~~~~~~
@@ -44,11 +61,6 @@ class OriginalCRO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Salcedo-Sanz, S., Del Ser, J., Landa-Torres, I., Gil-López, S. and Portilla-Figueras, J.A., 2014.
-    The coral reefs optimization algorithm: a novel metaheuristic for efficiently solving optimization problems. The Scientific World Journal, 2014.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, po: float = 0.4, Fb: float = 0.9, Fa: float = 0.1, Fd: float = 0.1,
@@ -184,20 +196,39 @@ class OCRO(OriginalCRO):
     """
     The original version of: Opposition-based Coral Reefs Optimization (OCRO)
 
-    Links:
-        1. https://dx.doi.org/10.2991/ijcis.d.190930.003
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    po : float
+        The rate between free/occupied at the beginning, in range (0.0, 1.0). Default is 0.4.
+    Fb : float
+        BroadcastSpawner/ExistingCorals rate, in range (0.0, 1.0). Default is 0.9.
+    Fa : float
+        Fraction of corals duplicates its self and tries to settle in a different part of the reef, in range (0.0, 1.0). Default is 0.1.
+    Fd : float
+        Fraction of the worse health corals in reef will be applied depredation, in range (0.0, 1.0). Default is 0.1.
+    Pd : float
+        Probability of depredation, in range (0.0, 1.0). Default is 0.5.
+    GCR : float
+        Probability for mutation process, in range (0.0, 1.0). Default is 0.1.
+    gamma_min : float
+        Factor for mutation process, in range [0.01, 0.1]. Default is 0.02.
+    gamma_max : float
+        Factor for mutation process, in range [0.1, 0.5]. Default is 0.2.
+    n_trials : int
+        Number of attempts for a larva to set in the reef, in range [2, int(pop_size / 2)]. Default is 3.
+    restart_count : int
+        Reset the whole population after global best solution is not improved after restart_count times, in range [2, int(epoch / 2)]. Default is 20.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + po (float): [0.2, 0.5], the rate between free/occupied at the beginning
-        + Fb (float): [0.6, 0.9], BroadcastSpawner/ExistingCorals rate
-        + Fa (float): [0.05, 0.3], fraction of corals duplicates its self and tries to settle in a different part of the reef
-        + Fd (float): [0.05, 0.5], fraction of the worse health corals in reef will be applied depredation
-        + Pd (float): [0.1, 0.7], the maximum of probability of depredation
-        + GCR (float): [0.05, 0.2], probability for mutation process
-        + gamma_min (float): [0.01, 0.1] factor for mutation process
-        + gamma_max (float): [0.1, 0.5] factor for mutation process
-        + n_trials (int): [2, 10], number of attempts for a larvar to set in the reef
-        + restart_count (int): [10, 100], reset the whole population after global best solution is not improved after restart_count times
+    References
+    ~~~~~~~~~~
+    1. Nguyen, T., Nguyen, T., Nguyen, B.M. and Nguyen, G., 2019.
+       Efficient time-series forecasting using neural network and opposition-based coral reefs optimization.
+       International Journal of Computational Intelligence Systems, 12(2), p.1144.
+       https://dx.doi.org/10.2991/ijcis.d.190930.003
 
     Examples
     ~~~~~~~~
@@ -217,12 +248,6 @@ class OCRO(OriginalCRO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Nguyen, T., Nguyen, T., Nguyen, B.M. and Nguyen, G., 2019. Efficient time-series forecasting using
-    neural network and opposition-based coral reefs optimization. International Journal of Computational
-    Intelligence Systems, 12(2), p.1144.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, po: float = 0.4, Fb: float = 0.9, Fa: float = 0.1, Fd: float = 0.1, Pd: float = 0.5,

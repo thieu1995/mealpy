@@ -13,12 +13,22 @@ class OriginalSHADE(Optimizer):
     """
     The original version of: Success-History Adaptation Differential Evolution (OriginalSHADE)
 
-    Links:
-        1. https://doi.org/10.1109/CEC.2013.6557555
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 750.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    miu_f : float
+        Initial weighting factor, in range (0.0, 1.0). Default is 0.5.
+    miu_cr : float
+        Initial cross-over probability, in range (0.0, 1.0). Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
-        + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
+    References
+    ~~~~~~~~~~
+    1. Tanabe, R. and Fukunaga, A., 2013, June.
+       Success-history based parameter adaptation for differential evolution.
+       In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE. https://doi.org/10.1109/CEC.2013.6557555
 
     Examples
     ~~~~~~~~
@@ -38,11 +48,6 @@ class OriginalSHADE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Tanabe, R. and Fukunaga, A., 2013, June. Success-history based parameter adaptation for
-    differential evolution. In 2013 IEEE congress on evolutionary computation (pp. 71-78). IEEE.
     """
 
     def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:
@@ -169,12 +174,23 @@ class L_SHADE(Optimizer):
     """
     The original version of: Linear Population Size Reduction Success-History Adaptation Differential Evolution (LSHADE)
 
-    Links:
-        1. https://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 750.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    miu_f : float
+        Initial weighting factor, in range (0.0, 1.0). Default is 0.5.
+    miu_cr : float
+        Initial cross-over probability, in range (0.0, 1.0). Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + miu_f (float): [0.4, 0.6], initial weighting factor, default = 0.5
-        + miu_cr (float): [0.4, 0.6], initial cross-over probability, default = 0.5
+    References
+    ~~~~~~~~~~
+    1. Tanabe, R. and Fukunaga, A.S., 2014, July.
+       Improving the search performance of SHADE using linear population size reduction.
+       In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
+       https://metahack.org/CEC2014-Tanabe-Fukunaga.pdf
 
     Examples
     ~~~~~~~~
@@ -194,11 +210,6 @@ class L_SHADE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Tanabe, R. and Fukunaga, A.S., 2014, July. Improving the search performance of SHADE using
-    linear population size reduction. In 2014 IEEE congress on evolutionary computation (CEC) (pp. 1658-1665). IEEE.
     """
 
     def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:

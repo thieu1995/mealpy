@@ -14,19 +14,30 @@ class OriginalDE(Optimizer):
     """
     The original version of: Differential Evolution (DE)
 
-    Links:
-        1. https://doi.org/10.1016/j.swevo.2018.10.006
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    wf : float
+        Weighting factor, in range (-3.0, 3.0). Default is 0.1.
+    cr : float
+        Crossover rate, in range [0.5, 0.95]. Default is 0.9.
+    strategy : int
+        There are lots of variant version of DE algorithm, in range [0, 5].
+        - 0: DE/current-to-rand/1/bin
+        - 1: DE/best/1/bin
+        - 2: DE/best/2/bin
+        - 3: DE/rand/2/bin
+        - 4: DE/current-to-best/1/bin
+        - 5: DE/current-to-rand/1/bin
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + wf (float): [-1., 1.0], weighting factor, default = 0.1
-        + cr (float): [0.5, 0.95], crossover rate, default = 0.9
-        + strategy (int): [0, 5], there are lots of variant version of DE algorithm,
-            + 0: DE/current-to-rand/1/bin
-            + 1: DE/best/1/bin
-            + 2: DE/best/2/bin
-            + 3: DE/rand/2/bin
-            + 4: DE/current-to-best/1/bin
-            + 5: DE/current-to-rand/1/bin
+    References
+    ~~~~~~~~~~
+    1. Mohamed, A.W., Hadi, A.A. and Jambi, K.M., 2019.
+       Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization.
+       Swarm and Evolutionary Computation, 50, p.100455. https://doi.org/10.1016/j.swevo.2018.10.006
 
     Examples
     ~~~~~~~~
@@ -46,11 +57,6 @@ class OriginalDE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mohamed, A.W., Hadi, A.A. and Jambi, K.M., 2019. Novel mutation strategy for enhancing SHADE and
-    LSHADE algorithms for global numerical optimization. Swarm and Evolutionary Computation, 50, p.100455.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, wf: float = 0.1, cr: float = 0.9, strategy: int = 0, **kwargs: object) -> None:
@@ -158,14 +164,26 @@ class JADE(Optimizer):
     """
     The original version of: Differential Evolution (JADE)
 
-    Links:
-        1. https://doi.org/10.1109/TEVC.2009.2014613
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    miu_f : float
+        Initial adaptive f, in range (0.0, 1.0). Default is 0.5.
+    miu_cr : float
+        Initial adaptive cr, in range (0.0, 1.0). Default is 0.5.
+    pt : float
+        The percent of top best agents (p in the paper), in range (0.0, 1.0). Default is 0.1.
+    ap : float
+        The Adaptation Parameter control value of f and cr (c in the paper), in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + miu_f (float): [0.4, 0.6], initial adaptive f, default = 0.5
-        + miu_cr (float): [0.4, 0.6], initial adaptive cr, default = 0.5
-        + pt (float): [0.05, 0.2], The percent of top best agents (p in the paper), default = 0.1
-        + ap (float): [0.05, 0.2], The Adaptation Parameter control value of f and cr (c in the paper), default=0.1
+    References
+    ~~~~~~~~~~
+    1. Zhang, J. and Sanderson, A.C., 2009.
+       JADE: adaptive differential evolution with optional external archive.
+       IEEE Transactions on evolutionary computation, 13(5), pp.945-958. https://doi.org/10.1109/TEVC.2009.2014613
 
     Examples
     ~~~~~~~~
@@ -185,11 +203,6 @@ class JADE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhang, J. and Sanderson, A.C., 2009. JADE: adaptive differential evolution with optional
-    external archive. IEEE Transactions on evolutionary computation, 13(5), pp.945-958.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, miu_f: float = 0.5,
@@ -298,8 +311,19 @@ class SADE(Optimizer):
     """
     The original version of: Self-Adaptive Differential Evolution (SADE)
 
-    Links:
-        1. https://doi.org/10.1109/CEC.2005.1554904
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Qin, A.K. and Suganthan, P.N., 2005, September.
+       Self-adaptive differential evolution algorithm for numerical optimization.
+       In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
+       https://doi.org/10.1109/CEC.2005.1554904
 
     Examples
     ~~~~~~~~
@@ -319,11 +343,6 @@ class SADE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Qin, A.K. and Suganthan, P.N., 2005, September. Self-adaptive differential evolution algorithm for
-    numerical optimization. In 2005 IEEE congress on evolutionary computation (Vol. 2, pp. 1785-1791). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -414,13 +433,21 @@ class SADE(Optimizer):
 
 class SAP_DE(Optimizer):
     """
-    The original version of: Differential Evolution with Self-Adaptive Populations (SAP_DE)
+    The original version of: Differential Evolution with Self-Adaptive Populations (SAP-DE)
 
-    Links:
-        1. https://doi.org/10.1007/s00500-005-0537-1
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 1000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    branch : str
+        Gaussian (absolute) or uniform (relative) method, in ["ABS", "REL"]. Default is "ABS".
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + branch (str): ["ABS" or "REL"], gaussian (absolute) or uniform (relative) method
+    References
+    ~~~~~~~~~~
+    1. Teo, J., 2006. Exploring dynamic self-adaptive populations in differential evolution.
+       Soft Computing, 10(8), pp.673-686. https://doi.org/10.1007/s00500-005-0537-1
 
     Examples
     ~~~~~~~~
@@ -440,19 +467,9 @@ class SAP_DE(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Teo, J., 2006. Exploring dynamic self-adaptive populations in differential evolution. Soft Computing, 10(8), pp.673-686.
     """
 
     def __init__(self, epoch: int = 1000, pop_size: int = 100, branch: str = "ABS", **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            branch (str): gaussian (absolute) or uniform (relative) method
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

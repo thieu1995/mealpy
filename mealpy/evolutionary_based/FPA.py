@@ -12,12 +12,22 @@ class OriginalFPA(Optimizer):
     """
     The original version of: Flower Pollination Algorithm (FPA)
 
-    Links:
-        1. https://doi.org/10.1007/978-3-642-32894-7_27
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    p_s : float
+        Switch probability, in range (0.0, 1.0). Default is 0.8.
+    levy_multiplier : float
+        Multiplier factor of Levy-flight trajectory, in range (-10000.0, 10000.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + p_s (float): [0.5, 0.95], switch probability, default = 0.8
-        + levy_multiplier: [0.0001, 1000], mutiplier factor of Levy-flight trajectory, depends on the problem
+    References
+    ~~~~~~~~~~
+    1. Yang, X.S., 2012, September. Flower pollination algorithm for global optimization.
+       In International conference on unconventional computing and natural computation (pp. 240-249).
+       Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-32894-7_27
 
     Examples
     ~~~~~~~~
@@ -37,11 +47,6 @@ class OriginalFPA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Yang, X.S., 2012, September. Flower pollination algorithm for global optimization. In International
-    conference on unconventional computing and natural computation (pp. 240-249). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_s: float = 0.8, levy_multiplier: float = 0.1, **kwargs: object) -> None:

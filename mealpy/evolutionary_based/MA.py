@@ -13,16 +13,32 @@ class OriginalMA(Optimizer):
     """
     The original version of: Memetic Algorithm (MA)
 
-    Links:
-        1. https://www.cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
-        2. https://github.com/clever-algorithms/CleverAlgorithms
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pc : float
+        Cross-over probability, in range (0.0, 1.0). Default is 0.85.
+    pm : float
+        Mutation probability, in range (0.0, 1.0). Default is 0.15.
+    p_local : float
+        Probability of local search for each agent, in range (0.0, 1.0). Default is 0.5.
+    max_local_gens : int
+        Number of local search agent will be created during local search mechanism, in range [2, int(pop_size/2)]. Default is 10.
+    bits_per_param : int
+        Number of bits to decode a real number to 0-1 bitstring, in range [2, 32]. Default is 4.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pc (float): [0.7, 0.95], cross-over probability, default = 0.85
-        + pm (float): [0.05, 0.3], mutation probability, default = 0.15
-        + p_local (float): [0.3, 0.7], Probability of local search for each agent, default=0.5
-        + max_local_gens (int): [5, 25], number of local search agent will be created during local search mechanism, default=10
-        + bits_per_param (int): [2, 4, 8, 16], number of bits to decode a real number to 0-1 bitstring, default=4
+    Links
+    -----
+    1. https://cleveralgorithms.com/nature-inspired/physical/memetic_algorithm.html
+    2. https://github.com/clever-algorithms/CleverAlgorithms
+
+    References
+    ~~~~~~~~~~
+    1. Moscato, P., 1989. On evolution, search, optimization, genetic algorithms and martial arts:
+       Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, p.1989.
 
     Examples
     ~~~~~~~~
@@ -42,11 +58,6 @@ class OriginalMA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Moscato, P., 1989. On evolution, search, optimization, genetic algorithms and martial arts:
-    Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, p.1989.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.85, pm: float = 0.15,

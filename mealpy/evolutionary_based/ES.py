@@ -13,11 +13,24 @@ class OriginalES(Optimizer):
     """
     The original version of: Evolution Strategies (ES)
 
-    Links:
-        1. https://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+    lamda : float
+        Percentage of child agents evolving in the next generation, in range (0.0, 1.0). Default is 0.75.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
+    Links
+    -----
+    1. https://cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+    2. https://github.com/Jason2Brownlee/CleverAlgorithms
+
+    References
+    ~~~~~~~~~~
+    1. Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction.
+       Natural computing, 1(1), pp.3-52. https://doi.org/10.1023/A:1015059928466
 
     Examples
     ~~~~~~~~
@@ -37,10 +50,6 @@ class OriginalES(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, lamda: float = 0.75, **kwargs: object) -> None:
@@ -94,12 +103,24 @@ class LevyES(OriginalES):
     """
     The developed Levy-flight version: Evolution Strategies (ES)
 
-    Notes:
-        + The Levy-flight is applied, the flow and equations is changed
-        + Link: https://www.cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+    lamda : float
+        Percentage of child agents evolving in the next generation, in range (0.0, 1.0). Default is 0.75.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + lamda (float): [0.5, 1.0], Percentage of child agents evolving in the next generation
+    Note
+    ----
+    + The Levy-flight is applied, the flow and equations is changed
+    + Link: https://cleveralgorithms.com/nature-inspired/evolution/evolution_strategies.html
+
+    References
+    ~~~~~~~~~~
+    1. Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction.
+    Natural computing, 1(1), pp.3-52. https://doi.org/10.1023/A:1015059928466
 
     Examples
     ~~~~~~~~
@@ -119,10 +140,6 @@ class LevyES(OriginalES):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Beyer, H.G. and Schwefel, H.P., 2002. Evolution strategies–a comprehensive introduction. Natural computing, 1(1), pp.3-52.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, lamda: float = 0.75, **kwargs: object) -> None:
@@ -174,8 +191,18 @@ class CMA_ES(Optimizer):
     """
     The original version of: Covariance Matrix Adaptation Evolution Strategy (CMA-ES)
 
-    Links:
-        1. https://en.wikipedia.org/wiki/CMA-ES
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Hansen, Nikolaus, Sibylle D. Müller, and Petros Koumoutsakos.
+       Reducing the time complexity of the derandomized evolution strategy with covariance matrix adaptation (CMA-ES).
+       Evolutionary computation 11.1 (2003): 1-18. https://doi.org/10.1162/106365603321828970
 
     Examples
     ~~~~~~~~
@@ -195,11 +222,8 @@ class CMA_ES(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hansen, N., & Ostermeier, A. (2001). Completely derandomized self-adaptation in evolution strategies. Evolutionary computation, 9(2), 159-195.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -292,11 +316,23 @@ class CMA_ES(Optimizer):
 
 class Simple_CMA_ES(Optimizer):
     """
-    The simple version of: Covariance Matrix Adaptation Evolution Strategy (Simple-CMA-ES)
+    The simplified version of: Covariance Matrix Adaptation Evolution Strategy (Simple-CMA-ES)
 
-    Links:
-        1. Inspired from this version: https://github.com/jenkspt/CMA-ES
-        2. https://ieeexplore.ieee.org/abstract/document/6790628/
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (miu in the paper), in range [5, 10000]. Default is 100.
+
+    Note
+    ----
+    This implementation is inspired from this version: https://github.com/jenkspt/CMA-ES
+
+    References
+    ~~~~~~~~~~
+    1. Hansen, N., & Ostermeier, A. (2001). Completely derandomized self-adaptation in evolution strategies.
+       Evolutionary computation, 9(2), 159-195. https://doi.org/10.1162/106365601750190398
 
     Examples
     ~~~~~~~~
@@ -316,11 +352,8 @@ class Simple_CMA_ES(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hansen, N., & Ostermeier, A. (2001). Completely derandomized self-adaptation in evolution strategies. Evolutionary computation, 9(2), 159-195.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:

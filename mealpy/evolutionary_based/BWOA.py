@@ -12,13 +12,24 @@ class OriginalBWOA(Optimizer):
     """
     The original version of: Black Widow Optimization Algorithm (BWOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2019.103249
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pp : float
+        Procreating rate, in range (0.0, 1.0). Default is 0.6.
+    cr : float
+        Cannibalism rate, in range (0.0, 1.0). Default is 0.44.
+    pm : float
+        Mutation rate, in range (0.0, 1.0). Default is 0.4.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pp (float): [0, 1], procreating rate, default = 0.6
-        + cr (float): [0, 1], cannibalism rate, default = 0.44
-        + pm (float): [0, 1], mutation rate, default = 0.4
+    References
+    ~~~~~~~~~~
+    1. Hayyolalam, V. and Pourhaji Kazem, A.A., 2020.
+       Black widow optimization algorithm: A novel meta-heuristic approach for solving engineering optimization problems.
+       Engineering Applications of Artificial Intelligence, 87, 103249. https://doi.org/10.1016/j.engappai.2019.103249
 
     Examples
     ~~~~~~~~
@@ -38,11 +49,6 @@ class OriginalBWOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hayyolalam, V. and Pourhaji Kazem, A.A., 2020. Black widow optimization algorithm: A novel meta-heuristic
-    approach for solving engineering optimization problems. Engineering Applications of Artificial Intelligence, 87, 103249.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.6, cr: float = 0.44,
