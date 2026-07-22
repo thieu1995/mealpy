@@ -25,16 +25,14 @@ class OriginalAGTO(Optimizer):
     beta : float
         Coefficient in updating equation, should be in [-5.0, 5.0], default = 3.0.
 
-    Links
-    -----
-    1. https://doi.org/10.1002/int.22535
-    2. https://www.mathworks.com/matlabcentral/fileexchange/95953-artificial-gorilla-troops-optimizer
-
     References
     ~~~~~~~~~~
     1. Abdollahzadeh, B., Soleimanian Gharehchopogh, F., & Mirjalili, S. (2021). Artificial gorilla
        troops optimizer: a new nature‐inspired metaheuristic algorithm for global optimization problems.
-       International Journal of Intelligent Systems, 36(10), 5887-5958.
+       International Journal of Intelligent Systems, 36(10), 5887-5958. https://doi.org/10.1002/int.22535
+    2. Van Thieu, Nguyen, and La Van Quan. "Artificial Gorilla Troops Optimizer."
+       Encyclopedia of Engineering Optimization and Heuristics.
+       Singapore: Springer Nature Singapore, 2026. 1-9. https://doi.org/10.1007/978-981-96-8165-5_56-1
 
     Examples
     ~~~~~~~~
