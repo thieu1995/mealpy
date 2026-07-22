@@ -11,12 +11,16 @@ class OriginalCDDO(Optimizer):
     """
     The original version of: Child Drawing Development Optimization (CCDO)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size (number of trees), default = 100
-    + pattern_size (int): size of the pattern matrix, default = 10, range [1, 1000]
-    + creativity_rate (float): creativity rate, default = 0.1, range [0, 1]
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Population size (number of trees). Default is 100.
+    pattern_size : int
+        Size of the pattern matrix, in range [1, 1000]. Default is 10.
+    creativity_rate : float
+        Creativity rate, in range [0.0, 1.0]. Default is 0.1.
 
     Danger
     ------

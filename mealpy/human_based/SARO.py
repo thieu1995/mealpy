@@ -10,11 +10,24 @@ from mealpy.optimizer import Optimizer
 
 class DevSARO(Optimizer):
     """
-    The developed version: Search And Rescue Optimization (SARO)
+    Our developed version: Search And Rescue Optimization (SARO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + se (float): [0.3, 0.8], social effect, default = 0.5
-        + mu (int): maximum unsuccessful search number, belongs to range: [2, 2+int(self.pop_size/2)], default = 15
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    se : float
+        Social effect, in range (0.0, 1.0). Default is 0.5.
+    mu : int
+        Maximum unsuccessful search number, in range [2, 2 + int(pop_size / 2)]. Default is 15.
+
+    References
+    ~~~~~~~~~~
+    1. Shabani, A., Asgarian, B., Gharebaghi, S.A., Salido, M.A. and Giret, A., 2019.
+       A new optimization algorithm based on search and rescue operations. Mathematical Problems in Engineering, 2019.
+       https://doi.org/10.1155/2019/2482543
 
     Examples
     ~~~~~~~~
@@ -128,12 +141,22 @@ class OriginalSARO(DevSARO):
     """
     The original version of: Search And Rescue Optimization (SARO)
 
-    Links:
-       1. https://doi.org/10.1155/2019/2482543
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    se : float
+        Social effect, in range (0.0, 1.0). Default is 0.5.
+    mu : int
+        Maximum unsuccessful search number, in range [2, 2 + int(pop_size / 2)]. Default is 15.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + se (float): [0.3, 0.8], social effect, default = 0.5
-        + mu (int): [10, 20], maximum unsuccessful search number, default = 15
+    References
+    ~~~~~~~~~~
+    1. Shabani, A., Asgarian, B., Gharebaghi, S.A., Salido, M.A. and Giret, A., 2019.
+       A new optimization algorithm based on search and rescue operations. Mathematical Problems in Engineering, 2019.
+       https://doi.org/10.1155/2019/2482543
 
     Examples
     ~~~~~~~~
@@ -153,11 +176,6 @@ class OriginalSARO(DevSARO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shabani, A., Asgarian, B., Gharebaghi, S.A., Salido, M.A. and Giret, A., 2019. A new optimization
-    algorithm based on search and rescue operations. Mathematical Problems in Engineering, 2019.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, se: float = 0.5, mu: int = 15, **kwargs: object) -> None:

@@ -12,16 +12,31 @@ class OriginalICA(Optimizer):
     """
     The original version of: Imperialist Competitive Algorithm (ICA)
 
-    Links:
-        1. https://ieeexplore.ieee.org/document/4425083
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size (n: pop_size, m: clusters), in range [10, 10000]. Default is 100.
+    empire_count : int
+        Number of Empires (also Imperialists), in range [2, 2 + int(pop_size / 5)]. Default is 5.
+    assimilation_coeff : float
+        Assimilation Coefficient (beta in the paper), in range [1.0, 3.0]. Default is 1.5.
+    revolution_prob : float
+        Revolution Probability, in range (0.0, 1.0). Default is 0.05.
+    revolution_rate : float
+        Revolution Rate (mu), in range (0.0, 1.0). Default is 0.1.
+    revolution_step_size : float
+        Revolution Step Size (sigma), in range (0.0, 1.0). Default is 0.1.
+    zeta : float
+        Colonies Coefficient in Total Objective Value of Empires, in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + empire_count (int): [3, 10], Number of Empires (also Imperialists)
-        + assimilation_coeff (float): [1.0, 3.0], Assimilation Coefficient (beta in the paper)
-        + revolution_prob (float): [0.01, 0.1], Revolution Probability
-        + revolution_rate (float): [0.05, 0.2], Revolution Rate       (mu)
-        + revolution_step_size (float): [0.05, 0.2], Revolution Step Size  (sigma)
-        + zeta (float): [0.05, 0.2], Colonies Coefficient in Total Objective Value of Empires
+    References
+    ~~~~~~~~~~
+    1. Atashpaz-Gargari, E. and Lucas, C., 2007, September.
+       Imperialist competitive algorithm: an algorithm for optimization inspired by imperialistic competition.
+       In 2007 IEEE congress on evolutionary computation (pp. 4661-4667). Ieee.
+       https://doi.org/10.1109/CEC.2007.4425083
 
     Examples
     ~~~~~~~~
@@ -42,11 +57,6 @@ class OriginalICA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Atashpaz-Gargari, E. and Lucas, C., 2007, September. Imperialist competitive algorithm: an algorithm for
-    optimization inspired by imperialistic competition. In 2007 IEEE congress on evolutionary computation (pp. 4661-4667). Ieee.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, empire_count: int = 5, assimilation_coeff: float = 1.5, revolution_prob: float = 0.05,

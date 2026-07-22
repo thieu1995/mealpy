@@ -10,10 +10,18 @@ from mealpy.optimizer import Optimizer
 
 class DevFBIO(Optimizer):
     """
-    The developed : Forensic-Based Investigation Optimization (FBIO)
+    Our developed version: Forensic-Based Investigation Optimization (FBIO)
 
-    Notes:
-        + Third loop is removed, the flowand a few equations is improved
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Note
+    ----
+    Third loop is removed, the flowand a few equations is improved
 
     Examples
     ~~~~~~~~
@@ -36,11 +44,6 @@ class DevFBIO(Optimizer):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -145,9 +148,21 @@ class OriginalFBIO(DevFBIO):
     """
     The original version of: Forensic-Based Investigation Optimization (FBIO)
 
-    Links:
-        1. https://doi.org/10.1016/j.asoc.2020.106339
-        2. https://ww2.mathworks.cn/matlabcentral/fileexchange/76299-forensic-based-investigation-algorithm-fbi
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.asoc.2020.106339
+    2. https://ww2.mathworks.cn/matlabcentral/fileexchange/76299-forensic-based-investigation-algorithm-fbi
+
+    References
+    ~~~~~~~~~~
+    1. Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, 93, p.106339.
 
     Examples
     ~~~~~~~~
@@ -167,10 +182,6 @@ class OriginalFBIO(DevFBIO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Chou, J.S. and Nguyen, N.M., 2020. FBI inspired meta-optimization. Applied Soft Computing, 93, p.106339.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

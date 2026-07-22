@@ -12,12 +12,25 @@ class OriginalHBO(Optimizer):
     """
     The original version of: Heap-based optimizer (HBO)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0957417420305261#!
-        2. https://github.com/qamar-askari/HBO/blob/master/HBO.m
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    degree : int
+        The degree level in Corporate Rank Hierarchy (CRH), in range [2, 10]. Default is 2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + degree (int): [2, 4], the degree level in Corporate Rank Hierarchy (CRH), default=2
+    Links
+    -----
+    1. https://doi.org/10.1016/j.eswa.2020.113702
+    2. https://github.com/qamar-askari/HBO/blob/master/HBO.m
+
+    References
+    ~~~~~~~~~~
+    1. Askari, Q., Saeed, M., & Younas, I. (2020).
+       Heap-based optimizer inspired by corporate rank hierarchy for global optimization.
+       Expert Systems with Applications, 161, 113702.
 
     Examples
     ~~~~~~~~
@@ -37,11 +50,6 @@ class OriginalHBO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Askari, Q., Saeed, M., & Younas, I. (2020). Heap-based optimizer inspired by corporate rank hierarchy
-    for global optimization. Expert Systems with Applications, 161, 113702.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, degree: int = 2, **kwargs: object) -> None:

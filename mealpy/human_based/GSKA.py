@@ -10,18 +10,26 @@ from mealpy.optimizer import Optimizer
 
 class DevGSKA(Optimizer):
     """
-    The developed version: Gaining Sharing Knowledge-based Algorithm (GSKA)
+    Our developed version: Gaining Sharing Knowledge-based Algorithm (GSKA)
 
-    Notes:
-        + Third loop is removed, 2 parameters is removed
-        + Solution represent junior or senior instead of dimension of solution
-        + Equations is based vector, can handle large-scale problem
-        + Apply the ideas of levy-flight and global best
-        + Keep the better one after updating process
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, n: pop_size, m: clusters, in range [5, 10000]. Default is 100.
+    pb : float
+        Percent of the best 0.1%, 0.8%, 0.1% (p in the paper), in range (0.0, 1.0). Default is 0.1.
+    kr : float
+        Knowledge ratio, in range (0.0, 1.0). Default is 0.7.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pb (float): [0.1, 0.5], percent of the best (p in the paper), default = 0.1
-        + kr (float): [0.5, 0.9], knowledge ratio, default = 0.7
+    Note
+    ----
+    + Third loop is removed, 2 parameters is removed
+    + Solution represent junior or senior instead of dimension of solution
+    + Equations is based vector, can handle large-scale problem
+    + Apply the ideas of levy-flight and global best
+    + Keep the better one after updating process
 
     Examples
     ~~~~~~~~
@@ -119,14 +127,28 @@ class OriginalGSKA(Optimizer):
     """
     The original version of: Gaining Sharing Knowledge-based Algorithm (GSKA)
 
-    Links:
-        1. https://doi.org/10.1007/s13042-019-01053-x
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, n: pop_size, m: clusters, in range [5, 10000]. Default is 100.
+    pb : float
+        Percent of the best 0.1%, 0.8%, 0.1% (p in the paper), in range (0.0, 1.0). Default is 0.1.
+    kf : float
+        Knowledge factor that controls the total amount of gained and shared knowledge added from others to the current
+        individual during generations, in range (0.0, 1.0). Default is 0.5.
+    kr : float
+        Knowledge ratio, in range (0.0, 1.0). Default is 0.9.
+    kg : int
+        Number of generations effect to D-dimension, in range [1, 1 + int(epoch / 2)]. Default is 5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pb (float): [0.1, 0.5], percent of the best (p in the paper), default = 0.1
-        + kf (float): [0.3, 0.8], knowledge factor that controls the total amount of gained and shared knowledge added from others to the current individual during generations, default = 0.5
-        + kr (float): [0.5, 0.95], knowledge ratio, default = 0.9
-        + kg (int): [3, 20], number of generations effect to D-dimension, default = 5
+    References
+    ~~~~~~~~~~
+    1. Mohamed, A.W., Hadi, A.A. and Mohamed, A.K., 2020.
+       Gaining-sharing knowledge based algorithm for solving optimization problems: a novel nature-inspired algorithm.
+       International Journal of Machine Learning and Cybernetics, 11(7), pp.1501-1529.
+       https://doi.org/10.1007/s13042-019-01053-x
 
     Examples
     ~~~~~~~~
@@ -146,11 +168,6 @@ class OriginalGSKA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mohamed, A.W., Hadi, A.A. and Mohamed, A.K., 2020. Gaining-sharing knowledge based algorithm for solving
-    optimization problems: a novel nature-inspired algorithm. International Journal of Machine Learning and Cybernetics, 11(7), pp.1501-1529.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pb: float = 0.1, kf: float = 0.5, kr: float = 0.9, kg: int = 5, **kwargs: object) -> None:

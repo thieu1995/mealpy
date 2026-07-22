@@ -10,11 +10,25 @@ from mealpy.optimizer import Optimizer
 
 class DevQSA(Optimizer):
     """
-    The developed version: Queuing Search Algorithm (QSA)
+    Our developed version: Queuing Search Algorithm (QSA)
 
-    Notes:
-        + The third loops are removed
-        + Global best solution is used in business 3-th instead of random solution
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+
+    Note
+    ----
+    + The third loops are removed
+    + Global best solution is used in business 3-th instead of random solution
+
+    References
+    ~~~~~~~~~~
+    1. Zhang, J., Xiao, M., Gao, L. and Pan, Q., 2018.
+       Queuing search algorithm: A novel metaheuristic algorithm for solving engineering optimization problems.
+       Applied Mathematical Modelling, 63, pp.464-490. https://doi.org/10.1016/j.apm.2018.06.036
 
     Examples
     ~~~~~~~~
@@ -176,7 +190,21 @@ class DevQSA(Optimizer):
 
 class OppoQSA(DevQSA):
     """
-    The opposition-based learning version: Queuing Search Algorithm (OQSA)
+    Our opposition-based learning version: Queuing Search Algorithm (OQSA)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+
+    References
+    ~~~~~~~~~~
+    1. Nguyen, B.M., Hoang, B., Nguyen, T. and Nguyen, G., 2021.
+       nQSV-Net: a novel queuing search variant for global space search and workload modeling.
+       Journal of Ambient Intelligence and Humanized Computing, 12(1), pp.27-46.
+       https://doi.org/10.1007/s12652-020-02849-4
 
     Examples
     ~~~~~~~~
@@ -238,7 +266,21 @@ class OppoQSA(DevQSA):
 
 class LevyQSA(DevQSA):
     """
-    The Levy-flight version: Queuing Search Algorithm (LQSA)
+    Our Levy-flight version: Queuing Search Algorithm (LQSA)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+
+    References
+    ~~~~~~~~~~
+    1. Nguyen, B.M., Hoang, B., Nguyen, T. and Nguyen, G., 2021.
+       nQSV-Net: a novel queuing search variant for global space search and workload modeling.
+       Journal of Ambient Intelligence and Humanized Computing, 12(1), pp.27-46.
+       https://doi.org/10.1007/s12652-020-02849-4
 
     Examples
     ~~~~~~~~
@@ -323,8 +365,19 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     """
     The original version of: Improved Queuing Search Algorithm (QSA)
 
-    Links:
-       1. https://doi.org/10.1007/s12652-020-02849-4
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+
+    References
+    ~~~~~~~~~~
+    1. Nguyen, B.M., Hoang, B., Nguyen, T. and Nguyen, G., 2021.
+       nQSV-Net: a novel queuing search variant for global space search and workload modeling.
+       Journal of Ambient Intelligence and Humanized Computing, 12(1), pp.27-46.
+       https://doi.org/10.1007/s12652-020-02849-4
 
     Examples
     ~~~~~~~~
@@ -344,11 +397,6 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Nguyen, B.M., Hoang, B., Nguyen, T. and Nguyen, G., 2021. nQSV-Net: a novel queuing search variant for
-    global space search and workload modeling. Journal of Ambient Intelligence and Humanized Computing, 12(1), pp.27-46.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -377,8 +425,18 @@ class OriginalQSA(DevQSA):
     """
     The original version of: Queuing Search Algorithm (QSA)
 
-    Links:
-       1. https://www.sciencedirect.com/science/article/abs/pii/S0307904X18302890
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+
+    References
+    ~~~~~~~~~~
+    1. Zhang, J., Xiao, M., Gao, L. and Pan, Q., 2018.
+       Queuing search algorithm: A novel metaheuristic algorithm for solving engineering optimization problems.
+       Applied Mathematical Modelling, 63, pp.464-490. https://doi.org/10.1016/j.apm.2018.06.036
 
     Examples
     ~~~~~~~~
@@ -398,19 +456,9 @@ class OriginalQSA(DevQSA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhang, J., Xiao, M., Gao, L. and Pan, Q., 2018. Queuing search algorithm: A novel metaheuristic algorithm
-    for solving engineering optimization problems. Applied Mathematical Modelling, 63, pp.464-490.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(epoch, pop_size, **kwargs)
         self.sort_flag = True
 

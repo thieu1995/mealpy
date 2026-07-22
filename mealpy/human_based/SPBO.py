@@ -12,13 +12,22 @@ class OriginalSPBO(Optimizer):
     """
     The original version of: Student Psychology Based Optimization (SPBO)
 
-    Notes:
-        1. This algorithm is a weak algorithm in solving several problems
-        2. It also consumes too much time because of ndim * pop_size updating times.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
-    Links:
-       1. https://www.sciencedirect.com/science/article/abs/pii/S0965997820301484
-       2. https://www.mathworks.com/matlabcentral/fileexchange/80991-student-psycology-based-optimization-spbo-algorithm
+    Links
+    -----
+    1. https://doi.org/10.1016/j.advengsoft.2020.102804
+    2. https://www.mathworks.com/matlabcentral/fileexchange/80991-student-psycology-based-optimization-spbo-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Das, B., Mukherjee, V., & Das, D. (2020). Student psychology based optimization algorithm: A new population
+       based optimization algorithm for solving optimization problems. Advances in Engineering software, 146, 102804.
 
     Examples
     ~~~~~~~~
@@ -38,12 +47,8 @@ class OriginalSPBO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Das, B., Mukherjee, V., & Das, D. (2020). Student psychology based optimization algorithm: A new population based
-    optimization algorithm for solving optimization problems. Advances in Engineering software, 146, 102804.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
@@ -66,7 +71,7 @@ class OriginalSPBO(Optimizer):
             for idx in range(0, self.pop_size):
                 if idx == idx_best:
                     k = self.generator.choice([1, 2])
-                    j = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}))
+                    j = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=1)
                     new_pos = self.g_best.solution + (-1)**k * self.generator.random(self.problem.n_dims) * (self.g_best.solution - self.pop[j].solution)
                 elif idx < mid:
                     ## Good Student
@@ -94,11 +99,25 @@ class OriginalSPBO(Optimizer):
 
 class DevSPBO(OriginalSPBO):
     """
-    The developed version of: Student Psychology Based Optimization (SPBO)
+    Our developed version of: Student Psychology Based Optimization (SPBO)
 
-    Notes:
-        1. Replace uniform random number by normal random number
-        2. Sort the population and select 1/3 pop size for each category
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Note
+    ----
+    1. Replace uniform random number by normal random number
+    2. Sort the population and select 1/3 pop size for each category
+
+    References
+    ~~~~~~~~~~
+    1. Das, B., Mukherjee, V., & Das, D. (2020). Student psychology based optimization algorithm: A new population
+       based optimization algorithm for solving optimization problems. Advances in Engineering software, 146, 102804.
+       https://doi.org/10.1016/j.advengsoft.2020.102804
 
     Examples
     ~~~~~~~~

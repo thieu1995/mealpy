@@ -12,19 +12,31 @@ class OriginalDOA(Optimizer):
     """
     The original version of: Dream Optimization Algorithm (DOA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/178419-dream-optimization-algorithm-doa
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
-    Notes:
-        1. The Matlab code is sloppy and incorrect. Many variables are defined and computed but never actually used
-        in the solution update process. For example, the variable fitness is calculated during the
-        exploitation phase but not applied.
+    Links
+    -----
+    1. https://doi.org/10.1016/j.cma.2024.117718
+    2. https://www.mathworks.com/matlabcentral/fileexchange/178419-dream-optimization-algorithm-doa
 
-        2. The agent’s position is also not updated properly, meaning it remains unchanged even after
-        the supposed update in the Matlab code.
+    Note
+    ----
+    1. The Matlab code is sloppy and incorrect. Many variables are defined and computed but never actually used in the
+       solution update process. For example, the variable fitness is calculated during the exploitation phase but not applied.
+    2. The agent’s position is also not updated properly, meaning it remains unchanged even after the supposed update in the Matlab code.
+    3. I suspect the results reported in this paper might not exist at all but were fabricated by the authors,
+       since the benchmark functions are completely missing from the Matlab code.
 
-        3. I suspect the results reported in this paper might not exist at all but were fabricated by
-        the authors, since the benchmark functions are completely missing from the Matlab code.
+    References
+    ~~~~~~~~~~
+    1. Lang, Y., & Gao, Y. (2025). Dream Optimization Algorithm (DOA): A novel metaheuristic optimization
+       algorithm inspired by human dreams and its applications to real-world engineering problems.
+       Computer Methods in Applied Mechanics and Engineering, 436, 117718.
 
     Examples
     ~~~~~~~~
@@ -44,12 +56,6 @@ class OriginalDOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Lang, Y., & Gao, Y. (2025). Dream Optimization Algorithm (DOA): A novel metaheuristic optimization
-    algorithm inspired by human dreams and its applications to real-world engineering problems.
-    Computer Methods in Applied Mechanics and Engineering, 436, 117718.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

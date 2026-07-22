@@ -10,18 +10,29 @@ from mealpy.optimizer import Optimizer
 
 class ImprovedBSO(Optimizer):
     """
-    The improved version: Improved Brain Storm Optimization (IBSO)
+    Our improved version: Improved Brain Storm Optimization (IBSO)
 
-    Notes:
-        + Remove some probability parameters, and some unnecessary equations.
-        + The Levy-flight technique is employed to enhance the algorithm's robustness and resilience in challenging environments.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    m_clusters : int
+        Number of clusters (m in the paper), in range [2, int(self.pop_size/5)]. Default is 5.
+    p1 : float
+        25% percent, in range (0.0, 1.0). Default is 0.25.
+    p2 : float
+        50% percent changed by its own (local search), 50% percent changed by outside (global search), in range (0.0, 1.0). Default is 0.5.
+    p3 : float
+        75% percent develop the old idea, 25% invented new idea based on levy-flight, in range (0.0, 1.0). Default is 0.75.
+    p4 : float
+        Need more weights on the centers instead of the random position, in range (0.0, 1.0). Default is 0.5.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + m_clusters (int): [3, 10], number of clusters (m in the paper)
-        + p1 (float): 25% percent
-        + p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
-        + p3 (float): 75% percent develop the old idea, 25% invented new idea based on levy-flight
-        + p4 (float): [0.4, 0.6], Need more weights on the centers instead of the random position
+    Note
+    ----
+    + Remove some probability parameters, and some unnecessary equations.
+    + The Levy-flight technique is employed to enhance the algorithm's robustness and resilience in challenging environments.
 
     Examples
     ~~~~~~~~
@@ -41,24 +52,10 @@ class ImprovedBSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] El-Abd, M. (2017). Global-best brain storm optimization algorithm. Swarm and evolutionary computation, 37, 27-44.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, m_clusters: int = 5,
                  p1: float = 0.25, p2: float = 0.5, p3: float = 0.75, p4: float = 0.5, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            m_clusters (int): number of clusters (m in the paper)
-            p1 (float): 25% percent
-            p2 (float): 50% percent changed by its own (local search), 50% percent changed by outside (global search)
-            p3 (float): 75% percent develop the old idea, 25% invented new idea based on levy-flight
-            p4 (float): Need more weights on the centers instead of the random position
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])
@@ -138,16 +135,30 @@ class OriginalBSO(ImprovedBSO):
     """
     The original version of: Brain Storm Optimization (BSO)
 
-    Links:
-        1. https://doi.org/10.1007/978-3-642-21515-5_36
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    m_clusters : int
+        Number of clusters (m in the paper). Default is 5.
+    p1 : float
+        Probability percent, in range (0.0, 1.0). Default is 0.2.
+    p2 : float
+        Probability percent changed by its own (local search), 50% percent changed by outside (global search), in range (0.0, 1.0). Default is 0.8.
+    p3 : float
+        Probability percent develop the old idea, 25% invented new idea based on levy-flight, in range (0.0, 1.0). Default is 0.4.
+    p4 : float
+        Probability. Default is 0.5.
+    slope : int
+        Changing logsig() function's slope (k: in the paper), in range [10, 50]. Default is 20.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + m_clusters (int): [3, 10], number of clusters (m in the paper)
-        + p1 (float): [0.1, 0.5], probability
-        + p2 (float): [0.5, 0.95], probability
-        + p3 (float): [0.2, 0.8], probability
-        + p4 (float): [0.2, 0.8], probability
-        + slope (int): [10, 15, 20, 25], changing logsig() function's slope (k: in the paper)
+    References
+    ~~~~~~~~~~
+    1. Shi, Y., 2011, June. Brain storm optimization algorithm.
+       In International conference in swarm intelligence (pp. 303-309). Springer, Berlin, Heidelberg.
+       https://doi.org/10.1007/978-3-642-21515-5_36
 
     Examples
     ~~~~~~~~
@@ -167,26 +178,10 @@ class OriginalBSO(ImprovedBSO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shi, Y., 2011, June. Brain storm optimization algorithm. In International
-    conference in swarm intelligence (pp. 303-309). Springer, Berlin, Heidelberg.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, m_clusters: int = 5, p1: float = 0.2,
                  p2: float = 0.8, p3: float = 0.4, p4: float = 0.5, slope: int = 20, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            m_clusters (int): number of clusters (m in the paper)
-            p1 (float): probability
-            p2 (float): probability
-            p3 (float): probability
-            p4 (float): probability
-            slope (int): changing logsig() function's slope (k: in the paper)
-        """
         super().__init__(epoch, pop_size, m_clusters, p1, p2, p3, p4, **kwargs)
         self.slope = self.validator.check_int("slope", slope, [10, 50])
         self.set_parameters(["epoch", "pop_size", "m_clusters", "p1", "p2", "p3", "p4", "slope"])

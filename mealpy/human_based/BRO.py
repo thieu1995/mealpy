@@ -12,13 +12,25 @@ from mealpy.utils.agent import Agent
 
 class DevBRO(Optimizer):
     """
-    The developed version: Battle Royale Optimization (BRO)
+    Our developed version of: Battle Royale Optimization (BRO)
 
-    Notes:
-        + The flow of algorithm is changed. Thrid loop is removed
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    threshold : float
+        Dead threshold, in range [1, 10]. Default is 3.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + threshold (int): [2, 5], dead threshold, default=3
+    Note
+    ----
+    The flow of algorithm is changed. Thrid loop is removed
+
+    References
+    ~~~~~~~~~~
+    1. Rahkar Farshi, T., 2021. Battle royale optimization algorithm.
+       Neural Computing and Applications, 33(4), pp.1139-1157. https://doi.org/10.1007/s00521-020-05004-4
 
     Examples
     ~~~~~~~~
@@ -138,11 +150,19 @@ class OriginalBRO(DevBRO):
     """
     The original version of: Battle Royale Optimization (BRO)
 
-    Links:
-        1. https://doi.org/10.1007/s00521-020-05004-4
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    threshold : float
+        Dead threshold, in range [1, 10]. Default is 3.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + threshold (int): [2, 5], dead threshold, default=3
+    References
+    ~~~~~~~~~~
+    1. Rahkar Farshi, T., 2021. Battle royale optimization algorithm.
+       Neural Computing and Applications, 33(4), pp.1139-1157. https://doi.org/10.1007/s00521-020-05004-4
 
     Examples
     ~~~~~~~~
@@ -162,10 +182,6 @@ class OriginalBRO(DevBRO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rahkar Farshi, T., 2021. Battle royale optimization algorithm. Neural Computing and Applications, 33(4), pp.1139-1157.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, threshold: float = 3, **kwargs: object) -> None:

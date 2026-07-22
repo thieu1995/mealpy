@@ -12,11 +12,21 @@ class OriginalCA(Optimizer):
     """
     The original version of: Culture Algorithm (CA)
 
-    Links:
-        1. https://github.com/clever-algorithms/CleverAlgorithms
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    accepted_rate : float
+        Probability of accepted rate, in range (0.0, 1.0). Default is 0.15.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + accepted_rate (float): [0.1, 0.5], probability of accepted rate, default: 0.15
+    References
+    ~~~~~~~~~~
+    1. Chen, B., Zhao, L. and Lu, J.H., 2009, April.
+       Wind power forecast using RBF network and culture algorithm.
+       In 2009 International Conference on Sustainable Power Generation and Supply (pp. 1-6). IEEE.
+       https://doi.org/10.1109/SUPERGEN.2009.5348174
 
     Examples
     ~~~~~~~~
@@ -36,11 +46,6 @@ class OriginalCA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Chen, B., Zhao, L. and Lu, J.H., 2009, April. Wind power forecast using RBF network and culture algorithm.
-    In 2009 International Conference on Sustainable Power Generation and Supply (pp. 1-6). IEEE.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, accepted_rate: float = 0.15, **kwargs: object) -> None:

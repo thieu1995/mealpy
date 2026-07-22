@@ -6,19 +6,27 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.target import Target
 
 
 class OriginalCHIO(Optimizer):
     """
     The original version of: Coronavirus Herd Immunity Optimization (CHIO)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s00521-020-05296-6
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    brr : float
+        Basic reproduction rate, in range (0.0, 1.0). Default is 0.15.
+    max_age : int
+        Maximum infected cases age, in range [1, 1+int(epoch/5)]. Default is 10.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
-        + max_age (int): [5, 20], Maximum infected cases age, default=10
+    References
+    ~~~~~~~~~~
+    1. Al-Betar, M.A., Alyasseri, Z.A.A., Awadallah, M.A. et al. Coronavirus herd immunity optimizer (CHIO).
+       Neural Comput & Applic 33, 5011–5042 (2021). https://doi.org/10.1007/s00521-020-05296-6
 
     Examples
     ~~~~~~~~
@@ -38,11 +46,6 @@ class OriginalCHIO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Al-Betar, M.A., Alyasseri, Z.A.A., Awadallah, M.A. et al. Coronavirus herd immunity optimizer (CHIO).
-    Neural Comput & Applic 33, 5011–5042 (2021). https://doi.org/10.1007/s00521-020-05296-6
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, brr: float = 0.15, max_age: int = 10, **kwargs: object) -> None:
@@ -131,11 +134,18 @@ class OriginalCHIO(Optimizer):
 
 class DevCHIO(OriginalCHIO):
     """
-    The developed version of: Coronavirus Herd Immunity Optimization (CHIO)
+    Our developed version of: Coronavirus Herd Immunity Optimization (CHIO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + brr (float): [0.05, 0.2], Basic reproduction rate, default=0.15
-        + max_age (int): [5, 20], Maximum infected cases age, default=10
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    brr : float
+        Basic reproduction rate, in range (0.0, 1.0). Default is 0.15.
+    max_age : int
+        Maximum infected cases age, in range [1, 1+int(epoch/5)]. Default is 10.
 
     Examples
     ~~~~~~~~

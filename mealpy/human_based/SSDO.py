@@ -13,9 +13,22 @@ class OriginalSSDO(Optimizer):
     """
     The original version of: Social Ski-Driver Optimization (SSDO)
 
-    Links:
-       1. https://doi.org/10.1007/s00521-019-04159-z
-       2. https://www.mathworks.com/matlabcentral/fileexchange/71210-social-ski-driver-ssd-optimization-algorithm-2019
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s00521-019-04159-z
+    2. https://www.mathworks.com/matlabcentral/fileexchange/71210-social-ski-driver-ssd-optimization-algorithm-2019
+
+    References
+    ~~~~~~~~~~
+    1. Tharwat, A. and Gabel, T., 2020. Parameters optimization of support vector machines for imbalanced data
+       using social ski driver algorithm. Neural Computing and Applications, 32(11), pp.6925-6938.
 
     Examples
     ~~~~~~~~
@@ -35,11 +48,6 @@ class OriginalSSDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Tharwat, A. and Gabel, T., 2020. Parameters optimization of support vector machines for imbalanced
-    data using social ski driver algorithm. Neural Computing and Applications, 32(11), pp.6925-6938.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

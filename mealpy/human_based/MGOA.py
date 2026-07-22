@@ -12,11 +12,20 @@ class OriginalMGOA(Optimizer):
     """
     The original version of: Market Game Optimization Algorithm (MGOA)
 
-    Links:
-        1. https://doi.org/10.3390/sym17122118
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 5000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 50.
+    attract_dim_rate : float
+        Number of dims will be changed in attraction phase under ratio format, in range (0.0, 1.0). Default is 0.2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + attract_dim_rate (float): (0, 1), default = 0.2, rate of dims will be changed during attraction phase
+    References
+    ~~~~~~~~~~
+    1. Liu, S., Xiang, Y., Guo, X., Zhao, F., Zhao, A., & Wu, W. (2025).
+       Market Game Optimization Algorithm: A Metaheuristic Inspired by Symmetric Competitive Behavior of Merchants and Consumers.
+       Symmetry, 17(12), 2118. https://doi.org/10.3390/sym17122118
 
     Examples
     ~~~~~~~~
@@ -36,11 +45,6 @@ class OriginalMGOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Liu, S., Xiang, Y., Guo, X., Zhao, F., Zhao, A., & Wu, W. (2025). Market Game Optimization Algorithm:
-    A Metaheuristic Inspired by Symmetric Competitive Behavior of Merchants and Consumers. Symmetry, 17(12), 2118.
     """
 
     def __init__(self, epoch: int = 5000, pop_size: int = 50, attract_dim_rate=0.2, **kwargs: object) -> None:

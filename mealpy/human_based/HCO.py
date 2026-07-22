@@ -12,19 +12,35 @@ class OriginalHCO(Optimizer):
     """
     The original version of: Human Conception Optimizer (HCO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/124200-human-conception-optimizer-hco
-        2. https://www.nature.com/articles/s41598-022-25031-6
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    wfp : float
+        Weight factor for probability of fitness selection, in range [0.0, 1.0]. Default is 0.65.
+    wfv : float
+        Weight factor for velocity update stage, in range [0.0, 1.0]. Default is 0.05.
+    c1 : float
+        Acceleration coefficient, same as PSO, in range [0.0, 100.0]. Default is 1.4.
+    c2 : float
+        Acceleration coefficient, same as PSO, in range [1.0, 100.0]. Default is 1.4.
 
-    Notes:
-        1. This algorithm shares some similarities with the PSO algorithm (equations)
-        2. The implementation of Matlab code is kinda different to the paper
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + wfp (float): (0, 1.) - weight factor for probability of fitness selection, default=0.65
-        + wfv (float): (0, 1.0) - weight factor for velocity update stage, default=0.05
-        + c1 (float): (0., 3.0) - acceleration coefficient, same as PSO, default=1.4
-        + c2 (float): (0., 3.0) - acceleration coefficient, same as PSO, default=1.4
+    .. caution::
+       1. This algorithm shares some similarities with the PSO algorithm (equations)
+       2. The implementation of Matlab code is kinda different to the paper
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/124200-human-conception-optimizer-hco
+    2. https://doi.org/10.1038/s41598-022-25031-6
+
+    References
+    ~~~~~~~~~~
+    1. Acharya, D., & Das, D. K. (2022). A novel Human Conception Optimizer for solving optimization problems.
+       Scientific Reports, 12(1), 21631.
 
     Examples
     ~~~~~~~~
@@ -44,10 +60,6 @@ class OriginalHCO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Acharya, D., & Das, D. K. (2022). A novel Human Conception Optimizer for solving optimization problems. Scientific Reports, 12(1), 21631.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, wfp: float = 0.65,

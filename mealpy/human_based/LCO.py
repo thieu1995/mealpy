@@ -12,11 +12,19 @@ class OriginalLCO(Optimizer):
     """
     The original version of: Life Choice-based Optimization (LCO)
 
-    Links:
-        1. https://doi.org/10.1007/s00500-019-04443-z
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    r1 : float
+        Coefficient factor, in range [1.0, 3.0]. Default is 2.35.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + r1 (float): [1.5, 4], coefficient factor, default = 2.35
+    References
+    ~~~~~~~~~~
+    1. Khatri, A., Gaba, A., Rana, K.P.S. and Kumar, V., 2020. A novel life choice-based optimizer.
+       Soft Computing, 24(12), pp.9121-9141. https://doi.org/10.1007/s00500-019-04443-z
 
     Examples
     ~~~~~~~~
@@ -36,10 +44,6 @@ class OriginalLCO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Khatri, A., Gaba, A., Rana, K.P.S. and Kumar, V., 2020. A novel life choice-based optimizer. Soft Computing, 24(12), pp.9121-9141.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r1: float = 2.35, **kwargs: object) -> None:
@@ -92,13 +96,20 @@ class OriginalLCO(Optimizer):
 
 class DevLCO(OriginalLCO):
     """
-    The developed version: Life Choice-based Optimization (LCO)
+    Our developed version: Life Choice-based Optimization (LCO)
 
-    Notes:
-        + The flow is changed with if else statement.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    r1 : float
+        Coefficient factor, in range [1.0, 3.0]. Default is 2.35.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + r1 (float): [1.5, 4], coefficient factor, default = 2.35
+    Note
+    ----
+    The flow is changed with if else statement.
 
     Examples
     ~~~~~~~~
@@ -166,12 +177,20 @@ class DevLCO(OriginalLCO):
 
 class ImprovedLCO(Optimizer):
     """
-    The improved version: Life Choice-based Optimization (ILCO)
+    Our improved version: Life Choice-based Optimization (ILCO)
 
-    Notes:
-        + The flow of the original LCO is kept.
-        + Gaussian distribution and mutation mechanism are added
-        + R1 parameter is removed
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Note
+    ----
+    + The flow of the original LCO is kept.
+    + Gaussian distribution and mutation mechanism are added
+    + R1 parameter is removed
 
     Examples
     ~~~~~~~~

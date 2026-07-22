@@ -12,8 +12,18 @@ class OriginalAFT(Optimizer):
     """
     The original version of: Ali baba and the Forty Thieves (AFT) optimizer
 
-    Notes:
-        + https://doi.org/10.1007/s00521-021-06392-x
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Braik, M., Ryalat, M. H., & Al-Zoubi, H. (2022).
+       A novel meta-heuristic algorithm for solving numerical optimization problems: Ali Baba and the forty thieves.
+       Neural Computing and Applications, 34(1), 409-455. https://doi.org/10.1007/s00521-021-06392-x
 
     Examples
     ~~~~~~~~
@@ -33,18 +43,9 @@ class OriginalAFT(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Braik, M., Ryalat, M. H., & Al-Zoubi, H. (2022). A novel meta-heuristic algorithm for solving
-    numerical optimization problems: Ali Baba and the forty thieves. Neural Computing and Applications, 34(1), 409-455.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

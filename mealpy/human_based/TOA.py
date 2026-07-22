@@ -12,21 +12,30 @@ class OriginalTOA(Optimizer):
     """
     The original version of: Teamwork Optimization Algorithm (TOA)
 
-    Links:
-        1. https://www.mdpi.com/1424-8220/21/13/4567
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
-    Notes:
-        1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA), Coati Optimization Algorithm (CoatiOA),
-        Siberian Tiger Optimization (STO), Language Education Optimization (LEO), Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA),
-        Fennec Fox Optimization (FFO), Three-periods optimization algorithm (TPOA), Pelican Optimization Algorithm (POA), Northern goshawk optimization (NGO),
-        Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+    .. danger::
+       1. Algorithm design is similar to Zebra Optimization Algorithm (ZOA), Osprey Optimization Algorithm (OOA),
+          Coati Optimization Algorithm (CoatiOA), Siberian Tiger Optimization (STO), Language Education Optimization (LEO),
+          Serval Optimization Algorithm (SOA), Walrus Optimization Algorithm (WOA), Fennec Fox Optimization (FFO),
+          Three-periods optimization algorithm (TPOA), Pelican Optimization Algorithm (POA), Northern goshawk optimization (NGO),
+          Tasmanian devil optimization (TDO), Archery algorithm (AA), Cat and mouse based optimizer (CMBO)
+       2. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
+       3. While this article may share some similarities with previous work by the same authors, it is important
+          to recognize the potential value in exploring different meta-metaphors and concepts to drive
+          innovation and progress in optimization research.
+       4. Further investigation may be warranted to verify the benchmark results reported in the papers
+          and ensure their reliability and accuracy.
 
-        2. It may be useful to compare the Matlab code of this algorithm with those of the similar algorithms to ensure its accuracy and completeness.
-
-        3. While this article may share some similarities with previous work by the same authors, it is important to recognize the potential value in exploring
-        different meta-metaphors and concepts to drive innovation and progress in optimization research.
-
-        4. Further investigation may be warranted to verify the benchmark results reported in the papers and ensure their reliability and accuracy.
+    References
+    ~~~~~~~~~~
+    1. Dehghani, M., & Trojovský, P. (2021). Teamwork optimization algorithm: A new optimization approach for function minimization/maximization.
+       Sensors, 21(13), 4567. https://doi.org/10.3390/s21134567
 
     Examples
     ~~~~~~~~
@@ -46,12 +55,8 @@ class OriginalTOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Dehghani, M., & Trojovský, P. (2021). Teamwork optimization algorithm: A new optimization
-    approach for function minimization/maximization. Sensors, 21(13), 4567.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
