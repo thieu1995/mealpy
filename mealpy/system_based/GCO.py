@@ -10,14 +10,22 @@ from mealpy.optimizer import Optimizer
 
 class DevGCO(Optimizer):
     """
-    The developed version: Germinal Center Optimization (GCO)
+    Our developed version: Germinal Center Optimization (GCO)
 
-    Notes:
-        + The global best solution and 2 random solutions are used instead of randomizing 3 solutions
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    cr : float
+        Crossover rate (Same as DE algorithm), in range (0.0, 1.0). Default is 0.7.
+    wf : float
+        Weighting factor (f in the paper) (Same as DE algorithm), in range (0.0, 3.0). Default is 1.25.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
-        + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+    Note
+    ----
+    In this version, the global best solution and 2 random solutions are used instead of randomizing 3 solutions
 
     Examples
     ~~~~~~~~
@@ -101,13 +109,22 @@ class OriginalGCO(DevGCO):
     """
     The original version of: Germinal Center Optimization (GCO)
 
-    Links:
-        1. https://doi.org/10.2991/ijcis.2018.25905179
-        2. https://www.atlantis-press.com/journals/ijcis/25905179/view
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    cr : float
+        Crossover rate (Same as DE algorithm), in range (0.0, 1.0). Default is 0.7.
+    wf : float
+        Weighting factor (f in the paper) (Same as DE algorithm), in range (0.0, 3.0). Default is 1.25.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + cr (float): [0.5, 0.95], crossover rate, default = 0.7 (Same as DE algorithm)
-        + wf (float): [1.0, 2.0], weighting factor (f in the paper), default = 1.25 (Same as DE algorithm)
+    References
+    ~~~~~~~~~~
+    1. Villaseñor, C., Arana-Daniel, N., Alanis, A.Y., López-Franco, C. and Hernandez-Vargas, E.A., 2018.
+       Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), p.13.
+       https://doi.org/10.2991/ijcis.2018.25905179
 
     Examples
     ~~~~~~~~
@@ -127,11 +144,6 @@ class OriginalGCO(DevGCO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Villaseñor, C., Arana-Daniel, N., Alanis, A.Y., López-Franco, C. and Hernandez-Vargas, E.A., 2018.
-    Germinal center optimization algorithm. International Journal of Computational Intelligence Systems, 12(1), p.13.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, cr: float = 0.7, wf: float = 1.25, **kwargs: object) -> None:

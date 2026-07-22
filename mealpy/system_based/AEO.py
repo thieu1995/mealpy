@@ -12,9 +12,22 @@ class OriginalAEO(Optimizer):
     """
     The original version of: Artificial Ecosystem-based Optimization (AEO)
 
-    Links:
-        1. https://doi.org/10.1007/s00521-019-04452-x
-        2. https://www.mathworks.com/matlabcentral/fileexchange/72685-artificial-ecosystem-based-optimization-aeo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s00521-019-04452-x
+    2. https://www.mathworks.com/matlabcentral/fileexchange/72685-artificial-ecosystem-based-optimization-aeo
+
+    References
+    ~~~~~~~~~~
+    1. Zhao, W., Wang, L. and Zhang, Z., 2020. Artificial ecosystem-based optimization: a novel
+       nature-inspired meta-heuristic algorithm. Neural Computing and Applications, 32(13), pp.9383-9425.
 
     Examples
     ~~~~~~~~
@@ -34,11 +47,6 @@ class OriginalAEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhao, W., Wang, L. and Zhang, Z., 2020. Artificial ecosystem-based optimization: a novel
-    nature-inspired meta-heuristic algorithm. Neural Computing and Applications, 32(13), pp.9383-9425.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -120,10 +128,21 @@ class OriginalAEO(Optimizer):
 
 class ImprovedAEO(OriginalAEO):
     """
-    The original version of: Improved Artificial Ecosystem-based Optimization (ImprovedAEO)
+    The original version of: Improved Artificial Ecosystem-based Optimization (IAEO)
 
-    Links:
-        1. https://doi.org/10.1016/j.ijhydene.2020.06.256
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Rizk-Allah, R.M. and El-Fergany, A.A., 2021.
+       Artificial ecosystem optimizer for parameters identification of proton exchange membrane fuel cells model.
+       International Journal of Hydrogen Energy, 46(75), pp.37612-37627.
+       https://doi.org/10.1016/j.ijhydene.2020.06.256
 
     Examples
     ~~~~~~~~
@@ -143,11 +162,6 @@ class ImprovedAEO(OriginalAEO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Rizk-Allah, R.M. and El-Fergany, A.A., 2021. Artificial ecosystem optimizer for parameters identification of
-    proton exchange membrane fuel cells model. International Journal of Hydrogen Energy, 46(75), pp.37612-37627.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -236,8 +250,18 @@ class EnhancedAEO(Optimizer):
     """
     The original version of: Enhanced Artificial Ecosystem-Based Optimization (EAEO)
 
-    Links:
-        1. https://doi.org/10.1109/ACCESS.2020.3027654
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Eid, A., Kamel, S., Korashy, A. and Khurshaid, T., 2020.
+       An enhanced artificial ecosystem-based optimization for optimal allocation of multiple distributed generations.
+       IEEE Access, 8, pp.178493-178513. https://doi.org/10.1109/ACCESS.2020.3027654
 
     Examples
     ~~~~~~~~
@@ -257,11 +281,6 @@ class EnhancedAEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Eid, A., Kamel, S., Korashy, A. and Khurshaid, T., 2020. An enhanced artificial ecosystem-based
-    optimization for optimal allocation of multiple distributed generations. IEEE Access, 8, pp.178493-178513.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -366,8 +385,19 @@ class ModifiedAEO(Optimizer):
     """
     The original version of: Modified Artificial Ecosystem-Based Optimization (MAEO)
 
-    Links:
-        1. https://doi.org/10.1109/ACCESS.2020.2973351
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Menesy, A.S., Sultan, H.M., Korashy, A., Banakhr, F.A., Ashmawy, M.G. and Kamel, S., 2020.
+       Effective parameter extraction of different polymer electrolyte membrane fuel cell stack models using
+       a modified artificial ecosystem optimization algorithm. IEEE Access, 8, pp.31892-31909.
+       https://doi.org/10.1109/ACCESS.2020.2973351
 
     Examples
     ~~~~~~~~
@@ -387,12 +417,6 @@ class ModifiedAEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Menesy, A.S., Sultan, H.M., Korashy, A., Banakhr, F.A., Ashmawy, M.G. and Kamel, S., 2020. Effective
-    parameter extraction of different polymer electrolyte membrane fuel cell stack models using a
-    modified artificial ecosystem optimization algorithm. IEEE Access, 8, pp.31892-31909.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -486,9 +510,18 @@ class AugmentedAEO(Optimizer):
     """
     The original version of: Augmented Artificial Ecosystem Optimization (AAEO)
 
-    Notes:
-        + Used linear weight factor reduce from 2 to 0 through time
-        + Applied Levy-flight technique and the global best solution
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    References
+    ~~~~~~~~~~
+    1. Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2022).
+       Groundwater level modeling using Augmented Artificial Ecosystem Optimization.
+       Journal of Hydrology, 129034. https://doi.org/10.1016/j.jhydrol.2022.129034
 
     Examples
     ~~~~~~~~
@@ -508,11 +541,6 @@ class AugmentedAEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Van Thieu, N., Barma, S. D., Van Lam, T., Kisi, O., & Mahesha, A. (2022). Groundwater level modeling
-    using Augmented Artificial Ecosystem Optimization. Journal of Hydrology, 129034.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

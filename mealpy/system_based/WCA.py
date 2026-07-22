@@ -12,20 +12,31 @@ class OriginalWCA(Optimizer):
     """
     The original version of: Water Cycle Algorithm (WCA)
 
-    Links:
-        1. https://doi.org/10.1016/j.compstruc.2012.07.010
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    nsr : int
+        Number of rivers + sea (sea = 1), in range [2, int(pop_size/2)]. Default is 4.
+    wc : float
+        Weighting coefficient (C in the paper), in range (1.0, 3.0). Default is 2.0.
+    dmax : float
+        Evaporation condition constant, in range (0.0, 1.0). Default is 1e-6.
 
-    Notes
-    ~~~~~
-    The ideas are (almost the same as ICO algorithm):
-        + 1 sea is global best solution
-        + a few river which are second, third, ...
-        + other left are stream (will flow directed to sea or river)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + nsr (int): [4, 10], Number of rivers + sea (sea = 1), default = 4
-        + wc (float): [1.0, 3.0], Weighting coefficient (C in the paper), default = 2
-        + dmax (float): [1e-6], fixed parameter, Evaporation condition constant, default=1e-6
+    .. caution::
+       The ideas are (almost the same as ICO algorithm):
+          + 1 sea is global best solution
+          + a few river which are second, third, ...
+          + other left are stream (will flow directed to sea or river)
+
+    References
+    ~~~~~~~~~~
+    1. Eskandar, H., Sadollah, A., Bahreininejad, A. and Hamdi, M., 2012.
+       Water cycle algorithm–A novel metaheuristic optimization method for solving constrained engineering optimization problems.
+       Computers & Structures, 110, pp.151-166. https://doi.org/10.1016/j.compstruc.2012.07.010
 
     Examples
     ~~~~~~~~
@@ -45,11 +56,6 @@ class OriginalWCA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Eskandar, H., Sadollah, A., Bahreininejad, A. and Hamdi, M., 2012. Water cycle algorithm–A novel metaheuristic
-    optimization method for solving constrained engineering optimization problems. Computers & Structures, 110, pp.151-166.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, nsr: int = 4, wc: float = 2.0, dmax: float = 1e-6, **kwargs: object) -> None:
