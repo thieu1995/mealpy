@@ -19,16 +19,15 @@ class OriginalARO(Optimizer):
     pop_size : int
         Number of population size, default = 100.
 
-    Links
-    -----
-    1. https://doi.org/10.1016/j.engappai.2022.105082
-    2. https://www.mathworks.com/matlabcentral/fileexchange/110250-artificial-rabbits-optimization-aro
-
     References
     ----------
     1. Wang, L., Cao, Q., Zhang, Z., Mirjalili, S., & Zhao, W. (2022). Artificial rabbits optimization: A new
        bio-inspired meta-heuristic algorithm for solving engineering optimization problems.
        Engineering Applications of Artificial Intelligence, 114, 105082.
+       https://doi.org/10.1016/j.engappai.2022.105082
+    2. Van Thieu, Nguyen, and Ngoc Hung Nguyen. "Artificial Rabbits Optimizer."
+       Encyclopedia of Engineering Optimization and Heuristics.
+       Singapore: Springer Nature Singapore, 2026. 1-9. https://doi.org/10.1007/978-981-96-8165-5_55-1
 
     Examples
     ~~~~~~~~
