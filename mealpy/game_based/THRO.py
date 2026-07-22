@@ -12,10 +12,12 @@ class OriginalTHRO(Optimizer):
     """
     The original version of: Tianji's Horse Racing Optimization (THRO)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size (number of trees), default = 100
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 750.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
     Links
     -----
