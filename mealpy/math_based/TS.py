@@ -12,15 +12,30 @@ class OriginalTS(Optimizer):
     """
     The original version of: Tabu Search (TS)
 
-    Notes:
-        + The pop_size is not an official parameter in this algorithm. However, we need it here to adapt to Mealpy library.
-        + You should set pop_size = 2 to reduce the initial computation for the initial population of this algorithm.
-        + The perturbation_scale is important parameter that effect the most to this algorithm.
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size. **This is not an official parameter**, in range [2, 10000]. Default is 2.
+    tabu_size : int
+        Maximum size of the tabu list, in range [2, 10000]. Default is 5.
+    neighbour_size : int
+        Size of the neighborhood for generating candidate solutions, in range [2, 10000]. Default is 10.
+    perturbation_scale : float
+        Scale of the perturbations for generating candidate solutions, in range (0, 100). Default is 0.05.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + tabu_size (int): [5, 10] Maximum size of the tabu list.
-        + neighbour_size (int): [5, 100] Size of the neighborhood for generating candidate solutions, Default: 10
-        + perturbation_scale (float): [0.01 - 1] Scale of the perturbations for generating candidate solutions. default = 0.05
+    Note
+    ----
+    + The pop_size is not an official parameter in this algorithm. However, we need it here to adapt to Mealpy library.
+    + You should set pop_size = 2 to reduce the initial computation for the initial population of this algorithm.
+    + The perturbation_scale is important parameter that effect the most to this algorithm.
+
+    References
+    ~~~~~~~~~~
+    1. Hajji, O., Brisset, S., & Brochet, P. (2004).
+       A new tabu search method for optimization with continuous parameters.
+       IEEE Transactions on Magnetics, 40(2), 1184-1187. https://doi.org/10.1109/TMAG.2004.824909
 
     Examples
     ~~~~~~~~
@@ -40,11 +55,6 @@ class OriginalTS(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hajji, O., Brisset, S., & Brochet, P. (2004). A new tabu search method for optimization
-    with continuous parameters. IEEE Transactions on Magnetics, 40(2), 1184-1187.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, tabu_size: int = 5,

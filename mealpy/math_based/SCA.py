@@ -11,11 +11,19 @@ from mealpy.utils.agent import Agent
 
 class DevSCA(Optimizer):
     """
-    The developed version: Sine Cosine Algorithm (SCA)
+    Our developed version: Sine Cosine Algorithm (SCA)
 
-    Notes:
-        + The flow and few equations are changed
-        + Third loops are removed faster computational time
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+
+    Note
+    ----
+    + The flow and few equations are changed
+    + Third loops are removed faster computational time
 
     Examples
     ~~~~~~~~
@@ -84,9 +92,22 @@ class OriginalSCA(DevSCA):
     """
     The original version of: Sine Cosine Algorithm (SCA)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2015.12.022
-        2. https://www.mathworks.com/matlabcentral/fileexchange/54948-sca-a-sine-cosine-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.knosys.2015.12.022
+    2. https://www.mathworks.com/matlabcentral/fileexchange/54948-sca-a-sine-cosine-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S., 2016. SCA: a sine cosine algorithm for solving optimization problems.
+       Knowledge-based systems, 96, pp.120-133.
 
     Examples
     ~~~~~~~~
@@ -106,10 +127,6 @@ class OriginalSCA(DevSCA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S., 2016. SCA: a sine cosine algorithm for solving optimization problems. Knowledge-based systems, 96, pp.120-133.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -202,12 +219,22 @@ class QleSCA(DevSCA):
     """
     The original version of: QLE Sine Cosine Algorithm (QLE-SCA)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0957417421017048
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations. Default is 10000.
+    pop_size : int
+        Number of population size. Default is 100.
+    alpha : float
+        The learning rate, in range [0.0, 1.0]. Default is 0.1.
+    gama : float
+        The discount factor, in range [0.0, 1.0]. Default is 0.9.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (float): [0.1-1.0], the is the learning rate in Q-learning, default=0.1
-        + gama (float): [0.1-1.0]: the discount factor, default=0.9
+    References
+    ~~~~~~~~~~
+    1. Hamad, Q. S., Samma, H., Suandi, S. A., & Mohamad-Saleh, J. (2022).
+       Q-learning embedded sine cosine algorithm (QLESCA). Expert Systems with Applications, 193, 116417.
+       https://doi.org/10.1016/j.eswa.2021.116417
 
     Examples
     ~~~~~~~~
@@ -227,11 +254,6 @@ class QleSCA(DevSCA):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hamad, Q. S., Samma, H., Suandi, S. A., & Mohamad-Saleh, J. (2022). Q-learning embedded sine cosine
-    algorithm (QLESCA). Expert Systems with Applications, 193, 116417.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.1, gama: float = 0.9, **kwargs: object) -> None:

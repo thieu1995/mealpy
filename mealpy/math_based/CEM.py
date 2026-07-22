@@ -12,13 +12,26 @@ class OriginalCEM(Optimizer):
     """
     The original version of: Cross-Entropy Method (CEM)
 
-    Links:
-        1. https://github.com/clever-algorithms/CleverAlgorithms
-        2. https://doi.org/10.1007/s10479-005-5724-z
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    n_best : int
+        N selected solutions as a samples for next evolution, in range [2, int(pop_size/2)]. Default is 20.
+    alpha : float
+        Weight factor for means and stdevs (normal distribution), in range (0.0, 1.0). Default is 0.7.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_best (int): N selected solutions as a samples for next evolution
-        + alpha (float): weight factor for means and stdevs (normal distribution)
+    Links
+    -----
+    1. https://github.com/clever-algorithms/CleverAlgorithms
+    2. https://doi.org/10.1007/s10479-005-5724-z
+
+    References
+    ~~~~~~~~~~
+    1. De Boer, P.T., Kroese, D.P., Mannor, S. and Rubinstein, R.Y., 2005.
+       A tutorial on the cross-entropy method. Annals of operations research, 134(1), pp.19-67.
 
     Examples
     ~~~~~~~~
@@ -38,11 +51,6 @@ class OriginalCEM(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] De Boer, P.T., Kroese, D.P., Mannor, S. and Rubinstein, R.Y., 2005. A tutorial on the
-    cross-entropy method. Annals of operations research, 134(1), pp.19-67.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_best: int = 20, alpha: float = 0.7, **kwargs: object) -> None:

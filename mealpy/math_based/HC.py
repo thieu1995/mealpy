@@ -12,13 +12,26 @@ class OriginalHC(Optimizer):
     """
     The original version of: Hill Climbing (HC)
 
-    Notes:
-        + The number of neighbour solutions are equal to user defined
-        + The step size to calculate neighbour group is randomized
-        + HC is single-based solution, so the pop_size parameter is not matter in this algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [2, 10000]. Default is 2.
+    neighbour_size : int
+        Fixed parameter, sensitive exploitation parameter, in range [2, 1000]. Default is 50.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + neighbour_size (int): [2, 1000], fixed parameter, sensitive exploitation parameter, Default: 50
+    Note
+    ----
+    + The number of neighbour solutions are equal to user defined
+    + The step size to calculate neighbour group is randomized
+    + HC is single-based solution, so the pop_size parameter is not matter in this algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Mitchell, M., Holland, J. and Forrest, S., 1993.
+       When will a genetic algorithm outperform hill climbing.
+       Advances in neural information processing systems, 6.
 
     Examples
     ~~~~~~~~
@@ -38,11 +51,6 @@ class OriginalHC(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mitchell, M., Holland, J. and Forrest, S., 1993. When will a genetic algorithm
-    outperform hill climbing. Advances in neural information processing systems, 6.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, neighbour_size: int = 50, **kwargs: object) -> None:
@@ -82,17 +90,23 @@ class SwarmHC(Optimizer):
     """
     The developed version: Swarm-based Hill Climbing (S-HC)
 
-    Notes
-    ~~~~~
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    neighbour_size : int
+        Fixed parameter, sensitive exploitation parameter, in range [2, pop_size/2]. Default is 10.
+
+    Note
+    ----
     + Based on swarm-of people are trying to climb on the mountain idea
     + The number of neighbour solutions are equal to population size
     + The step size to calculate neighbour is randomized and based on rank of solution.
         + The guys near on top of mountain will move slower than the guys on bottom of mountain.
         + Imagination: exploration when far from global best, and exploitation when near global best
     + Who on top of mountain first will be the winner. (global optimal)
-
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + neighbour_size (int): [2, pop_size/2], fixed parameter, sensitive exploitation parameter, Default: 10
 
     Examples
     ~~~~~~~~

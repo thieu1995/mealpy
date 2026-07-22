@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-import numpy as np
 from mealpy.optimizer import Optimizer
 
 
@@ -12,13 +11,23 @@ class OriginalCGO(Optimizer):
     """
     The original version of: Chaos Game Optimization (CGO)
 
-    Links:
-        1. https://doi.org/10.1007/s10462-020-09867-w
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
 
-    Notes:
-        + 4th seed is mutation process, but it is not clear mutation on multiple variables or 1 variable
-        + There is no usage of the variable alpha 4th in the paper
-        + The replacement of the worst solutions by generated seed are not clear (Lots of grammar errors in this section)
+    .. caution::
+       + 4th seed is mutation process, but it is not clear mutation on multiple variables or 1 variable
+       + There is no usage of the variable alpha 4th in the paper
+       + The replacement of the worst solutions by generated seed are not clear (Lots of grammar errors in this section)
+
+    References
+    ~~~~~~~~~~
+    1. Talatahari, S. and Azizi, M., 2021.
+       Chaos Game Optimization: a novel metaheuristic algorithm. Artificial Intelligence Review, 54(2), pp.917-1004.
+       https://doi.org/10.1007/s10462-020-09867-w
 
     Examples
     ~~~~~~~~
@@ -39,11 +48,6 @@ class OriginalCGO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Talatahari, S. and Azizi, M., 2021. Chaos Game Optimization: a novel metaheuristic algorithm.
-    Artificial Intelligence Review, 54(2), pp.917-1004.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

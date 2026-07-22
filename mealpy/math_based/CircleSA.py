@@ -12,9 +12,20 @@ class OriginalCircleSA(Optimizer):
     """
     The original version of: Circle Search Algorithm (CircleSA)
 
-    Links:
-        1. https://doi.org/10.3390/math10101626
-        2. https://www.mdpi.com/2227-7390/10/10/1626
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c_factor : float
+        C factor, in range (0.0, 1.0). Default is 0.8.
+
+    References
+    ~~~~~~~~~~
+    1. Qais, M. H., Hasanien, H. M., Turky, R. A., Alghuwainem, S., Tostado-Véliz, M., & Jurado, F. (2022).
+       Circle Search Algorithm: A Geometry-Based Metaheuristic Optimization Algorithm. Mathematics, 10(10), 1626.
+       https://doi.org/10.3390/math10101626
 
     Examples
     ~~~~~~~~
@@ -34,11 +45,6 @@ class OriginalCircleSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Qais, M. H., Hasanien, H. M., Turky, R. A., Alghuwainem, S., Tostado-Véliz, M., & Jurado, F. (2022).
-    Circle Search Algorithm: A Geometry-Based Metaheuristic Optimization Algorithm. Mathematics, 10(10), 1626.
     """
 
     def __init__(self, epoch=10000, pop_size=100, c_factor=0.8, **kwargs):

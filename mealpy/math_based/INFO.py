@@ -12,10 +12,21 @@ class OriginalINFO(Optimizer):
     """
     The original version of: weIghted meaN oF vectOrs (INFO)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0957417422000173
-        2. https://aliasgharheidari.com/INFO.html
-        3. https://doi.org/10.1016/j.eswa.2022.116516
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Ahmadianfar, I., Heidari, A. A., Noshadian, S., Chen, H., & Gandomi, A. H. (2022).
+       INFO: An efficient optimization algorithm based on weighted mean of vectors.
+       Expert Systems with Applications, 195, 116516. https://doi.org/10.1016/j.eswa.2022.116516
+    2. Van Thieu, Nguyen, and Nguyen Van Son. "INFO Optimization Algorithm."
+       Encyclopedia of Engineering Optimization and Heuristics. Singapore: Springer Nature Singapore, 2026. 1-13.
+       https://doi.org/10.1007/978-981-96-8165-5_58-1
 
     Examples
     ~~~~~~~~
@@ -35,11 +46,6 @@ class OriginalINFO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ahmadianfar, I., Heidari, A. A., Noshadian, S., Chen, H., & Gandomi, A. H. (2022). INFO: An efficient optimization
-    algorithm based on weighted mean of vectors. Expert Systems with Applications, 195, 116516.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

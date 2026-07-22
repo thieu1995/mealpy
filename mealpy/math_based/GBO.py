@@ -12,10 +12,24 @@ class OriginalGBO(Optimizer):
     """
     The original version of: Gradient-Based Optimizer (GBO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pr (float): [0.2, 0.8], Probability Parameter, default = 0.5
-        + beta_min (float): Fixed parameter (no name in the paper), default = 0.2
-        + beta_max (float): Fixed parameter (no name in the paper), default = 1.2
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    pr : float
+        Probability Parameter, in range (0.0, 1.0). Default is 0.5.
+    beta_min : float
+        Fixed parameter (no name in the paper), in range (0.0, 2.0). Default is 0.2.
+    beta_max : float
+        Fixed parameter (no name in the paper), in range (0.0, 5.0). Default is 1.2.
+
+    References
+    ~~~~~~~~~~
+    1. Ahmadianfar, I., Bozorg-Haddad, O. and Chu, X., 2020. Gradient-based optimizer:
+       A new metaheuristic optimization algorithm. Information Sciences, 540, pp.131-159.
+       https://doi.org/10.1016/j.ins.2020.06.037
 
     Examples
     ~~~~~~~~
@@ -35,11 +49,6 @@ class OriginalGBO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ahmadianfar, I., Bozorg-Haddad, O. and Chu, X., 2020. Gradient-based optimizer:
-    A new metaheuristic optimization algorithm. Information Sciences, 540, pp.131-159.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pr: float = 0.5, beta_min: float = 0.2, beta_max: float = 1.2, **kwargs: object) -> None:

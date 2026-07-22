@@ -12,10 +12,21 @@ class OriginalRUN(Optimizer):
     """
     The original version of: RUNge Kutta optimizer (RUN)
 
-    Links:
-        1. https://doi.org/10.1016/j.eswa.2021.115079
-        2. https://imanahmadianfar.com/codes/
-        3. https://www.aliasgharheidari.com/RUN.html
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Ahmadianfar, I., Heidari, A. A., Gandomi, A. H., Chu, X., & Chen, H. (2021).
+       RUN beyond the metaphor: An efficient optimization algorithm based on Runge Kutta method.
+       Expert Systems with Applications, 181, 115079. https://doi.org/10.1016/j.eswa.2021.115079
+    2. Van Thieu, Nguyen, and Nguyen Thi Hanh. "RUN Optimization Algorithm."
+       Encyclopedia of Engineering Optimization and Heuristics.
+       Singapore: Springer Nature Singapore, 2026. 1-10. https://doi.org/10.1007/978-981-96-8165-5_59-1
 
     Examples
     ~~~~~~~~
@@ -35,11 +46,6 @@ class OriginalRUN(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ahmadianfar, I., Heidari, A. A., Gandomi, A. H., Chu, X., & Chen, H. (2021). RUN beyond the metaphor: An efficient
-    optimization algorithm based on Runge Kutta method. Expert Systems with Applications, 181, 115079.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

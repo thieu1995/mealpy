@@ -13,13 +13,19 @@ class OriginalSHIO(Optimizer):
     The original version of: Success History Intelligent Optimizer (SHIO)
 
     Links:
-        1. https://link.springer.com/article/10.1007/s11227-021-04093-9
+        1. https://doi.org/10.1007/s11227-021-04093-9
         2. https://www.mathworks.com/matlabcentral/fileexchange/122157-success-history-intelligent-optimizer-shio
 
-    Notes:
-        1. The algorithm is designed with simplicity and ease of implementation in mind, utilizing basic operators.
-        2. This algorithm has several limitations and weak when dealing with several problems
-        3. The algorithm's convergence is slow. The Matlab code has many errors and unnecessary things.
+    Note
+    ----
+    1. The algorithm is designed with simplicity and ease of implementation in mind, utilizing basic operators.
+    2. This algorithm has several limitations and weak when dealing with several problems
+    3. The algorithm's convergence is slow. The Matlab code has many errors and unnecessary things.
+
+    References
+    ~~~~~~~~~~
+    1. Fakhouri, H. N., Hamad, F., & Alawamrah, A. (2022). Success history intelligent optimizer.
+       The Journal of Supercomputing, 1-42.
 
     Examples
     ~~~~~~~~
@@ -39,10 +45,6 @@ class OriginalSHIO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Fakhouri, H. N., Hamad, F., & Alawamrah, A. (2022). Success history intelligent optimizer. The Journal of Supercomputing, 1-42.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

@@ -11,14 +11,26 @@ class OriginalAOA(Optimizer):
     """
     The original version of: Arithmetic Optimization Algorithm (AOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.cma.2020.113609
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    alpha : float
+        Fixed parameter, sensitive exploitation parameter, in range [2, 10]. Default is 5.
+    miu : float
+        Fixed parameter, control parameter to adjust the search process, in range [0.1, 2.0]. Default is 0.5.
+    moa_min : float
+        Range min of Math Optimizer Accelerated, in range (0.0, 0.41). Default is 0.2.
+    moa_max : float
+        Range max of Math Optimizer Accelerated, in range (0.41, 1.0). Default is 0.9.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (int): [3, 8], fixed parameter, sensitive exploitation parameter, Default: 5,
-        + miu (float): [0.3, 1.0], fixed parameter , control parameter to adjust the search process, Default: 0.5,
-        + moa_min (float): [0.1, 0.4], range min of Math Optimizer Accelerated, Default: 0.2,
-        + moa_max (float): [0.5, 1.0], range max of Math Optimizer Accelerated, Default: 0.9,
+    References
+    ~~~~~~~~~~
+    1. Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M. and Gandomi, A.H., 2021.
+       The arithmetic optimization algorithm. Computer methods in applied mechanics and engineering, 376, p.113609.
+       https://doi.org/10.1016/j.cma.2020.113609
 
     Examples
     ~~~~~~~~
@@ -38,11 +50,6 @@ class OriginalAOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abualigah, L., Diabat, A., Mirjalili, S., Abd Elaziz, M. and Gandomi, A.H., 2021. The arithmetic
-    optimization algorithm. Computer methods in applied mechanics and engineering, 376, p.113609.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 5,
