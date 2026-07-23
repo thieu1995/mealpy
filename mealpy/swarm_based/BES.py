@@ -14,19 +14,19 @@ class OriginalBES(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size. Default is 100.
-    a_factor : int, optional
+    a_factor : int
         Determines the corner between point search in the central point, in range [5, 10]. Default is 10.
-    R_factor : float, optional
+    R_factor : float
         Determines the number of search cycles, in range [0.5, 2.0]. Default is 1.5.
-    alpha : float, optional
+    alpha : float
         Parameter for controlling the changes in position, in range [1.5, 2.0]. Default is 2.0.
-    c1 : float, optional
+    c1 : float
         Increases the movement intensity of bald eagles towards the best and centre points, in range [1.0, 2.0]. Default is 2.0.
-    c2 : float, optional
+    c2 : float
         Increases the movement intensity of bald eagles towards the best and centre points. Default is 2.0.
 
     References

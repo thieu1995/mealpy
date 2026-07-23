@@ -16,9 +16,9 @@ class OriginalRSA(Optimizer):
         Maximum number of iterations, default = 10000.
     pop_size : int
         Number of population size, default = 100.
-    alpha : float, optional
+    alpha : float
         Current range from (0.0, 100.0).
-    beta : float, optional
+    beta : float
         Current range from (0.0, 100.0).
 
     References

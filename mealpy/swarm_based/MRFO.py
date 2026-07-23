@@ -136,9 +136,9 @@ class WMQIMRFO(Optimizer):
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
     pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    somersault_range : float, optional
+    somersault_range : float
         Somersault factor that decides the somersault range of manta rays, in range [1.0, 5.0]. Default is 2.0.
-    pm : float, optional
+    pm : float
         Probability mutation, in range (0.0, 1.0). Default is 0.5.
 
     References
