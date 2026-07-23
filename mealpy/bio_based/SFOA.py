@@ -26,13 +26,15 @@ class OriginalSFOA(Optimizer):
     1. https://doi.org/10.1007/s00521-024-10694-1
     2. https://www.mathworks.com/matlabcentral/fileexchange/173735-starfish-optimization-algorithm-sfoa
 
-    Notes
-    -----
-    This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
-    However, it does not present any remarkable equations. Moreover, the provided MATLAB code does not
-    include the standard CEC benchmark functions, but only simplified versions of them.
-    Users should carefully consider this when validating the algorithm. Many new algorithms claim to
-    be superior to other state-of-the-art methods, but it is evident that their implementations are often incorrect.
+    Note
+    ----
+    1. This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
+       However, it does not present any remarkable equations.
+    2. Moreover, the provided MATLAB code does not include the standard CEC benchmark functions, but only
+       simplified versions of them.
+    3. Users should carefully consider this when validating the algorithm. Many new algorithms
+       claim to be superior to other state-of-the-art methods, but it is evident that
+       their implementations are often incorrect.
 
     References
     ~~~~~~~~~~

@@ -22,11 +22,12 @@ class OriginalNRO(Optimizer):
     References
     ~~~~~~~~~~
     1. Wei, Z., Huang, C., Wang, X., Han, T. and Li, Y., 2019.
-       Nuclear reaction optimization: A novel and powerful physics-based algorithm for global optimization.
-       IEEE Access, 7, pp.66084-66109. https://doi.org/10.1109/ACCESS.2019.2918406
-    1. Wei, Z.L., Zhang, Z.R., Huang, C.Q., Han, B., Tang, S.Q. and Wang, L., 2019, June.
-       An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization.
-       In Journal of Physics: Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
+    Nuclear reaction optimization: A novel and powerful physics-based algorithm for global optimization.
+    IEEE Access, 7, pp.66084-66109. https://doi.org/10.1109/ACCESS.2019.2918406.
+
+    2. Wei, Z.L., Zhang, Z.R., Huang, C.Q., Han, B., Tang, S.Q. and Wang, L., 2019, June.
+    An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization.
+    In Journal of Physics: Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
 
     Examples
     ~~~~~~~~

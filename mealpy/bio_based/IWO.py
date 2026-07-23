@@ -29,8 +29,8 @@ class OriginalIWO(Optimizer):
     sigma_end : float
         The final value of standard deviation, in range (0.0, 0.5). Default is 0.01.
 
-    Notes
-    -----
+    Note
+    ----
     Better to use normal distribution instead of uniform distribution, updating population by sorting
     both parent population and child population
 

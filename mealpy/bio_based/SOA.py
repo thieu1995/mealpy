@@ -21,8 +21,8 @@ class DevSOA(Optimizer):
     fc : float
         Frequency of employing variable A (A linear decreased from fc to 0), in range [1.0, 10.0]. Default is 2.
 
-    Notes
-    -----
+    Note
+    ----
     1. The original one will not work because their operators always make the solution out of bound.
     2. I added the normal random number in Eq. 14 to make its work
     3. Besides, I will check keep the better one and remove the worst
