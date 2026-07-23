@@ -35,7 +35,7 @@ from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, 
                         AAA, TSeedA, SBOA)
 from .evolutionary_based import (BWOA, CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
-                          AFT, CDDO, DOA, MGOA, PO)
+                          AFT, CDDO, DOA, MGOA, PO, ILA)
 from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS)
 from .physics_based import (ArchOA, ASO, CDO, EFO, EO, EVO, FLA, HGSO, MVO, NRO, RIME, SA, TWO, WDO,
                             ESO, SOO, MSO, KOA, CEO, GRSA, LSO, KLA)
