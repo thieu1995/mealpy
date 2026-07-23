@@ -14,11 +14,11 @@ class DevSOA(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    fc : float, optional
+    fc : float
         Frequency of employing variable A (A linear decreased from fc to 0), in range [1.0, 10.0]. Default is 2.
 
     Notes
@@ -93,11 +93,11 @@ class OriginalSOA(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    fc : float, optional
+    fc : float
         Frequency of employing variable A (A linear decreased from fc to 0), in range [1.0, 10.0]. Default is 2.
 
     References

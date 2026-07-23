@@ -14,13 +14,13 @@ class OriginalAPO(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Population size. Default is 100.
-    pf_max : float, optional
+    pf_max : float
         Proportion fraction maximum, in range (0.0, 1.0), better [0.1, 0.3].
-    n_pairs : int, optional
+    n_pairs : int
         Number of neighbor pairs, in range [1, floor(pop_size/2)], better [2, 5].
 
     Links

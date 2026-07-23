@@ -13,11 +13,11 @@ class OriginalTSeedA(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Population size (number of trees). Default is 100.
-    st : float, optional
+    st : float
         Search tendency parameter, in range (0.0, 1.0). Default is 0.1.
 
     Danger

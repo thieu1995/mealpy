@@ -14,13 +14,13 @@ class DevVCS(Optimizer):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    lamda : float, optional
+    lamda : float
         Percentage of the number of the best will keep, in range (0.0, 1.0). Default is 0.5.
-    sigma : float, optional
+    sigma : float
         Weight factor, in range (0.0, 5.0). Default is 1.5.
 
     Note
@@ -154,13 +154,13 @@ class OriginalVCS(DevVCS):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    lamda : float, optional
+    lamda : float
         Percentage of the number of the best will keep, in range (0.0, 1.0). Default is 0.5.
-    sigma : float, optional
+    sigma : float
         Weight factor, in range (0.0, 5.0). Default is 1.5.
 
     References

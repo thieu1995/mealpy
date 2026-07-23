@@ -111,11 +111,11 @@ class OriginalSMA(DevSMA):
 
     Parameters
     ----------
-    epoch : int, optional
+    epoch : int
         Maximum number of iterations, in range [1, 100000]. Default is 10000.
-    pop_size : int, optional
+    pop_size : int
         Number of population size, in range [5, 10000]. Default is 100.
-    p_t : float, optional
+    p_t : float
         Probability threshold (z in the paper), in range (0.0, 1.0). Default is 0.03.
 
     Links
