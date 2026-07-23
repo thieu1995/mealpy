@@ -1,16 +1,33 @@
 Multi-objective Optimization
 ============================
 
-We currently offer a "weighting method" to solve multi-objective optimization problems. All you need to do is define your objective function, which returns a
-list of objective values, and set the objective weights corresponding to each value.
-
-	* obj_func: Your objective function.
-	* bounds: A list or an instance of problem type.
-	* minmax: Indicates whether the problem you are trying to solve is a minimum or maximum. The value can be "min" or "max".
-	* obj_weights: Optional list of weights for all of your objectives. The default is [1, 1, ..., 1].
+.. toctree::
+   :maxdepth: 3
 
 
-* Declare problem dictionary with "obj_weights":
+.. important::
+    **The Weighting Method**
+
+    MEALPY currently utilizes the **"weighting method"** (scalarization) to solve multi-objective optimization problems. This straightforward approach aggregates multiple objectives into a single scalar fitness value by multiplying each objective by a predefined weight and summing them up.
+
+To implement this, you simply need to design your objective function to return a **list of objective values** and specify the corresponding weights.
+
+Configuration Parameters
+------------------------
+
+* ``obj_func`` *(callable)*: Your objective function, which must return a list of numerical values.
+* ``bounds`` *(list/FloatVar)*: The lower and upper boundaries of the problem space.
+* ``minmax`` *(str)*: Indicates whether the optimization goal is to minimize (``"min"``) or maximize (``"max"``) the objectives.
+* ``obj_weights`` *(list)*: *(Optional)* A list of fractional weights corresponding to each objective.
+
+.. note::
+    **Default Weights Behavior**
+
+    If you do not specify ``obj_weights``, the algorithm defaults to assigning an equal weight of ``1`` to all objectives (e.g., ``[1, 1, ..., 1]``).
+
+
+Approach 1: Using a Problem Dictionary
+--------------------------------------
 
 .. code-block:: python
 
@@ -41,8 +58,14 @@ list of objective values, and set the objective weights corresponding to each va
 	model.solve(problem=problem_multi)
 
 
+Approach 2: Creating a Custom Problem Class
+-------------------------------------------
 
-* Declare a custom Problem class:
+.. hint::
+    **Best Practice for Complex Problems**
+
+    Inheriting from the ``Problem`` class is highly recommended for complex multi-objective scenarios. It keeps your codebase modular, readable, and perfectly encapsulated.
+
 
 .. code-block:: python
 
@@ -54,11 +77,11 @@ list of objective values, and set the objective weights corresponding to each va
 	    def __init__(self, bounds=None, minmax="min", **kwargs):
 	        super().__init__(bounds, minmax, **kwargs)
 
-		def booth(x, y):
+		def booth(self, x, y):
 			return (x + 2*y - 7)**2 + (2*x + y - 5)**2
-		def bukin(x, y):
+		def bukin(self, x, y):
 			return 100 * np.sqrt(np.abs(y - 0.01 * x**2)) + 0.01 * np.abs(x + 10)
-		def matyas(x, y):
+		def matyas(self, x, y):
 			return 0.26 * (x**2 + y**2) - 0.48 * x * y
 
 	    def obj_func(self, solution):
@@ -70,15 +93,3 @@ list of objective values, and set the objective weights corresponding to each va
 	## Define the model and solve the problem
 	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
 	model.solve(problem=problem_multi)
-
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-

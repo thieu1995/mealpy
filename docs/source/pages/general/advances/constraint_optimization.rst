@@ -1,11 +1,16 @@
 Constraint Optimization
 =======================
 
+.. toctree::
+   :maxdepth: 3
+
+
 For this problem, we recommend that the user defines a punishment function. The more the objective is violated, the greater the punishment function will be.
 As a result, the fitness will increase, and the solution will have a lower chance of being selected in the updating process.
 
 
-* Declare problem dictionary:
+Approach 1: Using a Problem Dictionary
+--------------------------------------
 
 .. code-block:: python
 
@@ -57,8 +62,8 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 	model.solve(problem=problem_multi)
 
 
-
-* Or declare a custom Problem class:
+Approach 2: Creating a Custom Problem Class
+-------------------------------------------
 
 .. code-block:: python
 
@@ -72,26 +77,26 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 	    def __init__(self, lb, ub, minmax, **kwargs):
 	        super().__init__(lb, ub, minmax, **kwargs)
 
-		def g1(x):
+		def g1(self, x):
 			return 2 * x[0] + 2 * x[1] + x[9] + x[10] - 10
-		def g2(x):
+		def g2(self, x):
 			return 2 * x[0] + 2 * x[2] + x[9] + x[10] - 10
-		def g3(x):
+		def g3(self, x):
 			return 2 * x[1] + 2 * x[2] + x[10] + x[11] - 10
-		def g4(x):
+		def g4(self, x):
 			return -8 * x[0] + x[9]
-		def g5(x):
+		def g5(self, x):
 			return -8 * x[1] + x[10]
-		def g6(x):
+		def g6(self, x):
 			return -8 * x[2] + x[11]
-		def g7(x):
+		def g7(self, x):
 			return -2 * x[3] - x[4] + x[9]
-		def g8(x):
+		def g8(self, x):
 			return -2 * x[5] - x[6] + x[10]
-		def g9(x):
+		def g9(self, x):
 			return -2 * x[7] - x[8] + x[11]
 
-		def violate(value):
+		def violate(self, value):
 			return 0 if value <= 0 else value
 
 	    def obj_func(self, solution):
@@ -114,13 +119,3 @@ As a result, the fitness will increase, and the solution will have a lower chanc
 	## Define the model and solve the problem
 	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
 	model.solve(problem=problem_cop)
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-

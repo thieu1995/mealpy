@@ -1,81 +1,86 @@
 Agent's History (Trajectory)
 ============================
 
-**WARNING: Trajectory will cause the memory issues:**
+.. toctree::
+   :maxdepth: 3
 
-The history of the population is not saved by default, but you can enable this feature by setting the "save_population" keyword to True in the Problem
-definition. Keep in mind that enabling this option may cause memory issues if your problem is too large, as it saves the history of the population in each
-generation. However, if your problem is small enough, you can turn it on and visualize the trajectory chart of search agents.
+
+By default, MEALPY tracks essential metrics (like best/worst fitness, runtime, and diversity) across generations without saving the complete state of every agent. This ensures high performance and low memory consumption. 
+
+However, if you want to visualize the trajectory chart of search agents, you can enable full population tracking by setting the ``save_population`` keyword to ``True`` in the problem definition.
+
+.. warning::
+    **Memory Out-of-Bounds Risk**
+
+    Enabling ``save_population: True`` will save the full position and fitness of every single agent in every single generation. For large population sizes, high dimensions, or a massive number of epochs, this will rapidly consume your RAM and may crash your program. **Only enable this for small-scale problems or when strictly necessary for trajectory visualization.**
+
+Enabling Population Tracking
+----------------------------
 
 .. code-block:: python
 
-   problem_dict1 = {
-      "obj_func": F5,
-      "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
-      "minmax": "min",
-      "log_to": "console",
-      "save_population": True,              # Default = False
-   }
+    from mealpy import FloatVar
 
+    problem_dict1 = {
+        "obj_func": lambda x: sum(x**2),
+        "bounds": FloatVar(lb=[-3, -5, 1, -10], ub=[5, 10, 100, 30]),
+        "minmax": "min",
+        "log_to": "console",
+        "save_population": True,  # Set to True to enable trajectory tracking. Default is False.
+    }
 
-You can access to the history of agent/population in model.history object with variables:
-	+ list_global_best: List of global best SOLUTION found so far in all previous generations
-	+ list_current_best: List of current best SOLUTION in each previous generations
-	+ list_global_worst: List of global worst SOLUTION found so far in all previous generations
-	+ list_current_worst: List of current worst SOLUTION in each previous generations
-	+ list_epoch_time: List of runtime for each generation
-	+ list_global_best_fit: List of global best FITNESS found so far in all previous generations
-	+ list_current_best_fit: List of current best FITNESS in each previous generations
-	+ list_diversity: List of DIVERSITY of swarm in all generations
-	+ list_exploitation: List of EXPLOITATION percentages for all generations
-	+ list_exploration: List of EXPLORATION percentages for all generations
-	+ list_population: List of POPULATION in each generations
+Accessing the History Object
+----------------------------
 
-**Note**: The last variable, 'list_population', is the one that can cause the "memory" error described above.
-It is recommended to set the 'save_population' parameter to False (which is also the default) in the input problem dictionary if you do not plan to use it.
+After the optimization process finishes, you can access the detailed history of the agents and the population through the ``model.history`` object. It contains the following built-in lists:
 
+* **Solutions (Agents):**
+    * ``list_global_best``: The global best SOLUTION found so far across all previous generations.
+    * ``list_current_best``: The best SOLUTION in each specific generation.
+    * ``list_global_worst``: The global worst SOLUTION found so far across all previous generations.
+    * ``list_current_worst``: The worst SOLUTION in each specific generation.
 
+* **Fitness Values:**
+    * ``list_global_best_fit``: The global best FITNESS found so far across all previous generations.
+    * ``list_current_best_fit``: The best FITNESS in each specific generation.
+
+* **Metrics & Analytics:**
+    * ``list_epoch_time``: The runtime (in seconds) for each generation.
+    * ``list_diversity``: The spatial diversity of the swarm across generations.
+    * ``list_exploitation``: The exploitation percentage metric for each generation.
+    * ``list_exploration``: The exploration percentage metric for each generation.
+
+* **Full Trajectory:**
+    * ``list_population``: The complete POPULATION array in each generation. *(Only populated if ``save_population=True``)*
+
+Example: Retrieving History Data
+--------------------------------
 
 .. code-block:: python
 
-	import numpy as np
-	from mealpy import PSO
+    import numpy as np
+    from mealpy import PSO, FloatVar
 
-	def objective_function(solution):
-	    return np.sum(solution**2)
+    def objective_function(solution):
+        return np.sum(solution**2)
 
-	problem_dict = {
-	    "obj_func": objective_function,
-        "bounds": FloatVar(lb=[-3, -5, 1, -10, ], ub=[5, 10, 100, 30, ]),
-	    "minmax": "min",
-	    "verbose": True,
-	    "save_population": False        # Then you can't draw the trajectory chart
-	}
-	model = PSO.OriginalPSO(epoch=1000, pop_size=50)
-	model.solve(problem=problem_dict)
+    problem_dict = {
+        "obj_func": objective_function,
+        "bounds": FloatVar(lb=[-3, -5, 1, -10], ub=[5, 10, 100, 30]),
+        "minmax": "min",
+        "verbose": True,
+        "save_population": False  # You cannot draw trajectory charts with this set to False
+    }
+    
+    model = PSO.OriginalPSO(epoch=1000, pop_size=50)
+    model.solve(problem=problem_dict)
 
-	print(model.history.list_global_best)
-	print(model.history.list_current_best)
-	print(model.history.list_global_worst)
-	print(model.history.list_current_worst)
-	print(model.history.list_epoch_time)
-	print(model.history.list_global_best_fit)
-	print(model.history.list_current_best_fit)
-	print(model.history.list_diversity)
-	print(model.history.list_exploitation)
-	print(model.history.list_exploration)
-	print(model.history.list_population)
+    # Accessing essential metrics (Available even if save_population=False)
+    print("Global best solutions:", model.history.list_global_best)
+    print("Epoch runtime history:", model.history.list_epoch_time)
+    print("Global best fitness history:", model.history.list_global_best_fit)
+    print("Exploration history:", model.history.list_exploration)
 
-	## Remember if you set "save_population" to False, then there is no variable: list_population
-
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
+    # Accessing full population history
+    # NOTE: This will be empty or missing because save_population was set to False
+    print("Full population history:", model.history.list_population)

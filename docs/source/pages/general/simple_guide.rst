@@ -4,7 +4,7 @@ Simple Guide
 
 In this phase, the main task is to find out the global optimal - in this project, we call it named *model* for simple. We designed the classical as well as
 the state-of-the-art population-based meta-heuristics models: `Evolutionary-based`_, `Swarm-based`_, `Physics-based`_, `Human-based`_, `Biology-based`_,
-`Mathematical-based`_, `Musical-based`_, and `System-based`_
+`Mathematical-based`_, `Music-based`_, `System-based`_, `Game-based`_, and `SOTA-based`_.
 
 .. _Evolutionary-based: ../models/mealpy.evolutionary_based.html
 .. _Swarm-based: ../models/mealpy.swarm_based.html
@@ -12,8 +12,10 @@ the state-of-the-art population-based meta-heuristics models: `Evolutionary-base
 .. _Human-based: ../models/mealpy.human_based.html
 .. _Biology-based: ../models/mealpy.bio_based.html
 .. _Mathematical-based: ../models/mealpy.math_based.html
-.. _Musical-based: ../models/mealpy.music_based.html
+.. _Music-based: ../models/mealpy.music_based.html
 .. _System-based: ../models/mealpy.system_based.html
+.. _Game-based: ../models/mealpy.game_based.html
+.. _SOTA-based: ../models/mealpy.sota_based.html
 
 All of this methods are used in the same way. So, in this guide, we'll demo with a specific method such as **Genetic Algorithm** in *Evolutionary-based*.
 
@@ -24,24 +26,29 @@ Installation
 
 **User Installation**
 
-Install the `current PyPI release`_. .. code-block:: bash
+Install the `current PyPI release`_.
 
-    $ pip install mealpy==3.0.3
+.. code-block:: bash
+
+    $ pip install mealpy==3.1.0
 
 .. _current PyPI release: https://pypi.python.org/pypi/mealpy
 
-Or install the development version from GitHub .. code-block:: bash
+Or install the development version from GitHub
 
-   $ pip install git+https://github.com/thieu1995/mealpy
+.. code-block:: bash
+
+    $ pip install git+https://github.com/thieu1995/mealpy
 
 
-Check the version of MEALPY .. code-block:: bash
+Check the version of MEALPY:
 
-   $ import mealpy
-   $ mealpy.__version__
+.. code-block:: python
 
-   $ print(mealpy.get_all_optimizers())
-   $ model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
+    >>> import mealpy
+    >>> mealpy.__version__
+    >>> print(mealpy.get_all_optimizers())
+    >>> model = mealpy.get_optimizer_by_name("OriginalWOA")(epoch=100, pop_size=50)
 
 ----------------------
 Getting started in 30s
@@ -49,9 +56,9 @@ Getting started in 30s
 
 **Tutorial**
     * Import libraries
-	* Define your fitness function
-	* Define a problem dictionary
-	* Training and get the results
+    * Define your fitness function
+    * Define a problem dictionary
+    * Training and get the results
 
 .. code-block:: python
 
@@ -115,7 +122,7 @@ Problem Preparation
 You will need to define a problem dictionary with must has keywords ("obj_func", "bounds", "minmax").
 
 	* obj_func: Your objective function
-	* bounds: The problem type, an instance of these classes: FloatVar, BoolVar, StringVar, IntegerVar, PermutationVar, BinaryVar, MixedSetVar
+	* bounds: The problem type, an instance of these classes: FloatVar, BoolVar, StringVar...
 	* minmax: The problem you are trying to solve is minimum or maximum, value can be "min" or "max"
 
 
@@ -139,7 +146,14 @@ To start learning, call the **solve()** function. There are four different train
 3. **swarm**: Updates fitness after the entire population moves (sequential processing; no effect on updating process).
 4. **single**: Updates fitness after each agent moves (sequential processing; affects updating process).
 
+.. note::
+    **Key Insights on Learning Modes:**
 
+    * **Parallel Limitations:** The `process` and `thread` modes do **not** parallelize the entire algorithmic logic across your CPU. They are strictly designed to parallelize the objective function evaluations for the agents. A single main process still handles all core mathematical operations and position updates.
+    * **Mode Compatibility:** By default, all algorithms run in `single` mode, reflecting the classical design of metaheuristics. The `swarm`, `thread`, and `process` modes are custom extensions. However, **not all algorithms support parallel or swarm execution**. Algorithms with intra-iteration dependencies (where updating one agent immediately alters the search landscape for subsequent agents in the same iteration) cannot be parallelized without breaking their fundamental logic.
+    * **Further Reading:** For a comprehensive explanation of these training modes, please read our official `mealpy`_ publication.
+
+.. _mealpy: https://doi.org/10.1016/j.sysarc.2023.102871
 
 .. code-block:: python
 

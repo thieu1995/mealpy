@@ -2,6 +2,10 @@
 Visualization
 =============
 
+.. toctree::
+   :maxdepth: 3
+
+
 Drawing all available figures. There are 8 different figures for each algorithm.
 
 **1. Based on fitness value (global best and local best fitness chart)**:
@@ -60,14 +64,3 @@ Drawing all available figures. There are 8 different figures for each algorithm.
 	model.history.save_diversity_chart(filename="hello/dc")
 
 	model.history.save_trajectory_chart(list_agent_idx=[3, 5, 6, 7,], selected_dimensions=[3, 4], filename="hello/tc")
-
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4

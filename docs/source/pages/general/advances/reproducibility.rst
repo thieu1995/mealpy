@@ -1,14 +1,27 @@
 Reproducibility (Set Seed)
 ==========================
 
-By default, the `seed` parameter is set to `None`. When `seed=None`, the algorithm will use a different random seed each time it runs, leading to potentially different results across multiple executions.
+.. toctree::
+   :maxdepth: 3
 
-However, if you set a specific integer value for `seed`, the algorithm will produce the exact same results every time it is run with that particular seed.
-This is crucial for debugging, verifying performance, and ensuring that your experiments are reproducible.
 
-For scenarios where you need to run the algorithm multiple times (e.g., n-trials for statistical analysis) while still maintaining reproducibility
-for each individual trial, it is best practice to set a *different* seed for each trial. This allows you to recreate each specific trial's outcome if needed,
-while still exploring the stochastic nature of the algorithm across different runs.
+In meta-heuristic algorithms, randomness plays a significant role in population initialization and the stochastic operators used during evolution. Controlling this randomness is essential for robust experimentation and code verification.
+
+.. note::
+    **Default Stochastic Behavior**
+
+    By default, the ``seed`` parameter in the ``solve()`` method is set to ``None``. When ``seed=None``, the algorithm will use a different random seed each time it runs, leading to potentially different outcomes across multiple executions.
+
+.. important::
+    **Guaranteeing Reproducibility**
+
+    If you set a specific integer value for ``seed`` (e.g., ``seed=42``), the algorithm will produce the **exact same results** every time it is run with that particular seed. This deterministic behavior is crucial for debugging, verifying algorithmic improvements, and ensuring your research is fully reproducible by others.
+
+.. attention::
+    **Best Practice for Statistical Analysis (N-Trials)**
+
+    For scenarios where you need to run the algorithm multiple times (e.g., 30 independent runs for statistical validation) while still maintaining reproducibility for each individual trial, it is best practice to set a *different* specific seed for each trial (e.g., ``seed=100 + i``). This allows you to recreate any specific trial's outcome while still exploring the stochastic nature of the algorithm across the entire experiment.
+
 
 .. code-block:: python
 
@@ -45,13 +58,3 @@ while still exploring the stochastic nature of the algorithm across different ru
         model_trial = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
         g_best_trial = model_trial.solve(problem=problem, seed=current_seed)
         print(f"  Trial {i+1} (seed={current_seed}) - Best fitness: {g_best_trial.target.fitness}")
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4

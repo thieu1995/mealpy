@@ -2,6 +2,10 @@
 Advance Guide
 =============
 
+.. toctree::
+   :maxdepth: 4
+
+
 .. include:: advances/termination.rst
 .. include:: advances/reproducibility.rst
 .. include:: advances/multi_objective_optimization.rst
@@ -14,14 +18,3 @@ Advance Guide
 .. include:: advances/agent_history.rst
 .. include:: advances/saving_loading.rst
 .. include:: advances/starting_positions.rst
-.. include:: advances/import_all_models.rst
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4

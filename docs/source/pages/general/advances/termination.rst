@@ -1,34 +1,53 @@
 Stopping Condition (Termination)
 ================================
 
-In meta-heuristic algorithms, the optimization process involves iteratively generating and evolving a population of candidate solutions (individuals) to the
-problem. Each generation consists of evaluating the fitness of each individual, selecting the best individuals for reproduction, and applying some specific
-operators to generate a new population. By setting a maximum number of generations as a stopping condition, the algorithm will terminate after a certain
-number of iterations, even if a satisfactory solution has not been found. This can be useful to prevent the algorithm from running indefinitely, especially
-if there is no clear convergence criteria or if the fitness landscape is complex and difficult to navigate.
-
-However, it is important to note that the choice of the maximum number of generations should be based on the specific problem being solved, as well as the
-computational resources available. A too small number of generations may not allow the algorithm to converge to a satisfactory solution, while a too large
-number may result in unnecessary computational expense.
+.. toctree::
+   :maxdepth: 3
 
 
-By default, when creating an optimizer, the default stopping condition (termination) is based on epochs (generations, iterations).
+In meta-heuristic algorithms, the optimization process involves iteratively generating and evolving a population of candidate solutions (individuals) to the problem.
+Each generation consists of evaluating the fitness of each individual, selecting the best individuals for reproduction, and applying specific operators to generate a new population.
 
-However, there are different stopping conditions that you can try by creating a Termination dictionary. You can also use multiple stopping criteria together
-to improve your model. There are 4 termination types in the class Termination:
+By setting a maximum number of generations as a stopping condition, the algorithm will terminate after a certain number of iterations, even if a
+satisfactory solution has not been found. This is highly useful to prevent the algorithm from running indefinitely, especially if there are no
+clear convergence criteria or if the fitness landscape is complex and difficult to navigate.
 
-+ MG: Maximum Generations / Epochs / Iterations
-+ FE: Maximum Number of Function Evaluations
-+ TB: Time Bound - If you want your algorithm to run for a fixed amount of time (e.g., K seconds), especially when comparing different algorithms.
-+ ES: Early Stopping -  Similar to the idea in training neural networks (stop the program if the global best solution has not improved by epsilon after K epochs).
+.. important::
+    **Resource Management & Convergence**
 
-+ Parameters for Termination class, set it to None if you don't want to use it
-    + max_epoch (int): Indicates the maximum number of generations for the MG type.
-    + max_fe (int): Indicates the maximum number of function evaluations for the FE type.
-    + max_time (float): Indicates the maximum amount of time for the TB type.
-    + max_early_stop (int): Indicates the maximum number of epochs for the ES type.
-        + epsilon (float): (Optional) This is used for the ES termination type (default value: 1e-10).
-    + termination (dict): (Optional) A dictionary of termination criteria.
+    The choice of the maximum number of generations must be based on the specific problem being solved and the available computational resources. A number that is too small may prevent the algorithm from converging to a satisfactory solution, while a number that is too large may result in unnecessary computational expense.
+
+.. note::
+    **Default Behavior**
+
+    By default, when creating an optimizer in MEALPY, the default stopping condition is based purely on **epochs** (generations/iterations).
+
+.. attention::
+    **Advanced Termination Strategies**
+
+    You can explore different stopping conditions by creating a ``Termination`` dictionary. Furthermore, you can combine **multiple stopping criteria together** to improve and strictly control your model's execution time!
+
+Termination Types
+-----------------
+
+There are 4 termination types available in the ``Termination`` class:
+
+* **MG (Maximum Generations):** Also known as Epochs or Iterations.
+* **FE (Function Evaluations):** The maximum number of times the objective function is evaluated.
+* **TB (Time Bound):** Forces the algorithm to run for a fixed amount of time (e.g., *K* seconds). This is especially useful when benchmarking or comparing different algorithms.
+* **ES (Early Stopping):** Inspired by neural network training, this stops the program if the global best solution has not improved by an :math:`\epsilon` margin after *K* consecutive epochs.
+
+Configuration Parameters
+------------------------
+
+To configure these conditions, provide the following parameters to the ``Termination`` class (set any parameter to ``None`` if you do not want to use it):
+
+* ``max_epoch`` *(int)*: Indicates the maximum number of generations for the **MG** type.
+* ``max_fe`` *(int)*: Indicates the maximum number of function evaluations for the **FE** type.
+* ``max_time`` *(float)*: Indicates the maximum amount of time in seconds for the **TB** type.
+* ``max_early_stop`` *(int)*: Indicates the maximum number of epochs for the **ES** type.
+* ``epsilon`` *(float)*: *(Optional)* The tolerance value used for the **ES** termination type (default value: ``1e-10``).
+* ``termination`` *(dict)*: *(Optional)* A dictionary encompassing your chosen termination criteria.
 
 
 **1. MG (Maximum Generations / Epochs): This is default in all algorithms**
@@ -107,13 +126,3 @@ to improve your model. There are 4 termination types in the class Termination:
 
    model3 = SMA.OriginalSMA(epoch=100, pop_size=50, pr=0.03)
    model3.solve(problem_dict1, termination=term_dict)
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-

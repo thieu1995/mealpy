@@ -201,6 +201,14 @@ mealpy.swarm\_based.DO module
    :show-inheritance:
    :undoc-members:
 
+mealpy.swarm\_based.DSO module
+------------------------------
+
+.. automodule:: mealpy.swarm_based.DSO
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 mealpy.swarm\_based.DandelionO module
 -------------------------------------
 

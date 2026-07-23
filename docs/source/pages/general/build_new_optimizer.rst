@@ -107,13 +107,3 @@ Based on this flow, we have created an example in "examples/build_new_optimizer.
 	model = MyAlgorithm(epoch, pop_size)
 	g_best = model.solve(problem_dict1)
 	print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
-
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
-
-.. toctree::
-   :maxdepth: 4
