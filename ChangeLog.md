@@ -1,5 +1,5 @@
 
-Different versions of mealpy in terms of passing hyper-parameters. So please careful check your version before
+Different versions of mealpy in terms of passing hyperparameters. So please careful check your version before
   using this library. (All releases can be found here: [Link](https://pypi.org/project/mealpy/#history))
   * mealpy < 1.0.5
   * 1.1.0 < mealpy < 1.2.2
@@ -9,8 +9,6 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
   * 2.4.0 <= mealpy <= 2.4.2 (From this version, algorithms can solve discrete problem)
   * mealpy >= 2.5.1 <= 2.5.4 (Define model 1 time, solve multiple problems)
   * mealpy >= 3.0.0 (Everything is wrapped inside class and object)
-
-
 
 
 
@@ -26,7 +24,6 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Dream Optimization Algorithm (DOA)` to `human-based` group.
 + Add `Mirage Search Optimization (MSO)` to `physics-based` group.
 + Add `Tianji's Horse Racing Optimization (THRO)` to the new `game-based` group.
-+ Add `Mantis Shrimp Optimization Algorithm (MShOA)` to the new `swarm-based` group.
 + Re-Add `Black Widow Optimization Algorithm (BWOA)` to the `evolutionary-based` group.
 + Fix error in `OriginalBBOA` evolve function.
 + Add `Chimp Optimization Algorithm (ChOA)` to the `swarm-based` group.
@@ -56,12 +53,23 @@ Different versions of mealpy in terms of passing hyper-parameters. So please car
 + Add `Wave Optics Optimizer (WOO)` to the `physics-based` group
 + Add `Archerfish Hunting Optimizer (AHO)` to the `swarm-based` group
 + Add `Red Fox Optimization (RFO)` to the `swarm-based` group
++ Add `Dove Swarm Optimization (DSO)` to the `swarm-based` group
 + Update `levy-flight` in `Moth Search Algorithm (MSA)`
 + Add `Tree Seed Algorithm (TSeedA)` in `bio-based` group
 + Add `Secretary Bird Optimization Algorithm (SBOA)` in `bio-based` group
 + Add `Chameleon Swarm Algorithm (ChameleonSA) and its improved version IChameleonSA` in the `swarm-based` group
 + Add `White Shark Optimizer (WSO)` in the `swarm-based` group
 + Add `Multiple Learning FA based on Gender Difference (MLFA-GD)` in `FFA` class of the `swarm-based` group
++ Rename `OriginalSSpiderA` class to `DevSSpiderA` in the `swarm-based` group
++ Add `Mantis Shrimp Optimization Algorithm (MShOA)` (2 version `OriginalMShOA` and `DevMShOA`) to the new `swarm-based` group.
++ Update docstring for `swarm-based optimizers`
++ Add `Fire Hawk Optimization (FHO)` to the `swarm-based` group.
++ Add `Orca Optimization Algorithm (OrcaOA)` and `Orca Predation Algorithm (OrcaPA)` in `ORCA` module in the `swarm-based` group.
++ Fix bug in `BCO` and `EOA` optimizers.
++ Rename `DevTLO` to `ETLBO` class.
++ Update `get_best_agent`, `get_worst_agent` and `get_sorted_population` with the returning of index in Optimizer.
++ Add `Political Optimizer (PO)` to the `human-based` group
++ Add `Incomprehensible but Intelligible-in-time Logics Algorithm (ILA)` to the `human-based` group
 
 ---
 

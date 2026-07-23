@@ -1,8 +1,5 @@
 docs/_build/
 run.py
-mealpy/swarm_based/DSO.py
-mealpy/human_based/PO.py
-mealpy/human_based/ILA.py
 examples/utils/history*
 examples/history*
 history*

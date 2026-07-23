@@ -1,11 +1,8 @@
 Welcome to MEALPY's documentation!
 ==================================
 
-.. image:: https://img.shields.io/badge/release-3.0.3-yellow.svg
+.. image:: https://img.shields.io/badge/release-3.1.0-yellow.svg
    :target: https://github.com/thieu1995/mealpy/releases
-
-.. image:: https://img.shields.io/pypi/wheel/gensim.svg
-   :target: https://pypi.python.org/pypi/mealpy
 
 .. image:: https://badge.fury.io/py/mealpy.svg
    :target: https://badge.fury.io/py/mealpy
@@ -31,17 +28,8 @@ Welcome to MEALPY's documentation!
 .. image:: https://img.shields.io/badge/Chat-on%20Telegram-blue
    :target: https://t.me/+fRVCJGuGJg1mNDg1
 
-.. image:: http://isitmaintained.com/badge/resolution/thieu1995/mealpy.svg
-   :target: http://isitmaintained.com/project/thieu1995/mealpy
-
-.. image:: http://isitmaintained.com/badge/open/thieu1995/mealpy.svg
-   :target: http://isitmaintained.com/project/thieu1995/mealpy
-
 .. image:: https://img.shields.io/github/contributors/thieu1995/mealpy.svg
    :target: https://img.shields.io/github/contributors/thieu1995/mealpy.svg
-
-.. image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
-   :target: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3711948.svg
    :target: https://doi.org/10.1016/j.sysarc.2023.102871
