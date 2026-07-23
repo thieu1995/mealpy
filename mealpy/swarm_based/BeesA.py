@@ -34,7 +34,7 @@ class CleverBookBeesA(Optimizer):
 
     .. note::
        + This version is based on ABC in the book Clever Algorithms
-       + Improved the function search_neighborhood__
+       + Improved the function search_neighborhood
 
     References
     ~~~~~~~~~~
@@ -87,7 +87,7 @@ class CleverBookBeesA(Optimizer):
         self.set_parameters(["epoch", "pop_size", "n_elites", "n_others", "patch_size", "patch_reduction", "n_sites", "n_elite_sites"])
         self.sort_flag = True
 
-    def search_neighborhood__(self, parent=None, neigh_size=None):
+    def search_neighborhood(self, parent=None, neigh_size=None):
         """
         Search 1 best position in neigh_size position
         """
@@ -120,7 +120,7 @@ class CleverBookBeesA(Optimizer):
                     neigh_size = self.n_elites
                 else:
                     neigh_size = self.n_others
-                agent = self.search_neighborhood__(self.pop[idx], neigh_size)
+                agent = self.search_neighborhood(self.pop[idx], neigh_size)
             else:
                 agent = self.generate_agent()
             pop_new.append(agent)
