@@ -9,10 +9,6 @@ import os
 import re
 
 
-with open("requirements.txt", encoding='utf-8') as f:
-    REQUIREMENTS = f.read().splitlines()
-
-
 def get_version():
     init_path = os.path.join(os.path.dirname(__file__), 'mealpy', '__init__.py')
     with open(init_path, 'r', encoding='utf-8') as f:
@@ -82,7 +78,7 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
     ],
-    install_requires=REQUIREMENTS,
+    install_requires=[ "numpy>=1.17.1", "scipy>=1.7.1", "pandas>=1.2.0", "matplotlib>=3.1.3", "tqdm>=4.66.0"],
     extras_require={
         "dev": ["pytest>=7.0", "twine>=4.0.1", "pytest-cov==4.0.0", "flake8>=4.0.1"],
     },
