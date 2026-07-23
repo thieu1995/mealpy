@@ -19,14 +19,14 @@ p1 = {
 }
 
 paras_bbo_grid = {
-    "epoch": [10, 20, 30, 40],
-    "pop_size": [50, 100, 150],
-    "n_elites": [2, 3, 4, 5],
+    "epoch": [10, 20, 30],
+    "pop_size": [20, 30],
+    "n_elites": [2, 3,],
     "p_m": [0.01, 0.02, 0.05]
 }
 
 term = {
-    "max_epoch": 200,
+    "max_epoch": 20,
     "max_time": 20,
     "max_fe": 10000
 }
@@ -34,7 +34,7 @@ term = {
 if __name__ == "__main__":
     model = BBO.OriginalBBO()
     tuner = Tuner(model, paras_bbo_grid)
-    tuner.execute(problem=p1, termination=term, n_trials=5, n_jobs=4, mode="single", n_workers=4, verbose=True)
+    tuner.execute(problem=p1, termination=term, n_trials=3, n_jobs=4, mode="thread", n_workers=4, verbose=True)
     ## Solve this problem 5 times (n_trials) using 5 processes (n_jobs), each process will handle 1 trial.
     ## The mode to run the solver is thread (mode), distributed to 4 threads
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     tuner.export_figures()
 
     ## Re-solve the best model on your problem
-    g_best = tuner.resolve(mode="single", n_workers=4, termination=term)
+    g_best = tuner.resolve(mode="thread", n_workers=4, termination=term)
     print(g_best.solution, g_best.target.fitness)
     print(tuner.algorithm.problem.get_name())
     print(tuner.best_algorithm.get_name())

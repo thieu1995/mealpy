@@ -7,7 +7,7 @@
 import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
                     CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA, FHO, ORCA, EOA,
-                    BCO, TLO, SMO)
+                    BCO, TLO, SMO, PO, ILA, DSO, BBO)
 
 
 def objective_function(solution):
@@ -40,6 +40,7 @@ model = AHO.OriginalAHO(epoch=100000, pop_size=50, theta=0.26, omega=0.01)
 model = MSA.OriginalMSA(epoch=1000, pop_size=50, n_best = 5, partition = 0.5, max_step_size = 1.0)
 model = TSeedA.OriginalTSeedA(epoch=1000, pop_size=50, st=0.1)
 model = SBOA.OriginalSBOA(epoch=1000, pop_size=50)
+model = DSO.OriginalDSO(epoch=1000, pop_size=50, lamda=0.9, eta=0.2)
 model = ChameleonSA.OriginalChameleonSA(epoch=1000, pop_size=50, pp=0.2, p1=0.5, p2=2.5, c1=1.4, c2=1.6, gama=1.0, alpha=5.0, rho=1.5)
 model = ChameleonSA.IChameleonSA(epoch=1000, pop_size=50, r_chaos=0.5, k_spiral=10., p1=5.0, p2=3.0)
 model = WSO.OriginalWSO(epoch=1000, pop_size=50, tau=4.2, p_min=0.5, p_max=2.0, f_min=0.1, f_max=0.8, a0=6, a1=100, a2=0.001)
@@ -55,7 +56,9 @@ model = BCO.OriginalBCO(epoch=1000, pop_size=50, c_min=0.01, c_max=0.2, n_chemot
 model = TLO.OriginalTLO(epoch=1000, pop_size=50)
 model = TLO.ImprovedTLO(epoch=1000, pop_size=50, n_teachers = 5)
 model = SMO.DevSMO(epoch=1000, pop_size=50, max_groups = 5, perturbation_rate = 0.7)
-
+model = PO.OriginalPO(epoch=100, pop_size=10, lamda_max=1.0)
+model = ILA.OriginalILA(epoch=100, pop_size=50, n_models=5, p_s1=0.33, p_s2=0.33, b_min=0.4, b_max=0.6)
+model = BBO.OriginalBBO(epoch=1000, pop_size=50, p_m=0.01, n_elites=2)
 
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
