@@ -6,15 +6,14 @@
 
 import concurrent.futures as parallel
 from pathlib import Path
-from opfunu.cec_basic import cec2014_nobias
+from opfunu.cec_based import cec2005
 from pandas import DataFrame
-from mealpy.evolutionary_based.DE import OriginalDE
+from mealpy import FloatVar, DE
 
 
 model_name = "DE"
 N_TRIALS = 5
-LB = [-100, ] * 15
-UB = [100, ] * 15
+N_DIMS = 30
 verbose = True
 epoch = 100
 pop_size = 50
@@ -37,23 +36,24 @@ def find_minimum(function_name):
     error_columns = []
     best_fit_list = []
     for id_trial in range(1, N_TRIALS + 1):
+        fname = f"{function_name}2005"
+        FF = getattr(cec2005, fname)(N_DIMS, f_bias=0)
         problem = {
-            "fit_func": getattr(cec2014_nobias, function_name),
-            "lb": LB,
-            "ub": UB,
+            "obj_func": FF.evaluate,
+            "bounds": FloatVar(lb=FF.lb, ub=FF.ub),
             "minmax": "min",
             "log_to": "console",
             "name": function_name
         }
-        model = OriginalDE(epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name)
-        _, best_fitness = model.solve(problem)
+        model = DE.OriginalDE(epoch=epoch, pop_size=pop_size, wf=wf, cr=cr, name=model_name)
+        best_agent = model.solve(problem)
 
         temp = f"trial_{id_trial}"
         error_full[temp] = model.history.list_global_best_fit
         error_columns.append(temp)
-        best_fit_list.append(best_fitness)
+        best_fit_list.append(best_agent.target.fitness)
     df = DataFrame(error_full, columns=error_columns)
-    df.to_csv(f"{PATH_ERROR}{len(LB)}D_{model_name}_{function_name}_error.csv", header=True, index=False)
+    df.to_csv(f"{PATH_ERROR}{N_DIMS}D_{model_name}_{function_name}_error.csv", header=True, index=False)
     print(f"Finish function: {function_name}")
 
     return {
@@ -76,4 +76,4 @@ if __name__ == '__main__':
         best_fit_columns.append(result["func_name"])
 
     df = DataFrame(best_fit_full, columns=best_fit_columns)
-    df.to_csv(f"{PATH_BEST_FIT}/{len(LB)}D_{model_name}_best_fit.csv", header=True, index=False)
+    df.to_csv(f"{PATH_BEST_FIT}/{N_DIMS}D_{model_name}_best_fit.csv", header=True, index=False)

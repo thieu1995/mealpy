@@ -780,7 +780,7 @@ model = QSA.ImprovedQSA(**paras_qsa)
 model = SARO.DevSARO(**paras_saro)
 model = SARO.OriginalSARO(**paras_saro)
 model = SSDO.OriginalSSDO(**paras_ssdo)
-model = TLO.DevTLO(**paras_tlo)
+model = TLO.ETLBO(**paras_tlo)
 model = TLO.OriginalTLO(**paras_tlo)
 model = TLO.ImprovedTLO(**paras_improved_tlo)
 

@@ -6,7 +6,8 @@
 
 import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
-                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA, FHO)
+                    CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA, FHO, ORCA, EOA,
+                    BCO, TLO, SMO)
 
 
 def objective_function(solution):
@@ -47,7 +48,14 @@ model = ACOR.OriginalACOR(epoch=1000, pop_size=50, sample_count = 25, intent_fac
 model = MShOA.OriginalMShOA(epoch=1000, pop_size=50)
 model = MShOA.DevMShOA(epoch=1000, pop_size=50, k_value=0.3)
 model = FHO.OriginalFHO(epoch=1000, pop_size=10)
+model = ORCA.OriginalOrcaOA(epoch=1000, pop_size=50, p_percent=0.15, R0=5)
+model = ORCA.OriginalOrcaPA(epoch=1000, pop_size=50, p1=0.5, p2=0.3, q=0.9)
+model = EOA.OriginalEOA(epoch=1000, pop_size=50, p_c = 0.9, p_m = 0.01, n_best = 2, alpha = 0.98, beta = 0.9, gama = 0.9)
+model = BCO.OriginalBCO(epoch=1000, pop_size=50, c_min=0.01, c_max=0.2, n_chemotaxis=2, max_swim_steps=4, migration_prob=0.2)
+model = TLO.OriginalTLO(epoch=1000, pop_size=50)
+model = TLO.ImprovedTLO(epoch=1000, pop_size=50, n_teachers = 5)
+model = SMO.DevSMO(epoch=1000, pop_size=50, max_groups = 5, perturbation_rate = 0.7)
 
-t1 = np.array([32, 424])
+
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")
