@@ -47,7 +47,7 @@ class Optimizer:
         super(Optimizer, self).__init__()
         self.epoch, self.pop_size = None, None
         self.mode, self.n_workers, self.name = None, None, None
-        self.pop, self.g_best, self.g_worst = None, Agent(), None
+        self.pop, self.g_best, self.g_worst = None, None, None
         self.problem, self.logger, self.history = None, None, None
         self.__set_keyword_arguments(kwargs)
         self.validator = Validator(log_to="console", log_file=None)

@@ -4,7 +4,6 @@
 #       Github: https://github.com/thieu1995        %                         
 # --------------------------------------------------%
 
-from typing import Any
 import numpy as np
 from mealpy.utils.target import Target
 
@@ -23,10 +22,6 @@ class Agent:
     def increase(cls) -> int:
         cls.ID += 1
         return cls.ID
-
-    def __getattr__(self, name: str) -> Any:
-        # return None or raise AttributeError
-        return self.__dict__.get(name, None)
 
     def set_kwargs(self, kwargs):
         for key, value in kwargs.items():
