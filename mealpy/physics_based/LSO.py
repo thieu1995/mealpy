@@ -12,15 +12,31 @@ class OriginalLSO(Optimizer):
     """
     The original version of: Light Spectrum Optimizer (LSO)
 
-    Links:
-        1. https://doi.org/10.3390/math10193466
-        2. https://www.mathworks.com/matlabcentral/fileexchange/126215-light-spectrum-optimizer-lso
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    Ps : float
+        Probability of first and second scattering stages, in range (0.0, 1.0). Default is 0.05.
+    Pe : float
+        Controlling parameter to exchange between scattering stages, in range (0.0, 1.0). Default is 0.6.
+    Ph : float
+        Probability of hybridization between boundary handling methods, in range (0.0, 1.0). Default is 0.4.
+    B : float
+        Exploitation probability in the first scattering stage, in range (0.0, 1.0). Default is 0.05.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + Ps (float): [0.01, 0.1], default = 0.05, probability of scattering stages
-        + Pe (float): [0.5, 0.8], default = 0.6, controlling parameter to exchange between scattering stages
-        + Ph (float): [0.3, 0.6], default = 0.4, probability of hybridization between boundary handling methods
-        + B (float): [0.01, 0.1], default = 0.05, exploitation probability in the first scattering stage
+    Links
+    -----
+    1. https://doi.org/10.3390/math10193466
+    2. https://www.mathworks.com/matlabcentral/fileexchange/126215-light-spectrum-optimizer-lso
+
+    References
+    ~~~~~~~~~~
+    1. Abdel-Basset, M., Mohamed, R., 2022.
+       Light Spectrum Optimizer: A Novel Physics-Inspired Metaheuristic Optimization Algorithm.
+       Mathematics, 10(19), 3466.
 
     Examples
     ~~~~~~~~
@@ -40,11 +56,6 @@ class OriginalLSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdel-Basset, M., Mohamed, R., 2022. Light Spectrum Optimizer: A Novel Physics-Inspired
-    Metaheuristic Optimization Algorithm. Mathematics, 10(19), 3466.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ps: float = 0.05,
@@ -233,17 +244,33 @@ class OriginalLSO(Optimizer):
 
 class DevLSO(Optimizer):
     """
-    The developed version of: Light Spectrum Optimizer (LSO)
+    Our developed version of: Light Spectrum Optimizer (LSO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    Ps : float
+        Probability of first and second scattering stages, in range (0.0, 1.0). Default is 0.05.
+    Pe : float
+        Controlling parameter to exchange between scattering stages, in range (0.0, 1.0). Default is 0.6.
+    B : float
+        Exploitation probability in the first scattering stage, in range (0.0, 1.0). Default is 0.05.
+
+    Note
+    ----
     This version includes some improvements:
         + Uses adaptive parameters that change based on epoch
         + Simplified boundary handling
         + More efficient implementation
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + Ps (float): [0.01, 0.1], default = 0.05, probability of scattering stages
-        + Pe (float): [0.5, 0.8], default = 0.6, controlling parameter to exchange between scattering stages
-        + B (float): [0.01, 0.1], default = 0.05, exploitation probability in the first scattering stage
+    References
+    ~~~~~~~~~~
+    1. Abdel-Basset, M., Mohamed, R., 2022.
+       Light Spectrum Optimizer: A Novel Physics-Inspired Metaheuristic Optimization Algorithm.
+       Mathematics, 10(19), 3466. https://doi.org/10.3390/math10193466
 
     Examples
     ~~~~~~~~
@@ -263,11 +290,6 @@ class DevLSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abdel-Basset, M., Mohamed, R., 2022. Light Spectrum Optimizer: A Novel Physics-Inspired
-    Metaheuristic Optimization Algorithm. Mathematics, 10(19), 3466.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ps: float = 0.05,

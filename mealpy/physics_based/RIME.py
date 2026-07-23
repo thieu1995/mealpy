@@ -12,14 +12,24 @@ class OriginalRIME(Optimizer):
     """
     The original version of: physical phenomenon of RIME-ice  (RIME)
 
-    Links:
-        1. https://doi.org/10.1016/j.neucom.2023.02.010
-        2. https://www.mathworks.com/matlabcentral/fileexchange/124610-rime-a-physics-based-optimization
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    sr : float
+        Soft-rime parameters, in range (0.0, 100.0). Default is 5.0.
 
-    Notes (parameters):
-        1. sr (float): Soft-rime parameters, default=5.0
-        2. The algorithm is straightforward and does not require any specialized knowledge or techniques.
-        3. The algorithm may exhibit slow convergence and may not perform optimally.
+    Links
+    -----
+    1. https://doi.org/10.1016/j.neucom.2023.02.010
+    2. https://www.mathworks.com/matlabcentral/fileexchange/124610-rime-a-physics-based-optimization
+
+    References
+    ~~~~~~~~~~
+    1. Su, H., Zhao, D., Heidari, A. A., Liu, L., Zhang, X., Mafarja, M., & Chen, H. (2023).
+       RIME: A physics-based optimization. Neurocomputing.
 
     Examples
     ~~~~~~~~
@@ -39,11 +49,8 @@ class OriginalRIME(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Su, H., Zhao, D., Heidari, A. A., Liu, L., Zhang, X., Mafarja, M., & Chen, H. (2023). RIME: A physics-based optimization. Neurocomputing.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, sr: float = 5., **kwargs: object) -> None:
         """
         Args:

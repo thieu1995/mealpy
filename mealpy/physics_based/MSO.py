@@ -12,8 +12,23 @@ class OriginalMSO(Optimizer):
     """
     The original version of: Mirage Search Optimization (MSO)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/180042-mirage-search-optimization
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.advengsoft.2025.103883
+    2. https://www.mathworks.com/matlabcentral/fileexchange/180042-mirage-search-optimization
+
+    References
+    ~~~~~~~~~~
+    1. He, J., Zhao, S., Ding, J., & Wang, Y. (2025).
+       Mirage search optimization: Application to path planning and engineering design problems.
+       Advances in Engineering Software, 203, 103883.
 
     Examples
     ~~~~~~~~
@@ -33,11 +48,6 @@ class OriginalMSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] He, J., Zhao, S., Ding, J., & Wang, Y. (2025). Mirage search optimization: Application to
-    path planning and engineering design problems. Advances in Engineering Software, 203, 103883.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

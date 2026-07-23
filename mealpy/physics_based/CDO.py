@@ -12,9 +12,22 @@ class OriginalCDO(Optimizer):
     """
     The original version of: Chernobyl Disaster Optimizer (CDO)
 
-    Links:
-        1. https://link.springer.com/article/10.1007/s00521-023-08261-1
-        2. https://www.mathworks.com/matlabcentral/fileexchange/124351-chernobyl-disaster-optimizer-cdo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1007/s00521-023-08261-1
+    2. https://www.mathworks.com/matlabcentral/fileexchange/124351-chernobyl-disaster-optimizer-cdo
+
+    References
+    ~~~~~~~~~~
+    1. Shehadeh, H. A. (2023). Chernobyl disaster optimizer (CDO): a novel meta-heuristic method for global optimization.
+       Neural Computing and Applications, 1-17.
 
     Examples
     ~~~~~~~~
@@ -34,19 +47,9 @@ class OriginalCDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Shehadeh, H. A. (2023). Chernobyl disaster optimizer (CDO): a novel meta-heuristic method
-    for global optimization. Neural Computing and Applications, 1-17.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

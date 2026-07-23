@@ -5,7 +5,6 @@
 # --------------------------------------------------%
 
 import numpy as np
-import math
 from mealpy.optimizer import Optimizer
 
 
@@ -13,8 +12,21 @@ class OriginalNRO(Optimizer):
     """
     The original version of: Nuclear Reaction Optimization (NRO)
 
-    Links:
-        1. https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8720256
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Wei, Z., Huang, C., Wang, X., Han, T. and Li, Y., 2019.
+       Nuclear reaction optimization: A novel and powerful physics-based algorithm for global optimization.
+       IEEE Access, 7, pp.66084-66109. https://doi.org/10.1109/ACCESS.2019.2918406
+    1. Wei, Z.L., Zhang, Z.R., Huang, C.Q., Han, B., Tang, S.Q. and Wang, L., 2019, June.
+       An Approach Inspired from Nuclear Reaction Processes for Numerical Optimization.
+       In Journal of Physics: Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
 
     Examples
     ~~~~~~~~
@@ -34,22 +46,9 @@ class OriginalNRO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wei, Z., Huang, C., Wang, X., Han, T. and Li, Y., 2019. Nuclear reaction optimization: A novel and
-    powerful physics-based algorithm for global optimization. IEEE Access, 7, pp.66084-66109.
-    [2] Wei, Z.L., Zhang, Z.R., Huang, C.Q., Han, B., Tang, S.Q. and Wang, L., 2019, June. An Approach
-    Inspired from Nuclear Reaction Processes for Numerical Optimization. In Journal of Physics:
-    Conference Series (Vol. 1213, No. 3, p. 032009). IOP Publishing.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -68,14 +67,11 @@ class OriginalNRO(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        xichma_v = 1
-        xichma_u = ((math.gamma(1 + 1.5) * math.sin(math.pi * 1.5 / 2)) / (math.gamma((1 + 1.5) / 2) * 1.5 * 2 ** ((1.5 - 1) / 2))) ** (1.0 / 1.5)
-        levy_b = (self.generator.normal(0, xichma_u)) / (np.sqrt(np.abs(self.generator.normal(0, xichma_v))) ** (1.0 / 1.5))
+        levy_b = self.get_levy_flight_step(beta=1.5, multiplier=0.01, size=self.problem.n_dims, case=-1)
         # NFi phase
         Pb = self.generator.uniform()
         Pfi = self.generator.uniform()
         freq = 0.05
-        alpha = 0.01
         pop_new = []
         for idx in range(self.pop_size):
             ## Calculate neutron vector Nei by Eq. (2)
@@ -124,7 +120,7 @@ class OriginalNRO(Optimizer):
                 for j in range(self.problem.n_dims):
                     #### Levy flight strategy is described as Eq. 18
                     if self.pop[i2].solution[j] == self.pop[idx].solution[j]:
-                        X_ion[j] = self.pop[idx].solution[j] + alpha * levy_b * (self.pop[idx].solution[j] - self.g_best.solution[j])
+                        X_ion[j] = self.pop[idx].solution[j] + levy_b * (self.pop[idx].solution[j] - self.g_best.solution[j])
                     #### If not, based on Eq. 11, 12
                     else:
                         if self.generator.uniform() <= 0.5:
@@ -137,7 +133,7 @@ class OriginalNRO(Optimizer):
                 for j in range(self.problem.n_dims):
                     ##### Based on Eq. 21
                     if X_worst.solution[j] == self.g_best.solution[j]:
-                        X_ion[j] = self.pop[idx].solution[j] + alpha * levy_b * (self.problem.ub[j] - self.problem.lb[j])
+                        X_ion[j] = self.pop[idx].solution[j] + levy_b * (self.problem.ub[j] - self.problem.lb[j])
                     ##### Based on Eq. 13
                     else:
                         X_ion[j] = self.pop[idx].solution[j] + round(self.generator.uniform()) * self.generator.uniform() * \
@@ -169,7 +165,7 @@ class OriginalNRO(Optimizer):
             else:
                 ##### Based on Eq. 22
                 if np.allclose(self.pop[i1].solution, self.pop[i2].solution):
-                    X_fu = self.pop[idx].solution + alpha * levy_b * (self.pop[idx].solution - self.g_best.solution)
+                    X_fu = self.pop[idx].solution + levy_b * (self.pop[idx].solution - self.g_best.solution)
                 ##### Based on Eq. 16, 17
                 else:
                     if self.generator.uniform() > 0.5:

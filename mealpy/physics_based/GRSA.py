@@ -12,15 +12,32 @@ class OriginalGRSA(Optimizer):
     """
     The original version of: General Relativity Search Algorithm (GRSA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/57520-general-relativity-search-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    n_geometry : int
+        Number of geometries used to partition the population, in range [1, int(pop_size / 2)]. Default is 5.
+    w_max : float
+        Maximum weight factor for kinetic energy calculation, in range (0.0, 1.0). Default is 0.9.
+    w_min : float
+        Minimum weight factor for kinetic energy calculation, in range (0.0, 1.0). Default is 0.4.
+    g_max : float
+        Maximum kinetic energy coefficient, in range (0.0, 1.0). Default is 0.5.
+    g_min : float
+        Minimum kinetic energy coefficient, in range (0.0, 1.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_geometry (int): (1, pop_size/2) -> Number of geometries used to partition the population.
-        + w_max (float): (0, 1) -> Maximum weight factor for kinetic energy calculation.
-        + w_min (float): (0, 1) -> Minimum weight factor for kinetic energy calculation.
-        + g_max (float): (0, 1) -> Maximum kinetic energy coefficient.
-        + g_min (float): (0, 1) -> Minimum kinetic energy coefficient.
+    Links
+    -----
+    1. https://doi.org/10.1142/S1469026815500170
+    2. https://www.mathworks.com/matlabcentral/fileexchange/57520-general-relativity-search-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Beiranvand, Hamzeh, and Esmaeel Rokrok. "General relativity search algorithm: a global optimization approach."
+       International journal of computational intelligence and applications 14.03 (2015): 1550017.
 
     Examples
     ~~~~~~~~
@@ -40,11 +57,6 @@ class OriginalGRSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Beiranvand, Hamzeh, and Esmaeel Rokrok. "General relativity search algorithm: a global
-    optimization approach." International journal of computational intelligence and applications 14.03 (2015): 1550017.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_geometry: int = 5, w_max: float = 0.9,

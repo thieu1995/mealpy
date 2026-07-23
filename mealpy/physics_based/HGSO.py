@@ -12,11 +12,20 @@ class OriginalHGSO(Optimizer):
     """
     The original version of: Henry Gas Solubility Optimization (HGSO)
 
-    Links:
-        1. https://www.sciencedirect.com/science/article/abs/pii/S0167739X19306557
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    n_clusters : int
+        Number of clusters, in range [2, int(pop_size/5)]. Default is 2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + n_clusters (int): [2, 10], number of clusters, default = 2
+    References
+    ~~~~~~~~~~
+    1. Hashim, F.A., Houssein, E.H., Mabrouk, M.S., Al-Atabany, W. and Mirjalili, S., 2019.
+       Henry gas solubility optimization: A novel physics-based algorithm.
+       Future Generation Computer Systems, 101, pp.646-667. https://doi.org/10.1016/j.future.2019.07.015
 
     Examples
     ~~~~~~~~
@@ -36,20 +45,9 @@ class OriginalHGSO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hashim, F.A., Houssein, E.H., Mabrouk, M.S., Al-Atabany, W. and Mirjalili, S., 2019. Henry gas solubility
-    optimization: A novel physics-based algorithm. Future Generation Computer Systems, 101, pp.646-667.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_clusters: int = 2, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-            n_clusters (int): number of clusters, default = 2
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])

@@ -13,16 +13,30 @@ class OriginalArchOA(Optimizer):
     """
     The original version of: Archimedes Optimization Algorithm (ArchOA)
 
-    Links:
-        1. https://doi.org/10.1007/s10489-020-01893-z
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    c1 : float
+        Factor, in range [1.0, 3.0]. Default is 2.0.
+    c2 : float
+        Factor, in range [2.0, 6.0]. Default is 6.0.
+    c3 : float
+        Factor, in range [1.0, 3.0]. Default is 2.0.
+    c4 : float
+        Factor, in range (0.0, 1.0). Default is 0.5.
+    acc_max : float
+        Acceleration max, in range (0.3, 1.0). Default is 0.9.
+    acc_min : float
+        Acceleration min, in range (0.0, 0.3). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + c1 (int): factor, default belongs to [1, 2]
-        + c2 (int): factor, Default belongs to [2, 4, 6]
-        + c3 (int): factor, Default belongs to [1, 2]
-        + c4 (float): factor, Default belongs to [0.5, 1]
-        + acc_max (float): acceleration max, Default 0.9
-        + acc_min (float): acceleration min, Default 0.1
+    References
+    ~~~~~~~~~~
+    1. Hashim, F.A., Hussain, K., Houssein, E.H., Mabrouk, M.S. and Al-Atabany, W., 2021.
+       Archimedes optimization algorithm: a new metaheuristic algorithm for solving optimization problems.
+       Applied Intelligence, 51(3), pp.1531-1551. https://doi.org/10.1007/s10489-020-01893-z
 
     Examples
     ~~~~~~~~
@@ -42,11 +56,6 @@ class OriginalArchOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hashim, F.A., Hussain, K., Houssein, E.H., Mabrouk, M.S. and Al-Atabany, W., 2021. Archimedes optimization
-    algorithm: a new metaheuristic algorithm for solving optimization problems. Applied Intelligence, 51(3), pp.1531-1551.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2, c2: float = 6,

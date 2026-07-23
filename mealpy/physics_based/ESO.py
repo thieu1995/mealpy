@@ -12,6 +12,19 @@ class OriginalESO(Optimizer):
     """
     The original version of: Electrical Storm Optimization (ESO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Soto Calvo, Manuel, and Han Soo Lee. 2025.
+       "Electrical Storm Optimization (ESO) Algorithm: Theoretical Foundations, Analysis, and Application to Engineering Problems"
+       Machine Learning and Knowledge Extraction 7, no. 1: 24. https://doi.org/10.3390/make7010024
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -30,18 +43,9 @@ class OriginalESO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Soto Calvo, Manuel, and Han Soo Lee. 2025. "Electrical Storm Optimization (ESO) Algorithm: Theoretical Foundations, Analysis, and Application to Engineering Problems" Machine Learning and Knowledge Extraction 7, no. 1: 24. https://doi.org/10.3390/make7010024
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

@@ -13,8 +13,18 @@ class OriginalTWO(Optimizer):
     """
     The original version of: Tug of War Optimization (TWO)
 
-    Links:
-        1. https://www.researchgate.net/publication/332088054_Tug_of_War_Optimization_Algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Kaveh, A., 2017. Tug of war optimization.
+       In Advances in metaheuristic algorithms for optimal design of structures (pp. 451-487). Springer, Cham.
+       https://doi.org/10.1007/978-3-030-59392-6_15
 
     Examples
     ~~~~~~~~
@@ -34,19 +44,9 @@ class OriginalTWO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kaveh, A., 2017. Tug of war optimization. In Advances in metaheuristic algorithms for
-    optimal design of structures (pp. 451-487). Springer, Cham.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -133,6 +133,13 @@ class OppoTWO(OriginalTWO):
     """
     The opossition-based learning version: Tug of War Optimization (OTWO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -154,11 +161,6 @@ class OppoTWO(OriginalTWO):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(epoch, pop_size, **kwargs)
 
     def initialization(self):
@@ -232,6 +234,13 @@ class LevyTWO(OriginalTWO):
     """
     The Levy-flight version of: Tug of War Optimization (LevyTWO)
 
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -253,11 +262,6 @@ class LevyTWO(OriginalTWO):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(epoch, pop_size, **kwargs)
 
     def evolve(self, epoch):
@@ -317,8 +321,18 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     """
     The original version of: Enhenced Tug of War Optimization (ETWO)
 
-    Links:
-        1. https://doi.org/10.1016/j.procs.2020.03.063
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Nguyen, T., Hoang, B., Nguyen, G. and Nguyen, B.M., 2020.
+       A new workload prediction model using extreme learning machine and enhanced tug of war optimization.
+       Procedia Computer Science, 170, pp.362-369. https://doi.org/10.1016/j.procs.2020.03.063
 
     Examples
     ~~~~~~~~
@@ -338,11 +352,6 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Nguyen, T., Hoang, B., Nguyen, G. and Nguyen, B.M., 2020. A new workload prediction model using
-    extreme learning machine and enhanced tug of war optimization. Procedia Computer Science, 170, pp.362-369.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

@@ -10,15 +10,29 @@ from mealpy.optimizer import Optimizer
 
 class DevMVO(Optimizer):
     """
-    The developed version: Multi-Verse Optimizer (MVO)
+    Our developed version: Multi-Verse Optimizer (MVO)
 
-    Notes:
-        + New routtele wheel selection can handle negative values
-        + Removed condition when self.generator.normalize fitness. So the chance to choose while whole higher --> better
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    wep_min : float
+        Wormhole Existence Probability (min in Eq.(3.3) paper), in range (0.0, 0.5). Default is 0.2.
+    wep_max : float
+        Wormhole Existence Probability (max in Eq.(3.3) paper), in range [0.5, 3.0]. Default is 1.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
-        + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+    Note
+    ----
+    + New routtele wheel selection can handle negative values
+    + Removed condition when self.generator.normalize fitness. So the chance to choose while whole higher --> better
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S., Mirjalili, S.M. and Hatamlou, A., 2016.
+       Multi-verse optimizer: a nature-inspired algorithm for global optimization.
+       Neural Computing and Applications, 27(2), pp.495-513. https://dx.doi.org/10.1007/s00521-015-1870-7
 
     Examples
     ~~~~~~~~
@@ -93,13 +107,27 @@ class OriginalMVO(DevMVO):
     """
     The original version of: Multi-Verse Optimizer (MVO)
 
-    Links:
-        1. https://dx.doi.org/10.1007/s00521-015-1870-7
-        2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    wep_min : float
+        Wormhole Existence Probability (min in Eq.(3.3) paper), in range (0.0, 0.5). Default is 0.2.
+    wep_max : float
+        Wormhole Existence Probability (max in Eq.(3.3) paper), in range [0.5, 3.0]. Default is 1.0.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + wep_min (float): [0.05, 0.3], Wormhole Existence Probability (min in Eq.(3.3) paper, default = 0.2
-        + wep_max (float: [0.75, 1.0], Wormhole Existence Probability (max in Eq.(3.3) paper, default = 1.0
+    Links
+    -----
+    1. https://dx.doi.org/10.1007/s00521-015-1870-7
+    2. https://www.mathworks.com/matlabcentral/fileexchange/50112-multi-verse-optimizer-mvo
+
+    References
+    ~~~~~~~~~~
+    1. Mirjalili, S., Mirjalili, S.M. and Hatamlou, A., 2016.
+       Multi-verse optimizer: a nature-inspired algorithm for global optimization.
+       Neural Computing and Applications, 27(2), pp.495-513.
 
     Examples
     ~~~~~~~~
@@ -119,11 +147,6 @@ class OriginalMVO(DevMVO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Mirjalili, S., Mirjalili, S.M. and Hatamlou, A., 2016. Multi-verse optimizer: a nature-inspired
-    algorithm for global optimization. Neural Computing and Applications, 27(2), pp.495-513.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, wep_min: float = 0.2, wep_max: float = 1.0, **kwargs: object) -> None:

@@ -10,18 +10,42 @@ class OriginalKOA(Optimizer):
     """
     The original version of: Kepler Optimization Algorithm (KOA)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2023.110454
-
-    Notes (parameters):
-        1. tc (int): range [1, 1000] cycle parameter (Tc in the paper), default=3
-        2. lamda (float): range (0., 1000.0) decay factor (lambda in the paper), default=15
-        3. mu0 (float): range (0., 10.) initial mass parameter (M0 in the paper), default=0.1
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 25.
+    tc : int
+        Cycle parameter (tc in the paper), in range [1, 1000]. Default is 3.
+    lamda : float
+        Decay factor (lambda in the paper), in range (0.0, 1000.0). Default is 15.
+    mu0 : float
+        Initial mass parameter (M0 in the paper), in range (0.0, 10.0). Default is 0.1.
 
     References
     ~~~~~~~~~~
-    [1] Abdel-Basset, Mohamed, et al. "Kepler optimization algorithm: A new metaheuristic algorithm
-    inspired by Kepler’s laws of planetary motion." Knowledge-based systems 268 (2023): 110454.
+    1. Abdel-Basset, Mohamed, et al. "Kepler optimization algorithm: A new metaheuristic algorithm
+       inspired by Kepler’s laws of planetary motion." Knowledge-based systems 268 (2023): 110454.
+       https://doi.org/10.1016/j.knosys.2023.110454
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, KOA
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = KOA.OriginalKOA(epoch=100, pop_size=50, tc=3, lamda=15.0, mu0=0.1)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 25, tc: int = 3,

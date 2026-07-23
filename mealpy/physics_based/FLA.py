@@ -12,19 +12,37 @@ class OriginalFLA(Optimizer):
     """
     The original version of: Fick's Law Algorithm (FLA)
 
-    Notes:
-        1. The algorithm contains a high number of parameters, some of which may be unnecessary.
-        2. Despite the complexity of the algorithms, they may not perform optimally and could potentially become trapped in local optima.
-        3. Division by the fitness value may cause overflow issues to arise.
-        4. https://www.mathworks.com/matlabcentral/fileexchange/121033-fick-s-law-algorithm-fla
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    C1 : float
+        Factor C1, in range (-100.0, 100.0). Default is 0.5.
+    C2 : float
+        Factor C2, in range (-100.0, 100.0). Default is 2.0.
+    C3 : float
+        Factor C3, in range (-100.0, 100.0). Default is 0.1.
+    C4 : float
+        Factor C4, in range (-100.0, 100.0). Default is 0.2.
+    C5 : float
+        Factor C5, in range (-100.0, 100.0). Default is 2.0.
+    DD : float
+        Factor D in the paper, in range (-100.0, 100.0). Default is 0.01.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + C1 (float): factor C1, default=0.5
-        + C2 (float): factor C2, default=2.0
-        + C3 (float): factor C3, default=0.1
-        + C4 (float): factor C4, default=0.2
-        + C5 (float): factor C5, default=2.0
-        + DD (float): factor D in the paper, default=0.01
+    Note
+    ----
+    1. The algorithm contains a high number of parameters, some of which may be unnecessary.
+    2. Despite the complexity of the algorithms, they may not perform optimally and could potentially become trapped in local optima.
+    3. Division by the fitness value may cause overflow issues to arise.
+    4. https://www.mathworks.com/matlabcentral/fileexchange/121033-fick-s-law-algorithm-fla
+
+    References
+    ~~~~~~~~~~
+    1. Hashim, F. A., Mostafa, R. R., Hussien, A. G., Mirjalili, S., & Sallam, K. M. (2023).
+       Fick’s Law Algorithm: A physical law-based algorithm for numerical optimization.
+       Knowledge-Based Systems, 260, 110146. https://doi.org/10.1016/j.knosys.2022.110146
 
     Examples
     ~~~~~~~~
@@ -44,12 +62,8 @@ class OriginalFLA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Hashim, F. A., Mostafa, R. R., Hussien, A. G., Mirjalili, S., & Sallam, K. M. (2023). Fick’s Law Algorithm: A physical
-    law-based algorithm for numerical optimization. Knowledge-Based Systems, 260, 110146.
     """
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, C1: float = 0.5, C2: float = 2.0,
                  C3: float = 0.1, C4: float = 0.2, C5: float = 2.0, DD: float = 0.01, **kwargs: object) -> None:
         """

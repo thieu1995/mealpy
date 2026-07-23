@@ -12,10 +12,12 @@ class OriginalSOO(Optimizer):
     """
     The original version of: Stellar Oscillation Optimizer (SOO)
 
-    Hyperparameters
-    ---------------
-    + epoch (int): Maximum number of iterations, default = 10000
-    + pop_size (int): Population size (number of trees), default = 100
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
 
     Danger
     ------
@@ -63,11 +65,6 @@ class OriginalSOO(Optimizer):
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

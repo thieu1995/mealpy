@@ -10,13 +10,28 @@ from mealpy.optimizer import Optimizer
 
 class DevEFO(Optimizer):
     """
-    The developed version: Electromagnetic Field Optimization (EFO)
+    Our developed version: Electromagnetic Field Optimization (EFO)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
-        + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
-        + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
-        + n_field (float): [0.3, 0.7], default = 0.45, portion of population, negative field
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    r_rate : float
+        Like mutation parameter in GA but for one variable, in range (0.0, 1.0). Default is 0.3.
+    ps_rate : float
+        Like crossover parameter in GA, in range (0.0, 1.0). Default is 0.85.
+    p_field : float
+        Portion of population, positive field, in range (0.0, 1.0). Default is 0.1.
+    n_field : float
+        Portion of population, negative field, in range (0.0, 1.0). Default is 0.45.
+
+    References
+    ~~~~~~~~~~
+    1. Abedinpourshotorban, H., Shamsuddin, S.M., Beheshti, Z. and Jawawi, D.N., 2016.
+       Electromagnetic field optimization: a physics-inspired metaheuristic optimization algorithm.
+       Swarm and Evolutionary Computation, 26, pp.8-22.
 
     Examples
     ~~~~~~~~
@@ -98,14 +113,31 @@ class OriginalEFO(DevEFO):
     """
     The original version of: Electromagnetic Field Optimization (EFO)
 
-    Links:
-        2. https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    r_rate : float
+        Like mutation parameter in GA but for one variable, in range (0.0, 1.0). Default is 0.3.
+    ps_rate : float
+        Like crossover parameter in GA, in range (0.0, 1.0). Default is 0.85.
+    p_field : float
+        Portion of population, positive field, in range (0.0, 1.0). Default is 0.1.
+    n_field : float
+        Portion of population, negative field, in range (0.0, 1.0). Default is 0.45.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + r_rate (float): [0.1, 0.6], default = 0.3, like mutation parameter in GA but for one variable
-        + ps_rate (float): [0.5, 0.95], default = 0.85, like crossover parameter in GA
-        + p_field (float): [0.05, 0.3], default = 0.1, portion of population, positive field
-        + n_field (float): [0.3, 0.7], default = 0.45, portion of population, negative field
+    Links
+    -----
+    1. https://doi.org/10.1016/j.swevo.2015.07.002
+    2. https://www.mathworks.com/matlabcentral/fileexchange/52744-electromagnetic-field-optimization-a-physics-inspired-metaheuristic-optimization-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Abedinpourshotorban, H., Shamsuddin, S.M., Beheshti, Z. and Jawawi, D.N., 2016.
+       Electromagnetic field optimization: a physics-inspired metaheuristic optimization algorithm.
+       Swarm and Evolutionary Computation, 26, pp.8-22.
 
     Examples
     ~~~~~~~~
@@ -125,12 +157,6 @@ class OriginalEFO(DevEFO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Abedinpourshotorban, H., Shamsuddin, S.M., Beheshti, Z. and Jawawi, D.N., 2016.
-    Electromagnetic field optimization: a physics-inspired metaheuristic optimization algorithm.
-    Swarm and Evolutionary Computation, 26, pp.8-22.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r_rate: float = 0.3,

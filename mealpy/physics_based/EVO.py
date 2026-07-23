@@ -12,14 +12,24 @@ class OriginalEVO(Optimizer):
     """
     The original version of: Energy Valley Optimizer (EVO)
 
-    Links:
-        1. https://www.nature.com/articles/s41598-022-27344-y
-        2. https://www.mathworks.com/matlabcentral/fileexchange/123130-energy-valley-optimizer-a-novel-metaheuristic-algorithm
+    Links
+    -----
+    1. https://doi.org/10.1038/s41598-022-27344-y
+    2. https://www.mathworks.com/matlabcentral/fileexchange/123130-energy-valley-optimizer-a-novel-metaheuristic-algorithm
 
-    Notes:
-        1. The algorithm is straightforward and does not require any specialized knowledge or techniques.
-        2. The algorithm may not perform optimally due to slow convergence and no good operations, which could be improved by implementing better strategies and operations.
-        3. The problem is that it is stuck at a local optimal around 1/2 of the max generations because fitness distance is being used as a factor in the equations.
+    Note
+    ----
+    1. The algorithm is straightforward and does not require any specialized knowledge or techniques.
+    2. The algorithm may not perform optimally due to slow convergence and no good operations,
+       which could be improved by implementing better strategies and operations.
+    3. The problem is that it is stuck at a local optimal around 1/2 of the max generations because fitness
+       distance is being used as a factor in the equations.
+
+    References
+    ~~~~~~~~~~
+    1. Azizi, M., Aickelin, U., A. Khorshidi, H., & Baghalzadeh Shishehgarkhaneh, M. (2023).
+       Energy valley optimizer: a novel metaheuristic algorithm for global and engineering optimization.
+       Scientific Reports, 13(1), 226.
 
     Examples
     ~~~~~~~~
@@ -39,18 +49,8 @@ class OriginalEVO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Azizi, M., Aickelin, U., A. Khorshidi, H., & Baghalzadeh Shishehgarkhaneh, M. (2023). Energy valley optimizer: a novel
-    metaheuristic algorithm for global and engineering optimization. Scientific Reports, 13(1), 226.
     """
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

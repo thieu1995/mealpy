@@ -12,9 +12,23 @@ class OriginalKLA(Optimizer):
     """
     The original version of: Kirchhoff's Law Algorithm (KLA)
 
-    Links:
-        1. https://www.mathworks.com/matlabcentral/fileexchange/181589-kirchhoff-s-law-algorithm-kla
-        2. https://doi.org/10.1007/s10462-025-11289-5
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://www.mathworks.com/matlabcentral/fileexchange/181589-kirchhoff-s-law-algorithm-kla
+    2. https://doi.org/10.1007/s10462-025-11289-5
+
+    References
+    ~~~~~~~~~~
+    1. Ghasemi, Mojtaba, Nima Khodadadi, Pavel Trojovský, Li Li, Zulkefli Mansor, Laith Abualigah, Amal H. Alharbi, and El-Sayed M. El-Kenawy.
+       "Kirchhoff’s law algorithm (KLA): A novel physics-inspired non-parametric metaheuristic algorithm for optimization problems."
+       Artificial Intelligence Review 58, no. 10 (2025): 325.
 
     Examples
     ~~~~~~~~
@@ -33,20 +47,9 @@ class OriginalKLA(Optimizer):
     >>> model = KLA.OriginalKLA(epoch=100, pop_size=50)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Ghasemi, Mojtaba, Nima Khodadadi, Pavel Trojovský, Li Li, Zulkefli Mansor, Laith Abualigah, Amal H. Alharbi,
-    and El-Sayed M. El-Kenawy. "Kirchhoff’s law algorithm (KLA): A novel physics-inspired non-parametric metaheuristic
-    algorithm for optimization problems." Artificial Intelligence Review 58, no. 10 (2025): 325.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch: Maximum number of iterations, default = 10000
-            pop_size: Number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])

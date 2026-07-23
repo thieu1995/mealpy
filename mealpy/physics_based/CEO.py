@@ -11,13 +11,24 @@ class OriginalCEO(Optimizer):
     """
     The original version of: Cosmic Evolution Optimization (CEO)
 
-    Links:
-        1. https://doi.org/10.3390/math13152499
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 1000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 50.
+    w1 : float
+        Expansion weight, in range (0.0, 1.0). Default is 0.1.
+    p_base : float
+        Base collision probability, in range (0.0, 1.0). Default is 0.2.
+    alpha : float
+        Alignment parameter, in range (0.0, 1.0). Default is 0.7.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + w1 (float): [0.0, 1.0], Expansion weight, default=0.1
-        + p_base (float): [0.0, 1.0], Base collision probability, default=0.2
-        + alpha (float): [0.0, 1.0], Alignment parameter, default=0.7
+    References
+    ~~~~~~~~~~
+    1. Wang, Rui, Zhengxuan Jiang, and Guowen Ding. "Cosmic Evolution Optimization: A Novel Metaheuristic
+       Algorithm for Numerical Optimization and Engineering Design." Mathematics 13.15 (2025): 2499.
+       https://doi.org/10.3390/math13152499
 
     Examples
     ~~~~~~~~
@@ -37,11 +48,6 @@ class OriginalCEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wang, Rui, Zhengxuan Jiang, and Guowen Ding. "Cosmic Evolution Optimization: A Novel Metaheuristic
-    Algorithm for Numerical Optimization and Engineering Design." Mathematics 13.15 (2025): 2499.
     """
 
     def __init__(self, epoch: int = 1000, pop_size: int = 50,

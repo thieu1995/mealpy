@@ -12,9 +12,22 @@ class OriginalEO(Optimizer):
     """
     The original version of: Equilibrium Optimizer (EO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2019.105190
-        2. https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    Links
+    -----
+    1. https://doi.org/10.1016/j.knosys.2019.105190
+    2. https://www.mathworks.com/matlabcentral/fileexchange/73352-equilibrium-optimizer-eo
+
+    References
+    ~~~~~~~~~~
+    1. Faramarzi, A., Heidarinejad, M., Stephens, B. and Mirjalili, S., 2020.
+       Equilibrium optimizer: A novel optimization algorithm. Knowledge-Based Systems, 191, p.105190.
 
     Examples
     ~~~~~~~~
@@ -34,19 +47,9 @@ class OriginalEO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Faramarzi, A., Heidarinejad, M., Stephens, B. and Mirjalili, S., 2020. Equilibrium optimizer: A novel
-    optimization algorithm. Knowledge-Based Systems, 191, p.105190.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -105,8 +108,18 @@ class ModifiedEO(OriginalEO):
     """
     The original version of: Modified Equilibrium Optimizer (MEO)
 
-    Links:
-        1. https://doi.org/10.1016/j.asoc.2020.106542
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Gupta, S., Deep, K. and Mirjalili, S., 2020.
+       An efficient equilibrium optimizer with mutation strategy for numerical optimization.
+       Applied Soft Computing, 96, p.106542. https://doi.org/10.1016/j.asoc.2020.106542
 
     Examples
     ~~~~~~~~
@@ -126,11 +139,6 @@ class ModifiedEO(OriginalEO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Gupta, S., Deep, K. and Mirjalili, S., 2020. An efficient equilibrium optimizer with mutation
-    strategy for numerical optimization. Applied Soft Computing, 96, p.106542.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
@@ -218,8 +226,19 @@ class AdaptiveEO(OriginalEO):
     """
     The original version of: Adaptive Equilibrium Optimization (AEO)
 
-    Links:
-        1. https://doi.org/10.1016/j.engappai.2020.103836
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+
+    References
+    ~~~~~~~~~~
+    1. Wunnava, A., Naik, M.K., Panda, R., Jena, B. and Abraham, A., 2020.
+       A novel interdependence based multilevel thresholding technique using adaptive equilibrium optimizer.
+       Engineering Applications of Artificial Intelligence, 94, p.103836. https://doi.org/10.1016/j.engappai.2020.103836
+
 
     Examples
     ~~~~~~~~
@@ -239,12 +258,6 @@ class AdaptiveEO(OriginalEO):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Wunnava, A., Naik, M.K., Panda, R., Jena, B. and Abraham, A., 2020. A novel interdependence based
-    multilevel thresholding technique using adaptive equilibrium optimizer. Engineering Applications of
-    Artificial Intelligence, 94, p.103836.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:

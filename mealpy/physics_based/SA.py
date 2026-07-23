@@ -12,12 +12,24 @@ class OriginalSA(Optimizer):
     """
     The original version of: Simulated Annealing (SA)
 
-    Notes:
-        + SA is single-based solution, so the pop_size parameter is not matter in this algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [2, 10000]. Default is 2.
+    temp_init : float
+        Initial temperature, in range [1, 10000]. Default is 100.
+    step_size : float
+        The step size of random movement, in range (-100.0, 100.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + temp_init (float): [1, 10000], initial temperature, default=100
-        + step_size (float): the step size of random movement, default=0.1
+    Note
+    ----
+    SA is single-based solution, so the pop_size parameter is not matter in this algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Kirkpatrick, S., Gelatt Jr, C. D., & Vecchi, M. P. (1983). Optimization by simulated annealing. science, 220(4598), 671-680.
 
     Examples
     ~~~~~~~~
@@ -37,10 +49,6 @@ class OriginalSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Kirkpatrick, S., Gelatt Jr, C. D., & Vecchi, M. P. (1983). Optimization by simulated annealing. science, 220(4598), 671-680.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, temp_init: float = 100, step_size: float = 0.1, **kwargs: object) -> None:
@@ -87,16 +95,29 @@ class OriginalSA(Optimizer):
 
 class GaussianSA(Optimizer):
     """
-    The developed version of: Gaussian Simulated Annealing (GaussianSA)
+    Our Gaussian-based version of: Gaussian Simulated Annealing (GaussianSA)
 
-    Notes:
-        + SA is single-based solution, so the pop_size parameter is not matter in this algorithm
-        + The temp_init is very important factor. Should set it equal to the distance between LB and UB
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [2, 10000]. Default is 2.
+    temp_init : float
+        Initial temperature, in range [1, 10000]. Default is 100.
+    cooling_rate : float
+        Cooling rate, in range (0.0, 1.0). Default is 0.99.
+    scale : float
+        The scale in gaussian random, in range (0.0, 100.0). Default is 0.1.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + temp_init (float): [1, 10000], initial temperature, default=100
-        + cooling_rate (float): (0., 1.0), cooling rate, default=0.99
-        + scale (float): (0., 100.), the scale in gaussian random, default=0.1
+    Note
+    ----
+    + SA is single-based solution, so the pop_size parameter is not matter in this algorithm
+    + The temp_init is very important factor. Should set it equal to the distance between LB and UB
+
+    References
+    ~~~~~~~~~~
+    1. Kirkpatrick, S., Gelatt Jr, C. D., & Vecchi, M. P. (1983). Optimization by simulated annealing. science, 220(4598), 671-680.
 
     Examples
     ~~~~~~~~
@@ -167,16 +188,34 @@ class GaussianSA(Optimizer):
 
 class SwarmSA(Optimizer):
     """
-    The swarm version of: Simulated Annealing (SwarmSA)
+    Our swarm version of: Simulated Annealing (SwarmSA)
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + max_sub_iter (int): [5, 10, 15], Maximum Number of Sub-Iteration (within fixed temperature), default=5
-        + t0 (int): Fixed parameter, Initial Temperature, default=1000
-        + t1 (int): Fixed parameter, Final Temperature, default=1
-        + move_count (int): [5, 20], Move Count per Individual Solution, default=5
-        + mutation_rate (float): [0.01, 0.2], Mutation Rate, default=0.1
-        + mutation_step_size (float): [0.05, 0.1, 0.15], Mutation Step Size, default=0.1
-        + mutation_step_size_damp (float): [0.8, 0.99], Mutation Step Size Damp, default=0.99
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    max_sub_iter : int
+        Maximum Number of Sub-Iteration (within fixed temperature), in range [1, 100000]. Default is 5.
+    t0 : int
+        Initial Temperature, in range [500, 2000]. Default is 1000.
+    t1 : int
+        Final Temperature, in range [1, 100]. Default is 1.
+    move_count : int
+        Move Count per Individual Solution, in range [2, int(pop_size / 2)]. Default is 5.
+    mutation_rate : float
+        Mutation Rate, in range (0.0, 1.0). Default is 0.1.
+    mutation_step_size : float
+        Mutation Step Size, in range (0.0, 1.0). Default is 0.1.
+    mutation_step_size_damp : float
+        Mutation Step Size Damp, in range (0.0, 1.0). Default is 0.99.
+
+    References
+    ~~~~~~~~~~
+    1. Van Laarhoven, P.J. and Aarts, E.H., 1987.
+       Simulated annealing. In Simulated annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
+       https://doi.org/10.1007/978-94-015-7744-1_2
 
     Examples
     ~~~~~~~~
@@ -197,11 +236,6 @@ class SwarmSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Van Laarhoven, P.J. and Aarts, E.H., 1987. Simulated annealing. In Simulated
-    annealing: Theory and applications (pp. 7-15). Springer, Dordrecht.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, max_sub_iter: int = 5, t0: int = 1000, t1: int = 1, move_count: int = 5,

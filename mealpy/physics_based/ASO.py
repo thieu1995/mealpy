@@ -13,13 +13,26 @@ class OriginalASO(Optimizer):
     """
     The original version of: Atom Search Optimization (ASO)
 
-    Links:
-        1. https://doi.org/10.1016/j.knosys.2018.08.030
-        2. https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [5, 10000]. Default is 100.
+    alpha : int
+        Depth weight, in range [1, 100]. Default is 10.
+    beta : float
+        Multiplier weight, in range (0.0, 1.0). Default is 0.2.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + alpha (int): Depth weight, default = 10, depend on the problem
-        + beta (float): Multiplier weight, default = 0.2
+    Links
+    -----
+    1. https://doi.org/10.1016/j.knosys.2018.08.030
+    2. https://www.mathworks.com/matlabcentral/fileexchange/67011-atom-search-optimization-aso-algorithm
+
+    References
+    ~~~~~~~~~~
+    1. Zhao, W., Wang, L. and Zhang, Z., 2019. Atom search optimization and its application to solve a
+       hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, pp.283-304.
 
     Examples
     ~~~~~~~~
@@ -39,11 +52,6 @@ class OriginalASO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Zhao, W., Wang, L. and Zhang, Z., 2019. Atom search optimization and its application to solve a
-    hydrogeologic parameter estimation problem. Knowledge-Based Systems, 163, pp.283-304.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: int = 10, beta: float = 0.2, **kwargs: object) -> None:

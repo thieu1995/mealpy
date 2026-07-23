@@ -12,18 +12,35 @@ class OriginalWDO(Optimizer):
     """
     The original version of: Wind Driven Optimization (WDO)
 
-    Notes
-        + pop is the set of "air parcel" - "position"
-        + air parcel: is the set of gas atoms. Each atom represents a dimension in position and has its own velocity
-        + pressure represented by fitness value
-        + https://ieeexplore.ieee.org/abstract/document/6407788
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 10000.
+    pop_size : int
+        Number of population size, in range [10, 10000]. Default is 100.
+    RT : int
+        RT coefficient, in range [1, 4]. Default is 3.
+    g_c : float
+        Gravitational constant, in range (0.0, 1.0). Default is 0.2.
+    alp : float
+        Constants in the update equation, in range (0.0, 1.0). Default is 0.4.
+    c_e : float
+        Coriolis effect, in range (0.0, 1.0). Default is 0.4.
+    max_v : float
+        Maximum allowed speed, in range (0.0, 1.0). Default is 0.3.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + RT (int): [2, 3, 4], RT coefficient, default = 3
-        + g_c (float): [0.1, 0.5], gravitational constant, default = 0.2
-        + alp (float): [0.3, 0.8], constants in the update equation, default=0.4
-        + c_e (float): [0.1, 0.9], coriolis effect, default=0.4
-        + max_v (float): [0.1, 0.9], maximum allowed speed, default=0.3
+    Note
+    ----
+    + pop is the set of "air parcel" - "position"
+    + air parcel: is the set of gas atoms. Each atom represents a dimension in position and has its own velocity
+    + pressure represented by fitness value
+
+    References
+    ~~~~~~~~~~
+    1. Bayraktar, Z., Komurcu, M., Bossard, J.A. and Werner, D.H., 2013.
+       The wind driven optimization technique and its application in electromagnetics.
+       IEEE transactions on antennas and propagation, 61(5), pp.2745-2757.
+       https://doi.org/10.1109/TAP.2013.2238654
 
     Examples
     ~~~~~~~~
@@ -44,12 +61,6 @@ class OriginalWDO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
-
-    References
-    ~~~~~~~~~~
-    [1] Bayraktar, Z., Komurcu, M., Bossard, J.A. and Werner, D.H., 2013. The wind driven optimization
-    technique and its application in electromagnetics. IEEE transactions on antennas and
-    propagation, 61(5), pp.2745-2757.
     """
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, RT: int = 3, g_c: float = 0.2,
