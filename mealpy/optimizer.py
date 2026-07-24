@@ -4,18 +4,21 @@
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
 
-from typing import List, Union, Tuple, Dict
+from __future__ import annotations
+
+from typing import List, Union, Tuple, Dict, ClassVar
 import random
 import numpy as np
 from tqdm import tqdm
+from mealpy.utils.opt_info import OptInfo
 from mealpy.utils.agent import Agent
 from mealpy.utils.problem import Problem
-from math import gamma
 from mealpy.utils.history import History
 from mealpy.utils.target import Target
 from mealpy.utils.termination import Termination
 from mealpy.utils.logger import Logger
 from mealpy.utils.validator import Validator
+from math import gamma as mgama
 import concurrent.futures as parallel
 from functools import partial
 import os
@@ -26,8 +29,8 @@ class Optimizer:
     """
     The base class of all algorithms. All methods in this class will be inherited
 
-    Notes
-    ~~~~~
+    Note
+    ----
     + The function solve() is the most important method, trained the model
     + The parallel (multithreading or multiprocessing) is used in method: generate_population(), update_target_for_population()
     + The general format of:
@@ -42,6 +45,8 @@ class Optimizer:
     AVAILABLE_MODES = ["process", "thread", "swarm"]
     PARALLEL_MODES = ["process", "thread"]
     SUPPORTED_ARRAYS = [list, tuple, np.ndarray]
+    OPT_INFO: ClassVar[OptInfo | None] = None
+
 
     def __init__(self, **kwargs):
         super(Optimizer, self).__init__()
@@ -735,7 +740,7 @@ class Optimizer:
         """
         # u and v are two random variables which follow self.generator.normal distribution
         # sigma_u : standard deviation of u
-        sigma_u = np.power(gamma(1. + beta) * np.sin(np.pi * beta / 2) / (gamma((1 + beta) / 2.) * beta * np.power(2., (beta - 1) / 2)), 1. / beta)
+        sigma_u = np.power(mgama(1. + beta) * np.sin(np.pi * beta / 2) / (mgama((1 + beta) / 2.) * beta * np.power(2., (beta - 1) / 2)), 1. / beta)
         # sigma_v : standard deviation of v
         sigma_v = 1
         size = 1 if size is None else size
