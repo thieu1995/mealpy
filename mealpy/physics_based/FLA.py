@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalFLA(Optimizer):
@@ -63,6 +64,8 @@ class OriginalFLA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Fick's Law Algorithm", year=2023, difficulty="nightmare", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, C1: float = 0.5, C2: float = 2.0,
                  C3: float = 0.1, C4: float = 0.2, C5: float = 2.0, DD: float = 0.01, **kwargs: object) -> None:

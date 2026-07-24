@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalGRSA(Optimizer):
@@ -58,6 +59,8 @@ class OriginalGRSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="General Relativity Search Algorithm", year=2015, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_geometry: int = 5, w_max: float = 0.9,
                  w_min: float = 0.4, g_max: float = 0.5, g_min: float = 0.1, **kwargs: object) -> None:

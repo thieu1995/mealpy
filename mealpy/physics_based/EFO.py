@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevEFO(Optimizer):
@@ -52,6 +53,8 @@ class DevEFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Electromagnetic Field Optimization", difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r_rate: float = 0.3,
                  ps_rate: float = 0.85, p_field: float = 0.1, n_field: float = 0.45, **kwargs: object) -> None:
@@ -158,6 +161,8 @@ class OriginalEFO(DevEFO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Electromagnetic Field Optimization", year=2016, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r_rate: float = 0.3,
                  ps_rate: float = 0.85, p_field: float = 0.1, n_field: float = 0.45, **kwargs: object) -> None:

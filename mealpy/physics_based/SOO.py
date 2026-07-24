@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalSOO(Optimizer):
@@ -63,6 +64,13 @@ class OriginalSOO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Stellar Oscillation Optimizer", year=2025, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.INCORRECT_EQUATIONS, ScientificConcern.CODE_PSEUDOCODE_MISMATCH,
+                           ScientificConcern.AMBIGUOUS_METHODOLOGY, ScientificConcern.POOR_REPRODUCIBILITY
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)

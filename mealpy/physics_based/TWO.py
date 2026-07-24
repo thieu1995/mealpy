@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalTWO(Optimizer):
@@ -45,6 +46,8 @@ class OriginalTWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Tug of War Optimization", year=2017, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -160,6 +163,8 @@ class OppoTWO(OriginalTWO):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Tug of War Optimization (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(epoch, pop_size, **kwargs)
 
@@ -261,6 +266,8 @@ class LevyTWO(OriginalTWO):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Tug of War Optimization (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(epoch, pop_size, **kwargs)
 
@@ -319,7 +326,7 @@ class LevyTWO(OriginalTWO):
 
 class EnhancedTWO(OppoTWO, LevyTWO):
     """
-    The original version of: Enhenced Tug of War Optimization (ETWO)
+    The original version of: Enhanced Tug of War Optimization (ETWO)
 
     Parameters
     ----------
@@ -353,6 +360,8 @@ class EnhancedTWO(OppoTWO, LevyTWO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Enhanced Tug of War Optimization", year=2020, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

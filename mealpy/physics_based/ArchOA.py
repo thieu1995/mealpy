@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalArchOA(Optimizer):
@@ -57,6 +58,8 @@ class OriginalArchOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Archimedes Optimization Algorithm", year=2021, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2, c2: float = 6,
                  c3: float = 2, c4: float = 0.5, acc_max: float = 0.9, acc_min: float = 0.1, **kwargs: object) -> None:

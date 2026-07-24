@@ -4,6 +4,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalKOA(Optimizer):
@@ -47,6 +48,8 @@ class OriginalKOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Kepler Optimization Algorithm", year=2023, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 25, tc: int = 3,
                  lamda: float = 15, mu0: float = 0.1, **kwargs: object) -> None:

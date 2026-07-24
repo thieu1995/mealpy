@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalSA(Optimizer):
@@ -50,6 +51,8 @@ class OriginalSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Simulated Annealing", year=1983, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, temp_init: float = 100, step_size: float = 0.1, **kwargs: object) -> None:
         """
@@ -138,6 +141,8 @@ class GaussianSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Simulated Annealing (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, temp_init: float = 100,
                  cooling_rate: float = 0.99, scale: float = 0.1, **kwargs: object) -> None:
@@ -237,6 +242,8 @@ class SwarmSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Simulated Annealing (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, max_sub_iter: int = 5, t0: int = 1000, t1: int = 1, move_count: int = 5,
                  mutation_rate: float = 0.1, mutation_step_size: float = 0.1, mutation_step_size_damp: float = 0.99, **kwargs: object) -> None:

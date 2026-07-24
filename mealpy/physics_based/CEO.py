@@ -5,6 +5,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalCEO(Optimizer):
@@ -49,6 +50,8 @@ class OriginalCEO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Cosmic Evolution Optimization", year=2025, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 1000, pop_size: int = 50,
                  w1: float = 0.1, p_base: float = 0.2, alpha: float = 0.7, **kwargs: object) -> None:

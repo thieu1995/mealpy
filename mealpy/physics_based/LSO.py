@@ -6,6 +6,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.special import gammaincinv
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalLSO(Optimizer):
@@ -57,6 +58,8 @@ class OriginalLSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Light Spectrum Optimizer", year=2022, difficulty="nightmare", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ps: float = 0.05,
                  Pe: float = 0.6, Ph: float = 0.4, B: float = 0.05, **kwargs: object) -> None:
@@ -291,6 +294,8 @@ class DevLSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Light Spectrum Optimizer (Dev)", difficulty="nightmare", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ps: float = 0.05,
                  Pe: float = 0.6, B: float = 0.05, **kwargs: object) -> None:
