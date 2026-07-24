@@ -5,6 +5,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalEEFO(Optimizer):
@@ -49,12 +50,9 @@ class OriginalEEFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Electric Eel Foraging Optimization", year=2024, difficulty="medium", kind="original")
+
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
-        """
-        Args:
-            epoch (int): Maximum number of iterations, default = 10000
-            pop_size (int): Population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [10, 10000])

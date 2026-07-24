@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalFA(Optimizer):
@@ -53,6 +54,8 @@ class OriginalFA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Fireworks Algorithm", year=2010, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, max_sparks: int = 100, p_a: float = 0.04,
                  p_b: float = 0.8, max_ea: int = 40, m_sparks: int = 100, **kwargs: object) -> None:

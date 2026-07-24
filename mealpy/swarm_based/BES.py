@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalBES(Optimizer):
@@ -54,6 +55,8 @@ class OriginalBES(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Bald Eagle Search", year=2020, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, a_factor: int = 10, R_factor: float = 1.5,
                  alpha: float = 2.0, c1: float = 2.0, c2: float = 2.0, **kwargs: object) -> None:

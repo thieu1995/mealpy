@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalAVOA(Optimizer):
@@ -59,6 +60,8 @@ class OriginalAVOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="African Vultures Optimization Algorithm", year=2021, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p1: float = 0.6, p2: float = 0.4,
                  p3: float = 0.6, alpha: float = 0.8, gama: float = 2.5, **kwargs: object) -> None:

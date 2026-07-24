@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalFHO(Optimizer):
@@ -51,6 +52,13 @@ class OriginalFHO(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Fire Hawk Optimization", year=2022, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.FABRICATED_RESULTS, ScientificConcern.CODE_PSEUDOCODE_MISMATCH,
+                           ScientificConcern.AMBIGUOUS_METHODOLOGY, ScientificConcern.POOR_REPRODUCIBILITY
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)

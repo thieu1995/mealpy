@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalCSO(Optimizer):
@@ -67,6 +68,8 @@ class OriginalCSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Cat Swarm Optimization", year=2006, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mixture_ratio: float = 0.15, smp: int = 5,
                  spc: bool = False, cdc: float = 0.8, srd: float = 0.15, c1: float = 0.4,

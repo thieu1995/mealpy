@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalSquirrelSA(Optimizer):
@@ -54,6 +55,8 @@ class OriginalSquirrelSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Squirrel Search Algorithm", year=2019, difficulty="nightmare", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_food_sources=4, predator_prob=0.1,
                  gliding_constant=1.9, scaling_factor=18, beta=1.5, **kwargs: object) -> None:

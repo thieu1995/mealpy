@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalFFA(Optimizer):
@@ -56,6 +57,8 @@ class OriginalFFA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Firefly Algorithm", year=2009, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, gamma: float = 0.001, beta_base: float = 2,
                  alpha: float = 0.2, alpha_damp: float = 0.99, delta: float = 0.05, exponent: int = 2, **kwargs: object) -> None:
@@ -173,6 +176,8 @@ class MLFA_GD(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Multiple Learning FA based on Gender Difference", year=2025, difficulty="medium", kind="variant")
 
     def __init__(self, epoch=10000, pop_size=100, m_females: int=3, beta0: float=1.0,
                  gama: float=1.0, alpha: float=0.2, k_rw: int=10, **kwargs):

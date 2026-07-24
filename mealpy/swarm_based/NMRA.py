@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalNMRA(Optimizer):
@@ -45,6 +46,8 @@ class OriginalNMRA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Naked Mole-Rat Algorithm", year=2019, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pb: float = 0.75, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -123,6 +126,8 @@ class ImprovedNMRA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Naked Mole-Rat Algorithm (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, pb=0.75, pm=0.01, **kwargs):
         """

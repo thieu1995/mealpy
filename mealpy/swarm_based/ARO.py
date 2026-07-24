@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalARO(Optimizer):
@@ -48,6 +49,8 @@ class OriginalARO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Artificial Rabbits Optimization", year=2022, difficulty="easy", kind="original")
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(**kwargs)
@@ -96,7 +99,7 @@ class OriginalARO(Optimizer):
 
 class LARO(Optimizer):
     """
-    The original version of:  Lévy flight Artificial Rabbit Algorithm (LARO)
+    The original version of: Levy flight Artificial Rabbit Algorithm (LARO)
 
     Parameters
     ----------
@@ -130,6 +133,8 @@ class LARO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Levy flight Artificial Rabbit Algorithm", year=2022, difficulty="medium", kind="variant")
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(**kwargs)
@@ -226,6 +231,8 @@ class IARO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Improved Artificial Rabbits Optimization (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         super().__init__(**kwargs)

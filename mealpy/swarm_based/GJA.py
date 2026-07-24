@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalGJA(Optimizer):
@@ -65,6 +66,8 @@ class OriginalGJA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Gekko Japonicus Algorithm", year=2025, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, beta_start: float = 1.2,
                  beta_end: float = 0.3, alpha_ratio: float = 0.6, **kwargs: object) -> None:

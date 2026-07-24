@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class DevSMO(Optimizer):
@@ -59,6 +60,13 @@ class DevSMO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Spider Monkey Optimization", year=2014, difficulty="nightmare", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.AMBIGUOUS_METHODOLOGY,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.FABRICATED_RESULTS,
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, max_groups: int = 5, perturbation_rate: float = 0.7, **kwargs):
         """

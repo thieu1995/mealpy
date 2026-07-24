@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalGTO(Optimizer):
@@ -53,6 +54,14 @@ class OriginalGTO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Giant Trevally Optimizer", year=2022, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.FABRICATED_RESULTS, ScientificConcern.LACK_OF_NOVELTY,
+                           ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.POOR_REPRODUCIBILITY
+                       ))
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, A: float = 0.4, H: float = 2.0, **kwargs: object) -> None:
         """
         Args:
@@ -182,6 +191,8 @@ class Matlab102GTO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Giant Trevally Optimizer", difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
@@ -305,6 +316,8 @@ class Matlab101GTO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Giant Trevally Optimizer", difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)

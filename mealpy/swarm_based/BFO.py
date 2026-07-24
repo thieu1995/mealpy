@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalBFO(Optimizer):
@@ -71,6 +72,8 @@ class OriginalBFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Bacterial Foraging Optimization", year=2002, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, Ci: float = 0.01, Ped: float = 0.25, Nc: int = 5, Ns: int = 4,
                  d_attract: float = 0.1, w_attract: float = 0.2, h_repels: float = 0.1, w_repels: float = 10, **kwargs: object) -> None:
@@ -216,6 +219,8 @@ class ABFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Adaptive Bacterial Foraging Optimization", year=2019, difficulty="hard", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, C_s: float = 0.1, C_e: float = 0.001,
                  Ped: float = 0.01, Ns: int = 4, N_adapt: int = 2, N_split: int = 40, **kwargs: object) -> None:

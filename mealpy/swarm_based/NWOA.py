@@ -37,6 +37,7 @@ Danger
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalNWOA(Optimizer):
@@ -81,6 +82,8 @@ class OriginalNWOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Narwhal Optimization Algorithm", year=2025, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, amplitude: float = 1.0, delta_decay: float = 0.01,
                  lamda_decay: float = 0.001, **kwargs: object) -> None:
@@ -250,6 +253,8 @@ class OriginalNO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Narwhal Optimization", year=2024, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha=2.0, sigma0=2.0, **kwargs: object) -> None:
         """

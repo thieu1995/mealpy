@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalBA(Optimizer):
@@ -57,6 +58,8 @@ class OriginalBA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Bat-inspired Algorithm", year=2010, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, loudness: float = 0.8,
                  pulse_rate: float = 0.95, pf_min: float = 0., pf_max: float = 10., **kwargs: object) -> None:
@@ -162,6 +165,8 @@ class AdaptiveBA(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Adaptive Bat-inspired Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: object = 100, loudness_min: float = 1.0, loudness_max: float = 2.0,
                  pr_min: float = 0.15, pr_max: float = 0.85, pf_min: float = 0., pf_max: float = 10., **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -261,6 +266,8 @@ class DevBA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Bat-inspired Algorithm (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, pulse_rate=0.95, pf_min=0., pf_max=10., **kwargs):
         super().__init__(**kwargs)

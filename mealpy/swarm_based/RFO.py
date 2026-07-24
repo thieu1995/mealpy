@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalRFO(Optimizer):
@@ -21,7 +22,7 @@ class OriginalRFO(Optimizer):
     phi_0 : float
         Fox observation angle set at the beginning. Default is 0.785 (pi/4).
     theta : float
-        Weather conditions parameter. Default is 0.5.
+        Weather condition parameter. Default is 0.5.
 
     References
     ----------
@@ -47,6 +48,8 @@ class OriginalRFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Red Fox Optimization", year=2021, difficulty="medium", kind="original")
 
     def __init__(self, epoch=10000, pop_size: int = 100, phi_0: float = 0.785, theta: float = 0.5, **kwargs: object) -> None:
         super().__init__(**kwargs)

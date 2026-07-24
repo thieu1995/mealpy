@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class DevEPC(Optimizer):
@@ -68,6 +69,14 @@ class DevEPC(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Emperor Penguins Colony", year=2019, difficulty="hard", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.FABRICATED_RESULTS, ScientificConcern.LACK_OF_NOVELTY,
+                           ScientificConcern.RESEARCH_MISCONDUCT, ScientificConcern.POOR_REPRODUCIBILITY,
+                           ScientificConcern.AMBIGUOUS_METHODOLOGY, ScientificConcern.CODE_PSEUDOCODE_MISMATCH
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, heat_damping_factor: float = 0.95,
                  mutation_factor: float = 0.5, spiral_a: float = 1.0, spiral_b: float = 0.5, **kwargs):

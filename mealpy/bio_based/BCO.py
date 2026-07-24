@@ -59,7 +59,7 @@ class OriginalBCO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    OPT_INFO = OptInfo(name="Artificial Algae Algorithm", year=2012, difficulty="medium", kind="original")
+    OPT_INFO = OptInfo(name="Bacterial Colony Optimization", year=2012, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_min: float = 0.01, c_max: float = 0.2,
                  n_chemotaxis: int = 1, max_swim_steps: int = 4, migration_prob: float = 0.1, **kwargs: object) -> None:

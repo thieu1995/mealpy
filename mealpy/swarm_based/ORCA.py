@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalOrcaOA(Optimizer):
@@ -48,6 +49,8 @@ class OriginalOrcaOA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Orca Optimization Algorithm", year=2020, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_percent: float=0.1, R0: float=2.0, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -163,6 +166,8 @@ class OriginalOrcaPA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Orca Predation Algorithm", year=2020, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p1: float=0.5, p2: float=0.1, q: float=0.9, **kwargs: object) -> None:
         super().__init__(**kwargs)

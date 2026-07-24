@@ -8,6 +8,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalAHO(Optimizer):
@@ -67,6 +68,12 @@ class OriginalAHO(Optimizer):
     >>> g_best = model.solve(problem)
     >>> print(f"Best solution: {g_best.solution}, Best fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Archerfish Hunting Optimizer", year=2022, difficulty="hard", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.CODE_PSEUDOCODE_MISMATCH
+                       ))
     
     def __init__(self, epoch: int = 10000, pop_size: int = 100, theta: float = 0.26, omega: float = 0.01, **kwargs):
         """

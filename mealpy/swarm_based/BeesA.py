@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class CleverBookBeesA(Optimizer):
@@ -61,6 +62,8 @@ class CleverBookBeesA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Bees Algorithm (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_elites: int = 16, n_others: int = 4,
                  patch_size: float = 5.0, patch_reduction: float = 0.985, n_sites: int = 3, n_elite_sites: int = 1, **kwargs: object) -> None:
@@ -185,6 +188,8 @@ class OriginalBeesA(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Bees Algorithm", year=2006, difficulty="medium", kind="original")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, selected_site_ratio: float = 0.5,
                  elite_site_ratio: float = 0.4, selected_site_bee_ratio: float = 0.1, elite_site_bee_ratio: float = 2.0,
                  dance_radius: float = 0.1, dance_reduction: float = 0.99, **kwargs: object) -> None:
@@ -297,6 +302,8 @@ class ProbBeesA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Probabilistic Bees Algorithm", year=2015, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, recruited_bee_ratio: float = 0.1,
                  dance_radius: float = 0.1, dance_reduction: float = 0.99, **kwargs: object) -> None:

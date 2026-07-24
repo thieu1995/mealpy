@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalPSO(Optimizer):
@@ -51,6 +52,8 @@ class OriginalPSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Particle Swarm Optimization", year=1995, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05, w: float = 0.4, **kwargs: object) -> None:
         """
@@ -157,6 +160,8 @@ class AIW_PSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Adaptive Inertia Weight Particle Swarm Optimization", year=2006, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05, alpha: float = 0.4, **kwargs: object) -> None:
         """
@@ -270,6 +275,9 @@ class LDW_PSO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Linearly Decreasing inertia Weight Particle Swarm Optimization", year=1995,
+                       difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05,
                  w_min: float = 0.4, w_max: float = 0.9, **kwargs: object) -> None:
         """
@@ -374,6 +382,8 @@ class P_PSO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Phasor Particle Swarm Optimization", year=2019, difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -471,6 +481,8 @@ class HPSO_TVAC(P_PSO):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Hierarchical PSO Time-Varying Acceleration", year=2017, difficulty="easy", kind="variant")
+
     def __init__(self, epoch=10000, pop_size=100, ci=0.5, cf=0.1, **kwargs):
         """
         Args:
@@ -564,6 +576,8 @@ class C_PSO(P_PSO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Chaos Particle Swarm Optimization", year=2005, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c1: float = 2.05, c2: float = 2.05,
                  w_min: float = 0.4, w_max: float = 0.9, **kwargs: object) -> None:
@@ -694,6 +708,8 @@ class CL_PSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Comprehensive Learning Particle Swarm Optimization", year=2006, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_local: float = 1.2,
                  w_min: float = 0.4, w_max: float = 0.9, max_flag: int = 7, **kwargs: object) -> None:

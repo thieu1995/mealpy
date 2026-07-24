@@ -8,6 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevSSpiderA(Optimizer):
@@ -57,6 +58,8 @@ class DevSSpiderA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Social Spider Algorithm (Dev)", year=2015, difficulty="hard", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r_a: float = 1.0, p_c: float = 0.7, p_m: float = 0.1, **kwargs: object) -> None:
         """

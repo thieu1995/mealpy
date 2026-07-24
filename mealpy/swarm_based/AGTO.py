@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalAGTO(Optimizer):
@@ -53,6 +54,9 @@ class OriginalAGTO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Artificial Gorilla Troops Optimization", year=2021, difficulty="medium", kind="original")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p1: float = 0.03, p2: float = 0.8, beta: float = 3.0, **kwargs: object) -> None:
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
@@ -161,6 +165,8 @@ class MGTO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Modified Gorilla Troops Optimization", year=2023, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.03, **kwargs: object) -> None:
         """

@@ -49,7 +49,7 @@ class OriginalBMO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    OPT_INFO = OptInfo(name="Artificial Algae Algorithm", year=2015, difficulty="easy", kind="original",
+    OPT_INFO = OptInfo(name="Barnacles Mating Optimizer", year=2020, difficulty="easy", kind="original",
                        scientific_status="questionable",
                        concerns=(
                            ScientificConcern.LACK_OF_NOVELTY,

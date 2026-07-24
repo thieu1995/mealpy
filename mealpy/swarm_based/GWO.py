@@ -8,6 +8,7 @@ import numpy as np
 from mealpy.utils.chaotic import ChaoticMap as CM
 from mealpy.utils.fuzzy import FuzzySystem as FS
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalGWO(Optimizer):
@@ -49,6 +50,8 @@ class OriginalGWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Grey Wolf Optimizer", year=2014, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -130,6 +133,8 @@ class RW_GWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Random Walk Grey Wolf Optimizer", year=2019, difficulty="easy", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -233,6 +238,8 @@ class GWO_WOA(OriginalGWO):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Hybrid Grey Wolf - Whale Optimization Algorithm", year=2022, difficulty="easy", kind="hybrid")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -320,6 +327,8 @@ class IGWO(OriginalGWO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Improved Grey Wolf Optimization", year=2018, difficulty="easy", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, a_min: float = 0.02, a_max: float = 2.2, **kwargs: object) -> None:
         """
@@ -411,6 +420,8 @@ class ChaoticGWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Chaotic-based Grey Wolf Optimizer", year=2018, difficulty="medium", kind="variant")
 
     CHAOTIC_MAPS = {
         "bernoulli": CM.bernoulli_map,
@@ -525,6 +536,8 @@ class FuzzyGWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Fuzzy Hierarchical Operator - Grey Wolf Optimizer", year=2017, difficulty="easy", kind="variant")
+
     FUZZY_OPERATORS = ["increase", "decrease"]
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
@@ -626,6 +639,8 @@ class IncrementalGWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Incremental model-based Grey Wolf Optimizer", year=2021, difficulty="easy", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
                  explore_factor: float = 1.5, **kwargs: object) -> None:
         """
@@ -717,12 +732,9 @@ class ExGWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Expanded Grey Wolf Optimizer", year=2021, difficulty="easy", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
@@ -814,6 +826,8 @@ class DS_GWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Diversity enhanced Strategy based Grey Wolf Optimizer", year=2022, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
                  explore_ratio: float = 0.4, n_groups: int = 5, **kwargs: object) -> None:
@@ -937,6 +951,8 @@ class IOBL_GWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Improved Opposite-based Learning Grey Wolf Optimizer", year=2021, difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -1054,6 +1070,8 @@ class OGWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Opposition-based learning Grey Wolf Optimizer", year=2021, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
                  miu_factor: float = 2.0, jumping_rate: float = 0.05, **kwargs: object) -> None:
@@ -1179,6 +1197,8 @@ class ER_GWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Efficient and Robust Grey Wolf Optimizer", year=2020, difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100,
                  a_initial: float = 2.0, a_final: float = 0.0, miu_factor: float = 1.0001, **kwargs: object) -> None:
         """
@@ -1281,12 +1301,9 @@ class CG_GWO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Cauchy‑Gaussian mutation and improved search strategy GWO", year=2022, difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

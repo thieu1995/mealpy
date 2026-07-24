@@ -8,6 +8,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalCCO(Optimizer):
@@ -70,6 +71,13 @@ class OriginalCCO(Optimizer):
         g_best = model.solve(problem_dict)
         print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Cuckoo Catfish Optimizer", year=2025, difficulty="hard", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.AMBIGUOUS_METHODOLOGY
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, alpha=1.34, beta=0.3, **kwargs):
         super().__init__(**kwargs)

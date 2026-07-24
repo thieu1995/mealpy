@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalWSO(Optimizer):
@@ -76,6 +77,13 @@ class OriginalWSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name=" White Shark Optimizer", year=2022, difficulty="nightmare", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.LACK_OF_NOVELTY,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.FABRICATED_RESULTS,
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, tau: float=4.125, p_min: float=0.5, p_max: float=1.5,
                  f_min: float=0.07, f_max: float=0.75, a0: float=6.25, a1: float=100.0, a2: float=0.0005, **kwargs):

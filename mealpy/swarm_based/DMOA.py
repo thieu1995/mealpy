@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalDMOA(Optimizer):
@@ -58,6 +59,8 @@ class OriginalDMOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Dwarf Mongoose Optimization Algorithm", year=2022, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, n_baby_sitter: int = 3, peep: float = 2, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -169,6 +172,8 @@ class DevDMOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Dwarf Mongoose Optimization Algorithm (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, peep: float = 2, **kwargs: object) -> None:
         super().__init__(**kwargs)

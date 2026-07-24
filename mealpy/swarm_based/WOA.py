@@ -6,6 +6,7 @@
  
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalWOA(Optimizer):
@@ -47,6 +48,8 @@ class OriginalWOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Whale Optimization Algorithm", year=2016, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -124,6 +127,8 @@ class DevWOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Whale Optimization Algorithm (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -212,6 +217,8 @@ class HI_WOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Hybrid Improved Whale Optimization Algorithm", year=2019, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, feedback_max: int = 10, **kwargs: object) -> None:
         """
@@ -326,6 +333,9 @@ class OriginalWOAmM(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Whale Optimization Algorithm with Modified Mutualism", year=2021,
+                       difficulty="hard", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mut_rand: bool = False, patience: int = 0,
                  restart_rate: float = 0.2, bound: str = "clip", **kwargs) -> None:
@@ -530,6 +540,8 @@ class DevWOAmM(OriginalWOAmM):
        A novel enhanced whale optimization algorithm for global optimization. Computers & Industrial Engineering, 153, 107086.
        https://doi.org/10.1016/j.cie.2020.107086
     """
+
+    OPT_INFO = OptInfo(name="Whale Optimization Algorithm with Modified Mutualism (Dev)", difficulty="hard", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, mut_rand: bool = False, patience: int = 0,
                  restart_rate: float = 0.2, bound: str = "clip", **kwargs) -> None:

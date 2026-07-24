@@ -8,6 +8,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalChameleonSA(Optimizer):
@@ -76,6 +77,13 @@ class OriginalChameleonSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Chameleon Swarm Algorithm", year=2021, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.SUSPECTED_PLAGIARISM,
+                           ScientificConcern.AMBIGUOUS_METHODOLOGY, ScientificConcern.POOR_REPRODUCIBILITY
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, pp: float=0.1, p1: float=0.25, p2: float=1.50,
                  c1: float=1.75, c2: float=1.75, gama: float=1.0, alpha: float=3.5, rho: float=1.0, **kwargs):
@@ -162,7 +170,6 @@ class IChameleonSA(Optimizer):
     """
     The original version of: Improved Chameleon Swarm Algorithm (ICSA)
 
-
     Parameters
     ----------
     epoch : int
@@ -211,6 +218,13 @@ class IChameleonSA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Improved Chameleon Swarm Algorithm", year=2024, difficulty="hard", kind="variant",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.FABRICATED_RESULTS, ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.AMBIGUOUS_METHODOLOGY, ScientificConcern.POOR_REPRODUCIBILITY
+                       ))
 
     def __init__(self, epoch=1000, pop_size=100, r_chaos: float=0.3, k_spiral: float=5.0, p1: float=2.0, p2: float=2.0, **kwargs):
         super().__init__(**kwargs)

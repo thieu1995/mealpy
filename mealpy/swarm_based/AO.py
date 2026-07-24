@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalAO(Optimizer):
@@ -44,6 +45,8 @@ class OriginalAO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Aquila Optimization", year=2021, difficulty="easy", kind="original")
 
     def __init__(self, epoch=10000, pop_size=100, **kwargs):
         """
@@ -147,6 +150,8 @@ class AAO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Adaptive Aquila Optimizer", year=2024, difficulty="medium", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, sharpness=10.0, sigmoid_midpoint=0.5, **kwargs):
         super().__init__(**kwargs)

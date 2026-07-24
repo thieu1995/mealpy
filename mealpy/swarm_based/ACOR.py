@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalACOR(Optimizer):
@@ -51,6 +52,8 @@ class OriginalACOR(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Ant Colony Optimization Continuous", year=2008, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, sample_count: int = 25,
                  intent_factor: float = 0.5, zeta: float = 1.0, **kwargs: object) -> None:

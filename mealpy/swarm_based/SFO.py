@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalSFO(Optimizer):
@@ -50,6 +51,8 @@ class OriginalSFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="SailFish Optimizer", year=2019, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.1, AP: float = 4.0, epsilon: float = 0.0001, **kwargs: object) -> None:
         """
@@ -150,7 +153,7 @@ class OriginalSFO(Optimizer):
 
 class ImprovedSFO(Optimizer):
     """
-    The original version: Improved Sailfish Optimizer (I-SFO)
+    Our improved version: Improved Sailfish Optimizer (I-SFO)
 
     Notes:
         + Energy equation is reformed
@@ -179,6 +182,9 @@ class ImprovedSFO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Improved Sailfish Optimizer (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pp: float = 0.1, **kwargs: object) -> None:
         """
         Args:
