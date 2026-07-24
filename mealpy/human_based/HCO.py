@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalHCO(Optimizer):
@@ -61,6 +62,13 @@ class OriginalHCO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Human Conception Optimizer", year=2022, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.SUSPECTED_PLAGIARISM,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, wfp: float = 0.65,
                  wfv: float = 0.05, c1: float = 1.4, c2: float = 1.4, **kwargs: object) -> None:

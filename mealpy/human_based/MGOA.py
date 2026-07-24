@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalMGOA(Optimizer):
@@ -46,6 +47,8 @@ class OriginalMGOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Market Game Optimization Algorithm", year=2025, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 5000, pop_size: int = 50, attract_dim_rate=0.2, **kwargs: object) -> None:
         """

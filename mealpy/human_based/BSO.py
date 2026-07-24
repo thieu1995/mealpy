@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class ImprovedBSO(Optimizer):
@@ -53,6 +54,8 @@ class ImprovedBSO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Brain Storm Optimization (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, m_clusters: int = 5,
                  p1: float = 0.25, p2: float = 0.5, p3: float = 0.75, p4: float = 0.5, **kwargs: object) -> None:
@@ -179,6 +182,8 @@ class OriginalBSO(ImprovedBSO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Brain Storm Optimization", year=2011, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, m_clusters: int = 5, p1: float = 0.2,
                  p2: float = 0.8, p3: float = 0.4, p4: float = 0.5, slope: int = 20, **kwargs: object) -> None:

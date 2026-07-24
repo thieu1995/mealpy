@@ -8,6 +8,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevBRO(Optimizer):
@@ -51,6 +52,8 @@ class DevBRO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Battle Royale Optimization (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, threshold: float = 3, **kwargs: object) -> None:
         """
@@ -183,6 +186,8 @@ class OriginalBRO(DevBRO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Battle Royale Optimization", year=2021, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, threshold: float = 3, **kwargs: object) -> None:
         """

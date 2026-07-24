@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalCDDO(Optimizer):
@@ -59,6 +60,13 @@ class OriginalCDDO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Child Drawing Development Optimization", year=2022, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.INCORRECT_EQUATIONS, ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pattern_size=10,
                  creativity_rate=0.1, **kwargs: object) -> None:

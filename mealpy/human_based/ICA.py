@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalICA(Optimizer):
@@ -58,6 +59,8 @@ class OriginalICA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Imperialist Competitive Algorithm", year=2007, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, empire_count: int = 5, assimilation_coeff: float = 1.5, revolution_prob: float = 0.05,
                  revolution_rate: float = 0.1, revolution_step_size: float = 0.1, zeta: float = 0.1, **kwargs: object) -> None:

@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalCA(Optimizer):
@@ -23,10 +24,9 @@ class OriginalCA(Optimizer):
 
     References
     ~~~~~~~~~~
-    1. Chen, B., Zhao, L. and Lu, J.H., 2009, April.
-       Wind power forecast using RBF network and culture algorithm.
-       In 2009 International Conference on Sustainable Power Generation and Supply (pp. 1-6). IEEE.
-       https://doi.org/10.1109/SUPERGEN.2009.5348174
+    1. Reynolds, R. G. (1994, February). An introduction to cultural algorithms.
+       In Proceedings of the third annual conference on evolutionary programming (Vol. 24, No. 26, pp. 131-139).
+       https://doi.org/10.1142/9789814534116
 
     Examples
     ~~~~~~~~
@@ -47,6 +47,8 @@ class OriginalCA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Culture Algorithm", year=1994, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, accepted_rate: float = 0.15, **kwargs: object) -> None:
         """

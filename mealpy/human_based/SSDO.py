@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalSSDO(Optimizer):
@@ -50,12 +51,9 @@ class OriginalSSDO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Social Ski-Driver Optimization", year=2020, difficulty="medium", kind="original")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
-        """
-        Args:
-            epoch (int): maximum number of iterations, default = 10000
-            pop_size (int): number of population size, default = 100
-        """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])

@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalPO(Optimizer):
@@ -53,6 +54,8 @@ class OriginalPO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Political Optimizer", year=2020, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 8, lamda_max: float=1.0, **kwargs: object) -> None:
         """

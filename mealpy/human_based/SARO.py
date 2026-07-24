@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevSARO(Optimizer):
@@ -48,6 +49,8 @@ class DevSARO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Search And Rescue Optimization", difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, se: float = 0.5, mu: int = 15, **kwargs: object) -> None:
         """
@@ -177,6 +180,8 @@ class OriginalSARO(DevSARO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Search And Rescue Optimization (Dev)", year=2019, difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, se: float = 0.5, mu: int = 15, **kwargs: object) -> None:
         """

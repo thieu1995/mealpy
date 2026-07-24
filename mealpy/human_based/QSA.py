@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevQSA(Optimizer):
@@ -49,6 +50,8 @@ class DevQSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Queuing Search Algorithm (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -227,6 +230,8 @@ class OppoQSA(DevQSA):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Queuing Search Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -303,6 +308,8 @@ class LevyQSA(DevQSA):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Queuing Search Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -364,7 +371,7 @@ class LevyQSA(DevQSA):
 
 class ImprovedQSA(OppoQSA, LevyQSA):
     """
-    The original version of: Improved Queuing Search Algorithm (QSA)
+    The original version of: Novel Queuing Search Variant (nQSV)
 
     Parameters
     ----------
@@ -399,6 +406,8 @@ class ImprovedQSA(OppoQSA, LevyQSA):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Novel Queuing Search Variant", year=2021, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -458,6 +467,8 @@ class OriginalQSA(DevQSA):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Queuing Search Algorithm", year=2018, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         super().__init__(epoch, pop_size, **kwargs)

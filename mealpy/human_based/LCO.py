@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalLCO(Optimizer):
@@ -45,6 +46,8 @@ class OriginalLCO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Life Choice-based Optimization", year=2020, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r1: float = 2.35, **kwargs: object) -> None:
         """
@@ -131,6 +134,8 @@ class DevLCO(OriginalLCO):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Life Choice-based Optimization (Dev)", difficulty="easy", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, r1: float = 2.35, **kwargs: object) -> None:
         """
         Args:
@@ -211,6 +216,8 @@ class ImprovedLCO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Life Choice-based Optimization (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

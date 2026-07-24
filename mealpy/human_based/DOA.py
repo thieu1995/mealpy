@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalDOA(Optimizer):
@@ -57,6 +58,13 @@ class OriginalDOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Dream Optimization Algorithm", year=2025, difficulty="hard", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.QUESTIONABLE_MATH, ScientificConcern.INCORRECT_EQUATIONS,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
