@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevGCO(Optimizer):
@@ -46,6 +47,8 @@ class DevGCO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Germinal Center Optimization (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, cr: float = 0.7, wf: float = 1.25, **kwargs: object) -> None:
         """
@@ -145,6 +148,8 @@ class OriginalGCO(DevGCO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Germinal Center Optimization", year=2018, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, cr: float = 0.7, wf: float = 1.25, **kwargs: object) -> None:
         """

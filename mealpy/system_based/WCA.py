@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalWCA(Optimizer):
@@ -57,6 +58,12 @@ class OriginalWCA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Water Cycle Algorithm", year=2012, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.SUSPECTED_PLAGIARISM, ScientificConcern.AMBIGUOUS_METHODOLOGY
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, nsr: int = 4, wc: float = 2.0, dmax: float = 1e-6, **kwargs: object) -> None:
         """

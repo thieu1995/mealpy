@@ -7,6 +7,7 @@
 from scipy.stats import cauchy, norm
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalLSHADEcnEpSin(Optimizer):
@@ -61,6 +62,9 @@ class OriginalLSHADEcnEpSin(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name=" Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood",
+                       year=2017, difficulty="nightmare", kind="sota")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5,
                  freq: float = 0.5, memory_size: int = 5, ps: float = 0.5, pc: float = 0.4,

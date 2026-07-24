@@ -7,6 +7,7 @@
 from typing import Tuple, List
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalIMODE(Optimizer):
@@ -50,6 +51,8 @@ class OriginalIMODE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Improved Multi-operator Differential Evolution Algorithm", year=2020, difficulty="nightmare", kind="sota")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, memory_size: int = 5,
                  archive_size: int = 20, **kwargs: object) -> None:
