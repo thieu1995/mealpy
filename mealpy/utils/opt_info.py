@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
 from typing import Literal
 
 
@@ -17,7 +17,11 @@ AlgorithmKind = Literal["original", "variant", "hybrid", "sota", "developed"]
 ScientificStatus = Literal["normal", "questionable", "under_investigation", "withdrawn", "retracted"]
 
 
-class ScientificConcern(StrEnum):
+class ScientificConcern(str, Enum):
+    """
+    Scientific concerns associated with an optimization algorithm.
+    """
+
     SUSPECTED_PLAGIARISM = "suspected_plagiarism"
     SUSPECTED_SELF_PLAGIARISM = "suspected_self_plagiarism"
     LACK_OF_NOVELTY = "lack_of_novelty"
@@ -33,8 +37,12 @@ class ScientificConcern(StrEnum):
     AMBIGUOUS_METHODOLOGY = "ambiguous_methodology"
     CODE_PSEUDOCODE_MISMATCH = "code_pseudocode_mismatch"
 
+    def __str__(self) -> str:
+        """Return the string value of the enum member."""
+        return self.value
 
-@dataclass(frozen=True, slots=True)
+
+@dataclass(frozen=True)
 class OptInfo:
     """
     Metadata used to generate the algorithm classification table.
