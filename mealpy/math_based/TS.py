@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalTS(Optimizer):
@@ -56,6 +57,8 @@ class OriginalTS(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Tabu Search", year=2004, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, tabu_size: int = 5,
                  neighbour_size: int = 10, perturbation_scale: float = 0.05, **kwargs: object) -> None:

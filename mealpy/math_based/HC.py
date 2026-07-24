@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalHC(Optimizer):
@@ -52,6 +53,8 @@ class OriginalHC(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Hill Climbing", year=1993, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 2, neighbour_size: int = 50, **kwargs: object) -> None:
         """
@@ -127,6 +130,8 @@ class SwarmHC(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Swarm-based Hill Climbing", difficulty="easy", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, neighbour_size=10, **kwargs):
         """

@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalAOA(Optimizer):
@@ -51,6 +52,8 @@ class OriginalAOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Arithmetic Optimization Algorithm", year=2021, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 5,
                  miu: float = 0.5, moa_min: float = 0.2, moa_max: float = 0.9, **kwargs: object) -> None:

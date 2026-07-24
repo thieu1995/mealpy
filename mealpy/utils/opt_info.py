@@ -30,6 +30,8 @@ class ScientificConcern(StrEnum):
     FABRICATED_RESULTS = "fabricated_results"
     PUBLIC_INTEGRITY_DISCUSSION = "public_integrity_discussion"
     EXPRESSION_OF_CONCERN = "expression_of_concern"
+    AMBIGUOUS_METHODOLOGY = "ambiguous_methodology"
+    CODE_PSEUDOCODE_MISMATCH = "code_pseudocode_mismatch"
 
 
 @dataclass(frozen=True, slots=True)

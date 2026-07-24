@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalCircleSA(Optimizer):
@@ -46,6 +47,8 @@ class OriginalCircleSA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Circle Search Algorithm", year=2022, difficulty="easy", kind="original")
 
     def __init__(self, epoch=10000, pop_size=100, c_factor=0.8, **kwargs):
         super().__init__(**kwargs)
