@@ -14,8 +14,8 @@ class History:
     """
     A History class is responsible for saving each iteration's output.
 
-    Notes
-    ~~~~~
+    Note
+    ----
     + Access to variables in this class:
         + list_global_best: List of global best SOLUTION found so far in all previous generations
         + list_current_best: List of current best SOLUTION in each previous generations
@@ -27,7 +27,7 @@ class History:
         + list_exploration: List of EXPLORATION percentages for all generations
         + list_global_worst: List of global worst SOLUTION found so far in all previous generations
         + list_current_worst: List of current worst SOLUTION in each previous generations
-        + list_population: List of POPULATION in each generations
+        + list_population: List of POPULATION in each generation
         + **Warning**, the last variable 'list_population' can cause the error related to 'memory' when saving model.
             Better to set parameter 'save_population' to False in the input problem dictionary to not using it.
 

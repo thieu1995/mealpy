@@ -12,8 +12,8 @@ class Termination:
     """
     Define custom single/multiple Stopping Conditions (termination criteria) for the Optimizer.
 
-    Notes
-    ~~~~~
+    Note
+    ----
     + By default, the stopping condition in the Optimizer class is based on the maximum number of generations (epochs/iterations).
     + Using this class allows you to override the default termination criteria. If multiple stopping conditions are specified, the first one that occurs will be used.
 

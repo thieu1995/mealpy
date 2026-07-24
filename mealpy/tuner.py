@@ -53,7 +53,6 @@ class ParameterGrid:
     True
     >>> ParameterGrid(grid)[1] == {'kernel': 'rbf', 'gamma': 1}
     True
-
     """
 
     def __init__(self, param_grid):
@@ -148,20 +147,28 @@ class ParameterGrid:
 
 
 class Tuner:
-    """Tuner utility class.
+    """
+    Hyperparameter tuning utility for optimization algorithms.
 
-    This is a feature that enables the tuning of hyper-parameters for an algorithm.
-    It also supports exporting results in various formats, such as Pandas DataFrame, JSON, and CSV.
-    This feature provides a better option compared to using GridSearchCV or ParameterGrid from the scikit-learn library to tune hyper-parameters
+    Note
+    ----
+    This class provides an automated mechanism to tune hyper-parameters for optimization
+    algorithms, serving as a specialized alternative to scikit-learn's GridSearchCV.
+    It supports concurrent execution and result exportation in formats like CSV, JSON, and
+    Pandas DataFrame.
 
-    The important functions to note are 'execute()' and resolve()"
+    Parameters
+    ----------
+    algorithm : Optimizer or str
+        The optimization algorithm instance to tune.
+    param_grid : dict or list of dict
+        Dictionary with parameter names (`str`) as keys and lists of parameter settings
+        to try as values, or a list of such dictionaries.
 
-    Args:
-        algorithm (Optimizer): the algorithm/optimizer to tune
-        param_grid (dict, list): dict or list of dictionaries
-        n_trials (int): number of repetitions
-        mode (str): set the mode to run (sequential, thread, process), default="sequential"
-        n_workers (int): effected only when mode is "thread" or "process".
+    Note
+    ----
+    The core workflow revolves around calling the `execute()` method to perform the tuning
+    process, followed by `resolve()` to extract or re-run the optimal configuration.
 
     Examples
     --------
@@ -352,20 +359,31 @@ class Tuner:
 
     def execute(self, problem: Union[Dict, Problem] = None, termination: Union[Dict, Termination] = None,
                 n_trials: int = 2, n_jobs: int = None, mode: str = "single", n_workers: int = 2, verbose: bool = True) -> None:
-        """Execute Tuner utility
+        """
+        Execute the Tuner utility to evaluate hyperparameter configurations.
 
-        Args:
-            problem (dict, Problem): An instance of Problem class or problem dictionary
-            termination (None, dict, Termination): An instance of Termination class or termination dictionary
-            n_trials (int): Number of trials on the Problem
-            n_jobs (int, None): Speed up this task (run multiple trials at the same time) by using multiple processes. (<=1 or None: sequential, >=2: parallel)
-            mode (str): Apply on current Problem ("single", "swarm", "thread", "process"), default="single".
-            n_workers (int): Apply on current Problem, number of processes if mode is "thread" or "process'
-            verbose (bool): Switch for verbose logging (default: False)
+        Parameters
+        ----------
+        problem : dict or Problem, optional
+            An instance of the Problem class or a problem configuration dictionary.
+        termination : dict or Termination, optional
+            An instance of the Termination class or a termination configuration dictionary.
+        n_trials : int, default=2
+            The number of independent trials to run on the problem for each parameter set.
+        n_jobs : int, optional
+            Number of processes to speed up the task by running multiple trials concurrently.
+            If <= 1 or None, executes sequentially. If >= 2, executes in parallel.
+        mode : {'single', 'swarm', 'thread', 'process'}, default='single'
+            The execution mode applied to the current problem.
+        n_workers : int, default=2
+            Number of processes or threads to use if `mode` is 'thread' or 'process'.
+        verbose : bool, default=True
+            Switch for verbose logging of the tuning process.
 
-        Raises:
-            TypeError: Raises TypeError if problem type is not dictionary or an instance Problem class
-
+        Raises
+        ------
+        TypeError
+            If the `problem` type is neither a dictionary nor an instance of the Problem class.
         """
         self.problem = problem
         self.n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
@@ -418,22 +436,29 @@ class Tuner:
     def resolve(self, mode: str = 'single', starting_solutions: Union[List, Tuple, np.ndarray] = None,
                 n_workers: int = None, termination: Union[Dict, Termination] = None) -> Agent:
         """
-        Resolving the problem with the best parameters
+        Resolve the problem using the optimal hyperparameters found during tuning.
 
-        Args:
-            mode: Parallel: 'process', 'thread'; Sequential: 'swarm', 'single'.
+        Parameters
+        ----------
+        mode : {'single', 'swarm', 'thread', 'process'}, default='single'
+            The execution mode for the solver:
+            * 'process': Parallel mode using multiple CPU cores.
+            * 'thread': Parallel mode using multiple threads.
+            * 'swarm': Sequential mode that has no effect on the updating phase of other agents.
+            * 'single': Sequential mode that affects the updating phase of other agents.
+        starting_solutions : list, tuple, or np.ndarray, optional
+            A 1D list or 2D matrix of starting positions with a length equal to the
+            algorithm's `pop_size` parameter.
+        n_workers : int, optional
+            The number of parallel workers (cores or threads) to perform the tasks.
+            Effective only when `mode` is 'thread' or 'process'.
+        termination : dict or Termination, optional
+            A termination configuration dictionary or an instance of the Termination class.
 
-                * 'process': The parallel mode with multiple cores run the tasks
-                * 'thread': The parallel mode with multiple threads run the tasks
-                * 'swarm': The sequential mode that no effect on updating phase of other agents
-                * 'single': The sequential mode that effect on updating phase of other agents, default
-
-            starting_solutions: List or 2D matrix (numpy array) of starting positions with length equal pop_size parameter
-            n_workers: The number of workers (cores or threads) to do the tasks (effect only on parallel mode)
-            termination: The termination dictionary or an instance of Termination class
-
-        Returns:
-            g_best: Agent, the best agent found
+        Returns
+        -------
+        g_best : Agent
+            The best agent found after resolving the problem.
         """
         self.algorithm.set_parameters(self.best_params)
         return self.algorithm.solve(problem=self.problem, mode=mode, n_workers=n_workers,

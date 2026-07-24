@@ -13,7 +13,8 @@ from mealpy.utils import transfer
 class LabelEncoder:
     """
     Encode categorical features as integer labels.
-    Especially, it can encode a list of mixed types include integer, float, and string. Better than scikit-learn module.
+    Especially, it can encode a list of mixed types including integer, float, and string.
+    Better than scikit-learn module for mixed-type arrays.
     """
 
     def __init__(self):
@@ -21,7 +22,7 @@ class LabelEncoder:
         self.label_to_index = {}
 
     def set_y(self, y):
-        if type(y) not in (list, tuple, np.ndarray):
+        if not isinstance(y, (list, tuple, np.ndarray)):
             y = (y,)
         return y
 
@@ -35,7 +36,7 @@ class LabelEncoder:
             Labels to encode.
         """
         def safe_key(val):
-            # Chuyển None -> 0, số -> 1, chuỗi -> 2, object khác -> 3
+            # Convert None -> 0, numbers -> 1, strings -> 2, other objects -> 3
             if val is None:
                 return (0, '')
             elif isinstance(val, nb.Number):
@@ -82,9 +83,7 @@ class LabelEncoder:
         y : list
             Encoded labels.
         """
-        y = self.set_y(y)
-        self.fit(y)
-        return self.transform(y)
+        return self.fit(y).transform(y)
 
     def inverse_transform(self, y):
         """
@@ -103,6 +102,7 @@ class LabelEncoder:
         if self.unique_labels is None:
             raise ValueError("Label encoder has not been fit yet.")
         y = self.set_y(y)
+        max_idx = len(self.unique_labels)
         return [self.unique_labels[i] if i in self.label_to_index.values() else "unknown" for i in y]
 
 

@@ -16,7 +16,8 @@ import os
 
 
 class Multitask:
-    """Multitask utility class.
+    """
+    Multitask utility class.
 
     This feature enables the execution of multiple algorithms across multiple problems and trials.
     Additionally, it allows for exporting results in various formats such as Pandas DataFrame, JSON, and CSV.
@@ -80,6 +81,7 @@ class Multitask:
     >>>     multitask.execute(n_trials=5, n_jobs=None, save_path="history", save_as="csv", save_convergence=True, verbose=False)
     >>>     # multitask.execute(n_trials=5, save_path="history", save_as="csv", save_convergence=True, verbose=False)
     """
+
     def __init__(self, algorithms: Union[List, Tuple] = None, problems: Union[List, Tuple] = None,
                  terminations: Union[List, Tuple] = None, modes: Union[List, Tuple] = None, n_workers: int = None, **kwargs: object) -> None:
         self.__set_keyword_arguments(kwargs)
@@ -137,19 +139,37 @@ class Multitask:
 
     def execute(self, n_trials: int = 2, n_jobs: int = None, save_path: str = "history",
                 save_as: str = "csv", save_convergence: bool = False, verbose: bool = False) -> None:
-        """Execute multitask utility.
+        """
+        Execute the multitask utility to run multiple algorithms across multiple problems.
 
-        Args:
-            n_trials (int): Number of repetitions
-            n_jobs (int, None): Number of processes will be used to speed up the computation (<=1 or None: sequential, >=2: parallel)
-            save_path (str): The path to the folder that hold results
-            save_as (str): Saved file type (e.g. dataframe, json, csv) (default: "csv")
-            save_convergence (bool): Save the error (convergence/fitness) during generations (default: False)
-            verbose (bool): Switch for verbose logging (default: False)
+        This method automatically handles the execution of predefined algorithms on
+        predefined problems for a specified number of trials. It supports parallel
+        execution and exports both the best fitness results and convergence history.
 
-        Raises:
-            TypeError: Raises TypeError if export type is not supported
+        Parameters
+        ----------
+        n_trials : int, default=2
+            The number of independent repetitions for each algorithm-problem pair.
+        n_jobs : int, optional
+            Number of CPU processes used to speed up computation.
+            If <= 1 or None, executes sequentially. If >= 2, executes in parallel.
+        save_path : str, default='history'
+            The directory path where the execution results and convergence logs will be saved.
+        save_as : {'csv', 'json', 'dataframe'}, default='csv'
+            The format of the exported result files.
+        save_convergence : bool, default=False
+            If True, saves the convergence (fitness history) during generations for each trial.
+        verbose : bool, default=False
+            If True, prints detailed logging information during the execution process.
 
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the `save_as` format is not supported (not in 'csv', 'json', 'dataframe').
         """
         n_trials = self.validator.check_int("n_trials", n_trials, [1, 100000])
         n_processors = None
