@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalIWO(Optimizer):
@@ -59,6 +60,8 @@ class OriginalIWO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Invasive Weed Optimization", year=2006, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, seed_min: int = 2, seed_max: int = 10,
                  exponent: int = 2, sigma_start: float = 1.0, sigma_end: float = 0.01, **kwargs: object) -> None:

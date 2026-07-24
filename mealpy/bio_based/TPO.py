@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevTPO(Optimizer):
@@ -61,6 +62,8 @@ class DevTPO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Tree Physiology Optimization", year=2017, difficulty="nightmare", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.3, beta: float = 50.0, theta: float = 0.9, **kwargs: object) -> None:
         """

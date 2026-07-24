@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalBCO(Optimizer):
@@ -57,6 +58,8 @@ class OriginalBCO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Artificial Algae Algorithm", year=2012, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, c_min: float = 0.01, c_max: float = 0.2,
                  n_chemotaxis: int = 1, max_swim_steps: int = 4, migration_prob: float = 0.1, **kwargs: object) -> None:

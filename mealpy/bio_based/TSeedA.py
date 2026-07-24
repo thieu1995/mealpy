@@ -5,6 +5,7 @@
 # ----------------------------------------------%
 
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalTSeedA(Optimizer):
@@ -57,6 +58,13 @@ class OriginalTSeedA(Optimizer):
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Tree-Seed Algorithm", year=2015, difficulty="medium", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY, ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, st: float = 0.1, **kwargs: object) -> None:
         super().__init__(**kwargs)

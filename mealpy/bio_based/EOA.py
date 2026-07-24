@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalEOA(Optimizer):
@@ -68,6 +69,15 @@ class OriginalEOA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Earthworm Optimisation Algorithm", year=2018, difficulty="hard", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY,
+                           ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.POOR_REPRODUCIBILITY,
+                           ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_c: float = 0.9, p_m: float = 0.01, n_best: int = 2,
                  alpha: float = 0.98, beta: float = 0.9, gama: float = 0.9, **kwargs: object) -> None:

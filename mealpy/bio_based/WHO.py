@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalWHO(Optimizer):
@@ -62,6 +63,8 @@ class OriginalWHO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Wildebeest Herd Optimization", year=2019, difficulty="nightmare", kind="original")
+
     def __init__(self, epoch=10000, pop_size=100, n_explore_step=3, n_exploit_step=3, eta=0.15, p_hi=0.9,
                  local_alpha=0.9, local_beta=0.3, global_alpha=0.2, global_beta=0.8, delta_w=2.0, delta_c=2.0, **kwargs):
         """
@@ -76,8 +79,8 @@ class OriginalWHO(Optimizer):
             local_beta (float): control local movement (beta 1)
             global_alpha (float): control global movement (alpha 2)
             global_beta (float): control global movement (beta 2)
-            delta_w (float): dist to worst
-            delta_c (float): dist to best
+            delta_w (float): dist to the worst
+            delta_c (float): dist to the best
         """
         super().__init__(**kwargs)
         self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])

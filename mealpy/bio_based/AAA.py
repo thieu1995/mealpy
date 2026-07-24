@@ -5,6 +5,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalAAA(Optimizer):
@@ -49,6 +50,8 @@ class OriginalAAA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Artificial Algae Algorithm", year=2015, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 50, s_force: float = 2.0,
                  e_loss: float = 0.3, ap: float = 0.5, **kwargs: object) -> None:

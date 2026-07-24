@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalBBO(Optimizer):
@@ -47,6 +48,8 @@ class OriginalBBO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Biogeography-Based Optimization", year=2008, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_m: float = 0.01, n_elites: int = 2, **kwargs: object) -> None:
         super().__init__(**kwargs)
@@ -132,6 +135,8 @@ class DevBBO(OriginalBBO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Biogeography-Based Optimization (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, p_m: float = 0.01, n_elites: int = 2, **kwargs: object) -> None:
         super().__init__(epoch, pop_size, p_m, n_elites, **kwargs)

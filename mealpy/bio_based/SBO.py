@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class DevSBO(Optimizer):
@@ -56,6 +57,8 @@ class DevSBO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Satin Bowerbird Optimizer (Dev)", difficulty="easy", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.94, p_m: float = 0.05, psw: float = 0.02, **kwargs: object) -> None:
         """
@@ -156,6 +159,8 @@ class OriginalSBO(DevSBO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Satin Bowerbird Optimizer", difficulty="easy", kind="original", year=2017)
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, alpha: float = 0.94, p_m: float = 0.05, psw: float = 0.02, **kwargs: object) -> None:
         """

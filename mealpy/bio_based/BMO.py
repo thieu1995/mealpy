@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalBMO(Optimizer):
@@ -23,9 +24,10 @@ class OriginalBMO(Optimizer):
 
     References
     ~~~~~~~~~~
-    1. Wang, G.G., Deb, S. and Coelho, L.D.S., 2018. Earthworm optimisation algorithm: a bio-inspired
-       metaheuristic algorithm for global optimisation problems. International journal of
-       bio-inspired computation, 12(1), pp.1-22. https://doi.org/10.1109/SNPD.2018.8441097
+    1. Sulaiman, M. H., Mustaffa, Z., Saari, M. M., & Daniyal, H. (2020). Barnacles mating optimizer: a new
+       bio-inspired algorithm for solving engineering optimization problems.
+       Engineering Applications of Artificial Intelligence, 87, 103330.
+       https://doi.org/10.1016/j.engappai.2019.103330
 
     Examples
     ~~~~~~~~
@@ -46,6 +48,14 @@ class OriginalBMO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Artificial Algae Algorithm", year=2015, difficulty="easy", kind="original",
+                       scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.LACK_OF_NOVELTY,
+                           ScientificConcern.POOR_REPRODUCIBILITY,
+                           ScientificConcern.FABRICATED_RESULTS
+                       ))
 
     def __init__(self, epoch=10000, pop_size=100, pl=5, **kwargs):
         super().__init__(**kwargs)
