@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalCRO(Optimizer):
@@ -62,6 +63,8 @@ class OriginalCRO(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Coral Reefs Optimization", year=2014, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, po: float = 0.4, Fb: float = 0.9, Fa: float = 0.1, Fd: float = 0.1,
                  Pd: float = 0.5, GCR: float = 0.1, gamma_min: float = 0.02, gamma_max: float = 0.2, n_trials: int = 3, **kwargs: object) -> None:
@@ -249,6 +252,8 @@ class OCRO(OriginalCRO):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Opposition-based Coral Reefs Optimization", year=2019, difficulty="hard", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, po: float = 0.4, Fb: float = 0.9, Fa: float = 0.1, Fd: float = 0.1, Pd: float = 0.5,
                  GCR: float = 0.1, gamma_min: float = 0.02, gamma_max: float = 0.2, n_trials: int = 3, restart_count: int = 20, **kwargs: object) -> None:

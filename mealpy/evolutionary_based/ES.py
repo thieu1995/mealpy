@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalES(Optimizer):
@@ -51,6 +52,8 @@ class OriginalES(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Evolution Strategies", year=2002, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, lamda: float = 0.75, **kwargs: object) -> None:
         """
@@ -101,7 +104,7 @@ class OriginalES(Optimizer):
 
 class LevyES(OriginalES):
     """
-    The developed Levy-flight version: Evolution Strategies (ES)
+    Our developed Levy-flight version: Evolution Strategies (ES)
 
     Parameters
     ----------
@@ -141,6 +144,8 @@ class LevyES(OriginalES):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, lamda: float = 0.75, **kwargs: object) -> None:
         """
@@ -223,6 +228,8 @@ class CMA_ES(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Covariance Matrix Adaptation Evolution Strategy", year=2003, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
@@ -353,6 +360,8 @@ class Simple_CMA_ES(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Covariance Matrix Adaptation Evolution Strategy (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """

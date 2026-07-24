@@ -8,6 +8,7 @@ import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalDE(Optimizer):
@@ -35,9 +36,9 @@ class OriginalDE(Optimizer):
 
     References
     ~~~~~~~~~~
-    1. Mohamed, A.W., Hadi, A.A. and Jambi, K.M., 2019.
-       Novel mutation strategy for enhancing SHADE and LSHADE algorithms for global numerical optimization.
-       Swarm and Evolutionary Computation, 50, p.100455. https://doi.org/10.1016/j.swevo.2018.10.006
+    1. Storn, R., & Price, K. (1997). Differential evolution–a simple and efficient heuristic for global
+       optimization over continuous spaces. Journal of global optimization, 11(4), 341-359.
+       https://doi.org/10.1023/A:1008202821328
 
     Examples
     ~~~~~~~~
@@ -58,6 +59,8 @@ class OriginalDE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Differential Evolution", year=1995, difficulty="easy", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, wf: float = 0.1, cr: float = 0.9, strategy: int = 0, **kwargs: object) -> None:
         """
@@ -162,7 +165,7 @@ class OriginalDE(Optimizer):
 
 class JADE(Optimizer):
     """
-    The original version of: Differential Evolution (JADE)
+    The original version of: Adaptive Differential Evolution (JADE)
 
     Parameters
     ----------
@@ -204,6 +207,8 @@ class JADE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Adaptive Differential Evolution", year=2009, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, miu_f: float = 0.5,
                  miu_cr: float = 0.5, pt: float = 0.1, ap: float = 0.1, **kwargs: object) -> None:
@@ -345,6 +350,8 @@ class SADE(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Self-Adaptive Differential Evolution", year=2005, difficulty="medium", kind="variant")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
         """
         Args:
@@ -433,7 +440,7 @@ class SADE(Optimizer):
 
 class SAP_DE(Optimizer):
     """
-    The original version of: Differential Evolution with Self-Adaptive Populations (SAP-DE)
+    The original version of: Self-Adaptive Populations Differential Evolution (SAP-DE)
 
     Parameters
     ----------
@@ -468,6 +475,8 @@ class SAP_DE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Self-Adaptive Populations Differential Evolution", year=2006, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 1000, pop_size: int = 100, branch: str = "ABS", **kwargs: object) -> None:
         super().__init__(**kwargs)

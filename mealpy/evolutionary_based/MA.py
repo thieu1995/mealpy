@@ -7,6 +7,7 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from mealpy.utils.agent import Agent
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalMA(Optimizer):
@@ -59,6 +60,8 @@ class OriginalMA(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Memetic Algorithm", year=1989, difficulty="hard", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.85, pm: float = 0.15,
                  p_local: float = 0.5, max_local_gens: int = 10, bits_per_param: int = 4, **kwargs: object) -> None:

@@ -7,11 +7,12 @@
 import numpy as np
 from mealpy.optimizer import Optimizer
 from scipy.stats import cauchy
+from mealpy.utils.opt_info import OptInfo
 
 
 class OriginalSHADE(Optimizer):
     """
-    The original version of: Success-History Adaptation Differential Evolution (OriginalSHADE)
+    The original version of: Success-History Adaptation Differential Evolution (SHADE)
 
     Parameters
     ----------
@@ -49,6 +50,8 @@ class OriginalSHADE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Success-History Adaptation Differential Evolution", year=2013, difficulty="medium", kind="variant")
 
     def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:
         """
@@ -211,6 +214,9 @@ class L_SHADE(Optimizer):
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
+
+    OPT_INFO = OptInfo(name="Linear Population Size Reduction Success-History Adaptation Differential Evolution",
+                       year=2014, difficulty="hard", kind="variant")
 
     def __init__(self, epoch: int = 750, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5, **kwargs: object) -> None:
         """

@@ -6,6 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
+from mealpy.utils.opt_info import OptInfo
 
 
 class BaseGA(Optimizer):
@@ -74,6 +75,8 @@ class BaseGA(Optimizer):
     >>>
     >>> model7 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation="flip")
     """
+
+    OPT_INFO = OptInfo(name="Genetic Algorithm", year=1992, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025, **kwargs: object) -> None:
         """
@@ -389,6 +392,8 @@ class SingleGA(BaseGA):
     >>> model7 = GA.SingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
     """
 
+    OPT_INFO = OptInfo(name="Single Point Mutation Genetic Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.8, selection: str = "roulette",
                  crossover: str = "uniform", mutation: str = "swap", k_way: float = 0.2, **kwargs: object) -> None:
         """
@@ -513,6 +518,8 @@ class EliteSingleGA(SingleGA):
     >>>
     >>> model7 = GA.EliteSingleGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
     """
+
+    OPT_INFO = OptInfo(name="Elite Single Point Mutation Genetic Algorithm (Dev)", difficulty="medium", kind="developed")
 
     def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.8, selection="roulette",
                  crossover="uniform", mutation="swap", k_way=0.2,
@@ -640,6 +647,8 @@ class MultiGA(BaseGA):
     >>> model7 = GA.MultiGA(epoch=1000, pop_size=50, pc=0.9, pm=0.8, crossover="arithmetic", mutation="flip")
     """
 
+    OPT_INFO = OptInfo(name="Multi Point Mutation Genetic Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025,
                  selection: str = "roulette", crossover: str = "arithmetic", mutation: str = "flip", k_way: float = 0.2, **kwargs: object) -> None:
         """
@@ -738,6 +747,8 @@ class EliteMultiGA(MultiGA):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Elite Multi Point Mutation Genetic Algorithm (Dev)", difficulty="medium", kind="developed")
+
     def __init__(self, epoch=10000, pop_size=100, pc=0.95, pm=0.8, selection="roulette",
                  crossover="uniform", mutation="swap", k_way=0.2,
                  elite_best=0.1, elite_worst=0.3, strategy=0, **kwargs):
@@ -834,6 +845,11 @@ class OriginalGA(Optimizer):
     1. https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_quick_guide.htm
     2. https://www.analyticsvidhya.com/blog/2017/07/introduction-to-genetic-algorithm/
 
+    References
+    ----------
+    1. Holland, J. H. (1992). Adaptation in natural and artificial systems: an introductory analysis
+       with applications to biology, control, and artificial intelligence. MIT press.
+
     Examples
     ~~~~~~~~
     >>> import numpy as np
@@ -865,6 +881,8 @@ class OriginalGA(Optimizer):
     >>>
     >>> model7 = GA.BaseGA(epoch=1000, pop_size=50, pc=0.9, pm=0.05, crossover="arithmetic", mutation="flip")
     """
+
+    OPT_INFO = OptInfo(name="Genetic Algorithm", year=1992, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, pc: float = 0.95, pm: float = 0.025,
                  selection: str = "tournament", crossover: str = "uniform", mutation: str = "flip",
