@@ -136,7 +136,7 @@ class OriginalFLA(Optimizer):
                     agent = self.generate_empty_agent(pos_new)
                     pop1_new.append(agent)
                 for idx in range(nt12, self.n1):
-                    tt = self.pop1[idx].solution + dof * (self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
+                    tt = self.best1.solution + dof * (self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
                     pp = self.generator.random(self.problem.n_dims)
                     pos_new = np.where(pp < 0.8, self.best1.solution, np.where(pp >= 0.9, self.pop1[idx].solution, tt))
                     pos_new = self.correct_solution(pos_new)
@@ -158,7 +158,7 @@ class OriginalFLA(Optimizer):
                     agent = self.generate_empty_agent(pos_new)
                     pop2_new.append(agent)
                 for idx in range(nt12, self.n2):
-                    tt = self.pop2[idx].solution + dof * (self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
+                    tt = self.best2.solution + dof * (self.generator.random(self.problem.n_dims) * (self.problem.ub - self.problem.lb) + self.problem.lb)
                     pp = self.generator.random(self.problem.n_dims)
                     pos_new = np.where(pp < 0.8, self.best2.solution, np.where(pp >= 0.9, self.pop2[idx].solution, tt))
                     pos_new = self.correct_solution(pos_new)
