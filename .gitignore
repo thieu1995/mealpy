@@ -1,3 +1,6 @@
+
+# Auto-generated optimizer classification table
+docs/source/_generated/optimizer_table.csv
 docs/_build/
 run.py
 examples/utils/history*
