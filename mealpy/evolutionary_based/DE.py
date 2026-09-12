@@ -3,6 +3,7 @@
 #       Email: nguyenthieu2102@gmail.com            %
 #       Github: https://github.com/thieu1995        %
 # --------------------------------------------------%
+from os import replace
 
 import numpy as np
 from mealpy.optimizer import Optimizer
@@ -27,7 +28,7 @@ class OriginalDE(Optimizer):
         Crossover rate, in range [0.5, 0.95]. Default is 0.9.
     strategy : int
         There are lots of variant version of DE algorithm, in range [0, 5].
-        - 0: DE/current-to-rand/1/bin
+        - 0: DE/rand/1/bin
         - 1: DE/best/1/bin
         - 2: DE/best/2/bin
         - 3: DE/rand/2/bin
@@ -82,6 +83,8 @@ class OriginalDE(Optimizer):
 
     def mutation__(self, current_pos, new_pos):
         condition = self.generator.random(self.problem.n_dims) < self.cr
+        j_rand = self.generator.integers(self.problem.n_dims)
+        condition[j_rand] = True
         pos_new = np.where(condition, new_pos, current_pos)
         return self.correct_solution(pos_new)
 
@@ -92,75 +95,91 @@ class OriginalDE(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        pop = []
+        # Keep the parent generation fixed while generating all trial vectors.
+        pop_old = self.pop.copy()
+        best_agent, _ = self.get_best_agent(pop_old, self.problem.minmax)
+        best_pos = best_agent.solution
+        pop_new = []
+
         if self.strategy == 0:
-            # Choose 3 random element and different to i
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
-                pos_new = self.pop[idx_list[0]].solution + self.wf * (self.pop[idx_list[1]].solution - self.pop[idx_list[2]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/rand/1/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=3, replace=False)
+                pos_new = (pop_old[idx_list[0]].solution + self.wf * (pop_old[idx_list[1]].solution - pop_old[idx_list[2]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         elif self.strategy == 1:
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-                pos_new = self.g_best.solution + self.wf * (self.pop[idx_list[0]].solution - self.pop[idx_list[1]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/best/1/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=2, replace=False)
+                pos_new = (best_pos + self.wf * (pop_old[idx_list[0]].solution - pop_old[idx_list[1]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         elif self.strategy == 2:
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 4, replace=False)
-                pos_new = self.g_best.solution + self.wf * (self.pop[idx_list[0]].solution - self.pop[idx_list[1]].solution) + \
-                          self.wf * (self.pop[idx_list[2]].solution - self.pop[idx_list[3]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/best/2/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=4, replace=False)
+                pos_new = (best_pos + self.wf * (pop_old[idx_list[0]].solution - pop_old[idx_list[1]].solution)
+                        + self.wf * (pop_old[idx_list[2]].solution - pop_old[idx_list[3]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         elif self.strategy == 3:
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 5, replace=False)
-                pos_new = self.pop[idx_list[0]].solution + self.wf * (self.pop[idx_list[1]].solution - self.pop[idx_list[2]].solution) + \
-                          self.wf * (self.pop[idx_list[3]].solution - self.pop[idx_list[4]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/rand/2/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=5, replace=False)
+                pos_new = ( pop_old[idx_list[0]].solution + self.wf * (pop_old[idx_list[1]].solution - pop_old[idx_list[2]].solution)
+                        + self.wf * (pop_old[idx_list[3]].solution - pop_old[idx_list[4]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         elif self.strategy == 4:
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 2, replace=False)
-                pos_new = self.pop[idx].solution + self.wf * (self.g_best.solution - self.pop[idx].solution) + \
-                          self.wf * (self.pop[idx_list[0]].solution - self.pop[idx_list[1]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/current-to-best/1/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=2, replace=False)
+                pos_new = (pop_old[idx].solution + self.wf * (best_pos - pop_old[idx].solution)
+                        + self.wf * (pop_old[idx_list[0]].solution - pop_old[idx_list[1]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         else:
-            for idx in range(0, self.pop_size):
-                idx_list = self.generator.choice(list(set(range(0, self.pop_size)) - {idx}), 3, replace=False)
-                pos_new = self.pop[idx].solution + self.wf * (self.pop[idx_list[0]].solution - self.pop[idx].solution) + \
-                          self.wf * (self.pop[idx_list[1]].solution - self.pop[idx_list[2]].solution)
-                pos_new = self.mutation__(self.pop[idx].solution, pos_new)
+            # DE/current-to-rand/1/bin
+            for idx in range(self.pop_size):
+                idx_list = self.sample_indexes_exclude_one(self.generator, self.pop_size, exclude_idx=idx, n_samples=3, replace=False)
+                pos_new = (pop_old[idx].solution + self.wf * (pop_old[idx_list[0]].solution - pop_old[idx].solution)
+                        + self.wf * (pop_old[idx_list[1]].solution - pop_old[idx_list[2]].solution))
+                pos_new = self.mutation__(pop_old[idx].solution, pos_new)
                 agent = self.generate_empty_agent(pos_new)
-                pop.append(agent)
+                pop_new.append(agent)
                 if self.mode not in self.AVAILABLE_MODES:
                     agent.target = self.get_target(pos_new)
-                    self.pop[idx] = self.get_better_agent(agent, self.pop[idx], self.problem.minmax)
+                    self.pop[idx] = self.get_better_agent(agent, pop_old[idx], self.problem.minmax)
+
         if self.mode in self.AVAILABLE_MODES:
-            pop = self.update_target_for_population(pop)
-            self.pop = self.greedy_selection_population(self.pop, pop, self.problem.minmax)
+            pop_new = self.update_target_for_population(pop_new)
+            self.pop = self.greedy_selection_population(pop_old, pop_new, self.problem.minmax)
 
 
 class JADE(Optimizer):
