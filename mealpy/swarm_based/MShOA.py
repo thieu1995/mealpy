@@ -280,6 +280,13 @@ class DevMShOA(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
+    OPT_INFO = OptInfo(name="Mantis Shrimp Optimization Algorithm (Dev)", year=2025, difficulty="nightmare",
+                       kind="developed", scientific_status="questionable",
+                       concerns=(
+                           ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.QUESTIONABLE_MATH,
+                           ScientificConcern.POOR_REPRODUCIBILITY, ScientificConcern.AMBIGUOUS_METHODOLOGY
+                       ))
+
     def __init__(self, epoch: int = 10000, pop_size: int = 100, k_value: float = 0.3, **kwargs: object) -> None:
         """
         Args:

@@ -63,7 +63,7 @@ class OriginalLSHADEcnEpSin(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    OPT_INFO = OptInfo(name=" Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood",
+    OPT_INFO = OptInfo(name="Ensemble sinusoidal differential covariance matrix adaptation with Euclidean neighborhood",
                        year=2017, difficulty="nightmare", kind="sota")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, miu_f: float = 0.5, miu_cr: float = 0.5,

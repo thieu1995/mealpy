@@ -78,7 +78,7 @@ class OriginalWSO(Optimizer):
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    OPT_INFO = OptInfo(name=" White Shark Optimizer", year=2022, difficulty="nightmare", kind="original",
+    OPT_INFO = OptInfo(name="White Shark Optimizer", year=2022, difficulty="nightmare", kind="original",
                        scientific_status="questionable",
                        concerns=(
                            ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.LACK_OF_NOVELTY,
