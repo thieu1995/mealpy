@@ -36,11 +36,13 @@ Official Links
 ==============
 
 **Core Resources**
+
 * `Official Source Code Repository <https://github.com/thieu1995/mealpy>`_
 * `Official Documentation <https://mealpy.readthedocs.io/>`_
 * `Download via PyPI <https://pypi.org/project/mealpy/>`_
 
 **Community & Support**
+
 * `Issue Tracker <https://github.com/thieu1995/mealpy/issues>`_
 * `Official Telegram Chat/Support Group <https://t.me/+fRVCJGuGJg1mNDg1>`_
 * `Notable Changes Log (ChangeLog) <https://github.com/thieu1995/mealpy/blob/master/ChangeLog.md>`_
@@ -62,45 +64,42 @@ This project is part of a larger ecosystem of open-source tools for meta-heurist
 Classification Table
 ====================
 
-.. warning::
-    **Legacy Classification**
+The categorical breakdown below provides a conceptual taxonomy. For the foundational theory behind these classifications,
+you can refer to `this research article <https://doi.org/10.1016/j.procs.2020.09.075>`_. In general, algorithms are categorized according to core computational inspirations:
 
-    The categorical breakdown below is conceptual. For the most up-to-date, exhaustive list of supported optimizers, please refer directly to the `Official Optimizer Classification Table <https://github.com/thieu1995/mealpy?tab=readme-ov-file#-optimizer-classification-table>`_ on our GitHub repository.
+* **Evolutionary-based**: Modeled after Darwinian natural selection and genetic adaptation mechanisms.
+* **Swarm-based**: Inspired by decentralized collective motion and social interactions found in nature (e.g., flocks, swarms, herds).
+* **Physics-based**: Derived from fundamental physical laws and universal phenomena (e.g., gravitation, thermal dynamics, multiverse models).
+* **Human-based**: Simulated from human cognitive activities, societal structures, and behavioral dynamics.
+* **Biology-based**: Rooted in biological systems, physiological behaviors, or cellular mechanics.
+* **System-based**: Emulating ecological stability, immune defense responses, or complex network interactions.
+* **Math-based**: Formulated directly from analytical functions or mathematical operations.
+* **Music-based**: Inspired by melodic harmonies, composition rules, or instrument tuning dynamics.
+* **Sota-based**: The state-of-the-art algorithm in CEC competitions.
 
-Categories of Meta-heuristic Algorithms
----------------------------------------
+.. include:: classification_table.rst
 
-Based on `this comprehensive review article <https://doi.org/10.1016/j.procs.2020.09.075>`_, algorithms are generally grouped into:
-
-* **Evolutionary-based:** Inspired by Darwin's laws of natural selection and evolutionary computing.
-* **Swarm-based:** Inspired by the movement, interaction, and organization of birds, social insects, and other animals.
-* **Physics-based:** Inspired by physical laws such as Newton's law of universal gravitation, black holes, and the multiverse.
-* **Human-based:** Inspired by human interactions, such as queuing search, teaching-learning, and cultural algorithms.
-* **Biology-based:** Inspired by biological creatures or microorganisms (e.g., genetic algorithms and artificial immune systems).
-* **System-based:** Inspired by ecosystems, immune systems, and network systems.
-* **Math-based:** Inspired by mathematical forms or laws, such as sine-cosine functions and the golden ratio.
-* **Music-based:** Inspired by musical instruments and harmony search.
 
 Difficulty Levels
 -----------------
 
-This is an objective observation from the author based on the number of hyperparameters, mathematical complexity, original ideas, and Source Lines of Code (SLOC).
+*Author's subjective metric* evaluating parameter configurations, mathematical equation density, conceptual complexity, and source lines of code (SLOC):
 
-* **Easy:** Few parameters, straightforward equations, and a very short SLOC.
-* **Medium:** More equations and a longer SLOC than the Easy level.
-* **Hard:** Lots of complex equations, extensive SLOC, and the foundational paper is difficult to read.
-* **Hard\* (Very Hard):** Extremely complex equations, excessively long SLOC, and the paper is highly theoretical and challenging to parse.
+* **Easy**: Minimal tunable parameters, straightforward mathematical models, concise code footprint.
+* **Medium**: Moderate equation volume and standard implementation scale.
+* **Hard**: Heavy mathematical formulations, extensive SLOC, and high cognitive overhead in literature comprehension.
+* **Nightmare**: Advanced theoretical depth, extensive equations, and highly complex codebase architecture.
 
 .. hint::
     **Advice for Beginners**
 
     If you are new to the field of meta-heuristics, we strongly recommend starting your learning journey by reading papers and exploring source codes for algorithms categorized under the **"Easy"** or **"Medium"** difficulty levels.
 
-================
-Model References
-================
+====================
+Algorithm References
+====================
 
-For the complete and regularly updated list of references for all implemented models, please consult the `References Section <https://github.com/thieu1995/mealpy?tab=readme-ov-file#references>`_ on our GitHub README.
+For the complete and regularly updated list of references for all implemented algorithms, please consult the `References Section <https://github.com/thieu1995/mealpy?tab=readme-ov-file#references>`_ on our GitHub README.
 
 =======
 License

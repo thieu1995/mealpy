@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Mealpy optimizer classification table
+   ========================================================================== */
+
+/*
+ * The table is intentionally wider than the documentation content area.
+ * Read the Docs will provide horizontal scrolling.
+ */
+.optimizer-table-container .wy-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.rst-content table.optimizer-table {
+    width: 1250px;
+    /*min-width: 1250px;*/
+    max-width: none;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.rst-content table.optimizer-table th,
+.rst-content table.optimizer-table td {
+    box-sizing: border-box;
+    vertical-align: top;
+}
+
+/* Group */
+.rst-content table.optimizer-table th:nth-child(1),
+.rst-content table.optimizer-table td:nth-child(1) {
+    width: 100px;
+}
+
+/* Name */
+.rst-content table.optimizer-table th:nth-child(2),
+.rst-content table.optimizer-table td:nth-child(2) {
+    width: 300px;
+}
+
+/* Module */
+.rst-content table.optimizer-table th:nth-child(3),
+.rst-content table.optimizer-table td:nth-child(3) {
+    width: 120px;
+}
+
+/* Class */
+.rst-content table.optimizer-table th:nth-child(4),
+.rst-content table.optimizer-table td:nth-child(4) {
+    width: 150px;
+}
+
+/* Year */
+.rst-content table.optimizer-table th:nth-child(5),
+.rst-content table.optimizer-table td:nth-child(5) {
+    width: 60px;
+}
+
+/* Paras */
+.rst-content table.optimizer-table th:nth-child(6),
+.rst-content table.optimizer-table td:nth-child(6) {
+    width: 50px;
+}
+
+/* Difficulty */
+.rst-content table.optimizer-table th:nth-child(7),
+.rst-content table.optimizer-table td:nth-child(7) {
+    width: 90px;
+}
+
+/* Kind */
+.rst-content table.optimizer-table th:nth-child(8),
+.rst-content table.optimizer-table td:nth-child(8) {
+    width: 100px;
+}
+
+/* Group and Name wrap only at natural word boundaries. */
+.rst-content table.optimizer-table th:nth-child(1),
+.rst-content table.optimizer-table td:nth-child(1),
+.rst-content table.optimizer-table th:nth-child(2),
+.rst-content table.optimizer-table td:nth-child(2) {
+    white-space: normal !important;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+/*
+ * Module and Class are identifiers. Allow emergency wrapping only when an
+ * identifier is longer than its fixed-width column.
+ */
+.rst-content table.optimizer-table th:nth-child(3),
+.rst-content table.optimizer-table td:nth-child(3),
+.rst-content table.optimizer-table th:nth-child(4),
+.rst-content table.optimizer-table td:nth-child(4) {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* Compact columns never wrap. */
+.rst-content table.optimizer-table th:nth-child(n + 5),
+.rst-content table.optimizer-table td:nth-child(n + 5) {
+    white-space: nowrap !important;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-align: center;
+}
