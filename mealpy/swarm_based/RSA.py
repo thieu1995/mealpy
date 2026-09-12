@@ -63,7 +63,7 @@ class OriginalRSA(Optimizer):
         best = self.g_best.solution
 
         r3 = self.generator.integers(-1, 2)   # {-1, 0, 1}
-        ES = 2.0 * r3 * (1.0 - 1.0 / self.epoch)
+        ES = 2.0 * r3 * (1.0 - epoch / self.epoch)
         pop_new = []
         for i in range(self.pop_size):
             x = self.pop[i].solution
