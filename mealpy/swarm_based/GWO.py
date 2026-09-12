@@ -64,6 +64,96 @@ class OriginalGWO(Optimizer):
         self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
         self.set_parameters(["epoch", "pop_size"])
         self.sort_flag = False
+        self.leaders = None
+
+    def before_main_loop(self):
+        _, self.leaders, _ = self.get_special_agents(self.pop, n_best=3, minmax=self.problem.minmax)
+
+    def evolve(self, epoch):
+        """
+        The main operations (equations) of algorithm. Inherit from Optimizer class
+
+        Args:
+            epoch (int): The current iteration
+        """
+        # linearly decreased from 2 to 0
+        a = 2 - 2. * (epoch - 1) / self.epoch
+        pop_new = []
+        for idx in range(0, self.pop_size):
+            A1 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A2 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            A3 = a * (2 * self.generator.random(self.problem.n_dims) - 1)
+            C1 = 2 * self.generator.random(self.problem.n_dims)
+            C2 = 2 * self.generator.random(self.problem.n_dims)
+            C3 = 2 * self.generator.random(self.problem.n_dims)
+            X1 = self.leaders[0].solution - A1 * np.abs(C1 * self.leaders[0].solution - self.pop[idx].solution)
+            X2 = self.leaders[1].solution - A2 * np.abs(C2 * self.leaders[1].solution - self.pop[idx].solution)
+            X3 = self.leaders[2].solution - A3 * np.abs(C3 * self.leaders[2].solution - self.pop[idx].solution)
+            pos_new = (X1 + X2 + X3) / 3.0
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+            pop_new.append(agent)
+            if self.mode not in self.AVAILABLE_MODES:
+                pop_new[-1].target = self.get_target(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
+        # Update unconditional
+        self.pop = pop_new
+        # Keep leaders across iterations
+        _, self.leaders, _ = self.get_special_agents(self.leaders + self.pop, n_best=3, minmax=self.problem.minmax)
+
+
+class DevGWO(Optimizer):
+    """
+    The developed version of: Grey Wolf Optimizer (GWO)
+
+    This variant modifies the original Grey Wolf Optimizer (GWO) by introducing
+    two additional selection mechanisms:
+
+    1. The Alpha, Beta, and Delta wolves are selected from the best three solutions of the current
+       population at each iteration, rather than being maintained as persistent historical leaders.
+
+    2. A greedy selection strategy is applied between each current wolf and its newly generated candidate,
+       so that the better solution is retained for the next iteration.
+
+    These modifications introduce additional selection pressure and make the search dynamics different
+    from those of the original GWO proposed by Mirjalili et al. (2014).
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, default = 10000.
+    pop_size : int
+        Number of population size, default = 100.
+
+    Examples
+    ~~~~~~~~
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, GWO
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-10.,) * 30, ub=(10.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function
+    >>> }
+    >>>
+    >>> model = GWO.DevGWO(epoch=1000, pop_size=50)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
+    """
+
+    OPT_INFO = OptInfo(name="Grey Wolf Optimizer (Dev)", year=2026, difficulty="easy", kind="developed")
+
+    def __init__(self, epoch: int = 10000, pop_size: int = 100, **kwargs: object) -> None:
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [5, 10000])
+        self.set_parameters(["epoch", "pop_size"])
+        self.sort_flag = False
 
     def evolve(self, epoch):
         """

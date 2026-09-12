@@ -70,6 +70,7 @@ Different versions of mealpy in terms of passing hyperparameters. So please care
 + Update `get_best_agent`, `get_worst_agent` and `get_sorted_population` with the returning of index in Optimizer.
 + Add `Political Optimizer (PO)` to the `human-based` group
 + Add `Incomprehensible but Intelligible-in-time Logics Algorithm (ILA)` to the `human-based` group
++ Fix bug `#281` in `OriginalGWO` and add `DevGWO`.
 
 ---
 
