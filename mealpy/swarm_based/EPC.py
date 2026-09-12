@@ -114,15 +114,15 @@ class DevEPC(Optimizer):
         """
         Calculate attractiveness between two penguins based on heat radiation and distance
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         heat_radiation : float
             Heat radiation of the source penguin
         distance : float
             Distance between penguins
 
-        Returns:
-        --------
+        Returns
+        -------
         float : Attractiveness value
         """
         # Linear heat source model with photon attenuation (Equations 9-11)
@@ -136,8 +136,8 @@ class DevEPC(Optimizer):
         """
         Calculate spiral-like movement from penguin i towards penguin j
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         penguin_i : np.ndarray
             Position of penguin i (moving penguin)
         penguin_j : np.ndarray
@@ -145,8 +145,8 @@ class DevEPC(Optimizer):
         attractiveness : float
             Attractiveness value between penguins
 
-        Returns:
-        --------
+        Returns
+        -------
         np.ndarray : New position after spiral movement
         """
         # Convert to polar coordinates

@@ -13,8 +13,8 @@ class OriginalDandelionO(Optimizer):
     """
     The original version: Dandelion Optimizer (DandelionO)
 
-    Hyperparameters
-    ---------------
+    Parameters
+    ----------
     + epoch (int): Maximum number of iterations, default = 10000
     + pop_size (int): Population size, default = 100
 
@@ -124,8 +124,8 @@ class DevDandelionO(Optimizer):
     """
     The developed version: Dandelion Optimizer (DandelionO)
 
-    Hyperparameters
-    ---------------
+    Parameters
+    ----------
     + epoch (int): Maximum number of iterations, default = 10000
     + pop_size (int): Population size, default = 100
 

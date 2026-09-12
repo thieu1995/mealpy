@@ -13,8 +13,8 @@ class OriginalCrayfishOA(Optimizer):
     """
     The original version of: Crayfish Optimization Algorithm (COA)
 
-    Hyperparameters
-    ----------------
+    Parameters
+    ----------
     + epoch (int): maximum number of iterations, default = 10000
     + pop_size (int): number of population size, default = 100
 

@@ -128,8 +128,8 @@ class MLFA_GD(Optimizer):
     """
     The original version of: Multiple Learning FA based on Gender Difference (MLFA-GD)
 
-    Hyperparameters
-    ---------------
+    Parameters
+    ----------
     + epoch (int): Maximum number of iterations, default = 10000
     + pop_size (int): Population size, default = 100
     + m_females (int): Number of female fireflies selected by each male firefly, default = 3

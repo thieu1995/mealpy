@@ -30,8 +30,8 @@ class LabelEncoder:
         """
         Fit label encoder to a given set of labels.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         y : list, tuple
             Labels to encode.
         """
@@ -55,13 +55,13 @@ class LabelEncoder:
         """
         Transform labels to encoded integer labels.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         y : list, tuple
             Labels to encode.
 
-        Returns:
-        --------
+        Returns
+        -------
         encoded_labels : list
             Encoded integer labels.
         """
@@ -89,13 +89,13 @@ class LabelEncoder:
         """
         Transform integer labels to original labels.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         y : list, tuple
             Encoded integer labels.
 
-        Returns:
-        --------
+        Returns
+        -------
         original_labels : list
             Original labels.
         """
