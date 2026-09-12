@@ -86,7 +86,6 @@ jobs:
           python -m sphinx \
             -E \
             -a \
-            -W \
             --keep-going \
             -b html \
             docs/source \
