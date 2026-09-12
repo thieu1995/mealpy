@@ -178,122 +178,20 @@ comparative studies, or any applications unless their originality is transparent
 and likely cases of plagiarism. For this reason, I will no longer spend time coding such algorithms in the future. 
 This warning is intended to help others avoid using or relying on these methods in their work.**
 
+| Group | Name | Module | Class | Year | Paras |
+| --- | --- | --- | --- | --- |-------| 
+| Swarm | Coati Optimization Algorithm | CoatiOA | OriginalCoatiOA | 2023 | 2     |
+| Swarm | Fennec For Optimization | FFO | OriginalFFO | 2022 | 2     |
+| Swarm | Northern Goshawk Optimization | NGO | OriginalNGO | 2021 | 2     |
+| Swarm | Osprey Optimization Algorithm | OOA | OriginalOOA | 2023 | 2     |
+| Swarm | Pelican Optimization Algorithm | POA | OriginalPOA | 2023 | 2     |
+| Swarm | Serval Optimization Algorithm | ServalOA | OriginalServalOA | 2022 | 2     |
+| Swarm | Siberian Tiger Optimization | STO | OriginalSTO | 2022 | 2     |
+| Swarm | Tasmanian Devil Optimization | TDO | OriginalTDO | 2022 | 2     |
+| Swarm | Walrus Optimization Algorithm | WaOA | OriginalWaOA | 2022 | 2     |
+| Swarm | Zebra Optimization Algorithm | ZOA | OriginalZOA | 2022 | 2     |
+| Human | Teamwork Optimization Algorithm | TOA | OriginalTOA | 2021 | 2     |
 
-
-<table>
-   <thead>
-      <tr>
-         <th>Group</th>
-         <th>Name</th>
-         <th>Module</th>
-         <th>Class</th>
-         <th>Year</th>
-         <th>Paras</th>
-         <th>Difficulty</th>
-      </tr>
-   </thead>
-   <tbody>
-      <tr>
-         <th>Swarm</th>
-         <td>Coati Optimization Algorithm</td>
-         <td>CoatiOA</td>
-         <td>OriginalCoatiOA</td>
-         <td>2023</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Fennec For Optimization</td>
-         <td>FFO</td>
-         <td>OriginalFFO</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Northern Goshawk Optimization</td>
-         <td>NGO</td>
-         <td>OriginalNGO</td>
-         <td>2021</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Osprey Optimization Algorithm</td>
-         <td>OOA</td>
-         <td>OriginalOOA</td>
-         <td>2023</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Pelican Optimization Algorithm </td>
-         <td>POA</td>
-         <td>OriginalPOA</td>
-         <td>2023</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Serval Optimization Algorithm</td>
-         <td>ServalOA</td>
-         <td>OriginalServalOA</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Siberian Tiger Optimization</td>
-         <td>STO</td>
-         <td>OriginalSTO</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Tasmanian Devil Optimization</td>
-         <td>TDO</td>
-         <td>OriginalTDO</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Walrus Optimization Algorithm</td>
-         <td>WaOA</td>
-         <td>OriginalWaOA</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Swarm</th>
-         <td>Zebra Optimization Algorithm </td>
-         <td>ZOA</td>
-         <td>OriginalZOA</td>
-         <td>2022</td>
-         <td>2</td>
-         <td>easy </td>
-      </tr>
-      <tr>
-         <th>Human</th>
-         <td>Teamwork Optimization Algorithm</td>
-         <td>TOA</td>
-         <td>OriginalTOA</td>
-         <td>2021</td>
-         <td>2</td>
-         <td>easy</td>
-      </tr>
-   </tbody>
-</table>
 
 ### ⚠️ Ethical Reminder
 
