@@ -166,7 +166,6 @@ class OriginalWSO(Optimizer):
                 w_hat = self.g_best.solution + r1 * d_w * sgn
                 # Position update respecting the fish school consensus (Eq. 19)
                 w_new[idx] = (w_new[idx] + w_hat) / (2.0 * self.generator.uniform(0, 1, self.problem.n_dims))
-
         # Boundary and update agent
         pop_new = []
         for idx in range(self.pop_size):
@@ -181,3 +180,5 @@ class OriginalWSO(Optimizer):
         if self.mode in self.AVAILABLE_MODES:
             pop_new = self.update_target_for_population(pop_new)
             self.pop = self.greedy_selection_population(self.pop, pop_new, self.problem.minmax)
+        # Update velocity
+        self.v = v
