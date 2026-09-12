@@ -84,8 +84,7 @@ class OriginalHBA(Optimizer):
         Args:
             epoch (int): The current iteration
         """
-        tt = self.epoch
-        alpha= self.C * np.exp(-tt/self.epoch)   # density factor in Eq. (3)
+        alpha= self.C * np.exp(-epoch/self.epoch)   # density factor in Eq. (3)
         I = self.get_intensity__(self.g_best, self.pop)        # intensity in Eq. (2)
         pop_new = []
         for idx in range(0, self.pop_size):
