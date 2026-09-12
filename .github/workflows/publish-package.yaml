@@ -9,8 +9,6 @@ on:
       - master
 
   pull_request:
-    branches:
-      - "*"
 
 env:
   PROJECT_NAME: mealpy
@@ -67,10 +65,41 @@ jobs:
           path: junit/pytest-results-${{ matrix.python-version }}.xml
           if-no-files-found: warn
 
+      # ============================================================
+      # Documentation validation
+      # Run only once with Python 3.11
+      # ============================================================
+
+      - name: Install documentation dependencies
+        if: matrix.python-version == '3.11'
+        run: |
+          python -m pip install -r docs/requirements.txt
+
+      - name: Generate optimizer classification table
+        if: matrix.python-version == '3.11'
+        run: |
+          python scripts/generate_optimizer_table.py --strict
+
+      - name: Build documentation
+        if: matrix.python-version == '3.11'
+        run: |
+          python -m sphinx \
+            -E \
+            -a \
+            -W \
+            --keep-going \
+            -b html \
+            docs/source \
+            docs/_build/html
+
+      # ============================================================
+      # Distribution package
+      # ============================================================
+
       - name: Install package builder
         if: matrix.python-version == '3.11'
         run: |
-          python -m pip install --upgrade build
+          python -m pip install --upgrade build twine
 
       - name: Build distribution package
         if: matrix.python-version == '3.11'
