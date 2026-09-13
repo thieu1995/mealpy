@@ -115,6 +115,8 @@ def get_optimizer_classes(module: ModuleType, ) -> List[Type[Optimizer]]:
             continue
         if not issubclass(cls, Optimizer):
             continue
+        if cls.__dict__.get("DEPRECATED", False):
+            continue
 
         # Ignore classes imported into this module from somewhere else.
         if cls.__module__ != module.__name__:

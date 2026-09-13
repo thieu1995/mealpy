@@ -773,6 +773,9 @@ class L_SHADE(DevL_SHADE):
         `L_SHADE` is deprecated and will be removed in version 4.0.0. Use `DevL_SHADE` to preserve
         the behavior of the previous Mealpy implementation, or `OriginalL_SHADE` for the original L-SHADE algorithm.
     """
+    OPT_INFO = DevL_SHADE.OPT_INFO
+    DEPRECATED = True
+
     def __init__(self, *args, **kwargs):
         warnings.warn(
             "`L_SHADE` is deprecated and will be removed in version 4.0.0. "
