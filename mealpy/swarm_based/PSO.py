@@ -806,3 +806,152 @@ class CL_PSO(Optimizer):
                     if self.flags[idx] >= self.max_flag:
                         self.flags[idx] = 0
             self.pop = pop_child
+
+
+class QDPSO(Optimizer):
+    """
+    The original version of: Quantum Delta-Potential-Well-Based Particle Swarm Optimization (QDPSO)
+
+    Parameters
+    ----------
+    epoch : int
+        Maximum number of iterations, in range [1, 100000]. Default is 1000.
+    pop_size : int
+        Number of particles in the swarm, in range [2, 10000]. Default is 20.
+    g : float
+        Control parameter used to determine the characteristic length of the Delta potential well.
+        It must satisfy `g > ln(sqrt(2))` according to Eq. (38). The experiments in the
+        original paper use `g = 0.96`. Default is 0.96.
+
+    Note
+    ----
+    QDPSO does not use a velocity vector. Each particle is represented
+    only by its current position and personal-best position.
+
+    The local attractor `p` is calculated independently for every
+    dimension from the personal best and global best according to Eq. (3).
+
+    The paper does not specify a boundary-handling mechanism after a
+    particle is sampled from the Delta potential well. Mealpy's standard
+    solution correction is therefore applied before fitness evaluation.
+
+    The defaults `epoch=1000` and `pop_size=20` correspond to one of the
+    experimental configurations in the paper; the paper also evaluates
+    population sizes 40 and 80 and uses larger iteration budgets for
+    higher-dimensional problems.
+
+    References
+    ----------
+    1. Sun, J., Feng, B., & Xu, W. (2004).
+       Particle swarm optimization with particles having quantum behavior.
+       Proceedings of the 2004 Congress on Evolutionary Computation, pp. 325-331.
+       10.1109/CEC.2004.1330875
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from mealpy import FloatVar, PSO
+    >>>
+    >>> def objective_function(solution):
+    >>>     return np.sum(solution**2)
+    >>>
+    >>> problem_dict = {
+    >>>     "bounds": FloatVar(lb=(-100.,) * 30, ub=(100.,) * 30, name="delta"),
+    >>>     "minmax": "min",
+    >>>     "obj_func": objective_function,
+    >>> }
+    >>> model = PSO.QDPSO(epoch=1000, pop_size=20, g=0.96)
+    >>> g_best = model.solve(problem_dict)
+    >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
+    """
+
+    OPT_INFO = OptInfo(name="Quantum Delta-Potential-Well-Based Particle Swarm Optimization",
+                       year=2004, difficulty="easy", kind="variant")
+
+    def __init__(self, epoch: int = 1000, pop_size: int = 20, g: float = 0.96, **kwargs: object) -> None:
+        """
+        Args:
+            epoch (int): Maximum number of iterations, default = 1000.
+            pop_size (int): Number of particles in the swarm, default = 20.
+            g (float): Delta-potential-well control parameter, default = 0.96.
+        """
+        super().__init__(**kwargs)
+        self.epoch = self.validator.check_int("epoch", epoch, [1, 100000])
+        self.pop_size = self.validator.check_int("pop_size", pop_size, [2, 10000])
+        self.g = self.validator.check_float("g", g, (np.log(np.sqrt(2.0)), 100.0))
+        self.set_parameters(["epoch", "pop_size", "g"])
+        self.sort_flag = False
+
+    def generate_empty_agent(self, solution: np.ndarray = None) -> Agent:
+        """
+        Generate an empty QDPSO particle.
+
+        Each particle stores only its current position and personal best.
+        """
+        if solution is None:
+            solution = self.problem.generate_solution(encoded=True)
+        return Agent(solution=solution, local_solution=solution.copy(), local_target=None)
+
+    def before_main_loop(self):
+        """
+        Initialize each particle's personal-best position.
+        """
+        for agent in self.pop:
+            agent.local_solution = agent.solution.copy()
+            agent.local_target = agent.target.copy()
+
+    def evolve(self, epoch):
+        """
+        The main operations of the Quantum Delta-Potential-Well-Based PSO.
+
+        Args:
+            epoch (int): The current iteration.
+        """
+        # Update personal bests using the current particle positions.
+        for idx in range(self.pop_size):
+            if self.compare_target(self.pop[idx].target, self.pop[idx].local_target, self.problem.minmax):
+                self.pop[idx].local_solution = (self.pop[idx].solution.copy())
+                self.pop[idx].local_target = (self.pop[idx].target.copy())
+
+        # The global best is the best personal-best position.
+        best_idx = 0
+        for idx in range(1, self.pop_size):
+            if self.compare_target(self.pop[idx].local_target, self.pop[best_idx].local_target, self.problem.minmax):
+                best_idx = idx
+        global_best = self.pop[best_idx].local_solution.copy()
+
+        pop_new = []
+        for idx in range(self.pop_size):
+            current = self.pop[idx].solution
+            personal_best = self.pop[idx].local_solution
+
+            # Random coefficients in Eq. (3), generated independently for each dimension.
+            phi1 = self.generator.random(self.problem.n_dims)
+            phi2 = self.generator.random(self.problem.n_dims)
+
+            # Eq. (3): local attractor.
+            attractor = (phi1 * personal_best + phi2 * global_best) / (phi1 + phi2)
+            # Eq. (37): characteristic length of the Delta potential well.
+            length = (np.abs(current - attractor) / self.g)
+            # Eq. (25)
+            u = self.generator.random(self.problem.n_dims)
+            # Avoid log(1 / 0) caused only by finite-precision RNG.
+            u = np.maximum(u, np.finfo(float).tiny)
+            displacement = (length * np.log(1.0 / u))
+
+            # The paper selects the positive or negative side with equal probability.
+            condition = (self.generator.random(self.problem.n_dims) > 0.5)
+            pos_new = np.where(condition, attractor - displacement, attractor + displacement)
+            pos_new = self.correct_solution(pos_new)
+            agent = self.generate_empty_agent(pos_new)
+
+            # Preserve the personal-best state of the parent particle.
+            agent.local_solution = (self.pop[idx].local_solution.copy())
+            agent.local_target = (self.pop[idx].local_target.copy())
+            pop_new.append(agent)
+
+            if self.mode not in self.AVAILABLE_MODES:
+                agent.target = self.get_target(pos_new)
+        if self.mode in self.AVAILABLE_MODES:
+            pop_new = self.update_target_for_population(pop_new)
+        self.pop = pop_new
