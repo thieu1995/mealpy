@@ -121,8 +121,8 @@ class BaseGA(Optimizer):
 
     def selection_process__(self, list_fitness):
         """
-        Notes
-        ~~~~~
+        Note
+        ----
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_parent_selection.htm
         + Default selection strategy is Tournament with k% = 0.2.
         + Other strategy like "roulette" and "random" can be selected via Optional parameter "selection"
@@ -146,8 +146,8 @@ class BaseGA(Optimizer):
 
     def selection_process_00__(self, pop_selected):
         """
-        Notes
-        ~~~~~
+        Note
+        ----
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_parent_selection.htm
         + Default selection strategy is Tournament with k% = 0.2.
         + Other strategy like "roulette" and "random" can be selected via Optional parameter "selection"
@@ -172,8 +172,8 @@ class BaseGA(Optimizer):
 
     def selection_process_01__(self, pop_dad, pop_mom):
         """
-        Notes
-        ~~~~~
+        Note
+        ----
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_parent_selection.htm
         + Default selection strategy is Tournament with k% = 0.2.
         + Other strategy like "roulette" and "random" can be selected via Optional parameter "selection"
@@ -196,8 +196,8 @@ class BaseGA(Optimizer):
 
     def crossover_process__(self, dad, mom):
         """
-        Notes
-        ~~~~~
+        Note
+        ----
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_crossover.htm
         + Default crossover strategy is "uniform"
         + Other strategy like "arithmetic", "one_point", "multi_points" can be selected via parameter: crossover
@@ -228,8 +228,8 @@ class BaseGA(Optimizer):
 
     def mutation_process__(self, child):
         """
-        Notes
-        ~~~~~
+        Note
+        ----
         + https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
         + There are 2 strategies that effects by the mutation probability: Mutated on single point or the whole vector.
             + Multiple points (whole vector) has 2 strategies selected via parameter: mutation

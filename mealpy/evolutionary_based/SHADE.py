@@ -29,8 +29,8 @@ class OriginalSHADE(Optimizer):
         Number of entries in the historical parameter memories for F and CR, in range [2, 10000].
         If None, the memory size is set equal to `pop_size`. Default is None.
 
-    Notes
-    -----
+    Note
+    ----
     This implementation was corrected in version 3.1.0 to align with the original SHADE formulation.
     Its behavior may differ from earlier Mealpy versions. Use `DevSHADE` to reproduce the legacy Mealpy implementation.
 

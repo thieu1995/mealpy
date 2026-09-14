@@ -141,7 +141,7 @@ class OriginalSFO(Optimizer):
                 if self.compare_target(self.s_pop[jdx].target, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx] = self.s_pop[jdx].copy()
                     del self.s_pop[jdx]
-                break  #### This simple keyword helped reducing ton of comparing operation.
+                break  #### This simple keyword helped to reduce ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
         temp = self.s_size - len(self.s_pop)
         if temp == 1:
@@ -155,13 +155,32 @@ class ImprovedSFO(Optimizer):
     """
     Our improved version: Improved Sailfish Optimizer (I-SFO)
 
-    Notes:
-        + Energy equation is reformed
-        + AP (A) and epsilon parameters are removed
-        + Opposition-based learning technique is used
+    An enhanced variant of the Sailfish Optimizer (SFO) designed to balance
+    exploration and exploitation while accelerating convergence speed.
 
-    Hyper-parameters should fine-tune in approximate range to get faster convergence toward the global optimum:
-        + pp (float): the rate between SailFish and Sardines (N_sf = N_s * pp) = 0.25, 0.2, 0.1
+    Parameters
+    ----------
+    epoch : int, default=10000
+        Maximum number of iterations. Must be in range [1, 100000].
+    pop_size : int, default=100
+        Number of Sailfish in the population. Must be in range [5, 10000].
+    pp : float, default=0.1
+        The ratio between Sailfish and Sardines population size ($N_{sf} = N_s \times pp$).
+        Recommended range for fine-tuning: [0.1, 0.25]. Must be in range (0.0, 1.0).
+
+    Attributes
+    ----------
+    s_size : int
+        Number of Sardines in the population, calculated as ``int(pop_size / pp)``.
+    sort_flag : bool
+        Flag controlling whether the population is sorted during optimization (default True).
+
+    Note
+    ----
+    Key modifications in I-SFO compared to standard SFO:
+        1. Reformed energy equation for better search dynamics.
+        2. Removal of the Attack Power (AP/A) and epsilon parameters.
+        3. Integration of Opposition-Based Learning (OBL) technique.
 
     Examples
     ~~~~~~~~
@@ -262,7 +281,7 @@ class ImprovedSFO(Optimizer):
                 if self.compare_target(self.s_pop[jdx].target, self.pop[idx].target, self.problem.minmax):
                     self.pop[idx] = self.s_pop[jdx].copy()
                     del self.s_pop[jdx]
-                break  #### This simple keyword helped reducing ton of comparing operation.
+                break  #### This simple keyword helped to reduce ton of comparing operation.
                 #### Especially when sardine pop size >> sailfish pop size
         self.s_pop = self.s_pop + self.generate_population(self.s_size - len(self.s_pop))
         self.s_gbest, _ = self.get_best_agent(self.s_pop, self.problem.minmax)
