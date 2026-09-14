@@ -26,7 +26,7 @@ class DevBRO(Optimizer):
 
     Note
     ----
-    The flow of algorithm is changed. Thrid loop is removed
+    The flow of algorithm is changed. The third loop is removed
 
     References
     ~~~~~~~~~~
