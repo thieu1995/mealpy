@@ -17,7 +17,7 @@ build:
   jobs:
     pre_build:
       - >-
-        python scripts/generate_algorithm_table.py --strict
+        python scripts/generate_optimizer_table.py --strict
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
