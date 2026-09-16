@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.opt_info import OptInfo
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalFNO(Optimizer):
@@ -95,7 +95,11 @@ class OriginalFNO(Optimizer):
     """
 
     OPT_INFO = OptInfo(name="Farthest Better or Nearest Worse Optimizer",
-                       year=2026, difficulty="medium", kind="original")
+                       year=2026, difficulty="medium", kind="original", scientific_status="questionable",
+                       concerns=(ScientificConcern.INCORRECT_EQUATIONS, ScientificConcern.POOR_REPRODUCIBILITY,
+                                 ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.AMBIGUOUS_METHODOLOGY,
+                                 ScientificConcern.INSUFFICIENT_VALIDATION, ScientificConcern.QUESTIONABLE_MATH)
+                       )
 
     def __init__(self, epoch: int = 10000, pop_size: int = 50, **kwargs: object) -> None:
         """
