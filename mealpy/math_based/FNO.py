@@ -29,7 +29,9 @@ class OriginalFNO(Optimizer):
     Unlike other algorithms, this one does not rely on any natural principles; it appears as though
     the authors simply contrived the equations solely to make the algorithm work. Furthermore, there are
     numerous questionable inconsistencies between the paper and their published code. The paper and
-    the code differ significantly, with the specific discrepancies listed below.
+    the code differ significantly, with the specific discrepancies listed below. Users should carefully
+    consider this when validating the algorithm. Many new algorithms claim to be superior to other
+    state-of-the-art methods, but it is evident that their implementations are often incorrect.
 
     Note
     ----
