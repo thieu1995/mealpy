@@ -47,6 +47,7 @@ from .swarm_based import (ABC, ACOR, AGTO, ALO, AO, ARO, AVOA, BA, BeesA, BES, B
                           CrayfishOA, CCO, AHO, ChameleonSA, WSO, FHO, ORCA, DSO, HO, CompSO, AHA, CO, MO, GSO)
 from .system_based import AEO, GCO, WCA
 from .music_based import HS
+from .chemistry_based import CLCO
 from .game_based import THRO
 from .sota_based import LSHADEcnEpSin, IMODE
 from .utils.problem import Problem
