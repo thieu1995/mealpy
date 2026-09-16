@@ -6,7 +6,7 @@
 
 import numpy as np
 from mealpy.optimizer import Optimizer
-from mealpy.utils.opt_info import OptInfo
+from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
 class OriginalCLCO(Optimizer):
@@ -95,7 +95,11 @@ class OriginalCLCO(Optimizer):
     """
 
     OPT_INFO = OptInfo(name="Coordination Core-Ligand Collaborative Optimizer",
-                       year=2026, difficulty="hard", kind="original")
+                       year=2026, difficulty="hard", kind="original", scientific_status="questionable",
+                       concerns=(ScientificConcern.INCORRECT_EQUATIONS, ScientificConcern.POOR_REPRODUCIBILITY,
+                                 ScientificConcern.CODE_PSEUDOCODE_MISMATCH, ScientificConcern.AMBIGUOUS_METHODOLOGY,
+                                 ScientificConcern.INSUFFICIENT_VALIDATION, ScientificConcern.QUESTIONABLE_MATH)
+                       )
 
     def __init__(self, epoch: int = 500, pop_size: int = 30, alpha0: float = 1.8, beta0: float = 0.3,
             gamma0: float = 0.6, delta0: float = 0.2, **kwargs: object, ) -> None:
