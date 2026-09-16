@@ -35,6 +35,42 @@ class OriginalSOO(Optimizer):
     3. Therefore, I do not recommend users to use this algorithm, as it lacks integrity between
        the results in the paper and the actual experimental implementation.
 
+    Note
+    ----
+    This implementation primarily follows the equations and Algorithm 1 in
+    the paper. Several differences exist between the paper and the released source:
+
+    - Eq. (8) defines `x_new = r3 * (x_osc1 + x_osc2) / 2`, whereas the
+      Python source computes `r3 * (x_osc1 + x_osc2 / 2)`. This
+      implementation follows the published equation.
+    - Algorithm 1 describes a single oscillator population updated through
+      Eqs. (6)-(11). The source instead maintains two separate arrays,
+      `updated_star_positions` and `star_positions`, whose search processes
+      evolve largely independently. This implementation follows the
+      single-population description in the paper.
+    - Algorithm 1 evaluates the position obtained from Eq. (8) immediately.
+      The source evaluates the previous `updated_star_positions` first and
+      applies Eqs. (6)-(8) afterwards, so those positions are not evaluated
+      until the following iteration. This implementation follows Algorithm 1.
+    - Eq. (12) only specifies updating the global best and does not define
+      greedy parent-child selection after Eq. (11). The released source does
+      use greedy selection for this second movement; that rule is retained
+      here because otherwise the paper does not specify a survivor rule.
+    - The paper defines P0 and Delta_P symbolically but does not clearly give
+      universal default values for the main algorithm. The released source
+      uses P0 = 3.0 and Delta_P = 0.001; these are used as defaults here.
+    - The paper only states that x_r1, x_r2, and x_r3 are randomly selected
+      oscillators. The source selects three distinct oscillators excluding
+      the current one; this implementation follows that clarification.
+    - Boundary handling is not mathematically defined in the paper. The
+      released source uses clipping; Mealpy's standard solution correction
+      is used here.
+
+    SOO performs two position-generation stages per iteration. Therefore,
+    this implementation requires approximately `2 * pop_size` new objective
+    evaluations per iteration, in addition to the initial population.
+
+
     Links
     -----
     1. https://mathworks.com/matlabcentral/fileexchange/161921-stellar-oscillation-optimizer-meta-heuristic-optimimization
