@@ -9,9 +9,9 @@ from mealpy.optimizer import Optimizer
 from mealpy.utils.opt_info import OptInfo, ScientificConcern
 
 
-class OriginalSFOA(Optimizer):
+class OriginalStarfishOA(Optimizer):
     """
-    The original version: Starfish Optimization Algorithm (SFOA)
+    The original version: Starfish Optimization Algorithm (StarfishOA)
 
     Parameters
     ----------
@@ -25,28 +25,25 @@ class OriginalSFOA(Optimizer):
     Links
     -----
     1. https://doi.org/10.1007/s00521-024-10694-1
-    2. https://www.mathworks.com/matlabcentral/fileexchange/173735-starfish-optimization-algorithm-sfoa
+    2. https://www.mathworks.com/matlabcentral/fileexchange/173735-starfish-optimization-algorithm-StarfishOA
 
-    Note
-    ----
-    1. This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
-       However, it does not present any remarkable equations.
-    2. Moreover, the provided MATLAB code does not include the standard CEC benchmark functions, but only
-       simplified versions of them.
-    3. Users should carefully consider this when validating the algorithm. Many new algorithms
-       claim to be superior to other state-of-the-art methods, but it is evident that
-       their implementations are often incorrect.
+    Warnings
+    --------
+    This algorithm claims to outperform 95 compared algorithms in accuracy and 97 algorithms in efficiency.
+       However, it does not present any remarkable equations. Moreover, the provided MATLAB code does not
+       include the standard CEC benchmark functions, but only simplified versions of them. Users should
+       carefully consider this when validating the algorithm.
 
     References
     ~~~~~~~~~~
     1. Zhong, C., Li, G., Meng, Z., Li, H., Yildiz, A. R., & Mirjalili, S. (2025).
-       Starfish optimization algorithm (SFOA): a bio-inspired metaheuristic algorithm for global
+       Starfish optimization algorithm (StarfishOA): a bio-inspired metaheuristic algorithm for global
        optimization compared with 100 optimizers. Neural Computing and Applications, 37(5), 3641-3683.
 
     Examples
     ~~~~~~~~
     >>> import numpy as np
-    >>> from mealpy import FloatVar, SFOA
+    >>> from mealpy import FloatVar, StarfishOA
     >>>
     >>> def objective_function(solution):
     >>>     return np.sum(solution**2)
@@ -57,19 +54,13 @@ class OriginalSFOA(Optimizer):
     >>>     "obj_func": objective_function
     >>> }
     >>>
-    >>> model = SFOA.OriginalSFOA(epoch=1000, pop_size=50, gp = 0.5)
+    >>> model = StarfishOA.OriginalStarfishOA(epoch=1000, pop_size=50, gp = 0.5)
     >>> g_best = model.solve(problem_dict)
     >>> print(f"Solution: {g_best.solution}, Fitness: {g_best.target.fitness}")
     >>> print(f"Solution: {model.g_best.solution}, Fitness: {model.g_best.target.fitness}")
     """
 
-    OPT_INFO = OptInfo(name="Starfish Optimization Algorithm", year=2025, difficulty="medium", kind="original",
-                       scientific_status="questionable",
-                       concerns=(
-                           ScientificConcern.LACK_OF_NOVELTY,
-                           ScientificConcern.QUESTIONABLE_MATH,
-                           ScientificConcern.FABRICATED_RESULTS
-                       ))
+    OPT_INFO = OptInfo(name="Starfish Optimization Algorithm", year=2025, difficulty="medium", kind="original")
 
     def __init__(self, epoch: int = 10000, pop_size: int = 100, gp: float = 0.5, **kwargs: object) -> None:
         """

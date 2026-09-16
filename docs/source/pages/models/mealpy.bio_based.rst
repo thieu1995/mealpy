@@ -89,10 +89,10 @@ mealpy.bio\_based.SBOA module
    :show-inheritance:
    :undoc-members:
 
-mealpy.bio\_based.SFOA module
+mealpy.bio\_based.StarfishOA module
 -----------------------------
 
-.. automodule:: mealpy.bio_based.SFOA
+.. automodule:: mealpy.bio_based.StarfishOA
    :members:
    :show-inheritance:
    :undoc-members:
