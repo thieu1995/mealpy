@@ -8,6 +8,9 @@ import numpy as np
 from mealpy import (FloatVar, BWOA, APO, GRSA, KLA, MGOA, AAA, NWOA, OSA, DandelionO, RFO, CrayfishOA, SPBO,
                     CCO, AHO, MSA, TSeedA, SBOA, ChameleonSA, WSO, FFA, ACOR, MShOA, FHO, ORCA, EOA,
                     BCO, TLO, SMO, PO, ILA, DSO, BBO)
+from mealpy.evolutionary_based.SHADE import OriginalSHADE, DevSHADE, OriginalL_SHADE, DevL_SHADE, L_SHADE
+from mealpy import HO, CompSO, CEO, PSO, AHA, CO, GMO, FDA, MO, GSO
+from mealpy import CLCO, FNO, StarfishOA, SFOA, SRA, SOO, CHOA
 
 
 def objective_function(solution):
@@ -59,6 +62,32 @@ model = SMO.DevSMO(epoch=1000, pop_size=50, max_groups = 5, perturbation_rate = 
 model = PO.OriginalPO(epoch=100, pop_size=10, lamda_max=1.0)
 model = ILA.OriginalILA(epoch=100, pop_size=50, n_models=5, p_s1=0.33, p_s2=0.33, b_min=0.4, b_max=0.6)
 model = BBO.OriginalBBO(epoch=1000, pop_size=50, p_m=0.01, n_elites=2)
+
+model = OriginalSHADE(epoch=1000, pop_size=50)
+model = DevSHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5)
+model = DevL_SHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5)
+model = OriginalL_SHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5, memory_size=20, p=0.2, arc_rate=1.5)
+model = L_SHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5)
+model = OriginalSHADE(epoch=1000, pop_size=50, miu_f = 0.5, miu_cr = 0.5, memory_size = None)
+model = HO.OriginalHO(epoch=1000, pop_size=50)
+model = CompSO.OriginalCompSO(epoch=1000, pop_size=50, phi=0.)
+model = CEO.OriginalCEO(epoch=1000, pop_size=50, w1=0.1, p_base=0.2, alpha=0.7)
+model = PSO.QDPSO(epoch=1000, pop_size=20, g=0.96)
+model = AHA.OriginalAHA(epoch=1000, pop_size=50)
+model = CO.OriginalCO(epoch=10000, pop_size=6, m=2)
+model = GMO.OriginalGMO(epoch=1000, pop_size=50)
+model = FDA.OriginalFDA(epoch=1000, pop_size=30, beta=8)
+model = MO.OriginalMO(epoch=1000, pop_size=50)
+model = GSO.OriginalGSO(epoch=100, pop_size=10, rp=0.5)
+
+model = CLCO.OriginalCLCO(epoch=500, pop_size=30, alpha0=1.5, beta0=0.5, gamma0=0.6, delta0=0.2)
+model = FNO.OriginalFNO(epoch=1000, pop_size=50)
+model = StarfishOA.OriginalStarfishOA(epoch=1000, pop_size=50, gp = 0.5)
+model = SFOA.OriginalSFOA(epoch=1000, pop_size=30, c=0.8, levy_beta=1.2)
+model = SRA.OriginalSRA(epoch=1000, pop_size=30)
+model = SOO.OriginalSOO(epoch=1000, pop_size=50)
+model = CHOA.OriginalCHOA(epoch=1000, pop_size=50, n_clusters=10, p_comb=0.5, p_comp=0.5)
+
 
 g_best = model.solve(problem, seed=10)
 print(f"Best fitness: {g_best.target.fitness}")

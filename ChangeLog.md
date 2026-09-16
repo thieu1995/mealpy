@@ -20,7 +20,7 @@ Different versions of mealpy in terms of passing hyperparameters. So please care
 + Add `DevWOA` for developed version of Whale
 + Add `Stellar Oscillation Optimizer (SOO)` to `physics-based` group
 + Add `Enzyme Action Optimizer (EAO)` to `bio-based` group.
-+ Add `Starfish Optimization Algorithm (SFOA)` to `bio-based` group.
++ Add `Starfish Optimization Algorithm (StarfishOA)` to `bio-based` group.
 + Add `Dream Optimization Algorithm (DOA)` to `human-based` group.
 + Add `Mirage Search Optimization (MSO)` to `physics-based` group.
 + Add `Tianji's Horse Racing Optimization (THRO)` to the new `game-based` group.
@@ -71,6 +71,31 @@ Different versions of mealpy in terms of passing hyperparameters. So please care
 + Add `Political Optimizer (PO)` to the `human-based` group
 + Add `Incomprehensible but Intelligible-in-time Logics Algorithm (ILA)` to the `human-based` group
 + Fix bug `#281` in `OriginalGWO` and add `DevGWO`.
++ Fix bug `#280` in `WSO`.
++ Fix bug `#279` in `HBA`.
++ Fix bug `#278` in `FLA`.
++ Fix bug `#282` in `DE`.
++ `OriginalSHADE` has been corrected to follow the original SHADE formulation.
+  Its behavior may differ from previous Mealpy versions. The previous Mealpy implementation is preserved as `DevSHADE`.
+  + `OriginalL_SHADE` now implements the original L-SHADE algorithm. The previous Mealpy implementation is preserved as `DevL_SHADE`.
+  `L_SHADE` remains temporarily available as a deprecated alias.
++ Add `Hippopotamus Optimization (HO)` algorithm in the `swarm-based` group
++ Add `Competitive Swarm Optimizer (CompSO)` algorithm in the `swarm-based` group
++ Add `Quantum Delta-Potential-Well-Based Particle Swarm Optimization (QDPSO)` to the `swarm-based` group.
++ Add `Artificial Hummingbird Algorithm (AHA)` to the `swarm-based` group.
++ Add `Cheetah Optimizer (CO)` to the `swarm-based` group.
++ Add `Geometric Mean Optimizer (GMO)` to the `math-based` group.
++ Add `Flow Direction Algorithm (FDA)` to the `physics-based` group.
++ Add `Musk Ox Optimizer (MO)` to the `swarm-based` group.
++ Add `Glider Snake Optimizer (GSO)` to the `swarm-based` group.
++ Add `Coordination Core-Ligand Collaborative Optimizer (CLCO)` to the new `chemistry-based` group.
++ Add `Farthest Better or Nearest Worse Optimizer (FNO)` to the `math-based` group.
++ Add `Superb Fairy-wren Optimization Algorithm (SFOA)` to the `swarm-based` group.
++ Add `Schrodinger Optimizer (SRA)` to the `physics-based` group.
++ Add `Cultural History Optimization Algorithm (CHOA)` to the `human-based` group.
++ Update docs, examples, and tests.
+
+
 
 ---
 
