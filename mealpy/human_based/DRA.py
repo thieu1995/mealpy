@@ -32,13 +32,13 @@ class OriginalDRA(Optimizer):
         Reward or Penalty Probability (RP), in [0, 1].
         The paper uses RP = 0.2. Default is 0.2.
 
-    Link
-    ----
+    Links
+    -----
     1. Paper: https://doi.org/10.1007/s10586-024-04954-x
     2. Matlab code: https://nl.mathworks.com/matlabcentral/fileexchange/180492-divine-religions-algorithm-dra
 
-    Notes
-    -----
+    Note
+    ----
     This implementation follows the mathematical formulation, descriptive
     text, flowchart, and Algorithm 1 in the paper. The released MATLAB code
     differs substantially from the published formulation:
