@@ -130,13 +130,10 @@ class OriginalDRA(Optimizer):
 
     References
     ----------
-    1. Mozhdehi, A. T., Khodadadi, N., Aboutalebi, M., El-kenawy, E. M.,
-       Hussien, A. G., Zhao, W., Nadimi-Shahraki, M. H., & Mirjalili, S.
-       (2025).
-       Divine Religions Algorithm: a novel social-inspired metaheuristic
-       algorithm for engineering and continuous optimization problems.
-       Cluster Computing, 28, 253.
-       https://doi.org/10.1007/s10586-024-04954-x
+    1. Mozhdehi, A.T., Khodadadi, N., Aboutalebi, M., El-Kenawy, E.S.M., Hussien, A.G., Zhao, W.,
+       Nadimi-Shahraki, M.H. and Mirjalili, S., 2025.
+       Divine Religions Algorithm: a novel social-inspired metaheuristic algorithm for engineering
+       and continuous optimization problems. Cluster Computing, 28(4), p.253.
 
     Examples
     --------
