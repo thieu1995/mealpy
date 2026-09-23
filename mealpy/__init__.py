@@ -32,7 +32,7 @@ __version__ = "3.1.0"
 import sys
 import inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, StarfishOA, APO,
-                        AAA, TSeedA, SBOA)
+                        AAA, TSeedA, SBOA, AOO)
 from .evolutionary_based import (BWOA, CRO, DE, EP, ES, FPA, GA, MA, SHADE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
                           AFT, CDDO, DOA, MGOA, PO, ILA, CHOA, DRA)
