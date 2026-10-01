@@ -139,7 +139,7 @@ class OriginalDOA(Optimizer):
                 pos_new = self.g_best.solution.copy()
                 for jdx in in_indices:
                     cos_term = (np.cos(epoch * np.pi / self.epoch) + 1) / 2
-                    pos_new[jdx] = pos_new[jdx] + (self.generator.random() * (self.problem.ub[idx] - self.problem.lb[idx]) + self.problem.lb[idx]) * cos_term
+                    pos_new[jdx] = pos_new[jdx] + (self.generator.random() * (self.problem.ub[jdx] - self.problem.lb[jdx]) + self.problem.lb[jdx]) * cos_term
                     # Boundary handling
                     if pos_new[jdx] > self.problem.ub[jdx] or pos_new[jdx] < self.problem.lb[jdx]:
                         if self.problem.n_dims > 15:
