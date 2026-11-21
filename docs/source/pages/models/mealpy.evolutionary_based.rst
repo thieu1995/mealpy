@@ -65,6 +65,14 @@ mealpy.evolutionary\_based.MA module
    :show-inheritance:
    :undoc-members:
 
+mealpy.evolutionary\_based.MDE module
+-------------------------------------
+
+.. automodule:: mealpy.evolutionary_based.MDE
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 mealpy.evolutionary\_based.SHADE module
 ---------------------------------------
 
