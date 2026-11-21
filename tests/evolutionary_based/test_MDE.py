@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Created by "A. E. Karkinli" on 21/11/2026
+# Created by "Ahmet Emin Karkinli" on 21/11/2026
 # Github: https://github.com/Aekarkinli
 # ------------------------------------------%
 
