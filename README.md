@@ -219,7 +219,7 @@ from mealpy import HCO, ICA, LCO, WarSO, TOA, TLO, SSDO, SPBO, SARO, QSA, ArchOA
 from mealpy import HGSO, MVO, NRO, RIME, SA, WDO, TWO, ABC, ACOR, AGTO, BeesA, BES, BFO, ZOA, WOA, WaOA, TSO
 from mealpy import PFA, OOA, NGO, NMRA, MSA, MRFO, MPA, MGO, MFO, JA, HHO, HGS, HBA, GWO, GTO, GOA
 from mealpy import SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA
-from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO
+from mealpy import SHIO, TS, HS, AEO, GCO, WCA, CRO, DE, EP, ES, FPA, MA, SHADE, BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, MDE
 from mealpy import TDO, STO, SSpiderO, SSpiderA, SSO, SSA, SRSR, SLO, SHO, SFO, ServalOA, SeaHO, SCSO, POA
 
 ## Newly added module in version 3.0.3
@@ -304,6 +304,7 @@ if __name__ == "__main__":
     model = DE.JADE(epoch=100, pop_size=50, miu_f=0.5, miu_cr=0.5, pt=0.1, ap=0.1)
     model = DE.SADE(epoch=100, pop_size=50)
     model = DE.SAP_DE(epoch=100, pop_size=50, branch="ABS")
+    model = MDE.OriginalMDE(epoch=100, pop_size=90)
     model = EP.OriginalEP(epoch=100, pop_size=50, bout_size=0.05)
     model = EP.LevyEP(epoch=100, pop_size=50, bout_size=0.05)
     model = ES.OriginalES(epoch=100, pop_size=50, lamda=0.75)
@@ -979,6 +980,9 @@ All visualization examples: [Link](https://mealpy.readthedocs.io/en/latest/pages
 
 * **MA - Memetic Algorithm**
   * **OriginalMA**: Moscato, P. (1989). On evolution, search, optimization, genetic algorithms and martial arts: Towards memetic algorithms. Caltech concurrent computation program, C3P Report, 826, 1989.
+
+* **MDE - Multi-population based Differential Evolution**
+  * **OriginalMDE**: Karkinli, A. E. (2023). Detection of object boundary from point cloud by using multi-population based differential evolution algorithm. Neural Computing and Applications, 35, 5193-5206. https://doi.org/10.1007/s00521-022-07969-w
 
 * **MFO - Moth Flame Optimization** 
   * **OriginalMFO**: Mirjalili, S. (2015). Moth-flame optimization algorithm: A novel nature-inspired heuristic paradigm. Knowledge-based systems, 89, 228-249.

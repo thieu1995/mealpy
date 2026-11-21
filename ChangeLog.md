@@ -93,6 +93,7 @@ Different versions of mealpy in terms of passing hyperparameters. So please care
 + Add `Superb Fairy-wren Optimization Algorithm (SFOA)` to the `swarm-based` group.
 + Add `Schrodinger Optimizer (SRA)` to the `physics-based` group.
 + Add `Cultural History Optimization Algorithm (CHOA)` to the `human-based` group.
++ Add `Multi-population based Differential Evolution (MDE)` to the `evolutionary-based` group.
 + Update docs, examples, and tests.
 
 

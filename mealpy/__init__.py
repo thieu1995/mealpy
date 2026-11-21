@@ -33,7 +33,7 @@ import sys
 import inspect
 from .bio_based import (BBO, BBOA, BMO, EOA, IWO, SBO, SMA, SOA, SOS, TPO, TSA, VCS, WHO, BCO, EAO, StarfishOA, APO,
                         AAA, TSeedA, SBOA, AOO)
-from .evolutionary_based import (BWOA, CRO, DE, EP, ES, FPA, GA, MA, SHADE)
+from .evolutionary_based import (BWOA, CRO, DE, EP, ES, FPA, GA, MA, SHADE, MDE)
 from .human_based import (BRO, BSO, CA, CHIO, FBIO, GSKA, HBO, HCO, ICA, LCO, QSA, SARO, SPBO, SSDO, TLO, TOA, WarSO,
                           AFT, CDDO, DOA, MGOA, PO, ILA, CHOA, DRA)
 from .math_based import (AOA, CEM, CGO, CircleSA, GBO, HC, INFO, PSS, RUN, SCA, SHIO, TS, GMO, FNO, QIO)
