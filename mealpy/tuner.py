@@ -128,10 +128,10 @@ class ParameterGrid:
 
             # Reverse so most frequent cycling parameter comes first
             # keys, values_lists = zip(*sorted(sub_grid.items())[::-1])
-            ## My version: Don't sort the values and don't reverse here. Keep it as it is
-            keys, values_lists = zip(*sub_grid.items())
+            ## My version: Don't sort the values. Keep the order of the keys as it is
+            keys, values_lists = zip(*list(sub_grid.items())[::-1])
             sizes = [len(v_list) for v_list in values_lists]
-            total = np.product(sizes)
+            total = np.prod(sizes)
 
             if ind >= total:
                 # Try the next grid
@@ -141,7 +141,7 @@ class ParameterGrid:
                 for key, v_list, n in zip(keys, values_lists, sizes):
                     ind, offset = divmod(ind, n)
                     out[key] = v_list[offset]
-                return out
+                return {key: out[key] for key in sub_grid}
 
         raise IndexError("ParameterGrid index out of range")
 

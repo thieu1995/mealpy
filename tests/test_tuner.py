@@ -5,6 +5,7 @@
 # --------------------------------------------------%
 
 from mealpy import FloatVar, WOA, Tuner
+from mealpy.tuner import ParameterGrid
 import numpy as np
 import pytest
 
@@ -63,3 +64,16 @@ def test_para_grids(problem, para_grids, request):
         assert isinstance(best.solution, np.ndarray)
     except TypeError:
         assert True
+
+@pytest.mark.parametrize("param_grid", [
+    {"epoch": [10, 20], "pop_size": [50, 100, 150]},
+    {"epoch": [10], "pop_size": np.array([50, 100]), "a": ["x", "y", "z"]},
+    [{"epoch": [10, 20], "pop_size": [50, 100]}, {}, {"a": [1, 2, 3], "b": [True, False]}],
+])
+def test_parameter_grid_getitem_matches_iteration(param_grid):
+    grid = ParameterGrid(param_grid)
+    params = [grid[idx] for idx in range(len(grid))]
+    assert params == list(grid)
+    assert [list(p) for p in params] == [list(p) for p in grid]
+    with pytest.raises(IndexError):
+        grid[len(grid)]
